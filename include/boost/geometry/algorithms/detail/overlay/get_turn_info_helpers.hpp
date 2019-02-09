@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,9 +14,16 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 
-#include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/geometries/segment.hpp> // referring_segment
+#include <boost/geometry/policies/relate/direction.hpp>
+#include <boost/geometry/policies/relate/intersection_points.hpp>
+#include <boost/geometry/policies/relate/tupled.hpp>
+#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/strategies/intersection_result.hpp>
 
 namespace boost { namespace geometry {
 
@@ -65,6 +72,12 @@ struct side_calculator
 
     inline int pk_wrt_q2() const { return m_side_strategy.apply(get_qj(), get_qk(), get_pk()); }
     inline int qk_wrt_p2() const { return m_side_strategy.apply(get_pj(), get_pk(), get_qk()); }
+
+    // Necessary when rescaling turns off:
+    inline int qj_wrt_p1() const { return m_side_strategy.apply(get_pi(), get_pj(), get_qj()); }
+    inline int qj_wrt_p2() const { return m_side_strategy.apply(get_pj(), get_pk(), get_qj()); }
+    inline int pj_wrt_q1() const { return m_side_strategy.apply(get_qi(), get_qj(), get_pj()); }
+    inline int pj_wrt_q2() const { return m_side_strategy.apply(get_qj(), get_qk(), get_pj()); }
 
     inline point1_type const& get_pi() const { return m_range_p.at(0); }
     inline point1_type const& get_pj() const { return m_range_p.at(1); }

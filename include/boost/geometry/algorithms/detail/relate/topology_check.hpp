@@ -13,6 +13,7 @@
 
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 

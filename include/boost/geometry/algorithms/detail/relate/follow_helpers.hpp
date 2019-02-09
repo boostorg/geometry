@@ -5,22 +5,30 @@
 // This file was modified by Oracle on 2013, 2014, 2018.
 // Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
+#include <vector>
+
 #include <boost/core/ignore_unused.hpp>
+
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
-//#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 namespace boost { namespace geometry
 {

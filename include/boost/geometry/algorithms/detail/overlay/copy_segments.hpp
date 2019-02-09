@@ -23,22 +23,26 @@
 #include <boost/range.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
+#include <boost/geometry/algorithms/detail/overlay/append_no_dups_or_spikes.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/iterators/ever_circling_iterator.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
-#include <boost/geometry/algorithms/detail/overlay/append_no_dups_or_spikes.hpp>
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
 #include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 
 
 namespace boost { namespace geometry

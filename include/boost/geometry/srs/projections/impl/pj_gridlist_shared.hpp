@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2019.
+// Modifications copyright (c) 2018-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -43,6 +43,7 @@
 
 #include <boost/geometry/srs/projections/shared_grids.hpp>
 #include <boost/geometry/srs/projections/impl/pj_gridinfo.hpp>
+#include <boost/geometry/srs/projections/impl/pj_gridlist.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -63,7 +64,7 @@ namespace detail
 template <typename StreamPolicy>
 inline bool pj_gridlist_merge_gridfile(std::string const& gridname,
                                        StreamPolicy const& stream_policy,
-                                       srs::shared_grids & grids,
+                                       shared_grids & grids,
                                        std::vector<std::size_t> & gridindexes)
 {
     // Try to find in the existing list of loaded grids.  Add all

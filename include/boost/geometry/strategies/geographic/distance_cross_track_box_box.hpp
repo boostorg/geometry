@@ -25,6 +25,8 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
+#include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
 
@@ -171,13 +173,11 @@ struct comparable_type<geographic_cross_track_box_box<Strategy, Spheroid, Calcul
 template <typename Strategy, typename Spheroid, typename CalculationType>
 struct get_comparable<geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> >
 {
-    typedef geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> this_strategy;
-    typedef typename comparable_type<this_strategy>::type comparable_type;
-
 public:
-    static inline comparable_type apply(this_strategy const& /*strategy*/)
+    static inline geographic_cross_track_box_box<Strategy, Spheroid, CalculationType>
+    apply(geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> const& str)
     {
-        return comparable_type();
+        return str;
     }
 };
 

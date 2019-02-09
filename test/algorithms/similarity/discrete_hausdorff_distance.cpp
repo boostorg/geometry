@@ -2,7 +2,12 @@
 
 // Copyright (c) 2018 Yaghyavardhan Singh Khangarot, Hyderabad, India.
 
-// Contributed and/or modified by Yaghyavardhan Singh Khangarot, as part of Google Summer of Code 2018 program.
+// Contributed and/or modified by Yaghyavardhan Singh Khangarot,
+//   as part of Google Summer of Code 2018 program.
+
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,6 +18,8 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/geometries/multi_point.hpp>
 
 #include "test_hausdorff_distance.hpp"
 

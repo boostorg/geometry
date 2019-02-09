@@ -63,6 +63,11 @@ void test_all()
     sym_settings.sym_difference = false;
 #endif
 
+    ut_settings ignore_validity_settings;
+#ifndef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+    ignore_validity_settings.test_validity = false;
+#endif
+
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
@@ -156,12 +161,14 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
         intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
         2, 16, 15.75,
-        3, 17, 6.75);
+        3, 17, 6.75,
+        ignore_validity_settings);
 
     test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
         intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
         3, 21, 16.25,
-        3, 17, 6.25);
+        3, 17, 6.25,
+        ignore_validity_settings);
 
     {
         ut_settings settings = sym_settings;
@@ -186,7 +193,8 @@ void test_all()
     test_one<polygon, polygon, polygon>("intersect_holes_intersect",
         intersect_holes_intersect[0], intersect_holes_intersect[1],
         2, 16, 15.75,
-        2, 12, 5.75);
+        2, 12, 5.75,
+        ignore_validity_settings);
 
     test_one<polygon, polygon, polygon>(
             "case4", case_4[0], case_4[1],
@@ -296,15 +304,17 @@ void test_all()
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
+
+        // SQL Server gives:    0.279121891701124 and 224.889211358929
+        // PostGIS gives:       0.279121991127244 and 224.889205853156
+        // No robustness gives: 0.279121991127106 and 224.825363749290
+
         test_one<polygon, polygon, polygon>("isovist",
             isovist1[0], isovist1[1],
             -1, -1, 0.279132,
             -1, -1, 224.8892,
             settings);
     }
-    // SQL Server gives:    0.279121891701124 and 224.889211358929
-    // PostGIS gives:       0.279121991127244 and 224.889205853156
-    // No robustness gives: 0.279121991127106 and 224.825363749290
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",

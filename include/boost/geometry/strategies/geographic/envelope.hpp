@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2018.
-// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2018, 2019.
+// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -96,7 +96,12 @@ namespace services
 template <typename Tag, typename CalculationType>
 struct default_strategy<Tag, geographic_tag, CalculationType>
 {
-    typedef strategy::envelope::geographic<CalculationType> type;
+    typedef strategy::envelope::geographic
+        <
+            strategy::andoyer,
+            geometry::srs::spheroid<double>,
+            CalculationType
+        > type;
 };
 
 }

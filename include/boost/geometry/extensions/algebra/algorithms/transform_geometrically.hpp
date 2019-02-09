@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,10 +13,13 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
 
+#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/extensions/algebra/algorithms/detail.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_matrix_concept.hpp>
-#include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 namespace boost { namespace geometry {
 

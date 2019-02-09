@@ -2,7 +2,12 @@
 
 // Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
 
-// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
+// Contributed and/or modified by Adeel Ahmad,
+//   as part of Google Summer of Code 2018 program.
+
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -30,12 +35,13 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/series_expansion.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
+
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
+#include <boost/geometry/util/series_expansion.hpp>
 
 
 namespace boost { namespace geometry { namespace formula
