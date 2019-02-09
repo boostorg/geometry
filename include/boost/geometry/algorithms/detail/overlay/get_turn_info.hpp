@@ -180,9 +180,10 @@ struct touch_interior : public base_turn_handler
         static unsigned int const index_p = Index;
         static unsigned int const index_q = 1 - Index;
 
-        bool const has_k = ! range_q.is_last_segment();
+        bool const has_pk = ! range_p.is_last_segment();
+        bool const has_qk = ! range_q.is_last_segment();
         int const side_qi_p = dir_info.sides.template get<index_q, 0>();
-        int const side_qk_p = has_k ? side.qk_wrt_p1() : 0;
+        int const side_qk_p = has_qk ? side.qk_wrt_p1() : 0;
 
         if (side_qi_p == -side_qk_p)
         {
@@ -195,10 +196,10 @@ struct touch_interior : public base_turn_handler
             return;
         }
 
-        int const side_qk_q = has_k ? side.qk_wrt_q1() : 0;
+        int const side_qk_q = has_qk ? side.qk_wrt_q1() : 0;
 
         // Only necessary if rescaling is turned off:
-        int const side_pj_q2 = side.pj_wrt_q2();
+        int const side_pj_q2 = has_qk ? side.pj_wrt_q2() : 0;
 
         if (side_qi_p == -1 && side_qk_p == -1 && side_qk_q == 1)
         {
@@ -209,7 +210,7 @@ struct touch_interior : public base_turn_handler
         }
         else if (side_qi_p == 1 && side_qk_p == 1 && side_qk_q == -1)
         {
-            if (side_pj_q2 == -1)
+            if (has_qk && side_pj_q2 == -1)
             {
                 // Q turns right on the left side of P (test "ML3")
                 // Union: take both operations
@@ -233,14 +234,14 @@ struct touch_interior : public base_turn_handler
             // Union: take left turn (Q if Q turns left, P if Q turns right)
             // Intersection: other turn
             unsigned int index = side_qk_q == 1 ? index_q : index_p;
-            if (side_pj_q2 == 0)
+            if (has_qk && side_pj_q2 == 0)
             {
                 // Even though sides xk w.r.t. 1 are distinct, pj is collinear
                 // with q. Therefore swap the path
                 index = 1 - index;
             }
 
-            if (opposite(side_pj_q2, side_qi_p))
+            if (has_pk && has_qk && opposite(side_pj_q2, side_qi_p))
             {
                 // Without rescaling, floating point requires extra measures
                 int const side_qj_p1 = side.qj_wrt_p1();
