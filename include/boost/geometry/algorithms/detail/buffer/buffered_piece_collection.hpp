@@ -167,6 +167,12 @@ struct buffered_piece_collection
             robust_point_type
         >::type robust_area_result_type;
 
+    typedef typename strategy::point_in_geometry::services::default_strategy
+        <
+            robust_point_type,
+            robust_ring_type
+        >::type point_in_geometry_strategy_type;
+
     typedef typename geometry::rescale_policy_type
         <
             typename geometry::point_type<Ring>::type
@@ -955,8 +961,9 @@ struct buffered_piece_collection
             turn_in_piece_visitor
                 <
                     typename geometry::cs_tag<point_type>::type,
-                    turn_vector_type, piece_vector_type
-                > visitor(m_turns, m_pieces);
+                    turn_vector_type, piece_vector_type,
+                    point_in_geometry_strategy_type
+                > visitor(m_turns, m_pieces, point_in_geometry_strategy_type());
 
             typedef turn_ovelaps_box
                 <
@@ -1464,7 +1471,7 @@ struct buffered_piece_collection
 
             int const geometry_code
                 = detail::within::point_in_geometry(any_point,
-                    original.m_ring);
+                    original.m_ring, point_in_geometry_strategy_type());
 
             if (geometry_code == -1)
             {

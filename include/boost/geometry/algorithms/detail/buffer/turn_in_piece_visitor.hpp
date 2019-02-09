@@ -741,20 +741,21 @@ private :
 
 public :
 
-    template <typename Turn, typename Piece>
-    static inline int apply(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename Strategy>
+    static inline int apply(Turn const& turn, Piece const& piece,
+            Strategy const& strategy)
     {
-        // We don't know (yet)
         if (piece.is_convex)
         {
             return in_convex_piece(turn, piece);
         }
         else
         {
-
-            // TODO: this point_in_geometry is a performance-bottleneck here and
-            // will be replaced completely by extending analyse_piece functionality
-            return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+            // side-of-intersection only supported for convex pieces
+            // Call point_in_geometry, a performance-bottleneck
+            // TODO: might be replaced by extending analysing piece
+            return detail::within::point_in_geometry(turn.robust_point,
+                piece.robust_ring, strategy);
         }
     }
 };
@@ -764,19 +765,27 @@ struct turn_in_piece<false>
 {
 public :
 
-    template <typename Turn, typename Piece>
-    static inline int apply(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename Strategy>
+    static inline int apply(Turn const& turn, Piece const& piece,
+            Strategy const& strategy)
     {
-        return detail::within::point_in_geometry(turn.robust_point, piece.robust_ring);
+        return detail::within::point_in_geometry(turn.robust_point,
+            piece.robust_ring, strategy);
     }
 };
 
-
-template <typename CsTag, typename Turns, typename Pieces>
+template
+<
+    typename CsTag,
+    typename Turns,
+    typename Pieces,
+    typename PointInGeometryStrategy
+>
 class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
+    PointInGeometryStrategy const& m_point_in_geometry_strategy;
 
     template <typename Operation, typename Piece>
     inline bool skip(Operation const& op, Piece const& piece) const
@@ -808,9 +817,11 @@ class turn_in_piece_visitor
 
 public:
 
-    inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces)
+    inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces,
+                                 PointInGeometryStrategy const& strategy)
         : m_turns(turns)
         , m_pieces(pieces)
+        , m_point_in_geometry_strategy(strategy)
     {}
 
     template <typename Turn, typename Piece>
@@ -897,7 +908,8 @@ public:
                 break;
         }
 
-        int const geometry_code = turn_in_piece<use_soi>::apply(turn, piece);
+        int const geometry_code = turn_in_piece<use_soi>::apply(turn, piece,
+                m_point_in_geometry_strategy);
 
         if (geometry_code == 1)
         {
