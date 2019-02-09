@@ -161,7 +161,7 @@ struct touch_interior : public base_turn_handler
         typename DirInfo,
         typename SidePolicy
     >
-    static inline void apply(UniqueSubRange1 const& /*range_p*/,
+    static inline void apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
