@@ -98,6 +98,7 @@ struct range
 
         if (it == end) // empty(range)
         {
+            BOOST_THROW_EXCEPTION(empty_input_exception());
             return;
         }
         if (max_distance <= 0) //non positive distance
@@ -160,13 +161,16 @@ struct range
     }
 */
         iterator_t prev = it++;
+        //iterator_t prev;// = it++;
         Distance repeated_distance = max_distance;
         Distance prev_distance = 0;
         Distance current_distance = 0;
         point_t start_p = *prev;
         bool single_point = false;
 
-        do {
+        for ( ; it != end && !single_point; ++it)
+        {
+        //do {
             result_type res = strategy.compute(*prev, *it);
             //seg_distance += res.distance;
 
@@ -191,10 +195,11 @@ struct range
             }
 
             prev_distance = current_distance;
-            prev = it++;
+            prev = it;
             start_p = *prev;
 
-        } while (it != end && !single_point);
+        }
+        //} while (it != end && !single_point);
 
         // case when max_distance is larger than linestring's length
         // return the last point in range (range is not empty)

@@ -117,7 +117,39 @@ inline void test_distance(std::string const& wkt1,
 
 std::string const s = "SEGMENT(1 1, 2 2)";
 std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+std::string const l0 = "LINESTRING()";
+std::string const l1 = "LINESTRING(1 1)";
 std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
+
+void test_car_edge_cases()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> P;
+    typedef bg::model::multi_point<P> MP;
+    typedef bg::model::linestring<P> LS;
+
+    //negative input distance
+    test_distance<LS,P>(l, -1, "POINT(1 1)");
+    test_distance<LS,MP>(l, -1, "MULTIPOINT((1 1))");
+
+    //input distance longer than total length
+    test_distance<LS,P>(l, 5, "POINT(1 3)");
+    test_distance<LS,MP>(l, 5, "MULTIPOINT((1 3))");
+
+    //linestring with only one point
+    test_distance<LS,P>(l1, 1, "POINT(1 1)");
+    test_distance<LS,MP>(l1, 1, "MULTIPOINT((1 1))");
+
+    //empty linestring
+    try
+    {
+        test_distance<LS,P>(l0, 1, "POINT(1 1)");
+    }
+    catch(bg::empty_input_exception const& )
+    {
+        return;
+    }
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown" );
+}
 
 void test_car()
 {
@@ -141,14 +173,6 @@ void test_car()
     test<LS,P>(l, 0.8, "POINT(1 2.2)");
     test<LS,P>(l, 0.9, "POINT(1 2.6)");
     test<LS,P>(l, 1,   "POINT(1 3)");
-
-    //negative input distance
-    test_distance<LS,P>(l, -1, "POINT(1 1)");
-    test_distance<LS,MP>(l, -1, "MULTIPOINT((1 1))");
-
-    //input distance longer than total length
-    test_distance<LS,P>(l, 5, "POINT(1 3)");
-    test_distance<LS,MP>(l, 5, "MULTIPOINT((1 3))");
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
     //(1 3) missing due to floating point round off errors
@@ -271,6 +295,7 @@ void test_geo(Strategy str)
 int test_main(int, char* [])
 {
     test_car();
+    test_car_edge_cases();
     test_sph();
     //test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
