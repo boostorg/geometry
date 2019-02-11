@@ -83,15 +83,7 @@ struct range
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
- //       typedef typename select_most_precise
- //           <
- //               typename default_length_result<Range>::type,
- //               double
- //           >::type calc_t;
-
         typedef typename Strategy::template result_type<point_t> result_type;
-//        typedef boost::container::vector<result_type> vector_t;
-//        typedef typename boost::range_iterator<vector_t const>::type viterator_t;
 
         iterator_t it = boost::begin(range);
         iterator_t end = boost::end(range);
@@ -107,61 +99,7 @@ struct range
             return;
         }
 
-
-/*        if (fraction == 1)
-        {
-            policy.apply(*(end-1), pointlike);
-            return;
-        }
-*/
-        // compute lengths of segments and their sum
-/*        calc_t tot_len = 0;
-        vector_t lengths;
         iterator_t prev = it++;
-        do {
-            result_type result = strategy.compute(*prev, *it);
-            lengths.push_back(result);
-            tot_len += result.distance;
-            prev = it++;
-        } while (it != end);
-
-        //compute interpolation point(s)
-        calc_t repeated_fraction = fraction;
-        calc_t prev_fraction = 0;
-        calc_t cur_fraction = 0;
-        unsigned int i = 1;
-        viterator_t vit = boost::begin(lengths);
-        it = boost::begin(range);
-        prev = it++;
-        bool single_point = false;
-
-        do {
-            calc_t seg_fraction = vit->distance / tot_len;
-
-            cur_fraction = (it + 1 == end) ? 1 : prev_fraction + seg_fraction;
-
-            while (cur_fraction >= repeated_fraction && !single_point)
-            {
-                point_t p;
-
-                strategy.apply(*prev, *it,
-                               (repeated_fraction - prev_fraction) / seg_fraction,
-                               p, *vit);
-                single_point = boost::is_same<Policy, convert_and_assign>::value;
-                policy.apply(p, pointlike);
-
-                repeated_fraction = ++i * fraction;
-            }
-
-            prev_fraction = cur_fraction;
-            prev = it++;
-            vit++;
-
-        } while (it != end && !single_point);
-    }
-*/
-        iterator_t prev = it++;
-        //iterator_t prev;// = it++;
         Distance repeated_distance = max_distance;
         Distance prev_distance = 0;
         Distance current_distance = 0;
@@ -170,18 +108,13 @@ struct range
 
         for ( ; it != end && !single_point; ++it)
         {
-        //do {
             result_type res = strategy.compute(*prev, *it);
-            //seg_distance += res.distance;
-
-//            current_distance = (it + 1 == end) ? 1 : prev_distance + res.distance;
             current_distance = prev_distance + res.distance;
 
             while (current_distance >= repeated_distance && !single_point)
             {
                 point_t p;
                 strategy.apply(start_p, *it,
-                               //repeated_distance - prev_distance,
                                (repeated_distance - prev_distance)
                                /(current_distance - prev_distance),
                                p,
@@ -199,7 +132,6 @@ struct range
             start_p = *prev;
 
         }
-        //} while (it != end && !single_point);
 
         // case when max_distance is larger than linestring's length
         // return the last point in range (range is not empty)
