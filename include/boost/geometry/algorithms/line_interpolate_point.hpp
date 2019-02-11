@@ -83,15 +83,15 @@ struct range
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
-        typedef typename select_most_precise
-            <
-                typename default_length_result<Range>::type,
-                double
-            >::type calc_t;
+ //       typedef typename select_most_precise
+ //           <
+ //               typename default_length_result<Range>::type,
+ //               double
+ //           >::type calc_t;
 
         typedef typename Strategy::template result_type<point_t> result_type;
-        typedef boost::container::vector<result_type> vector_t;
-        typedef typename boost::range_iterator<vector_t const>::type viterator_t;
+//        typedef boost::container::vector<result_type> vector_t;
+//        typedef typename boost::range_iterator<vector_t const>::type viterator_t;
 
         iterator_t it = boost::begin(range);
         iterator_t end = boost::end(range);
@@ -100,7 +100,7 @@ struct range
         {
             return;
         }
-        if (max_distance <= 0)
+        if (max_distance <= 0) //non positive distance
         {
             policy.apply(*it, pointlike);
             return;
@@ -163,7 +163,7 @@ struct range
         Distance repeated_distance = max_distance;
         Distance prev_distance = 0;
         Distance current_distance = 0;
-        auto start_p = *prev;
+        point_t start_p = *prev;
         bool single_point = false;
 
         do {
@@ -195,6 +195,13 @@ struct range
             start_p = *prev;
 
         } while (it != end && !single_point);
+
+        // case when max_distance is larger than linestring's length
+        // return the last point in range (range is not empty)
+        if (repeated_distance == max_distance)
+        {
+            policy.apply(*(end-1), pointlike);
+        }
     }
 };
 

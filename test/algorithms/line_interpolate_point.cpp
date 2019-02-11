@@ -144,6 +144,11 @@ void test_car()
 
     //negative input distance
     test_distance<LS,P>(l, -1, "POINT(1 1)");
+    test_distance<LS,MP>(l, -1, "MULTIPOINT((1 1))");
+
+    //input distance longer than total length
+    test_distance<LS,P>(l, 5, "POINT(1 3)");
+    test_distance<LS,MP>(l, 5, "MULTIPOINT((1 3))");
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
     //(1 3) missing due to floating point round off errors
