@@ -99,15 +99,32 @@ inline void test(std::string const& wkt1,
     check_points<P>::apply(p1, o);
 }
 
+template <typename G, typename P>
+inline void test_distance(std::string const& wkt1,
+                          double distance,
+                          std::string const& wkt2)
+{
+    G g;
+    bg::read_wkt(wkt1, g);
+
+    P o;
+    bg::read_wkt(wkt2, o);
+
+    P p1;
+    bg::line_interpolate_point(g, distance, p1);
+    check_points<P>::apply(p1, o);
+}
+
+std::string const s = "SEGMENT(1 1, 2 2)";
+std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
+std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
+
 void test_car()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::multi_point<P> MP;
     typedef bg::model::segment<P> S;
     typedef bg::model::linestring<P> LS;
-
-    std::string const s = "SEGMENT(1 1, 2 2)";
-    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
 
     test<S,P>(s, 0,   "POINT(1 1)");
     test<S,P>(s, 0.5, "POINT(1.5 1.5)");
@@ -126,8 +143,12 @@ void test_car()
     test<LS,P>(l, 1,   "POINT(1 3)");
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
+    //(1 3) missing due to floating point round off errors
     test<LS,MP>(l, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-                                    (1.2 2)(1 2.2)(1 2.6))");//(1 3) missing
+                                    (1.2 2)(1 2.2)(1 2.6))");
+    //(1 3) is not missing if you directly pass the distance
+    test_distance<LS,MP>(l, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
+                                             (1.2 2)(1 2.2)(1 2.6)(1 3))");
     test<LS,MP>(l, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
     test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
     test<LS,MP>(l, 0.5, "MULTIPOINT((2 2)(1 3))");
@@ -141,10 +162,6 @@ void test_sph()
     typedef bg::model::multi_point<P> MP;
     typedef bg::model::segment<P> S;
     typedef bg::model::linestring<P> LS;
-
-    std::string const s = "SEGMENT(1 1, 2 2)";
-    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
-    std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
 
     test<S,P>(s, 0,   "POINT(1 1)");
     test<S,P>(s, 0.5, "POINT(1.4998857365615981 1.5000570914791198)");
@@ -196,10 +213,6 @@ void test_geo(Strategy str)
     typedef bg::model::multi_point<P> MP;
     typedef bg::model::segment<P> S;
     typedef bg::model::linestring<P> LS;
-
-    std::string const s = "SEGMENT(1 1, 2 2)";
-    std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
-    std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
 
     test<S,P>(s, 0,   "POINT(1 1)", str);
     test<S,P>(s, 0.5, "POINT(1.4998780900539985 1.5000558288006378)", str);
