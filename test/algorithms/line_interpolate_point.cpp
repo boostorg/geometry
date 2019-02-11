@@ -142,6 +142,9 @@ void test_car()
     test<LS,P>(l, 0.9, "POINT(1 2.6)");
     test<LS,P>(l, 1,   "POINT(1 3)");
 
+    //negative input distance
+    test_distance<LS,P>(l, -1, "POINT(1 1)");
+
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
     //(1 3) missing due to floating point round off errors
     test<LS,MP>(l, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
@@ -269,7 +272,6 @@ int test_main(int, char* [])
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
 
     //TODO:add distance longer than length
-    //& negative distance
     return 0;
 }
 
