@@ -104,14 +104,13 @@ struct range
         Distance prev_distance = 0;
         Distance current_distance = 0;
         point_t start_p = *prev;
-        bool single_point = false;
 
-        for ( ; it != end && !single_point; ++it)
+        for ( ; it != end ; ++it)
         {
             result_type res = strategy.compute(*prev, *it);
             current_distance = prev_distance + res.distance;
 
-            while (current_distance >= repeated_distance && !single_point)
+            while (current_distance >= repeated_distance )
             {
                 point_t p;
                 strategy.apply(start_p, *it,
@@ -120,17 +119,18 @@ struct range
                                p,
                                current_distance - prev_distance,
                                res);
-                single_point = boost::is_same<Policy, convert_and_assign>::value;
                 policy.apply(p, pointlike);
+                if (boost::is_same<PointLike, point_t>::value)
+                {
+                    return;
+                }
                 start_p = p;
                 prev_distance = repeated_distance;
                 repeated_distance += max_distance;
             }
-
             prev_distance = current_distance;
             prev = it;
             start_p = *prev;
-
         }
 
         // case when max_distance is larger than linestring's length
