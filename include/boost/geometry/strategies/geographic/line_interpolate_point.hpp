@@ -17,7 +17,7 @@
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -61,20 +61,20 @@ public:
     template <typename Point>
     struct result_type
     {
-        typedef typename select_most_precise
+        typedef typename select_calculation_type_alt
             <
-                typename coordinate_type<Point>::type,
-                CalculationType
+                CalculationType,
+                Point
             >::type calc_t;
 
-        result_type() :
-            distance(0),
-            azimuth(0)
+        result_type()
+            : distance(0)
+            , azimuth(0)
         {}
 
-        result_type(calc_t d, calc_t a) :
-            distance(d),
-            azimuth(a)
+        result_type(calc_t d, calc_t a)
+            : distance(d)
+            , azimuth(a)
         {}
 
         calc_t distance;
@@ -120,28 +120,6 @@ public:
         set_from_radian<1>(p, dir_r.lat2);
     }
 
-/*
-    template <typename Point, typename Distance>
-    inline void apply(Point const& p0,
-                      Point const&,
-                      Distance const& distance,
-                      Point & p,
-                      result_type<Point> const& dist_az) const
-    {
-        typedef typename result_type<Point>::calc_t calc_t;
-
-        typedef typename FormulaPolicy::template direct
-                <calc_t, true, false, false, false> direct_t;
-
-        typename direct_t::result_type
-        dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                distance, dist_az.azimuth,
-                                m_spheroid);
-
-        set_from_radian<0>(p, dir_r.lon2);
-        set_from_radian<1>(p, dir_r.lat2);
-    }
-*/
 private:
     Spheroid m_spheroid;
 };

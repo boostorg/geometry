@@ -15,7 +15,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -50,18 +50,18 @@ public:
     template <typename Point>
     struct result_type
     {
-        typedef typename select_most_precise
+        typedef typename select_calculation_type_alt
             <
-                typename coordinate_type<Point>::type,
-                CalculationType
+                CalculationType,
+                Point
             >::type calc_t;
 
-        result_type() :
-            distance(0)
+        result_type()
+            : distance(0)
         {}
 
-        result_type(calc_t d) :
-            distance(d)
+        result_type(calc_t d)
+            : distance(d)
         {}
 
         calc_t distance;
@@ -82,11 +82,7 @@ public:
                       T2 const&,
                       T3 const&) const
     {
-        typedef typename select_most_precise
-            <
-                typename coordinate_type<Point>::type,
-                CalculationType
-            >::type calc_t;
+        typedef typename result_type<Point>::calc_t calc_t;
 
         typedef model::point
             <

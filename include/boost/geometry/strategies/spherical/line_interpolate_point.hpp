@@ -17,7 +17,7 @@
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/line_interpolate_point.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -52,11 +52,11 @@ public:
     template <typename Point>
     struct result_type
     {
-        typedef typename select_most_precise
-            <
-                typename coordinate_type<Point>::type,
-                CalculationType
-            >::type calc_t;
+        typedef typename select_calculation_type_alt
+        <
+            CalculationType,
+            Point
+        >::type calc_t;
 
         result_type(calc_t d) :
             distance(d)
@@ -68,9 +68,9 @@ public:
     template <typename Point>
     inline result_type<Point> compute(Point const& p0,
                                       Point const& p1) const
-    {        
+    {
         return result_type<Point>(DistanceStrategy().apply(p0,p1));
-    }   
+    }
 
     template <typename Point, typename T1, typename Distance>
     inline void apply(Point const& p0,
@@ -80,11 +80,7 @@ public:
                       Distance const& distance,
                       result_type<Point> const&) const
     {
-        typedef typename select_most_precise
-            <
-                typename coordinate_type<Point>::type,
-                CalculationType
-            >::type calc_t;
+        typedef typename result_type<Point>::calc_t calc_t;
 
         calc_t const c0 = 0;
         calc_t const c1 = 1;
