@@ -98,10 +98,10 @@ public:
         return result_type<Point>(inv_r.distance, inv_r.azimuth);
     }
 
-    template <typename Point, typename T1, typename Distance>
+    template <typename Point, typename Fraction, typename Distance>
     inline void apply(Point const& p0,
                       Point const&,
-                      T1 const& fraction, //fraction of segment
+                      Fraction const& fraction, //fraction of segment
                       Point & p,
                       Distance const& distance,
                       result_type<Point> const& res) const

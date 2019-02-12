@@ -72,10 +72,10 @@ public:
         return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }
 
-    template <typename Point, typename T1, typename Distance>
+    template <typename Point, typename Fraction, typename Distance>
     inline void apply(Point const& p0,
                       Point const& p1,
-                      T1 const& fraction,
+                      Fraction const& fraction,
                       Point & p,
                       Distance const& distance,
                       result_type<Point> const&) const

@@ -74,13 +74,13 @@ public:
         return result_type<Point>(DistanceStrategy().apply(p0,p1));
     }
 
-    template <typename Point, typename T1, typename T2, typename T3>
+    template <typename Point, typename Fraction, typename Distance>
     inline void apply(Point const& p0,
                       Point const& p1,
-                      T1 const& fraction,
+                      Fraction const& fraction,
                       Point & p,
-                      T2 const&,
-                      T3 const&) const
+                      Distance const&,
+                      result_type<Point> const&) const
     {
         typedef typename result_type<Point>::calc_t calc_t;
 
@@ -96,10 +96,22 @@ public:
         geometry::detail::conversion::convert_point_to_point(p1, cp1);
 
         //segment convex combination: p0*fraction + p1*(1-fraction)
-        T1 const one_minus_fraction = 1-fraction;
-        for_each_coordinate(cp1, detail::value_operation<T1, std::multiplies>(fraction));
-        for_each_coordinate(cp0, detail::value_operation<T1, std::multiplies>(one_minus_fraction));
-        for_each_coordinate(cp1, detail::point_operation<calc_point_t, std::plus>(cp0));
+        Fraction const one_minus_fraction = 1-fraction;
+        for_each_coordinate(cp1, detail::value_operation
+                                 <
+                                    Fraction,
+                                    std::multiplies
+                                 >(fraction));
+        for_each_coordinate(cp0, detail::value_operation
+                                 <
+                                    Fraction,
+                                    std::multiplies
+                                 >(one_minus_fraction));
+        for_each_coordinate(cp1, detail::point_operation
+                                 <
+                                    calc_point_t,
+                                    std::plus
+                                 >(cp0));
 
         assert_dimension_equal<calc_point_t, Point>();
         geometry::detail::conversion::convert_point_to_point(cp1, p);
