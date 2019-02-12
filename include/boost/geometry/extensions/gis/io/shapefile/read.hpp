@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_GIS_IO_SHAPEFILE_READ_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_SHAPEFILE_READ_HPP
 
+
 #include <algorithm>
 #include <vector>
 
@@ -16,6 +17,8 @@
 #include <boost/endian/conversion.hpp>
 #include <boost/throw_exception.hpp>
 
+#include <boost/geometry/algorithms/detail/calculate_point_order.hpp>
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
@@ -27,8 +30,15 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/range.hpp>
 
+// TEMP - only here for convenience, for now
+#include <boost/geometry/strategies/cartesian/io.hpp>
+#include <boost/geometry/strategies/geographic/io.hpp>
+#include <boost/geometry/strategies/spherical/io.hpp>
+
+
 namespace boost { namespace geometry
 {
+
 
 class read_shapefile_exception : public geometry::exception
 {
@@ -145,14 +155,6 @@ struct shape_type
     };
 };
 
-template <typename Range>
-inline typename boost::range_reference<Range>::type
-push_back(Range & rng, typename boost::range_value<Range>::type const& v)
-{
-    range::push_back(rng, v);
-    return range::back(rng);
-}
-
 template <typename IStream, typename Range>
 inline void read_and_push_back_point(IStream & is, Range & rng)
 {
@@ -197,8 +199,8 @@ inline void read_parts(IStream & is,
 
 struct read_point_policy
 {
-    template <typename IStream, typename Points>
-    static inline void apply(IStream & is, Points & points)
+    template <typename IStream, typename Points, typename Strategy>
+    static inline void apply(IStream & is, Points & points, Strategy const&)
     {
         boost::int32_t type;
         read_little(is, type);
@@ -218,8 +220,8 @@ struct read_point_policy
 
 struct read_multipoint_policy
 {
-    template <typename IStream, typename Points>
-    static inline void apply(IStream & is, Points & points)
+    template <typename IStream, typename Points, typename Strategy>
+    static inline void apply(IStream & is, Points & points, Strategy const&)
     {
         typedef typename boost::range_value<Points>::type pt_type;
 
@@ -256,8 +258,8 @@ struct read_multipoint_policy
 
 struct read_polyline_policy
 {
-    template <typename IStream, typename Linestrings>
-    static inline void apply(IStream &is, Linestrings & linestrings)
+    template <typename IStream, typename Linestrings, typename Strategy>
+    static inline void apply(IStream &is, Linestrings & linestrings, Strategy const&)
     {
         typedef typename boost::range_value<Linestrings>::type ls_type;
         typedef typename boost::range_value<ls_type>::type pt_type;
@@ -300,7 +302,8 @@ struct read_polyline_policy
                 BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
             }
 
-            ls_type & ls = push_back(linestrings, ls_type());
+            range::push_back(linestrings, ls_type());
+            ls_type & ls = range::back(linestrings);
 
             std::size_t ls_size = l - f;
         
@@ -321,8 +324,8 @@ struct read_polyline_policy
 
 struct read_polygon_policy
 {
-    template <typename IStream, typename Polygons>
-    static inline void apply(IStream &is, Polygons & polygons)
+    template <typename IStream, typename Polygons, typename Strategy>
+    static inline void apply(IStream &is, Polygons & polygons, Strategy const& strategy)
     {
         typedef typename boost::range_value<Polygons>::type poly_type;
         typedef typename geometry::point_type<poly_type>::type pt_type;
@@ -330,6 +333,11 @@ struct read_polygon_policy
 
         static const bool is_ccw = geometry::point_order<poly_type>::value == geometry::counterclockwise;
         static const bool is_open = geometry::closure<poly_type>::value == geometry::open;
+
+        typename Strategy::point_order_strategy_type
+            order_strategy = strategy.get_point_order_strategy();
+        typename Strategy::template point_in_geometry_strategy<ring_type, ring_type>::type
+            within_strategy = strategy.template get_point_in_geometry_strategy<ring_type, ring_type>();
 
         boost::int32_t type;
         //double min_x, min_y, max_x, max_y;
@@ -359,7 +367,8 @@ struct read_polygon_policy
 
         read_parts(is, parts, num_parts);
 
-        poly_type & poly = push_back(polygons, poly_type());
+        std::vector<ring_type> outer_rings;
+        std::vector<ring_type> inner_rings;
 
         for (boost::int32_t i = 0; i < num_parts; ++i)
         {
@@ -371,9 +380,7 @@ struct read_polygon_policy
                 BOOST_THROW_EXCEPTION(read_shapefile_exception("Invalid part number"));
             }
 
-            ring_type & ring = (i == 0)
-                             ? geometry::exterior_ring(poly)
-                             : push_back(geometry::interior_rings(poly), ring_type());
+            ring_type ring;
 
             std::size_t ring_size = l - f - (is_open ? 1 : 0);
         
@@ -398,26 +405,119 @@ struct read_polygon_policy
                     e = boost::end(ring);
                 std::reverse(++b, is_open ? e : (--e));
             }
+
+            // TODO: support rval references in range::push_back()
+            //       and/or implement range::emplace_back()
+            //       implement and call move_or_copy(ring)
+
+            // assume outer ring
+            if (num_parts == 1)
+                range::push_back(outer_rings, ring); // order could be checked here too
+            // check order
+            else if ( is_outer_ring(ring, order_strategy) )
+                range::push_back(outer_rings, ring);
+            else
+                range::push_back(inner_rings, ring);
         }
 
+        if (inner_rings.empty()) // no inner rings
+        {
+            for (size_t i = 0; i < outer_rings.size(); ++i)
+            {
+                poly_type poly;
+                geometry::exterior_ring(poly) = outer_rings[i]; // TODO: move
+                range::push_back(polygons, poly); // TODO: move
+            }
+        }
+        else if (! outer_rings.empty()) // outer and inner rings
+        {
+            std::vector<bool> assigned(inner_rings.size(), false);
+            std::size_t assigned_count = 0;
+            for (size_t i = 0; i < outer_rings.size(); ++i)
+            {
+                poly_type poly;
+                geometry::exterior_ring(poly) = outer_rings[i]; // TODO: move
+                for (size_t j = 0; j < inner_rings.size(); ++j)
+                {
+                    if (! assigned[j])
+                    {
+                        if (is_inner_ring(inner_rings[j],
+                                          geometry::exterior_ring(poly),
+                                          within_strategy))
+                        {
+                            range::push_back(geometry::interior_rings(poly), inner_rings[j]); // TODO: move
+                            ++assigned_count;
+                            assigned[j] = true;
+                        }
+                        // just in case, ignore empty
+                        else if (boost::empty(inner_rings[j]))
+                        {
+                            ++assigned_count;
+                            assigned[j] = true;
+                        }
+                    }
+                }
+                range::push_back(polygons, poly); // TODO: move
+            }
+
+            // check if all interior rings were assigned
+            if (assigned_count != inner_rings.size())
+            {
+                BOOST_THROW_EXCEPTION(read_shapefile_exception("Not all interior rings were assigned to polygons."));
+            }
+        }
+        else // inner rings but no outer rings
+        {
+            // unexpected, file corrupted, bug or numerical error
+            BOOST_THROW_EXCEPTION(read_shapefile_exception("Exterior ring expected"));
+        }
+        
         if (!is.good())
         {
             BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
         }
     }
+
+    template <typename Ring, typename Strategy>
+    static inline bool is_outer_ring(Ring const& ring, Strategy const& order_strategy)
+    {
+        geometry::order_selector result = detail::calculate_point_order(ring, order_strategy);
+        return result == geometry::point_order<Ring>::value
+            || result == geometry::order_undetermined;
+    }
+
+    template <typename InnerRing, typename OuterRing, typename Strategy>
+    static inline bool is_inner_ring(InnerRing const& inner_ring,
+                                     OuterRing const& outer_ring,
+                                     Strategy const& within_strategy)
+    {
+        // NOTE: The worst case complexity is O(N^2) and best O(N)
+        //       R-tree or partition could be used (~O(NlogN))
+        //       but in most cases this version should be faster.
+        typedef typename boost::range_iterator<InnerRing const>::type iter_type;
+        for (iter_type it = boost::begin(inner_ring); it != boost::end(inner_ring); ++it)
+        {
+            if (detail::within::within_point_geometry(*it, outer_ring, within_strategy))
+            {
+                // at least one point of potentially interior ring found in the interior of exterior ring
+                return true;
+            }
+        }
+        return false;
+    }
 };
 
-template <typename Policy, typename IStream, typename Range>
-inline void add_records(IStream & is, Range & rng)
+template <typename Policy, typename IStream, typename Range, typename Strategy>
+inline void add_records(IStream & is, Range & rng, Strategy const& strategy)
 {
     while (read_record_header(is))
     {
-        Policy::apply(is, rng);
+        Policy::apply(is, rng, strategy);
     }
 }
 
-template <typename Policy, typename IStream, typename Range>
-inline void add_records_as_new_element(IStream & is, Range & rng)
+template <typename Policy, typename IStream, typename Range, typename Strategy>
+inline void add_records_as_new_element(IStream & is, Range & rng, Strategy const& strategy)
 {
     typedef typename boost::range_value<Range>::type val_type;
 
@@ -426,25 +526,27 @@ inline void add_records_as_new_element(IStream & is, Range & rng)
         return;
     }
 
-    val_type & elem = shapefile::push_back(rng, val_type());
+    range::push_back(rng, val_type());
+    val_type & elem = range::back(rng);
 
     do
     {
-        Policy::apply(is, elem);
+        Policy::apply(is, elem, strategy);
     }
     while (read_record_header(is));
 }
 
-template <typename Policy, typename IStream, typename Range>
-inline void add_records_as_new_elements(IStream & is, Range & rng)
+template <typename Policy, typename IStream, typename Range, typename Strategy>
+inline void add_records_as_new_elements(IStream & is, Range & rng, Strategy const& strategy)
 {
     typedef typename boost::range_value<Range>::type val_type;
 
     while (read_record_header(is))
     {
-        val_type & elem = shapefile::push_back(rng, val_type());
+        range::push_back(rng, val_type());
+        val_type & elem = range::back(rng);
 
-        Policy::apply(is, elem);
+        Policy::apply(is, elem, strategy);
     }
 }
 
@@ -465,8 +567,8 @@ struct read_shapefile
 template <typename Geometry>
 struct read_shapefile<Geometry, point_tag>
 {
-    template <typename IStream, typename Points>
-    static inline void apply(IStream &is, Points & points)
+    template <typename IStream, typename Points, typename Strategy>
+    static inline void apply(IStream &is, Points & points, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
         
@@ -474,11 +576,11 @@ struct read_shapefile<Geometry, point_tag>
 
         if (type == shp::shape_type::point)
         {
-            shp::add_records<shp::read_point_policy>(is, points);
+            shp::add_records<shp::read_point_policy>(is, points, strategy);
         }
         else if (type == detail::shapefile::shape_type::multipoint)
         {
-            shp::add_records<shp::read_multipoint_policy>(is, points);
+            shp::add_records<shp::read_multipoint_policy>(is, points, strategy);
         }
     }
 };
@@ -486,8 +588,8 @@ struct read_shapefile<Geometry, point_tag>
 template <typename Geometry>
 struct read_shapefile<Geometry, multi_point_tag>
 {
-    template <typename IStream, typename MultiPoints>
-    static inline void apply(IStream &is, MultiPoints & multi_points)
+    template <typename IStream, typename MultiPoints, typename Strategy>
+    static inline void apply(IStream &is, MultiPoints & multi_points, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
         
@@ -495,11 +597,11 @@ struct read_shapefile<Geometry, multi_point_tag>
 
         if (type == shp::shape_type::point)
         {
-            shp::add_records_as_new_element<shp::read_point_policy>(is, multi_points);
+            shp::add_records_as_new_element<shp::read_point_policy>(is, multi_points, strategy);
         }
         else if (type == detail::shapefile::shape_type::multipoint)
         {
-            shp::add_records_as_new_elements<shp::read_multipoint_policy>(is, multi_points);
+            shp::add_records_as_new_elements<shp::read_multipoint_policy>(is, multi_points, strategy);
         }
     }
 };
@@ -507,8 +609,8 @@ struct read_shapefile<Geometry, multi_point_tag>
 template <typename Geometry>
 struct read_shapefile<Geometry, linestring_tag>
 {
-    template <typename IStream, typename Linestrings>
-    static inline void apply(IStream &is, Linestrings & linestrings)
+    template <typename IStream, typename Linestrings, typename Strategy>
+    static inline void apply(IStream &is, Linestrings & linestrings, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
 
@@ -516,7 +618,7 @@ struct read_shapefile<Geometry, linestring_tag>
 
         if (type == shp::shape_type::polyline)
         {
-            shp::add_records<shp::read_polyline_policy>(is, linestrings);
+            shp::add_records<shp::read_polyline_policy>(is, linestrings, strategy);
         }
     }
 };
@@ -524,8 +626,8 @@ struct read_shapefile<Geometry, linestring_tag>
 template <typename Geometry>
 struct read_shapefile<Geometry, multi_linestring_tag>
 {
-    template <typename IStream, typename MultiLinestrings>
-    static inline void apply(IStream &is, MultiLinestrings & multi_linestrings)
+    template <typename IStream, typename MultiLinestrings, typename Strategy>
+    static inline void apply(IStream &is, MultiLinestrings & multi_linestrings, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
 
@@ -533,7 +635,7 @@ struct read_shapefile<Geometry, multi_linestring_tag>
 
         if (type == shp::shape_type::polyline)
         {
-            shp::add_records_as_new_elements<shp::read_polyline_policy>(is, multi_linestrings);
+            shp::add_records_as_new_elements<shp::read_polyline_policy>(is, multi_linestrings, strategy);
         }
     }
 };
@@ -541,8 +643,8 @@ struct read_shapefile<Geometry, multi_linestring_tag>
 template <typename Geometry>
 struct read_shapefile<Geometry, polygon_tag>
 {
-    template <typename IStream, typename Polygons>
-    static inline void apply(IStream &is, Polygons & polygons)
+    template <typename IStream, typename Polygons, typename Strategy>
+    static inline void apply(IStream &is, Polygons & polygons, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
 
@@ -550,7 +652,7 @@ struct read_shapefile<Geometry, polygon_tag>
 
         if (type == shp::shape_type::polygon)
         {
-            shp::add_records<shp::read_polygon_policy>(is, polygons);
+            shp::add_records<shp::read_polygon_policy>(is, polygons, strategy);
         }
     }
 };
@@ -558,8 +660,8 @@ struct read_shapefile<Geometry, polygon_tag>
 template <typename Geometry>
 struct read_shapefile<Geometry, multi_polygon_tag>
 {
-    template <typename IStream, typename MultiPolygons>
-    static inline void apply(IStream &is, MultiPolygons & multi_polygons)
+    template <typename IStream, typename MultiPolygons, typename Strategy>
+    static inline void apply(IStream &is, MultiPolygons & multi_polygons, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
 
@@ -567,7 +669,7 @@ struct read_shapefile<Geometry, multi_polygon_tag>
 
         if (type == shp::shape_type::polygon)
         {
-            shp::add_records_as_new_elements<shp::read_polygon_policy>(is, multi_polygons);
+            shp::add_records_as_new_elements<shp::read_polygon_policy>(is, multi_polygons, strategy);
         }
     }
 };
@@ -577,12 +679,31 @@ struct read_shapefile<Geometry, multi_polygon_tag>
 
 
 // Note: if an exception is thrown the output range may contain partial data
+template <typename IStream, typename RangeOfGeometries, typename Strategy>
+inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries,
+                           Strategy const& strategy)
+{
+    typedef typename boost::range_value<RangeOfGeometries>::type geometry_type;
+
+    geometry::concepts::check<geometry_type>();
+
+    dispatch::read_shapefile<geometry_type>::apply(is, range_of_geometries,
+                                                   strategy);
+}
+
 template <typename IStream, typename RangeOfGeometries>
 inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries)
 {
     typedef typename boost::range_value<RangeOfGeometries>::type geometry_type;
+    typedef typename strategy::io::services::default_strategy
+        <
+            typename cs_tag<geometry_type>::type
+        >::type strategy_type;
+
     geometry::concepts::check<geometry_type>();
-    dispatch::read_shapefile<geometry_type>::apply(is, range_of_geometries);
+
+    dispatch::read_shapefile<geometry_type>::apply(is, range_of_geometries,
+                                                   strategy_type());
 }
 
 
