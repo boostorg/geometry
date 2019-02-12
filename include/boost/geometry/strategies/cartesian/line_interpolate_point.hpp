@@ -46,32 +46,16 @@ class cartesian
 {
 public:
 
-    //result type
-    template <typename Point>
-    struct result_type
+    // point-point strategy getters
+    struct distance_pp_strategy
     {
-        typedef typename select_calculation_type_alt
-            <
-                CalculationType,
-                Point
-            >::type calc_t;
-
-        result_type()
-            : distance(0)
-        {}
-
-        result_type(calc_t d)
-            : distance(d)
-        {}
-
-        calc_t distance;
+        typedef DistanceStrategy type;
     };
 
-    template <typename Point>
-    inline result_type<Point> compute(Point const& p0,
-                                      Point const& p1) const
+    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
     {
-        return result_type<Point>(DistanceStrategy().apply(p0,p1));
+        typedef typename distance_pp_strategy::type distance_type;
+        return distance_type();
     }
 
     template <typename Point, typename Fraction, typename Distance>
@@ -79,10 +63,13 @@ public:
                       Point const& p1,
                       Fraction const& fraction,
                       Point & p,
-                      Distance const&,
-                      result_type<Point> const&) const
+                      Distance const&) const
     {
-        typedef typename result_type<Point>::calc_t calc_t;
+        typedef typename select_calculation_type_alt
+            <
+                CalculationType,
+                Point
+            >::type calc_t;
 
         typedef model::point
             <

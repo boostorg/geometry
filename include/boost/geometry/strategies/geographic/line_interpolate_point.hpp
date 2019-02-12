@@ -57,9 +57,24 @@ public:
         : m_spheroid(spheroid)
     {}
 
-    //result type
-    template <typename Point>
-    struct result_type
+    // point-point strategy getters
+    struct distance_pp_strategy
+    {
+        typedef distance::geographic<FormulaPolicy, Spheroid, CalculationType> type;
+    };
+
+    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
+    {
+        typedef typename distance_pp_strategy::type distance_type;
+        return distance_type(m_spheroid);
+    }
+
+    template <typename Point, typename Fraction, typename Distance>
+    inline void apply(Point const& p0,
+                      Point const& p1,
+                      Fraction const& fraction, //fraction of segment
+                      Point & p,
+                      Distance const& distance) const
     {
         typedef typename select_calculation_type_alt
             <
@@ -67,53 +82,19 @@ public:
                 Point
             >::type calc_t;
 
-        result_type()
-            : distance(0)
-            , azimuth(0)
-        {}
-
-        result_type(calc_t d, calc_t a)
-            : distance(d)
-            , azimuth(a)
-        {}
-
-        calc_t distance;
-        calc_t azimuth;
-    };
-
-    template <typename Point>
-    inline result_type<Point> compute(Point const& p0,
-                                      Point const& p1) const
-    {
-        typedef typename result_type<Point>::calc_t calc_t;
-
         typedef typename FormulaPolicy::template inverse
-                <calc_t, true, true, false, false, false> inverse_t;
+                <calc_t, false, true, false, false, false> inverse_t;
 
-        typename inverse_t::result_type
-            inv_r = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                     get_as_radian<0>(p1), get_as_radian<1>(p1),
-                                     m_spheroid);
-
-        return result_type<Point>(inv_r.distance, inv_r.azimuth);
-    }
-
-    template <typename Point, typename Fraction, typename Distance>
-    inline void apply(Point const& p0,
-                      Point const&,
-                      Fraction const& fraction, //fraction of segment
-                      Point & p,
-                      Distance const& distance,
-                      result_type<Point> const& res) const
-    {
-        typedef typename result_type<Point>::calc_t calc_t;
+        calc_t azimuth = inverse_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
+                                          get_as_radian<0>(p1), get_as_radian<1>(p1),
+                                          m_spheroid).azimuth;
 
         typedef typename FormulaPolicy::template direct
                 <calc_t, true, false, false, false> direct_t;
 
         typename direct_t::result_type
         dir_r = direct_t::apply(get_as_radian<0>(p0), get_as_radian<1>(p0),
-                                distance * fraction, res.azimuth,
+                                distance * fraction, azimuth,
                                 m_spheroid);
 
         set_from_radian<0>(p, dir_r.lon2);

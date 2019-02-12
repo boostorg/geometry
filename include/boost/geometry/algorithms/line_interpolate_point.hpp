@@ -83,8 +83,6 @@ struct range
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
-        typedef typename Strategy::template result_type<point_t> result_type;
-
         iterator_t it = boost::begin(range);
         iterator_t end = boost::end(range);
 
@@ -107,18 +105,17 @@ struct range
 
         for ( ; it != end ; ++it)
         {
-            result_type res = strategy.compute(*prev, *it);
-            current_distance = prev_distance + res.distance;
+            Distance dist = strategy.get_distance_pp_strategy().apply(*prev, *it);
+            current_distance = prev_distance + dist;
 
             while (current_distance >= repeated_distance )
             {
                 point_t p;
+                Distance diff_distance = current_distance - prev_distance;
                 strategy.apply(start_p, *it,
-                               (repeated_distance - prev_distance)
-                               /(current_distance - prev_distance),
+                               (repeated_distance - prev_distance)/diff_distance,
                                p,
-                               current_distance - prev_distance,
-                               res);
+                               diff_distance);
                 policy.apply(p, pointlike);
                 if (boost::is_same<PointLike, point_t>::value)
                 {
