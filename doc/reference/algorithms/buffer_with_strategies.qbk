@@ -69,5 +69,5 @@ side_straight
 * DistanceStrategy: [link geometry.reference.strategies.strategy_buffer_distance_asymmetric distance_asymmetric]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_circle point_circle (cartesian)]
 * PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_square point_square (cartesian)]
-* PointStrategy: [link geometry.reference.strategies.strategy_buffer_point_circle_geographic point_circle_geographic (geographic)]
+* PointStrategy: [link geometry.reference.strategies.strategy_buffer_geographic_point_circle geographic_point_circle (geographic)]
 * SideStrategy: [link geometry.reference.strategies.strategy_buffer_side_straight side_straight (cartesian)]

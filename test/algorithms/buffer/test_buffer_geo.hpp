@@ -40,7 +40,7 @@ void test_one_geo(std::string const& caseid,
                         ? distance_left : distance_right);
 
     // Use the appropriate strategy for geographic points
-    bg::strategy::buffer::point_circle_geographic<> circle_strategy(settings.points_per_circle);
+    bg::strategy::buffer::geographic_point_circle<> circle_strategy(settings.points_per_circle);
 
     // Use Thomas strategy to calculate geographic area, because it is
     // the most precise (unless scale of buffer is only around 1 meter)

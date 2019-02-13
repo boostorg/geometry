@@ -147,8 +147,8 @@
 [import src/examples/strategies/buffer_distance_symmetric.cpp]
 [import src/examples/strategies/buffer_distance_asymmetric.cpp]
 [import src/examples/strategies/buffer_point_circle.cpp]
-[import src/examples/strategies/buffer_point_circle_geographic.cpp]
 [import src/examples/strategies/buffer_point_square.cpp]
+[import src/examples/strategies/buffer_geographic_point_circle.cpp]
 
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]

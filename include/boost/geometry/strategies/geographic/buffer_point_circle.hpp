@@ -33,8 +33,8 @@ namespace strategy { namespace buffer
 
 \qbk{
 [heading Example]
-[buffer_point_circle_geographic]
-[buffer_point_circle_geographic_output]
+[buffer_geographic_point_circle]
+[buffer_geographic_point_circle_output]
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
 \* [link geometry.reference.strategies.strategy_buffer_point_circle point_circle]
@@ -47,13 +47,13 @@ template
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-class point_circle_geographic
+class geographic_point_circle
 {
 public :
     //! \brief Constructs the strategy
     //! \param count number of points for the created circle (if count
     //! is smaller than 3, count is internally set to 3)
-    explicit point_circle_geographic(std::size_t count = 90)
+    explicit geographic_point_circle(std::size_t count = 90)
         : m_count((count < 3u) ? 3u : count)
     {}
 
