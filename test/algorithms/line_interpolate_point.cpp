@@ -263,23 +263,29 @@ void test_geo(Strategy str)
     test<LS,P>(l, 1,   "POINT(1 3)", str);
 
     test<LS,MP>(l, 0, "MULTIPOINT((1 1))", str);
-    test<LS,MP>(l, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
-                                    (1.79728912766037641 1.0000247772582571)\
-                                    (2 1.1972285554368427)\
-                                    (2 1.598498298996567)\
-                                    (2 1.9997664696834965)\
-                                    (1.6013936980010324 2.0000734568388099)\
-                                    (1.2025664628960846 2.0000495003440779)\
-                                    (1 2.1974612279909937)\
-                                    (1 2.5987263175375022)\
-                                    (1 3))", str);
 
-    test<LS,MP>(l, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
-                                    (2 1.598498298996567)\
-                                    (1.6013936980010324 2.0000734568388099)\
-                                    (1 2.1974612279909937)\
-                                    (1 3))", str);
+    //adnoyer is missing the last point in the following cases
+    // of linestrings due to inaccuracy
+    if (!boost::is_same<Strategy, bg::strategy::line_interpolate_point::geographic
+                                 <bg::strategy::andoyer> >::value)
+    {
+        test<LS,MP>(l, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
+                    (1.79728912766037641 1.0000247772582571)\
+                    (2 1.1972285554368427)\
+                    (2 1.598498298996567)\
+                    (2 1.9997664696834965)\
+                    (1.6013936980010324 2.0000734568388099)\
+                    (1.2025664628960846 2.0000495003440779)\
+                    (1 2.1974612279909937)\
+                    (1 2.5987263175375022)\
+                    (1 3))", str);
 
+                test<LS,MP>(l, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
+                            (2 1.598498298996567)\
+                            (1.6013936980010324 2.0000734568388099)\
+                            (1 2.1974612279909937)\
+                            (1 3))", str);
+    }
     test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
     test<LS,MP>(l, 0.5, "MULTIPOINT((2 1.9997664696834965)(1 3))", str);
     test<LS,MP>(l, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
@@ -290,15 +296,31 @@ void test_geo(Strategy str)
                                      (17.90073492 1.004178475142552))", str);
 }
 
+template <typename Strategy>
+void test_geo_non_standard_spheroid(Strategy str)
+{
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > P;
+    typedef bg::model::segment<P> S;
+
+    test<S,P>(s, 0,   "POINT(1 1)", str);
+    test<S,P>(s, 0.5, "POINT(1.5127731436886724 1.5129021873759412)", str);
+    test<S,P>(s, 1,   "POINT(2 2)", str);
+}
+
 int test_main(int, char* [])
 {
     test_car();
     test_car_edge_cases();
     test_sph();
-    //adnoyer is missing the last point of linestring due to inaccuracy
-    //test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
+
+    typedef typename bg::srs::spheroid<double> stype;
+
+    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
     test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
+
+    test_geo_non_standard_spheroid(bg::strategy::line_interpolate_point::geographic
+                                   <bg::strategy::vincenty>(stype(5000000,6000000)));
 
     return 0;
 }
