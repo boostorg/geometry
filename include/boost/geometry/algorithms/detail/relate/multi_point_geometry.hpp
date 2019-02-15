@@ -17,6 +17,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>

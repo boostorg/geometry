@@ -117,4 +117,6 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
     test_all_pl_pl<geo_point>(vincenty_pp());
     test_all_pl_pl<geo_point>(thomas_pp());
     test_all_pl_pl<geo_point>(andoyer_pp());
+
+    test_all_pl_pl<geo_point>(andoyer_pp(stype(5000000,6000000)));
 }

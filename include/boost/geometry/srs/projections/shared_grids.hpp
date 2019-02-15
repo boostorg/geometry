@@ -23,34 +23,23 @@ namespace boost { namespace geometry
 {
     
 
-// Forward declarations
-namespace srs
+namespace projections { namespace detail
 {
 
 // Forward declaration for functions declarations below
 class shared_grids;
 
-} // namespace srs
-namespace projections { namespace detail
-{
-
 // Forward declaratios of shared_grids friends
 template <typename StreamPolicy>
 inline bool pj_gridlist_merge_gridfile(std::string const& gridname,
                                        StreamPolicy const& stream_policy,
-                                       srs::shared_grids & grids,
+                                       shared_grids & grids,
                                        std::vector<std::size_t> & gridindexes);
 template <bool Inverse, typename CalcT, typename StreamPolicy, typename Range>
 inline bool pj_apply_gridshift_3(StreamPolicy const& stream_policy,
                                  Range & range,
-                                 srs::shared_grids & grids,
+                                 shared_grids & grids,
                                  std::vector<std::size_t> const& gridindexes);
-
-}} // namespace projections::detail
-
-
-namespace srs
-{
 
 
 class shared_grids
@@ -73,21 +62,21 @@ private:
     friend inline bool projections::detail::pj_gridlist_merge_gridfile(
                             std::string const& gridname,
                             StreamPolicy const& stream_policy,
-                            srs::shared_grids & grids,
+                            shared_grids & grids,
                             std::vector<std::size_t> & gridindexes);
     template <bool Inverse, typename CalcT, typename StreamPolicy, typename Range>
     friend inline bool projections::detail::pj_apply_gridshift_3(
                             StreamPolicy const& stream_policy,
                             Range & range,
-                            srs::shared_grids & grids,
+                            shared_grids & grids,
                             std::vector<std::size_t> const& gridindexes);
 
     projections::detail::pj_gridinfo gridinfo;
     mutable boost::shared_mutex mutex;
 };
 
+}} // namespace projections::detail
 
-} // namespace srs
 
 }} // namespace boost::geometry
 

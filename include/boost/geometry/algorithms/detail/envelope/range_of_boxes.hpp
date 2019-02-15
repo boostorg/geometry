@@ -20,17 +20,20 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/detail/max_interval_gap.hpp>
+#include <boost/geometry/algorithms/detail/expand/indexed.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
-#include <boost/geometry/algorithms/detail/max_interval_gap.hpp>
-#include <boost/geometry/algorithms/detail/expand/indexed.hpp>
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 
 namespace boost { namespace geometry

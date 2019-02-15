@@ -28,6 +28,9 @@
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/geometries/concepts/box_concept.hpp>
+#include <boost/geometry/geometries/concepts/point_concept.hpp>
+
 #include <boost/geometry/util/parameter_type_of.hpp>
 
 

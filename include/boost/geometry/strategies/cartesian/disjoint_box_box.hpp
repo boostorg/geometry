@@ -24,6 +24,7 @@
 #include <cstddef>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/disjoint.hpp>

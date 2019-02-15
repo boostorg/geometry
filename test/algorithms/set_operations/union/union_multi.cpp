@@ -431,14 +431,22 @@ void test_areal()
          ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
          2, 0, 16, 0.002471626);
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
-        ticket_9081[0], ticket_9081[1],
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        3,
-#else
-        4,
+    {
+        ut_settings settings;
+#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+        settings.test_validity = false;
 #endif
-        0, 31, 0.2187385);
+
+        test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
+            ticket_9081[0], ticket_9081[1],
+#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+            3,
+#else
+            4,
+#endif
+            0, 31, 0.2187385,
+            settings);
+    }
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10803",
         ticket_10803[0], ticket_10803[1],
@@ -459,6 +467,9 @@ void test_areal()
 #endif
 
     TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
+
+    // Generates two polygons, which should (without rescaling) be merged into one
+    TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
 
 #ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);

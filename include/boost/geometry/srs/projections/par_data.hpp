@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
 
 namespace boost { namespace geometry { namespace srs

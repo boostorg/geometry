@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2019.
+// Modifications copyright (c) 2018-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,7 +57,7 @@ namespace detail
 template <bool Inverse, typename CalcT, typename StreamPolicy, typename Range>
 inline bool pj_apply_gridshift_3(StreamPolicy const& stream_policy,
                                  Range & range,
-                                 srs::shared_grids & grids,
+                                 shared_grids & grids,
                                  std::vector<std::size_t> const& gridindexes)
 {
     typedef typename boost::range_size<Range>::type size_type;

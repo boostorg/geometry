@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2019.
+// Modifications copyright (c) 2018-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -44,7 +44,11 @@
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
+#include <boost/geometry/srs/projections/impl/adjlon.hpp>
+#include <boost/geometry/srs/projections/impl/function_overloads.hpp>
 #include <boost/geometry/srs/projections/impl/pj_gridlist.hpp>
+
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -388,7 +392,7 @@ inline bool pj_apply_gridshift_3(StreamPolicy const& stream_policy,
 /************************************************************************/
 
 template <bool Inverse, typename Par, typename Range, typename ProjGrids>
-inline bool pj_apply_gridshift_2(Par const& defn, Range & range, ProjGrids const& grids)
+inline bool pj_apply_gridshift_2(Par const& /*defn*/, Range & range, ProjGrids const& grids)
 {
     /*if( defn->catalog_name != NULL )
         return pj_gc_apply_gridshift( defn, inverse, point_count, point_offset,

@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,11 +13,11 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSLATION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSLATION_HPP
 
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
-
+#include <boost/geometry/geometries/concepts/check.hpp>
 //#include <boost/geometry/geometries/concepts/point_concept.hpp>
 //#include <boost/geometry/util/for_each_coordinate.hpp>
-#include <boost/geometry/arithmetic/arithmetic.hpp>
 
 namespace boost { namespace geometry
 {

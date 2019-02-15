@@ -151,7 +151,15 @@ check_result(
     double const detected_length_or_area = boost::numeric_cast<double>(length_or_area);
     if (settings.percentage > 0.0)
     {
-        BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, settings.percentage);
+        if (expected_length_or_area > 0)
+        {
+            BOOST_CHECK_CLOSE(detected_length_or_area, expected_length_or_area, settings.percentage);
+        }
+        else
+        {
+            // Compare 0 with 0 or a very small detected area
+            BOOST_CHECK_LE(detected_length_or_area, settings.percentage);
+        }
     }
     else
     {

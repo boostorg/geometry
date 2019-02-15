@@ -44,8 +44,6 @@ namespace strategy { namespace within
 \tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
-\note The implementation is inspired by terralib http://www.terralib.org (LGPL)
-\note but totally revised afterwards, especially for cases on segments
 
 \qbk{
 [heading See also]

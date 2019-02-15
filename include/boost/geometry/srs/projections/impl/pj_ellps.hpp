@@ -39,8 +39,6 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_ELLPS_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_ELLPS_HPP
 
-#include <boost/geometry/srs/projections/impl/projects.hpp>
-
 #include <string>
 
 namespace boost { namespace geometry { namespace projections {

@@ -63,11 +63,9 @@ void test_distance_point_ring(Strategy_pp const& strategy_pp,
 template
 <
         typename Point,
-        typename Strategy_pp,
         typename Strategy_ps
 >
-void test_distance_multipoint_ring(Strategy_pp const& strategy_pp,
-                                    Strategy_ps const& strategy_ps)
+void test_distance_multipoint_ring(Strategy_ps const& strategy_ps)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -649,7 +647,7 @@ void test_all_pl_ar(Strategy_pp pp_strategy,
                     Strategy_pb pb_strategy)
 {
     test_distance_point_ring<Point>(pp_strategy, ps_strategy);
-    test_distance_multipoint_ring<Point>(pp_strategy, ps_strategy);
+    test_distance_multipoint_ring<Point>(ps_strategy);
 
     test_distance_point_polygon<Point>(pp_strategy, ps_strategy);
     test_distance_multipoint_polygon<Point>(pp_strategy, ps_strategy);
@@ -682,4 +680,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
     test_all_pl_ar<geo_point>(vincenty_pp(), vincenty_ps(), vincenty_pb());
     test_all_pl_ar<geo_point>(thomas_pp(), thomas_ps(), thomas_pb());
     test_all_pl_ar<geo_point>(andoyer_pp(), andoyer_ps(), andoyer_pb());
+
+    // test with different spheroid
+    stype spheroid(6372000, 6370000);
+    test_all_pl_ar<geo_point>(andoyer_pp(spheroid), andoyer_ps(spheroid),  andoyer_pb(spheroid));
 }

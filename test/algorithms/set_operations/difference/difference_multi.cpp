@@ -175,12 +175,19 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
     }
 #else
-    // With no-robustness this one misses one of the outputs
-    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
-        ticket_9081[0], ticket_9081[1],
+    {
+        // With no-robustness this one misses one of the outputs
+        ut_settings settings;
+        settings.percentage = 0.001; // tolerance
+#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+        settings.test_validity = false;
+#endif
+        test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
+            ticket_9081[0], ticket_9081[1],
             2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
             4, 42, 0.0907392476356186 + 0.126018011439877,
-            tolerance(0.001));
+            settings);
+    }
 
     // With rescaling, A is invalid (this is a robustness problem) and the other
     // output is discarded because of zero (rescaled) area
@@ -455,6 +462,11 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_86, 1, 1.5, 2, 1.5, 3);
     TEST_DIFFERENCE(case_recursive_boxes_87, 4, 2.0, 4, 2.5, 8);
     TEST_DIFFERENCE(case_recursive_boxes_88, 3, 4.75, 5, 6.75, 4);
+
+    // Output of A can be 0 or 1 polygons (with a very small area)
+    TEST_DIFFERENCE(case_precision_m1, -1, 0.0, 1, 57.0, -1);
+    // Output of A can be 1 or 2 polygons (one with a very small area)
+    TEST_DIFFERENCE(case_precision_m2, -1, 1.0, 1, 57.75, -1);
 
     {
         ut_settings sym_settings;

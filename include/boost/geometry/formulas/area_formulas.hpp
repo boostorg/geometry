@@ -12,6 +12,7 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 #define BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 
+#include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>

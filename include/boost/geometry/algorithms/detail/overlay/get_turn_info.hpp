@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,6 +21,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -84,7 +85,7 @@ struct base_turn_handler
         return side1 * side2 == 1;
     }
 
-    // Both continue
+    // Both get the same operation
     template <typename TurnInfo>
     static inline void both(TurnInfo& ti, operation_type const op)
     {
@@ -130,6 +131,17 @@ struct base_turn_handler
             ? 1 : 0;
     }
 
+    template <typename Point1, typename Point2>
+    static inline typename geometry::coordinate_type<Point1>::type
+            distance_measure(Point1 const& a, Point2 const& b)
+    {
+        // TODO: use comparable distance for point-point instead - but that
+        // causes currently cycling include problems
+        typedef typename geometry::coordinate_type<Point1>::type ctype;
+        ctype const dx = get<0>(a) - get<0>(b);
+        ctype const dy = get<1>(a) - get<1>(b);
+        return dx * dx + dy * dy;
+    }
 };
 
 
@@ -168,9 +180,10 @@ struct touch_interior : public base_turn_handler
         static unsigned int const index_p = Index;
         static unsigned int const index_q = 1 - Index;
 
-        bool const has_k = ! range_q.is_last_segment();
+        bool const has_pk = ! range_p.is_last_segment();
+        bool const has_qk = ! range_q.is_last_segment();
         int const side_qi_p = dir_info.sides.template get<index_q, 0>();
-        int const side_qk_p = has_k ? side.qk_wrt_p1() : 0;
+        int const side_qk_p = has_qk ? side.qk_wrt_p1() : 0;
 
         if (side_qi_p == -side_qk_p)
         {
@@ -183,7 +196,10 @@ struct touch_interior : public base_turn_handler
             return;
         }
 
-        int const side_qk_q = has_k ? side.qk_wrt_q1() : 0;
+        int const side_qk_q = has_qk ? side.qk_wrt_q1() : 0;
+
+        // Only necessary if rescaling is turned off:
+        int const side_pj_q2 = has_qk ? side.pj_wrt_q2() : 0;
 
         if (side_qi_p == -1 && side_qk_p == -1 && side_qk_q == 1)
         {
@@ -194,10 +210,21 @@ struct touch_interior : public base_turn_handler
         }
         else if (side_qi_p == 1 && side_qk_p == 1 && side_qk_q == -1)
         {
-            // Q turns right on the left side of P (test "ML3")
-            // Union: take both operation
-            // Intersection: skip
-            both(ti, operation_union);
+            if (has_qk && side_pj_q2 == -1)
+            {
+                // Q turns right on the left side of P (test "ML3")
+                // Union: take both operations
+                // Intersection: skip
+                both(ti, operation_union);
+            }
+            else
+            {
+                // q2 is collinear with p1, so it does not turn back. This
+                // can happen in floating point precision. In this case,
+                // block one of the operations to avoid taking that path.
+                ti.operations[index_p].operation = operation_union;
+                ti.operations[index_q].operation = operation_blocked;
+            }
             ti.touch_only = true;
         }
         else if (side_qi_p == side_qk_p && side_qi_p == side_qk_q)
@@ -207,6 +234,29 @@ struct touch_interior : public base_turn_handler
             // Union: take left turn (Q if Q turns left, P if Q turns right)
             // Intersection: other turn
             unsigned int index = side_qk_q == 1 ? index_q : index_p;
+            if (has_qk && side_pj_q2 == 0)
+            {
+                // Even though sides xk w.r.t. 1 are distinct, pj is collinear
+                // with q. Therefore swap the path
+                index = 1 - index;
+            }
+
+            if (has_pk && has_qk && opposite(side_pj_q2, side_qi_p))
+            {
+                // Without rescaling, floating point requires extra measures
+                int const side_qj_p1 = side.qj_wrt_p1();
+                int const side_qj_p2 = side.qj_wrt_p2();
+
+                if (same(side_qj_p1, side_qj_p2))
+                {
+                    int const side_pj_q1 = side.pj_wrt_q1();
+                    if (opposite(side_pj_q1, side_pj_q2))
+                    {
+                        index = 1 - index;
+                    }
+                }
+            }
+
             ti.operations[index].operation = operation_union;
             ti.operations[1 - index].operation = operation_intersection;
             ti.touch_only = true;
@@ -219,10 +269,16 @@ struct touch_interior : public base_turn_handler
                 // Collinearly in the same direction
                 // (Q comes from left of P and turns left,
                 //  OR Q comes from right of P and turns right)
-                // Omit intersection point.
+                // Omit second intersection point.
                 // Union: just continue
                 // Intersection: just continue
                 both(ti, operation_continue);
+
+                // Calculate remaining distance.
+                // Q arrives at p, at point qj, so use qk for q
+                // and use pj for p
+                ti.operations[index_p].remaining_distance = distance_measure(ti.point, range_p.at(1));
+                ti.operations[index_q].remaining_distance = distance_measure(ti.point, range_q.at(2));
             }
             else
             {
@@ -519,8 +575,8 @@ struct equal_opposite : public base_turn_handler
         typename IntersectionInfo
     >
     static inline void apply(
-                UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
+                UniqueSubRange1 const& /*range_p*/,
+                UniqueSubRange2 const& /*range_q*/,
                 /* by value: */ TurnInfo tp,
                 OutputIterator& out,
                 IntersectionInfo const& intersection_info)
@@ -640,18 +696,6 @@ struct collinear : public base_turn_handler
                 = side_q == 0 && has_qk
                 ? distance_measure(ti.point, range_q.at(2))
                 : distance_measure(ti.point, range_q.at(1));
-    }
-
-    template <typename Point1, typename Point2>
-    static inline typename geometry::coordinate_type<Point1>::type
-            distance_measure(Point1 const& a, Point2 const& b)
-    {
-        // TODO: use comparable distance for point-point instead - but that
-        // causes currently cycling include problems
-        typedef typename geometry::coordinate_type<Point1>::type ctype;
-        ctype const dx = get<0>(a) - get<0>(b);
-        ctype const dy = get<1>(a) - get<1>(b);
-        return dx * dx + dy * dy;
     }
 };
 

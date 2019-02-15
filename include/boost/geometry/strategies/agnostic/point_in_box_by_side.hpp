@@ -24,6 +24,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
+#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
 
