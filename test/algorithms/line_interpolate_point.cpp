@@ -137,6 +137,7 @@ std::string const l1 = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
 std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
 std::string const l00 = "LINESTRING()";
 std::string const l01 = "LINESTRING(1 1)";
+std::string const l02 = "LINESTRING(1 1, 1 1)";
 
 void test_car_edge_cases()
 {
@@ -155,6 +156,10 @@ void test_car_edge_cases()
     //linestring with only one point
     test_distance<LS,P>(l01, 1, "POINT(1 1)");
     test_distance<LS,MP>(l01, 1, "MULTIPOINT((1 1))");
+
+    //linestring with two same points
+    test_distance<LS,P>(l02, 1, "POINT(1 1)");
+    test_distance<LS,MP>(l02, 1, "MULTIPOINT((1 1))");
 
     //empty linestring
     try

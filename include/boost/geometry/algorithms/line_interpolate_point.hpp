@@ -108,10 +108,11 @@ struct range
             Distance dist = strategy.get_distance_pp_strategy().apply(*prev, *it);
             current_distance = prev_distance + dist;
 
-            while (current_distance >= repeated_distance )
+            while (current_distance >= repeated_distance)
             {
                 point_t p;
                 Distance diff_distance = current_distance - prev_distance;
+                BOOST_ASSERT(diff_distance != Distance(0));
                 strategy.apply(start_p, *it,
                                (repeated_distance - prev_distance)/diff_distance,
                                p,
