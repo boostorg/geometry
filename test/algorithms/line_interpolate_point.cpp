@@ -115,11 +115,28 @@ inline void test_distance(std::string const& wkt1,
     check_points<P>::apply(p1, o);
 }
 
+template <typename G, typename P, typename S>
+inline void test_distance(std::string const& wkt1,
+                          double distance,
+                          std::string const& wkt2,
+                          S str)
+{
+    G g;
+    bg::read_wkt(wkt1, g);
+
+    P o;
+    bg::read_wkt(wkt2, o);
+
+    P p1;
+    bg::line_interpolate_point(g, distance, p1, str);
+    check_points<P>::apply(p1, o);
+}
+
 std::string const s = "SEGMENT(1 1, 2 2)";
-std::string const l = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
-std::string const l0 = "LINESTRING()";
-std::string const l1 = "LINESTRING(1 1)";
+std::string const l1 = "LINESTRING(1 1, 2 1, 2 2, 1 2, 1 3)";
 std::string const l2 = "LINESTRING(0 2, 5 2, 5 1, 20 1)";
+std::string const l00 = "LINESTRING()";
+std::string const l01 = "LINESTRING(1 1)";
 
 void test_car_edge_cases()
 {
@@ -128,21 +145,21 @@ void test_car_edge_cases()
     typedef bg::model::linestring<P> LS;
 
     //negative input distance
-    test_distance<LS,P>(l, -1, "POINT(1 1)");
-    test_distance<LS,MP>(l, -1, "MULTIPOINT((1 1))");
+    test_distance<LS,P>(l1, -1, "POINT(1 1)");
+    test_distance<LS,MP>(l1, -1, "MULTIPOINT((1 1))");
 
     //input distance longer than total length
-    test_distance<LS,P>(l, 5, "POINT(1 3)");
-    test_distance<LS,MP>(l, 5, "MULTIPOINT((1 3))");
+    test_distance<LS,P>(l1, 5, "POINT(1 3)");
+    test_distance<LS,MP>(l1, 5, "MULTIPOINT((1 3))");
 
     //linestring with only one point
-    test_distance<LS,P>(l1, 1, "POINT(1 1)");
-    test_distance<LS,MP>(l1, 1, "MULTIPOINT((1 1))");
+    test_distance<LS,P>(l01, 1, "POINT(1 1)");
+    test_distance<LS,MP>(l01, 1, "MULTIPOINT((1 1))");
 
     //empty linestring
     try
     {
-        test_distance<LS,P>(l0, 1, "POINT(1 1)");
+        test_distance<LS,P>(l00, 1, "POINT(1 1)");
     }
     catch(bg::empty_input_exception const& )
     {
@@ -162,30 +179,30 @@ void test_car()
     test<S,P>(s, 0.5, "POINT(1.5 1.5)");
     test<S,P>(s, 1,   "POINT(2 2)");
 
-    test<LS,P>(l, 0,   "POINT(1 1)");
-    test<LS,P>(l, 0.1, "POINT(1.4 1)");
-    test<LS,P>(l, 0.2, "POINT(1.8 1)");
-    test<LS,P>(l, 0.3, "POINT(2 1.2)");
-    test<LS,P>(l, 0.4, "POINT(2 1.6)");
-    test<LS,P>(l, 0.5, "POINT(2 2)");
-    test<LS,P>(l, 0.6, "POINT(1.6 2)");
-    test<LS,P>(l, 0.7, "POINT(1.2 2)");
-    test<LS,P>(l, 0.8, "POINT(1 2.2)");
-    test<LS,P>(l, 0.9, "POINT(1 2.6)");
-    test<LS,P>(l, 1,   "POINT(1 3)");
+    test<LS,P>(l1, 0,   "POINT(1 1)");
+    test<LS,P>(l1, 0.1, "POINT(1.4 1)");
+    test<LS,P>(l1, 0.2, "POINT(1.8 1)");
+    test<LS,P>(l1, 0.3, "POINT(2 1.2)");
+    test<LS,P>(l1, 0.4, "POINT(2 1.6)");
+    test<LS,P>(l1, 0.5, "POINT(2 2)");
+    test<LS,P>(l1, 0.6, "POINT(1.6 2)");
+    test<LS,P>(l1, 0.7, "POINT(1.2 2)");
+    test<LS,P>(l1, 0.8, "POINT(1 2.2)");
+    test<LS,P>(l1, 0.9, "POINT(1 2.6)");
+    test<LS,P>(l1, 1,   "POINT(1 3)");
 
-    test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
+    test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
     //(1 3) missing due to floating point round off errors
-    test<LS,MP>(l, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
+    test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
                                     (1.2 2)(1 2.2)(1 2.6))");
     //(1 3) is not missing if you directly pass the distance
-    test_distance<LS,MP>(l, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
+    test_distance<LS,MP>(l1, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
                                              (1.2 2)(1 2.2)(1 2.6)(1 3))");
-    test<LS,MP>(l, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
-    test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
-    test<LS,MP>(l, 0.5, "MULTIPOINT((2 2)(1 3))");
-    test<LS,MP>(l, 0.6, "MULTIPOINT((1.6 2))");
-    test<LS,MP>(l, 1, "MULTIPOINT((1 3))");
+    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
+    test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
+    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 2)(1 3))");
+    test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6 2))");
+    test<LS,MP>(l1, 1, "MULTIPOINT((1 3))");
 }
 
 void test_sph()
@@ -199,20 +216,20 @@ void test_sph()
     test<S,P>(s, 0.5, "POINT(1.4998857365615981 1.5000570914791198)");
     test<S,P>(s, 1,   "POINT(2 2)");
 
-    test<LS,P>(l, 0,   "POINT(1 1)");
-    test<LS,P>(l, 0.1, "POINT(1.39998476912905323 1.0000365473536286)");
-    test<LS,P>(l, 0.2, "POINT(1.79996953825810646 1.0000243679448551)");
-    test<LS,P>(l, 0.3, "POINT(2 1.1999238595669637)");
-    test<LS,P>(l, 0.4, "POINT(2 1.5998477098527744)");
-    test<LS,P>(l, 0.5, "POINT(2 1.9997715601390484)");
-    test<LS,P>(l, 0.6, "POINT(1.6000609543036084 2.0000730473928678)");
-    test<LS,P>(l, 0.7, "POINT(1.1998933176222553 2.0000486811516014)");
-    test<LS,P>(l, 0.8, "POINT(1 2.2001522994279883)");
-    test<LS,P>(l, 0.9, "POINT(1 2.6000761497139444)");
-    test<LS,P>(l, 1,   "POINT(1 3)");
+    test<LS,P>(l1, 0,   "POINT(1 1)");
+    test<LS,P>(l1, 0.1, "POINT(1.39998476912905323 1.0000365473536286)");
+    test<LS,P>(l1, 0.2, "POINT(1.79996953825810646 1.0000243679448551)");
+    test<LS,P>(l1, 0.3, "POINT(2 1.1999238595669637)");
+    test<LS,P>(l1, 0.4, "POINT(2 1.5998477098527744)");
+    test<LS,P>(l1, 0.5, "POINT(2 1.9997715601390484)");
+    test<LS,P>(l1, 0.6, "POINT(1.6000609543036084 2.0000730473928678)");
+    test<LS,P>(l1, 0.7, "POINT(1.1998933176222553 2.0000486811516014)");
+    test<LS,P>(l1, 0.8, "POINT(1 2.2001522994279883)");
+    test<LS,P>(l1, 0.9, "POINT(1 2.6000761497139444)");
+    test<LS,P>(l1, 1,   "POINT(1 3)");
 
-    test<LS,MP>(l, 0, "MULTIPOINT((1 1))");
-    test<LS,MP>(l, 0.1, "MULTIPOINT((1.39998476912905323 1.0000365473536286)\
+    test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
+    test<LS,MP>(l1, 0.1, "MULTIPOINT((1.39998476912905323 1.0000365473536286)\
                                     (1.79996953825810646 1.0000243679448551)\
                                     (2 1.1999238595669637)\
                                     (2 1.5998477098527744)\
@@ -222,20 +239,34 @@ void test_sph()
                                     (1 2.2001522994279883)\
                                     (1 2.6000761497139444)\
                                     )");//(1,3)
-    test<LS,MP>(l, 0.2, "MULTIPOINT((1.79996953825810646 1.0000243679448551)\
+    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.79996953825810646 1.0000243679448551)\
                                     (2 1.5998477098527744)\
                                     (1.6000609543036084 2.0000730473928678)\
                                     (1 2.2001522994279883)\
                                     )");//(1,3)
-    test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
-    test<LS,MP>(l, 0.5, "MULTIPOINT((2 1.9997715601385837)(1 3))");
-    test<LS,MP>(l, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
-    test<LS,MP>(l, 1, "MULTIPOINT((1 3))");
+    test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
+    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 1.9997715601385837)(1 3))");
+    test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
+    test<LS,MP>(l1, 1, "MULTIPOINT((1 3))");
 
     test<LS,MP>(l2, 0.3, "MULTIPOINT((5.3014893312120446 1.0006787676128222)\
                                      (11.600850053156366 1.0085030143490989)\
                                      (17.9002174825842 1.0041514208039872))");
 
+}
+
+template <typename Strategy>
+void test_sph(Strategy str)
+{
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > P;
+    typedef bg::model::segment<P> S;
+
+    test_distance<S,P>(s, 0,   "POINT(1 1)", str);
+    test_distance<S,P>(s, 0.01, "POINT(1.4051065077123643 1.405268220524982)");
+    test_distance<S,P>(s, 0.01, "POINT(1.0040505023484179 1.0040529633262307)", str);
+    test_distance<S,P>(s, 1,   "POINT(1.4051065077123015 1.405268220524919)", str);
+    test_distance<S,P>(s, 1,   "POINT(2 2)");
+    test_distance<S,P>(s, 10,   "POINT(2 2)");
 }
 
 template <typename Strategy>
@@ -250,26 +281,26 @@ void test_geo(Strategy str)
     test<S,P>(s, 0.5, "POINT(1.4998780900539985 1.5000558288006378)", str);
     test<S,P>(s, 1,   "POINT(2 2)", str);
 
-    test<LS,P>(l, 0,   "POINT(1 1)", str);
-    test<LS,P>(l, 0.1, "POINT(1.3986445638301882 1.0000367522730751)", str);
-    test<LS,P>(l, 0.2, "POINT(1.79728912766037641 1.0000247772611039)", str);
-    test<LS,P>(l, 0.3, "POINT(2 1.1972285554368427)", str);
-    test<LS,P>(l, 0.4, "POINT(2 1.598498298996567)", str);
-    test<LS,P>(l, 0.5, "POINT(2 1.9997664696834965)", str);
-    test<LS,P>(l, 0.6, "POINT(1.6013936980010324 2.0000734568388099)", str);
-    test<LS,P>(l, 0.7, "POINT(1.2025664628960846 2.0000494983098767)", str);
-    test<LS,P>(l, 0.8, "POINT(1 2.1974612279909937)", str);
-    test<LS,P>(l, 0.9, "POINT(1 2.5987263175375022)", str);
-    test<LS,P>(l, 1,   "POINT(1 3)", str);
+    test<LS,P>(l1, 0,   "POINT(1 1)", str);
+    test<LS,P>(l1, 0.1, "POINT(1.3986445638301882 1.0000367522730751)", str);
+    test<LS,P>(l1, 0.2, "POINT(1.79728912766037641 1.0000247772611039)", str);
+    test<LS,P>(l1, 0.3, "POINT(2 1.1972285554368427)", str);
+    test<LS,P>(l1, 0.4, "POINT(2 1.598498298996567)", str);
+    test<LS,P>(l1, 0.5, "POINT(2 1.9997664696834965)", str);
+    test<LS,P>(l1, 0.6, "POINT(1.6013936980010324 2.0000734568388099)", str);
+    test<LS,P>(l1, 0.7, "POINT(1.2025664628960846 2.0000494983098767)", str);
+    test<LS,P>(l1, 0.8, "POINT(1 2.1974612279909937)", str);
+    test<LS,P>(l1, 0.9, "POINT(1 2.5987263175375022)", str);
+    test<LS,P>(l1, 1,   "POINT(1 3)", str);
 
-    test<LS,MP>(l, 0, "MULTIPOINT((1 1))", str);
+    test<LS,MP>(l1, 0, "MULTIPOINT((1 1))", str);
 
     //adnoyer is missing the last point in the following cases
     // of linestrings due to inaccuracy
     if (!boost::is_same<Strategy, bg::strategy::line_interpolate_point::geographic
                                  <bg::strategy::andoyer> >::value)
     {
-        test<LS,MP>(l, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
+        test<LS,MP>(l1, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
                     (1.79728912766037641 1.0000247772582571)\
                     (2 1.1972285554368427)\
                     (2 1.598498298996567)\
@@ -280,16 +311,16 @@ void test_geo(Strategy str)
                     (1 2.5987263175375022)\
                     (1 3))", str);
 
-                test<LS,MP>(l, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
-                            (2 1.598498298996567)\
-                            (1.6013936980010324 2.0000734568388099)\
-                            (1 2.1974612279909937)\
-                            (1 3))", str);
+        test<LS,MP>(l1, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
+                    (2 1.598498298996567)\
+                    (1.6013936980010324 2.0000734568388099)\
+                    (1 2.1974612279909937)\
+                    (1 3))", str);
     }
-    test<LS,MP>(l, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
-    test<LS,MP>(l, 0.5, "MULTIPOINT((2 1.9997664696834965)(1 3))", str);
-    test<LS,MP>(l, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
-    test<LS,MP>(l, 1, "MULTIPOINT((1 3))", str);
+    test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
+    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 1.9997664696834965)(1 3))", str);
+    test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
+    test<LS,MP>(l1, 1, "MULTIPOINT((1 3))", str);
 
     test<LS,MP>(l2, 0.3, "MULTIPOINT((5.306157814 1.0006937303)\
                                      (11.60351281 1.0085614548123072)\
@@ -311,7 +342,9 @@ int test_main(int, char* [])
 {
     test_car();
     test_car_edge_cases();
+
     test_sph();
+    test_sph(bg::strategy::line_interpolate_point::spherical<>(100));
 
     typedef typename bg::srs::spheroid<double> stype;
 

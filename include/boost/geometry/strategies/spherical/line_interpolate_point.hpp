@@ -48,6 +48,19 @@ class spherical
 {
 public:
 
+    typedef typename DistanceStrategy::radius_type radius_type;
+
+    inline spherical()
+    {}
+
+    explicit inline spherical(typename DistanceStrategy::radius_type const& r)
+        : m_strategy(r)
+    {}
+
+    inline spherical(DistanceStrategy const& s)
+        : m_strategy(s)
+    {}
+
     // point-point strategy getters
     struct distance_pp_strategy
     {
@@ -56,8 +69,7 @@ public:
 
     inline typename distance_pp_strategy::type get_distance_pp_strategy() const
     {
-        typedef typename distance_pp_strategy::type distance_type;
-        return distance_type();
+        return m_strategy;
     }
 
     template <typename Point, typename Fraction, typename Distance>
@@ -65,7 +77,7 @@ public:
                       Point const& p1,
                       Fraction const& fraction,
                       Point & p,
-                      Distance const& distance) const
+                      Distance const&) const
     {
         typedef typename select_calculation_type_alt
         <
@@ -80,9 +92,8 @@ public:
         typedef model::point<calc_t, 3, cs::cartesian> point3d_t;
         point3d_t const xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
         point3d_t const xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
-        //calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
-        //calc_t const angle01 = acos(dot01);
-        calc_t const angle01 = distance;
+        calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
+        calc_t const angle01 = acos(dot01);
 
         point3d_t axis;
         if (! math::equals(angle01, pi))
@@ -135,6 +146,8 @@ public:
 
         p = formula::cart3d_to_sph<Point>(v_rot);
     }
+private :
+    DistanceStrategy m_strategy;
 };
 
 
