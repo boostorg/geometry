@@ -8,7 +8,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[line_interpolate_point
+//[line_interpolate
 //` Shows how to interpolate points on a linestring
 
 #include <iostream>
@@ -29,23 +29,22 @@ int main()
     linestring_type const l { {0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2} };
     point_type p;
     multipoint_type mp;
-    double fraction = 0.1;
 
     std::cout << "point interpolation" << std::endl;
 
-    line_interpolate_point(s, fraction, p);
+    line_interpolate(s, std::sqrt(2)/4, p);
     std::cout << "on segment : " << wkt(p) << std::endl;
 
-    line_interpolate_point(l, fraction, p);
+    line_interpolate(l, 1.4, p);
     std::cout << "on linestring : " << wkt(p) << std::endl << std::endl;
 
     std::cout << "multipoint interpolation" << std::endl;
 
-    line_interpolate_point(s, fraction, mp);
+    line_interpolate(s, std::sqrt(2)/4, mp);
     std::cout << "on segment : " << wkt(mp) << std::endl;
 
     mp=multipoint_type();
-    line_interpolate_point(l,fraction, mp);
+    line_interpolate(l, 1.4, mp);
     std::cout << "on linestring : " << wkt(mp) << std::endl;
 
     return 0;
@@ -53,17 +52,17 @@ int main()
 
 //]
 
-//[line_interpolate_point_output
+//[line_interpolate_output
 /*`
 Output:
 [pre
 point interpolation
-on segment : POINT(0.1 0.1)
-on linestring : POINT(0.4 0)
+on segment : POINT(0.25 0.25)
+on linestring : POINT(1 0.4)
 
 multipoint interpolation
-on segment : MULTIPOINT((0.1 0.1),(0.2 0.2),(0.3 0.3),(0.4 0.4),(0.5 0.5),(0.6 0.6),(0.7 0.7),(0.8 0.8),(0.9 0.9),(1 1))
-on linestring : MULTIPOINT((0.4 0),(0.8 0),(1 0.2),(1 0.6),(1 1),(0.6 1),(0.2 1),(0 1.2),(0 1.6),(0 2))
+on segment : MULTIPOINT((0.25 0.25),(0.5 0.5),(0.75 0.75),(1 1))
+on linestring : MULTIPOINT((1 0.4),(0.2 1))
 ]
 */
 //]

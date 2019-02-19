@@ -14,7 +14,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/algorithms/line_interpolate_point.hpp>
+#include <boost/geometry/algorithms/line_interpolate.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 
 #include <boost/geometry/iterators/segment_iterator.hpp>
@@ -78,7 +78,7 @@ inline void test(std::string const& wkt1,
     bg::read_wkt(wkt2, o);
 
     P p1;
-    bg::line_interpolate_point(g, fraction * bg::length(g), p1, str);
+    bg::line_interpolate(g, fraction * bg::length(g), p1, str);
     check_points<P>::apply(p1, o);
 
 }
@@ -95,7 +95,7 @@ inline void test(std::string const& wkt1,
     bg::read_wkt(wkt2, o);
 
     P p1;
-    bg::line_interpolate_point(g, fraction * bg::length(g), p1);
+    bg::line_interpolate(g, fraction * bg::length(g), p1);
     check_points<P>::apply(p1, o);
 }
 
@@ -111,7 +111,7 @@ inline void test_distance(std::string const& wkt1,
     bg::read_wkt(wkt2, o);
 
     P p1;
-    bg::line_interpolate_point(g, distance, p1);
+    bg::line_interpolate(g, distance, p1);
     check_points<P>::apply(p1, o);
 }
 
@@ -128,7 +128,7 @@ inline void test_distance(std::string const& wkt1,
     bg::read_wkt(wkt2, o);
 
     P p1;
-    bg::line_interpolate_point(g, distance, p1, str);
+    bg::line_interpolate(g, distance, p1, str);
     check_points<P>::apply(p1, o);
 }
 
@@ -302,7 +302,7 @@ void test_geo(Strategy str)
 
     //adnoyer is missing the last point in the following cases
     // of linestrings due to inaccuracy
-    if (!boost::is_same<Strategy, bg::strategy::line_interpolate_point::geographic
+    if (!boost::is_same<Strategy, bg::strategy::line_interpolate::geographic
                                  <bg::strategy::andoyer> >::value)
     {
         test<LS,MP>(l1, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
@@ -349,15 +349,15 @@ int test_main(int, char* [])
     test_car_edge_cases();
 
     test_sph();
-    test_sph(bg::strategy::line_interpolate_point::spherical<>(100));
+    test_sph(bg::strategy::line_interpolate::spherical<>(100));
 
     typedef typename bg::srs::spheroid<double> stype;
 
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::andoyer>());
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::thomas>());
-    test_geo(bg::strategy::line_interpolate_point::geographic<bg::strategy::vincenty>());
+    test_geo(bg::strategy::line_interpolate::geographic<bg::strategy::andoyer>());
+    test_geo(bg::strategy::line_interpolate::geographic<bg::strategy::thomas>());
+    test_geo(bg::strategy::line_interpolate::geographic<bg::strategy::vincenty>());
 
-    test_geo_non_standard_spheroid(bg::strategy::line_interpolate_point::geographic
+    test_geo_non_standard_spheroid(bg::strategy::line_interpolate::geographic
                                    <bg::strategy::vincenty>(stype(5000000,6000000)));
 
     return 0;

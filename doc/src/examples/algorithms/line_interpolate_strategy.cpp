@@ -8,7 +8,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[line_interpolate_point_strategy
+//[line_interpolate_strategy
 //` Shows how to interpolate points on a linestring in geographic coordinate system
 
 #include <iostream>
@@ -26,30 +26,30 @@ int main()
     using multipoint_type = model::multi_point<point_type>;
 
     segment_type const s { {0, 0}, {1, 1} };
-    linestring_type const l { {0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2} };
+    linestring_type const l { {0, 1}, {1, 1}, {1, 2}, {0, 2}, {0, 3} };
     point_type p;
     multipoint_type mp;
-    double fraction = 0.1;
+    double distance = 50000;
 
     srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
-    strategy::line_interpolate_point
+    strategy::line_interpolate
             ::geographic<strategy::vincenty> str(spheroid);
 
     std::cout << "point interpolation" << std::endl;
 
-    line_interpolate_point(s, fraction, p, str);
+    line_interpolate(s, distance, p, str);
     std::cout << "on segment : " << wkt(p) << std::endl;
 
-    line_interpolate_point(l, fraction, p, str);
+    line_interpolate(l, distance, p, str);
     std::cout << "on linestring : " << wkt(p) << std::endl << std::endl;
 
     std::cout << "multipoint interpolation" << std::endl;
 
-    line_interpolate_point(s, fraction, mp, str);
+    line_interpolate(s, distance, mp, str);
     std::cout << "on segment : " << wkt(mp) << std::endl;
 
     mp=multipoint_type();
-    line_interpolate_point(l,fraction, mp, str);
+    line_interpolate(l,distance, mp, str);
     std::cout << "on linestring : " << wkt(mp) << std::endl;
 
     return 0;
@@ -57,21 +57,18 @@ int main()
 
 //]
 
-//[line_interpolate_point_strategy_output
+//[line_interpolate_strategy_output
 /*`
 Output:
 [pre
 point interpolation
-on segment : POINT(0.09999 0.100005)
-on linestring : POINT(0.398647 2.45744e-17)
+on segment : POINT(0.318646 0.31869)
+on linestring : POINT(0.449226 1.00004)
 
 multipoint interpolation
-on segment : MULTIPOINT((0.09999 0.100005),(0.199981 0.20001),\
-(0.299972 0.300014),(0.399966 0.400018),(0.499962 0.50002),(0.599961 0.60002),\
-(0.699964 0.700019),(0.799971 0.800015),(0.899983 0.900009),(1 1))
-on linestring : MULTIPOINT((0.398647 2.45744e-17),(0.797294 4.91476e-17),\
-(1 0.197261),(1 0.598594),(1 0.999927),(0.601365 1.00004),(0.202658 1.00002),\
-(0 1.19734),(0 1.59867),(0 2))
+on segment : MULTIPOINT((0.318646 0.31869),(0.637312 0.63737),(0.956017 0.95603))
+on linestring : MULTIPOINT((0.449226 1.00004),(0.898451 1.00001),(1 1.34997),
+(1 1.80215),(0.74722 2.00006),(0.297791 2.00006),(0 2.15257),(0 2.60474))
 ]
 */
 //]

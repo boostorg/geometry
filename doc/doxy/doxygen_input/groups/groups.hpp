@@ -55,7 +55,7 @@
 \defgroup is_valid is_valid: detect if a geometry is valid
 \defgroup iterators iterators: iterators
 \defgroup length length: calculate length of a linear geometry
-\defgroup line_interpolate_point line_interpolate_point: interpolates points on a linestring
+\defgroup line_interpolate line_interpolate: interpolates points on a linestring
 \defgroup make make: construct geometries
 \defgroup num_geometries number of geometries: calculate the number of geometries in a multi-geometry
 \defgroup num_interior_rings number of interior rings: calculate the number of interior rings

@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_POINT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_POINT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
 
 #include <iterator>
 
@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/line_interpolate.hpp>
 
 namespace boost { namespace geometry
 {
@@ -170,7 +170,7 @@ template
     typename Tag1 = typename tag<Geometry>::type,
     typename Tag2 = typename tag<Pointlike>::type
 >
-struct line_interpolate_point
+struct line_interpolate
 {
     BOOST_MPL_ASSERT_MSG
         (
@@ -181,7 +181,7 @@ struct line_interpolate_point
 
 
 template <typename Geometry, typename Pointlike>
-struct line_interpolate_point<Geometry, Pointlike, linestring_tag, point_tag>
+struct line_interpolate<Geometry, Pointlike, linestring_tag, point_tag>
     : detail::interpolate_point::range
         <
             detail::interpolate_point::convert_and_assign
@@ -189,7 +189,7 @@ struct line_interpolate_point<Geometry, Pointlike, linestring_tag, point_tag>
 {};
 
 template <typename Geometry, typename Pointlike>
-struct line_interpolate_point<Geometry, Pointlike, linestring_tag, multi_point_tag>
+struct line_interpolate<Geometry, Pointlike, linestring_tag, multi_point_tag>
     : detail::interpolate_point::range
         <
             detail::interpolate_point::convert_and_push_back
@@ -197,7 +197,7 @@ struct line_interpolate_point<Geometry, Pointlike, linestring_tag, multi_point_t
 {};
 
 template <typename Geometry, typename Pointlike>
-struct line_interpolate_point<Geometry, Pointlike, segment_tag, point_tag>
+struct line_interpolate<Geometry, Pointlike, segment_tag, point_tag>
     : detail::interpolate_point::segment
         <
             detail::interpolate_point::convert_and_assign
@@ -205,7 +205,7 @@ struct line_interpolate_point<Geometry, Pointlike, segment_tag, point_tag>
 {};
 
 template <typename Geometry, typename Pointlike>
-struct line_interpolate_point<Geometry, Pointlike, segment_tag, multi_point_tag>
+struct line_interpolate<Geometry, Pointlike, segment_tag, multi_point_tag>
     : detail::interpolate_point::segment
         <
             detail::interpolate_point::convert_and_push_back
@@ -218,7 +218,7 @@ struct line_interpolate_point<Geometry, Pointlike, segment_tag, multi_point_tag>
 
 namespace resolve_strategy {
 
-struct line_interpolate_point
+struct line_interpolate
 {
     template
     <
@@ -232,7 +232,7 @@ struct line_interpolate_point
                              Pointlike & pointlike,
                              Strategy const& strategy)
     {
-        dispatch::line_interpolate_point<Geometry, Pointlike>::apply(geometry,
+        dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
                                                                      max_distance,
                                                                      pointlike,
                                                                      strategy);
@@ -244,12 +244,12 @@ struct line_interpolate_point
                              Pointlike & pointlike,
                              default_strategy)
     {        
-        typedef typename strategy::line_interpolate_point::services::default_strategy
+        typedef typename strategy::line_interpolate::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
             >::type strategy_type;
 
-        dispatch::line_interpolate_point<Geometry, Pointlike>::apply(geometry,
+        dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
                                                                     max_distance,
                                                                     pointlike,
                                                                     strategy_type());
@@ -262,7 +262,7 @@ struct line_interpolate_point
 namespace resolve_variant {
 
 template <typename Geometry>
-struct line_interpolate_point
+struct line_interpolate
 {
     template <typename Distance, typename Pointlike, typename Strategy>
     static inline void apply(Geometry const& geometry,
@@ -270,7 +270,7 @@ struct line_interpolate_point
                              Pointlike & pointlike,
                              Strategy const& strategy)
     {
-        return resolve_strategy::line_interpolate_point::apply(geometry,
+        return resolve_strategy::line_interpolate::apply(geometry,
                                                                max_distance,
                                                                pointlike,
                                                                strategy);
@@ -278,7 +278,7 @@ struct line_interpolate_point
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+struct line_interpolate<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     template <typename Pointlike, typename Strategy>
     struct visitor: boost::static_visitor<void>
@@ -294,7 +294,7 @@ struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         template <typename Geometry, typename Distance>
         void operator()(Geometry const& geometry, Distance const& max_distance) const
         {
-            line_interpolate_point<Geometry>::apply(geometry, max_distance,
+            line_interpolate<Geometry>::apply(geometry, max_distance,
                                                     m_pointlike, m_strategy);
         }
     };
@@ -318,7 +318,7 @@ struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 /*!
 \brief 	Returns one or more points interpolated along a LineString \brief_strategy
-\ingroup line_interpolate_point
+\ingroup line_interpolate
 \tparam Geometry Any type fulfilling a LineString concept
 \tparam Distance A numerical distance measure
 \tparam Pointlike Any type fulfilling Point or Multipoint concept
@@ -328,22 +328,25 @@ struct line_interpolate_point<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 representing the spacing between the points
 \param pointlike Output: either a Point (exactly one point will be constructed) or
 a MultiPoint (depending on the max_distance one or more points will be constructed)
-\param strategy Line_interpolate_point strategy to be used for interpolation of
+\param strategy line_interpolate strategy to be used for interpolation of
 points
 
-\qbk{[include reference/algorithms/line_interpolate_point.qbk]}
+\qbk{[include reference/algorithms/line_interpolate.qbk]}
 
 \qbk{distinguish,with strategy}
 
 \qbk{
 [heading Available Strategies]
-\* [link geometry.reference.strategies.strategy_line_interpolate_point_cartesian Cartesian]
-\* [link geometry.reference.strategies.strategy_line_interpolate_point_spherical Spherical]
-\* [link geometry.reference.strategies.strategy_line_interpolate_point_geographic Geographic]
+\* [link geometry.reference.strategies.strategy_line_interpolate_cartesian Cartesian]
+\* [link geometry.reference.strategies.strategy_line_interpolate_spherical Spherical]
+\* [link geometry.reference.strategies.strategy_line_interpolate_geographic Geographic]
 
 [heading Example]
-[line_interpolate_point_strategy]
-[line_interpolate_point_strategy_output]
+[line_interpolate_strategy]
+[line_interpolate_strategy_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.densify densify]
 }
  */
 template
@@ -353,7 +356,7 @@ template
     typename Pointlike,
     typename Strategy
 >
-inline void line_interpolate_point(Geometry const& geometry,
+inline void line_interpolate(Geometry const& geometry,
                                    Distance const& max_distance,
                                    Pointlike & pointlike,
                                    Strategy const& strategy)
@@ -362,14 +365,14 @@ inline void line_interpolate_point(Geometry const& geometry,
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::line_interpolate_point<Geometry>
+    return resolve_variant::line_interpolate<Geometry>
                           ::apply(geometry, max_distance, pointlike, strategy);
 }
 
 
 /*!
 \brief 	Returns one or more points interpolated along a LineString.
-\ingroup line_interpolate_point
+\ingroup line_interpolate
 \tparam Geometry Any type fulfilling a LineString concept
 \tparam Distance A numerical distance measure
 \tparam Pointlike Any type fulfilling Point or Multipoint concept
@@ -379,15 +382,18 @@ representing the spacing between the points
 \param pointlike Output: either a Point (exactly one point will be constructed) or
 a MultiPoint (depending on the max_distance one or more points will be constructed)
 
-\qbk{[include reference/algorithms/line_interpolate_point.qbk]
+\qbk{[include reference/algorithms/line_interpolate.qbk]
 
 [heading Example]
-[line_interpolate_point]
-[line_interpolate_point_output]
+[line_interpolate]
+[line_interpolate_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.densify densify]
 }
  */
 template<typename Geometry, typename Distance, typename Pointlike>
-inline void line_interpolate_point(Geometry const& geometry,
+inline void line_interpolate(Geometry const& geometry,
                                    Distance const& max_distance,
                                    Pointlike & pointlike)
 {
@@ -395,10 +401,10 @@ inline void line_interpolate_point(Geometry const& geometry,
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::line_interpolate_point<Geometry>
+    return resolve_variant::line_interpolate<Geometry>
                           ::apply(geometry, max_distance, pointlike, default_strategy());
 }
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_POINT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP

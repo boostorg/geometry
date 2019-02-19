@@ -166,8 +166,8 @@
 [include generated/length.qbk]
 [endsect]
 
-[section:line_interpolate_point line_interpolate_point]
-[include generated/line_interpolate_point.qbk]
+[section:line_interpolate line_interpolate]
+[include generated/line_interpolate.qbk]
 [endsect]
 
 [section:make make]
@@ -382,9 +382,9 @@
 [include generated/distance_projected_point.qbk]
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
-[include generated/line_interpolate_point_cartesian.qbk]
-[include generated/line_interpolate_point_geographic.qbk]
-[include generated/line_interpolate_point_spherical.qbk]
+[include generated/line_interpolate_cartesian.qbk]
+[include generated/line_interpolate_geographic.qbk]
+[include generated/line_interpolate_spherical.qbk]
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
 [include generated/side_spherical_side_formula.qbk]

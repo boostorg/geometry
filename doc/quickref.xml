@@ -429,9 +429,9 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.length">length</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">Line_interpolate_points</bridgehead>
+    <bridgehead renderas="sect3">line_interpolate</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.line_interpolate_point">line_interpolate_point</link></member>
+     <member><link linkend="geometry.reference.algorithms.line_interpolate">line_interpolate</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Num_ (counting)</bridgehead>
     <simplelist type="vert" columns="1">
@@ -594,9 +594,9 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Line interpolate point</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_cartesian">strategy::line_interpolate_point::cartesian</link></member>
-     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_geographic">strategy::line_interpolate_point::geographic</link></member>
-     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_point_spherical">strategy::line_interpolate_point::spherical</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_cartesian">strategy::line_interpolate::cartesian</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_geographic">strategy::line_interpolate::geographic</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_spherical">strategy::line_interpolate::spherical</link></member>
     </simplelist>
    </entry>
    <entry valign="top">

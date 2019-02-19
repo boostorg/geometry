@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_HPP
 
 
 #include <boost/mpl/assert.hpp>
@@ -17,7 +17,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace line_interpolate_point
+namespace strategy { namespace line_interpolate
 {
 
 namespace services
@@ -35,8 +35,8 @@ struct default_strategy
 
 } // namespace services
 
-}} // namespace strategy::line_interpolate_point
+}} // namespace strategy::line_interpolate
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_LINE_INTERPOLATE_HPP

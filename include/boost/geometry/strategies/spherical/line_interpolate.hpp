@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_HPP
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -16,7 +16,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/interpolate_point_spherical.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
-#include <boost/geometry/strategies/line_interpolate_point.hpp>
+#include <boost/geometry/strategies/line_interpolate.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
@@ -24,7 +24,7 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace line_interpolate_point
+namespace strategy { namespace line_interpolate
 {
 
 
@@ -36,7 +36,7 @@ namespace strategy { namespace line_interpolate_point
 
 \qbk{
 [heading See also]
-\* [link geometry.reference.algorithms.line_interpolate_point.line_interpolate_point_4_with_strategy line_interpolate_point (with strategy)]
+\* [link geometry.reference.algorithms.line_interpolate.line_interpolate_4_with_strategy line_interpolate (with strategy)]
 }
 
  */
@@ -107,7 +107,7 @@ namespace services
 template <>
 struct default_strategy<spherical_equatorial_tag>
 {
-    typedef strategy::line_interpolate_point::spherical<> type;
+    typedef strategy::line_interpolate::spherical<> type;
 };
 
 
@@ -115,9 +115,9 @@ struct default_strategy<spherical_equatorial_tag>
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
-}} // namespace strategy::line_interpolate_point
+}} // namespace strategy::line_interpolate
 
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_LINE_INTERPOLATE_HPP
