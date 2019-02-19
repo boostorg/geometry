@@ -18,14 +18,15 @@ namespace boost { namespace geometry { namespace formula
 template <typename CalculationType>
 class interpolate_point_spherical
 {
-public :
     typedef model::point<CalculationType, 3, cs::cartesian> point3d_t;
-    CalculationType const c0 = 0;
     CalculationType const c1 = 1;
-    CalculationType const pi = math::pi<CalculationType>();
+
+public :
 
     template <typename Point>
-    void compute_angle(Point const& p0, Point const& p1, CalculationType& angle01)
+    void compute_angle(Point const& p0,
+                       Point const& p1,
+                       CalculationType& angle01)
     {    
         m_xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
         m_xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
@@ -37,6 +38,9 @@ public :
     void compute_axis(Point const& p0,
                       CalculationType const& angle01)
     {
+        CalculationType const c0 = 0;
+        CalculationType const pi = math::pi<CalculationType>();
+
         if (! math::equals(angle01, pi))
         {
             m_axis = geometry::cross_product(m_xyz0, m_xyz1);
@@ -81,7 +85,8 @@ public :
         geometry::multiply_value(s2, sin_a);
         // (1 - cos_a)(n.v) * n
         point3d_t s3 = m_axis;
-        geometry::multiply_value(s3, (c1 - cos_a) * geometry::dot_product(m_axis, m_xyz0));
+        geometry::multiply_value(s3, (c1 - cos_a) *
+                                 geometry::dot_product(m_axis, m_xyz0));
         // v_rot = cos_a * v + sin_a * (n x v) + (1 - cos_a)(n.v) * e
         point3d_t v_rot = s1;
         geometry::add_point(v_rot, s2);
