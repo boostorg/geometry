@@ -545,6 +545,7 @@
      <member><link linkend="geometry.reference.strategies.strategy_buffer_join_round">strategy::buffer::join_round</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_circle">strategy::buffer::point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_square">strategy::buffer::point_square</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_buffer_geographic_point_circle">strategy::buffer::geographic_point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_side_straight">strategy::buffer::side_straight</link></member>
     </simplelist>
    </entry>
