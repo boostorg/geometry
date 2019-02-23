@@ -112,8 +112,7 @@ coordinate_systems = ["cartesian", "geographic", "polar", "spherical", "spherica
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "interior_type"
-    , "degree", "radian"
-    , "is_radian", "point_order"
+    , "degree", "radian", "point_order"
     , "point_type", "ring_type", "tag", "tag_cast" ]
 
 exceptions = ["exception", "centroid_exception"];
