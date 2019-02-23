@@ -150,11 +150,7 @@ void test_areal()
     TEST_INTERSECTION(case_123_multi, 3, 13, 1.875);
     TEST_INTERSECTION(case_124_multi, 2, 13, 2.0625);
     TEST_INTERSECTION(case_125_multi, 3, 17, 2.1);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_126_multi, 5, 27, 9.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_126_multi, 3, 23, 9.0);
-#endif
     TEST_INTERSECTION(case_127_multi, 3, 19, 24.0);
     TEST_INTERSECTION(case_128_multi, 2, 26, 75.5);
     TEST_INTERSECTION(case_129_multi, 1, 20, 20.5);
@@ -171,11 +167,7 @@ void test_areal()
     TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
     TEST_INTERSECTION(case_141_multi, 3, -1, 74.5);
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 89, 47.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_1, 8, 97, 47.0);
-#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_2",
         case_recursive_boxes_2[0], case_recursive_boxes_2[1],
@@ -184,11 +176,7 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 84, 12.5); // Area from SQL Server
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 158, 67.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 8, 178, 67.0);
-#endif
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     // Should contain 6 output polygons
@@ -316,40 +304,18 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_60, 8, -1, 10.0);
     TEST_INTERSECTION(case_recursive_boxes_61, 2, -1, 20.0);
     TEST_INTERSECTION(case_recursive_boxes_62, 9, -1, 10.5);
-
     TEST_INTERSECTION(case_recursive_boxes_63, 11, -1, 5.75);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_64, 5, -1, 17.25);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_64, 4, -1, 17.25);
-#endif
     TEST_INTERSECTION(case_recursive_boxes_65, 3, -1, 17.25);
-
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_66, 4, -1, 16.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_66, 2, -1, 16.0);
-#endif
-
     TEST_INTERSECTION(case_recursive_boxes_67, 5, -1, 2.5);
     TEST_INTERSECTION(case_recursive_boxes_68, 8, -1, 9.5);
     TEST_INTERSECTION(case_recursive_boxes_69, 6, -1, 3.25);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_70, 6, -1, 18.5);
-#else
-    // Misses a necessary self-turn and therefore a ring
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_70, 3, -1, 18.0);
-#endif
-
     TEST_INTERSECTION(case_recursive_boxes_71, 3, -1, 1.75);
     TEST_INTERSECTION(case_recursive_boxes_72, 8, -1, 4.5);
     TEST_INTERSECTION(case_recursive_boxes_73, 3, -1, 18.5);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_74, 3, -1, 20.25);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_74, 2, -1, 20.25);
-#endif
-
     TEST_INTERSECTION(case_recursive_boxes_75, 5, -1, 16.75);
     TEST_INTERSECTION(case_recursive_boxes_76, 2, -1, 18.25);
     TEST_INTERSECTION(case_recursive_boxes_77, 5, -1, 3.5);
@@ -357,12 +323,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_79, 5, -1, 9.0);
     TEST_INTERSECTION(case_recursive_boxes_80, 1, -1, 0.25);
     TEST_INTERSECTION(case_recursive_boxes_81, 5, -1, 3.75);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
-#else
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_82, 3, -1, 8.5);
-#endif
-
     TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
     TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
 #ifdef BOOST_GEOMETRY_NO_ROBUSTNESS
@@ -417,12 +378,7 @@ void test_areal()
         mysql_23023665_7[0], mysql_23023665_7[1],
         2, 11, 9.80505786783);
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_12, 2, 0, 11.812440191387557);
-#else
-    TEST_INTERSECTION_IGNORE(mysql_23023665_12, 1, -1, 11.812440191387557);
-#endif
-
     TEST_INTERSECTION(mysql_regression_1_65_2017_08_31, 2, -1, 29.9022122);
 }
 

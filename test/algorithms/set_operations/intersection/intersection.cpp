@@ -56,13 +56,6 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     ( #caseid #index1 "_" #index2, caseid[index1], caseid[index2], \
      clips, points, area, settings)
 
-#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-    #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
-        (test_one<Polygon, Polygon, Polygon>) \
-        ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
-#endif
-
 template <typename Polygon>
 void test_areal()
 {
@@ -395,14 +388,8 @@ void test_areal()
         TEST_INTERSECTION_WITH(case_precision_13, 1, 0, 1, -1, 2.0, settings);
     }
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_106, 0, -1, 3.5);
-    TEST_INTERSECTION_IGNORE(case_107, 0, -1, 3.0);
-#endif
-
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
@@ -417,12 +404,7 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
-    // Needs self-intersections to solve validity
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
-#else
-    TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
