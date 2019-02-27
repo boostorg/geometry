@@ -23,9 +23,13 @@
 [heading Boost 1.70]
 [/=================]
 
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/526 526] New line interpolate algorithm.
+
 [*Bugfixes]
 
-* [@https://github.com/boostorg/geometry/pull/553 553] Pass spheroid correctly in geographic comparable strategies
+* [@https://github.com/boostorg/geometry/pull/553 553] Pass spheroid correctly in geographic comparable strategies.
 
 [/=================]
 [heading Boost 1.69]

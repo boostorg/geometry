@@ -9,6 +9,7 @@
   This file was modified by Oracle on 2014, 2017, 2018.
   Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -163,6 +164,10 @@
 
 [section:length length]
 [include generated/length.qbk]
+[endsect]
+
+[section:line_interpolate line_interpolate]
+[include generated/line_interpolate.qbk]
 [endsect]
 
 [section:make make]
@@ -377,6 +382,9 @@
 [include generated/distance_projected_point.qbk]
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
+[include generated/line_interpolate_cartesian.qbk]
+[include generated/line_interpolate_geographic.qbk]
+[include generated/line_interpolate_spherical.qbk]
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
 [include generated/side_spherical_side_formula.qbk]

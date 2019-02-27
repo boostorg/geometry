@@ -371,6 +371,9 @@ struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 [heading Example]
 [densify_strategy]
 [densify_strategy_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.line_interpolate line_interpolate]
 }
 */
 template <typename Geometry, typename Distance, typename Strategy>
@@ -410,6 +413,9 @@ inline void densify(Geometry const& geometry,
 [heading Example]
 [densify]
 [densify_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.line_interpolate line_interpolate]
 }
 */
 template <typename Geometry, typename Distance>
