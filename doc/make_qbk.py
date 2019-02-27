@@ -113,8 +113,7 @@ coordinate_systems = ["cartesian", "geographic", "polar", "spherical", "spherica
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "interior_type"
-    , "degree", "radian"
-    , "is_radian", "point_order"
+    , "degree", "radian", "point_order"
     , "point_type", "ring_type", "tag", "tag_cast" ]
 
 exceptions = ["exception", "centroid_exception"];
@@ -134,6 +133,7 @@ strategies = ["area::cartesian", "area::spherical", "area::geographic"
     , "buffer::end_round", "buffer::end_flat"
     , "buffer::distance_symmetric", "buffer::distance_asymmetric"
     , "buffer::side_straight"
+    , "buffer::geographic_point_circle"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
     , "densify::cartesian", "densify::geographic", "densify::spherical"

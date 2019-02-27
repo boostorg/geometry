@@ -196,7 +196,6 @@
      <member><link linkend="geometry.reference.core.coordinate_system">coordinate_system</link></member>
      <member><link linkend="geometry.reference.core.dimension">dimension</link></member>
      <member><link linkend="geometry.reference.core.interior_type">interior_type</link></member>
-     <member><link linkend="geometry.reference.core.is_radian">is_radian</link></member>
      <member><link linkend="geometry.reference.core.point_order">point_order</link></member>
      <member><link linkend="geometry.reference.core.point_type">point_type</link></member>
      <member><link linkend="geometry.reference.core.ring_type">ring_type</link></member>
@@ -551,6 +550,7 @@
      <member><link linkend="geometry.reference.strategies.strategy_buffer_join_round">strategy::buffer::join_round</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_circle">strategy::buffer::point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_square">strategy::buffer::point_square</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_buffer_geographic_point_circle">strategy::buffer::geographic_point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_side_straight">strategy::buffer::side_straight</link></member>
     </simplelist>
    </entry>
