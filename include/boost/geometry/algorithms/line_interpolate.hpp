@@ -233,9 +233,9 @@ struct line_interpolate
                              Strategy const& strategy)
     {
         dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
-                                                                     max_distance,
-                                                                     pointlike,
-                                                                     strategy);
+                                                               max_distance,
+                                                               pointlike,
+                                                               strategy);
     }
 
     template <typename Geometry, typename Distance, typename Pointlike>
@@ -250,9 +250,9 @@ struct line_interpolate
             >::type strategy_type;
 
         dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
-                                                                    max_distance,
-                                                                    pointlike,
-                                                                    strategy_type());
+                                                               max_distance,
+                                                               pointlike,
+                                                               strategy_type());
     }
 };
 
@@ -271,9 +271,9 @@ struct line_interpolate
                              Strategy const& strategy)
     {
         return resolve_strategy::line_interpolate::apply(geometry,
-                                                               max_distance,
-                                                               pointlike,
-                                                               strategy);
+                                                         max_distance,
+                                                         pointlike,
+                                                         strategy);
     }
 };
 
@@ -295,7 +295,7 @@ struct line_interpolate<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         void operator()(Geometry const& geometry, Distance const& max_distance) const
         {
             line_interpolate<Geometry>::apply(geometry, max_distance,
-                                                    m_pointlike, m_strategy);
+                                              m_pointlike, m_strategy);
         }
     };
 
@@ -357,9 +357,9 @@ template
     typename Strategy
 >
 inline void line_interpolate(Geometry const& geometry,
-                                   Distance const& max_distance,
-                                   Pointlike & pointlike,
-                                   Strategy const& strategy)
+                             Distance const& max_distance,
+                             Pointlike & pointlike,
+                             Strategy const& strategy)
 {
     concepts::check<Geometry const>();
 
@@ -394,8 +394,8 @@ a MultiPoint (depending on the max_distance one or more points will be construct
  */
 template<typename Geometry, typename Distance, typename Pointlike>
 inline void line_interpolate(Geometry const& geometry,
-                                   Distance const& max_distance,
-                                   Pointlike & pointlike)
+                             Distance const& max_distance,
+                             Pointlike & pointlike)
 {
     concepts::check<Geometry const>();
 
