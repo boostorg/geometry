@@ -22,11 +22,16 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/variant/variant.hpp>
 #include <boost/type_traits/integral_constant.hpp>
+#include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_void.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <string>
 #include <vector>

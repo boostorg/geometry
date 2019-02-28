@@ -40,6 +40,7 @@ test-suite boost-geometry-algorithms
     [ run is_valid.cpp                 : : : : algorithms_is_valid ]
     [ run is_valid_failure.cpp         : : : : algorithms_is_valid_failure ]
     [ run is_valid_geo.cpp             : : : : algorithms_is_valid_geo ]
+    [ run line_interpolate.cpp         : : : : algorithms_line_interpolate ]
     [ run make.cpp                     : : : : algorithms_make ]
     [ run maximum_gap.cpp              : : : : algorithms_maximum_gap ]
     [ run num_geometries.cpp           : : : : algorithms_num_geometries ]

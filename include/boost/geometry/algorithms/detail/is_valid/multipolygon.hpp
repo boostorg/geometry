@@ -116,19 +116,12 @@ private:
         }
 
         // prepare strategies
-        typedef typename std::iterator_traits<PolygonIterator>::value_type polygon_type;
-        typedef typename Strategy::template point_in_geometry_strategy
-            <
-                polygon_type, polygon_type
-            >::type within_strategy_type;
-        within_strategy_type const within_strategy
-            = strategy.template get_point_in_geometry_strategy<polygon_type, polygon_type>();
         typedef typename Strategy::envelope_strategy_type envelope_strategy_type;
         envelope_strategy_type const envelope_strategy
             = strategy.get_envelope_strategy();
 
         // call partition to check if polygons are disjoint from each other
-        typename base::template item_visitor_type<within_strategy_type> item_visitor(within_strategy);
+        typename base::template item_visitor_type<Strategy> item_visitor(strategy);
 
         geometry::partition
             <

@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013, 2014, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2017, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -61,7 +61,7 @@ struct use_point_in_geometry
     template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
     {
-        return detail::within::point_in_geometry(geometry1, geometry2, strategy) == 1;
+        return detail::within::within_point_geometry(geometry1, geometry2, strategy);
     }
 };
 

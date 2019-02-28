@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2016, 2017, 2018.
+// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -48,8 +48,8 @@ template
 >
 struct indexed_loop
 {
-    template <typename Box, typename Geometry, typename Strategy>
-    static inline void apply(Box& box, Geometry const& source, Strategy const& strategy)
+    template <typename Box, typename Geometry>
+    static inline void apply(Box& box, Geometry const& source)
     {
         typedef typename select_coordinate_type
                 <
@@ -75,7 +75,7 @@ struct indexed_loop
         indexed_loop
             <
                 Index, Dimension + 1, DimensionCount
-            >::apply(box, source, strategy);
+            >::apply(box, source);
     }
 };
 
@@ -86,8 +86,8 @@ struct indexed_loop
         Index, DimensionCount, DimensionCount
     >
 {
-    template <typename Box, typename Geometry, typename Strategy>
-    static inline void apply(Box&, Geometry const&, Strategy const&) {}
+    template <typename Box, typename Geometry>
+    static inline void apply(Box&, Geometry const&) {}
 };
 
 
@@ -96,20 +96,18 @@ struct indexed_loop
 template <std::size_t Dimension, std::size_t DimensionCount>
 struct expand_indexed
 {
-    template <typename Box, typename Geometry, typename Strategy>
-    static inline void apply(Box& box,
-                             Geometry const& geometry,
-                             Strategy const& strategy)
+    template <typename Box, typename Geometry>
+    static inline void apply(Box& box, Geometry const& geometry)
     {
         indexed_loop
             <
                 0, Dimension, DimensionCount
-            >::apply(box, geometry, strategy);
+            >::apply(box, geometry);
 
         indexed_loop
             <
                 1, Dimension, DimensionCount
-            >::apply(box, geometry, strategy);
+            >::apply(box, geometry);
     }
 };
 

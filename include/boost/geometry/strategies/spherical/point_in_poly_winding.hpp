@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018.
+// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -27,8 +27,10 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
+#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
@@ -63,7 +65,7 @@ class spherical_winding_base
             CalculationType
         >::type calculation_type;
 
-    typedef typename coordinate_system<Point>::type::units units_t;
+    typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
     typedef math::detail::constants_on_spheroid<calculation_type, units_t> constants;
     
     /*! subclass to keep state */
@@ -139,6 +141,20 @@ public:
     {
         return m_side_strategy.get_disjoint_strategy();
     }
+
+    typedef typename SideStrategy::equals_point_point_strategy_type equals_point_point_strategy_type;
+    inline equals_point_point_strategy_type get_equals_point_point_strategy() const
+    {
+        return m_side_strategy.get_equals_point_point_strategy();
+    }
+
+    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
 
     spherical_winding_base()
     {}
@@ -434,7 +450,7 @@ private:
                           count_info const& ci) const
     {
         typedef typename coordinate_type<PointOfSegment>::type scoord_t;
-        typedef typename coordinate_system<PointOfSegment>::type::units units_t;
+        typedef typename geometry::detail::cs_angular_units<PointOfSegment>::type units_t;
 
         if (math::equals(get<1>(point), get<1>(se)))
         {

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -279,9 +279,10 @@ struct union_
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
 
-        typedef typename strategy::intersection::services::default_strategy
+        typedef typename strategy::relate::services::default_strategy
             <
-                typename cs_tag<geometry_out>::type
+                Geometry1,
+                Geometry2
             >::type strategy_type;
 
         dispatch::union_insert

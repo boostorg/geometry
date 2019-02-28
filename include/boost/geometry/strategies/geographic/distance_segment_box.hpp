@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,7 +11,21 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_SEGMENT_BOX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_SEGMENT_BOX_HPP
 
+#include <boost/geometry/srs/spheroid.hpp>
+
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
+
+#include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/select_calculation_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -68,6 +83,13 @@ struct geographic_segment_box
         return distance_type(m_spheroid);
     }
 
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
+    }
+
     //constructor
 
     explicit geographic_segment_box(Spheroid const& spheroid = Spheroid())
@@ -107,7 +129,10 @@ struct geographic_segment_box
                     ReturnType
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
                  geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>(),
-                 az_strategy, es_strategy);
+                 az_strategy, es_strategy,
+                 normalize::spherical_point(),
+                 covered_by::spherical_point_box(),
+                 disjoint::spherical_box_box());
     }
 
     template <typename SPoint, typename BPoint>

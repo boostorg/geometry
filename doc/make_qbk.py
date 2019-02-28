@@ -97,12 +97,13 @@ call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "crosses", "densify", "difference", "discrete_frechet_distance","discrete_hausdorff_distance","disjoint", "distance" 
-    , "envelope", "equals", "expand", "for_each", "is_empty"
+    , "convex_hull", "crosses", "densify", "difference"
+    , "discrete_frechet_distance", "discrete_hausdorff_distance", "disjoint"
+    , "distance", "envelope", "equals", "expand", "for_each", "is_empty"
     , "is_simple", "is_valid", "intersection", "intersects", "length"
-    , "num_geometries", "num_interior_rings", "num_points"
-    , "num_segments", "overlaps", "perimeter", "relate", "relation"
-    , "reverse","simplify", "sym_difference", "touches"
+    , "line_interpolate", "num_geometries", "num_interior_rings"
+    , "num_points", "num_segments", "overlaps", "perimeter", "relate"
+    , "relation", "reverse","simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
@@ -112,8 +113,7 @@ coordinate_systems = ["cartesian", "geographic", "polar", "spherical", "spherica
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
     , "dimension", "exception", "interior_type"
-    , "degree", "radian"
-    , "is_radian", "point_order"
+    , "degree", "radian", "point_order"
     , "point_type", "ring_type", "tag", "tag_cast" ]
 
 exceptions = ["exception", "centroid_exception"];
@@ -133,6 +133,7 @@ strategies = ["area::cartesian", "area::spherical", "area::geographic"
     , "buffer::end_round", "buffer::end_flat"
     , "buffer::distance_symmetric", "buffer::distance_asymmetric"
     , "buffer::side_straight"
+    , "buffer::geographic_point_circle"
     , "centroid::bashein_detmer", "centroid::average"
     , "convex_hull::graham_andrew"
     , "densify::cartesian", "densify::geographic", "densify::spherical"
@@ -140,6 +141,9 @@ strategies = ["area::cartesian", "area::spherical", "area::geographic"
     , "distance::pythagoras_point_box", "distance::haversine"
     , "distance::cross_track", "distance::cross_track_point_box"
     , "distance::projected_point"
+    , "line_interpolate::cartesian"
+    , "line_interpolate::spherical"
+    , "line_interpolate::geographic"
     , "simplify::douglas_peucker"
     , "side::side_by_triangle", "side::side_by_cross_track"
     , "side::spherical_side_formula", "side::geographic"
