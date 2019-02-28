@@ -6,6 +6,7 @@
   Copyright (c) 2009-2012 Bruno Lalande, Paris, France.
 
   Copyright (c) 2018, Oracle and/or its affiliates.
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
   Use, modification and distribution is subject to the Boost Software License,
@@ -46,6 +47,8 @@
 [import src/examples/algorithms/for_each_segment_const.cpp]
 [import src/examples/algorithms/length.cpp]
 [import src/examples/algorithms/length_with_strategy.cpp]
+[import src/examples/algorithms/line_interpolate.cpp]
+[import src/examples/algorithms/line_interpolate_strategy.cpp]
 [import src/examples/algorithms/make_2d_point.cpp]
 [import src/examples/algorithms/make_3d_point.cpp]
 [import src/examples/algorithms/make_inverse.cpp]
@@ -148,6 +151,7 @@
 [import src/examples/strategies/buffer_distance_asymmetric.cpp]
 [import src/examples/strategies/buffer_point_circle.cpp]
 [import src/examples/strategies/buffer_point_square.cpp]
+[import src/examples/strategies/buffer_geographic_point_circle.cpp]
 
 [import src/examples/views/box_view.cpp]
 [import src/examples/views/segment_view.cpp]

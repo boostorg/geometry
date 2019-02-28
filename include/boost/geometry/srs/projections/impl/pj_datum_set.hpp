@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -135,7 +135,7 @@ template
 struct pj_datum_find_datum_static
 {
     template <typename T>
-    static const pj_datums_type<T>* apply(Params const& params)
+    static const pj_datums_type<T>* apply(Params const& )
     {
         const pj_datums_type<T>* pj_datums = pj_get_datums<T>().first;
         const int n = pj_get_datums<T>().second;
@@ -225,7 +225,7 @@ struct pj_datum_find_nadgrids_static
 {
     static void apply(Params const& params, srs::detail::nadgrids & out)
     {
-        out = boost::tuples::get<I>();
+        out = boost::tuples::get<I>(params);
     }
 };
 template <typename Params, int N>
@@ -322,7 +322,7 @@ struct pj_datum_find_towgs84_static
     static void apply(Params const& params, srs::detail::towgs84<T> & out)
     {
         typename boost::tuples::element<I, Params>::type const&
-            towgs84 = boost::tuples::get<I>();
+            towgs84 = boost::tuples::get<I>(params);
 
         std::size_t n = (std::min<std::size_t>)(towgs84.size(), 7u);
         std::size_t z = n <= 3 ? 3 : 7;

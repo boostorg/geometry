@@ -42,9 +42,9 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/config.hpp>
 #include <boost/static_assert.hpp>
 
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/srs/projections/str_cast.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -123,7 +123,7 @@ struct dms_parser
         bool has_dms[3];
 
         dms_value()
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && (!defined(_MSC_VER) || (_MSC_VER >= 1900)) // workaround for VC++ 12 (aka 2013)
+#ifdef BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
             : dms{0, 0, 0}
             , has_dms{false, false, false}
         {}

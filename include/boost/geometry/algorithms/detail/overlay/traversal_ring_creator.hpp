@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,6 +17,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal.hpp>
@@ -208,10 +209,11 @@ struct traversal_ring_creator
 
         if (start_turn.is_clustered())
         {
-            turn_type const& turn = m_turns[current_turn_index];
-            if (turn.cluster_id == start_turn.cluster_id)
+            turn_type& turn = m_turns[current_turn_index];
+            turn_operation_type& op = turn.operations[current_op_index];
+            if (turn.cluster_id == start_turn.cluster_id
+                && op.enriched.get_next_turn_index() == start_turn_index)
             {
-                turn_operation_type& op = m_turns[start_turn_index].operations[current_op_index];
                 op.visited.set_finished();
                 m_visitor.visit_traverse(m_turns, m_turns[current_turn_index], start_op, "Early finish (cluster)");
                 return traverse_error_none;
@@ -306,6 +308,23 @@ struct traversal_ring_creator
         }
     }
 
+    int get_operation_index(turn_type const& turn) const
+    {
+        // When starting with a continue operation, the one
+        // with the smallest (for intersection) or largest (for union)
+        // remaining distance (#8310b)
+        // Also to avoid skipping a turn in between, which can happen
+        // in rare cases (e.g. #130)
+        static const bool is_union
+            = operation_from_overlay<OverlayType>::value == operation_union;
+
+        turn_operation_type const& op0 = turn.operations[0];
+        turn_operation_type const& op1 = turn.operations[1];
+        return op0.remaining_distance <= op1.remaining_distance
+                ? (is_union ? 1 : 0)
+                : (is_union ? 0 : 1);
+    }
+
     template <typename Rings>
     void iterate(Rings& rings, std::size_t& finalized_ring_size,
                  typename Backtrack::state_type& state)
@@ -322,15 +341,8 @@ struct traversal_ring_creator
 
             if (turn.both(operation_continue))
             {
-                // Traverse only one turn, the one with the SMALLEST remaining distance
-                // to avoid skipping a turn in between, which can happen in rare cases
-                // (e.g. #130)
-                turn_operation_type const& op0 = turn.operations[0];
-                turn_operation_type const& op1 = turn.operations[1];
-                int const op_index
-                        = op0.remaining_distance <= op1.remaining_distance ? 0 : 1;
-
-                traverse_with_operation(turn, turn_index, op_index,
+                traverse_with_operation(turn, turn_index,
+                        get_operation_index(turn),
                         rings, finalized_ring_size, state);
             }
             else
@@ -373,13 +385,8 @@ struct traversal_ring_creator
 
             if (turn.both(operation_continue))
             {
-                // Traverse only one turn, the one with the SMALLEST remaining distance
-                // to avoid skipping a turn in between, which can happen in rare cases
-                // (e.g. #130)
-                int const op_index
-                        = op0.remaining_distance <= op1.remaining_distance ? 0 : 1;
-
-                traverse_with_operation(turn, turn_index, op_index,
+                traverse_with_operation(turn, turn_index,
+                        get_operation_index(turn),
                         rings, finalized_ring_size, state);
             }
             else

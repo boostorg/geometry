@@ -125,6 +125,12 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
         bool cluster_checked = false;
         bool has_blocked = false;
 
+        if (is_self_turn<OverlayType>(turn) && turn.discarded)
+        {
+            // Discarded self-turns don't count as traversed
+            continue;
+        }
+
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
             op_it != boost::end(turn.operations);

@@ -40,13 +40,15 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
+
+#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {

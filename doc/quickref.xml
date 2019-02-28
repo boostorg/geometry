@@ -12,6 +12,7 @@
 
   This file was modified by Oracle on 2014, 2015, 2017, 2018.
   Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -195,7 +196,6 @@
      <member><link linkend="geometry.reference.core.coordinate_system">coordinate_system</link></member>
      <member><link linkend="geometry.reference.core.dimension">dimension</link></member>
      <member><link linkend="geometry.reference.core.interior_type">interior_type</link></member>
-     <member><link linkend="geometry.reference.core.is_radian">is_radian</link></member>
      <member><link linkend="geometry.reference.core.point_order">point_order</link></member>
      <member><link linkend="geometry.reference.core.point_type">point_type</link></member>
      <member><link linkend="geometry.reference.core.ring_type">ring_type</link></member>
@@ -427,7 +427,11 @@
     <bridgehead renderas="sect3">Length</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.length">length</link></member>
-    </simplelist>    
+    </simplelist>
+    <bridgehead renderas="sect3">line_interpolate</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.line_interpolate">line_interpolate</link></member>
+    </simplelist>
     <bridgehead renderas="sect3">Num_ (counting)</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.num_interior_rings">num_interior_rings</link></member>
@@ -546,6 +550,7 @@
      <member><link linkend="geometry.reference.strategies.strategy_buffer_join_round">strategy::buffer::join_round</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_circle">strategy::buffer::point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_point_square">strategy::buffer::point_square</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_buffer_geographic_point_circle">strategy::buffer::geographic_point_circle</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_buffer_side_straight">strategy::buffer::side_straight</link></member>
     </simplelist>
    </entry>
@@ -586,6 +591,14 @@
    </entry>
   </row>
   <row>
+   <entry valign="top">
+    <bridgehead renderas="sect3">Line interpolate point</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_cartesian">strategy::line_interpolate::cartesian</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_geographic">strategy::line_interpolate::geographic</link></member>
+     <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_spherical">strategy::line_interpolate::spherical</link></member>
+    </simplelist>
+   </entry>
    <entry valign="top">
     <bridgehead renderas="sect3">Side</bridgehead>
     <simplelist type="vert" columns="1">

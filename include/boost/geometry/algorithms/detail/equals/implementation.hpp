@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2016, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -64,13 +64,9 @@ template
 struct point_point
 {
     template <typename Point1, typename Point2, typename Strategy>
-    static inline bool apply(Point1 const& point1, Point2 const& point2, Strategy const& strategy)
+    static inline bool apply(Point1 const& point1, Point2 const& point2, Strategy const& )
     {
-        return ! detail::disjoint::point_point
-            <
-                Point1, Point2,
-                Dimension, DimensionCount
-            >::apply(point1, point2, strategy);
+        return Strategy::apply(point1, point2);
     }
 };
 
@@ -108,20 +104,28 @@ struct box_box<DimensionCount, DimensionCount>
 struct segment_segment
 {
     template <typename Segment1, typename Segment2, typename Strategy>
-    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2, Strategy const& )
+    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
+                             Strategy const& strategy)
     {
+        typename Strategy::point_in_point_strategy_type const&
+            pt_pt_strategy = strategy.get_point_in_point_strategy();
+
         return equals::equals_point_point(
                     indexed_point_view<Segment1 const, 0>(segment1),
-                    indexed_point_view<Segment2 const, 0>(segment2) )
+                    indexed_point_view<Segment2 const, 0>(segment2),
+                    pt_pt_strategy)
                 ? equals::equals_point_point(
                     indexed_point_view<Segment1 const, 1>(segment1),
-                    indexed_point_view<Segment2 const, 1>(segment2) )
+                    indexed_point_view<Segment2 const, 1>(segment2),
+                    pt_pt_strategy)
                 : ( equals::equals_point_point(
                         indexed_point_view<Segment1 const, 0>(segment1),
-                        indexed_point_view<Segment2 const, 1>(segment2) )
+                        indexed_point_view<Segment2 const, 1>(segment2),
+                        pt_pt_strategy)
                  && equals::equals_point_point(
                         indexed_point_view<Segment1 const, 1>(segment1),
-                        indexed_point_view<Segment2 const, 0>(segment2) )
+                        indexed_point_view<Segment2 const, 0>(segment2),
+                        pt_pt_strategy)
                   );
     }
 };

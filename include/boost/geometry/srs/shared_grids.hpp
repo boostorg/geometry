@@ -16,5 +16,11 @@
 #include <boost/geometry/srs/projections/impl/pj_gridlist_shared.hpp>
 #include <boost/geometry/srs/projections/shared_grids.hpp>
 
+namespace boost { namespace geometry { namespace srs
+{
+
+using geometry::projections::detail::shared_grids;
+
+}}} // namespace boost::geometry::srs
 
 #endif // BOOST_GEOMETRY_SRS_SHARED_GRIDS_HPP

@@ -95,9 +95,10 @@ struct distance
 namespace resolve_strategy
 {
 
+template <typename Strategy>
 struct distance
 {
-    template <typename Geometry1, typename Geometry2, typename Strategy>
+    template <typename Geometry1, typename Geometry2>
     static inline typename distance_result<Geometry1, Geometry2, Strategy>::type
     apply(Geometry1 const& geometry1,
           Geometry2 const& geometry2,
@@ -108,7 +109,11 @@ struct distance
                 Geometry1, Geometry2, Strategy
             >::apply(geometry1, geometry2, strategy);
     }
+};
 
+template <>
+struct distance<default_strategy>
+{
     template <typename Geometry1, typename Geometry2>
     static inline
     typename distance_result<Geometry1, Geometry2, default_strategy>::type
@@ -144,8 +149,10 @@ struct distance
           Geometry2 const& geometry2,
           Strategy const& strategy)
     {
-        return
-            resolve_strategy::distance::apply(geometry1, geometry2, strategy);
+        return resolve_strategy::distance
+            <
+                Strategy
+            >::apply(geometry1, geometry2, strategy);
     }
 };
 

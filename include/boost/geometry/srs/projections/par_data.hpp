@@ -10,9 +10,11 @@
 #ifndef BOOST_GEOMETRY_SRS_PROJECTIONS_PAR_DATA_HPP
 #define BOOST_GEOMETRY_SRS_PROJECTIONS_PAR_DATA_HPP
 
-#include <boost/config.hpp>
 #include <string>
 #include <vector>
+
+#include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/config.hpp>
 
 namespace boost { namespace geometry { namespace srs
 {
@@ -86,14 +88,14 @@ struct towgs84
 
     towgs84()
         : m_size(0)
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+#ifdef BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
         , m_data{0, 0, 0, 0, 0, 0, 0}
-#endif
+    {}
+#else
     {
-#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
         std::fill(m_data, m_data + 7, T(0));
-#endif
     }
+#endif
 
     template <typename It>
     towgs84(It first, It last)

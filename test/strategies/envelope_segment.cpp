@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -41,9 +41,9 @@ void test_strategies_lat(P p1, P p2, CT expected_max, CT expected_min,
     BOOST_CHECK_CLOSE(p_max_degree_geo, expected_max, error);
     BOOST_CHECK_CLOSE(p_min_degree_geo, expected_min, error);
     
-    bg::strategy::envelope::spherical_segment<CT> strategy_sph;
+    typedef bg::strategy::envelope::spherical_segment<CT> strategy_sph_t;
 
-    strategy_sph.apply(p1, p2, box);
+    strategy_sph_t::apply(p1, p2, box);
 
     CT p_min_degree_sph = bg::get<0, 1>(box);
     CT p_max_degree_sph = bg::get<1, 1>(box);

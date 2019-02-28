@@ -26,6 +26,14 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 
+#define TEST_UNION(caseid, clips, holes, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
+
+#define TEST_UNION_REV(caseid, clips, holes, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid "_rev", caseid[1], caseid[0], clips, holes, points, area)
+
 
 template <typename Ring, typename Polygon>
 void test_areal()
@@ -247,6 +255,34 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("108",
                 case_108[0], case_108[1], 1, 0, 13, 5.0);
 
+    TEST_UNION(case_precision_1, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_2, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_3, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_4, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_5, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_6, 1, 0, -1, 71.0);
+    TEST_UNION(case_precision_7, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_8, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_9, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_10, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_11, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_12, 1, 0, -1, 14.0);
+    TEST_UNION(case_precision_13, 1, 0, -1, 14.0);
+
+    TEST_UNION_REV(case_precision_1, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_2, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_3, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_4, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_5, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_6, 1, 0, -1, 71.0);
+    TEST_UNION_REV(case_precision_7, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_8, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_9, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_10, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_11, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_12, 1, 0, -1, 14.0);
+    TEST_UNION_REV(case_precision_13, 1, 0, -1, 14.0);
+
     /*
     test_one<Polygon, Polygon, Polygon>(102,
         simplex_normal[0], simplex_reversed[1],
@@ -342,22 +378,23 @@ void test_areal()
                 ticket_5103[0], ticket_5103[1],
                 1, 0, 25, 2515271327070.5);
 
-    test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
-            1, 0, 5, 10.5000019595);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1],
-            1, 0, 5, 10.5000019595);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
-            1, 0, 5, 10.5000019595);
+    TEST_UNION(ticket_8310a, 1, 0, 5, 10.5000019595);
+    TEST_UNION(ticket_8310b, 1, 0, 5, 10.5000019595);
+    TEST_UNION(ticket_8310c, 1, 0, 5, 10.5000019595);
+    TEST_UNION_REV(ticket_8310a, 1, 0, 5, 10.5000019595);
+    TEST_UNION_REV(ticket_8310b, 1, 0, 5, 10.5000019595);
+    TEST_UNION_REV(ticket_8310c, 1, 0, 5, 10.5000019595);
 
     test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
-            1, 0, 10, 0.0403425433);
+            1, 0, -1, 0.0403425433);
 
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
             1, 0, 13, 150.0);
 
+    // Float result is OK but a bit larger
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
-            1, 0, 10, 1289.08374);
+            1, 0, 10, if_typed<ct, float>(1291.5469, 1289.08374));
 
 #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
@@ -373,7 +410,7 @@ void test_areal()
 #endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_10866", ticket_10866[0], ticket_10866[1],
-            1, 0, 14, 332760303.5);
+            1, 0, 14, if_typed<ct, float>(332752493.0, 332760303.5));
 
     test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
             1, 1, 10, 7.5);
@@ -398,17 +435,17 @@ void test_areal()
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 0, 15, 4.60853);
+                1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
-                1, 0, 15, 4.60853);
+                1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
-                1, 0, if_typed<ct, float>(16, 11), 16.571);
+                1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
-                1, 0, if_typed<ct, float>(16, 11), 16.571);
+                1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
-                1, 0, if_typed<ct, float>(11, 13), 13.6569);
+                1, 0, -1, 13.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
-                    1, 0, 13, 13.6569);
+                    1, 0, -1, 13.6569);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
@@ -429,23 +466,23 @@ void test_areal()
                 1, 0, 9, 19.4852);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2", buffer_rt_m2[0], buffer_rt_m2[1],
-                1, 0, 12, 21.4853);
+                1, 0, -1, 21.4853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
                 1, 0, 15, 21.4853);
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
-                1, 0, if_typed<ct, float>(16, 12), 18.5710);
+                1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
-                1, 0, if_typed<ct, float>(16, 12), 18.5710);
+                1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
-                1, 0, if_typed<ct, float>(18, 14), 21.07612);
+                1, 0, -1, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
-                1, 0, if_typed<ct, float>(18, 14), 21.07612);
+                1, 0, -1, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
-                1, 0, 9, 15.6569);
+                1, 0, -1, 15.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_rev", buffer_rt_t[1], buffer_rt_t[0],
-                1, 0, 10, 15.6569);
+                1, 0, -1, 15.6569);
 #endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],

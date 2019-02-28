@@ -1,8 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2019.
+// Modifications copyright (c) 2018-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -44,6 +44,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/util/math.hpp>
 
 #include <boost/cstdint.hpp>
 
@@ -204,7 +205,7 @@ bool pj_gridinfo_load_ctable(IStream & is, pj_gi_load & gi)
     std::size_t ch_size = sizeof(pj_ctable::flp_t) * a_size;
     is.read(reinterpret_cast<char*>(&ct.cvs[0]), ch_size);
 
-    if (is.fail() || is.gcount() != ch_size)
+    if (is.fail() || std::size_t(is.gcount()) != ch_size)
     {
         ct.cvs.clear();
         //ctable loading failed on fread() - binary incompatible?
@@ -235,7 +236,7 @@ bool pj_gridinfo_load_ctable2(IStream & is, pj_gi_load & gi)
     std::size_t ch_size = sizeof(pj_ctable::flp_t) * a_size;
     is.read(reinterpret_cast<char*>(&ct.cvs[0]), ch_size);
 
-    if (is.fail() || is.gcount() != ch_size)
+    if (is.fail() || std::size_t(is.gcount()) != ch_size)
     {
         //ctable2 loading failed on fread() - binary incompatible?
         ct.cvs.clear();
@@ -278,7 +279,7 @@ inline bool pj_gridinfo_load_ntv1(IStream & is, pj_gi_load & gi)
     {
         is.read(reinterpret_cast<char*>(&row_buf[0]), ch_size);
 
-        if (is.fail() || is.gcount() != ch_size)
+        if (is.fail() || std::size_t(is.gcount()) != ch_size)
         {
             gi.ct.cvs.clear();
             return false;
@@ -328,7 +329,7 @@ inline bool pj_gridinfo_load_ntv2(IStream & is, pj_gi_load & gi)
     {
         is.read(reinterpret_cast<char*>(&row_buf[0]), ch_size);
 
-        if (is.fail() || is.gcount() != ch_size)
+        if (is.fail() || std::size_t(is.gcount()) != ch_size)
         {
             gi.ct.cvs.clear();
             return false;
@@ -375,7 +376,7 @@ inline bool pj_gridinfo_load_gtx(IStream & is, pj_gi_load & gi)
 
     is.read(reinterpret_cast<char*>(&gi.ct.cvs[0]), ch_size);
 
-    if (is.fail() || is.gcount() != ch_size)
+    if (is.fail() || std::size_t(is.gcount()) != ch_size)
     {
         gi.ct.cvs.clear();
         return false;
