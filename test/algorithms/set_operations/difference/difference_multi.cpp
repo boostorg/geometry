@@ -150,9 +150,7 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.001;
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        settings.test_validity = false;
-#endif
+        settings.test_validity = BG_IF_RESCALED(true, false);
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 

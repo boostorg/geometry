@@ -388,6 +388,7 @@ void test_areal()
 
     {
         ut_settings settings;
+        settings.test_validity = BG_IF_RESCALED(false, true);
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
             ticket_9081[0], ticket_9081[1],
             BG_IF_RESCALED(4, 3), 0, 31, 0.2187385,

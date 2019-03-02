@@ -344,9 +344,7 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.1;
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        settings.test_validity = false;
-#endif
+        settings.test_validity = BG_IF_RESCALED(true, false);
 
         test_one<Polygon, Polygon, Polygon>("isovist",
             isovist1[0], isovist1[1],

@@ -290,12 +290,8 @@ void test_all()
 
     {
         ut_settings settings;
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        settings.percentage = 0.1;
-        settings.test_validity = false;
-#else
-        settings.percentage = 0.001;
-#endif
+        settings.percentage = BG_IF_RESCALED(0.001, 0.1);
+        settings.test_validity = BG_IF_RESCALED(true, false);
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
