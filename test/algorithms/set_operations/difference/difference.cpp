@@ -51,7 +51,7 @@ void test_all()
     typedef typename bg::coordinate_type<P>::type ct;
 
     ut_settings sym_settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     sym_settings.sym_difference = false;
 #endif
 
@@ -263,7 +263,7 @@ void test_all()
         1, 61, 10.2717,
         1, 61, 10.2717);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
         test_one<polygon, polygon, polygon>("buffer_mp2",
@@ -287,7 +287,7 @@ void test_all()
 
     {
         ut_settings settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
         settings.percentage = 0.1;
         settings.test_validity = false;
 #else
@@ -371,7 +371,7 @@ void test_all()
             1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     {
         // symmetric difference is not valid due to robustness issue, it has
         // two turns (touch_only) and a midpoint is located in other polygon
@@ -392,7 +392,7 @@ void test_all()
         1, 5, 384.2295081964694,
         tolerance(0.01));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // 2011-07-02 / 2014-06-19
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
@@ -423,7 +423,7 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
             2, 10, 0.0334529710902111,
@@ -435,7 +435,7 @@ void test_all()
             2, 12, 0.0451236449624935,
             0, 0, 0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
             0, 0, 0,
@@ -448,7 +448,7 @@ void test_all()
             1, 4,  0.029019232,
             sym_settings);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
             1, 5, 1081.68697,

@@ -324,7 +324,7 @@ void test_areal()
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 1, 13, 20016.4);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, 0, 8, 14729.07145);
@@ -334,7 +334,7 @@ void test_areal()
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
@@ -346,7 +346,7 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.1;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
         settings.test_validity = false;
 #endif
 
@@ -396,7 +396,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
             1, 0, 10, if_typed<ct, float>(1291.5469, 1289.08374));
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
             1, 0, 8, 0.0435229);
 #else
@@ -404,7 +404,7 @@ void test_areal()
             2, 0, 8, 0.0435229);
 #endif
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
             1, 0, 10, 2424.3449);
 #endif
@@ -433,7 +433,7 @@ void test_areal()
                 1, 0, 265, 19.280667);
 
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
@@ -453,7 +453,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
                 1, 0, -1, 16.5711);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l", buffer_rt_l[0], buffer_rt_l[1],
                 1, 0, -1, 19.3995);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_l_rev", buffer_rt_l[1], buffer_rt_l[0],
@@ -470,7 +470,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
                 1, 0, 15, 21.4853);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
                 1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
@@ -489,7 +489,7 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
                 1, 0, 217, 36.752837);
 #else
                 1, 1, 217, 36.752837);
@@ -580,7 +580,7 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<long double> >();
 #endif

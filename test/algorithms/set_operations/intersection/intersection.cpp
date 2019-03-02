@@ -179,7 +179,7 @@ void test_areal()
     {
         ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
         settings.test_validity = false;
 #endif
 
@@ -203,7 +203,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
             0, 0, 0.0);
@@ -233,14 +233,14 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
         1, 4,
-        #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+        #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
             0.40
         #else
             0.397162651, ut_settings(0.01)
         #endif
             );
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
@@ -263,7 +263,7 @@ void test_areal()
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, ut_settings(0.1));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
 
@@ -293,7 +293,7 @@ void test_areal()
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // msvc  5.6023011e-5
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",

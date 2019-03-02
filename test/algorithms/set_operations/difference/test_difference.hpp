@@ -105,8 +105,8 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
 #endif
             << ".svg";
 

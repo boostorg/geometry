@@ -363,7 +363,7 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
     TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // This is correct: no holes generated
     TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
 #else
@@ -393,13 +393,13 @@ void test_areal()
 
     {
         ut_settings settings;
-#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
         settings.test_validity = false;
 #endif
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
             ticket_9081[0], ticket_9081[1],
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
             3,
 #else
             4,
@@ -419,7 +419,7 @@ void test_areal()
         ticket_12118[0], ticket_12118[1],
         1, 1, 27, 2221.38713);
 
-#if defined(BOOST_GEOMETRY_ENABLE_FAILING_TESTS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_ENABLE_FAILING_TESTS) || ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // No output if rescaling is done
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12125",
         ticket_12125[0], ticket_12125[1],
