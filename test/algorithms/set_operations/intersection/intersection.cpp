@@ -311,6 +311,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 8, 129.90381);
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+    // With rescaling the output is empty
+    TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
+#endif
+
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],

@@ -404,6 +404,11 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
             1, 1, 10, 7.5);
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+    // With rescaling an extra overlapping polygon is generated
+    TEST_UNION(issue_548, 1, 0, -1, 617382720000);
+#endif
+
     {
         ut_settings ignore_validity;
         ignore_validity.test_validity = false;
