@@ -150,35 +150,35 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.001;
-
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+        settings.test_validity = false;
+#endif
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     {
+        // With rescaling, A is invalid (this is a robustness problem) and the other
+        // output is discarded because of zero (rescaled) area
+        // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
         ut_settings settings;
         settings.sym_difference = false; // Validity problem in sym difference
-        // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
-        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
-    }
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        settings.test_validity = false; // Invalid output in A
+        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 0, 0.0, 2);
 #else
-    {
-        // With no-robustness this one misses one of the outputs
-        ut_settings settings;
-        settings.percentage = 0.001; // tolerance
-#if defined(BOOST_GEOMETRY_USE_RESCALING) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-        settings.test_validity = false;
+        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
 #endif
-        test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
-            ticket_9081[0], ticket_9081[1],
-            2, 28, 0.0907392476356186, 4, 25, 0.126018011439877,
-            4, 42, 0.0907392476356186 + 0.126018011439877,
-            settings);
     }
 
-    // With rescaling, A is invalid (this is a robustness problem) and the other
-    // output is discarded because of zero (rescaled) area
-    TEST_DIFFERENCE_IGNORE(bug_21155501, 1, 3.758937, 0, 0.0, 1);
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    {
+        // Without rescaling, this one misses one of the output polygons
+        // With rescaling, it is complete but invalid
+        ut_settings settings;
+        settings.percentage = 0.001;
+        settings.test_validity = false;
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9081, 2, 0.0907392476356186, 4, 0.126018011439877, 4);
+    }
 #endif
 
     TEST_DIFFERENCE(ticket_12503, 46, 920.625, 4, 7.625, 50);
@@ -343,13 +343,9 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_78, 11, 5.5, 8, 4.5, 14);
     TEST_DIFFERENCE(case_recursive_boxes_79, 2, 1.25, 6, 4.5, 8);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 2);
-#else
     // one polygon is divided into two, for same reason as union creates a small
     // interior ring there
-    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, 3);
-#endif
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, BG_IF_RESCALED(3, 2));
 
     TEST_DIFFERENCE(case_recursive_boxes_81, 3, 5.0, 6, 6.75, 6);
     TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
@@ -381,10 +377,10 @@ void test_areal()
             sym_settings);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 0, 0.0, 3, 152.0642, 3);
-#else
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 1, 4.30697514e-7, 3, 152.0642, 4);
+#else
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 0, 0.0, 3, 152.0642, 3);
 #endif
 }
 

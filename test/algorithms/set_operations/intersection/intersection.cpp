@@ -203,11 +203,9 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
             0, 0, 0.0);
-#endif
     test_one<Polygon, Polygon, Polygon>("geos_4",
         geos_4[0], geos_4[1],
             1, -1, 0.08368849);
@@ -228,23 +226,15 @@ void test_areal()
 
     // SQL Server reports: 0.400390625
     // PostGIS reports 0.4
-    // BG did report 0.4 but is changed to 0.397
+    // BG did report 0.4 but with rescaling 0.397
     // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4,
-        #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-            0.40
-        #else
-            0.397162651, ut_settings(0.01)
-        #endif
-            );
+        1, 4, BG_IF_RESCALED(0.397162651, 0.40), ut_settings(0.01));
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],

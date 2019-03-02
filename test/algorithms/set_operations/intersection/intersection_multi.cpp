@@ -326,23 +326,15 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
     TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
     TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     TEST_INTERSECTION(case_recursive_boxes_85, 1, -1, 0.25);
-#endif
     TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
     TEST_INTERSECTION(case_recursive_boxes_87, 0, -1, 0.0);
     TEST_INTERSECTION(case_recursive_boxes_88, 4, -1, 3.5);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     TEST_INTERSECTION(case_precision_m1, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_m2, 2, -1, 15.25);
     TEST_INTERSECTION_REV(case_precision_m1, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_m2, 2, -1, 15.25);
-#else
-    // Validity: false positives (very small triangles looking like a line)
-    TEST_INTERSECTION_IGNORE(case_precision_m1, 1, -1, 14.0);
-    TEST_INTERSECTION_IGNORE(case_precision_m2, 2, -1, 15.25);
-#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20120915_h2_a",
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[1],
@@ -363,13 +355,8 @@ void test_areal()
     // qcc-arm reports 1.7791215549400884e-14
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],
-        1, 4,
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        9.896437631745599e-09
-#else
-        1.7791170511070893e-14, ut_settings(0.001)
-#endif
-
+        1, 4, BG_IF_RESCALED(1.7791170511070893e-14, 9.896437631745599e-09),
+        ut_settings(0.001)
     );
 
     TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
