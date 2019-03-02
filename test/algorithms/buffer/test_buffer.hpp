@@ -329,9 +329,14 @@ void test_buffer(std::string const& caseid,
             );
     }
 
-    if (settings.test_validity && ! bg::is_valid(buffered))
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+    if (settings.test_validity)
+#endif
     {
-        BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
+        if (! bg::is_valid(buffered))
+        {
+            BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
+        }
     }
 
 #if defined(TEST_WITH_SVG_PER_TURN)

@@ -191,7 +191,9 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
                           ? bg::num_points(result) : 0;
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     if (settings.test_validity)
+#endif
     {
         // std::cout << bg::dsv(result) << std::endl;
         std::string message;
@@ -340,7 +342,9 @@ std::string test_one(std::string const& caseid,
         expected_count2, expected_rings_count2, expected_point_count2,
         expected_area2, false, settings);
 
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     if (settings.sym_difference)
+#endif
     {
         test_difference<OutputType>(caseid + "_s", g1, g2,
             expected_count_s,

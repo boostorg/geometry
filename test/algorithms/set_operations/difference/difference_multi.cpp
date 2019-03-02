@@ -320,7 +320,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_59, 8, 6.5, 7, 7.0, 12);
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
-#if defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     // Misses one triangle
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
 #endif
@@ -401,12 +401,9 @@ void test_specific_areal()
 {
     {
         // Spikes in a-b and b-a, failure in symmetric difference
-
         ut_settings settings;
-#if !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
         settings.sym_difference = false;
         settings.test_validity = false;
-#endif
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674, 3, 9105781.5, 5, 119059.5, -1);
     }

@@ -56,9 +56,7 @@ void test_all()
 #endif
 
     ut_settings ignore_validity_settings;
-#ifndef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     ignore_validity_settings.test_validity = false;
-#endif
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -313,7 +311,7 @@ void test_all()
             settings);
     }
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,

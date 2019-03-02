@@ -105,7 +105,9 @@ check_result(
         }
     }
 
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     if (settings.test_validity)
+#endif
     {
         std::string message;
         bool const valid = check_validity<ResultType>::apply(intersection_output, message);

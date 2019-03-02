@@ -125,7 +125,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 #endif
 
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     if (settings.test_validity)
+#endif
     {
         std::string message;
         bool const valid = check_validity<result_type>::apply(clip, message);

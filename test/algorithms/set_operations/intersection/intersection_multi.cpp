@@ -135,7 +135,7 @@ void test_areal()
         case_107_multi[1], case_107_multi[2],
         3, 13, 3.0);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     {
         ut_settings ignore_validity; ignore_validity.test_validity = false;
 
