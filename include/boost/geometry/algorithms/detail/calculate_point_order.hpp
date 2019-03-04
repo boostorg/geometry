@@ -26,13 +26,6 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace order
-{
-
-
-
-}} // namespace strategy::order
-
 namespace detail
 {
 
@@ -42,11 +35,6 @@ struct clean_point
     explicit clean_point(Iter const& iter)
         : m_iter(iter), m_azi(0), m_razi(0), m_azi_diff(0)
         , m_is_azi_valid(false), m_is_azi_diff_valid(false)
-    {}
-
-    clean_point(Iter const& iter, CalcT const& azi, CalcT const& azi_diff)
-        : m_iter(iter), m_azi(azi), m_razi(0), m_azi_diff(azi_diff)
-        , m_is_azi_valid(true), m_is_azi_diff_valid(false)
     {}
 
     typename boost::iterators::iterator_reference<Iter>::type ref() const
@@ -107,6 +95,8 @@ private:
     CalcT m_azi;
     CalcT m_razi;
     CalcT m_azi_diff;
+    // NOTE: these flags could be removed and replaced with some magic number
+    //       assigned to the above variables, e.g. CalcT(1000).
     bool m_is_azi_valid;
     bool m_is_azi_diff_valid;
 };
