@@ -54,14 +54,19 @@ struct check_points<P, bg::multi_point_tag>
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
-        BOOST_CHECK_EQUAL(boost::size(r0), boost::size(r1));
+        std::size_t count0 = boost::size(r0);
+        std::size_t count1 = boost::size(r1);
 
-        for (iterator_t it0 = boost::begin(r0), it1 = boost::begin(r1);
-             it0 < boost::end(r0); it0++, it1++)
+        BOOST_CHECK_MESSAGE(count0 == count1, bg::wkt(r0) << " != " << bg::wkt(r1));
+        
+        if (count0 == count1)
         {
-            check_points<point_t>::apply(*it0, *it1);
+            for (iterator_t it0 = boost::begin(r0), it1 = boost::begin(r1);
+                 it0 < boost::end(r0); it0++, it1++)
+            {
+                check_points<point_t>::apply(*it0, *it1);
+            }
         }
-
     }
 };
 
@@ -351,7 +356,7 @@ int test_main(int, char* [])
     test_sph();
     test_sph(bg::strategy::line_interpolate::spherical<>(100));
 
-    typedef typename bg::srs::spheroid<double> stype;
+    typedef bg::srs::spheroid<double> stype;
 
     test_geo(bg::strategy::line_interpolate::geographic<bg::strategy::andoyer>());
     test_geo(bg::strategy::line_interpolate::geographic<bg::strategy::thomas>());
