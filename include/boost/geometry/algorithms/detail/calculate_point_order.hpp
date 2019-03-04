@@ -169,12 +169,11 @@ struct calculate_point_order_by_azimuth
         // filter-out duplicates and spikes at the front and back of cleaned
         cleaned_iter_t cleaned_b = cleaned.begin();
         cleaned_iter_t cleaned_e = cleaned.end();
+        std::size_t cleaned_count = cleaned.size();
         bool found = false;
         do
         {
             found = false;
-            std::ptrdiff_t cleaned_count = std::distance(cleaned_b, cleaned_e);
-
             while(cleaned_count >= 3)
             {
                 cleaned_iter_t it0 = cleaned_e - 2;
@@ -193,6 +192,7 @@ struct calculate_point_order_by_azimuth
                     it0->set_azimuth_difference_invalid();
                     it2->set_azimuth_difference_invalid();
                     --cleaned_e;
+                    --cleaned_count;
                     found = true;
                 }
                 else if (! get_or_calculate_azimuths_difference(*it1, *it2, *it3, diff, strategy)
@@ -205,6 +205,7 @@ struct calculate_point_order_by_azimuth
                     it1->set_azimuth_difference_invalid();
                     it3->set_azimuth_difference_invalid();
                     ++cleaned_b;
+                    --cleaned_count;
                     found = true;
                 }
                 else
@@ -215,7 +216,6 @@ struct calculate_point_order_by_azimuth
         }
         while (found);
 
-        std::ptrdiff_t cleaned_count = std::distance(cleaned_b, cleaned_e);
         if (cleaned_count < 3)
         {
             return geometry::order_undetermined;
