@@ -352,6 +352,7 @@ void test_areal()
         mail_2019_01_21_johan[2], mail_2019_01_21_johan[3],
         2, -1, 0.0005889587);
 
+    // Very small slice is generated.
     // qcc-arm reports 1.7791215549400884e-14
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
         ticket_11018[0], ticket_11018[1],

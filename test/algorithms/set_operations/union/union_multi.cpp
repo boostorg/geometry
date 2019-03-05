@@ -387,6 +387,8 @@ void test_areal()
          2, 0, 16, 0.002471626);
 
     {
+        // Generates either 4 or 3 output polygons
+        // With rescaling the result is invalid.
         ut_settings settings;
         settings.test_validity = BG_IF_RESCALED(false, true);
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",

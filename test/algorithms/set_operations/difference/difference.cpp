@@ -329,6 +329,7 @@ void test_all()
         settings.percentage = 0.01;
         settings.test_validity = false;
 
+        // Output polygons for sym difference might be combined
         test_one<polygon, polygon, polygon>("geos_2",
             geos_2[0], geos_2[1],
             1, -1, 138.6923828,
@@ -337,6 +338,7 @@ void test_all()
             settings);
     }
 
+    // Output polygons for sym difference might be combined
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
