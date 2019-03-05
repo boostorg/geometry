@@ -3,6 +3,7 @@
 // Copyright (c) 2018, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -34,7 +35,7 @@ namespace boost { namespace geometry
 
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace interpolate_point
+namespace detail { namespace line_interpolate
 {
 
 struct convert_and_push_back
@@ -64,7 +65,7 @@ struct convert_and_assign
     specified strategy
 */
 template <typename Policy>
-struct range
+struct interpolate_range
 {
     template
     <
@@ -141,7 +142,7 @@ struct range
 };
 
 template <typename Policy>
-struct segment
+struct interpolate_segment
 {
     template <typename Segment, typename Distance, typename Pointlike, typename Strategy>
     static inline void apply(Segment const& segment,
@@ -149,12 +150,12 @@ struct segment
                              Pointlike & point,
                              Strategy const& strategy)
     {
-        range<Policy>().apply(segment_view<Segment>(segment),
-                              max_distance, point, strategy);
+        interpolate_range<Policy>().apply(segment_view<Segment>(segment),
+                                          max_distance, point, strategy);
     }
 };
 
-}} // namespace detail::length
+}} // namespace detail::line_interpolate
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -182,33 +183,33 @@ struct line_interpolate
 
 template <typename Geometry, typename Pointlike>
 struct line_interpolate<Geometry, Pointlike, linestring_tag, point_tag>
-    : detail::interpolate_point::range
+    : detail::line_interpolate::interpolate_range
         <
-            detail::interpolate_point::convert_and_assign
+            detail::line_interpolate::convert_and_assign
         >
 {};
 
 template <typename Geometry, typename Pointlike>
 struct line_interpolate<Geometry, Pointlike, linestring_tag, multi_point_tag>
-    : detail::interpolate_point::range
+    : detail::line_interpolate::interpolate_range
         <
-            detail::interpolate_point::convert_and_push_back
+            detail::line_interpolate::convert_and_push_back
         >
 {};
 
 template <typename Geometry, typename Pointlike>
 struct line_interpolate<Geometry, Pointlike, segment_tag, point_tag>
-    : detail::interpolate_point::segment
+    : detail::line_interpolate::interpolate_segment
         <
-            detail::interpolate_point::convert_and_assign
+            detail::line_interpolate::convert_and_assign
         >
 {};
 
 template <typename Geometry, typename Pointlike>
 struct line_interpolate<Geometry, Pointlike, segment_tag, multi_point_tag>
-    : detail::interpolate_point::segment
+    : detail::line_interpolate::interpolate_segment
         <
-            detail::interpolate_point::convert_and_push_back
+            detail::line_interpolate::convert_and_push_back
         >
 {};
 
