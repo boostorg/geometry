@@ -20,6 +20,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/config.hpp>
 
 #include <boost/geometry/arithmetic/dot_product.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
@@ -127,13 +128,13 @@ inline bool in_box(Point const& previous,
 template <typename Tag>
 struct use_side_of_intersection {};
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-template <>
-struct use_side_of_intersection<cartesian_tag> { static bool const value = false; };
-#else
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
 // With rescaling, let Cartesian use side-of-intersection
 template <>
 struct use_side_of_intersection<cartesian_tag> { static bool const value = true; };
+#else
+template <>
+struct use_side_of_intersection<cartesian_tag> { static bool const value = false; };
 #endif
 
 template <>

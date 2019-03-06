@@ -105,7 +105,9 @@ check_result(
         }
     }
 
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     if (settings.test_validity)
+#endif
     {
         std::string message;
         bool const valid = check_validity<ResultType>::apply(intersection_output, message);
@@ -115,7 +117,8 @@ check_result(
     }
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    // Without rescaling, point count might easily differ (which is no problem)
     if (expected_point_count > 0)
     {
         BOOST_CHECK_MESSAGE(bg::math::abs(n - expected_point_count) < 3,
@@ -256,8 +259,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
 #endif
             << ".svg";
 

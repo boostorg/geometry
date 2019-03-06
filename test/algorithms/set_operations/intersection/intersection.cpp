@@ -178,10 +178,7 @@ void test_areal()
 
     {
         ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
-
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        settings.test_validity = false;
-#endif
+        settings.test_validity = BG_IF_RESCALED(true, false);
 
         // SQL Server gives: 88.1920416352664
         // PostGIS gives:    88.19203677911
@@ -203,11 +200,9 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
             0, 0, 0.0);
-#endif
     test_one<Polygon, Polygon, Polygon>("geos_4",
         geos_4[0], geos_4[1],
             1, -1, 0.08368849);
@@ -228,23 +223,15 @@ void test_areal()
 
     // SQL Server reports: 0.400390625
     // PostGIS reports 0.4
-    // BG did report 0.4 but is changed to 0.397
+    // BG did report 0.4 but with rescaling 0.397
     // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4,
-        #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            0.40
-        #else
-            0.397162651, ut_settings(0.01)
-        #endif
-            );
+        1, 4, BG_IF_RESCALED(0.397162651, 0.40), ut_settings(0.01));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
@@ -263,7 +250,7 @@ void test_areal()
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, ut_settings(0.1));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
 
@@ -293,7 +280,7 @@ void test_areal()
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // msvc  5.6023011e-5
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
@@ -323,6 +310,11 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 8, 129.90381);
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+    // With rescaling the output is empty
+    TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
@@ -923,7 +915,7 @@ int test_main(int, char* [])
 
     test_boxes_nd<double>();
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     // ticket #10868 still fails for 32-bit integers
     test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 

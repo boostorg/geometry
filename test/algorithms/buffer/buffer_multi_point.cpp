@@ -47,7 +47,7 @@ void test_all()
     test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
 
     test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
-#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // For no-rescaling, fails in CCW mode
     test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
 #endif
@@ -122,7 +122,7 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     double const tolerance = 1000.0;
 #else
     double const tolerance = 1.0;
