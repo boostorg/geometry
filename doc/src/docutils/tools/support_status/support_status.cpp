@@ -4,6 +4,9 @@
 // Copyright (c) 2011-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2011-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+//  Copyright (c) 2018, Oracle and/or its affiliates.
+//  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -38,6 +41,7 @@
 #include <boost/geometry/algorithms/is_simple.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/line_interpolate.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -114,6 +118,7 @@ DECLARE_UNARY_ALGORITHM(is_empty)
 DECLARE_UNARY_ALGORITHM(is_simple)
 DECLARE_UNARY_ALGORITHM(is_valid)
 DECLARE_UNARY_ALGORITHM(length)
+DECLARE_BINARY_ALGORITHM(line_interpolate)
 DECLARE_UNARY_ALGORITHM(num_geometries)
 DECLARE_UNARY_ALGORITHM(num_interior_rings)
 DECLARE_UNARY_ALGORITHM_WITH_BOOLEAN(num_points)
@@ -254,6 +259,7 @@ void support_status()
     test_unary_algorithm<is_simple, all_types, OutputFactory>("is_simple");
     test_unary_algorithm<is_valid, all_types, OutputFactory>("is_valid");
     test_unary_algorithm<length, all_types, OutputFactory>("length");
+    test_binary_algorithm<line_interpolate, all_types, all_types, OutputFactory>("line_interpolate");
     test_unary_algorithm<num_geometries, all_types, OutputFactory>("num_geometries");
     test_unary_algorithm<num_interior_rings, all_types, OutputFactory>("num_interior_rings");
     test_unary_algorithm<num_points, all_types, OutputFactory>("num_points");

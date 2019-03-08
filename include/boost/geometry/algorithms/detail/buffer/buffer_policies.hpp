@@ -13,10 +13,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_POLICIES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_POLICIES_HPP
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-#  define BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION
-#endif
-
 #include <cstddef>
 
 #include <boost/range.hpp>
@@ -182,9 +178,7 @@ struct buffer_turn_info
 
     intersection_location_type location;
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
     robust_point_type rob_pi, rob_pj, rob_qi, rob_qj;
-#endif
 
     std::size_t count_within;
 
@@ -194,9 +188,7 @@ struct buffer_turn_info
 
     std::size_t count_on_offsetted;
     std::size_t count_on_helper;
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
     std::size_t count_within_near_offsetted;
-#endif
 
     bool remove_on_multi;
 
@@ -213,9 +205,7 @@ struct buffer_turn_info
         , count_in_original(0)
         , count_on_offsetted(0)
         , count_on_helper(0)
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         , count_within_near_offsetted(0)
-#endif
         , remove_on_multi(false)
         , count_on_occupied(0)
         , count_on_multi(0)

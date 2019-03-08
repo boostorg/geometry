@@ -45,6 +45,7 @@ namespace strategy { namespace buffer
 [heading See also]
 \* [link geometry.reference.algorithms.buffer.buffer_7_with_strategies buffer (with strategies)]
 \* [link geometry.reference.strategies.strategy_buffer_point_circle point_circle]
+\* [link geometry.reference.strategies.strategy_buffer_geographic_point_circle geographic_point_circle]
 }
  */
 class point_square

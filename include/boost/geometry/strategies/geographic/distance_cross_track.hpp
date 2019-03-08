@@ -643,15 +643,11 @@ template
 >
 struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
 {
-    typedef typename comparable_type
-        <
-            geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
-        >::type comparable_type;
 public :
-    static inline comparable_type
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& )
+    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
     {
-        return comparable_type();
+        return strategy;
     }
 };
 

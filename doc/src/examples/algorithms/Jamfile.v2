@@ -7,6 +7,7 @@
 # This file was modified by Oracle on 2014, 2015, 2018.
 # Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -71,6 +72,8 @@ exe is_valid_message : is_valid_message.cpp ;
 
 exe length : length.cpp ;
 exe length_with_strategy : length_with_strategy.cpp ;
+exe line_interpolate : line_interpolate.cpp ;
+exe line_interpolate_strategy : line_interpolate_strategy.cpp ;
 
 exe make_2d_point : make_2d_point.cpp ;
 exe make_3d_point : make_3d_point.cpp ;

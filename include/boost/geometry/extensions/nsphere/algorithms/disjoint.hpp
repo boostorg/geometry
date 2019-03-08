@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2019 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -92,7 +92,9 @@ namespace dispatch
 template <typename Point, typename NSphere, std::size_t DimensionCount, bool Reverse>
 struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
 {
-    static inline bool apply(Point const& p, NSphere const& s)
+    // TODO: Implement as strategy
+    template <typename Strategy>
+    static inline bool apply(Point const& p, NSphere const& s, Strategy const& )
     {
         typedef typename coordinate_system<Point>::type p_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
@@ -105,6 +107,8 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
         typename radius_type<NSphere>::type const r = get_radius<0>(s);
         center_view<const NSphere> const c(s);
 
+        // TODO: comparable_distance is correct only for default cartesian strategy
+        //       call specific strategy directly
         return r * r < geometry::comparable_distance(p, c);
     }
 };
@@ -112,7 +116,9 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
 template <typename NSphere, typename Box, std::size_t DimensionCount, bool Reverse>
 struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
 {
-    static inline bool apply(NSphere const& s, Box const& b)
+    // TODO: Implement as strategy
+    template <typename Strategy>
+    static inline bool apply(NSphere const& s, Box const& b, Strategy const& )
     {
         typedef typename coordinate_system<Box>::type b_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
@@ -134,7 +140,9 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
 template <typename NSphere1, typename NSphere2, std::size_t DimensionCount, bool Reverse>
 struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Reverse>
 {
-    static inline bool apply(NSphere1 const& s1, NSphere2 const& s2)
+    // TODO: Implement as strategy
+    template <typename Strategy>
+    static inline bool apply(NSphere1 const& s1, NSphere2 const& s2, Strategy const& )
     {
         typedef typename coordinate_system<NSphere1>::type s1_cs;
         typedef typename coordinate_system<NSphere2>::type s2_cs;
@@ -152,6 +160,8 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
         center_view<NSphere1 const> const c1(s1);
         center_view<NSphere2 const> const c2(s2);
 
+        // TODO: comparable_distance is correct only for default cartesian strategy
+        //       call specific strategy directly
         return r1 * r1 + 2 * r1 * r2 + r2 * r2
                 < geometry::comparable_distance(c1, c2);
     }

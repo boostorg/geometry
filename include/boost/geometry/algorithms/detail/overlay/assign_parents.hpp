@@ -16,7 +16,6 @@
 
 #include <boost/range.hpp>
 
-#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>

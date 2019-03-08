@@ -41,14 +41,6 @@
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
                 clips3, -1, area1 + area2)
 
-#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-#define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
-    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
-    (test_one<polygon, polygon, polygon>) \
-    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
-                clips3, -1, area1 + area2, ignore_validity); }
-#endif
-
 template <typename P>
 void test_all()
 {
@@ -304,15 +296,17 @@ void test_all()
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
+
+        // SQL Server gives:    0.279121891701124 and 224.889211358929
+        // PostGIS gives:       0.279121991127244 and 224.889205853156
+        // No robustness gives: 0.279121991127106 and 224.825363749290
+
         test_one<polygon, polygon, polygon>("isovist",
             isovist1[0], isovist1[1],
             -1, -1, 0.279132,
             -1, -1, 224.8892,
             settings);
     }
-    // SQL Server gives:    0.279121891701124 and 224.889211358929
-    // PostGIS gives:       0.279121991127244 and 224.889205853156
-    // No robustness gives: 0.279121991127106 and 224.825363749290
 
 #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     test_one<polygon, polygon, polygon>("geos_1",
@@ -544,32 +538,14 @@ void test_all()
             5, 27, 1.6701714);
     ***/
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
-    TEST_DIFFERENCE(mysql_21977775,
-                           2, 160.856568913, 2, 92.3565689126, 4);
-#else
-    TEST_DIFFERENCE_IGNORE(mysql_21977775,
-                           1, 160.856568913, 2, 92.3565689126, 3);
-#endif
-
+    TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
-
     TEST_DIFFERENCE(mysql_23023665_1, 1, 92.0, 1, 142.5, 2);
     TEST_DIFFERENCE(mysql_23023665_2, 1, 96.0, 1, 16.0, 2);
     TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
-#else
-    TEST_DIFFERENCE_IGNORE(mysql_23023665_5, 1, 165.23735, 2, 105.73735, 3);
-#endif
-
     TEST_DIFFERENCE(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5);
-
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6);
-#else
-    TEST_DIFFERENCE_IGNORE(mysql_23023665_13, 2, 99.74526, 3, 37.74526, 5);
-#endif
 }
 
 
@@ -596,11 +572,7 @@ void test_specific()
         1, 4, 6731652.0);
 
     // Generates spikes, both a-b and b-a
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_DIFFERENCE(ticket_11676, 2, 2537992.5, 2, 294963.5, 3);
-#else
-    TEST_DIFFERENCE_IGNORE(ticket_11676, 1, 2537992.5, 2, 294963.5, 2);
-#endif
 }
 
 

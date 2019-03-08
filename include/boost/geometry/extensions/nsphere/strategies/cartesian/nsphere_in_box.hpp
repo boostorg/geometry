@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2013-2015 Adam Wulkiewicz, London, UK.
+// Copyright (c) 2013-2019 Adam Wulkiewicz, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -133,10 +133,10 @@ namespace within { namespace services
 template <typename NSphere, typename Box>
 struct default_strategy
     <
+        NSphere, Box,
         nsphere_tag, box_tag,
         nsphere_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        NSphere, Box
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::nsphere_in_box<NSphere, Box, within::nsphere_within_range> type;
@@ -153,10 +153,10 @@ namespace covered_by { namespace services
 template <typename NSphere, typename Box>
 struct default_strategy
     <
+        NSphere, Box,
         nsphere_tag, box_tag,
         nsphere_tag, areal_tag,
-        cartesian_tag, cartesian_tag,
-        NSphere, Box
+        cartesian_tag, cartesian_tag
     >
 {
     typedef within::nsphere_in_box<NSphere, Box, within::nsphere_covered_by_range> type;

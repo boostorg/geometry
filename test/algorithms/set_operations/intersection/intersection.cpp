@@ -46,12 +46,15 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
-#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-    #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
-        (test_one<Polygon, Polygon, Polygon>) \
-        ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
-#endif
+#define TEST_INTERSECTION_REV(caseid, clips, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
+
+#define TEST_INTERSECTION_WITH(caseid, index1, index2, \
+     clips, points, area, settings) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid #index1 "_" #index2, caseid[index1], caseid[index2], \
+     clips, points, area, settings)
 
 template <typename Polygon>
 void test_areal()
@@ -197,8 +200,7 @@ void test_areal()
     // In most cases: 0 (no intersection)
     // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
     // In some cases: 5.6022983000000002e-05 (powerpc64le-gcc-6-0)
-    test_one<Polygon, Polygon, Polygon>("geos_2",
-        geos_2[0], geos_2[1],
+    test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
 
 #if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
@@ -276,12 +278,12 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
                 1, 4, 0.0003);
 
-    test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
-                1, 5, 0.3843747);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1],
-                1, 5, 0.3734379);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
-                1, 5, 0.4689541);
+    TEST_INTERSECTION(ticket_8310a, 1, 5, 0.3843747);
+    TEST_INTERSECTION(ticket_8310b, 1, 5, 0.3734379);
+    TEST_INTERSECTION(ticket_8310c, 1, 5, 0.4689541);
+    TEST_INTERSECTION_REV(ticket_8310a, 1, 5, 0.3843747);
+    TEST_INTERSECTION_REV(ticket_8310b, 1, 5, 0.3734379);
+    TEST_INTERSECTION_REV(ticket_8310c, 1, 5, 0.4689541);
 
     test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
                 ticket_9081_15[0], ticket_9081_15[1],
@@ -296,7 +298,7 @@ void test_areal()
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-                0, 0, 5.6022983e-5);
+            0, 0, 5.6022983e-5, ut_settings(-1.0));
 #endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
@@ -355,14 +357,39 @@ void test_areal()
 
     TEST_INTERSECTION(case_105, 1, 34, 76.0);
 
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+    TEST_INTERSECTION(case_precision_1, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_2, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_4, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_6, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_7, 0, -1, 0.0);
+    TEST_INTERSECTION(case_precision_8, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_9, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_10, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_11, 1, -1, 14.0);
+
+    TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_4, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_6, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_7, 0, -1, 0.0);
+    TEST_INTERSECTION_REV(case_precision_8, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_9, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_10, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_11, 1, -1, 14.0);
+    {
+        ut_settings settings(0.01);
+        TEST_INTERSECTION_WITH(case_precision_12, 0, 1, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_13, 0, 1, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_12, 1, 0, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_13, 1, 0, 1, -1, 2.0, settings);
+    }
+
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_106, 0, -1, 3.5);
-    TEST_INTERSECTION_IGNORE(case_107, 0, -1, 3.0);
-#endif
-
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
@@ -377,12 +404,7 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
-    // Needs self-intersections to solve validity
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
-#else
-    TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
@@ -890,7 +912,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-#endif
 
     // Commented, because exception is now disabled:
     // test_exception<bg::model::d2::point_xy<double> >();
@@ -917,6 +938,7 @@ int test_main(int, char* [])
 
 #if defined(BOOST_HAS_LONG_LONG)
     test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
 #endif
 #endif
 

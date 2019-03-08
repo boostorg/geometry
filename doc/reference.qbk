@@ -9,6 +9,7 @@
   This file was modified by Oracle on 2014, 2017, 2018.
   Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
 
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -165,6 +166,10 @@
 [include generated/length.qbk]
 [endsect]
 
+[section:line_interpolate line_interpolate]
+[include generated/line_interpolate.qbk]
+[endsect]
+
 [section:make make]
 [include generated/make.qbk]
 [endsect]
@@ -257,7 +262,6 @@
 [include generated/degree.qbk]
 [include generated/dimension.qbk]
 [include generated/interior_type.qbk]
-[include generated/is_radian.qbk]
 [include generated/point_order.qbk]
 [include generated/point_type.qbk]
 [include generated/radian.qbk]
@@ -363,6 +367,7 @@
 [include generated/buffer_distance_asymmetric.qbk]
 [include generated/buffer_point_circle.qbk]
 [include generated/buffer_point_square.qbk]
+[include generated/buffer_geographic_point_circle.qbk]
 [include generated/buffer_side_straight.qbk]
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
@@ -377,6 +382,9 @@
 [include generated/distance_projected_point.qbk]
 [include generated/distance_cross_track.qbk]
 [include generated/distance_cross_track_point_box.qbk]
+[include generated/line_interpolate_cartesian.qbk]
+[include generated/line_interpolate_geographic.qbk]
+[include generated/line_interpolate_spherical.qbk]
 [include generated/side_side_by_triangle.qbk]
 [include generated/side_side_by_cross_track.qbk]
 [include generated/side_spherical_side_formula.qbk]

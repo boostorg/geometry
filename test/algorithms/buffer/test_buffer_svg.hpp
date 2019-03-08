@@ -177,9 +177,7 @@ private :
                     << "/" << bg::operation_char(it->operations[1].operation);
                 out << " "
                     << (it->count_on_offsetted > 0 ? "b" : "") // b: offsetted border
-#if ! defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
                     << (it->count_within_near_offsetted > 0 ? "n" : "")
-#endif
                     << (it->count_within > 0 ? "w" : "")
                     << (it->count_on_helper > 0 ? "h" : "")
                     << (it->count_on_multi > 0 ? "m" : "")

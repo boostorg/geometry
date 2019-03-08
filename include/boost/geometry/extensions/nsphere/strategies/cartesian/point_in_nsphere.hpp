@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2013-2015 Adam Wulkiewicz, London, UK.
+// Copyright (c) 2013-2019 Adam Wulkiewicz, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -69,20 +69,6 @@ struct point_in_nsphere
 };
 
 
-//// For many geometry-in-nsphere, we do not have a strategy yet... but a default strategy should exist
-//struct nsphere_dummy
-//{
-//    template <typename A, typename B>
-//    static bool apply(A const& a, B const& b)
-//    {
-//        // Assertion if called
-//        BOOST_GEOMETRY_ASSERT(false);
-//        return false;
-//    }
-//};
-
-
-
 } // namespace within
 
 
@@ -92,29 +78,22 @@ struct point_in_nsphere
 namespace within { namespace services
 {
 
-template <typename Point, typename NSphere>
+template <typename AnyGeometry, typename NSphere, typename AnyTag, typename AnyCastedTag>
 struct default_strategy
     <
-        point_tag, nsphere_tag,
-        point_tag, nsphere_tag,
-        cartesian_tag, cartesian_tag,
-        Point, NSphere
+        AnyGeometry, NSphere,
+        AnyTag, nsphere_tag,
+        AnyCastedTag, nsphere_tag,
+        cartesian_tag, cartesian_tag
     >
 {
-    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_within_comparable_distance> type;
+    typedef within::point_in_nsphere
+        <
+            typename geometry::point_type<AnyGeometry>::type,
+            NSphere,
+            within::point_nsphere_within_comparable_distance
+        > type;
 };
-
-//template <typename AnyTag, typename AnyGeometry, typename NSphere>
-//struct default_strategy
-//    <
-//        AnyTag, nsphere_tag,
-//        AnyTag, nsphere_tag,
-//        cartesian_tag, cartesian_tag,
-//        AnyGeometry, NSphere
-//    >
-//{
-//    typedef within::nsphere_dummy type;
-//};
 
 
 }} // namespace within::services
@@ -124,16 +103,21 @@ namespace covered_by { namespace services
 {
 
 
-template <typename Point, typename NSphere>
+template <typename AnyGeometry, typename NSphere, typename AnyTag, typename AnyCastedTag>
 struct default_strategy
     <
-        point_tag, nsphere_tag,
-        point_tag, nsphere_tag,
-        cartesian_tag, cartesian_tag,
-        Point, NSphere
+        AnyGeometry, NSphere,
+        AnyTag, nsphere_tag,
+        AnyCastedTag, nsphere_tag,
+        cartesian_tag, cartesian_tag
     >
 {
-    typedef within::point_in_nsphere<Point, NSphere, within::point_nsphere_covered_by_comparable_distance> type;
+    typedef within::point_in_nsphere
+        <
+            typename geometry::point_type<AnyGeometry>::type,
+            NSphere,
+            within::point_nsphere_covered_by_comparable_distance
+        > type;
 };
 
 
