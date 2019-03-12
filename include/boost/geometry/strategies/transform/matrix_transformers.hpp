@@ -129,6 +129,10 @@ public :
                     m_2_0, m_2_1, m_2_2)
     {}
 
+    inline matrix_transformer(matrix_type const& matrix)
+        : m_matrix(matrix)
+    {}
+
     inline matrix_transformer()
         : matrix_transformer<CalculationType, 2, 2>()
     {}
