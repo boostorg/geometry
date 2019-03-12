@@ -70,10 +70,10 @@ public:
         // equator
         if (math::equals(sin_bet1, c0) && math::equals(sin_bet2, c0))
         {
-            CT const sig_12 = math::abs(dlon) / one_minus_f;
+            CT const sig_12 = dlon / one_minus_f;
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
             {
-                CT m12 = sin(sig_12) * b;
+                CT m12 = math::sign(azimuth) * sin(sig_12) * b;
                 reduced_length = m12;
             }
                 
