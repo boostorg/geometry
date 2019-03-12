@@ -157,6 +157,10 @@ public :
         qvm::A<3,0>(m_matrix) = m_3_0; qvm::A<3,1>(m_matrix) = m_3_1; qvm::A<3,2>(m_matrix) = m_3_2; qvm::A<3,3>(m_matrix) = m_3_3;
     }
 
+    inline matrix_transformer(matrix_type const& matrix)
+        : m_matrix(matrix)
+    {}
+
     inline matrix_transformer() {}
 
     template <typename P1, typename P2>
