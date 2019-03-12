@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -73,7 +73,8 @@ public:
             CT const sig_12 = dlon / one_minus_f;
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
             {
-                CT m12 = math::sign(azimuth) * sin(sig_12) * b;
+                int azi_sign = math::sign(azimuth) >= 0 ? 1 : -1; // for antipodal
+                CT m12 = azi_sign * sin(sig_12) * b;
                 reduced_length = m12;
             }
                 
