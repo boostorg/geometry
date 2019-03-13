@@ -41,6 +41,11 @@
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
                 clips3, -1, area1 + area2)
 
+#define TEST_DIFFERENCE_WITH(caseid, clips1, area1, clips2, area2, clips3) \
+    (test_one<polygon, polygon, polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2, settings)
+
 template <typename P>
 void test_all()
 {
@@ -411,6 +416,14 @@ void test_all()
         );
 #endif
 
+    {
+        // With rescaling, difference of output a-b and a sym b is invalid
+        ut_settings settings;
+        settings.test_validity = BG_IF_RESCALED(false, true);
+        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1, 2, 0.18461532, 2, 0.617978, 4);
+        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2);
+    }
+
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",
         ticket_8310a[0], ticket_8310a[1],
@@ -529,6 +542,14 @@ void test_all()
             3, -1, 8.53333333333, 2, -1, 0.53333333333);
 
     }
+
+    // Rescaling generates a very small false polygon
+    TEST_DIFFERENCE(issue_566_a, 1, 143.662, BG_IF_RESCALED(1, 0),
+                    BG_IF_RESCALED(1.605078e-6, 0.0),
+                    BG_IF_RESCALED(2, 1));
+    TEST_DIFFERENCE(issue_566_b, 1, 143.662, BG_IF_RESCALED(1, 0),
+                    BG_IF_RESCALED(1.605078e-6, 0.0),
+                    BG_IF_RESCALED(2, 1));
 
     /***
     Experimental (cut), does not work:

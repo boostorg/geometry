@@ -250,6 +250,9 @@ void test_areal()
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, ut_settings(0.1));
 
+    TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
+    TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
+
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
@@ -315,6 +318,9 @@ void test_areal()
     // With rescaling the output is empty
     TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
 #endif
+
+    TEST_INTERSECTION(issue_566_a, 1, -1, 70.7107);
+    TEST_INTERSECTION(issue_566_b, 1, -1, 70.7107);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);

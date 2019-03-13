@@ -357,6 +357,9 @@ void test_areal()
         // PostGIS gives:    313.360364623393
     }
 
+    TEST_UNION(ggl_list_20190307_matthieu_1, 1, 1, -1, 0.83773);
+    TEST_UNION(ggl_list_20190307_matthieu_2, 1, 0, -1, 16.0);
+
     // Ticket 5103 https://svn.boost.org/trac/boost/ticket/5103
     // This ticket was actually reported for Boost.Polygon
     // We check it for Boost.Geometry as well.
@@ -410,6 +413,9 @@ void test_areal()
     // With rescaling an extra overlapping polygon is generated
     TEST_UNION(issue_548, 1, 0, -1, 617382720000);
 #endif
+
+    TEST_UNION(issue_566_a, 1, 0, -1, 214.3728);
+    TEST_UNION(issue_566_b, 1, 0, -1, 214.3728);
 
     {
         ut_settings ignore_validity;
