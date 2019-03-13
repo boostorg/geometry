@@ -109,9 +109,7 @@ void test_areal()
     {
         ut_settings settings;
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        settings.sym_difference = false;
-#endif
+        settings.sym_difference = BG_IF_RESCALED(false, true);
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
             case_108_multi[0], case_108_multi[1],
@@ -375,11 +373,9 @@ void test_areal()
             sym_settings);
     }
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 1, 4.30697514e-7, 3, 152.0642, 4);
-#else
-    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31, 0, 0.0, 3, 152.0642, 3);
-#endif
+    TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31,
+                    BG_IF_RESCALED(1, 0), BG_IF_RESCALED(4.30697514e-7, 0),
+                    3, 152.0642, BG_IF_RESCALED(4, 3));
 }
 
 
