@@ -23,6 +23,30 @@
 
 #include <boost/geometry/srs/srs.hpp>
 
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+#include <GeographicLib/Geodesic.hpp>
+#include <GeographicLib/Constants.hpp>
+#endif // BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+
+inline void symmetrize_wrt_origin(expected_result & r)
+{
+    r.lon2 = -r.lon2;
+    r.lat2 = -r.lat2;
+    r.reduced_length = -r.reduced_length;
+}
+
+inline expected_results symmetric_wrt_origin(expected_results r)
+{
+    r.distance = -r.distance;
+    symmetrize_wrt_origin(r.karney);
+    symmetrize_wrt_origin(r.series);
+    symmetrize_wrt_origin(r.spherical);
+    symmetrize_wrt_origin(r.thomas);
+    symmetrize_wrt_origin(r.thomas1st);
+    symmetrize_wrt_origin(r.vincenty);
+    return r;
+}
+
 template <typename Result>
 void check_direct(Result const& result, expected_result const& expected, expected_result const& reference,
                   double reference_error, bool check_reference_only = false)
@@ -98,7 +122,20 @@ void test_all(expected_results const& results)
 
     typedef bg::formula::karney_direct<double, true, true, true, true, 2> ka_t;
     result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
-    check_direct(result, results.thomas, results.karney, 0.0000001);
+    check_direct(result, results.karney, results.karney, 0.0000001);
+
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    {
+        using namespace GeographicLib;
+        Geodesic geod(Constants::WGS84_a(), Constants::WGS84_f());
+        double foo = 0;
+        geod.Direct(lat1d, lon1d, azi12d, distance,
+                    result.lat2, result.lon2, result.reverse_azimuth,
+                    result.reduced_length, result.geodesic_scale, foo);
+        boost::ignore_unused(foo);
+        check_direct(result, results.karney, results.karney, 0.0000001);
+    }
+#endif
 }
 
 void test_karney_antipodal(expected_results_antipodal const& results)
@@ -123,6 +160,11 @@ int test_main(int, char*[])
     for (size_t i = 0; i < expected_size; ++i)
     {
         test_all(expected[i]);
+
+        if (expected[i].p1.lon == 0 && expected[i].p1.lat == 0)
+        {
+            test_all(symmetric_wrt_origin(expected[i]));
+        }
     }
 
     for (size_t i = 0; i < expected_size_antipodal; ++i)

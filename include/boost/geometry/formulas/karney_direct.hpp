@@ -90,13 +90,6 @@ public:
 
         Dist const dist_c0 = 0;
 
-        if (math::equals(distance, dist_c0) || distance < dist_c0)
-        {
-            result.lon2 = lon1;
-            result.lat2 = lat1;
-            return result;
-        }
-
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
