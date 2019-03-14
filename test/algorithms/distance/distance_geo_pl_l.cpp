@@ -546,6 +546,13 @@ void test_distance_linestring_multipoint(Strategy_pp const& strategy_pp,
                   "MULTIPOINT(1 -1,80 80,5 0,150 90)",
                   0,
                   strategy_ps, true, false, false);
+    tester::apply("l-mp-06",
+                  "LINESTRING(90 0,0 1.00005)",
+                  "MULTIPOINT((0 0),(0 0),(0 0),(0 0),(0 0),(0 0),(0 0 ),(0 0),\
+                              (0 0),(0 0 ),(0 0),(0 0),(69.35235 155.0205),\
+                              (75.72081 37.97683),(0 0),(0 0),(0 0))",
+                  pp_distance("POINT(0 0)", "POINT(0 1.00005)", strategy_pp),
+                  strategy_ps, true, false, false);
 }
 
 //===========================================================================
