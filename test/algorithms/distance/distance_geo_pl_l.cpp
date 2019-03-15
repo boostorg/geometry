@@ -351,6 +351,13 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
                   "SEGMENT(1 -1,1 0)",
                   pp_distance("POINT(2 0)", "POINT(1 0)", strategy_pp),
                   strategy_ps, true, true);
+
+    tester::apply("p-s-acos",
+                  "POINT(0 90)",
+                  "SEGMENT(90 0,0 1.000005)",
+                  pp_distance("POINT(0 90)", "POINT(0.3017072304435489 1.000018955050697)",
+                              strategy_pp),
+                  strategy_ps, true, true);
 }
 
 template <typename Strategy_pp, typename Strategy_ps>
