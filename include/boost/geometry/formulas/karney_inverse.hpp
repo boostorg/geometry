@@ -129,8 +129,8 @@ public:
         int lon12_sign = lon12 >= 0 ? 1 : -1;
 
         // Make points close to the meridian to lie on it.
-        lon12 = lon12_sign * math::round_angle(lon12);
-        lon12_error = math::round_angle((c180 - lon12) - lon12_sign * lon12_error);
+        lon12 = lon12_sign * lon12;
+        lon12_error = (c180 - lon12) - lon12_sign * lon12_error;
 
         // Convert to radians.
         CT lam12 = lon12 * math::d2r<CT>();
@@ -148,11 +148,8 @@ public:
         }
 
         // Make points close to the equator to lie on it.
-        lat1 = std::abs(lat1) > c90 ? math::NaN<CT>() : lat1;
-        lat2 = std::abs(lat2) > c90 ? math::NaN<CT>() : lat2;
-
-        lat1 = math::round_angle(lat1);
-        lat2 = math::round_angle(lat2);
+        lat1 = std::abs(lat1) > c90 ? c90 : lat1;
+        lat2 = std::abs(lat2) > c90 ? c90 : lat2;
 
         // Arrange points in a canonical form, as explained in
         // paper, Algorithms for geodesics, Eq. (44):
