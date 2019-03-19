@@ -19,7 +19,6 @@ template <typename CalculationType>
 class interpolate_point_spherical
 {
     typedef model::point<CalculationType, 3, cs::cartesian> point3d_t;
-    CalculationType const c1 = 1;
 
 public :
 
@@ -38,7 +37,7 @@ public :
     void compute_axis(Point const& p0,
                       CalculationType const& angle01)
     {
-        CalculationType const c0 = 0;
+        CalculationType const c0 = 0, c1 = 1;
         CalculationType const pi = math::pi<CalculationType>();
 
         if (! math::equals(angle01, pi))
@@ -73,6 +72,8 @@ public :
     template <typename Point>
     void compute_point(CalculationType const& a, Point& p)
     {
+        CalculationType const c1 = 1;
+
         // Axis-Angle rotation
         // see: https://en.wikipedia.org/wiki/Axis-angle_representation
         CalculationType const cos_a = cos(a);
