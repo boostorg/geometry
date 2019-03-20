@@ -633,18 +633,19 @@ namespace boost { namespace geometry { namespace series_expansion {
     inline void evaluate_coeffs_C3(Coeffs1 &coeffs1, Coeffs2 &coeffs2, CT const& eps)
     {
         CT mult = 1;
-        int offset = 1;
+        int offset = 0;
 
         // l is the index of C3[l].
         for (size_t l = 1; l < Coeffs1::static_size; ++l)
         {
             // Order of polynomial in eps.
-            int m = Coeffs1::static_size - l - 1;
+            int m = Coeffs1::static_size - l;
             mult *= eps;
 
-            coeffs1[l] = mult * math::polyval(coeffs2.begin(), coeffs2.begin() + offset, eps);
+            coeffs1[l] = mult * math::horner_evaluate(eps, coeffs2.begin() + offset,
+                                                           coeffs2.begin() + offset + m);
 
-            offset += m + 1;
+            offset += m;
         }
         // Post condition: offset == coeffs_C3_size
     }
