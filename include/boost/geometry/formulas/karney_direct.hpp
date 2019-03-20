@@ -88,8 +88,6 @@ public:
         Azi azi12 = azimuth12;
         math::normalize_azimuth<degree, Azi>(azi12);
 
-        Dist const dist_c0 = 0;
-
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;
