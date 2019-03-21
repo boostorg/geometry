@@ -2484,6 +2484,17 @@ BOOST_AUTO_TEST_CASE( envelope_polygon )
                   from_wkt<G>("POLYGON((),(0.5 0.5,0.5 0.7,0.7 0.7,0.5 0.5),\
                               (0.7 0.5,0.9 0.5,0.9 0.7,0.7 0.5))"),
                   0.5, 0.5, 0.9, 0.70000106605644807);
+
+    // https://github.com/boostorg/geometry/issues/466
+    tester::apply("p5-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.9021,2.4 48.89,2.3 48.89,2.3 48.9021,2.4 48.9021))"),
+                  2.3, 48.89, 2.4, 48.902110807274966);
+    tester::apply("p6-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.90215,2.4 48.89,2.3 48.89,2.3 48.90215,2.4 48.90215))"),
+                  2.3, 48.89, 2.4, 48.902160807272381);
+    tester::apply("p7-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.9022,2.4 48.89,2.3 48.89,2.3 48.9022,2.4 48.9022))"),
+                  2.3, 48.89, 2.4, 48.902210807269796);
 }
 
 // unit test for rings de-activated for now (current implementation
