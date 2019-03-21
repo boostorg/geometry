@@ -10,8 +10,8 @@
 
 test-suite boost-geometry-extensions-gis-latong
     :
-    [ run area_ll.cpp ]
-    [ run cross_track.cpp ]
-    [ run distance_mixed.cpp ]
+#    [ run area_ll.cpp ]
+#    [ run cross_track.cpp ]
+#    [ run distance_mixed.cpp ]
     [ run point_ll.cpp ]
     ;

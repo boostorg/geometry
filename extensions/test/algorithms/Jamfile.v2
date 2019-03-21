@@ -10,11 +10,11 @@
 
 test-suite boost-geometry-extensions-algorithms
     :
-    [ run dissolve.cpp ]
+#    [ run dissolve.cpp ]
     [ run distance_info.cpp ]
     [ run connect.cpp ]
-    [ run offset.cpp ]
+#    [ run offset.cpp ]
     [ run midpoints.cpp ]
-    [ run selected.cpp ]
+#    [ run selected.cpp ]
     ;
 
