@@ -245,6 +245,16 @@ void disjoint_tests_sph_geo()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(0 5, 20 6)",
                                                              "SEGMENT(0 4.9, 120 -1)",
                                                              false);
+
+    //https://github.com/boostorg/geometry/issues/579
+#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(10 10,20 20)",
+                                                             "SEGMENT(12 2,12 1)",
+                                                             true);
+    test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(10 10,20 20)",
+                                                             "SEGMENT(12 1,12 2)",
+                                                             true);
+#endif
 }
 
 template <typename CT>
