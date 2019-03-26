@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016, 2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -253,6 +253,41 @@ void test_point_polygon()
                            false);
 }
 
+template <typename P>
+void test_box_polygon()
+{
+    typedef bg::model::box<P> box;
+    typedef bg::model::polygon<P> poly;
+
+    // https://github.com/boostorg/geometry/issues/466
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.4 48.90205, 2.4 48.89, 2.3 48.89, 2.3 48.90205, 2.4 48.90205))",
+                             false);
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.4 48.9021, 2.4 48.89, 2.3 48.89, 2.3 48.9021, 2.4 48.9021))",
+                             false);
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.4 48.90215, 2.4 48.89, 2.3 48.89, 2.3 48.90215, 2.4 48.90215))",
+                             false);
+    // extended
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.4 48.9022, 2.4 48.89, 2.3 48.89, 2.3 48.9022, 2.4 48.9022))",
+                             false);
+    // box within poly
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.6 48.9021, 2.6 48.8, 2.1 48.8, 2.1 48.9021, 2.6 48.9021))",
+                             false);
+    test_geometry<box, poly>("BOX(2.2 48.88, 2.5 48.9021)",
+                             "POLYGON((2.6 48.9022, 2.6 48.8, 2.1 48.8, 2.1 48.9022, 2.6 48.9022))",
+                             false);
+
+    // related to https://github.com/boostorg/geometry/issues/579
+    test_geometry<box, poly>("BOX(10 10,20 20)",
+                             "POLYGON((11 0,10 1,11 2,12 3,13 1,11 0),"
+                                     "(12 1,11 1,12 2,12 1))",
+                             true);
+}
+
 
 template <typename P>
 void test_all()
@@ -270,16 +305,19 @@ void test_all()
     test_linestring_multi_linestring<P>();
     test_multi_linestring_multi_linestring<P>();
 
-    test_linestring_linestring_radians<bg::model::point<double, 2,
-                                     bg::cs::spherical_equatorial<bg::radian> > >();
-
     test_point_polygon<P>();
+    test_box_polygon<P>();
 }
 
 
 int test_main( int , char* [] )
 {
-    test_all<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > point_deg;
+    typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::radian> > point_rad;
+
+    test_all<point_deg>();
+
+    test_linestring_linestring_radians<point_rad>();
 
 #if defined(HAVE_TTMATH)
     test_cs<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();

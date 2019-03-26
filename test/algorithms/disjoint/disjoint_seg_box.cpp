@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -247,14 +247,12 @@ void disjoint_tests_sph_geo()
                                                              false);
 
     //https://github.com/boostorg/geometry/issues/579
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(10 10,20 20)",
                                                              "SEGMENT(12 2,12 1)",
                                                              true);
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(10 10,20 20)",
                                                              "SEGMENT(12 1,12 2)",
                                                              true);
-#endif
 }
 
 template <typename CT>
