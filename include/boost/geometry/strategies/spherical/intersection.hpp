@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2018, Oracle and/or its affiliates.
+// Copyright (c) 2016-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -42,6 +42,7 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/envelope.hpp>
 #include <boost/geometry/strategies/spherical/expand_box.hpp>
@@ -187,6 +188,13 @@ struct ecef_segments
     static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
     {
         return disjoint_box_box_strategy_type();
+    }
+
+    typedef disjoint::segment_box_spherical disjoint_segment_box_strategy_type;
+
+    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
+    {
+        return disjoint_segment_box_strategy_type();
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
