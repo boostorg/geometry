@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2018.
-// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2019.
+// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -114,7 +114,6 @@ struct disjoint_segment_box_sphere_or_spheroid
         assert_dimension_equal<Segment, Box>();
 
         typedef typename point_type<Segment>::type segment_point_type;
-        typedef typename cs_tag<Segment>::type segment_cs_type;
 
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
@@ -160,15 +159,17 @@ struct disjoint_segment_box_sphere_or_spheroid
 
         geometry::model::box<segment_point_type> box_seg;
 
-        // TODO: Shouldn't CSTag be taken from the caller, not from the segment?
+        // TODO: alp1 commented out due to the inconsistent handling of
+        //   coordinates and azimuth internally coordinates may be modified
+        //   before calculation but passed azimuth is not adapted to changes
         strategy::envelope::detail::envelope_segment_impl
             <
-                segment_cs_type
+                CS_Tag
             >::template apply<geometry::radian>(lon1, lat1,
                                                 lon2, lat2,
                                                 box_seg,
-                                                azimuth_strategy,
-                                                alp1);
+                                                azimuth_strategy/*,
+                                                alp1*/);
 
         if (disjoint_box_box(box, box_seg, disjoint_box_box_strategy))
         {
