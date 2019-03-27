@@ -100,12 +100,14 @@ struct ut_settings
     double tolerance;
     bool test_validity;
     bool test_area;
+    bool use_ln_area;
     int points_per_circle;
 
     explicit ut_settings(double tol = 0.01, bool val = true, int points = 88)
         : tolerance(tol)
         , test_validity(val)
         , test_area(true)
+        , use_ln_area(false)
         , points_per_circle(points)
     {}
 
@@ -197,6 +199,9 @@ void test_buffer(std::string const& caseid,
         << (end_name.empty() ? "" : "_") << end_name
         << (distance_strategy.negative() ? "_deflate" : "")
         << (bg::point_order<GeometryOut>::value == bg::counterclockwise ? "_ccw" : "")
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        << "_rescaled"
+#endif
          // << "_" << point_buffer_count
         ;
 
@@ -313,8 +318,13 @@ void test_buffer(std::string const& caseid,
 
     if (settings.test_area)
     {
+        // Because areas vary hugely in buffer, the Boost.Test methods are not convenient.
+        // Use just the abs - but if areas are really small that is not convenient neither.
+        // Therefore there is a logarithmic option too.
         typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered, area_strategy);
-        double const difference = area - expected_area;
+        double const difference = settings.use_ln_area
+                ? std::log(area) - std::log(expected_area)
+                : area  - expected_area;
         BOOST_CHECK_MESSAGE
             (
                 bg::math::abs(difference) < settings.tolerance,
@@ -327,11 +337,26 @@ void test_buffer(std::string const& caseid,
                 << std::setprecision(3)
                 << " , " << 100.0 * (difference / expected_area) << "%"
             );
+//        if (settings.use_ln_area)
+//        {
+//            std::cout << complete.str()
+//                      << std::setprecision(6)
+//                      << " ln(detected)=" << std::log(area)
+//                      << " ln(expected)=" << std::log(expected_area)
+//                      << " diff=" << difference
+//                      << " detected=" << area
+//                      << std::endl;
+//        }
     }
 
-    if (settings.test_validity && ! bg::is_valid(buffered))
+#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+    if (settings.test_validity)
+#endif
     {
-        BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
+        if (! bg::is_valid(buffered))
+        {
+            BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
+        }
     }
 
 #if defined(TEST_WITH_SVG_PER_TURN)

@@ -134,7 +134,7 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 
     settings.tolerance = 10000.0;
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // in case robustness policies are changed, areas should be adapted
     settings.tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
 #endif

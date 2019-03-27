@@ -67,13 +67,6 @@ public:
         CT const lon1 = lo1;
         CT const lat1 = la1;
 
-        if ( math::equals(distance, Dist(0)) || distance < Dist(0) )
-        {
-            result.lon2 = lon1;
-            result.lat2 = lat1;
-            return result;
-        }
-
         CT const c0 = 0;
         CT const c1 = 1;
         CT const c2 = 2;

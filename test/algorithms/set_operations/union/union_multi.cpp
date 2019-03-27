@@ -363,13 +363,8 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_78, 2, 5, -1, 18.0);
     TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    // This is correct: no holes generated
-    TEST_UNION(case_recursive_boxes_80, 2, 0, -1, 1.5);
-#else
-    // See comment for this testcase
-    TEST_UNION(case_recursive_boxes_80, 2, 1, -1, 1.5);
-#endif
+    // No hole should be generated (but rescaling generates one hole)
+    TEST_UNION(case_recursive_boxes_80, 2, BG_IF_RESCALED(1, 0), -1, 1.5);
 
     TEST_UNION(case_recursive_boxes_81, 5, 0, -1, 15.5);
     TEST_UNION(case_recursive_boxes_82, 2, 2, -1, 20.25);
@@ -392,19 +387,13 @@ void test_areal()
          2, 0, 16, 0.002471626);
 
     {
+        // Generates either 4 or 3 output polygons
+        // With rescaling the result is invalid.
         ut_settings settings;
-#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS) && !defined(BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS)
-        settings.test_validity = false;
-#endif
-
+        settings.test_validity = BG_IF_RESCALED(false, true);
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
             ticket_9081[0], ticket_9081[1],
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            3,
-#else
-            4,
-#endif
-            0, 31, 0.2187385,
+            BG_IF_RESCALED(4, 3), 0, 31, 0.2187385,
             settings);
     }
 
@@ -419,7 +408,7 @@ void test_areal()
         ticket_12118[0], ticket_12118[1],
         1, 1, 27, 2221.38713);
 
-#if defined(BOOST_GEOMETRY_ENABLE_FAILING_TESTS) || defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING) || ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // No output if rescaling is done
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12125",
         ticket_12125[0], ticket_12125[1],

@@ -41,6 +41,11 @@
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
                 clips3, -1, area1 + area2)
 
+#define TEST_DIFFERENCE_WITH(caseid, clips1, area1, clips2, area2, clips3) \
+    (test_one<polygon, polygon, polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
+                clips3, -1, area1 + area2, settings)
+
 template <typename P>
 void test_all()
 {
@@ -51,14 +56,12 @@ void test_all()
     typedef typename bg::coordinate_type<P>::type ct;
 
     ut_settings sym_settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     sym_settings.sym_difference = false;
 #endif
 
     ut_settings ignore_validity_settings;
-#ifndef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
     ignore_validity_settings.test_validity = false;
-#endif
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -82,11 +85,13 @@ void test_all()
         1, 5, 8.0,
         1, 5, 8.0);
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("star_comb_15",
         star_comb_15[0], star_comb_15[1],
-        30, 160, 227.658275102812,
-        30, 198, 480.485775259312,
+        30, -1, 227.658275102812,
+        30, -1, 480.485775259312,
         sym_settings);
+#endif
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -117,6 +122,7 @@ void test_all()
         1, 5, 9.0,
         1, 5, 9.0);
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("only_hole_intersections1",
         only_hole_intersections[0], only_hole_intersections[1],
         2, 10,  1.9090909,
@@ -128,6 +134,7 @@ void test_all()
         3, 20, 30.9090909,
         4, 16, 10.9090909,
         sym_settings);
+#endif
 
     test_one<polygon, polygon, polygon>("first_within_second",
         first_within_second[1], first_within_second[0],
@@ -199,13 +206,14 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // Fails, a-b is partly generated, b-a does not have any output
     // It failed already in 1.59
     test_one<polygon, polygon, polygon>("case_58_iet",
         case_58[0], case_58[2],
         3, 12, 0.6666666667,
-        1, -1, 11.1666666667);
+        1, -1, 11.1666666667,
+        2, -1, 0.6666666667 + 11.1666666667);
 #endif
 
     test_one<polygon, polygon, polygon>("case_80",
@@ -213,7 +221,7 @@ void test_all()
         1, 9, 44.5,
         1, 10, 84.5);
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // Fails, holes are not subtracted
     test_one<polygon, polygon, polygon>("case_81",
         case_81[0], case_81[1],
@@ -263,7 +271,7 @@ void test_all()
         1, 61, 10.2717,
         1, 61, 10.2717);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
         test_one<polygon, polygon, polygon>("buffer_mp2",
@@ -287,12 +295,8 @@ void test_all()
 
     {
         ut_settings settings;
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        settings.percentage = 0.1;
-        settings.test_validity = false;
-#else
-        settings.percentage = 0.001;
-#endif
+        settings.percentage = BG_IF_RESCALED(0.001, 0.1);
+        settings.test_validity = BG_IF_RESCALED(true, false);
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
@@ -308,7 +312,7 @@ void test_all()
             settings);
     }
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
@@ -330,18 +334,21 @@ void test_all()
         settings.percentage = 0.01;
         settings.test_validity = false;
 
+        // Output polygons for sym difference might be combined
         test_one<polygon, polygon, polygon>("geos_2",
             geos_2[0], geos_2[1],
             1, -1, 138.6923828,
             1, -1, 211.859375,
+            BG_IF_RESCALED(2, 1), -1, 138.6923828 + 211.859375,
             settings);
     }
 
+    // Output polygons for sym difference might be combined
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
         1, -1, 13180420.0,
-        1, -1, 16211128.5 + 13180420.0,
+        BG_IF_RESCALED(1, 2), -1, 16211128.5 + 13180420.0,
         sym_settings);
 
     test_one<polygon, polygon, polygon>("geos_4",
@@ -371,7 +378,7 @@ void test_all()
             1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     {
         // symmetric difference is not valid due to robustness issue, it has
         // two turns (touch_only) and a midpoint is located in other polygon
@@ -392,7 +399,7 @@ void test_all()
         1, 5, 384.2295081964694,
         tolerance(0.01));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // 2011-07-02 / 2014-06-19
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
@@ -409,6 +416,14 @@ void test_all()
         );
 #endif
 
+    {
+        // With rescaling, difference of output a-b and a sym b is invalid
+        ut_settings settings;
+        settings.test_validity = BG_IF_RESCALED(false, true);
+        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1, 2, 0.18461532, 2, 0.617978, 4);
+        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2);
+    }
+
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",
         ticket_8310a[0], ticket_8310a[1],
@@ -423,7 +438,7 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
             2, 10, 0.0334529710902111,
@@ -435,11 +450,11 @@ void test_all()
             2, 12, 0.0451236449624935,
             0, 0, 0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
-            0, 0, 0,
-            6, 24, 20.096189);
+            0, -1, 0,
+            6, -1, 20.096189);
 #endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_a",
@@ -448,7 +463,7 @@ void test_all()
             1, 4,  0.029019232,
             sym_settings);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
             1, 5, 1081.68697,
@@ -528,6 +543,14 @@ void test_all()
 
     }
 
+    // Rescaling generates a very small false polygon
+    TEST_DIFFERENCE(issue_566_a, 1, 143.662, BG_IF_RESCALED(1, 0),
+                    BG_IF_RESCALED(1.605078e-6, 0.0),
+                    BG_IF_RESCALED(2, 1));
+    TEST_DIFFERENCE(issue_566_b, 1, 143.662, BG_IF_RESCALED(1, 0),
+                    BG_IF_RESCALED(1.605078e-6, 0.0),
+                    BG_IF_RESCALED(2, 1));
+
     /***
     Experimental (cut), does not work:
     test_one<polygon, polygon, polygon>(
@@ -544,8 +567,10 @@ void test_all()
     TEST_DIFFERENCE(mysql_23023665_2, 1, 96.0, 1, 16.0, 2);
     TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
     TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     TEST_DIFFERENCE(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5);
     TEST_DIFFERENCE(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6);
+#endif
 }
 
 

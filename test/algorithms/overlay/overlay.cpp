@@ -373,8 +373,8 @@ void test_overlay(std::string const& caseid,
         << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
         << (ccw ? "_ccw" : "")
         << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        << "_no_rob"
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        << "_rescaled"
 #endif
         << ".svg";
 

@@ -101,6 +101,7 @@
 // - do NOT use "using namespace boost::geometry" to make clear what is Boost.Geometry
 // - use bg:: as short alias
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -160,6 +161,10 @@ struct mathematical_policy
 
 };
 
-
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#define BG_IF_RESCALED(a, b) a
+#else
+#define BG_IF_RESCALED(a, b) b
+#endif
 
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP

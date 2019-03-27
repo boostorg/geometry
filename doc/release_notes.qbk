@@ -30,6 +30,7 @@
 [*Bugfixes]
 
 * [@https://github.com/boostorg/geometry/pull/553 553] Pass spheroid correctly in geographic comparable strategies.
+* [@https://github.com/boostorg/geometry/pull/571 571] Fix nan result in geographic distance.
 
 [/=================]
 [heading Boost 1.69]
