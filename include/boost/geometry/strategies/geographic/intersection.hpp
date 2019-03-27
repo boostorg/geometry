@@ -37,6 +37,7 @@
 #include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
@@ -179,6 +180,16 @@ struct geographic_segments
     static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
     {
         return disjoint_box_box_strategy_type();
+    }
+
+    typedef disjoint::segment_box_geographic
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        > disjoint_segment_box_strategy_type;
+
+    inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy() const
+    {
+        return disjoint_segment_box_strategy_type(m_spheroid);
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;

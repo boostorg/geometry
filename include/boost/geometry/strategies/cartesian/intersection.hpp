@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017, 2018.
-// Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2016, 2017, 2018, 2019.
+// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -35,6 +35,7 @@
 
 #include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/envelope.hpp>
 #include <boost/geometry/strategies/cartesian/expand_box.hpp>
@@ -169,6 +170,13 @@ struct cartesian_segments
     static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
     {
         return disjoint_box_box_strategy_type();
+    }
+
+    typedef disjoint::segment_box disjoint_segment_box_strategy_type;
+
+    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
+    {
+        return disjoint_segment_box_strategy_type();
     }
 
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
