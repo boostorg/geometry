@@ -152,9 +152,6 @@ struct disjoint_segment_box_sphere_or_spheroid
             std::swap(lat1, lat2);
         }
 
-        //Compute alp1 outside envelope and pass it to envelope_segment_impl
-        //in order for it to be used later in the algorithm
-
         geometry::model::box<segment_point_type> box_seg;
 
         // TODO: Shouldn't CSTag be taken from the caller, not from the segment?
