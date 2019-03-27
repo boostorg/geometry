@@ -337,26 +337,6 @@ private:
         compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
     }
 
-    template <typename Units, typename CalculationType, typename Strategy>
-    static inline void apply(CalculationType& lon1,
-                             CalculationType& lat1,
-                             CalculationType& lon2,
-                             CalculationType& lat2,
-                             Strategy const& strategy,
-                             CalculationType alp1)
-    {
-        special_cases<Units>(lon1, lat1, lon2, lat2);
-
-        CalculationType lon1_rad = math::as_radian<Units>(lon1);
-        CalculationType lat1_rad = math::as_radian<Units>(lat1);
-        CalculationType lon2_rad = math::as_radian<Units>(lon2);
-        CalculationType lat2_rad = math::as_radian<Units>(lat2);
-        CalculationType alp2;
-        strategy.apply_reverse(lon1_rad, lat1_rad, lon2_rad, lat2_rad, alp2);
-
-        compute_box_corners<Units>(lon1, lat1, lon2, lat2, alp1, alp2, strategy);
-    }
-
 public:
     template
     <
@@ -383,31 +363,6 @@ public:
         create_box<Units>(lon1, lat1, lon2, lat2, mbr);
     }
 
-    template
-    <
-        typename Units,
-        typename CalculationType,
-        typename Box,
-        typename Strategy
-    >
-    static inline void apply(CalculationType lon1,
-                             CalculationType lat1,
-                             CalculationType lon2,
-                             CalculationType lat2,
-                             Box& mbr,
-                             Strategy const& strategy,
-                             CalculationType alp1)
-    {
-        typedef envelope_segment_convert_polar<Units, typename cs_tag<Box>::type> convert_polar;
-
-        convert_polar::pre(lat1, lat2);
-
-        apply<Units>(lon1, lat1, lon2, lat2, strategy, alp1);
-
-        convert_polar::post(lat1, lat2);
-
-        create_box<Units>(lon1, lat1, lon2, lat2, mbr);
-    }
 };
 
 } // namespace detail
