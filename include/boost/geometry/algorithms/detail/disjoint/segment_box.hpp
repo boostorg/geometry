@@ -114,6 +114,7 @@ struct disjoint_segment_box_sphere_or_spheroid
         assert_dimension_equal<Segment, Box>();
 
         typedef typename point_type<Segment>::type segment_point_type;
+        typedef typename cs_tag<Segment>::type segment_cs_type;
 
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
@@ -151,25 +152,15 @@ struct disjoint_segment_box_sphere_or_spheroid
             std::swap(lat1, lat2);
         }
 
-        //Compute alp1 outside envelope and pass it to envelope_segment_impl
-        //in order for it to be used later in the algorithm
-        CT alp1;
-
-        azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
-
         geometry::model::box<segment_point_type> box_seg;
 
-        // TODO: alp1 commented out due to the inconsistent handling of
-        //   coordinates and azimuth internally coordinates may be modified
-        //   before calculation but passed azimuth is not adapted to changes
         strategy::envelope::detail::envelope_segment_impl
             <
                 CS_Tag
             >::template apply<geometry::radian>(lon1, lat1,
                                                 lon2, lat2,
                                                 box_seg,
-                                                azimuth_strategy/*,
-                                                alp1*/);
+                                                azimuth_strategy);
 
         if (disjoint_box_box(box, box_seg, disjoint_box_box_strategy))
         {
@@ -178,13 +169,14 @@ struct disjoint_segment_box_sphere_or_spheroid
 
         // Case 3: test intersection by comparing angles
 
-        CT a_b0, a_b1, a_b2, a_b3;
+        CT alp1, a_b0, a_b1, a_b2, a_b3;
 
         CT b_lon_min = geometry::get_as_radian<geometry::min_corner, 0>(box);
         CT b_lat_min = geometry::get_as_radian<geometry::min_corner, 1>(box);
         CT b_lon_max = geometry::get_as_radian<geometry::max_corner, 0>(box);
         CT b_lat_max = geometry::get_as_radian<geometry::max_corner, 1>(box);
 
+        azimuth_strategy.apply(lon1, lat1, lon2, lat2, alp1);
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_min, a_b0);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_min, a_b1);
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
