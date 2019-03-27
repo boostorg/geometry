@@ -19,7 +19,6 @@
 #include <map>
 #include <vector>
 
-#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
@@ -301,17 +300,17 @@ public :
     {
         if (op.seg_id.segment_index >= departure_seg_id.segment_index)
         {
+            // dep.seg_id=5, op.seg_id=7, distance=2, being segments 5,6
             return op.seg_id.segment_index - departure_seg_id.segment_index;
         }
         // Take wrap into account
-        // Suppose ring_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2, then distance=10-9+2
-        // Generic function (is this used somewhere else too?)
-        ring_identifier const rid(op.seg_id.source_index, op.seg_id.multi_index, op.seg_id.ring_index);
-        signed_size_type const segment_count
-                    (op.seg_id.source_index == 0
-                    ? geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry1>::type>::apply(rid, geometry1))
-                    : geometry::num_points(detail::overlay::get_ring<typename geometry::tag<Geometry2>::type>::apply(rid, geometry2)));
-        return ((segment_count - 1) - departure_seg_id.segment_index) + op.seg_id.segment_index;
+        // Suppose point_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2,
+        // then distance=9-7+2=4, being segments 7,8,0,1
+        std::size_t const segment_count
+                    = op.seg_id.source_index == 0
+                    ? segment_count_on_ring(geometry1, op.seg_id)
+                    : segment_count_on_ring(geometry2, op.seg_id);
+        return segment_count - departure_seg_id.segment_index + op.seg_id.segment_index;
     }
 
     void apply(Point const& turn_point)

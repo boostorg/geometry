@@ -53,9 +53,9 @@ namespace detail { namespace overlay
 {
 
 template <typename Turns>
-struct discarded_turn
+struct discarded_indexed_turn
 {
-    discarded_turn(Turns const& turns)
+    discarded_indexed_turn(Turns const& turns)
         : m_turns(turns)
     {}
 
@@ -272,7 +272,7 @@ inline void enrich_adapt(Operations& operations, Turns& turns)
     }
 
     // Remove discarded turns from operations to avoid having them as next turn
-    discarded_turn<Turns> const predicate(turns);
+    discarded_indexed_turn<Turns> const predicate(turns);
     operations.erase(std::remove_if(boost::begin(operations),
         boost::end(operations), predicate), boost::end(operations));
 }
@@ -425,6 +425,13 @@ inline void enrich_intersection_points(Turns& turns,
             ring_identifier,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
+
+    // As long as turn indexes are not used yet, turns might be erased from
+    // the vector
+    detail::overlay::erase_colocated_start_turns(turns, geometry1, geometry2);
+
+    // From here on, turn indexes are used (in clusters, next_index, etc)
+    // and may only be flagged as discarded
 
     bool has_cc = false;
     bool const has_colocations

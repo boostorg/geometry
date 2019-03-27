@@ -21,11 +21,12 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -142,6 +143,51 @@ struct base_turn_handler
         ctype const dy = get<1>(a) - get<1>(b);
         return dx * dx + dy * dy;
     }
+
+    template
+    <
+            std::size_t IndexP,
+            std::size_t IndexQ,
+            typename UniqueSubRange1,
+            typename UniqueSubRange2,
+            typename TurnInfo
+    >
+    static inline void both_collinear(UniqueSubRange1 const& range_p,
+            UniqueSubRange2 const& range_q,
+            std::size_t index_p, std::size_t index_q,
+            TurnInfo& ti)
+    {
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+        ti.operations[IndexP].remaining_distance = distance_measure(ti.point, range_p.at(index_p));
+        ti.operations[IndexQ].remaining_distance = distance_measure(ti.point, range_q.at(index_q));
+
+        // pk/q2 is considered as collinear, but there might be
+        // a tiny measurable difference. If so, use that.
+        // Calculate pk // qj-qk
+        typedef detail::distance_measure
+            <
+                typename select_coordinate_type
+                    <
+                        typename UniqueSubRange1::point_type,
+                        typename UniqueSubRange2::point_type
+                    >::type
+            > dm_type;
+
+        dm_type const dm = get_distance_measure(range_q.at(index_q - 1),
+            range_q.at(index_q), range_p.at(index_p));
+
+        if (! dm.is_zero())
+        {
+            // Not truely collinear, distinguish for union/intersection
+            // If p goes left (positive), take that for a union
+            ui_else_iu(dm.is_positive(), ti);
+            return;
+        }
+#endif
+
+        both(ti, operation_continue);
+    }
+
 };
 
 
@@ -266,19 +312,8 @@ struct touch_interior : public base_turn_handler
             // Q intersects on interior of P and continues collinearly
             if (side_qk_q == side_qi_p)
             {
-                // Collinearly in the same direction
-                // (Q comes from left of P and turns left,
-                //  OR Q comes from right of P and turns right)
-                // Omit second intersection point.
-                // Union: just continue
-                // Intersection: just continue
-                both(ti, operation_continue);
-
-                // Calculate remaining distance.
-                // Q arrives at p, at point qj, so use qk for q
-                // and use pj for p
-                ti.operations[index_p].remaining_distance = distance_measure(ti.point, range_p.at(1));
-                ti.operations[index_q].remaining_distance = distance_measure(ti.point, range_q.at(2));
+                both_collinear<index_p, index_q>(range_p, range_q, 1, 2, ti);
+                return;
             }
             else
             {
@@ -369,12 +404,11 @@ struct touch : public base_turn_handler
                 // (#BRL2)
                 if (side_pk_q2 == 0 && ! block_q)
                 {
-                    both(ti, operation_continue);
+                    both_collinear<0, 1>(range_p, range_q, 2, 2, ti);
                     return;
                 }
 
                 int const side_pk_q1 = has_pk && has_qk ? side.pk_wrt_q1() : 0;
-
 
                 // Collinear opposite case -> block P
                 // (#BRL4, #BLR8)
@@ -538,7 +572,7 @@ struct equal : public base_turn_handler
         // oppositely
         if (side_pk_q2 == 0 && side_pk_p == side_qk_p)
         {
-            both(ti, operation_continue);
+            both_collinear<0, 1>(range_p, range_q, 2, 2, ti);
 
             return;
         }
@@ -557,6 +591,130 @@ struct equal : public base_turn_handler
             ui_else_iu(side_pk_p != -1, ti);
         }
     }
+};
+
+
+template
+<
+    typename TurnInfo
+>
+struct start : public base_turn_handler
+{
+    template
+    <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename IntersectionInfo,
+        typename DirInfo,
+        typename SidePolicy
+    >
+    static inline bool apply(UniqueSubRange1 const& range_p,
+                UniqueSubRange2 const& range_q,
+                TurnInfo& ti,
+                IntersectionInfo const& info,
+                DirInfo const& dir_info,
+                SidePolicy const& side)
+    {
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        // If rescaled, it is not necessary to handle start turns
+        return false;
+#endif
+
+        if (dir_info.opposite)
+        {
+            // They should not be collinear
+            return false;
+        }
+
+        int const side_pj_q1 = side.pj_wrt_q1();
+        int const side_qj_p1 = side.qj_wrt_p1();
+
+        // Get side values at starting point
+        typedef detail::distance_measure
+            <
+                typename select_coordinate_type
+                    <
+                        typename UniqueSubRange1::point_type,
+                        typename UniqueSubRange2::point_type
+                    >::type
+            > dm_type;
+
+        dm_type const dm_pi_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(0));
+        dm_type const dm_qi_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(0));
+
+        if (dir_info.how_a == -1 && dir_info.how_b == -1)
+        {
+            // Both p and q leave
+            if (dm_pi_q1.is_zero() && dm_qi_p1.is_zero())
+            {
+                // Exactly collinear, not necessary to handle it
+                return false;
+            }
+
+            if (! (dm_pi_q1.is_small() && dm_qi_p1.is_small()))
+            {
+                // Not nearly collinear
+                return false;
+            }
+
+           if (side_qj_p1 == 0)
+            {
+                // Collinear is not handled
+                return false;
+            }
+
+            ui_else_iu(side_qj_p1 == -1, ti);
+        }
+        else if (dir_info.how_b == -1)
+        {
+            // p --------------->
+            //             |
+            //             | q         q leaves
+            //             v
+            //
+
+            if (dm_qi_p1.is_zero() || ! dm_qi_p1.is_small())
+            {
+                // Exactly collinear
+                return false;
+            }
+
+            if (side_qj_p1 == 0)
+            {
+                // Collinear is not handled
+                return false;
+            }
+
+            ui_else_iu(side_qj_p1 == -1, ti);
+        }
+        else if (dir_info.how_a == -1)
+        {
+            if (dm_pi_q1.is_zero() || ! dm_pi_q1.is_small())
+            {
+                // It starts exactly, not necessary to handle it
+                return false;
+            }
+
+            // p leaves
+            if (side_pj_q1 == 0)
+            {
+                // Collinear is not handled
+                return false;
+            }
+
+            ui_else_iu(side_pj_q1 == 1, ti);
+        }
+        else
+        {
+            // Not supported
+            return false;
+        }
+
+        // Copy intersection point
+        assign_point(ti, method_start, info, 0);
+        return true;
+    }
+
 };
 
 
@@ -978,18 +1136,13 @@ struct get_turn_info
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
 
+        bool do_only_convert = false;
+
         // Select method and apply
         switch(method)
         {
-            case 'a' : // collinear, "at"
-            case 'f' : // collinear, "from"
-            case 's' : // starts from the middle
-                if (AssignPolicy::include_no_turn
-                    && inters.i_info().count > 0)
-                {
-                    only_convert::apply(tp, inters.i_info());
-                    *out++ = tp;
-                }
+            case 'a' : // "angle"
+                do_only_convert = true;
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -1028,6 +1181,20 @@ struct get_turn_info
                 // Both touch (both arrive there)
                 touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides());
                 *out++ = tp;
+            }
+            break;
+            case 'f' :
+            case 's' :
+            {
+                // "from" or "start" without rescaling, it is in some cases necessary to handle
+                if (start<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides()))
+                {
+                    *out++ = tp;
+                }
+                else
+                {
+                    do_only_convert = true;
+                }
             }
             break;
             case 'e':
@@ -1103,6 +1270,14 @@ struct get_turn_info
 #endif
             }
             break;
+        }
+
+        if (do_only_convert
+            && AssignPolicy::include_no_turn
+            && inters.i_info().count > 0)
+        {
+            only_convert::apply(tp, inters.i_info());
+            *out++ = tp;
         }
 
         return out;
