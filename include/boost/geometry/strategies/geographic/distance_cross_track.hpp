@@ -409,7 +409,7 @@ private :
             return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
         }
 
-        // Guess s14 (SPHERICAL)
+        // Guess s14 (SPHERICAL) aka along-track distance
         typedef geometry::model::point
                 <
                     CT, 2,
@@ -425,7 +425,12 @@ private :
 
         geometry::strategy::distance::haversine<CT> str(earth_radius);
         CT s13 = str.apply(p1, p3);
-        CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius) ) * earth_radius;
+
+        //CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius) ) * earth_radius;
+        CT cos_frac = cos(s13/earth_radius) / cos(s34/earth_radius);
+        CT s14 = cos_frac >= 1 ? CT(0)
+               : cos_frac <= -1 ? pi * earth_radius
+               : acos(cos_frac) * earth_radius;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "s34=" << s34 << std::endl;

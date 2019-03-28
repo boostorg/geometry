@@ -100,6 +100,12 @@ struct generic_segment_box
             CT lon2 = geometry::get_as_radian<0>(p1);
             CT lat2 = geometry::get_as_radian<1>(p1);
 
+            if (lon1 > lon2)
+            {
+                std::swap(lon1, lon2);
+                std::swap(lat1, lat2);
+            }
+
             CT vertex_lat;
             CT lat_sum = lat1 + lat2;
             if (lat_sum > CT(0))
