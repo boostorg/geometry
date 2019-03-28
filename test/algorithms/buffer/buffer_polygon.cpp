@@ -3,7 +3,7 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
+// This file was modified by Oracle on 2016, 2019.
 // Modifications copyright (c) 2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -566,7 +566,7 @@ void test_all()
         // Test issue 369 as reported (1.15e-3) and some variants
         // Use high tolerance because output areas are very small
         const double distance = 1.15e-3;
-        const auto join_distance = 0.1e-3;
+        const double join_distance = 0.1e-3;
         const int points_per_circle = 2 * 3.1415 * distance / join_distance;
 
         ut_settings specific;
