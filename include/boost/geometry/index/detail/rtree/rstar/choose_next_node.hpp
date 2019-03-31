@@ -140,7 +140,7 @@ private:
     static inline bool content_diff_less(child_contents const& p1, child_contents const& p2)
     {
         return p1.content_diff < p2.content_diff
-            || (p1.content_diff == p2.content_diff && p1.content < p2.content);
+            || (p1.content_diff == p2.content_diff && (p1.content) < (p2.content));
     }
 
     template <typename Indexable, typename ChildrenContents>
