@@ -46,7 +46,7 @@ inline Indexable const& indexable_prevent_any_type(V const& )
         (V)
     );
     return Indexable();
-};
+}
 
 /*!
 \brief The function object extracting Indexable from Value.
