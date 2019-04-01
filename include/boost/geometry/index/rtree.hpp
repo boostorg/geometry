@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -1296,31 +1296,17 @@ public:
             return 0;
 
         // the input should be convertible to Value or Indexable type
-
-        enum { as_val = 0, as_ind, dont_know };
-        typedef boost::mpl::int_
+        typedef typename index::detail::convertible_type
             <
-                boost::is_same<ValueOrIndexable, value_type>::value ?
-                    as_val :
-                    boost::is_same<ValueOrIndexable, indexable_type>::value ?
-                        as_ind :
-                        boost::is_convertible<ValueOrIndexable, indexable_type>::value ?
-                            as_ind :
-                            boost::is_convertible<ValueOrIndexable, value_type>::value ?
-                                as_val :
-                                dont_know
-            > variant;
-
-        BOOST_MPL_ASSERT_MSG((variant::value != dont_know),
-                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
-                             (ValueOrIndexable));
-
-        typedef typename boost::mpl::if_c
-            <
-                variant::value == as_val,
+                ValueOrIndexable,
                 value_type,
                 indexable_type
             >::type value_or_indexable;
+
+        static const bool is_void = boost::is_same<value_or_indexable, void>::value;
+        BOOST_MPL_ASSERT_MSG((! is_void),
+                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
+                             (ValueOrIndexable));
 
         // NOTE: If an object of convertible but not the same type is passed
         // into the function, here a temporary will be created.
