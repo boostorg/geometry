@@ -114,7 +114,6 @@ struct disjoint_segment_box_sphere_or_spheroid
         assert_dimension_equal<Segment, Box>();
 
         typedef typename point_type<Segment>::type segment_point_type;
-        typedef typename cs_tag<Segment>::type segment_cs_type;
 
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
