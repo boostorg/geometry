@@ -123,6 +123,12 @@ public:
         : container(first, last)
     {}
 
+    inline throwing_varray(size_type s)
+    {
+        throwing_varray_settings::throw_if_required();
+        container::resize(s);
+    }
+
     inline void resize(size_type s)
     {
         throwing_varray_settings::throw_if_required();
