@@ -74,8 +74,7 @@ public:
             CT const sig_12 = dlon / one_minus_f;
             if (BOOST_GEOMETRY_CONDITION(EnableReducedLength))
             {
-                CT const pi = math::pi<CT>();
-                BOOST_GEOMETRY_ASSERT(-pi <= azimuth && azimuth <= pi);
+                BOOST_GEOMETRY_ASSERT((-math::pi<CT>() <= azimuth && azimuth <= math::pi<CT>()));
 
                 int azi_sign = math::sign(azimuth) >= 0 ? 1 : -1; // for antipodal
                 CT m12 = azi_sign * sin(sig_12) * b;
