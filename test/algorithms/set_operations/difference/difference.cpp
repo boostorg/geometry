@@ -85,13 +85,11 @@ void test_all()
         1, 5, 8.0,
         1, 5, 8.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("star_comb_15",
         star_comb_15[0], star_comb_15[1],
         30, -1, 227.658275102812,
         30, -1, 480.485775259312,
         sym_settings);
-#endif
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -122,7 +120,6 @@ void test_all()
         1, 5, 9.0,
         1, 5, 9.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("only_hole_intersections1",
         only_hole_intersections[0], only_hole_intersections[1],
         2, 10,  1.9090909,
@@ -134,7 +131,6 @@ void test_all()
         3, 20, 30.9090909,
         4, 16, 10.9090909,
         sym_settings);
-#endif
 
     test_one<polygon, polygon, polygon>("first_within_second",
         first_within_second[1], first_within_second[0],
@@ -271,15 +267,14 @@ void test_all()
         1, 61, 10.2717,
         1, 61, 10.2717);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
     {
         test_one<polygon, polygon, polygon>("buffer_mp2",
             buffer_mp2[0], buffer_mp2[1],
             1, 91, 12.09857,
-            1, 155, 24.19714);
+            1, 155, 24.19714,
+            BG_IF_RESCALED(2, 1), -1, 12.09857 + 24.19714);
     }
-#endif
 
     /*** TODO: self-tangencies for difference
     test_one<polygon, polygon, polygon>("wrapped_a",
@@ -297,6 +292,7 @@ void test_all()
         ut_settings settings;
         settings.percentage = BG_IF_RESCALED(0.001, 0.1);
         settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.sym_difference = BG_IF_RESCALED(true, false);
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
@@ -399,22 +395,21 @@ void test_all()
         1, 5, 384.2295081964694,
         tolerance(0.01));
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     // 2011-07-02 / 2014-06-19
     // Interesting FP-precision case.
     // sql server gives: 6.62295817619452E-05
     // PostGIS gives: 0.0 (no output)
     // Boost.Geometry gave results depending on FP-type, and compiler, and operating system.
-    // Since rescaling to integer results are equal w.r.t. compiler/FP type,
+    // With rescaling results are equal w.r.t. compiler/FP type,
     // however, some long spikes are still generated in the resulting difference
+    // Without rescaling there is no output, like PostGIS
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        if_typed_tt<ct>(1, 1), -1,
-        if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949),
+        BG_IF_RESCALED(1, 0), -1,
+        BG_IF_RESCALED(if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949), 0),
         1, -1, 3577.40960816756,
         tolerance(0.01)
         );
-#endif
 
     {
         // With rescaling, difference of output a-b and a sym b is invalid
@@ -438,12 +433,10 @@ void test_all()
         1, 10, 10.03103292,
         0, 0, 0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_9081_15",
             ticket_9081_15[0], ticket_9081_15[1],
-            2, 10, 0.0334529710902111,
-            1, 4, 5.3469555172380723e-010);
-#endif
+            2, -1, 0.0334529710902111,
+            BG_IF_RESCALED(1, 0), -1, BG_IF_RESCALED(5.3469555172380723e-010, 0));
 
     test_one<polygon, polygon, polygon>("ticket_9081_314",
             ticket_9081_314[0], ticket_9081_314[1],
@@ -463,12 +456,11 @@ void test_all()
             1, 4,  0.029019232,
             sym_settings);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
-            1, 5, 1081.68697,
-            1, 5, 1342.65795);
-#endif
+            1, -1, 1081.68697,
+            1, -1, 1342.65795,
+            BG_IF_RESCALED(2, 1), -1, 1081.68697 + 1342.65795);
 
     test_one<polygon, polygon, polygon>("ticket_11725",
         ticket_11725[0], ticket_11725[1],

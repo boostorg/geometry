@@ -187,8 +187,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     return_string << bg::wkt(result);
 
     typename bg::default_area_result<G1>::type const area = bg::area(result);
-    std::size_t const n = expected_point_count >= 0
-                          ? bg::num_points(result) : 0;
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
 #if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
@@ -241,8 +239,10 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if (expected_point_count >= 0)
     {
+        std::size_t const n = bg::num_points(result);
         BOOST_CHECK_MESSAGE(bg::math::abs(int(n) - expected_point_count) < 3,
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
@@ -250,6 +250,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
+#endif
 
     if (expected_count >= 0)
     {
@@ -282,7 +283,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         BOOST_CHECK_LE(area, settings.percentage);
     }
 #endif
-
 
     return return_string.str();
 }

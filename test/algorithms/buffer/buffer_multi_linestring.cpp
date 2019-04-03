@@ -141,7 +141,6 @@ void test_all()
     }
 
     {
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
         // Coordinates in one linestring vary so much that
         // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
         // That geometry is skipped for the buffer
@@ -156,7 +155,6 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mysql_2015_04_10b",
             mysql_2015_04_10b, join_round32, end_round32,
             ut_settings::ignore_area(), 0.98, ut_settings::assertions_only());
-#endif
 
         // Two other cases with <inf> for length calculation
         test_one<multi_linestring_type, polygon>("mysql_2015_09_08a",
