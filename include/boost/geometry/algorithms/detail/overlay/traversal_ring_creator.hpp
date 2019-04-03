@@ -142,7 +142,7 @@ struct traversal_ring_creator
         if (! m_trav.select_turn(start_turn_index, start_op_index,
                 turn_index, op_index,
                 previous_op_index, previous_turn_index, previous_seg_id,
-                is_start))
+                is_start, current_ring.size() > 1))
         {
             return is_start
                 ? traverse_error_no_next_ip_at_start

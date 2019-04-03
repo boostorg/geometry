@@ -1128,22 +1128,25 @@ public :
                      int previous_op_index,
                      signed_size_type previous_turn_index,
                      segment_identifier const& previous_seg_id,
-                     bool is_start)
+                     bool is_start, bool has_points)
     {
         turn_type const& current_turn = m_turns[turn_index];
 
         if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
         {
-            bool const back_at_start_cluster
-                    = current_turn.is_clustered()
-                    && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
-
-            if (turn_index == start_turn_index || back_at_start_cluster)
+            if (has_points)
             {
-                // Intersection can always be finished if returning
-                turn_index = start_turn_index;
-                op_index = start_op_index;
-                return true;
+                bool const back_at_start_cluster
+                        = current_turn.is_clustered()
+                        && m_turns[start_turn_index].cluster_id == current_turn.cluster_id;
+
+                if (turn_index == start_turn_index || back_at_start_cluster)
+                {
+                    // Intersection can always be finished if returning
+                    turn_index = start_turn_index;
+                    op_index = start_op_index;
+                    return true;
+                }
             }
 
             if (! current_turn.is_clustered()
