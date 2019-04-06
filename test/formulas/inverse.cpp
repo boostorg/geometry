@@ -16,6 +16,7 @@
 #include "test_formula.hpp"
 #include "inverse_cases.hpp"
 #include "inverse_cases_antipodal.hpp"
+#include "inverse_cases_small_angles.hpp"
 
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -107,6 +108,23 @@ void test_karney_antipodal(expected_results_antipodal const& results)
     check_inverse("karney", results, result, results.karney, results.karney, 0.0000001);
 }
 
+void test_karney_small_angles(expected_results_small_angles const& results)
+{
+    double lon1d = results.p1.lon;
+    double lat1d = results.p1.lat;
+    double lon2d = results.p2.lon;
+    double lat2d = results.p2.lat;
+
+    // WGS84
+    bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
+
+    bg::formula::result_inverse<double> result;
+
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    result = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
+    check_inverse("karney", results, result, results.karney, results.karney, 0.0000001);
+}
+
 int test_main(int, char*[])
 {
     for (size_t i = 0; i < expected_size; ++i)
@@ -117,6 +135,11 @@ int test_main(int, char*[])
     for (size_t i = 0; i < expected_size_antipodal; ++i)
     {
         test_karney_antipodal(expected_antipodal[i]);
+    }
+
+    for (size_t i = 0; i < expected_size_small_angles; ++i)
+    {
+        test_karney_small_angles(expected_small_angles[i]);
     }
 
     return 0;
