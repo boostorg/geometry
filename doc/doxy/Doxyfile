@@ -183,18 +183,22 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/algorithms/detail \
                          ../../../../boost/geometry/algorithms/detail/buffer \
                          ../../../../boost/geometry/algorithms/detail/comparable_distance \
+                         ../../../../boost/geometry/algorithms/detail/covered_by \
                          ../../../../boost/geometry/algorithms/detail/disjoint \
                          ../../../../boost/geometry/algorithms/detail/distance \
                          ../../../../boost/geometry/algorithms/detail/envelope \
                          ../../../../boost/geometry/algorithms/detail/equals \
                          ../../../../boost/geometry/algorithms/detail/expand \
                          ../../../../boost/geometry/algorithms/detail/intersection \
+                         ../../../../boost/geometry/algorithms/detail/intersects \
                          ../../../../boost/geometry/algorithms/detail/is_simple \
                          ../../../../boost/geometry/algorithms/detail/is_valid \
+                         ../../../../boost/geometry/algorithms/detail/overlaps \
                          ../../../../boost/geometry/algorithms/detail/overlay \
                          ../../../../boost/geometry/algorithms/detail/relate \
                          ../../../../boost/geometry/algorithms/detail/relation \
                          ../../../../boost/geometry/algorithms/detail/sections \
+                         ../../../../boost/geometry/algorithms/detail/touches \
                          ../../../../boost/geometry/algorithms/detail/turns \
                          ../../../../boost/geometry/algorithms/detail/within \
                          ../../../../boost/geometry/arithmetic \
