@@ -23,8 +23,11 @@
 #include <cstddef>
 
 #include <boost/qvm/mat.hpp>
+#include <boost/qvm/vec.hpp>
 #include <boost/qvm/mat_access.hpp>
+#include <boost/qvm/vec_access.hpp>
 #include <boost/qvm/mat_operations.hpp>
+#include <boost/qvm/vec_mat_operations.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -40,6 +43,102 @@ namespace boost { namespace geometry
 
 namespace strategy { namespace transform
 {
+
+namespace detail { namespace matrix_transformer
+{
+
+template
+<
+    typename CalculationType,
+    typename P2,
+    std::size_t Dimension2,
+    std::size_t Dimension2Count
+>
+struct set_point_from_vec
+{
+    typedef CalculationType ct;
+    static inline void apply(P2& p2, qvm::vec<ct, Dimension2 + 1>& p2temp)
+    {
+        typedef typename geometry::coordinate_type<P2>::type ct2;
+        set<Dimension2Count>(p2, boost::numeric_cast<ct2>(qvm::A<Dimension2Count>(p2temp)));
+        set_point_from_vec<CalculationType, P2, Dimension2, Dimension2Count-1>::apply(p2, p2temp);
+    }
+};
+
+template
+<
+    typename CalculationType,
+    typename P2,
+    std::size_t Dimension2
+>
+struct set_point_from_vec<CalculationType, P2, Dimension2, -1>
+{
+    typedef CalculationType ct;
+    static inline void apply(P2& p2, qvm::vec<ct, Dimension2 + 1>& p2temp) {}
+};
+
+template
+<
+    typename CalculationType,
+    typename P1,
+    std::size_t Dimension1,
+    std::size_t Dimension1Count
+>
+struct set_vec_from_point
+{
+    typedef CalculationType ct;
+    static inline void apply(const P1& p1, qvm::vec<ct, Dimension1 + 1>& p1temp)
+    {
+        qvm::A<Dimension1Count>(p1temp) = get<Dimension1Count>(p1);
+        set_vec_from_point<CalculationType, P1, Dimension1, Dimension1Count - 1>::apply(p1, p1temp);
+    }
+};
+
+template
+<
+    typename CalculationType,
+    typename P1,
+    std::size_t Dimension1
+>
+struct set_vec_from_point<CalculationType, P1, Dimension1, -1>
+{
+    typedef CalculationType ct;
+    static inline void apply(const P1& p1, qvm::vec<ct, Dimension1 + 1>& p1temp) {}
+};
+
+
+template
+<
+    typename CalculationType,
+    std::size_t Dimension1,
+    std::size_t Dimension2
+>
+class matrix_transformer
+{
+protected :
+    typedef CalculationType ct;
+    typedef boost::qvm::mat<ct, Dimension2 + 1, Dimension1 + 1> matrix_type;
+    matrix_type m_matrix;
+public :
+
+    matrix_type const& matrix() const { return m_matrix; }
+    template <typename P1, typename P2>
+    inline bool apply(P1 const& p1, P2& p2) const
+    {
+        assert_dimension<P1,Dimension1>();
+        assert_dimension<P2,Dimension2>();
+        qvm::vec<ct,Dimension1 + 1> p1temp;
+        qvm::vec<ct,Dimension2 + 1> p2temp;
+        set_vec_from_point<ct, P1, Dimension1, Dimension1 - 1>::apply(p1, p1temp);
+        qvm::A<Dimension1>(p1temp) = 1;
+        p2temp = m_matrix * p1temp;
+        set_point_from_vec<ct, P2, Dimension2, Dimension2 - 1>::apply(p2, p2temp);
+        return true;
+    }
+
+};
+
+}} // namespace detail::matrix_transform
 
 /*!
 \brief Affine transformation strategy in Cartesian system.
@@ -57,93 +156,88 @@ template
     std::size_t Dimension1,
     std::size_t Dimension2
 >
-class matrix_transformer
+class matrix_transformer : public detail::matrix_transformer::matrix_transformer<CalculationType, Dimension1, Dimension2>
 {
+protected:
+    typedef CalculationType ct;
+    typedef boost::qvm::mat<ct, Dimension2 + 1, Dimension1 + 1> matrix_type;
+public:
+
+    template<typename Matrix>
+    inline matrix_transformer(Matrix const& matrix)
+    {
+        qvm::assign(this->m_matrix, matrix);
+    }
+    inline matrix_transformer() {}
 };
 
 
 template <typename CalculationType>
-class matrix_transformer<CalculationType, 2, 2>
+class matrix_transformer<CalculationType, 2, 2> : public detail::matrix_transformer::matrix_transformer<CalculationType, 2, 2>
 {
 protected :
     typedef CalculationType ct;
     typedef boost::qvm::mat<ct, 3, 3> matrix_type;
-    matrix_type m_matrix;
-
 public :
 
+    template<typename Matrix>
+    inline matrix_transformer(Matrix const& matrix)
+    {
+        qvm::assign(this->m_matrix, matrix);
+    }
+    inline matrix_transformer() {}
     inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2)
     {
-        qvm::A<0,0>(m_matrix) = m_0_0;   qvm::A<0,1>(m_matrix) = m_0_1;   qvm::A<0,2>(m_matrix) = m_0_2;
-        qvm::A<1,0>(m_matrix) = m_1_0;   qvm::A<1,1>(m_matrix) = m_1_1;   qvm::A<1,2>(m_matrix) = m_1_2;
-        qvm::A<2,0>(m_matrix) = m_2_0;   qvm::A<2,1>(m_matrix) = m_2_1;   qvm::A<2,2>(m_matrix) = m_2_2;
+        qvm::A<0,0>(this->m_matrix) = m_0_0;   qvm::A<0,1>(this->m_matrix) = m_0_1;   qvm::A<0,2>(this->m_matrix) = m_0_2;
+        qvm::A<1,0>(this->m_matrix) = m_1_0;   qvm::A<1,1>(this->m_matrix) = m_1_1;   qvm::A<1,2>(this->m_matrix) = m_1_2;
+        qvm::A<2,0>(this->m_matrix) = m_2_0;   qvm::A<2,1>(this->m_matrix) = m_2_1;   qvm::A<2,2>(this->m_matrix) = m_2_2;
     }
-
-    inline matrix_transformer(matrix_type const& matrix)
-        : m_matrix(matrix)
-    {}
-
-
-    inline matrix_transformer() {}
-
-    template <typename P1, typename P2>
-    inline bool apply(P1 const& p1, P2& p2) const
-    {
-        assert_dimension_greater_equal<P1, 2>();
-        assert_dimension_greater_equal<P2, 2>();
-
-        ct const& c1 = get<0>(p1);
-        ct const& c2 = get<1>(p1);
-
-        ct p2x = c1 * qvm::A<0,0>(m_matrix) + c2 * qvm::A<0,1>(m_matrix) + qvm::A<0,2>(m_matrix);
-        ct p2y = c1 * qvm::A<1,0>(m_matrix) + c2 * qvm::A<1,1>(m_matrix) + qvm::A<1,2>(m_matrix);
-
-        typedef typename geometry::coordinate_type<P2>::type ct2;
-        set<0>(p2, boost::numeric_cast<ct2>(p2x));
-        set<1>(p2, boost::numeric_cast<ct2>(p2y));
-
-        return true;
-    }
-
-    matrix_type const& matrix() const { return m_matrix; }
 };
 
 
 // It IS possible to go from 3 to 2 coordinates
 template <typename CalculationType>
-class matrix_transformer<CalculationType, 3, 2> : public matrix_transformer<CalculationType, 2, 2>
+class matrix_transformer<CalculationType, 3, 2> : public detail::matrix_transformer::matrix_transformer<CalculationType, 3, 2>
 {
     typedef CalculationType ct;
-
+    typedef boost::qvm::mat<ct, 3, 4> matrix_type;
 public :
+
+    template<typename Matrix>
+    inline matrix_transformer(Matrix const& matrix)
+    {
+        qvm::assign(this->m_matrix, matrix);
+    }
+    inline matrix_transformer() {}
     inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2,
                 ct const& m_2_0, ct const& m_2_1, ct const& m_2_2)
-        : matrix_transformer<CalculationType, 2, 2>(
-                    m_0_0, m_0_1, m_0_2,
-                    m_1_0, m_1_1, m_1_2,
-                    m_2_0, m_2_1, m_2_2)
-    {}
-
-    inline matrix_transformer()
-        : matrix_transformer<CalculationType, 2, 2>()
-    {}
+    {
+        qvm::A<0,0>(this->m_matrix) = m_0_0;   qvm::A<0,1>(this->m_matrix) = m_0_1;   qvm::A<0,2>(this->m_matrix) = 0;   qvm::A<0,3>(this->m_matrix) = m_0_2;
+        qvm::A<1,0>(this->m_matrix) = m_1_0;   qvm::A<1,1>(this->m_matrix) = m_1_1;   qvm::A<1,2>(this->m_matrix) = 0;   qvm::A<1,3>(this->m_matrix) = m_1_2;
+        qvm::A<2,0>(this->m_matrix) = m_2_0;   qvm::A<2,1>(this->m_matrix) = m_2_1;   qvm::A<2,2>(this->m_matrix) = 0;   qvm::A<2,3>(this->m_matrix) = m_2_2;
+    }
 };
 
 
 template <typename CalculationType>
-class matrix_transformer<CalculationType, 3, 3>
+class matrix_transformer<CalculationType, 3, 3> : public detail::matrix_transformer::matrix_transformer<CalculationType, 3, 3>
 {
 protected :
     typedef CalculationType ct;
     typedef boost::qvm::mat<ct, 4, 4> matrix_type;
-    matrix_type m_matrix;
-
 public :
+
+    template<typename Matrix>
+    inline matrix_transformer(Matrix const& matrix)
+    {
+        qvm::assign(this->m_matrix, matrix);
+    }
+    inline matrix_transformer() {}
     inline matrix_transformer(
                 ct const& m_0_0, ct const& m_0_1, ct const& m_0_2, ct const& m_0_3,
                 ct const& m_1_0, ct const& m_1_1, ct const& m_1_2, ct const& m_1_3,
@@ -151,34 +245,11 @@ public :
                 ct const& m_3_0, ct const& m_3_1, ct const& m_3_2, ct const& m_3_3
                 )
     {
-        qvm::A<0,0>(m_matrix) = m_0_0; qvm::A<0,1>(m_matrix) = m_0_1; qvm::A<0,2>(m_matrix) = m_0_2; qvm::A<0,3>(m_matrix) = m_0_3;
-        qvm::A<1,0>(m_matrix) = m_1_0; qvm::A<1,1>(m_matrix) = m_1_1; qvm::A<1,2>(m_matrix) = m_1_2; qvm::A<1,3>(m_matrix) = m_1_3;
-        qvm::A<2,0>(m_matrix) = m_2_0; qvm::A<2,1>(m_matrix) = m_2_1; qvm::A<2,2>(m_matrix) = m_2_2; qvm::A<2,3>(m_matrix) = m_2_3;
-        qvm::A<3,0>(m_matrix) = m_3_0; qvm::A<3,1>(m_matrix) = m_3_1; qvm::A<3,2>(m_matrix) = m_3_2; qvm::A<3,3>(m_matrix) = m_3_3;
+        qvm::A<0,0>(this->m_matrix) = m_0_0; qvm::A<0,1>(this->m_matrix) = m_0_1; qvm::A<0,2>(this->m_matrix) = m_0_2; qvm::A<0,3>(this->m_matrix) = m_0_3;
+        qvm::A<1,0>(this->m_matrix) = m_1_0; qvm::A<1,1>(this->m_matrix) = m_1_1; qvm::A<1,2>(this->m_matrix) = m_1_2; qvm::A<1,3>(this->m_matrix) = m_1_3;
+        qvm::A<2,0>(this->m_matrix) = m_2_0; qvm::A<2,1>(this->m_matrix) = m_2_1; qvm::A<2,2>(this->m_matrix) = m_2_2; qvm::A<2,3>(this->m_matrix) = m_2_3;
+        qvm::A<3,0>(this->m_matrix) = m_3_0; qvm::A<3,1>(this->m_matrix) = m_3_1; qvm::A<3,2>(this->m_matrix) = m_3_2; qvm::A<3,3>(this->m_matrix) = m_3_3;
     }
-
-    inline matrix_transformer() {}
-
-    template <typename P1, typename P2>
-    inline bool apply(P1 const& p1, P2& p2) const
-    {
-        ct const& c1 = get<0>(p1);
-        ct const& c2 = get<1>(p1);
-        ct const& c3 = get<2>(p1);
-
-        typedef typename geometry::coordinate_type<P2>::type ct2;
-
-        set<0>(p2, boost::numeric_cast<ct2>(
-            c1 * qvm::A<0,0>(m_matrix) + c2 * qvm::A<0,1>(m_matrix) + c3 * qvm::A<0,2>(m_matrix) + qvm::A<0,3>(m_matrix)));
-        set<1>(p2, boost::numeric_cast<ct2>(
-            c1 * qvm::A<1,0>(m_matrix) + c2 * qvm::A<1,1>(m_matrix) + c3 * qvm::A<1,2>(m_matrix) + qvm::A<1,3>(m_matrix)));
-        set<2>(p2, boost::numeric_cast<ct2>(
-            c1 * qvm::A<2,0>(m_matrix) + c2 * qvm::A<2,1>(m_matrix) + c3 * qvm::A<2,2>(m_matrix) + qvm::A<2,3>(m_matrix)));
-
-        return true;
-    }
-
-    matrix_type const& matrix() const { return m_matrix; }
 };
 
 
@@ -253,6 +324,21 @@ class scale_transformer
 {
 };
 
+template
+<
+    typename CalculationType,
+    std::size_t Dimension1
+>
+class scale_transformer<CalculationType, Dimension1, Dimension1> : public matrix_transformer<CalculationType, Dimension1, Dimension1>
+{
+public:
+    inline scale_transformer(CalculationType const& scale)
+    {
+        boost::qvm::set_identity(this->m_matrix);
+        this->m_matrix*=scale;
+        qvm::A<Dimension1,Dimension1>(this->m_matrix) = 1;
+    }
+};
 
 template <typename CalculationType>
 class scale_transformer<CalculationType, 2, 2> : public matrix_transformer<CalculationType, 2, 2>
