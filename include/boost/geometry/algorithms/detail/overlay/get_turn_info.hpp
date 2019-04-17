@@ -150,10 +150,12 @@ struct base_turn_handler
             std::size_t IndexQ,
             typename UniqueSubRange1,
             typename UniqueSubRange2,
+            typename UmbrellaStrategy,
             typename TurnInfo
     >
     static inline void both_collinear(UniqueSubRange1 const& range_p,
             UniqueSubRange2 const& range_q,
+            UmbrellaStrategy const& umbrella_strategy,
             std::size_t index_p, std::size_t index_q,
             TurnInfo& ti)
     {
@@ -167,20 +169,24 @@ struct base_turn_handler
         typedef detail::distance_measure
             <
                 typename select_coordinate_type
-                    <
-                        typename UniqueSubRange1::point_type,
-                        typename UniqueSubRange2::point_type
+                <
+                    typename UniqueSubRange1::point_type,
+                    typename UniqueSubRange2::point_type
                     >::type
             > dm_type;
 
-        dm_type const dm = get_distance_measure(range_q.at(index_q - 1),
+        dm_type const dm = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(index_q - 1),
             range_q.at(index_q), range_p.at(index_p));
 
         if (! dm.is_zero())
         {
             // Not truely collinear, distinguish for union/intersection
             // If p goes left (positive), take that for a union
-            ui_else_iu(dm.is_positive(), ti);
+
+            ti.operations[IndexP].operation = dm.is_positive()
+                        ? operation_union : operation_intersection;
+            ti.operations[IndexQ].operation = dm.is_positive()
+                        ? operation_intersection : operation_union;
             return;
         }
 #endif
@@ -205,14 +211,16 @@ struct touch_interior : public base_turn_handler
         typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
-        typename SidePolicy
+        typename SidePolicy,
+        typename UmbrellaStrategy
     >
     static inline void apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
-                SidePolicy const& side)
+                SidePolicy const& side,
+                UmbrellaStrategy const& umbrella_strategy)
     {
         assign_point(ti, method_touch_interior, intersection_info, 0);
 
@@ -312,7 +320,7 @@ struct touch_interior : public base_turn_handler
             // Q intersects on interior of P and continues collinearly
             if (side_qk_q == side_qi_p)
             {
-                both_collinear<index_p, index_q>(range_p, range_q, 1, 2, ti);
+                both_collinear<index_p, index_q>(range_p, range_q, umbrella_strategy, 1, 2, ti);
                 return;
             }
             else
@@ -361,14 +369,16 @@ struct touch : public base_turn_handler
         typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
-        typename SidePolicy
+        typename SideCalculator,
+        typename UmbrellaStrategy
     >
     static inline void apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& intersection_info,
                 DirInfo const& dir_info,
-                SidePolicy const& side)
+                SideCalculator const& side,
+                UmbrellaStrategy const& umbrella_strategy)
     {
         assign_point(ti, method_touch, intersection_info, 0);
 
@@ -404,7 +414,7 @@ struct touch : public base_turn_handler
                 // (#BRL2)
                 if (side_pk_q2 == 0 && ! block_q)
                 {
-                    both_collinear<0, 1>(range_p, range_q, 2, 2, ti);
+                    both_collinear<0, 1>(range_p, range_q, umbrella_strategy, 2, 2, ti);
                     return;
                 }
 
@@ -547,14 +557,16 @@ struct equal : public base_turn_handler
         typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
-        typename SidePolicy
+        typename SideCalculator,
+        typename UmbrellaStrategy
     >
     static inline void apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const&  ,
-                SidePolicy const& side)
+                SideCalculator const& side,
+                UmbrellaStrategy const& umbrella_strategy)
     {
         // Copy the intersection point in TO direction
         assign_point(ti, method_equal, info, non_opposite_to_index(info));
@@ -572,8 +584,7 @@ struct equal : public base_turn_handler
         // oppositely
         if (side_pk_q2 == 0 && side_pk_p == side_qk_p)
         {
-            both_collinear<0, 1>(range_p, range_q, 2, 2, ti);
-
+            both_collinear<0, 1>(range_p, range_q, umbrella_strategy, 2, 2, ti);
             return;
         }
 
@@ -606,14 +617,16 @@ struct start : public base_turn_handler
         typename UniqueSubRange2,
         typename IntersectionInfo,
         typename DirInfo,
-        typename SidePolicy
+        typename SideCalculator,
+        typename UmbrellaStrategy
     >
     static inline bool apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
                 DirInfo const& dir_info,
-                SidePolicy const& side)
+                SideCalculator const& side,
+                UmbrellaStrategy const& umbrella_strategy)
     {
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
         // If rescaled, it is not necessary to handle start turns
@@ -639,8 +652,9 @@ struct start : public base_turn_handler
                     >::type
             > dm_type;
 
-        dm_type const dm_pi_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(0));
-        dm_type const dm_qi_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(0));
+        typedef typename UmbrellaStrategy::cs_tag cs_tag;
+        dm_type const dm_pi_q1 = get_distance_measure<cs_tag>(range_q.at(0), range_q.at(1), range_p.at(0));
+        dm_type const dm_qi_p1 = get_distance_measure<cs_tag>(range_p.at(0), range_p.at(1), range_q.at(0));
 
         if (dir_info.how_a == -1 && dir_info.how_b == -1)
         {
@@ -1108,7 +1122,7 @@ struct get_turn_info
         typename UniqueSubRange1,
         typename UniqueSubRange2,
         typename TurnInfo,
-        typename IntersectionStrategy,
+        typename UmbrellaStrategy,
         typename RobustPolicy,
         typename OutputIterator
     >
@@ -1116,7 +1130,7 @@ struct get_turn_info
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,
-                IntersectionStrategy const& intersection_strategy,
+                UmbrellaStrategy const& umbrella_strategy,
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
@@ -1124,12 +1138,11 @@ struct get_turn_info
             <
                 UniqueSubRange1, UniqueSubRange2,
                 typename TurnInfo::point_type,
-                IntersectionStrategy,
+                UmbrellaStrategy,
                 RobustPolicy
             > inters_info;
 
-        inters_info inters(range_p, range_q,
-                           intersection_strategy, robust_policy);
+        inters_info inters(range_p, range_q, umbrella_strategy, robust_policy);
 
         char const method = inters.d_info().how;
 
@@ -1153,19 +1166,19 @@ struct get_turn_info
                 typedef touch_interior
                     <
                         TurnInfo
-                    > policy;
+                    > handler;
 
                 // If Q (1) arrives (1)
                 if ( inters.d_info().arrival[1] == 1 )
                 {
-                    policy::template apply<0>(range_p, range_q, tp, inters.i_info(), inters.d_info(),
-                                inters.sides());
+                    handler::template apply<0>(range_p, range_q, tp, inters.i_info(), inters.d_info(),
+                                inters.sides(), umbrella_strategy);
                 }
                 else
                 {
                     // Swap p/q
-                    policy::template apply<1>(range_q, range_p, tp, inters.i_info(), inters.d_info(),
-                                inters.get_swapped_sides());
+                    handler::template apply<1>(range_q, range_p, tp, inters.i_info(), inters.d_info(),
+                                inters.get_swapped_sides(), umbrella_strategy);
                 }
                 *out++ = tp;
             }
@@ -1179,7 +1192,7 @@ struct get_turn_info
             case 't' :
             {
                 // Both touch (both arrive there)
-                touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides());
+                touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
                 *out++ = tp;
             }
             break;
@@ -1187,7 +1200,7 @@ struct get_turn_info
             case 's' :
             {
                 // "from" or "start" without rescaling, it is in some cases necessary to handle
-                if (start<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides()))
+                if (start<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy))
                 {
                     *out++ = tp;
                 }
@@ -1203,7 +1216,7 @@ struct get_turn_info
                 {
                     // Both equal
                     // or collinear-and-ending at intersection point
-                    equal<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides());
+                    equal<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
                     *out++ = tp;
                 }
                 else
@@ -1226,7 +1239,7 @@ struct get_turn_info
                     {
                         // Collinear, but similar thus handled as equal
                         equal<TurnInfo>::apply(range_p, range_q, tp,
-                                inters.i_info(), inters.d_info(), inters.sides());
+                                inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
 
                         // override assigned method
                         tp.method = method_collinear;

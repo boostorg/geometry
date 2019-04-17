@@ -73,6 +73,8 @@ template
 >
 struct geographic_segments
 {
+    typedef geographic_tag cs_tag;
+
     typedef side::geographic
         <
             FormulaPolicy, Spheroid, CalculationType

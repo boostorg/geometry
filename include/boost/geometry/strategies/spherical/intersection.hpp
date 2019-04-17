@@ -89,6 +89,8 @@ template
 >
 struct ecef_segments
 {
+    typedef spherical_tag cs_tag;
+
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()

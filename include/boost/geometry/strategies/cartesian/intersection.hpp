@@ -75,6 +75,8 @@ template
 >
 struct cartesian_segments
 {
+    typedef cartesian_tag cs_tag;
+
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()
