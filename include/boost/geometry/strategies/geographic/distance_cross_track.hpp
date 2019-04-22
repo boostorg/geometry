@@ -82,6 +82,7 @@ template
     typename FormulaPolicy = strategy::andoyer,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void,
+    bool Bisection = false,
     bool EnableClosestPoint = false
 >
 class geographic_cross_track
@@ -205,6 +206,101 @@ private :
         return g4 - pi/2;
     }
 
+    template <typename CT>
+    static void newton_update(CT lon1, CT lat1, //p1
+                              CT lon2, CT lat2, //p2
+                              CT lon3, CT lat3, //query point p3
+                              Spheroid const& spheroid,
+                              CT& s14, CT const& a12,
+                              result_distance_point_segment<CT>& result)
+    {
+        typedef typename FormulaPolicy::template inverse<CT, true, true, false, true, true>
+                inverse_distance_azimuth_quantities_type;
+        typedef typename FormulaPolicy::template inverse<CT, false, true, false, false, false>
+                inverse_azimuth_type;
+        typedef typename FormulaPolicy::template direct<CT, true, false, false, false>
+                direct_distance_type;
+
+        CT const half_pi = math::pi<CT>() / CT(2);
+        CT prev_distance;
+        geometry::formula::result_direct<CT> res14;
+        geometry::formula::result_inverse<CT> res34;
+        res34.distance = -1;
+
+        int counter = 0; // robustness
+        CT g4;
+        CT delta_g4;
+        bool dist_improve = true;
+
+        do{
+            prev_distance = res34.distance;
+
+            // Solve the direct problem to find p4 (GEO)
+            res14 = direct_distance_type::apply(lon1, lat1, s14, a12, spheroid);
+
+            // Solve an inverse problem to find g4
+            // g4 is the angle between segment (p1,p2) and segment (p3,p4) that meet on p4 (GEO)
+
+            CT a4 = inverse_azimuth_type::apply(res14.lon2, res14.lat2,
+                                                lon2, lat2, spheroid).azimuth;
+            res34 = inverse_distance_azimuth_quantities_type::apply(res14.lon2, res14.lat2,
+                                                                    lon3, lat3, spheroid);
+            g4 = res34.azimuth - a4;
+
+            CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
+            CT m34 = res34.reduced_length;
+            CT der = (M43 / m34) * sin(g4);
+
+            //normalize
+            delta_g4 = normalize(g4, der);
+            s14 = s14 - delta_g4 / der;
+            result.distance = res34.distance;
+
+            dist_improve = prev_distance > res34.distance || prev_distance == -1;
+            if (!dist_improve)
+            {
+                result.distance = prev_distance;
+            }
+
+            #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
+                         "," << res14.lat2 * math::r2d<CT>() << std::endl;
+            std::cout << "a34=" << res34.azimuth * math::r2d<CT>() << std::endl;
+            std::cout << "a4=" << a4 * math::r2d<CT>() << std::endl;
+            std::cout << "g4(normalized)=" << g4 * math::r2d<CT>() << std::endl;
+            std::cout << "delta_g4=" << delta_g4 * math::r2d<CT>()  << std::endl;
+            std::cout << "der=" << der  << std::endl;
+            std::cout << "M43=" << M43 << std::endl;
+            std::cout << "spherical limit=" << cos(s14/earth_radius) << std::endl;
+            std::cout << "m34=" << m34 << std::endl;
+            std::cout << "new_s14=" << s14 << std::endl;
+            std::cout << std::setprecision(16) << "dist     =" << res34.distance << std::endl;
+            std::cout << "---------end of step " << counter << std::endl<< std::endl;
+            if (g4 == half_pi)
+            {
+                std::cout << "Stop msg: g4 == half_pi" << std::endl;
+            }
+            if (!dist_improve)
+            {
+                std::cout << "Stop msg: res34.distance >= prev_distance" << std::endl;
+            }
+            if (delta_g4 == 0)
+            {
+                std::cout << "Stop msg: delta_g4 == 0" << std::endl;
+            }
+            if (counter == BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS)
+            {
+                std::cout << "Stop msg: counter" << std::endl;
+            }
+            #endif
+
+        } while (g4 != half_pi
+                 && dist_improve
+                 && delta_g4 != 0
+                 && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
+
+    }
+
     template <typename Units, typename CT>
     result_distance_point_segment<CT>
     static inline apply(CT lon1, CT lat1, //p1
@@ -212,14 +308,10 @@ private :
                         CT lon3, CT lat3, //query point p3
                         Spheroid const& spheroid)
     {
-        typedef typename FormulaPolicy::template inverse<CT, true, true, false, true, true>
-                inverse_distance_azimuth_quantities_type;
         typedef typename FormulaPolicy::template inverse<CT, false, true, false, false, false>
                 inverse_azimuth_type;
         typedef typename FormulaPolicy::template inverse<CT, false, true, true, false, false>
                 inverse_azimuth_reverse_type;
-        typedef typename FormulaPolicy::template direct<CT, true, false, false, false>
-                direct_distance_type;
 
         CT const earth_radius = geometry::formula::mean_radius<CT>(spheroid);
 
@@ -440,82 +532,9 @@ private :
 #endif
 
         // Update s14 (using Newton method)
-        CT prev_distance;
-        geometry::formula::result_direct<CT> res14;
-        geometry::formula::result_inverse<CT> res34;
-        res34.distance = -1;
 
-        int counter = 0; // robustness
-        CT g4;
-        CT delta_g4;
-        bool dist_improve = true;
-
-        do{
-            prev_distance = res34.distance;
-
-            // Solve the direct problem to find p4 (GEO)
-            res14 = direct_distance_type::apply(lon1, lat1, s14, a12, spheroid);
-
-            // Solve an inverse problem to find g4
-            // g4 is the angle between segment (p1,p2) and segment (p3,p4) that meet on p4 (GEO)
-
-            CT a4 = inverse_azimuth_type::apply(res14.lon2, res14.lat2,
-                                                lon2, lat2, spheroid).azimuth;
-            res34 = inverse_distance_azimuth_quantities_type::apply(res14.lon2, res14.lat2,
-                                                                    lon3, lat3, spheroid);
-            g4 = res34.azimuth - a4;
-
-            CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
-            CT m34 = res34.reduced_length;
-            CT der = (M43 / m34) * sin(g4);
-
-            //normalize
-            delta_g4 = normalize(g4, der);
-            s14 = s14 - delta_g4 / der;
-            result.distance = res34.distance;
-
-            dist_improve = prev_distance > res34.distance || prev_distance == -1;
-            if (!dist_improve)
-            {
-                result.distance = prev_distance;
-            }
-
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-            std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
-                         "," << res14.lat2 * math::r2d<CT>() << std::endl;
-            std::cout << "a34=" << res34.azimuth * math::r2d<CT>() << std::endl;
-            std::cout << "a4=" << a4 * math::r2d<CT>() << std::endl;
-            std::cout << "g4(normalized)=" << g4 * math::r2d<CT>() << std::endl;
-            std::cout << "delta_g4=" << delta_g4 * math::r2d<CT>()  << std::endl;
-            std::cout << "der=" << der  << std::endl;
-            std::cout << "M43=" << M43 << std::endl;
-            std::cout << "spherical limit=" << cos(s14/earth_radius) << std::endl;
-            std::cout << "m34=" << m34 << std::endl;
-            std::cout << "new_s14=" << s14 << std::endl;
-            std::cout << std::setprecision(16) << "dist     =" << res34.distance << std::endl;
-            std::cout << "---------end of step " << counter << std::endl<< std::endl;
-            if (g4 == half_pi)
-            {
-                std::cout << "Stop msg: g4 == half_pi" << std::endl;
-            }
-            if (!dist_improve)
-            {
-                std::cout << "Stop msg: res34.distance >= prev_distance" << std::endl;
-            }
-            if (delta_g4 == 0)
-            {
-                std::cout << "Stop msg: delta_g4 == 0" << std::endl;
-            }
-            if (counter == BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS)
-            {
-                std::cout << "Stop msg: counter" << std::endl;
-            }
-#endif
-
-        } while (g4 != half_pi
-                 && dist_improve
-                 && delta_g4 != 0
-                 && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
+        newton_update<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
+                          spheroid, s14, a12, result);
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "distance=" << res34.distance << std::endl;
