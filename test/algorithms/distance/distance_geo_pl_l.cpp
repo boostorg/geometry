@@ -657,6 +657,7 @@ void test_all_pl_l(Strategy_pp pp_strategy, Strategy_ps ps_strategy,
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
+    test_all_pl_l(vincenty_pp(), vincenty_ps_bisection());
     test_all_pl_l(vincenty_pp(), vincenty_ps());
     test_all_pl_l(thomas_pp(), thomas_ps());
     test_all_pl_l(andoyer_pp(), andoyer_ps());

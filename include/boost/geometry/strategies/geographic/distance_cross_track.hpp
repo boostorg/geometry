@@ -208,6 +208,95 @@ private :
     }
 
     template <typename CT>
+    static void bisection(CT lon1, CT lat1, //p1
+                          CT lon2, CT lat2, //p2
+                          CT lon3, CT lat3, //query point p3
+                          Spheroid const& spheroid,
+                          CT& s14, CT const& a12,
+                          result_distance_point_segment<CT>& result)
+    {
+        typedef typename FormulaPolicy::template direct<CT, true, false, false, false>
+                direct_distance_type;
+        typedef typename FormulaPolicy::template inverse<CT, true, false, false, false, false>
+                inverse_distance_type;
+
+        geometry::formula::result_direct<CT> res14;
+
+        int counter = 0; // robustness
+        bool dist_improve = true;
+
+        CT pl_lon = lon1;
+        CT pl_lat = lat1;
+        CT pr_lon = lon2;
+        CT pr_lat = lat2;
+
+        s14 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+                ::apply(lon1, lat1, lon2, lat2, spheroid) / 2;
+
+        do{
+            // Solve the direct problem to find p4 (GEO)
+            res14 = direct_distance_type::apply(lon1, lat1, s14, a12, spheroid);
+
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "dist(pl,p3)="
+                      << inverse_distance_type::apply(lon3, lat3,
+                                                      pr_lon, pr_lat,
+                                                      spheroid).distance
+                      << std::endl;
+            std::cout << "dist(pr,p3)="
+                      << inverse_distance_type::apply(lon3, lat3,
+                                                      pr_lon, pr_lat,
+                                                      spheroid).distance
+                      << std::endl;
+#endif
+            if (inverse_distance_type::apply(lon3, lat3, pl_lon, pl_lat, spheroid).distance
+                < inverse_distance_type::apply(lon3, lat3, pr_lon, pr_lat, spheroid).distance)
+            {
+                s14 -= inverse_distance_type::apply(res14.lon2, res14.lat2, pl_lon, pl_lat,
+                                                    spheroid).distance/2;
+                pr_lon = res14.lon2;
+                pr_lat = res14.lat2;
+            }
+            else
+            {
+                s14 += inverse_distance_type::apply(res14.lon2, res14.lat2, pr_lon, pr_lat,
+                                                    spheroid).distance/2;
+                pl_lon = res14.lon2;
+                pl_lat = res14.lat2;
+            }
+
+            CT new_distance = inverse_distance_type::apply(lon3, lat3,
+                                                           res14.lon2, res14.lat2,
+                                                           spheroid).distance;
+
+            dist_improve = new_distance != result.distance;
+
+#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+            std::cout << "p4=" << res14.lon2 * math::r2d<CT>() <<
+                         "," << res14.lat2 * math::r2d<CT>() << std::endl;
+            std::cout << "pl=" << pl_lon * math::r2d<CT>() << "," << pl_lat * math::r2d<CT>()<< std::endl;
+            std::cout << "pr=" << pr_lon * math::r2d<CT>() << "," << pr_lat * math::r2d<CT>() << std::endl;
+            std::cout << "new_s14=" << s14 << std::endl;
+            std::cout << std::setprecision(16) << "result.distance =" << result.distance << std::endl;
+            std::cout << std::setprecision(16) << "new_distance =" << new_distance << std::endl;
+            std::cout << "---------end of step " << counter << std::endl<< std::endl;
+            if (!dist_improve)
+            {
+                std::cout << "Stop msg: res34.distance >= prev_distance" << std::endl;
+            }
+            if (counter == BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS)
+            {
+                std::cout << "Stop msg: counter" << std::endl;
+            }
+#endif
+
+            result.distance = new_distance;
+
+        } while (dist_improve
+                 && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
+    }
+
+    template <typename CT>
     static void newton_update(CT lon1, CT lat1, //p1
                               CT lon2, CT lat2, //p2
                               CT lon3, CT lat3, //query point p3
@@ -575,9 +664,16 @@ private :
 
         // Update s14 (using Newton method)
 
-        newton_update<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
+        if (Bisection)
+        {
+            bisection<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
                           spheroid, s14, a12, result);
-
+        }
+        else
+        {
+            newton_update<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
+                              spheroid, s14, a12, result);
+        }
 
         return result;
     }
@@ -619,6 +715,18 @@ struct tag<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
     typedef strategy_tag_distance_point_segment type;
 };
 
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType,
+        bool Bisection
+>
+struct tag<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+{
+    typedef strategy_tag_distance_point_segment type;
+};
+
 
 //return types
 template <typename FormulaPolicy, typename P, typename PS>
@@ -649,18 +757,32 @@ struct return_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationTy
     : geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>::template return_type<P, PS>
 {};
 
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType,
+        bool Bisection,
+        typename P,
+        typename PS
+>
+struct return_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>, P, PS>
+    : geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>::template return_type<P, PS>
+{};
+
 //comparable types
 template
 <
         typename FormulaPolicy,
         typename Spheroid,
-        typename CalculationType
+        typename CalculationType,
+        bool Bisection
 >
-struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
+struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
 {
     typedef geographic_cross_track
         <
-            FormulaPolicy, Spheroid, CalculationType
+            FormulaPolicy, Spheroid, CalculationType, Bisection
         >  type;
 };
 
@@ -668,13 +790,14 @@ template
 <
         typename FormulaPolicy,
         typename Spheroid,
-        typename CalculationType
+        typename CalculationType,
+        bool Bisection
 >
-struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
+struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
 {
 public :
-    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
     {
         return strategy;
     }
