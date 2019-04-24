@@ -122,7 +122,7 @@ public :
 
     // points on a meridian not crossing poles
     template <typename CT>
-    inline CT vertical_or_meridian(CT lat1, CT lat2) const
+    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
     {
         typedef typename formula::meridian_inverse
         <
@@ -152,7 +152,7 @@ private :
 
     template <typename CT>
     result_distance_point_segment<CT>
-    static inline non_iterative_case(CT lon, CT lat, CT distance)
+    static inline non_iterative_case(CT const& lon, CT const& lat, CT const& distance)
     {
         result_distance_point_segment<CT> result;
         result.distance = distance;
@@ -167,8 +167,8 @@ private :
 
     template <typename CT>
     result_distance_point_segment<CT>
-    static inline non_iterative_case(CT lon1, CT lat1, //p1
-                                     CT lon2, CT lat2, //p2
+    static inline non_iterative_case(CT const& lon1, CT const& lat1, //p1
+                                     CT const& lon2, CT const& lat2, //p2
                                      Spheroid const& spheroid)
     {
         CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
@@ -178,7 +178,7 @@ private :
     }
 
     template <typename CT>
-    CT static inline normalize(CT g4, CT& der)
+    CT static inline normalize(CT const& g4, CT& der)
     {
         CT const pi = math::pi<CT>();
         if (g4 < -1.25*pi)//close to -270
@@ -208,9 +208,9 @@ private :
     }
 
     template <typename CT>
-    static void bisection(CT lon1, CT lat1, //p1
-                          CT lon2, CT lat2, //p2
-                          CT lon3, CT lat3, //query point p3
+    static void bisection(CT const& lon1, CT const& lat1, //p1
+                          CT const& lon2, CT const& lat2, //p2
+                          CT const& lon3, CT const& lat3, //query point p3
                           Spheroid const& spheroid,
                           CT& s14, CT const& a12,
                           result_distance_point_segment<CT>& result)
@@ -297,12 +297,12 @@ private :
     }
 
     template <typename CT>
-    static void newton_update(CT lon1, CT lat1, //p1
-                              CT lon2, CT lat2, //p2
-                              CT lon3, CT lat3, //query point p3
-                              Spheroid const& spheroid,
-                              CT& s14, CT const& a12,
-                              result_distance_point_segment<CT>& result)
+    static void newton(CT const& lon1, CT const& lat1, //p1
+                       CT const& lon2, CT const& lat2, //p2
+                       CT const& lon3, CT const& lat3, //query point p3
+                       Spheroid const& spheroid,
+                       CT& s14, CT const& a12,
+                       result_distance_point_segment<CT>& result)
     {
         typedef typename FormulaPolicy::template inverse<CT, true, true, false, true, true>
                 inverse_distance_azimuth_quantities_type;
@@ -425,9 +425,9 @@ private :
 
     template <typename Units, typename CT>
     result_distance_point_segment<CT>
-    static inline apply(CT lon1, CT lat1, //p1
-                        CT lon2, CT lat2, //p2
-                        CT lon3, CT lat3, //query point p3
+    static inline apply(CT const& lo1, CT const& la1, //p1
+                        CT const& lo2, CT const& la2, //p2
+                        CT const& lo3, CT const& la3, //query point p3
                         Spheroid const& spheroid)
     {
         typedef typename FormulaPolicy::template inverse<CT, false, true, false, false, false>
@@ -446,12 +446,12 @@ private :
         CT const c0 = CT(0);
 
         // Convert to radians
-        lon1 = math::as_radian<Units>(lon1);
-        lat1 = math::as_radian<Units>(lat1);
-        lon2 = math::as_radian<Units>(lon2);
-        lat2 = math::as_radian<Units>(lat2);
-        lon3 = math::as_radian<Units>(lon3);
-        lat3 = math::as_radian<Units>(lat3);
+        CT lon1 = math::as_radian<Units>(lo1);
+        CT lat1 = math::as_radian<Units>(la1);
+        CT lon2 = math::as_radian<Units>(lo2);
+        CT lat2 = math::as_radian<Units>(la2);
+        CT lon3 = math::as_radian<Units>(lo3);
+        CT lat3 = math::as_radian<Units>(la3);
 
         if (lon1 > lon2)
         {
@@ -671,7 +671,7 @@ private :
         }
         else
         {
-            newton_update<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
+            newton<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
                               spheroid, s14, a12, result);
         }
 
