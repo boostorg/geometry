@@ -16,7 +16,6 @@
 #include "distance_cross_track_cases.hpp"
 
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/strategies/geographic/distance_cross_track_bisection.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 
 struct error{
@@ -27,13 +26,12 @@ struct error{
 };
 
 void check_result(double const& result, double const& expected,
-                  double const& reference, error const& reference_error,
-                  bool check_reference_only)
+                  double const& reference, error const& reference_error)
 {
     BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.0000001,
         std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
 
-    double reference_error_value = result > 1000 ? reference_error.long_distance
+    double reference_error_value = result > 2000 ? reference_error.long_distance
                                  : result > 100  ? reference_error.short_distance
                                  : result > 20   ? reference_error.very_short_distance
                                  : reference_error.very_very_short_distance;
@@ -43,10 +41,9 @@ void check_result(double const& result, double const& expected,
 }
 
 template <typename Point>
-void test_all(expected_results const& results, bool check_reference_only)
+void test_all(expected_results const& results)
 {
     double const d2r = bg::math::d2r<double>();
-    double const r2d = bg::math::r2d<double>();
 
     double lon1r = results.p1.lon * d2r;
     double lat1r = results.p1.lat * d2r;
@@ -66,47 +63,47 @@ void test_all(expected_results const& results, bool check_reference_only)
     {
         {0.00000001, 0.00000001, 0.00000001, 0.000001}, //vincenty
         {0.0002, 0.002, 0.01, 0.2}, //thomas
-        {0.002, 0.3, 15, 25}, //andoyer
+        {0.002, 0.4, 15, 25}, //andoyer
         {1, 6, 15, 200} //spherical
     };
 
     //vincenty
-    double distance = bg::strategy::distance::geographic_cross_track_bisection<bg::strategy::vincenty, Spheroid, double>(spheroid)
+    double distance = bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.vincenty_bisection, results.reference, errors[0], check_reference_only);
+    check_result(distance, results.vincenty_bisection, results.reference, errors[0]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.vincenty, results.reference, errors[0], check_reference_only);
+    check_result(distance, results.vincenty, results.reference, errors[0]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //thomas
-    distance = bg::strategy::distance::geographic_cross_track_bisection<bg::strategy::thomas, Spheroid, double>(spheroid)
+    distance = bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.thomas_bisection, results.reference, errors[1], check_reference_only);
+    check_result(distance, results.thomas_bisection, results.reference, errors[1]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";;
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.thomas, results.reference, errors[1], check_reference_only);
+    check_result(distance, results.thomas, results.reference, errors[1]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //andoyer
-    distance = bg::strategy::distance::geographic_cross_track_bisection<bg::strategy::andoyer, Spheroid, double>(spheroid)
+    distance = bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.andoyer_bisection, results.reference, errors[2], check_reference_only);
+    check_result(distance, results.andoyer_bisection, results.reference, errors[2]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.andoyer, results.reference, errors[2], check_reference_only);
+    check_result(distance, results.andoyer, results.reference, errors[2]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //spherical
     distance = bg::strategy::distance::cross_track<>(bg::formula::mean_radius<double>(spheroid))
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
-    check_result(distance, results.spherical, results.reference, errors[3], check_reference_only);
+    check_result(distance, results.spherical, results.reference, errors[3]);
     output += boost::lexical_cast<std::string>(distance) + ",\n";
     std::cout << std::setprecision(20) << output << "\n";
 
@@ -118,7 +115,7 @@ int test_main(int, char*[])
 
     for (size_t i = 0; i < expected_size; ++i)
     {
-        test_all<point>(expected[i], false);
+        test_all<point>(expected[i]);
     }
 
     return 0;
