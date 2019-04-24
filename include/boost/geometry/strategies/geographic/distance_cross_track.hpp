@@ -655,6 +655,11 @@ private :
         s14 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
               ::apply(lon1, lat1, res.lon2, res.lat2, spheroid);
 
+        std::cout << "spherical + geo= "
+                  << geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+                             ::apply(lon3, lat3, res.lon2, res.lat2, spheroid)
+                  << std::endl;
+
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "s34=" << s34 << std::endl;
         std::cout << "s13=" << s13 << std::endl;
