@@ -14,6 +14,8 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
+#include <cmath>
+
 namespace boost { namespace geometry
 {
 
@@ -24,10 +26,10 @@ namespace detail
 template <typename T>
 struct distance_measure
 {
-    T value;
+    T measure;
 
     distance_measure()
-        : value(T())
+        : measure(T())
     {}
 
     bool is_small() const { return true; }
@@ -48,7 +50,7 @@ struct distance_measure_floating
     // This is an arbitrary boundary, to enable some behaviour
     // (for example include or exclude turns), which are checked later
     // with other conditions.
-    bool is_small() const { return std::fabs(measure) < 1.0e-3; }
+    bool is_small() const { return std::abs(measure) < 1.0e-3; }
 
     // Returns true if the distance measure is absolutely zero
     bool is_zero() const { return measure == 0.0; }
@@ -76,9 +78,12 @@ struct distance_measure<float>
 namespace detail_dispatch
 {
 
-template <typename CalculationType, typename Tag>
+// TODO: this is effectively a strategy, but for internal usage.
+// It might be moved to the strategies folder.
+
+template <typename CalculationType, typename CsTag>
 struct get_distance_measure
-        : not_implemented<Tag>
+        : not_implemented<CsTag>
 {};
 
 template <typename CalculationType>
@@ -168,6 +173,7 @@ namespace detail
 // 0 (absolutely 0, not even an epsilon) means collinear. Like side,
 // a negative means that p is to the right of p1-p2. And a positive value
 // means that p is to the left of p1-p2.
+
 template <typename cs_tag, typename SegmentPoint, typename Point>
 static distance_measure<typename select_coordinate_type<SegmentPoint, Point>::type>
 get_distance_measure(SegmentPoint const& p1, SegmentPoint const& p2, Point const& p)
