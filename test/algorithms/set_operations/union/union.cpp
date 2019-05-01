@@ -268,6 +268,9 @@ void test_areal()
     TEST_UNION(case_precision_11, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_12, 1, 0, -1, 14.0);
     TEST_UNION(case_precision_13, 1, 0, -1, 14.0);
+    TEST_UNION(case_precision_14, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_15, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_16, 1, 1, -1, 73.0);
 
     TEST_UNION_REV(case_precision_1, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_2, 1, 0, -1, 22.0);
@@ -282,6 +285,9 @@ void test_areal()
     TEST_UNION_REV(case_precision_11, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_12, 1, 0, -1, 14.0);
     TEST_UNION_REV(case_precision_13, 1, 0, -1, 14.0);
+    TEST_UNION_REV(case_precision_14, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_15, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_16, 1, 1, -1, 73.0);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
@@ -388,8 +394,12 @@ void test_areal()
             ticket_9081_15[0], ticket_9081_15[1],
             1, 0, -1, 0.0403425433);
 
-    test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
-            1, 0, 13, 150.0);
+    {
+        ut_settings settings;
+        settings.test_validity = BG_IF_RESCALED(true, false);
+        test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
+                1, 0, 13, 150.0, settings);
+    }
 
     // Float result is OK but a bit larger
     test_one<Polygon, Polygon, Polygon>("ticket_9756", ticket_9756[0], ticket_9756[1],
@@ -416,10 +426,13 @@ void test_areal()
 
     TEST_UNION(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION(issue_566_b, 1, 0, -1, 214.3728);
+    TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
+    TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
     {
         ut_settings ignore_validity;
         ignore_validity.test_validity = false;
+        ignore_validity.percentage = 0.01;
         test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
                 1, 0, -1, 3461.3203125,
                 ignore_validity);
@@ -431,16 +444,20 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("geos_4", geos_4[0], geos_4[1],
             1, 0, -1, 2304.4163115);
 
-    test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
-                1, 0, 265, 19.280667);
-
     // Robustness issues, followed out buffer-robustness-tests, test them also reverse
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    {
+        // Area can vary depending on joining point of nearly parallel lines
+        ut_settings settings;
+        settings.percentage = 0.01;
+        test_one<Polygon, Polygon, Polygon>("buffer_rt_a", buffer_rt_a[0], buffer_rt_a[1],
+                    1, 0, -1, 19.28, settings);
+        test_one<Polygon, Polygon, Polygon>("buffer_rt_a_rev", buffer_rt_a[1], buffer_rt_a[0],
+                    1, 0, -1, 19.28, settings);
+    }
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
                 1, 0, -1, 4.60853);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
@@ -476,12 +493,10 @@ void test_areal()
                 1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, -1, 18.5710);
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, -1, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
                 1, 0, -1, 21.07612);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t", buffer_rt_t[0], buffer_rt_t[1],
                 1, 0, -1, 15.6569);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_t_rev", buffer_rt_t[1], buffer_rt_t[0],
