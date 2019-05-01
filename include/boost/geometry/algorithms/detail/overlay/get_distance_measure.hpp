@@ -135,33 +135,8 @@ struct get_distance_measure<CalculationType, spherical_tag>
 };
 
 template <typename CalculationType>
-struct get_distance_measure<CalculationType, spherical_equatorial_tag>
-{
-    typedef detail::distance_measure<CalculationType> result_type;
-
-    template <typename SegmentPoint, typename Point>
-    static result_type apply(SegmentPoint const& , SegmentPoint const& ,
-                             Point const& )
-    {
-        // TODO, optional
-        result_type result;
-        return result;
-    }
-};
-template <typename CalculationType>
 struct get_distance_measure<CalculationType, geographic_tag>
-{
-    typedef detail::distance_measure<CalculationType> result_type;
-
-    template <typename SegmentPoint, typename Point>
-    static result_type apply(SegmentPoint const& , SegmentPoint const& ,
-                             Point const& )
-    {
-        // TODO, optional
-        result_type result;
-        return result;
-    }
-};
+        : get_distance_measure<CalculationType, spherical_tag> {};
 
 
 } // namespace detail_dispatch
