@@ -803,8 +803,7 @@ public :
             {
                 continue;
             }
-            if (is_self_turn<OverlayType>(cluster_turn)
-                || cluster_turn.both(target_operation))
+            if (cluster_turn.both(target_operation))
             {
                 // Not (yet) supported, can be cluster of u/u turns
                 return false;
