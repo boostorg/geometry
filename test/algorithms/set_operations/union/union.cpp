@@ -271,6 +271,12 @@ void test_areal()
     TEST_UNION(case_precision_14, 1, 0, -1, 22.0);
     TEST_UNION(case_precision_15, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_16, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_17, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_18, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_19, 1, 1, -1, 73.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+    TEST_UNION(case_precision_20, 1, 0, -1, 22.0);
+#endif
 
     TEST_UNION_REV(case_precision_1, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_2, 1, 0, -1, 22.0);
@@ -288,6 +294,12 @@ void test_areal()
     TEST_UNION_REV(case_precision_14, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_15, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_16, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_17, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_18, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_19, 1, 1, -1, 73.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+    TEST_UNION_REV(case_precision_20, 1, 0, -1, 22.0);
+#endif
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
