@@ -371,6 +371,22 @@ void test_areal()
     TEST_INTERSECTION(case_precision_10, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_11, 1, -1, 14.0);
 
+    {
+        ut_settings settings(0.01);
+        TEST_INTERSECTION_WITH(case_precision_12, 0, 1, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_13, 0, 1, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_12, 1, 0, 1, -1, 2.0, settings);
+        TEST_INTERSECTION_WITH(case_precision_13, 1, 0, 1, -1, 2.0, settings);
+    }
+
+    TEST_INTERSECTION(case_precision_14, 0, -1, 0.0);
+    TEST_INTERSECTION(case_precision_15, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_16, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_17, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_18, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_19, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_20, 0, 0, 0.0);
+
     TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
     TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
     TEST_INTERSECTION_REV(case_precision_3, 0, 0, 0.0);
@@ -382,16 +398,14 @@ void test_areal()
     TEST_INTERSECTION_REV(case_precision_9, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_10, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_11, 1, -1, 14.0);
-    {
-        ut_settings settings(0.01);
-        TEST_INTERSECTION_WITH(case_precision_12, 0, 1, 1, -1, 2.0, settings);
-        TEST_INTERSECTION_WITH(case_precision_13, 0, 1, 1, -1, 2.0, settings);
-        TEST_INTERSECTION_WITH(case_precision_12, 1, 0, 1, -1, 2.0, settings);
-        TEST_INTERSECTION_WITH(case_precision_13, 1, 0, 1, -1, 2.0, settings);
-    }
 
-    TEST_INTERSECTION(case_precision_14, 0, -1, 0.0);
-    TEST_INTERSECTION(case_precision_15, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_14, 0, -1, 0.0);
+    TEST_INTERSECTION_REV(case_precision_15, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_16, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_17, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_18, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_19, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_20, 0, 0, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
