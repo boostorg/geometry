@@ -159,6 +159,10 @@ struct base_turn_handler
             std::size_t index_p, std::size_t index_q,
             TurnInfo& ti)
     {
+        BOOST_GEOMETRY_ASSERT(IndexP + IndexQ == 1);
+        BOOST_GEOMETRY_ASSERT(index_p > 0 && index_p <= 2);
+        BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
+
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
         ti.operations[IndexP].remaining_distance = distance_measure(ti.point, range_p.at(index_p));
         ti.operations[IndexQ].remaining_distance = distance_measure(ti.point, range_q.at(index_q));
@@ -175,17 +179,26 @@ struct base_turn_handler
                     >::type
             > dm_type;
 
-        dm_type const dm = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(index_q - 1),
-            range_q.at(index_q), range_p.at(index_p));
+        const bool p_closer =
+                ti.operations[IndexP].remaining_distance
+                <  ti.operations[IndexQ].remaining_distance;
+        dm_type const dm
+                = p_closer
+                ? get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(index_q - 1),
+                    range_q.at(index_q), range_p.at(index_p))
+                : get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_p.at(index_p - 1),
+                    range_p.at(index_p), range_q.at(index_q));
 
         if (! dm.is_zero())
         {
             // Not truely collinear, distinguish for union/intersection
             // If p goes left (positive), take that for a union
 
-            ti.operations[IndexP].operation = dm.is_positive()
+            bool p_left = p_closer ? dm.is_positive() : dm.is_negative();
+
+            ti.operations[IndexP].operation = p_left
                         ? operation_union : operation_intersection;
-            ti.operations[IndexQ].operation = dm.is_positive()
+            ti.operations[IndexQ].operation = p_left
                         ? operation_intersection : operation_union;
             return;
         }
@@ -626,12 +639,11 @@ struct start : public base_turn_handler
                 IntersectionInfo const& info,
                 DirInfo const& dir_info,
                 SideCalculator const& side,
-                UmbrellaStrategy const& umbrella_strategy)
+                UmbrellaStrategy const& )
     {
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        // If rescaled, it is not necessary to handle start turns
+        // For now disabled. TODO: remove all code or fix inconsistencies
+        // within validity and relations
         return false;
-#endif
 
         if (dir_info.opposite)
         {

@@ -56,8 +56,12 @@ struct distance_measure_floating
     bool is_zero() const { return measure == 0.0; }
 
     // Returns true if the distance measure is positive. Distance measure
-    // algorithm should return positive value if it is located on the left side.
+    // algorithm returns positive value if it is located on the left side.
     bool is_positive() const { return measure > 0.0; }
+
+    // Returns true if the distance measure is negative. Distance measure
+    // algorithm returns negative value if it is located on the right side.
+    bool is_negative() const { return measure < 0.0; }
 };
 
 template <>
