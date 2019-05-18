@@ -428,7 +428,9 @@ inline void enrich_intersection_points(Turns& turns,
 
     // As long as turn indexes are not used yet, turns might be erased from
     // the vector
-    detail::overlay::erase_colocated_start_turns(turns, geometry1, geometry2);
+    // For now start turns are disabled.
+    // TODO: remove code or fix inconsistencies within validity and relations
+    // detail::overlay::erase_colocated_start_turns(turns, geometry1, geometry2);
 
     // From here on, turn indexes are used (in clusters, next_index, etc)
     // and may only be flagged as discarded
