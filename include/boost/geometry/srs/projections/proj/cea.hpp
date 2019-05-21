@@ -164,7 +164,7 @@ namespace projections
                     par.e = sqrt(par.es);
                     proj_parm.apa = pj_authset<T>(par.es);
 
-                    proj_parm.qp = pj_qsfn(1., par.e, par.one_es);
+                    proj_parm.qp = pj_qsfn(T(1), par.e, par.one_es);
                 }
             }
 
