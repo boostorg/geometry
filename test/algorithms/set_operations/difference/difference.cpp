@@ -308,7 +308,7 @@ void test_all()
             settings);
     }
 
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<polygon, polygon, polygon>("geos_1",
         geos_1[0], geos_1[1],
         21, -1, 0.31640625,
@@ -374,7 +374,7 @@ void test_all()
             1, -1, 35723.8506317139 + 58456.4964294434);
     }
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // symmetric difference is not valid due to robustness issue, it has
         // two turns (touch_only) and a midpoint is located in other polygon
@@ -443,7 +443,7 @@ void test_all()
             2, 12, 0.0451236449624935,
             0, 0, 0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<polygon, polygon, polygon>("ticket_9563",
             ticket_9563[0], ticket_9563[1],
             0, -1, 0,
@@ -559,7 +559,7 @@ void test_all()
     TEST_DIFFERENCE(mysql_23023665_2, 1, 96.0, 1, 16.0, 2);
     TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
     TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5);
     TEST_DIFFERENCE(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6);
 #endif

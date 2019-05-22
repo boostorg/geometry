@@ -189,7 +189,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     typename bg::default_area_result<G1>::type const area = bg::area(result);
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
     if (settings.test_validity)
 #endif
     {
@@ -342,7 +342,7 @@ std::string test_one(std::string const& caseid,
         expected_count2, expected_rings_count2, expected_point_count2,
         expected_area2, false, settings);
 
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_SYMDIFFERENCE)
     if (settings.sym_difference)
 #endif
     {

@@ -187,7 +187,7 @@ void test_all()
     // Having flat end
     test_one<linestring, polygon>("for_collinear", for_collinear, join_round, end_flat, 68.561, 2.0);
     test_one<linestring, polygon>("for_collinear", for_collinear, join_miter, end_flat, 72, 2.0);
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0, 2.0);
     test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0, 2.0);
 #endif
@@ -286,7 +286,7 @@ void test_all()
             27862.733459829971,
             5.9518403867035365);
 
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_report_2015_09_08a", mysql_report_2015_09_08a, join_round32, end_round32, 0.0, 1.0);
     test_one<linestring, polygon>("mysql_report_2015_09_08b", mysql_report_2015_09_08b, join_round32, end_round32, 0.0, 1099511627778.0);
     test_one<linestring, polygon>("mysql_report_2015_09_08c", mysql_report_2015_09_08c, join_round32, end_round32, 0.0, 0xbe);
@@ -314,7 +314,7 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_flat, 227.8325, 5.0);
     test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_flat, 534.1084, 10.0);
 
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Left
     test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0, ut_settings(), 0.0);
     test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0, ut_settings(), 0.0);

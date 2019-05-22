@@ -368,7 +368,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_d", rt_d, join_round, end_flat, 18.8726, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_round, end_flat, 14.1866, 0.3);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_g1", rt_g1, join_round, end_flat, 24.719, 1.0);
 #endif
     test_one<multi_polygon_type, polygon_type>("rt_g3", rt_g3, join_miter, end_flat, 16.5711, 1.0);
@@ -382,7 +382,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_h", rt_h, join_round, end_flat, 47.6012, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_h", rt_h, join_miter, end_flat, 61.7058, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_i", rt_i, join_round, end_flat, 10.7528, 1.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_i", rt_i, join_miter, end_flat, 13.6569, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_j", rt_j, join_round, end_flat, 28.7309, 1.0);
 #endif
@@ -427,11 +427,11 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_p18", rt_p18, join_miter, end_flat, 23.3137, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p19", rt_p19, join_miter, end_flat, 25.5637, 1.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p20", rt_p20, join_miter, end_flat, 25.4853, 1.0);
 #endif
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p21", rt_p21, join_miter, end_flat, 17.1716, 1.0);
 #endif
 
@@ -441,7 +441,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 26.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 0.9697, -0.25);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_r", rt_r, join_miter, end_flat, 21.0761, 1.0);
 #endif
 

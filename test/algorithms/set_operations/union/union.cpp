@@ -274,7 +274,7 @@ void test_areal()
     TEST_UNION(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_19, 1, 1, -1, 73.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_UNION(case_precision_20, 1, 0, -1, 22.0);
 #endif
 
@@ -297,7 +297,7 @@ void test_areal()
     TEST_UNION_REV(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_19, 1, 1, -1, 73.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_UNION_REV(case_precision_20, 1, 0, -1, 22.0);
 #endif
 
@@ -350,7 +350,7 @@ void test_areal()
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
@@ -466,7 +466,7 @@ void test_areal()
         test_one<Polygon, Polygon, Polygon>("buffer_rt_a_rev", buffer_rt_a[1], buffer_rt_a[0],
                     1, 0, -1, 19.28, settings);
     }
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
@@ -476,7 +476,7 @@ void test_areal()
                 1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, -1, 16.571);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, -1, 13.6569);
 #endif
@@ -507,7 +507,7 @@ void test_areal()
                 1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, -1, 18.5710);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, -1, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],

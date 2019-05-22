@@ -407,7 +407,7 @@ void test_areal()
         ticket_12118[0], ticket_12118[1],
         1, -1, 27, 2221.38713);
 
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING) || ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES) || ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // No output if rescaling is done
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12125",
         ticket_12125[0], ticket_12125[1],
