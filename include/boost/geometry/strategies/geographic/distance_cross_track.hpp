@@ -114,9 +114,9 @@ public :
     {
         typedef typename geometry::detail::cs_angular_units<Point>::type units_type;
 
-        return (apply<units_type>(get<0>(sp1), get<1>(sp1),
-                                  get<0>(sp2), get<1>(sp2),
-                                  get<0>(p), get<1>(p),
+        return (apply<units_type>(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                                  get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                                  get_as_radian<0>(p), get_as_radian<1>(p),
                                   m_spheroid)).distance;
     }
 
@@ -445,13 +445,12 @@ private :
         CT const half_pi = pi / CT(2);
         CT const c0 = CT(0);
 
-        // Convert to radians
-        CT lon1 = math::as_radian<Units>(lo1);
-        CT lat1 = math::as_radian<Units>(la1);
-        CT lon2 = math::as_radian<Units>(lo2);
-        CT lat2 = math::as_radian<Units>(la2);
-        CT lon3 = math::as_radian<Units>(lo3);
-        CT lat3 = math::as_radian<Units>(la3);
+        CT lon1 = lo1;
+        CT lat1 = la1;
+        CT lon2 = lo2;
+        CT lat2 = la2;
+        CT lon3 = lo3;
+        CT lat3 = la3;
 
         if (lon1 > lon2)
         {
@@ -655,10 +654,11 @@ private :
         s14 = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
               ::apply(lon1, lat1, res.lon2, res.lat2, spheroid);
 
-        std::cout << "spherical + geo= "
-                  << geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
-                             ::apply(lon3, lat3, res.lon2, res.lat2, spheroid)
-                  << std::endl;
+        // this is used in postgis, at least in 2.5
+        //std::cout << "spherical + geo= "
+        //          << geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+        //                     ::apply(lon3, lat3, res.lon2, res.lat2, spheroid)
+        //          << std::endl;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "s34=" << s34 << std::endl;
