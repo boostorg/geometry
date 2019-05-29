@@ -614,10 +614,8 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<long double> >();
-#endif
 
 #if defined(HAVE_TTMATH)
     std::cout << "Testing TTMATH" << std::endl;
