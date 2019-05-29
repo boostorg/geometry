@@ -81,7 +81,7 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-02",
                   "POINT(2.5 3)",
                   "SEGMENT(2 0,3 0)",
-                  pp_distance("POINT(2.5 3)", "POINT(2.49777 0)", strategy_pp),
+                  pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
                   strategy_ps, true, true);
     tester::apply("p-s-03",
                   "POINT(2 0)",
@@ -176,19 +176,19 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-down-1",
                   "POINT(2 1)",
                   "SEGMENT(2 2,3 2)",
-                  pp_distance("POINT(2.0003 2)", "POINT(2 1)", strategy_pp),
+                  pp_distance("POINT(2 2)", "POINT(2 1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-down-2",
                   "POINT(3 1)",
                   "SEGMENT(2 2,3 2)",
-                  pp_distance("POINT(2.9997 2)", "POINT(3 1)", strategy_pp),
+                  pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-south",
                   "POINT(3 -1)",
                   "SEGMENT(2 -2,3 -2)",
-                  pp_distance("POINT(2.9997 -2)", "POINT(3 -1)", strategy_pp),
+                  pp_distance("POINT(3 -2)", "POINT(3 -1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-antimeridian-1",
@@ -412,7 +412,6 @@ void test_distance_point_segment_rad_mix(Strategy_pp const& strategy_pp,
     tester1::apply("p-s-mix1",
                    "POINT(3 1)",
                    "SEGMENT(2 2,3 2)",
-                   //110575.06481432798,//1929.8861025802998,
                    pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
                    strategy_ps, true, true);
     tester2::apply("p-s-mix2",
