@@ -418,12 +418,13 @@ void test_areal()
             1, 0, 10, if_typed<ct, float>(1291.5469, 1289.08374));
 
     // Can generate one polygon, or two splitted, both is OK
-    test_one<Polygon, Polygon, Polygon>("ticket_10108_a", ticket_10108_a[0], ticket_10108_a[1],
-            BG_IF_RESCALED(2, 1), 0, 8, 0.0435229);
-
-    // Can generate one combined polygon, or two splitted, both is acceptable
-    test_one<Polygon, Polygon, Polygon>("ticket_10108_b", ticket_10108_b[0], ticket_10108_b[1],
-            BG_IF_RESCALED(1, 2), 0, 10, 2424.3449);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_UNION(ticket_10108_a, 2, 0, 8, 0.0435229);
+    TEST_UNION(ticket_10108_b, 1, 0, 10, 2424.3449);
+#else
+    TEST_UNION(ticket_10108_a,  BG_IF_RESCALED(2, 1), 0, 8, 0.0435229);
+    TEST_UNION(ticket_10108_b,  BG_IF_RESCALED(1, 2), 0, 10, 2424.3449);
+#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_10866", ticket_10866[0], ticket_10866[1],
             1, 0, 14, if_typed<ct, float>(332752493.0, 332760303.5));

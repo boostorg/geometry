@@ -416,8 +416,13 @@ void test_areal()
 
     TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
 
-    // Generates two polygons, which should (without rescaling) be merged into one
+#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    // Two polygons, should ideally be merged
     TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
+#else
+    // Correct: one polygon
+    TEST_UNION(mail_2019_01_21_johan, 1, 0, -1, 0.00058896);
+#endif
 
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
     TEST_UNION(mysql_23023665_8, 1, 2, -1, 1400.0);
