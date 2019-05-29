@@ -386,6 +386,8 @@ void test_areal()
     TEST_INTERSECTION(case_precision_18, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_19, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_22, 1, -1, 14.0);
 
     TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
     TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
@@ -406,6 +408,8 @@ void test_areal()
     TEST_INTERSECTION_REV(case_precision_18, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_19, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_22, 1, -1, 14.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
