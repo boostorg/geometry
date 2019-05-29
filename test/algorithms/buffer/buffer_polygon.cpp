@@ -555,7 +555,7 @@ void test_all()
         test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, settings);
         test_one<polygon_type, polygon_type>("ticket_11580_100", ticket_11580, join_miter, end_flat, 52.0221000, 1.00, settings);
     #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Larger distance, resulting in only one circle
+        // Larger distance, resulting in only one circle. Not solved yet in non-rescaled mode.
         test_one<polygon_type, polygon_type>("ticket_11580_237", ticket_11580, join_miter, end_flat, 999.999, 2.37, settings);
     #endif
     }

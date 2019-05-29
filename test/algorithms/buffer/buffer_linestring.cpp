@@ -188,8 +188,8 @@ void test_all()
     test_one<linestring, polygon>("for_collinear", for_collinear, join_round, end_flat, 68.561, 2.0);
     test_one<linestring, polygon>("for_collinear", for_collinear, join_miter, end_flat, 72, 2.0);
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0, 2.0);
-    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0, 2.0);
+    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0);
+    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0);
 #endif
 
     test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, ut_settings(), 3.0);
