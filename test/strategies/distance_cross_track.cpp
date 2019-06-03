@@ -57,8 +57,6 @@ void test_all(expected_results const& results)
     // WGS84
     Spheroid spheroid(6378137.0, 6356752.3142451793);
 
-    std::string output;
-
     error errors []
     {
         {0.00000001, 0.00000001, 0.00000001, 0.000001}, //vincenty
@@ -71,41 +69,33 @@ void test_all(expected_results const& results)
     double distance = bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.vincenty_bisection, results.reference, errors[0]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.vincenty, results.reference, errors[0]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //thomas
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.thomas_bisection, results.reference, errors[1]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";;
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.thomas, results.reference, errors[1]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //andoyer
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.andoyer_bisection, results.reference, errors[2]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     distance = bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, Spheroid, double>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.andoyer, results.reference, errors[2]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
 
     //spherical
     distance = bg::strategy::distance::cross_track<>(bg::formula::mean_radius<double>(spheroid))
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.spherical, results.reference, errors[3]);
-    output += boost::lexical_cast<std::string>(distance) + ",\n";
-    std::cout << std::setprecision(20) << output << "\n";
 
 }
 
