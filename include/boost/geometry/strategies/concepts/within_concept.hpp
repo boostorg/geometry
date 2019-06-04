@@ -181,7 +181,7 @@ public :
 #endif
 };
 
-template <typename Strategy>
+template <typename Box1, typename Box2, typename Strategy>
 class WithinStrategyBoxBox
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
@@ -239,7 +239,7 @@ class WithinStrategyBoxBox
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyBoxBox)
     {
-        checker::apply(&Strategy::apply);
+        checker::apply(&Strategy::template apply<Box1, Box2>);
     }
 #endif
 };
@@ -283,7 +283,7 @@ struct check_within<Geometry1, Geometry2, point_tag, box_tag, areal_tag, Strateg
 template <typename Geometry1, typename Geometry2, typename Strategy>
 struct check_within<Geometry1, Geometry2, box_tag, box_tag, areal_tag, Strategy>
 {
-    BOOST_CONCEPT_ASSERT( (WithinStrategyBoxBox<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (WithinStrategyBoxBox<Geometry1, Geometry2, Strategy>) );
 };
 
 
