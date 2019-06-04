@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
-// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -389,6 +389,7 @@ public:
 
     typedef UmbrellaStrategy intersection_strategy_type;
     typedef typename UmbrellaStrategy::side_strategy_type side_strategy_type;
+    typedef typename UmbrellaStrategy::cs_tag cs_tag;
 
     typedef model::referring_segment<point1_type const> segment_type1;
     typedef model::referring_segment<point2_type const> segment_type2;
@@ -452,7 +453,7 @@ public:
                 {
                     // qk is collinear with both p1 and p2,
                     // verify if pk goes backwards w.r.t. pi/pj
-                    return direction_code(base::rpi(), base::rpj(), base::rpk()) == -1;
+                    return direction_code<cs_tag>(base::rpi(), base::rpj(), base::rpk()) == -1;
                 }
 
                 // qk is at opposite side of p1/p2, therefore
@@ -488,7 +489,7 @@ public:
             {
                 if (pk_q1 == 0)
                 {
-                    return direction_code(base::rqi(), base::rqj(), base::rqk()) == -1;
+                    return direction_code<cs_tag>(base::rqi(), base::rqj(), base::rqk()) == -1;
                 }
                         
                 return true;

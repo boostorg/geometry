@@ -75,6 +75,8 @@ inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
                                     Point3 const& segment_b,  // curr | back - 1 | spike's vertex
                                     SideStrategy const& strategy)
 {
+    typedef SideStrategy::cs_tag cs_tag;
+
     int const side = strategy.apply(segment_a, segment_b, last_point);
     if (side == 0)
     {
@@ -86,7 +88,7 @@ inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
             std::cout << "spike detection failure with: " << r1 << " " << r2 << std::endl;
         return r2;
 #else
-        return direction_code(segment_a, segment_b, last_point) < 1;
+        return direction_code<cs_tag>(segment_a, segment_b, last_point) < 1;
 #endif
     }
     return false;

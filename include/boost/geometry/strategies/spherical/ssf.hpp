@@ -2,8 +2,8 @@
 
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016, 2018.
-// Modifications copyright (c) 2016-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016, 2018, 2019.
+// Modifications copyright (c) 2016-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -85,6 +85,8 @@ class spherical_side_formula
 {
 
 public :
+    typedef spherical_tag cs_tag;
+
     typedef strategy::envelope::spherical<CalculationType> envelope_strategy_type;
 
     static inline envelope_strategy_type get_envelope_strategy()

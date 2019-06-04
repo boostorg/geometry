@@ -73,8 +73,10 @@ struct multi_point_multi_point
                              Strategy const& /*strategy*/)
     {
         typedef typename boost::range_value<MultiPoint2>::type point2_type;
+        typedef typename Strategy::cs_tag cs_tag;
+        typedef geometry::less<void, -1, cs_tag> less_type;
 
-        geometry::less<> const less = geometry::less<>();
+        less_type const less = less_type();
 
         std::vector<point2_type> points2(boost::begin(multi_point2), boost::end(multi_point2));
         std::sort(points2.begin(), points2.end(), less);
@@ -123,10 +125,7 @@ struct multi_point_single_geometry
         geometry::envelope(linear_or_areal, box, strategy.get_envelope_strategy());
         geometry::detail::expand_by_epsilon(box);
 
-        typedef typename strategy::covered_by::services::default_strategy
-            <
-                point1_type, box2_type
-            >::type point_in_box_type;
+        typedef typename Strategy::disjoint_point_box_strategy_type point_in_box_type;
 
         // Test each Point with envelope and then geometry if needed
         // If in the exterior, break

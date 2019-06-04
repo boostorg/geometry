@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018.
-// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -58,8 +58,6 @@ template
 >
 class cartesian_winding
 {
-    typedef side::side_by_triangle<CalculationType> side_strategy_type;
-
     typedef typename select_calculation_type
         <
             Point,
@@ -89,6 +87,17 @@ class cartesian_winding
     };
 
 public:
+    typedef cartesian_tag cs_tag;
+
+    typedef side::side_by_triangle<CalculationType> side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+    {
+        return side_strategy_type();
+    }
+
+    typedef expand::cartesian_point expand_point_strategy_type;
+
     typedef typename side_strategy_type::envelope_strategy_type envelope_strategy_type;
 
     static inline envelope_strategy_type get_envelope_strategy()
