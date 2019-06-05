@@ -18,6 +18,8 @@
 #define BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
 #endif
 
+// Defining this selects Kramer rule for segment-intersection
+// That is default behaviour.
 #define BOOST_GEOMETRY_USE_KRAMER_RULE
 
 // Rescaling is turned on, unless NO_ROBUSTNESS is defined
