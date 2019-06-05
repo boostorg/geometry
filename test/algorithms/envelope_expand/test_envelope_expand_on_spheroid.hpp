@@ -243,7 +243,7 @@ struct box_check_equals
     {
         equals_with_tolerance equals(tol);
 
-#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifndef BOOST_GEOMETRY_TEST_FAILURES
         // check latitude with tolerance when necessary
         return equals_with_eps(bg::get<0, 0>(box), lon_min)
             && (bg::get<0, 1>(box) < 0
@@ -276,7 +276,7 @@ struct box_check_equals<Box, 3>
                              T3 const& lon_max, T4 const& lat_max, double height_max,
                              double tol)
     {
-#ifndef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifndef BOOST_GEOMETRY_TEST_FAILURES
         equals_with_tolerance equals(tol);
 
         return box_check_equals<Box, 2>::apply(box,

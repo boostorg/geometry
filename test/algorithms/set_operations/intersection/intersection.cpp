@@ -316,7 +316,7 @@ void test_areal()
                     1, 8, 129.90381, settings);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // With rescaling the output is empty
     TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
 #endif
@@ -386,6 +386,8 @@ void test_areal()
     TEST_INTERSECTION(case_precision_18, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_19, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_22, 1, -1, 14.0);
 
     TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
     TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
@@ -406,6 +408,8 @@ void test_areal()
     TEST_INTERSECTION_REV(case_precision_18, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_19, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_22, 1, -1, 14.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
@@ -939,7 +943,7 @@ int test_main(int, char* [])
 
     test_boxes_nd<double>();
 
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // ticket #10868 still fails for 32-bit integers
     test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 

@@ -135,7 +135,7 @@ void test_areal()
         case_107_multi[1], case_107_multi[2],
         3, 13, 3.0);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         ut_settings ignore_validity;
 

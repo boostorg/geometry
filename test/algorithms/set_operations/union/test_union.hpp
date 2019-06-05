@@ -125,7 +125,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 #endif
 
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
     if (settings.test_validity)
 #endif
     {
@@ -135,7 +135,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             "union: " << caseid << " not valid: " << message
             << " type: " << (type_for_assert_message<G1, G2>()));
     }
-
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
