@@ -167,4 +167,10 @@ struct mathematical_policy
 #define BG_IF_RESCALED(a, b) b
 #endif
 
+#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#define BG_IF_KRAMER(a, b) a
+#else
+#define BG_IF_KRAMER(a, b) b
+#endif
+
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP
