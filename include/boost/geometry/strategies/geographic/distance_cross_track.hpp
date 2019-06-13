@@ -339,11 +339,13 @@ private :
 
             CT M43 = res34.geodesic_scale; // cos(s14/earth_radius) is the spherical limit
             CT m34 = res34.reduced_length;
-            CT der = (M43 / m34) * sin(g4);
 
-            //normalize
-            delta_g4 = normalize(g4, der);
-            s14 = s14 - delta_g4 / der;
+            if (m34 != 0)
+            {
+                CT der = (M43 / m34) * sin(g4);
+                delta_g4 = normalize(g4, der);
+                s14 -= der != 0 ? delta_g4 / der : 0;
+            }
             result.distance = res34.distance;
 
             dist_improve = prev_distance > res34.distance || prev_distance == -1;
