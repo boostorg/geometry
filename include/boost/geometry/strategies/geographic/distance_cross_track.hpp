@@ -346,6 +346,7 @@ private :
                 delta_g4 = normalize(g4, der);
                 s14 -= der != 0 ? delta_g4 / der : 0;
             }
+
             result.distance = res34.distance;
 
             dist_improve = prev_distance > res34.distance || prev_distance == -1;
@@ -538,10 +539,10 @@ private :
             }
         }
 
-        geometry::formula::result_inverse<CT> res13 =
-                inverse_dist_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid);
         geometry::formula::result_inverse<CT> res12 =
                 inverse_dist_azimuth_reverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+        geometry::formula::result_inverse<CT> res13 =
+                inverse_dist_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid);
 
         if (geometry::math::equals(res12.distance, c0))
         {
@@ -549,11 +550,12 @@ private :
             std::cout << "Degenerate segment" << std::endl;
             std::cout << "distance between points=" << res13.distance << std::endl;
 #endif
-            return non_iterative_case(lon1, lat2, res13.distance);
-        }
+            typename meridian_inverse::result res =
+                     meridian_inverse::apply(lon1, lat1, lon3, lat3, spheroid);
 
-        geometry::formula::result_inverse<CT> res23 =
-                inverse_dist_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid);
+            return non_iterative_case(lon1, lat2,
+                                      res.meridian ? res.distance : res13.distance);
+        }
 
         // Compute a12 (GEO)
         CT a312 = res13.azimuth - res12.azimuth;
@@ -589,8 +591,12 @@ private :
 #endif
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p1
+
             return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
         }
+
+        geometry::formula::result_inverse<CT> res23 =
+                inverse_dist_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid);
 
         CT a321 = res23.azimuth - res12.reverse_azimuth + pi;
         CT projection2 = cos( a321 ) * res23.distance / res12.distance;
