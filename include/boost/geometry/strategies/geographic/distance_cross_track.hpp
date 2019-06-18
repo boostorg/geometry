@@ -318,7 +318,7 @@ private :
 
         int counter = 0; // robustness
         CT g4;
-        CT delta_g4;
+        CT delta_g4 = 0;
         bool dist_improve = true;
         CT s14 = s14_start;
 
