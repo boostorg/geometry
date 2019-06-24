@@ -66,7 +66,7 @@ void test_all(expected_results const& results)
     };
 
     //vincenty
-    double distance = bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, Spheroid, double, true>(spheroid)
+    double distance = bg::strategy::distance::detail::geographic_cross_track<bg::strategy::vincenty, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.vincenty_bisection, results.reference, errors[0]);
 
@@ -75,7 +75,7 @@ void test_all(expected_results const& results)
     check_result(distance, results.vincenty, results.reference, errors[0]);
 
     //thomas
-    distance = bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, Spheroid, double, true>(spheroid)
+    distance = bg::strategy::distance::detail::geographic_cross_track<bg::strategy::thomas, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.thomas_bisection, results.reference, errors[1]);
 
@@ -84,7 +84,7 @@ void test_all(expected_results const& results)
     check_result(distance, results.thomas, results.reference, errors[1]);
 
     //andoyer
-    distance = bg::strategy::distance::geographic_cross_track<bg::strategy::andoyer, Spheroid, double, true>(spheroid)
+    distance = bg::strategy::distance::detail::geographic_cross_track<bg::strategy::andoyer, Spheroid, double, true>(spheroid)
             .apply(Point(lon3r, lat3r), Point(lon1r, lat1r), Point(lon2r, lat2r));
     check_result(distance, results.andoyer_bisection, results.reference, errors[2]);
 

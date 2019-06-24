@@ -64,6 +64,8 @@ namespace boost { namespace geometry
 namespace strategy { namespace distance
 {
 
+namespace detail
+{
 /*!
 \brief Strategy functor for distance point to segment calculation on ellipsoid
        Algorithm uses direct and inverse geodesic problems as subroutines.
@@ -681,7 +683,37 @@ private :
     Spheroid m_spheroid;
 };
 
+} // namespace detail
 
+template
+<
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
+class geographic_cross_track
+    : public detail::geographic_cross_track
+        <
+            FormulaPolicy,
+            Spheroid,
+            CalculationType,
+            false,
+            false
+        >
+{
+public :
+    explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
+        :
+        detail::geographic_cross_track<
+                FormulaPolicy,
+                Spheroid,
+                CalculationType,
+                false,
+                false
+            >(spheroid)
+        {}
+
+};
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 namespace services
@@ -722,11 +754,10 @@ template
         typename CalculationType,
         bool Bisection
 >
-struct tag<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+struct tag<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
-
 
 //return types
 template <typename FormulaPolicy, typename P, typename PS>
@@ -766,8 +797,8 @@ template
         typename P,
         typename PS
 >
-struct return_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>, P, PS>
-    : geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>::template return_type<P, PS>
+struct return_type<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>, P, PS>
+    : detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>::template return_type<P, PS>
 {};
 
 //comparable types
@@ -775,12 +806,27 @@ template
 <
         typename FormulaPolicy,
         typename Spheroid,
+        typename CalculationType
+>
+struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
+{
+    typedef geographic_cross_track
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        >  type;
+};
+
+
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
         typename CalculationType,
         bool Bisection
 >
-struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+struct comparable_type<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
 {
-    typedef geographic_cross_track
+    typedef detail::geographic_cross_track
         <
             FormulaPolicy, Spheroid, CalculationType, Bisection
         >  type;
@@ -790,14 +836,30 @@ template
 <
         typename FormulaPolicy,
         typename Spheroid,
+        typename CalculationType
+>
+struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
+{
+public :
+    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
+    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    {
+        return strategy;
+    }
+};
+
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
         typename CalculationType,
         bool Bisection
 >
-struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+struct get_comparable<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
 {
 public :
-    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
+    static inline detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
+    apply(detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
     {
         return strategy;
     }
