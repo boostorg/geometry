@@ -175,7 +175,8 @@ struct buffered_piece_collection
 
     typedef typename geometry::rescale_policy_type
         <
-            typename geometry::point_type<Ring>::type
+            typename geometry::point_type<Ring>::type,
+            typename IntersectionStrategy::cs_tag
         >::type rescale_policy_type;
 
     typedef typename geometry::segment_ratio_type

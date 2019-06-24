@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -116,7 +116,7 @@ struct multi_point_single_geometry
                              LinearOrAreal const& linear_or_areal,
                              Strategy const& strategy)
     {
-        typedef typename boost::range_value<MultiPoint>::type point1_type;
+        //typedef typename boost::range_value<MultiPoint>::type point1_type;
         typedef typename point_type<LinearOrAreal>::type point2_type;
         typedef model::box<point2_type> box2_type;
 
@@ -195,7 +195,17 @@ struct multi_point_multi_geometry
         }
 
         // Create R-tree
-        index::rtree<box_pair_type, index::rstar<4> > rtree(boxes.begin(), boxes.end());
+        typedef strategy::index::services::from_strategy
+            <
+                Strategy
+            > index_strategy_from;
+        typedef index::parameters
+            <
+                index::rstar<4>, typename index_strategy_from::type
+            > index_parameters_type;
+        index::rtree<box_pair_type, index_parameters_type>
+            rtree(boxes.begin(), boxes.end(),
+                  index_parameters_type(index::rstar<4>(), index_strategy_from::get(strategy)));
 
         // For each point find overlapping envelopes and test corresponding single geometries
         // If a point is in the exterior break

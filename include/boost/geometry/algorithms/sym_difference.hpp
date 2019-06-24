@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2019.
+// Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -305,17 +305,26 @@ struct sym_difference
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename Collection,
         typename Strategy
     >
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              Collection & output_collection,
                              Strategy const& strategy)
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
+
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename Strategy::cs_tag
+            >::type rescale_policy_type;
+
+        rescale_policy_type robust_policy
+                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
+                                                                    geometry2);
 
         detail::sym_difference::sym_difference_insert<geometry_out>(
             geometry1, geometry2, robust_policy,
@@ -327,17 +336,26 @@ struct sym_difference
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename Collection
     >
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              Collection & output_collection,
                              default_strategy)
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
         
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename geometry::cs_tag<Geometry1>::type
+            >::type rescale_policy_type;
+
+        rescale_policy_type robust_policy
+                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
+                                                                    geometry2);
+
         detail::sym_difference::sym_difference_insert<geometry_out>(
             geometry1, geometry2, robust_policy,
             range::back_inserter(output_collection));
@@ -359,18 +377,7 @@ struct sym_difference
                              Collection& output_collection,
                              Strategy const& strategy)
     {
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2
-            >::type rescale_policy_type;
-
-        rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
-        
         resolve_strategy::sym_difference::apply(geometry1, geometry2,
-                                                robust_policy,
                                                 output_collection,
                                                 strategy);
     }

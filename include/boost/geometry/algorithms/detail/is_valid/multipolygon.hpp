@@ -317,7 +317,7 @@ public:
         // compute turns and check if all are acceptable
         debug_phase::apply(2);
 
-        typedef has_valid_self_turns<MultiPolygon> has_valid_turns;
+        typedef has_valid_self_turns<MultiPolygon, typename Strategy::cs_tag> has_valid_turns;
 
         std::deque<typename has_valid_turns::turn_type> turns;
         bool has_invalid_turns =

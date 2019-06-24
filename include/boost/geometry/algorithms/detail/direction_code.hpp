@@ -223,7 +223,7 @@ struct direction_code_impl<spherical_polar_tag>
 
         return direction_code_impl
                 <
-                    Point, spherical_equatorial_tag
+                    spherical_equatorial_tag
                 >::apply(segment_a, segment_b, p);
     }
 };

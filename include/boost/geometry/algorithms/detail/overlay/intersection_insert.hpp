@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2017, 2019.
+// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -1290,7 +1290,8 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
 
     typedef typename geometry::rescale_policy_type
         <
-            typename geometry::point_type<Geometry1>::type // TODO from both
+            typename geometry::point_type<Geometry1>::type, // TODO from both
+            typename Strategy::cs_tag
         >::type rescale_policy_type;
 
     rescale_policy_type robust_policy

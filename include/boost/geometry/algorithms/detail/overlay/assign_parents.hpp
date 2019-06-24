@@ -193,7 +193,7 @@ struct assign_visitor
             ring_info_type& inner_in_map = m_ring_map[inner.id];
 
             if (geometry::covered_by(inner_in_map.point, outer.envelope,
-                                     Strategy::disjoint_point_box_strategy_type())
+                                     typename Strategy::disjoint_point_box_strategy_type())
                && within_selected_input(inner_in_map, inner.id, outer.id,
                                         m_geometry1, m_geometry2, m_collection,
                                         m_strategy)

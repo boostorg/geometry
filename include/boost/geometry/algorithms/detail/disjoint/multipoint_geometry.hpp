@@ -307,21 +307,23 @@ template <typename MultiPoint, typename MultiGeometry>
 class multi_point_multi_geometry
 {
 private:
+    template <typename ExpandPointStrategy>
     struct expand_box_point
     {
         template <typename Box, typename Point>
         static inline void apply(Box& total, Point const& point)
         {
-            geometry::expand(total, point);
+            geometry::expand(total, point, ExpandPointStrategy());
         }
     };
 
+    template <typename ExpandBoxStrategy>
     struct expand_box_box_pair
     {
         template <typename Box, typename BoxPair>
         inline void apply(Box& total, BoxPair const& box_pair) const
         {
-            geometry::expand(total, box_pair.first);
+            geometry::expand(total, box_pair.first, ExpandBoxStrategy());
         }
     };
 
@@ -411,10 +413,18 @@ public:
 
         item_visitor_type<Strategy> visitor(multi_geometry, strategy);
 
+        typedef expand_box_point
+            <
+                typename Strategy::expand_point_strategy_type
+            > expand_box_point_type;
         typedef overlaps_box_point
             <
                 typename Strategy::disjoint_point_box_strategy_type
             > overlaps_box_point_type;
+        typedef expand_box_box_pair
+            <
+                typename Strategy::envelope_strategy_type::box_expand_strategy_type
+            > expand_box_box_pair_type;
         typedef overlaps_box_box_pair
             <
                 typename Strategy::disjoint_box_box_strategy_type
@@ -424,9 +434,9 @@ public:
             <
                 box1_type
             >::apply(multi_point, boxes, visitor,
-                     expand_box_point(),
+                     expand_box_point_type(),
                      overlaps_box_point_type(),
-                     expand_box_box_pair(),
+                     expand_box_box_pair_type(),
                      overlaps_box_box_pair_type());
 
         return ! visitor.intersection_found();
