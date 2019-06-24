@@ -125,6 +125,11 @@ public:
         return formula::azimuth_side_value(a1p, a12);
     }
 
+    Spheroid const& model() const
+    {
+        return m_model;
+    }
+
 private:
     template <typename ResultType,
               typename InverseFormulaType,
