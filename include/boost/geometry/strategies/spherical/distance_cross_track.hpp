@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2018.
-// Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2019.
+// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -34,6 +34,7 @@
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
+#include <boost/geometry/strategies/spherical/intersection.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
@@ -332,6 +333,26 @@ class cross_track
 public :
     typedef within::spherical_point_point equals_point_point_strategy_type;
 
+    typedef intersection::spherical_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
+    typedef within::spherical_winding
+        <
+            void, void, CalculationType
+        > point_in_geometry_strategy_type;
+
+    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
+    {
+        return point_in_geometry_strategy_type();
+    }
+
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point
@@ -512,6 +533,26 @@ class cross_track
 {
 public :
     typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    typedef intersection::spherical_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
+    typedef within::spherical_winding
+        <
+            void, void, CalculationType
+        > point_in_geometry_strategy_type;
+
+    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
+    {
+        return point_in_geometry_strategy_type();
+    }
 
     template <typename Point, typename PointOfSegment>
     struct return_type
