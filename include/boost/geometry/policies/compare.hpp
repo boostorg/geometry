@@ -165,8 +165,8 @@ struct greater<void, Dimension, CSTag>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
-                Point, Point,
-                Dimension
+                Point1, Point2,
+                Dimension,
                 CSTag, CSTag
             >::type strategy_type;
 
