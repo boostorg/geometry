@@ -5,10 +5,11 @@
 // Copyright (c) 2014-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2019.
+// Modifications copyright (c) 2015, 2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -245,7 +246,11 @@ struct get_rescale_policy<no_rescale_policy>
 }} // namespace detail::get_rescale_policy
 #endif // DOXYGEN_NO_DETAIL
 
-template<typename Point>
+template
+<
+    typename Point,
+    typename CSTag = typename geometry::cs_tag<Point>::type
+>
 struct rescale_policy_type
     : public detail::get_rescale_policy::rescale_policy_type
     <
@@ -258,8 +263,8 @@ struct rescale_policy_type
         &&
         boost::is_same
             <
-                typename geometry::coordinate_system<Point>::type,
-                geometry::cs::cartesian
+                CSTag,
+                geometry::cartesian_tag
             >::value
 #else
         false
@@ -283,6 +288,7 @@ template
 <
     typename Geometry1,
     typename Geometry2,
+    typename CSTag = typename geometry::cs_tag<Geometry1>::type,
     typename Tag1 = typename tag_cast
     <
         typename tag<Geometry1>::type,
@@ -313,12 +319,14 @@ struct rescale_overlay_policy_type
 template
 <
     typename Geometry1,
-    typename Geometry2
+    typename Geometry2,
+    typename CSTag
 >
-struct rescale_overlay_policy_type<Geometry1, Geometry2, areal_tag, areal_tag>
+struct rescale_overlay_policy_type<Geometry1, Geometry2, CSTag, areal_tag, areal_tag>
     : public rescale_policy_type
         <
-            typename geometry::point_type<Geometry1>::type
+            typename geometry::point_type<Geometry1>::type,
+            CSTag
         >
 {};
 
