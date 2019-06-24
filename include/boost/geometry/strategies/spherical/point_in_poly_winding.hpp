@@ -46,28 +46,19 @@ namespace strategy { namespace within
 namespace detail
 {
 
-template
-<
-    typename Point,
-    typename PointOfSegment = Point,
-    typename SideStrategy = typename strategy::side::services::default_strategy
-                                <
-                                    typename cs_tag<Point>::type
-                                >::type,
-    typename CalculationType = void
->
+template <typename SideStrategy, typename CalculationType>
 class spherical_winding_base
 {
-    typedef typename select_calculation_type
-        <
-            Point,
-            PointOfSegment,
-            CalculationType
-        >::type calculation_type;
+    template <typename Point, typename PointOfSegment>
+    struct calculation_type
+        : select_calculation_type
+            <
+                Point,
+                PointOfSegment,
+                CalculationType
+            >
+    {};
 
-    typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
-    typedef math::detail::constants_on_spheroid<calculation_type, units_t> constants;
-    
     /*! subclass to keep state */
     class counter
     {
@@ -176,14 +167,17 @@ public:
     {}
 
     // Typedefs and static methods to fulfill the concept
-    typedef Point point_type;
-    typedef PointOfSegment segment_point_type;
     typedef counter state_type;
 
+    template <typename Point, typename PointOfSegment>
     inline bool apply(Point const& point,
                       PointOfSegment const& s1, PointOfSegment const& s2,
                       counter& state) const
     {
+        typedef typename calculation_type<Point, PointOfSegment>::type calc_t;
+        typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
+        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+
         bool eq1 = false;
         bool eq2 = false;
         bool s_antipodal = false;
@@ -207,9 +201,9 @@ public:
                     }
                     else
                     {
-                        calculation_type const pi = constants::half_period();
-                        calculation_type const s1_lat = get<1>(s1);
-                        calculation_type const s2_lat = get<1>(s2);
+                        calc_t const pi = constants::half_period();
+                        calc_t const s1_lat = get<1>(s1);
+                        calc_t const s2_lat = get<1>(s2);
 
                         side = math::sign(ci.count)
                              * (pi - s1_lat - s2_lat <= pi // segment goes through north pole
@@ -261,8 +255,8 @@ public:
         return state.code();
     }
 
-private:
-
+protected:
+    template <typename Point, typename PointOfSegment>
     static inline count_info check_segment(Point const& point,
                                     PointOfSegment const& seg1,
                                     PointOfSegment const& seg2,
@@ -277,6 +271,7 @@ private:
         return calculate_count(point, seg1, seg2, eq1, eq2, s_antipodal);
     }
 
+    template <typename Point, typename PointOfSegment>
     static inline int check_touch(Point const& point,
                                   PointOfSegment const& seg1,
                                   PointOfSegment const& seg2,
@@ -285,39 +280,43 @@ private:
                                   bool& eq2,
                                   bool& s_antipodal)
     {
-        calculation_type const c0 = 0;
-        calculation_type const c2 = 2;
-        calculation_type const pi = constants::half_period();
-        calculation_type const half_pi = pi / c2;
+        typedef typename calculation_type<Point, PointOfSegment>::type calc_t;
+        typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
+        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
 
-        calculation_type const p_lon = get<0>(point);
-        calculation_type const s1_lon = get<0>(seg1);
-        calculation_type const s2_lon = get<0>(seg2);
-        calculation_type const p_lat = get<1>(point);
-        calculation_type const s1_lat = get<1>(seg1);
-        calculation_type const s2_lat = get<1>(seg2);
+        calc_t const c0 = 0;
+        calc_t const c2 = 2;
+        calc_t const pi = constants::half_period();
+        calc_t const half_pi = pi / c2;
+
+        calc_t const p_lon = get<0>(point);
+        calc_t const s1_lon = get<0>(seg1);
+        calc_t const s2_lon = get<0>(seg2);
+        calc_t const p_lat = get<1>(point);
+        calc_t const s1_lat = get<1>(seg1);
+        calc_t const s2_lat = get<1>(seg2);
 
         // NOTE: lat in {-90, 90} and arbitrary lon
         //  it doesn't matter what lon it is if it's a pole
         //  so e.g. if one of the segment endpoints is a pole
         //  then only the other lon matters
         
-        bool eq1_strict = longitudes_equal(s1_lon, p_lon);
-        bool eq2_strict = longitudes_equal(s2_lon, p_lon);
+        bool eq1_strict = longitudes_equal<units_t>(s1_lon, p_lon);
+        bool eq2_strict = longitudes_equal<units_t>(s2_lon, p_lon);
         bool eq1_anti = false;
         bool eq2_anti = false;
 
-        calculation_type const anti_p_lon = p_lon + (p_lon <= c0 ? pi : -pi);
+        calc_t const anti_p_lon = p_lon + (p_lon <= c0 ? pi : -pi);
 
         eq1 = eq1_strict // lon strictly equal to s1
-            || (eq1_anti = longitudes_equal(s1_lon, anti_p_lon)) // anti-lon strictly equal to s1
+            || (eq1_anti = longitudes_equal<units_t>(s1_lon, anti_p_lon)) // anti-lon strictly equal to s1
             || math::equals(math::abs(s1_lat), half_pi); // s1 is pole
         eq2 = eq2_strict // lon strictly equal to s2
-            || (eq2_anti = longitudes_equal(s2_lon, anti_p_lon)) // anti-lon strictly equal to s2
+            || (eq2_anti = longitudes_equal<units_t>(s2_lon, anti_p_lon)) // anti-lon strictly equal to s2
             || math::equals(math::abs(s2_lat), half_pi); // s2 is pole
 
         // segment overlapping pole
-        calculation_type const s_lon_diff = math::longitude_distance_signed<units_t>(s1_lon, s2_lon);
+        calc_t const s_lon_diff = math::longitude_distance_signed<units_t>(s1_lon, s2_lon);
         s_antipodal = math::equals(s_lon_diff, pi);
         if (s_antipodal)
         {
@@ -382,36 +381,41 @@ private:
     }
 
     // Called if point is not aligned with a vertical segment
+    template <typename Point, typename PointOfSegment>
     static inline count_info calculate_count(Point const& point,
                                              PointOfSegment const& seg1,
                                              PointOfSegment const& seg2,
                                              bool eq1, bool eq2, bool s_antipodal)
     {
+        typedef typename calculation_type<Point, PointOfSegment>::type calc_t;
+        typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
+        typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;
+
         // If both segment endpoints were poles below checks wouldn't be enough
         // but this means that either both are the same or that they are N/S poles
         // and therefore the segment is not valid.
         // If needed (eq1 && eq2 ? 0) could be returned
 
-        calculation_type const c0 = 0;
-        calculation_type const pi = constants::half_period();
+        calc_t const c0 = 0;
+        calc_t const pi = constants::half_period();
 
-        calculation_type const p = get<0>(point);
-        calculation_type const s1 = get<0>(seg1);
-        calculation_type const s2 = get<0>(seg2);
+        calc_t const p = get<0>(point);
+        calc_t const s1 = get<0>(seg1);
+        calc_t const s2 = get<0>(seg2);
 
-        calculation_type const s1_p = math::longitude_distance_signed<units_t>(s1, p);
+        calc_t const s1_p = math::longitude_distance_signed<units_t>(s1, p);
         
         if (s_antipodal)
         {
             return count_info(s1_p < c0 ? -2 : 2, false); // choose W/E
         }
 
-        calculation_type const s1_s2 = math::longitude_distance_signed<units_t>(s1, s2);
+        calc_t const s1_s2 = math::longitude_distance_signed<units_t>(s1, s2);
 
         if (eq1 || eq2) // Point on level s1 or s2
         {
             return count_info(s1_s2 < c0 ? -1 : 1, // choose W/E
-                              longitudes_equal(p + pi, (eq1 ? s1 : s2)));
+                              longitudes_equal<units_t>(p + pi, (eq1 ? s1 : s2)));
         }
 
         // Point between s1 and s2
@@ -421,7 +425,7 @@ private:
             return count_info(s1_s2 < c0 ? -2 : 2, false); // choose W/E
         }
         
-        calculation_type const s1_p_anti = math::longitude_distance_signed<units_t>(s1, p + pi);
+        calc_t const s1_p_anti = math::longitude_distance_signed<units_t>(s1, p + pi);
 
         // Anti-Point between s1 and s2
         if ( math::sign(s1_p_anti) == math::sign(s1_s2)
@@ -456,12 +460,13 @@ private:
     // In the code below actually D = 0, so segments are nearly-vertical
     // Called when the point is on the same level as one of the segment's points
     // but the point is not aligned with a vertical segment
+    template <typename Point, typename PointOfSegment>
     inline int side_equal(Point const& point,
                           PointOfSegment const& se,
                           count_info const& ci) const
     {
         typedef typename coordinate_type<PointOfSegment>::type scoord_t;
-        typedef typename geometry::detail::cs_angular_units<PointOfSegment>::type units_t;
+        typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
 
         if (math::equals(get<1>(point), get<1>(se)))
         {
@@ -477,11 +482,11 @@ private:
         scoord_t ss20 = get<0>(se);
         if (ci.count > 0)
         {
-            ss20 += small_angle();
+            ss20 += small_angle<scoord_t, units_t>();
         }
         else
         {
-            ss20 -= small_angle();
+            ss20 -= small_angle<scoord_t, units_t>();
         }
         math::normalize_longitude<units_t>(ss20);
         set<0>(ss2, ss20);
@@ -491,16 +496,20 @@ private:
     }
 
     // 1 deg or pi/180 rad
-    static inline calculation_type small_angle()
+    template <typename CalcT, typename Units>
+    static inline CalcT small_angle()
     {
-        return constants::half_period() / calculation_type(180);
+        typedef math::detail::constants_on_spheroid<CalcT, Units> constants;
+
+        return constants::half_period() / CalcT(180);
     };
 
-    static inline bool longitudes_equal(calculation_type const& lon1, calculation_type const& lon2)
+    template <typename Units, typename CalcT>
+    static inline bool longitudes_equal(CalcT const& lon1, CalcT const& lon2)
     {
         return math::equals(
-                math::longitude_distance_signed<units_t>(lon1, lon2),
-                calculation_type(0));
+                math::longitude_distance_signed<Units>(lon1, lon2),
+                CalcT(0));
     }
 
     SideStrategy m_side_strategy;
@@ -525,15 +534,13 @@ private:
  */
 template
 <
-    typename Point,
-    typename PointOfSegment = Point,
+    typename Point = void, // for backward compatibility
+    typename PointOfSegment = Point, // for backward compatibility
     typename CalculationType = void
 >
 class spherical_winding
     : public within::detail::spherical_winding_base
         <
-            Point,
-            PointOfSegment,
             side::spherical_side_formula<CalculationType>,
             CalculationType
         >
@@ -550,8 +557,11 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 {
     typedef within::detail::spherical_winding_base
         <
-            typename geometry::point_type<PointLike>::type,
-            typename geometry::point_type<Geometry>::type
+            typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<PointLike>::type
+                >::type,
+            void
         > type;
 };
 
@@ -560,8 +570,11 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, li
 {
     typedef within::detail::spherical_winding_base
         <
-            typename geometry::point_type<PointLike>::type,
-            typename geometry::point_type<Geometry>::type
+            typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<PointLike>::type
+                >::type,
+            void
         > type;
 };
 
@@ -582,8 +595,11 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, po
 {
     typedef within::detail::spherical_winding_base
         <
-            typename geometry::point_type<PointLike>::type,
-            typename geometry::point_type<Geometry>::type
+            typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<PointLike>::type
+                >::type,
+            void
         > type;
 };
 
@@ -592,8 +608,11 @@ struct default_strategy<PointLike, Geometry, AnyTag1, AnyTag2, pointlike_tag, li
 {
     typedef within::detail::spherical_winding_base
         <
-            typename geometry::point_type<PointLike>::type,
-            typename geometry::point_type<Geometry>::type
+            typename strategy::side::services::default_strategy
+                <
+                    typename cs_tag<PointLike>::type
+                >::type,
+            void
         > type;
 };
 
