@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015-2018.
-// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2019.
+// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -27,11 +27,14 @@
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
+#include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
+
+#include <boost/geometry/geometries/helper_geometry.hpp>
 
 #include <boost/geometry/strategies/envelope.hpp>
 
@@ -88,9 +91,11 @@ struct spherical_box
     template <typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
-        BoxIn box_in_normalized = box_in;
-
-        if (!is_inverse_spheroidal_coordinates(box_in))
+        // BoxIn can be non-mutable
+        typename helper_geometry<BoxIn>::type box_in_normalized;
+        geometry::convert(box_in, box_in_normalized);
+        
+        if (! is_inverse_spheroidal_coordinates(box_in))
         {
             strategy::normalize::spherical_box::apply(box_in, box_in_normalized);
         }
