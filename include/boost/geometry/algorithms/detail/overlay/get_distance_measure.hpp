@@ -35,6 +35,7 @@ struct distance_measure
     bool is_small() const { return true; }
     bool is_zero() const { return true; }
     bool is_positive() const { return false; }
+    bool is_negative() const { return false; }
 };
 
 template <typename T>
