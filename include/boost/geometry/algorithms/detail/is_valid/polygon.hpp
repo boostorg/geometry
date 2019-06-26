@@ -76,7 +76,6 @@ template <typename Polygon, bool CheckRingValidityOnly = false>
 class is_valid_polygon
 {
 protected:
-    typedef debug_validity_phase<Polygon> debug_phase;
 
     template <typename VisitPolicy, typename Strategy>
     struct per_ring
@@ -121,6 +120,7 @@ protected:
                                  VisitPolicy& visitor,
                                  Strategy const& strategy)
         {
+            typedef debug_validity_phase<Polygon> debug_phase;
             typedef typename ring_type<Polygon>::type ring_type;
 
             // check validity of exterior ring
@@ -451,6 +451,7 @@ public:
         }
 
         // compute turns and check if all are acceptable
+        typedef debug_validity_phase<Polygon> debug_phase;
         debug_phase::apply(3);
 
         typedef has_valid_self_turns<Polygon> has_valid_turns;

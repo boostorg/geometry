@@ -282,7 +282,7 @@ public :
     {
         // For uu/ii, only switch sources if indicated
 
-        if (OverlayType == overlay_buffer)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
         {
             // Buffer does not use source_index (always 0).
             return select_source_generic<&segment_identifier::multi_index>(
@@ -391,7 +391,8 @@ public :
             return true;
         }
 
-        if (OverlayType == overlay_buffer && possible[0] && possible[1])
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer)
+            && possible[0] && possible[1])
         {
             // Buffers sometimes have multiple overlapping pieces, where remaining
             // distance could lead to the wrong choice. Take the matching operation.
@@ -565,7 +566,7 @@ public :
             result = select_cc_operation(turn, start_turn_index,
                                          selected_op_index);
         }
-        else if (OverlayType == overlay_dissolve)
+        else if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_dissolve))
         {
             result = select_preferred_operation(turn, turn_index,
                 start_turn_index, selected_op_index);
@@ -636,7 +637,7 @@ public :
             return 0;
         }
 
-        if (OverlayType != overlay_dissolve
+        if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_dissolve)
             && (op.enriched.count_left != 0 || op.enriched.count_right == 0))
         {
             // Check counts: in some cases interior rings might be generated with
@@ -897,7 +898,8 @@ public :
                     // Points to different target
                     return false;
                 }
-                if (OverlayType == overlay_buffer && target.turn_index > 0)
+                if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer)
+                    && target.turn_index > 0)
                 {
                     // Target already assigned, so there are more targets
                     // or more ways to the same target
@@ -1028,7 +1030,8 @@ public :
                 turn_operation_type const& start_op,
                 int start_op_index) const
     {
-        if (OverlayType != overlay_buffer && OverlayType != overlay_dissolve)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_buffer
+                                     && OverlayType != overlay_dissolve))
         {
             return;
         }

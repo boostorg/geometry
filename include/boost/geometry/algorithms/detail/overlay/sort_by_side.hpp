@@ -368,7 +368,7 @@ public :
 
     void find_open()
     {
-        if (OverlayType == overlay_buffer)
+        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
         {
             // For buffers, use piece index
             std::map<signed_size_type, bool> handled;

@@ -159,7 +159,7 @@ struct wkt_range
         }
 
         // optionally, close range to ring by repeating the first point
-        if (ForceClosurePossible
+        if (BOOST_GEOMETRY_CONDITION(ForceClosurePossible)
             && force_closure
             && boost::size(range) > 1
             && wkt_range::disjoint(*begin, *(end - 1)))
