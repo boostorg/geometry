@@ -106,6 +106,8 @@ static std::string const mysql_23023665 = "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)";
 static std::string const mysql_25662426 = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4700)";
 static std::string const mysql_25662426a = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4750)";
 
+static std::string const issue_596 = "LINESTRING(292979.660 6688731.370, 292979.600 6688733.420, 292979.540 6688735.440, 292979.540 6688735.500)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -280,6 +282,15 @@ void test_all()
     }
 
     test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
+
+    {
+        // This case gave a spike (invalid result) up to 1.70
+        // Fixed by general form for line/line intersection in miter calculation
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::end_round;
+        test_one<linestring, polygon>("issue_596", issue_596, join_round(12), end_round(12), 0.12462779, 0.015);
+        test_one<linestring, polygon>("issue_596", issue_596, join_miter, end_round(12), 0.12462807, 0.015);
+    }
 
     test_one<linestring, polygon>("mysql_report_2015_06_11",
             mysql_report_2015_06_11, join_round32, end_round32,
