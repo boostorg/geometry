@@ -88,6 +88,7 @@ public :
             > direct_t;
 
         calculation_type const two_pi = geometry::math::two_pi<calculation_type>();
+        calculation_type const pi = geometry::math::pi<calculation_type>();
 
         calculation_type const diff = two_pi / calculation_type(m_count);
         // TODO: after calculation of some angles is corrected,
@@ -96,6 +97,11 @@ public :
 
         for (std::size_t i = 0; i < m_count; i++, angle += diff)
         {
+            if (angle > pi)
+            {
+                angle -= two_pi;
+            }
+
             typename direct_t::result_type
                 dir_r = direct_t::apply(get_as_radian<0>(point), get_as_radian<1>(point),
                                         buffer_distance, angle,
