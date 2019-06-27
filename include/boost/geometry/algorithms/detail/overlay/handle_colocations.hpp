@@ -932,7 +932,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
                 continue;
             }
 
-            if (OverlayType != overlay_difference
+            if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_difference)
                     && is_self_turn<OverlayType>(turn))
             {
                 // Difference needs the self-turns, TODO: investigate
