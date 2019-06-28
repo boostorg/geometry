@@ -166,7 +166,7 @@ void test_areal()
 #endif
     }
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // Without rescaling, this one misses one of the output polygons
         // With rescaling, it is complete but invalid
@@ -316,7 +316,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_59, 8, 6.5, 7, 7.0, 12);
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
-#if defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Misses one triangle
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
 #endif

@@ -61,7 +61,7 @@ void test_geometries()
             case_58_multi[4], case_58_multi[2]
         );
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     test_traverse_intersection::apply
         (
             "case_58_multi_b5", 1, 1,

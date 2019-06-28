@@ -629,7 +629,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_linestring_multilinestring )
          "lmlsdf18d"
          );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply
         (from_wkt<L>("LINESTRING(1 5,4 2,1 -1.1,1 6,1 189.7654,2 5,-0.7654 3)"),
          from_wkt<ML>("MULTILINESTRING((2 5,-0.7654 2),\

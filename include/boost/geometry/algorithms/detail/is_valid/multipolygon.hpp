@@ -293,8 +293,8 @@ public:
     {
         typedef debug_validity_phase<MultiPolygon> debug_phase;
 
-        if (BOOST_GEOMETRY_CONDITION(
-                AllowEmptyMultiGeometries && boost::empty(multipolygon)))
+        if (BOOST_GEOMETRY_CONDITION(AllowEmptyMultiGeometries)
+            && boost::empty(multipolygon))
         {
             return visitor.template apply<no_failure>();
         }

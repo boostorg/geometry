@@ -97,6 +97,37 @@ struct has_spikes
         return std::find_if(second, last, not_equal(*first));
     }
 
+    template <typename View, typename VisitPolicy, typename SideStrategy>
+    static inline bool apply_at_closure(View const& view, VisitPolicy& visitor,
+                                        SideStrategy const& strategy,
+                                        bool is_linear)
+    {
+        boost::ignore_unused(visitor);
+
+        typedef typename boost::range_iterator<View const>::type iterator;
+
+        iterator cur = boost::begin(view);
+        typename boost::range_reverse_iterator
+            <
+                View const
+            >::type prev = find_different_from_first(boost::rbegin(view),
+                                                     boost::rend(view),
+                                                     strategy);
+
+        iterator next = find_different_from_first(cur, boost::end(view),
+                                                  strategy);
+        if (detail::is_spike_or_equal(*next, *cur, *prev, strategy))
+        {
+            return
+                ! visitor.template apply<failure_spikes>(is_linear, *cur);
+        }
+        else
+        {
+            return ! visitor.template apply<no_failure>();
+        }
+    }
+
+
     template <typename VisitPolicy, typename SideStrategy>
     static inline bool apply(Range const& range, VisitPolicy& visitor,
                              SideStrategy const& strategy)
@@ -149,25 +180,7 @@ struct has_spikes
                 equals_point_point(range::front(view), range::back(view),
                                    strategy.get_equals_point_point_strategy()))
         {
-            iterator cur = boost::begin(view);
-            typename boost::range_reverse_iterator
-                <
-                    view_type const
-                >::type prev = find_different_from_first(boost::rbegin(view),
-                                                         boost::rend(view),
-                                                         strategy);
-
-            iterator next = find_different_from_first(cur, boost::end(view),
-                                                      strategy);
-            if (detail::is_spike_or_equal(*next, *cur, *prev, strategy))
-            {
-                return
-                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
-            }
-            else
-            {
-                return ! visitor.template apply<no_failure>();
-            }
+            return apply_at_closure(view, visitor, strategy, is_linear);
         }
 
         return ! visitor.template apply<no_failure>();
