@@ -419,15 +419,17 @@ protected:
                                  VisitPolicy& visitor,
                                  Strategy const& )
         {
-            typedef typename Strategy::cs_tag cs_tag;
-
             boost::ignore_unused(visitor);
 
             typedef typename std::iterator_traits
                 <
                     TurnIterator
                 >::value_type turn_type;
-            typedef complement_graph<typename turn_type::point_type, cs_tag> graph;
+            typedef complement_graph
+                <
+                    typename turn_type::point_type,
+                    typename Strategy::cs_tag
+                > graph;
 
             graph g(geometry::num_interior_rings(polygon) + 1);
             for (TurnIterator tit = first; tit != beyond; ++tit)
