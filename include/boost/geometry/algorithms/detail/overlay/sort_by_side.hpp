@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2019.
+// Modifications copyright (c) 2017, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -23,6 +23,8 @@
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
 {
