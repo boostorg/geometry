@@ -80,7 +80,7 @@ public:
         boost::ignore_unused(visitor);
 
         rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+            = geometry::get_rescale_policy<rescale_policy_type>(geometry, strategy);
 
         detail::overlay::stateless_predicate_based_interrupt_policy
             <

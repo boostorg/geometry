@@ -211,19 +211,20 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concepts::check<Geometry2 const>();
     concepts::check<GeometryOut>();
 
+    typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<GeometryOut>::type
+        >::type strategy;
+
     typedef typename geometry::rescale_overlay_policy_type
         <
             Geometry1,
             Geometry2
         >::type rescale_policy_type;
 
-    typename strategy::intersection::services::default_strategy
-        <
-            typename cs_tag<GeometryOut>::type
-        >::type strategy;
-
     rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry1, geometry2, strategy);
 
     return dispatch::union_insert
            <
@@ -262,8 +263,8 @@ struct union_
             >::type rescale_policy_type;
 
         rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
+                = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
 
         dispatch::union_insert
            <
@@ -284,31 +285,13 @@ struct union_
                              Collection & output_collection,
                              default_strategy)
     {
-        typedef typename boost::range_value<Collection>::type geometry_out;
-
         typedef typename strategy::relate::services::default_strategy
             <
                 Geometry1,
                 Geometry2
             >::type strategy_type;
 
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2,
-                typename geometry::cs_tag<Geometry1>::type
-            >::type rescale_policy_type;
-
-        rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
-
-        dispatch::union_insert
-           <
-               Geometry1, Geometry2, geometry_out
-           >::apply(geometry1, geometry2, robust_policy,
-                    range::back_inserter(output_collection),
-                    strategy_type());
+        apply(geometry1, geometry2, output_collection, strategy_type());
     }
 };
 

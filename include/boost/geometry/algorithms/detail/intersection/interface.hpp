@@ -125,8 +125,8 @@ struct intersection
             >::type rescale_policy_type;
         
         rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
 
         return dispatch::intersection
             <
@@ -154,21 +154,21 @@ struct intersection
                 typename geometry::cs_tag<Geometry1>::type
             >::type rescale_policy_type;
         
-        rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                geometry2);
-
-        typedef typename strategy::relate::services::default_strategy
+        typename strategy::relate::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type strategy_type;
-        
+            >::type strategy;
+
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
+
         return dispatch::intersection
             <
                 Geometry1,
                 Geometry2
             >::apply(geometry1, geometry2, robust_policy, geometry_out,
-                     strategy_type());
+                     strategy);
     }
 };
 

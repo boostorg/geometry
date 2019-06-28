@@ -1295,7 +1295,8 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
         >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry1, geometry2, strategy);
 
     return detail::intersection::insert
         <

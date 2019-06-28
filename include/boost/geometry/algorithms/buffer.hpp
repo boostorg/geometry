@@ -248,7 +248,8 @@ inline void buffer(GeometryIn const& geometry_in,
         >::type intersection_strategy;
 
     rescale_policy_type rescale_policy
-            = boost::geometry::get_rescale_policy<rescale_policy_type>(box);
+            = boost::geometry::get_rescale_policy<rescale_policy_type>(
+                box, intersection_strategy);
 
     detail::buffer::buffer_inserter<polygon_type>(geometry_in, range::back_inserter(geometry_out),
                 distance_strategy,

@@ -234,19 +234,28 @@ template
     typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
-    typename RobustPolicy,
     typename OutputIterator,
     typename Strategy
 >
 inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy,
             OutputIterator out,
             Strategy const& strategy)
 {
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
     concepts::check<GeometryOut>();
+
+    typedef typename geometry::rescale_overlay_policy_type
+        <
+            Geometry1,
+            Geometry2,
+            typename Strategy::cs_tag
+        >::type rescale_policy_type;
+
+    rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry1, geometry2, strategy);
 
     return dispatch::sym_difference_insert
         <
@@ -274,12 +283,10 @@ template
     typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
-    typename RobustPolicy,
     typename OutputIterator
 >
 inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
-            Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy, OutputIterator out)
+            Geometry2 const& geometry2, OutputIterator out)
 {
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
@@ -290,7 +297,7 @@ inline OutputIterator sym_difference_insert(Geometry1 const& geometry1,
             typename cs_tag<GeometryOut>::type
         >::type strategy_type;
 
-    return sym_difference_insert<GeometryOut>(geometry1, geometry2, robust_policy, out, strategy_type());
+    return sym_difference_insert<GeometryOut>(geometry1, geometry2, out, strategy_type());
 }
 
 }} // namespace detail::sym_difference
@@ -315,19 +322,8 @@ struct sym_difference
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
 
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2,
-                typename Strategy::cs_tag
-            >::type rescale_policy_type;
-
-        rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
-
         detail::sym_difference::sym_difference_insert<geometry_out>(
-            geometry1, geometry2, robust_policy,
+            geometry1, geometry2,
             range::back_inserter(output_collection),
             strategy);
     }
@@ -345,19 +341,8 @@ struct sym_difference
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
         
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2,
-                typename geometry::cs_tag<Geometry1>::type
-            >::type rescale_policy_type;
-
-        rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
-
         detail::sym_difference::sym_difference_insert<geometry_out>(
-            geometry1, geometry2, robust_policy,
+            geometry1, geometry2,
             range::back_inserter(output_collection));
     }
 };

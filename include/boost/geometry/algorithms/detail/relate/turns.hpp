@@ -109,10 +109,9 @@ struct get_turns
     {
         typedef typename robust_policy_type<IntersectionStrategy>::type robust_policy_t;
 
-        robust_policy_t robust_policy = geometry::get_rescale_policy
-            <
-                robust_policy_t
-            >(geometry1, geometry2);
+        robust_policy_t robust_policy
+                = geometry::get_rescale_policy<robust_policy_t>(
+                    geometry1, geometry2, intersection_strategy);
 
         apply(turns, geometry1, geometry2, interrupt_policy, intersection_strategy, robust_policy);
     }
