@@ -24,6 +24,8 @@
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 namespace boost { namespace geometry
 {
 
