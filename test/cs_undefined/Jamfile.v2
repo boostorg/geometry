@@ -15,6 +15,7 @@ test-suite boost-geometry-cs_undefined
 	[ compile is.cpp              : : csundef_is ]
 	[ compile measure.cpp         : : csundef_measure ]
 	[ compile other.cpp           : : csundef_other ]
-	[ compile relops.cpp          : : csundef_relops ]
+	[ compile relops1.cpp         : : csundef_relops1 ]
+	[ compile relops2.cpp         : : csundef_relops2 ]
 	[ compile setops.cpp          : : csundef_setops ]
     ;
