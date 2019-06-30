@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2019.
+// Modifications copyright (c) 2018, 2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -42,10 +42,12 @@ namespace boost { namespace geometry { namespace concepts
 \brief Checks strategy for within (point-in-polygon)
 \ingroup within
 */
-template <typename Strategy>
+template <typename Point, typename Polygonal, typename Strategy>
 class WithinStrategyPolygonal
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
+
+    typedef typename geometry::point_type<Polygonal>::type point_of_segment;
 
     // 1) must define state_type
     typedef typename Strategy::state_type state_type;
@@ -113,7 +115,8 @@ class WithinStrategyPolygonal
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyPolygonal)
     {
-        checker::apply(&Strategy::apply, &Strategy::result);
+        checker::apply(&Strategy::template apply<Point, point_of_segment>,
+                       &Strategy::result);
     }
 #endif
 };
@@ -181,7 +184,7 @@ public :
 #endif
 };
 
-template <typename Strategy>
+template <typename Box1, typename Box2, typename Strategy>
 class WithinStrategyBoxBox
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
@@ -239,7 +242,7 @@ class WithinStrategyBoxBox
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyBoxBox)
     {
-        checker::apply(&Strategy::apply);
+        checker::apply(&Strategy::template apply<Box1, Box2>);
     }
 #endif
 };
@@ -270,7 +273,7 @@ template
 >
 struct check_within<Geometry1, Geometry2, point_tag, AnyTag, areal_tag, Strategy>
 {
-    BOOST_CONCEPT_ASSERT( (WithinStrategyPolygonal<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (WithinStrategyPolygonal<Geometry1, Geometry2, Strategy>) );
 };
 
 
@@ -283,7 +286,7 @@ struct check_within<Geometry1, Geometry2, point_tag, box_tag, areal_tag, Strateg
 template <typename Geometry1, typename Geometry2, typename Strategy>
 struct check_within<Geometry1, Geometry2, box_tag, box_tag, areal_tag, Strategy>
 {
-    BOOST_CONCEPT_ASSERT( (WithinStrategyBoxBox<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (WithinStrategyBoxBox<Geometry1, Geometry2, Strategy>) );
 };
 
 

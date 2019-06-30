@@ -5,6 +5,10 @@
 // Copyright (c) 2008 Federico J. Fernandez.
 // Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -191,15 +195,46 @@ private:
     typedef bounds_type box_type;
     typedef typename detail::rtree::options_type<Parameters>::type options_type;
     typedef typename options_type::node_tag node_tag;
-    typedef detail::rtree::allocators<allocator_type, value_type, typename options_type::parameters_type, box_type, node_tag> allocators_type;
+    typedef detail::rtree::allocators
+        <
+            allocator_type,
+            value_type,
+            typename options_type::parameters_type,
+            box_type,
+            node_tag
+        > allocators_type;
 
-    typedef typename detail::rtree::node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type node;
-    typedef typename detail::rtree::internal_node<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type internal_node;
-    typedef typename detail::rtree::leaf<value_type, typename options_type::parameters_type, box_type, allocators_type, node_tag>::type leaf;
+    typedef typename detail::rtree::node
+        <
+            value_type,
+            typename options_type::parameters_type,
+            box_type,
+            allocators_type,
+            node_tag
+        >::type node;
+    typedef typename detail::rtree::internal_node
+        <
+            value_type,
+            typename options_type::parameters_type,
+            box_type,
+            allocators_type,
+            node_tag
+        >::type internal_node;
+    typedef typename detail::rtree::leaf
+        <
+            value_type,
+            typename options_type::parameters_type,
+            box_type,
+            allocators_type,
+            node_tag
+        >::type leaf;
 
     typedef typename allocators_type::node_pointer node_pointer;
     typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
-    typedef detail::rtree::subtree_destroyer<value_type, options_type, translator_type, box_type, allocators_type> subtree_destroyer;
+    typedef detail::rtree::subtree_destroyer
+        <
+            value_type, options_type, translator_type, box_type, allocators_type
+        > subtree_destroyer;
 
     friend class detail::rtree::utilities::view<rtree>;
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -1009,9 +1044,9 @@ private:
         >::type iterator_type;
 
         if ( !m_members.root )
-            return iterator_type(m_members.translator(), predicates);
+            return iterator_type(m_members.parameters(), m_members.translator(), predicates);
 
-        return iterator_type(m_members.root, m_members.translator(), predicates);
+        return iterator_type(m_members.root, m_members.parameters(), m_members.translator(), predicates);
     }
 
     /*!
@@ -1069,7 +1104,7 @@ private:
             >
         >::type iterator_type;
 
-        return iterator_type(m_members.translator(), predicates);
+        return iterator_type(m_members.parameters(), m_members.translator(), predicates);
     }
 
     /*!
@@ -1268,8 +1303,10 @@ public:
 
         if ( m_members.root )
         {
-            detail::rtree::visitors::children_box<value_type, options_type, translator_type, box_type, allocators_type>
-                box_v(result, m_members.translator());
+            detail::rtree::visitors::children_box
+                <
+                    value_type, options_type, translator_type, box_type, allocators_type
+                > box_v(result, m_members.parameters(), m_members.translator());
             detail::rtree::apply_visitor(box_v, *m_members.root);
         }
 
@@ -1643,8 +1680,10 @@ private:
     template <typename Predicates, typename OutIter>
     size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_distance_predicate*/) const
     {
-        detail::rtree::visitors::spatial_query<value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter>
-            find_v(m_members.translator(), predicates, out_it);
+        detail::rtree::visitors::spatial_query
+            <
+                value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter
+            >find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_members.root);
 
@@ -1698,7 +1737,7 @@ private:
                 translator_type,
                 box_type,
                 allocators_type
-            > count_v(vori, m_members.translator());
+            > count_v(vori, m_members.parameters(), m_members.translator());
 
         detail::rtree::apply_visitor(count_v, *m_members.root);
 

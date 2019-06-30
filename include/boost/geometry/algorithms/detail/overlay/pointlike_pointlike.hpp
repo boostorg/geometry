@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2018, Oracle and/or its affiliates.
+// Copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -257,6 +257,8 @@ struct multipoint_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
+        typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+
         if ( OverlayType != overlay_difference
              && boost::size(multipoint1) > boost::size(multipoint2) )
         {
@@ -271,7 +273,7 @@ struct multipoint_multipoint_point
         std::vector<point2_type> points2(boost::begin(multipoint2),
                                          boost::end(multipoint2));
 
-        geometry::less<> const less = geometry::less<>();
+        less_type const less = less_type();
         std::sort(points2.begin(), points2.end(), less);
 
         for (typename boost::range_iterator<MultiPoint1 const>::type

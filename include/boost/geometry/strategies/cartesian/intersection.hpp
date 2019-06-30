@@ -182,6 +182,9 @@ struct cartesian_segments
     }
 
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::cartesian_point_box covered_by_point_box_strategy_type;
+    typedef within::cartesian_point_box within_point_box_strategy_type;
+    typedef envelope::cartesian_box envelope_box_strategy_type;
     typedef expand::cartesian_box expand_box_strategy_type;
 
     template <typename CoordinateType, typename SegmentRatio>

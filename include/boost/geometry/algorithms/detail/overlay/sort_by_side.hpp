@@ -134,6 +134,8 @@ struct less_by_side
     template <typename T>
     inline bool operator()(const T& first, const T& second) const
     {
+        typedef typename SideStrategy::cs_tag cs_tag;
+
         LessOnSame on_same;
         Compare compare;
 
@@ -145,8 +147,8 @@ struct less_by_side
             // Both collinear. They might point into different directions: <------*------>
             // If so, order the one going backwards as the very first.
 
-            int const first_code = direction_code(m_p1, m_p2, first.point);
-            int const second_code = direction_code(m_p1, m_p2, second.point);
+            int const first_code = direction_code<cs_tag>(m_p1, m_p2, first.point);
+            int const second_code = direction_code<cs_tag>(m_p1, m_p2, second.point);
 
             // Order by code, backwards first, then forward.
             return first_code != second_code
@@ -155,14 +157,14 @@ struct less_by_side
                 ;
         }
         else if (side_first == 0
-                && direction_code(m_p1, m_p2, first.point) == -1)
+                && direction_code<cs_tag>(m_p1, m_p2, first.point) == -1)
         {
             // First collinear and going backwards.
             // Order as the very first, so return always true
             return true;
         }
         else if (side_second == 0
-            && direction_code(m_p1, m_p2, second.point) == -1)
+            && direction_code<cs_tag>(m_p1, m_p2, second.point) == -1)
         {
             // Second is collinear and going backwards
             // Order as very last, so return always false
