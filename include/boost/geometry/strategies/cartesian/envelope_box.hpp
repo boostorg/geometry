@@ -80,7 +80,7 @@ namespace strategy { namespace envelope
 
 struct cartesian_box
 {
-    typedef typename strategy::expand::cartesian_box box_expand_strategy_type;
+    typedef strategy::expand::cartesian_box box_expand_strategy_type;
 
     static inline box_expand_strategy_type get_box_expand_strategy()
     {
