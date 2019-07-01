@@ -580,7 +580,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
         2, 2.0, case_82[0], case_82[2]);
     // other
 
-#ifdef BOOST_GEOMETRY_ENABLE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // simplified version of 82, area should be different
     // missing IP at (1.5 3.5) from (1 4,1.5 3.5,2 4)x(2 4,1 3)
     test_traverse_intersection::apply("83",

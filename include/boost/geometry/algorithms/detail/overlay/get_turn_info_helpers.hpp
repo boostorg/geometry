@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
-// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -217,7 +217,7 @@ private :
 template
 <
     typename UniqueSubRange1, typename UniqueSubRange2,
-    typename TurnPoint, typename IntersectionStrategy, typename RobustPolicy>
+    typename TurnPoint, typename UmbrellaStrategy, typename RobustPolicy>
 class intersection_info_base
     : private robust_points<UniqueSubRange1, UniqueSubRange2, RobustPolicy>
 {
@@ -232,7 +232,7 @@ public:
 
     typedef typename cs_tag<TurnPoint>::type cs_tag;
 
-    typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
+    typedef typename UmbrellaStrategy::side_strategy_type side_strategy_type;
     typedef side_calculator<cs_tag, robust_subrange1, robust_subrange2,
              side_strategy_type> side_calculator_type;
 
@@ -244,7 +244,7 @@ public:
 
     intersection_info_base(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
-                           IntersectionStrategy const& intersection_strategy,
+                           UmbrellaStrategy const& umbrella_strategy,
                            RobustPolicy const& robust_policy)
         : base(range_p, range_q, robust_policy)
         , m_range_p(range_p)
@@ -252,7 +252,7 @@ public:
         , m_robust_range_p(range_p, base::m_rpi, base::m_rpj, robust_policy)
         , m_robust_range_q(range_q, base::m_rqi, base::m_rqj, robust_policy)
         , m_side_calc(m_robust_range_p, m_robust_range_q,
-                      intersection_strategy.get_side_strategy())
+                      umbrella_strategy.get_side_strategy())
     {}
 
     inline typename UniqueSubRange1::point_type const& pi() const { return m_range_p.at(0); }
@@ -289,10 +289,10 @@ private :
 template
 <
     typename UniqueSubRange1, typename UniqueSubRange2,
-    typename TurnPoint, typename IntersectionStrategy
+    typename TurnPoint, typename UmbrellaStrategy
 >
 class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, IntersectionStrategy, detail::no_rescale_policy>
+        TurnPoint, UmbrellaStrategy, detail::no_rescale_policy>
 {
 public:
     typedef typename UniqueSubRange1::point_type point1_type;
@@ -301,9 +301,9 @@ public:
     typedef typename UniqueSubRange1::point_type robust_point1_type;
     typedef typename UniqueSubRange2::point_type robust_point2_type;
 
-    typedef typename cs_tag<TurnPoint>::type cs_tag;
+    typedef typename UmbrellaStrategy::cs_tag cs_tag;
 
-    typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
+    typedef typename UmbrellaStrategy::side_strategy_type side_strategy_type;
     typedef side_calculator<cs_tag, UniqueSubRange1, UniqueSubRange2, side_strategy_type> side_calculator_type;
 
     typedef side_calculator
@@ -314,12 +314,12 @@ public:
     
     intersection_info_base(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
-                           IntersectionStrategy const& intersection_strategy,
+                           UmbrellaStrategy const& umbrella_strategy,
                            no_rescale_policy const& /*robust_policy*/)
         : m_range_p(range_p)
         , m_range_q(range_q)
         , m_side_calc(range_p, range_q,
-                      intersection_strategy.get_side_strategy())
+                      umbrella_strategy.get_side_strategy())
     {}
 
     inline point1_type const& rpi() const { return m_side_calc.get_pi(); }
@@ -354,15 +354,15 @@ template
 <
     typename UniqueSubRange1, typename UniqueSubRange2,
     typename TurnPoint,
-    typename IntersectionStrategy,
+    typename UmbrellaStrategy,
     typename RobustPolicy
 >
 class intersection_info
     : public intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, IntersectionStrategy, RobustPolicy>
+        TurnPoint, UmbrellaStrategy, RobustPolicy>
 {
     typedef intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, IntersectionStrategy, RobustPolicy> base;
+        TurnPoint, UmbrellaStrategy, RobustPolicy> base;
 
 public:
     typedef segment_intersection_points
@@ -387,8 +387,9 @@ public:
             policies::relate::segments_direction
         > intersection_policy_type;
 
-    typedef IntersectionStrategy intersection_strategy_type;
-    typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
+    typedef UmbrellaStrategy intersection_strategy_type;
+    typedef typename UmbrellaStrategy::side_strategy_type side_strategy_type;
+    typedef typename UmbrellaStrategy::cs_tag cs_tag;
 
     typedef model::referring_segment<point1_type const> segment_type1;
     typedef model::referring_segment<point2_type const> segment_type2;
@@ -400,18 +401,18 @@ public:
 
     intersection_info(UniqueSubRange1 const& range_p,
                       UniqueSubRange2 const& range_q,
-                      IntersectionStrategy const& intersection_strategy,
+                      UmbrellaStrategy const& umbrella_strategy,
                       RobustPolicy const& robust_policy)
         : base(range_p, range_q,
-               intersection_strategy, robust_policy)
-        , m_result(intersection_strategy.apply(
+               umbrella_strategy, robust_policy)
+        , m_result(umbrella_strategy.apply(
                         segment_type1(range_p.at(0), range_p.at(1)),
                         segment_type2(range_q.at(0), range_q.at(1)),
                         intersection_policy_type(),
                         robust_policy,
                         base::rpi(), base::rpj(),
                         base::rqi(), base::rqj()))
-        , m_intersection_strategy(intersection_strategy)
+        , m_intersection_strategy(umbrella_strategy)
         , m_robust_policy(robust_policy)
     {}
 
@@ -452,7 +453,7 @@ public:
                 {
                     // qk is collinear with both p1 and p2,
                     // verify if pk goes backwards w.r.t. pi/pj
-                    return direction_code(base::rpi(), base::rpj(), base::rpk()) == -1;
+                    return direction_code<cs_tag>(base::rpi(), base::rpj(), base::rpk()) == -1;
                 }
 
                 // qk is at opposite side of p1/p2, therefore
@@ -488,7 +489,7 @@ public:
             {
                 if (pk_q1 == 0)
                 {
-                    return direction_code(base::rqi(), base::rqj(), base::rqk()) == -1;
+                    return direction_code<cs_tag>(base::rqi(), base::rqj(), base::rqk()) == -1;
                 }
                         
                 return true;
@@ -523,7 +524,7 @@ private:
     }
 
     result_type m_result;
-    IntersectionStrategy const& m_intersection_strategy;
+    UmbrellaStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
 };
 

@@ -74,6 +74,8 @@ template
 >
 struct geographic_segments
 {
+    typedef geographic_tag cs_tag;
+
     typedef side::geographic
         <
             FormulaPolicy, Spheroid, CalculationType
@@ -193,6 +195,9 @@ struct geographic_segments
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+    typedef within::spherical_point_box within_point_box_strategy_type;
+    typedef envelope::spherical_box envelope_box_strategy_type;
     typedef expand::spherical_box expand_box_strategy_type;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };

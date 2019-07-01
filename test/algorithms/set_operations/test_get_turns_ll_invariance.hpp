@@ -1,11 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP
 #define BOOST_GEOMETRY_TEST_GET_TURNS_LL_INVARIANCE_HPP
@@ -91,10 +92,15 @@ public:
     static inline void apply(Linear1 const& lineargeometry1,
                              Linear2 const& lineargeometry2)
     {
+        typedef typename bg::strategy::relate::services::default_strategy
+            <
+                Linear1, Linear2
+            >::type strategy_type;
+
         typedef typename bg_detail::relate::turns::get_turns
             <
                 Linear1, Linear2
-            >::turn_info turn_info;
+            >::template turn_info_type<strategy_type>::type turn_info;
 
         typedef std::vector<turn_info> turns_container;
 

@@ -71,6 +71,9 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, sty
 typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
         vincenty_ps;
 
+typedef bg::strategy::distance::detail::geographic_cross_track<bg::strategy::vincenty, stype, double, true>
+        vincenty_ps_bisection;
+
 // Spherical strategy  for point-box distance
 
 typedef bg::strategy::distance::cross_track_point_box<> spherical_pb;
@@ -423,10 +426,10 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                   << " -> "
                   << string_from_type<default_distance_result>::name()
                   << std::endl;
-        std::cout << "expected distance = "
+        std::cout << "expected distance = " << std::setprecision(10)
                   << expected_distance << " ; "
                   << std::endl;
-        std::cout << "distance = "
+        std::cout << "distance = " << std::setprecision(10)
                   << dist << " ; "
                   << std::endl;
 
@@ -448,7 +451,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                          dist, expected_distance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "distance[reversed args] = "
+            std::cout << "distance[reversed args] = "  << std::setprecision(10)
                       << dist
                       << std::endl;
 #endif
@@ -476,7 +479,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                          dist, expected_distance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "distance[swap geometry args] = "
+            std::cout << "distance[swap geometry args] = "  << std::setprecision(10)
                       << dist
                       << std::endl;
             std::cout << std::endl;
@@ -504,7 +507,7 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                          dist, expected_distance);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-            std::cout << "distance[mirror geometries] = "
+            std::cout << "distance[mirror geometries] = "  << std::setprecision(10)
                       << dist
                       << std::endl;
             std::cout << std::endl;

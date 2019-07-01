@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2019.
+// Modifications copyright (c) 2017, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -53,9 +53,9 @@ namespace detail { namespace overlay
 {
 
 template <typename Turns>
-struct discarded_turn
+struct discarded_indexed_turn
 {
-    discarded_turn(Turns const& turns)
+    discarded_indexed_turn(Turns const& turns)
         : m_turns(turns)
     {}
 
@@ -272,7 +272,7 @@ inline void enrich_adapt(Operations& operations, Turns& turns)
     }
 
     // Remove discarded turns from operations to avoid having them as next turn
-    discarded_turn<Turns> const predicate(turns);
+    discarded_indexed_turn<Turns> const predicate(turns);
     operations.erase(std::remove_if(boost::begin(operations),
         boost::end(operations), predicate), boost::end(operations));
 }
@@ -381,13 +381,13 @@ inline void calculate_remaining_distance(Turns& turns)
 \tparam Clusters type of cluster container
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam SideStrategy side strategy type
+\tparam PointInGeometryStrategy point in geometry strategy type
 \param turns container containing intersection points
 \param clusters container containing clusters
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param robust_policy policy to handle robustness issues
-\param strategy strategy
+\param strategy point in geometry strategy
  */
 template
 <
@@ -397,13 +397,13 @@ template
     typename Clusters,
     typename Geometry1, typename Geometry2,
     typename RobustPolicy,
-    typename SideStrategy
+    typename IntersectionStrategy
 >
 inline void enrich_intersection_points(Turns& turns,
     Clusters& clusters,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
     RobustPolicy const& robust_policy,
-    SideStrategy const& strategy)
+    IntersectionStrategy const& strategy)
 {
     static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
@@ -425,6 +425,15 @@ inline void enrich_intersection_points(Turns& turns,
             ring_identifier,
             std::vector<indexed_turn_operation>
         > mapped_vector_type;
+
+    // As long as turn indexes are not used yet, turns might be erased from
+    // the vector
+    // For now start turns are disabled.
+    // TODO: remove code or fix inconsistencies within validity and relations
+    // detail::overlay::erase_colocated_start_turns(turns, geometry1, geometry2);
+
+    // From here on, turn indexes are used (in clusters, next_index, etc)
+    // and may only be flagged as discarded
 
     bool has_cc = false;
     bool const has_colocations
@@ -472,14 +481,16 @@ inline void enrich_intersection_points(Turns& turns,
     {
         detail::overlay::discard_closed_turns
             <
-                OverlayType,
-                target_operation
-            >::apply(turns, clusters, geometry1, geometry2);
+            OverlayType,
+            target_operation
+            >::apply(turns, clusters, geometry1, geometry2,
+                     strategy);
         detail::overlay::discard_open_turns
             <
                 OverlayType,
                 target_operation
-            >::apply(turns, clusters, geometry1, geometry2);
+            >::apply(turns, clusters, geometry1, geometry2,
+                     strategy);
     }
 
     // Create a map of vectors of indexed operation-types to be able
@@ -502,7 +513,7 @@ inline void enrich_intersection_points(Turns& turns,
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
                     mit->second, turns,
                     geometry1, geometry2,
-                    robust_policy, strategy);
+                    robust_policy, strategy.get_side_strategy());
     }
 
     for (typename mapped_vector_type::iterator mit
@@ -532,7 +543,7 @@ inline void enrich_intersection_points(Turns& turns,
                 Reverse2,
                 OverlayType
             >(clusters, turns, target_operation,
-              geometry1, geometry2, strategy);
+              geometry1, geometry2, strategy.get_side_strategy());
 
         detail::overlay::cleanup_clusters(turns, clusters);
     }

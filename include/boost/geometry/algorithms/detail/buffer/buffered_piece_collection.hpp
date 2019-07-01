@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016-2018.
-// Modifications copyright (c) 2016-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2019.
+// Modifications copyright (c) 2016-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -175,7 +175,8 @@ struct buffered_piece_collection
 
     typedef typename geometry::rescale_policy_type
         <
-            typename geometry::point_type<Ring>::type
+            typename geometry::point_type<Ring>::type,
+            typename IntersectionStrategy::cs_tag
         >::type rescale_policy_type;
 
     typedef typename geometry::segment_ratio_type
@@ -1419,8 +1420,13 @@ struct buffered_piece_collection
     inline void enrich()
     {
         enrich_intersection_points<false, false, overlay_buffer>(m_turns,
-                    m_clusters, offsetted_rings, offsetted_rings,
-                    m_robust_policy, m_side_strategy);
+            m_clusters, offsetted_rings, offsetted_rings,
+            m_robust_policy,
+            m_intersection_strategy.template get_point_in_geometry_strategy
+                <
+                    buffered_ring<Ring>,
+                    buffered_ring<Ring>
+                >());
     }
 
     // Discards all rings which do have not-OK intersection points only.
