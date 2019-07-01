@@ -407,7 +407,7 @@ struct distance
         >
 {};
 
-
+/*
 // Point-segment version 2, with point-segment strategy
 template <typename Point, typename Segment, typename Strategy>
 struct distance
@@ -431,7 +431,28 @@ struct distance
         return strategy.apply(point, p[0], p[1]);
     }
 };
+*/
+// Point-segment version 2, with point-segment strategy
+template <typename Point, typename Segment, typename Policy>
+struct distance
+    <
+        Point, Segment, Policy, point_tag, segment_tag,
+        strategy_tag_distance_point_segment, false
+    >
+{
+    static inline typename Policy::return_type
+                apply(Point const& point,
+                      Segment const& segment,
+                      Policy& policy)
+    {
+        typename point_type<Segment>::type p[2];
+        geometry::detail::assign_point_from_index<0>(segment, p[0]);
+        geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
+        //boost::ignore_unused(strategy);
+        return policy.apply(point, p[0], p[1]);
+    }
+};
 
 template <typename Point, typename Box, typename Strategy>
 struct distance
