@@ -47,8 +47,8 @@ class element_axis_corner_less
         > bounded_view_type;
 
 public:
-    element_axis_corner_less(Parameters const& parameters, Translator const& tr)
-        : m_strategy(index::detail::get_strategy(parameters)), m_tr(tr)
+    element_axis_corner_less(Translator const& tr, strategy_type const& strategy)
+        : m_tr(tr), m_strategy(strategy)
     {}
 
     bool operator()(Element const& e1, Element const& e2) const
@@ -61,15 +61,17 @@ public:
     }
 
 private:
-    strategy_type const& m_strategy;
     Translator const& m_tr;
+    strategy_type const& m_strategy;
 };
 
 template <typename Element, typename Parameters, typename Translator, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less<Element, Parameters, Translator, box_tag, Corner, AxisIndex>
 {
+    typedef typename index::detail::strategy_type<Parameters>::type strategy_type;
+
 public:
-    element_axis_corner_less(Parameters const& parameters, Translator const& tr)
+    element_axis_corner_less(Translator const& tr, strategy_type const&)
         : m_tr(tr)
     {}
 
@@ -86,8 +88,10 @@ private:
 template <typename Element, typename Parameters, typename Translator, size_t Corner, size_t AxisIndex>
 class element_axis_corner_less<Element, Parameters, Translator, point_tag, Corner, AxisIndex>
 {
+    typedef typename index::detail::strategy_type<Parameters>::type strategy_type;
+
 public:
-    element_axis_corner_less(Parameters const& parameters, Translator const& tr)
+    element_axis_corner_less(Translator const& tr, strategy_type const& )
         : m_tr(tr)
     {}
 
@@ -122,6 +126,9 @@ struct choose_split_axis_and_index_for_corner
 
         BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == parameters.get_max_elements() + 1, "wrong number of elements");
 
+        typename index::detail::strategy_type<Parameters>::type const&
+            strategy = index::detail::get_strategy(parameters);
+
         // copy elements
         Elements elements_copy(elements);                                                                       // MAY THROW, STRONG (alloc, copy)
         
@@ -132,7 +139,7 @@ struct choose_split_axis_and_index_for_corner
         element_axis_corner_less
             <
                 element_type, Parameters, Translator, indexable_tag, Corner, AxisIndex
-            > elements_less(parameters, translator);
+            > elements_less(translator, strategy);
         std::sort(elements_copy.begin(), elements_copy.end(), elements_less);                                   // MAY THROW, BASIC (copy)
 //        {
 //            typename Elements::iterator f = elements_copy.begin() + index_first;
@@ -148,9 +155,6 @@ struct choose_split_axis_and_index_for_corner
         sum_of_margins = 0;
         smallest_overlap = (std::numeric_limits<content_type>::max)();
         smallest_content = (std::numeric_limits<content_type>::max)();
-
-        typename index::detail::strategy_type<Parameters>::type
-            strategy = index::detail::get_strategy(parameters);
 
         // calculate sum of margins for all distributions
         for ( size_t i = index_first ; i < index_last ; ++i )
@@ -370,10 +374,13 @@ struct nth_element
             typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
             typedef typename tag<indexable_type>::type indexable_tag;
 
+            typename index::detail::strategy_type<Parameters>::type
+                strategy = index::detail::get_strategy(parameters);
+
             element_axis_corner_less
                 <
                     element_type, Parameters, Translator, indexable_tag, Corner, I
-                > less(parameters, tr);
+                > less(tr, strategy);
             index::detail::nth_element(elements.begin(), elements.begin() + index, elements.end(), less);            // MAY THROW, BASIC (copy)
         }
     }
@@ -464,17 +471,18 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, rstar_
 
         BOOST_TRY
         {
+            typename index::detail::strategy_type<parameters_type>::type const&
+                strategy = index::detail::get_strategy(parameters);
+
             // copy elements to nodes
             elements1.assign(elements_copy.begin(), elements_copy.begin() + split_index);               // MAY THROW, BASIC
             elements2.assign(elements_copy.begin() + split_index, elements_copy.end());                 // MAY THROW, BASIC
 
             // calculate boxes
             box1 = rtree::elements_box<Box>(elements1.begin(), elements1.end(),
-                                            translator,
-                                            index::detail::get_strategy(parameters));
+                                            translator, strategy);
             box2 = rtree::elements_box<Box>(elements2.begin(), elements2.end(),
-                                            translator,
-                                            index::detail::get_strategy(parameters));
+                                            translator, strategy);
         }
         BOOST_CATCH(...)
         {

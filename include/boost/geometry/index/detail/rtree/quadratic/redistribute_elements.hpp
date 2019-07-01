@@ -45,15 +45,17 @@ inline void pick_seeds(Elements const& elements,
     typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
     typedef Box box_type;
     typedef typename index::detail::default_content_result<box_type>::type content_type;
+    typedef typename index::detail::strategy_type<Parameters>::type strategy_type;
     typedef index::detail::bounded_view
         <
-            indexable_type, box_type,
-            typename strategy_type<Parameters>::type
+            indexable_type, box_type, strategy_type
         > bounded_indexable_view;
 
     const size_t elements_count = parameters.get_max_elements() + 1;
     BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == elements_count, "wrong number of elements");
     BOOST_GEOMETRY_INDEX_ASSERT(2 <= elements_count, "unexpected number of elements");
+
+    strategy_type const& strategy = index::detail::get_strategy(parameters);
 
     content_type greatest_free_content = 0;
     seed1 = 0;
@@ -67,11 +69,11 @@ inline void pick_seeds(Elements const& elements,
             indexable_type const& ind2 = rtree::element_indexable(elements[j], tr);
 
             box_type enlarged_box;
-            index::detail::bounds(ind1, enlarged_box, get_strategy(parameters));
-            index::detail::expand(enlarged_box, ind2, get_strategy(parameters));
+            index::detail::bounds(ind1, enlarged_box, strategy);
+            index::detail::expand(enlarged_box, ind2, strategy);
 
-            bounded_indexable_view bounded_ind1(ind1, get_strategy(parameters));
-            bounded_indexable_view bounded_ind2(ind2, get_strategy(parameters));
+            bounded_indexable_view bounded_ind1(ind1, strategy);
+            bounded_indexable_view bounded_ind2(ind2, strategy);
             content_type free_content = ( index::detail::content(enlarged_box)
                                             - index::detail::content(bounded_ind1) )
                                                 - index::detail::content(bounded_ind2);
@@ -137,17 +139,18 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
 
         BOOST_TRY
         {
+            typename index::detail::strategy_type<parameters_type>::type const&
+                strategy = index::detail::get_strategy(parameters);
+
             // add seeds
             elements1.push_back(elements_copy[seed1]);                                                      // MAY THROW, STRONG (copy)
             elements2.push_back(elements_copy[seed2]);                                                      // MAY THROW, STRONG (alloc, copy)
 
             // calculate boxes
             detail::bounds(rtree::element_indexable(elements_copy[seed1], translator),
-                           box1,
-                           index::detail::get_strategy(parameters));
+                           box1, strategy);
             detail::bounds(rtree::element_indexable(elements_copy[seed2], translator),
-                           box2,
-                           index::detail::get_strategy(parameters));
+                           box2, strategy);
 
             // remove seeds
             if (seed1 < seed2)
@@ -198,7 +201,7 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                     content_type content_increase2 = 0;
                     el_it = pick_next(elements_copy.rbegin(), elements_copy.rend(),
                                       box1, box2, content1, content2,
-                                      translator, index::detail::get_strategy(parameters),
+                                      translator, strategy,
                                       content_increase1, content_increase2);
 
                     if ( content_increase1 < content_increase2 ||
@@ -221,15 +224,13 @@ struct redistribute_elements<Value, Options, Translator, Box, Allocators, quadra
                 if ( insert_into_group1 )
                 {
                     elements1.push_back(elem);                                                              // MAY THROW, STRONG (copy)
-                    index::detail::expand(box1, indexable,
-                                          index::detail::get_strategy(parameters));
+                    index::detail::expand(box1, indexable, strategy);
                     content1 = index::detail::content(box1);
                 }
                 else
                 {
                     elements2.push_back(elem);                                                              // MAY THROW, STRONG (alloc, copy)
-                    index::detail::expand(box2, indexable,
-                                          index::detail::get_strategy(parameters));
+                    index::detail::expand(box2, indexable, strategy);
                     content2 = index::detail::content(box2);
                 }
 
