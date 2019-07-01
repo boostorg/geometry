@@ -4,8 +4,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016, 2017.
-// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016, 2017, 2019.
+// Modifications copyright (c) 2016-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -187,11 +187,9 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     return_string << bg::wkt(result);
 
     typename bg::default_area_result<G1>::type const area = bg::area(result);
-    std::size_t const n = expected_point_count >= 0
-                          ? bg::num_points(result) : 0;
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
     if (settings.test_validity)
 #endif
     {
@@ -211,13 +209,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)
-        typedef typename bg::point_type<G1>::type point_type;
-        typedef typename bg::rescale_policy_type<point_type>::type
-            rescale_policy_type;
-
-        rescale_policy_type rescale_policy
-                = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
         typename setop_output_type<OutputType>::type
             inserted, array_with_one_empty_geometry;
         array_with_one_empty_geometry.push_back(OutputType());
@@ -225,13 +216,13 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         {
             boost::copy(array_with_one_empty_geometry,
                 bg::detail::sym_difference::sym_difference_insert<OutputType>
-                    (g1, g2, rescale_policy, std::back_inserter(inserted)));
+                    (g1, g2, std::back_inserter(inserted)));
         }
         else
         {
             boost::copy(array_with_one_empty_geometry,
                 bg::detail::difference::difference_insert<OutputType>(
-                    g1, g2, rescale_policy, std::back_inserter(inserted)));
+                    g1, g2, std::back_inserter(inserted)));
         }
 
         BOOST_CHECK_EQUAL(boost::size(result), boost::size(inserted) - 1);
@@ -241,8 +232,10 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     if (expected_point_count >= 0)
     {
+        std::size_t const n = bg::num_points(result);
         BOOST_CHECK_MESSAGE(bg::math::abs(int(n) - expected_point_count) < 3,
                 "difference: " << caseid
                 << " #points expected: " << expected_point_count
@@ -250,6 +243,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
                 << " type: " << (type_for_assert_message<G1, G2>())
                 );
     }
+#endif
 
     if (expected_count >= 0)
     {
@@ -282,7 +276,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         BOOST_CHECK_LE(area, settings.percentage);
     }
 #endif
-
 
     return return_string.str();
 }
@@ -342,7 +335,7 @@ std::string test_one(std::string const& caseid,
         expected_count2, expected_rings_count2, expected_point_count2,
         expected_area2, false, settings);
 
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_SYMDIFFERENCE)
     if (settings.sym_difference)
 #endif
     {

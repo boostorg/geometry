@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2019.
+// Modifications copyright (c) 2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -452,7 +452,8 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry,
     >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
-        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry, strategy);
 
     detail::overlay::overlay_null_visitor visitor;
 
@@ -519,7 +520,8 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection,
     >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
-        = geometry::get_rescale_policy<rescale_policy_type>(geometry);
+        = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry, strategy);
 
     detail::overlay::overlay_null_visitor visitor;
 

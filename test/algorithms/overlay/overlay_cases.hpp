@@ -783,6 +783,62 @@ static std::string case_precision_13[2] =
     "POLYGON((1 1,9.99999999999999912e-06 1,9.99999999999999912e-06 3,1 3,1 1))"
 };
 
+static std::string case_precision_14[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((2 7,4 7,4.00000079999999958 3.00000020000000012,2 3,2 7))"
+};
+
+static std::string case_precision_15[2] =
+{
+    // Needs handling of side_value
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,3.99999599999999988 3.00000499999999981,4 7,2 7))"
+};
+
+static std::string case_precision_16[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4 2.99999940000000009,4 7,2 7))"
+};
+
+static std::string case_precision_17[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4 3.00000499999999999,4 7,2 7))"
+};
+
+static std::string case_precision_18[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2.00000199999999984 3.00000400000000012,4 3,4 7,2 7))"
+};
+
+static std::string case_precision_19[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,1.99999199999999999 2.99999400000000005,4 3,4 7,2 7))"
+};
+
+static std::string case_precision_20[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((2 7,4 7,4 3,2.00000000000000044 3,2 7))"
+};
+
+static std::string case_precision_21[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((2 7,4 7,4 3.00001000000000007,2 3,2 7))"
+};
+
+static std::string case_precision_22[2] =
+{
+    "POLYGON((0 0,0 4,2 4,2 3,4 3,4 0,0 0))",
+    "POLYGON((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4.00000000200000017 2.99999999000000006,4 7,2 7))"
+};
+
+
 // ticket_17 is keyholed, so has a hole formed by an deliberate intersection
 // This will fail the intersection/traversal process
 static std::string ticket_17[2] = {

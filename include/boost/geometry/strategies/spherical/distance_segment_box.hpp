@@ -19,6 +19,7 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp> // spherical
+#include <boost/geometry/strategies/spherical/ssf.hpp>
 
 namespace boost { namespace geometry
 {
@@ -58,14 +59,28 @@ struct generic_segment_box
     {
         ReturnType result;
         typename LessEqual::other less_equal;
-        typedef geometry::model::segment<SegmentPoint> Segment;
-        typedef typename cs_tag<Segment>::type segment_cs_type;
+        typedef geometry::model::segment<SegmentPoint> segment_type;
+        // if cs_tag is spherical_tag check segment's cs_tag with spherical_equatorial_tag as default
+        typedef typename boost::mpl::if_c
+            <
+                boost::is_same<typename SegmentBoxStrategy::cs_tag, spherical_tag>::value,
+                typename boost::mpl::if_c
+                    <
+                        boost::is_same
+                            <
+                                typename geometry::cs_tag<segment_type>::type,
+                                spherical_polar_tag
+                            >::value,
+                        spherical_polar_tag, spherical_equatorial_tag
+                    >::type,
+                typename SegmentBoxStrategy::cs_tag
+            >::type cs_tag;
         typedef geometry::detail::disjoint::
-                disjoint_segment_box_sphere_or_spheroid<segment_cs_type>
+                disjoint_segment_box_sphere_or_spheroid<cs_tag>
                 disjoint_sb;
         typedef typename disjoint_sb::disjoint_info disjoint_info_type;
 
-        Segment seg(p0, p1);
+        segment_type seg(p0, p1);
 
         geometry::model::box<BoxPoint> input_box;
         geometry::set_from_radian<geometry::min_corner, 0>
@@ -120,7 +135,7 @@ struct generic_segment_box
             CT vertex_lon = geometry::formula::vertex_longitude
                     <
                     CT,
-                    segment_cs_type
+                    cs_tag
                     >::apply(lon1, lat1, lon2, lat2,
                              vertex_lat, alp1, az_strategy);
 
@@ -196,6 +211,8 @@ struct spherical_segment_box
           >
     {};
 
+    typedef spherical_tag cs_tag;
+
     // strategy getters
 
     // point-point strategy getters
@@ -217,6 +234,25 @@ struct spherical_segment_box
     inline typename distance_ps_strategy::type get_distance_ps_strategy() const
     {
         return typename distance_ps_strategy::type();
+    }
+
+    struct distance_pb_strategy
+    {
+        typedef cross_track_point_box<CalculationType, Strategy> type;
+    };
+
+    inline typename distance_pb_strategy::type get_distance_pb_strategy() const
+    {
+        return typename distance_pb_strategy::type();
+    }
+
+    // TODO: why is the Radius not propagated above?
+
+    typedef side::spherical_side_formula<CalculationType> side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+    {
+        return side_strategy_type();
     }
 
     typedef within::spherical_point_point equals_point_point_strategy_type;

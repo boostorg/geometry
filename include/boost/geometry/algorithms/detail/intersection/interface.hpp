@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2019.
+// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -109,16 +109,25 @@ struct intersection
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename GeometryOut,
         typename Strategy
     >
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              GeometryOut & geometry_out,
                              Strategy const& strategy)
     {
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename Strategy::cs_tag
+            >::type rescale_policy_type;
+        
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
+
         return dispatch::intersection
             <
                 Geometry1,
@@ -131,26 +140,35 @@ struct intersection
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename GeometryOut
     >
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              GeometryOut & geometry_out,
                              default_strategy)
     {
-        typedef typename strategy::relate::services::default_strategy
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename geometry::cs_tag<Geometry1>::type
+            >::type rescale_policy_type;
+        
+        typename strategy::relate::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type strategy_type;
-        
+            >::type strategy;
+
+        rescale_policy_type robust_policy
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
+
         return dispatch::intersection
             <
                 Geometry1,
                 Geometry2
             >::apply(geometry1, geometry2, robust_policy, geometry_out,
-                     strategy_type());
+                     strategy);
     }
 };
 
@@ -172,19 +190,8 @@ struct intersection
         concepts::check<Geometry1 const>();
         concepts::check<Geometry2 const>();
         
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2
-            >::type rescale_policy_type;
-        
-        rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                geometry2);
-        
         return resolve_strategy::intersection::apply(geometry1,
                                                      geometry2,
-                                                     robust_policy,
                                                      geometry_out,
                                                      strategy);
     }

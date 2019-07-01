@@ -47,7 +47,7 @@ void test_all()
     test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
 
     test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // For no-rescaling, fails in CCW mode
     test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
 #endif

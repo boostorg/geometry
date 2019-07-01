@@ -12,6 +12,8 @@
 #define BOOST_TEST_MODULE test_distance_geographic_pointlike_linear
 #endif
 
+#include <sstream>
+
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/test/included/unit_test.hpp>
 
@@ -26,6 +28,9 @@ typedef bg::model::segment<point_type> segment_type;
 typedef bg::model::linestring<point_type> linestring_type;
 typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
 
+typedef bg::cs::geographic<bg::radian> cs_type_rad;
+typedef bg::model::point<double, 2, cs_type_rad> point_type_rad;
+typedef bg::model::segment<point_type_rad> segment_type_rad;
 
 //===========================================================================
 
@@ -76,7 +81,7 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-02",
                   "POINT(2.5 3)",
                   "SEGMENT(2 0,3 0)",
-                  pp_distance("POINT(2.5 3)", "POINT(2.49777 0)", strategy_pp),
+                  pp_distance("POINT(2.5 3)", "POINT(2.5 0)", strategy_pp),
                   strategy_ps, true, true);
     tester::apply("p-s-03",
                   "POINT(2 0)",
@@ -171,19 +176,19 @@ void test_distance_point_segment(Strategy_pp const& strategy_pp,
     tester::apply("p-s-down-1",
                   "POINT(2 1)",
                   "SEGMENT(2 2,3 2)",
-                  pp_distance("POINT(2.0003 2)", "POINT(2 1)", strategy_pp),
+                  pp_distance("POINT(2 2)", "POINT(2 1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-down-2",
                   "POINT(3 1)",
                   "SEGMENT(2 2,3 2)",
-                  pp_distance("POINT(2.9997 2)", "POINT(3 1)", strategy_pp),
+                  pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-south",
                   "POINT(3 -1)",
                   "SEGMENT(2 -2,3 -2)",
-                  pp_distance("POINT(2.9997 -2)", "POINT(3 -1)", strategy_pp),
+                  pp_distance("POINT(3 -2)", "POINT(3 -1)", strategy_pp),
                   strategy_ps, true, true);
 
     tester::apply("p-s-antimeridian-1",
@@ -379,6 +384,53 @@ void test_distance_point_segment_no_thomas(Strategy_pp const& strategy_pp,
                   "SEGMENT(0 0,180 0)",
                   pp_distance("POINT(90 89)", "POINT(90 90)", strategy_pp),
                   strategy_ps, true, true);
+}
+
+template <typename Strategy_pp, typename Strategy_ps>
+void test_distance_point_segment_rad_mix(Strategy_pp const& strategy_pp,
+                                         Strategy_ps const& strategy_ps)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/segment distance tests" << std::endl;
+#endif
+    typedef test_distance_of_geometries<point_type, segment_type> tester1;
+    typedef test_distance_of_geometries<point_type_rad, segment_type> tester2;
+    typedef test_distance_of_geometries<point_type, segment_type_rad> tester3;
+    typedef test_distance_of_geometries<point_type_rad, segment_type_rad> tester4;
+
+    const double d2r = bg::math::d2r<double>();
+
+    std::ostringstream s1;
+    s1 << 1*d2r;
+    std::ostringstream s2;
+    s2 << 2*d2r;
+    std::ostringstream s3;
+    s3 << 3*d2r;
+
+    tester1::apply("p-s-mix1",
+                   "POINT(3 1)",
+                   "SEGMENT(2 2,3 2)",
+                   pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
+                   strategy_ps, true, true);
+    tester2::apply("p-s-mix2",
+                   "POINT(" + s3.str() + " " + s1.str() + ")",
+                   "SEGMENT(2 2,3 2)",
+                   pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
+                   strategy_ps, true, true);
+    tester3::apply("p-s-mix3",
+                   "POINT(3 1)",
+                   "SEGMENT(" + s2.str() + " " + s2.str() + ","
+                              + s3.str() + " " + s2.str() + ")",
+                   pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
+                   strategy_ps, true, true);
+    tester4::apply("p-s-mix4",
+                   "POINT(" + s3.str() + " " + s1.str() + ")",
+                   "SEGMENT(" + s2.str() + " " + s2.str() + ","
+                              + s3.str() + " " + s2.str() + ")",
+                   pp_distance("POINT(3 2)", "POINT(3 1)", strategy_pp),
+                   strategy_ps, true, true);
 }
 
 //===========================================================================
@@ -657,6 +709,7 @@ void test_all_pl_l(Strategy_pp pp_strategy, Strategy_ps ps_strategy,
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
+    test_all_pl_l(vincenty_pp(), vincenty_ps_bisection());
     test_all_pl_l(vincenty_pp(), vincenty_ps());
     test_all_pl_l(thomas_pp(), thomas_ps());
     test_all_pl_l(andoyer_pp(), andoyer_ps());
@@ -668,4 +721,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
     test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_ps());
     //test_distance_point_segment_no_thomas(thomas_pp(), thomas_ps());
     test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_ps());
+
+    test_distance_point_segment_rad_mix(vincenty_pp(), vincenty_ps());
+    test_distance_point_segment_rad_mix(thomas_pp(), thomas_ps());
+    test_distance_point_segment_rad_mix(andoyer_pp(), andoyer_ps());
 }

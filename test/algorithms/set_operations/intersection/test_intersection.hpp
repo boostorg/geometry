@@ -105,7 +105,7 @@ check_result(
         }
     }
 
-#if ! defined(BOOST_GEOMETRY_TEST_ENABLE_FAILING)
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
     if (settings.test_validity)
 #endif
     {

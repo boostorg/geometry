@@ -4,9 +4,10 @@
 # Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 #
-# This file was modified by Oracle on 2014, 2015, 2016, 2017, 2018.
-# Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014-2019.
+# Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 #
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
@@ -20,6 +21,7 @@ test-suite boost-geometry-strategies
     [ run cross_track.cpp                    : : : : strategies_cross_track ]
     [ run crossings_multiply.cpp             : : : : strategies_crossings_multiply ]
     [ run distance_default_result.cpp        : : : : strategies_distance_default_result ]
+    [ run distance_cross_track.cpp           : : : : strategies_distance_cross_track ]
     [ run douglas_peucker.cpp                : : : : strategies_douglas_peucker ]
     [ run envelope_segment.cpp               : : : : strategies_envelope_segment ]
     [ run franklin.cpp                       : : : : strategies_franklin ]

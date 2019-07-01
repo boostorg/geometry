@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2019.
+// Modifications copyright (c) 2014, 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -72,7 +72,7 @@ void test_point_in_polygon(std::string const& case_id,
                            bool expected,
                            bool use_within = true)
 {
-    BOOST_CONCEPT_ASSERT( (bg::concepts::WithinStrategyPolygonal<Strategy>) );
+    BOOST_CONCEPT_ASSERT( (bg::concepts::WithinStrategyPolygonal<Point, Polygon, Strategy>) );
     bool detected = use_within ?
                     bg::within(point, polygon, strategy) :
                     bg::covered_by(point, polygon, strategy);
