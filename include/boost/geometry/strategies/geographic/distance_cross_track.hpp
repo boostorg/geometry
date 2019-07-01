@@ -138,12 +138,10 @@ public :
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        typedef typename geometry::detail::cs_angular_units<Point>::type units_type;
-
-        return (apply<units_type>(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                                  get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                                  get_as_radian<0>(p), get_as_radian<1>(p),
-                                  m_spheroid)).distance;
+        return (apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                      get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                      get_as_radian<0>(p), get_as_radian<1>(p),
+                      m_spheroid)).distance;
     }
 
     template <typename Point, typename PointOfSegment, typename Segment>
@@ -152,13 +150,11 @@ public :
                                      PointOfSegment const& sp2,
                                      Segment& s) const
     {
-        typedef typename coordinate_system<Point>::type::units units_type;
-
         result_distance_point_segment<typename return_type<Point, PointOfSegment>::type>
-                res = apply<units_type>(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                                        get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                                        get_as_radian<0>(p), get_as_radian<1>(p),
-                                        m_spheroid);
+                res = apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                            get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                            get_as_radian<0>(p), get_as_radian<1>(p),
+                            m_spheroid);
 
         //Point point;
         set_from_radian<0,0>(s, get_as_radian<0>(p));
@@ -491,7 +487,7 @@ private :
 #endif
     }
 
-    template <typename Units, typename CT>
+    template <typename CT>
     result_distance_point_segment<CT>
     static inline apply(CT const& lo1, CT const& la1, //p1
                         CT const& lo2, CT const& la2, //p2
@@ -588,13 +584,13 @@ private :
 #endif
             CT sign_non_zero = lat3 >= c0 ? 1 : -1;
             result_distance_point_segment<CT> res13 =
-                    apply<geometry::radian>(lon1, lat1,
-                                            lon1, half_pi * sign_non_zero,
-                                            lon3, lat3, spheroid);
+                    apply(lon1, lat1,
+                          lon1, half_pi * sign_non_zero,
+                          lon3, lat3, spheroid);
             result_distance_point_segment<CT> res23 =
-                    apply<geometry::radian>(lon2, lat2,
-                                            lon2, half_pi * sign_non_zero,
-                                            lon3, lat3, spheroid);
+                    apply(lon2, lat2,
+                          lon2, half_pi * sign_non_zero,
+                          lon3, lat3, spheroid);
             if (res13.distance < res23.distance)
             {
                 return res13;
