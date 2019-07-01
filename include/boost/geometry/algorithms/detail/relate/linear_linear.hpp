@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
-// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -133,7 +133,10 @@ struct linear_linear
             return;
 
         // get and analyse turns
-        typedef typename turns::get_turns<Geometry1, Geometry2>::turn_info turn_type;
+        typedef typename turns::get_turns
+            <
+                Geometry1, Geometry2
+            >::template turn_info_type<IntersectionStrategy>::type turn_type;
         std::vector<turn_type> turns;
 
         interrupt_policy_linear_linear<Result> interrupt_policy(result);

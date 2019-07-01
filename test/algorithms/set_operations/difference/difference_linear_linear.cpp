@@ -503,7 +503,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          "lldf29d"
          );
 
-#ifdef GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
      tester::apply
          (from_wkt<L>("LINESTRING(8 5,5 1,-2 3,1 10)"),
           from_wkt<L>("LINESTRING(1.9375 1.875,\

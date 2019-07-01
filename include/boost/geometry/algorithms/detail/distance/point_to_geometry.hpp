@@ -161,7 +161,8 @@ struct point_to_ring
                                     Strategy const& strategy)
     {
         // TODO: pass strategy
-        if (within::within_point_geometry(point, ring))
+        if (within::within_point_geometry(point, ring,
+                                          strategy.get_point_in_geometry_strategy()))
         {
             return return_type(0);
         }
@@ -206,7 +207,8 @@ private:
             for (InteriorRingIterator it = first; it != last; ++it)
             {
                 // TODO: pass strategy
-                if (within::within_point_geometry(point, *it))
+                if (within::within_point_geometry(point, *it,
+                                                  strategy.get_point_in_geometry_strategy()))
                 {
                     // the point is inside a polygon hole, so its distance
                     // to the polygon its distance to the polygon's
@@ -236,7 +238,8 @@ public:
                                     Strategy const& strategy)
     {
         // TODO: pass strategy
-        if (! within::covered_by_point_geometry(point, exterior_ring(polygon)))
+        if (! within::covered_by_point_geometry(point, exterior_ring(polygon),
+                                                strategy.get_point_in_geometry_strategy()))
         {
             // the point is outside the exterior ring, so its distance
             // to the polygon is its distance to the polygon's exterior ring
@@ -334,7 +337,8 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
                                     Strategy const& strategy)
     {
         // TODO: pass strategy
-        if (within::covered_by_point_geometry(point, multipolygon))
+        if (within::covered_by_point_geometry(point, multipolygon,
+                                              strategy.get_point_in_geometry_strategy()))
         {
             return 0;
         }

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -169,8 +169,7 @@ protected:
                     LinearGeometry1,
                     LinearGeometry2,
                     assign_policy
-                >,
-                RobustPolicy
+                >
             >::apply(turns, linear1, linear2, interrupt_policy, strategy, robust_policy);
     }
 
@@ -237,13 +236,12 @@ public:
                 Linear1,
                 Linear2,
                 detail::get_turns::get_turn_info_type
-                <
-                    Linear1,
-                    Linear2,
-                    assign_policy
-                >,
-                RobustPolicy
-            >::turn_info turn_info;
+                    <
+                        Linear1,
+                        Linear2,
+                        assign_policy
+                    >
+            >::template turn_info_type<Strategy, RobustPolicy>::type turn_info;
 
         typedef std::vector<turn_info> turns_container;
 

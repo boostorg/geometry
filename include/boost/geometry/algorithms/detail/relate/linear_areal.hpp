@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018.
-// Modifications copyright (c) 2013-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -219,21 +219,21 @@ struct linear_areal
                 >
         {};
 
-    template <typename Geom1, typename Geom2>
+    template <typename Geom1, typename Geom2, typename Strategy>
     struct multi_turn_info
-        : turns::get_turns<Geom1, Geom2>::turn_info
+        : turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
     {
         multi_turn_info() : priority(0) {}
         int priority; // single-geometry sorting priority
     };
 
-    template <typename Geom1, typename Geom2>
+    template <typename Geom1, typename Geom2, typename Strategy>
     struct turn_info_type
         : boost::mpl::if_c
             <
                 is_multi<Geometry2>::value,
-                multi_turn_info<Geom1, Geom2>,
-                typename turns::get_turns<Geom1, Geom2>::turn_info
+                multi_turn_info<Geom1, Geom2, Strategy>,
+                typename turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
             >
     {};
     
@@ -251,7 +251,7 @@ struct linear_areal
             return;
 
         // get and analyse turns
-        typedef typename turn_info_type<Geometry1, Geometry2>::type turn_type;
+        typedef typename turn_info_type<Geometry1, Geometry2, IntersectionStrategy>::type turn_type;
         std::vector<turn_type> turns;
 
         interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);

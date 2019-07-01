@@ -117,6 +117,7 @@ template <typename CalculationType>
 class matrix_transformer<CalculationType, 3, 2> : public matrix_transformer<CalculationType, 2, 2>
 {
     typedef CalculationType ct;
+    typedef boost::qvm::mat<ct, 3, 3> matrix_type;
 
 public :
     inline matrix_transformer(
@@ -127,6 +128,10 @@ public :
                     m_0_0, m_0_1, m_0_2,
                     m_1_0, m_1_1, m_1_2,
                     m_2_0, m_2_1, m_2_2)
+    {}
+
+    inline matrix_transformer(matrix_type const& matrix)
+        : matrix_transformer<CalculationType, 2,2>(matrix)
     {}
 
     inline matrix_transformer()
@@ -156,6 +161,10 @@ public :
         qvm::A<2,0>(m_matrix) = m_2_0; qvm::A<2,1>(m_matrix) = m_2_1; qvm::A<2,2>(m_matrix) = m_2_2; qvm::A<2,3>(m_matrix) = m_2_3;
         qvm::A<3,0>(m_matrix) = m_3_0; qvm::A<3,1>(m_matrix) = m_3_1; qvm::A<3,2>(m_matrix) = m_3_2; qvm::A<3,3>(m_matrix) = m_3_3;
     }
+
+    inline matrix_transformer(matrix_type const& matrix)
+        : m_matrix(matrix)
+    {}
 
     inline matrix_transformer() {}
 

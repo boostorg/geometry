@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -42,8 +46,9 @@ namespace detail { namespace rtree {
 
 // elements box
 
-template <typename Box, typename FwdIter, typename Translator>
-inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
+template <typename Box, typename FwdIter, typename Translator, typename Strategy>
+inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr,
+                        Strategy const& strategy)
 {
     Box result;
     
@@ -57,11 +62,11 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
     if ( first == last )
         return result;
 
-    detail::bounds(element_indexable(*first, tr), result);
+    detail::bounds(element_indexable(*first, tr), result, strategy);
     ++first;
 
     for ( ; first != last ; ++first )
-        geometry::expand(result, element_indexable(*first, tr));
+        detail::expand(result, element_indexable(*first, tr), strategy);
 
     return result;
 }
@@ -71,15 +76,16 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr)
 // This ensures that leafs bounds correspond to the stored elements.
 // NOTE: this is done only if the Indexable is not a Box
 //       in the future don't do it also for NSphere
-template <typename Box, typename FwdIter, typename Translator>
-inline Box values_box(FwdIter first, FwdIter last, Translator const& tr)
+template <typename Box, typename FwdIter, typename Translator, typename Strategy>
+inline Box values_box(FwdIter first, FwdIter last, Translator const& tr,
+                      Strategy const& strategy)
 {
     typedef typename std::iterator_traits<FwdIter>::value_type element_type;
     BOOST_MPL_ASSERT_MSG((is_leaf_element<element_type>::value),
                          SHOULD_BE_CALLED_ONLY_FOR_LEAF_ELEMENTS,
                          (element_type));
 
-    Box result = elements_box<Box>(first, last, tr);
+    Box result = elements_box<Box>(first, last, tr, strategy);
 
 #ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
     if (BOOST_GEOMETRY_CONDITION((

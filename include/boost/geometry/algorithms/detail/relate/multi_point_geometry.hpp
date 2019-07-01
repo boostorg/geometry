@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2018 Oracle and/or its affiliates.
+// Copyright (c) 2017-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -113,7 +113,7 @@ template <typename Geometry, typename EqPPStrategy>
 struct multi_point_geometry_eb<Geometry, EqPPStrategy, multi_linestring_tag>
 {
     // TODO: CS-specific less compare strategy derived from EqPPStrategy
-    typedef geometry::less<> less_type;
+    typedef geometry::less<void, -1, typename EqPPStrategy::cs_tag> less_type;
 
     template <typename Points>
     struct boundary_visitor
@@ -257,21 +257,23 @@ struct multi_point_single_geometry
 template <typename MultiPoint, typename MultiGeometry, bool Transpose>
 class multi_point_multi_geometry_ii_ib
 {
+    template <typename ExpandPointStrategy>
     struct expand_box_point
     {
         template <typename Box, typename Point>
         static inline void apply(Box& total, Point const& point)
         {
-            geometry::expand(total, point);
+            geometry::expand(total, point, ExpandPointStrategy());
         }
     };
 
+    template <typename ExpandBoxStrategy>
     struct expand_box_box_pair
     {
         template <typename Box, typename BoxPair>
         static inline void apply(Box& total, BoxPair const& box_pair)
         {
-            geometry::expand(total, box_pair.first);
+            geometry::expand(total, box_pair.first, ExpandBoxStrategy());
         }
     };
 
@@ -384,10 +386,18 @@ public:
     {
         item_visitor_type<Result, Strategy> visitor(multi_geometry, tc, result, strategy);
 
+        typedef expand_box_point
+            <
+                typename Strategy::expand_point_strategy_type
+            > expand_box_point_type;
         typedef overlaps_box_point
             <
                 typename Strategy::disjoint_point_box_strategy_type
             > overlaps_box_point_type;
+        typedef expand_box_box_pair
+            <
+                typename Strategy::envelope_strategy_type::box_expand_strategy_type
+            > expand_box_box_pair_type;
         typedef overlaps_box_box_pair
             <
                 typename Strategy::disjoint_box_box_strategy_type
@@ -397,9 +407,9 @@ public:
             <
                 box1_type
             >::apply(multi_point, boxes, visitor,
-                     expand_box_point(),
+                     expand_box_point_type(),
                      overlaps_box_point_type(),
-                     expand_box_box_pair(),
+                     expand_box_box_pair_type(),
                      overlaps_box_box_pair_type());
     }
 
@@ -431,7 +441,17 @@ struct multi_point_multi_geometry_ii_ib_ie
                              Result & result,
                              Strategy const& strategy)
     {
-        index::rtree<box_pair_type, index::rstar<4> > rt(boxes.begin(), boxes.end());
+        typedef strategy::index::services::from_strategy
+            <
+                Strategy
+            > index_strategy_from;
+        typedef index::parameters
+            <
+                index::rstar<4>, typename index_strategy_from::type
+            > index_parameters_type;
+        index::rtree<box_pair_type, index_parameters_type>
+            rtree(boxes.begin(), boxes.end(),
+                  index_parameters_type(index::rstar<4>(), index_strategy_from::get(strategy)));
 
         typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
         for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
@@ -446,7 +466,7 @@ struct multi_point_multi_geometry_ii_ib_ie
             typename boost::range_value<MultiPoint>::type const& point = *it;
 
             boxes_type boxes_found;
-            rt.query(index::intersects(point), std::back_inserter(boxes_found));
+            rtree.query(index::intersects(point), std::back_inserter(boxes_found));
 
             bool found_ii_or_ib = false;
             for (boxes_iterator bi = boxes_found.begin() ; bi != boxes_found.end() ; ++bi)

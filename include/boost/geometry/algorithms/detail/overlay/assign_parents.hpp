@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -125,12 +125,13 @@ struct ring_info_helper
 };
 
 
+template <typename BoxExpandStrategy>
 struct ring_info_helper_get_box
 {
     template <typename Box, typename InputItem>
     static inline void apply(Box& total, InputItem const& item)
     {
-        geometry::expand(total, item.envelope);
+        geometry::expand(total, item.envelope, BoxExpandStrategy());
     }
 };
 
@@ -145,6 +146,7 @@ struct ring_info_helper_ovelaps_box
     }
 };
 
+// Segments intersection Strategy
 template
 <
     typename Geometry1,
@@ -190,7 +192,8 @@ struct assign_visitor
         {
             ring_info_type& inner_in_map = m_ring_map[inner.id];
 
-            if (geometry::covered_by(inner_in_map.point, outer.envelope)
+            if (geometry::covered_by(inner_in_map.point, outer.envelope,
+                                     typename Strategy::disjoint_point_box_strategy_type())
                && within_selected_input(inner_in_map, inner.id, outer.id,
                                         m_geometry1, m_geometry2, m_collection,
                                         m_strategy)
@@ -329,6 +332,10 @@ inline void assign_parents(Geometry1 const& geometry1,
                 Strategy
             > visitor(geometry1, geometry2, collection, ring_map, strategy, check_for_orientation);
 
+        typedef ring_info_helper_get_box
+            <
+                typename Strategy::expand_box_strategy_type
+            > expand_box_type;
         typedef ring_info_helper_ovelaps_box
             <
                 typename Strategy::disjoint_box_box_strategy_type
@@ -337,8 +344,7 @@ inline void assign_parents(Geometry1 const& geometry1,
         geometry::partition
             <
                 box_type
-            >::apply(vector, visitor, ring_info_helper_get_box(),
-                     overlaps_box_type());
+            >::apply(vector, visitor, expand_box_type(), overlaps_box_type());
     }
 
     if (check_for_orientation)
