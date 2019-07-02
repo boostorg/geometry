@@ -154,20 +154,14 @@ struct base_turn_handler
             typename TurnInfo
     >
     static inline void both_collinear(
-            UniqueSubRange1 const&
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-            range_p
-#endif
-            ,
-            UniqueSubRange2 const&
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-            range_q
-#endif
-            ,
+            UniqueSubRange1 const& range_p,
+            UniqueSubRange2 const& range_q,
             UmbrellaStrategy const&,
             std::size_t index_p, std::size_t index_q,
             TurnInfo& ti)
     {
+        boost::ignore_unused(range_p);
+        boost::ignore_unused(range_q);
         BOOST_GEOMETRY_ASSERT(IndexP + IndexQ == 1);
         BOOST_GEOMETRY_ASSERT(index_p > 0 && index_p <= 2);
         BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
