@@ -304,7 +304,7 @@ struct strategy_type< parameters<Parameters, Strategy> >
 template <typename Parameters>
 struct get_strategy_impl
 {
-    static inline default_strategy apply(Parameters const& parameters)
+    static inline default_strategy apply(Parameters const&)
     {
         return default_strategy();
     }

@@ -153,9 +153,18 @@ struct base_turn_handler
             typename UmbrellaStrategy,
             typename TurnInfo
     >
-    static inline void both_collinear(UniqueSubRange1 const& range_p,
-            UniqueSubRange2 const& range_q,
-            UmbrellaStrategy const& umbrella_strategy,
+    static inline void both_collinear(
+            UniqueSubRange1 const&
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+            range_p
+#endif
+            ,
+            UniqueSubRange2 const&
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+            range_q
+#endif
+            ,
+            UmbrellaStrategy const&,
             std::size_t index_p, std::size_t index_q,
             TurnInfo& ti)
     {
