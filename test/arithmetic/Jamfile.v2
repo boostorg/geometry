@@ -14,5 +14,6 @@ test-suite boost-geometry-arithmetic
     [ run general.cpp                : : : : arithmetic_general ]
     [ run dot_product.cpp            : : : : arithmetic_dot_product ]
     [ run cross_product.cpp          : : : : arithmetic_cross_product ]
+    [ run general_form.cpp           : : : : arithmetic_general_form ]
     [ compile-fail cross_product.cpp : <define>TEST_FAIL_CROSS_PRODUCT : arithmetic_cross_product_cf ]
     ;
