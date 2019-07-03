@@ -244,7 +244,7 @@ private:
 
     private:
         BoxType m_box;
-        Strategy const& m_strategy;
+        Strategy m_strategy;
         bool m_initialized;
     };
 

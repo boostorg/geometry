@@ -290,19 +290,21 @@ template <typename Parameters>
 struct strategy_type
 {
     typedef default_strategy type;
+    typedef default_strategy result_type;
 };
 
 template <typename Parameters, typename Strategy>
 struct strategy_type< parameters<Parameters, Strategy> >
 {
     typedef Strategy type;
+    typedef Strategy const& result_type;
 };
 
 
 template <typename Parameters>
 struct get_strategy_impl
 {
-    static inline default_strategy apply(Parameters const& parameters)
+    static inline default_strategy apply(Parameters const&)
     {
         return default_strategy();
     }
@@ -318,7 +320,7 @@ struct get_strategy_impl<parameters<Parameters, Strategy> >
 };
 
 template <typename Parameters>
-inline typename strategy_type<Parameters>::type
+inline typename strategy_type<Parameters>::result_type
     get_strategy(Parameters const& parameters)
 {
     return get_strategy_impl<Parameters>::apply(parameters);
