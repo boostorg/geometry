@@ -32,20 +32,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-
-// TODO: remove
-template <std::size_t Index, typename Point1, typename Point2>
-inline int sign_of_difference(Point1 const& point1, Point2 const& point2)
-{
-    return
-        math::equals(geometry::get<Index>(point1), geometry::get<Index>(point2))
-        ?
-        0
-        :
-        (geometry::get<Index>(point1) > geometry::get<Index>(point2) ? 1 : -1);
-}
-
-
 template <typename CSTag>
 struct direction_code_impl
 {
