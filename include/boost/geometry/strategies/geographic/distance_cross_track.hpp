@@ -257,6 +257,20 @@ private :
     }
 
     template <typename CT>
+    static void set_result(CT distance,
+                           geometry::formula::result_direct<CT> res14,
+                           result_distance_point_segment<CT>& result)
+    {
+        result.distance = distance;
+
+        if (EnableClosestPoint)
+        {
+            result.closest_point_lon = res14.lon2;
+            result.closest_point_lat = res14.lat2;
+        }
+    }
+
+    template <typename CT>
     static void bisection(CT const& lon1, CT const& lat1, //p1
                           CT const& lon2, CT const& lat2, //p2
                           CT const& lon3, CT const& lat3, //query point p3
@@ -346,8 +360,6 @@ private :
                 result.closest_point_lat = res14.lat2;
             }
 
-
-
         } while (dist_improve
                  && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
     }
@@ -404,18 +416,12 @@ private :
                 s14 -= der != 0 ? delta_g4 / der : 0;
             }
 
-            result.distance = res34.distance;
+            set_result(res34.distance, res14, result);
 
             dist_improve = prev_distance > res34.distance || prev_distance == -1;
             if (!dist_improve)
             {
-                result.distance = prev_distance;
-
-                if (EnableClosestPoint)
-                {
-                    result.closest_point_lon = res14.lon2;
-                    result.closest_point_lat = res14.lat2;
-                }
+                set_result(prev_distance, res14, result);
             }
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
