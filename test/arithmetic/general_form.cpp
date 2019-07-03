@@ -197,6 +197,24 @@ void test_same_direction()
     BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
 }
 
+template <typename T>
+void test_degenerate()
+{
+    typedef bg::arithmetic::general_form<T> gf;
+
+    gf f = bg::arithmetic::construct_line<T>(0, 0, 10, 0);
+    BOOST_CHECK(! bg::arithmetic::is_degenerate(f));
+
+    f = bg::arithmetic::construct_line<T>(0, 0, 0, 10);
+    BOOST_CHECK(! bg::arithmetic::is_degenerate(f));
+
+    f = bg::arithmetic::construct_line<T>(0, 0, 10, 10);
+    BOOST_CHECK(! bg::arithmetic::is_degenerate(f));
+
+    f = bg::arithmetic::construct_line<T>(0, 0, 0, 0);
+    BOOST_CHECK(bg::arithmetic::is_degenerate(f));
+}
+
 
 template <typename T>
 void test_all()
@@ -205,6 +223,7 @@ void test_all()
     test_side_value<T>();
     test_get_intersection<T>();
     test_same_direction<T>();
+    test_degenerate<T>();
 }
 
 int test_main(int, char* [])

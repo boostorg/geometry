@@ -144,6 +144,13 @@ bool similar_direction(const general_form<GeneralType>& p,
     return p.a * q.a >= 0 && p.b * q.b >= 0;
 }
 
+template <typename GeneralType>
+inline bool is_degenerate(const general_form<GeneralType>& f)
+{
+    static GeneralType const zero = 0;
+    return math::equals(f.a, zero) && math::equals(f.b, zero);
+}
+
 
 } // namespace arithmetic
 

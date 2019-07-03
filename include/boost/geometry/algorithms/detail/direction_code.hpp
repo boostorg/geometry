@@ -46,22 +46,25 @@ struct direction_code_impl<cartesian_tag>
     static inline int apply(Point1 const& segment_a, Point1 const& segment_b,
                             Point2 const& point)
     {
-        if ( (math::equals(geometry::get<0>(segment_b), geometry::get<0>(segment_a))
-           && math::equals(geometry::get<1>(segment_b), geometry::get<1>(segment_a)))
-          || (math::equals(geometry::get<0>(segment_b), geometry::get<0>(point))
-           && math::equals(geometry::get<1>(segment_b), geometry::get<1>(point))) )
-        {
-            return 0;
-        }
-
         typedef typename geometry::select_coordinate_type
             <
                 Point1, Point2
             >::type calc_t;
 
         typedef arithmetic::general_form<calc_t> gf;
-        gf const p = arithmetic::construct_line<calc_t>(segment_a, segment_b);
+
+        // point b is often equal to the specified point, check that first
         gf const q = arithmetic::construct_line<calc_t>(segment_b, point);
+        if (arithmetic::is_degenerate(q))
+        {
+            return 0;
+        }
+
+        gf const p = arithmetic::construct_line<calc_t>(segment_a, segment_b);
+        if (arithmetic::is_degenerate(p))
+        {
+            return 0;
+        }
 
         // p extends a-b if direction is similar
         return arithmetic::similar_direction(p, q) ? 1 : -1;
