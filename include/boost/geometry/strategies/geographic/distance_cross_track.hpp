@@ -778,7 +778,6 @@ public :
                 false
             >(spheroid)
         {}
-
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
