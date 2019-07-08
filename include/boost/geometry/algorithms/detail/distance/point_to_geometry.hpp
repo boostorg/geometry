@@ -440,10 +440,13 @@ struct distance
         strategy_tag_distance_point_segment, false
     >
 {
-    static inline typename Policy::return_type
+    static inline typename strategy::distance::services::return_type
+        <
+            Policy, Point, typename point_type<Segment>::type
+        >::type
                 apply(Point const& point,
                       Segment const& segment,
-                      Policy& policy)
+                      Policy const& policy)
     {
         typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);

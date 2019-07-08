@@ -1,201 +1,67 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry
 
-// Copyright (c) 2016-2019, Oracle and/or its affiliates.
+// Copyright (c) 2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_CROSS_TRACK_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_CROSS_TRACK_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
+#define BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
 
-#include <algorithm>
-
-#include <boost/tuple/tuple.hpp>
-#include <boost/algorithm/minmax.hpp>
-#include <boost/config.hpp>
-#include <boost/concept_check.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_void.hpp>
-
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/radian_access.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/concepts/distance_concept.hpp>
-#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
-#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/point_in_point.hpp>
-#include <boost/geometry/strategies/geographic/azimuth.hpp>
-#include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/parameters.hpp>
-#include <boost/geometry/strategies/geographic/intersection.hpp>
-
-#include <boost/geometry/formulas/vincenty_direct.hpp>
-
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
-#include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-
-#include <boost/geometry/formulas/result_direct.hpp>
-#include <boost/geometry/formulas/mean_radius.hpp>
-#include <boost/geometry/formulas/spherical.hpp>
-
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-#include <boost/geometry/io/dsv/write.hpp>
-#endif
-
-#ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
-#define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
-#endif
-
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
-#include <iostream>
-#endif
-
-namespace boost { namespace geometry
+namespace boost { namespace geometry { namespace formula
 {
 
-namespace strategy { namespace distance
-{
-
-namespace detail
-{
-/*!
-\brief Strategy functor for distance point to segment calculation on ellipsoid
-       Algorithm uses direct and inverse geodesic problems as subroutines.
-       The algorithm approximates the distance by an iterative Newton method.
-\ingroup strategies
-\details Class which calculates the distance of a point to a segment, for points
-on the ellipsoid
-\see C.F.F.Karney - Geodesics on an ellipsoid of revolution,
-      https://arxiv.org/abs/1102.1215
-\tparam FormulaPolicy underlying point-point distance strategy
-\tparam Spheroid is the spheroidal model used
-\tparam CalculationType \tparam_calculation
-\tparam EnableClosestPoint computes the closest point on segment if true
-*/
-template
-<
+template <
+    typename CT,
+    bool EnableClosestPoint = false,
     typename FormulaPolicy = strategy::andoyer,
-    typename Spheroid = srs::spheroid<double>,
-    typename CalculationType = void,
-    bool Bisection = false,
-    bool EnableClosestPoint = false
+    bool Bisection = false
 >
-class geographic_cross_track
+class point_segment_distance
 {
+
 public :
-    typedef within::spherical_point_point equals_point_point_strategy_type;
 
-    typedef intersection::geographic_segments
-        <
-            FormulaPolicy,
-            strategy::default_order<FormulaPolicy>::value,
-            Spheroid,
-            CalculationType
-        > relate_segment_segment_strategy_type;
-
-    inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy() const
+    struct result_type
     {
-        return relate_segment_segment_strategy_type(m_spheroid);
-    }
+        result_type()
+            : distance(0)
+            , lon(0)
+            , lat(0)
+        {}
 
-    typedef within::geographic_winding
-        <
-            void, void, FormulaPolicy, Spheroid, CalculationType
-        > point_in_geometry_strategy_type;
+        CT distance;
+        CT lon;
+        CT lat;
+    };
 
-    inline point_in_geometry_strategy_type get_point_in_geometry_strategy() const
+
+    static result_type apply()
     {
-        return point_in_geometry_strategy_type(m_spheroid);
-    }
-
-    template <typename Point, typename PointOfSegment>
-    struct return_type
-        : promote_floating_point
-          <
-              typename select_calculation_type
-                  <
-                      Point,
-                      PointOfSegment,
-                      CalculationType
-                  >::type
-          >
-    {};
-
-    explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
-        : m_spheroid(spheroid)
-    {}
-
-    template <typename Point, typename PointOfSegment>
-    inline typename return_type<Point, PointOfSegment>::type
-    apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
-    {
-        return (apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                      get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                      get_as_radian<0>(p), get_as_radian<1>(p),
-                      m_spheroid)).distance;
-    }
-
-    // points on a meridian not crossing poles
-    template <typename CT>
-    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
-    {
-        typedef typename formula::meridian_inverse
-        <
-            CT,
-            strategy::default_order<FormulaPolicy>::value
-        > meridian_inverse;
-
-        return meridian_inverse::meridian_not_crossing_pole_dist(lat1, lat2,
-                                                                 m_spheroid);
-    }
-
-    Spheroid const& model() const
-    {
-        return m_spheroid;
+        return result_type();
     }
 
 private :
 
-    template <typename CT>
-    struct result_distance_point_segment
-    {
-        result_distance_point_segment()
-            : distance(0)
-            , closest_point_lon(0)
-            , closest_point_lat(0)
-        {}
-
-        CT distance;
-        CT closest_point_lon;
-        CT closest_point_lat;
-    };
-
-    template <typename CT>
-    result_distance_point_segment<CT>
+    result_type
     static inline non_iterative_case(CT const& lon, CT const& lat, CT const& distance)
     {
-        result_distance_point_segment<CT> result;
+        result_type result;
         result.distance = distance;
 
         if (EnableClosestPoint)
         {
-            result.closest_point_lon = lon;
-            result.closest_point_lat = lat;
+            result.lon = lon;
+            result.lat = lat;
         }
         return result;
     }
 
-    template <typename CT>
-    result_distance_point_segment<CT>
+    template <typename Spheroid>
+    result_type
     static inline non_iterative_case(CT const& lon1, CT const& lat1, //p1
                                      CT const& lon2, CT const& lat2, //p2
                                      Spheroid const& spheroid)
@@ -206,7 +72,6 @@ private :
         return non_iterative_case(lon1, lat1, distance);
     }
 
-    template <typename CT>
     CT static inline normalize(CT const& g4, CT& der)
     {
         CT const pi = math::pi<CT>();
@@ -236,27 +101,26 @@ private :
         return g4 - pi/2;
     }
 
-    template <typename CT>
     static void set_result(CT distance,
                            geometry::formula::result_direct<CT> res14,
-                           result_distance_point_segment<CT>& result)
+                           result_type& result)
     {
         result.distance = distance;
 
         if (EnableClosestPoint)
         {
-            result.closest_point_lon = res14.lon2;
-            result.closest_point_lat = res14.lat2;
+            result.lon = res14.lon2;
+            result.lat = res14.lat2;
         }
     }
 
-    template <typename CT>
+    template <typename Spheroid>
     static void bisection(CT const& lon1, CT const& lat1, //p1
                           CT const& lon2, CT const& lat2, //p2
                           CT const& lon3, CT const& lat3, //query point p3
                           Spheroid const& spheroid,
                           CT const& s14_start, CT const& a12,
-                          result_distance_point_segment<CT>& result)
+                          result_type& result)
     {
         typedef typename FormulaPolicy::template direct<CT, true, false, false, false>
                 direct_distance_type;
@@ -336,21 +200,21 @@ private :
 
             if (EnableClosestPoint)
             {
-                result.closest_point_lon = res14.lon2;
-                result.closest_point_lat = res14.lat2;
+                result.lon = res14.lon2;
+                result.lat = res14.lat2;
             }
 
         } while (dist_improve
                  && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
     }
 
-    template <typename CT>
+    template <typename Spheroid>
     static void newton(CT const& lon1, CT const& lat1, //p1
                        CT const& lon2, CT const& lat2, //p2
                        CT const& lon3, CT const& lat3, //query point p3
                        Spheroid const& spheroid,
                        CT const& s14_start, CT const& a12,
-                       result_distance_point_segment<CT>& result)
+                       result_type& result)
     {
         typedef typename FormulaPolicy::template inverse<CT, true, true, false, true, true>
                 inverse_distance_azimuth_quantities_type;
@@ -473,8 +337,10 @@ private :
 #endif
     }
 
-    template <typename CT>
-    result_distance_point_segment<CT>
+public :
+
+    template <typename Spheroid>
+    result_type
     static inline apply(CT const& lo1, CT const& la1, //p1
                         CT const& lo2, CT const& la2, //p2
                         CT const& lo3, CT const& la3, //query point p3
@@ -487,7 +353,7 @@ private :
 
         CT const earth_radius = geometry::formula::mean_radius<CT>(spheroid);
 
-        result_distance_point_segment<CT> result;
+        result_type result;
 
         // Constants
         //CT const f = geometry::formula::flattening<CT>(spheroid);
@@ -569,11 +435,11 @@ private :
             std::cout << "Meridian segment crossing pole" << std::endl;
 #endif
             CT sign_non_zero = lat3 >= c0 ? 1 : -1;
-            result_distance_point_segment<CT> res13 =
+            result_type res13 =
                     apply(lon1, lat1,
                           lon1, half_pi * sign_non_zero,
                           lon3, lat3, spheroid);
-            result_distance_point_segment<CT> res23 =
+            result_type res23 =
                     apply(lon2, lat2,
                           lon2, half_pi * sign_non_zero,
                           lon3, lat3, spheroid);
@@ -711,282 +577,24 @@ private :
 
         if (Bisection)
         {
-            bisection<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
-                          spheroid, res12.distance/2, res12.azimuth, result);
+            bisection(lon1, lat1, lon2, lat2, lon3, lat3,
+                      spheroid, res12.distance/2, res12.azimuth, result);
         }
         else
         {
             CT s14_start = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
                            ::apply(lon1, lat1, res.lon2, res.lat2, spheroid);
 
-            newton<CT>(lon1, lat1, lon2, lat2, lon3, lat3,
-                              spheroid, s14_start, res12.azimuth, result);
+            newton(lon1, lat1, lon2, lat2, lon3, lat3,
+                   spheroid, s14_start, res12.azimuth, result);
         }
 
         return result;
     }
 
-    Spheroid m_spheroid;
 };
 
-} // namespace detail
-
-template
-<
-    typename FormulaPolicy = strategy::andoyer,
-    typename Spheroid = srs::spheroid<double>,
-    typename CalculationType = void
->
-class geographic_cross_track
-    : public detail::geographic_cross_track
-        <
-            FormulaPolicy,
-            Spheroid,
-            CalculationType,
-            false,
-            false
-        >
-{
-public :
-    explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
-        :
-        detail::geographic_cross_track<
-                FormulaPolicy,
-                Spheroid,
-                CalculationType,
-                false,
-                false
-            >(spheroid)
-        {}
-};
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-namespace services
-{
-
-//tags
-template <typename FormulaPolicy>
-struct tag<geographic_cross_track<FormulaPolicy> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid
->
-struct tag<geographic_cross_track<FormulaPolicy, Spheroid> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct tag<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct tag<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-//return types
-template <typename FormulaPolicy, typename P, typename PS>
-struct return_type<geographic_cross_track<FormulaPolicy>, P, PS>
-    : geographic_cross_track<FormulaPolicy>::template return_type<P, PS>
-{};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename P,
-        typename PS
->
-struct return_type<geographic_cross_track<FormulaPolicy, Spheroid>, P, PS>
-    : geographic_cross_track<FormulaPolicy, Spheroid>::template return_type<P, PS>
-{};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        typename P,
-        typename PS
->
-struct return_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>, P, PS>
-    : geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>::template return_type<P, PS>
-{};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection,
-        typename P,
-        typename PS
->
-struct return_type<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>, P, PS>
-    : detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>::template return_type<P, PS>
-{};
-
-//comparable types
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct comparable_type<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
-{
-    typedef geographic_cross_track
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        >  type;
-};
+}}} // namespace boost::geometry::formula
 
 
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct comparable_type<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-    typedef detail::geographic_cross_track
-        <
-            FormulaPolicy, Spheroid, CalculationType, Bisection
-        >  type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct get_comparable<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> >
-{
-public :
-    static inline geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& strategy)
-    {
-        return strategy;
-    }
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct get_comparable<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-public :
-    static inline detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
-    apply(detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
-    {
-        return strategy;
-    }
-};
-
-
-template
-<
-    typename FormulaPolicy,
-    typename P,
-    typename PS
->
-struct result_from_distance<geographic_cross_track<FormulaPolicy>, P, PS>
-{
-private :
-    typedef typename geographic_cross_track
-        <
-            FormulaPolicy
-        >::template return_type<P, PS>::type return_type;
-public :
-    template <typename T>
-    static inline return_type
-    apply(geographic_cross_track<FormulaPolicy> const& , T const& distance)
-    {
-        return distance;
-    }
-};
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType,
-    typename P,
-    typename PS
->
-struct result_from_distance<geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>, P, PS>
-{
-private :
-    typedef typename geographic_cross_track
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        >::template return_type<P, PS>::type return_type;
-public :
-    template <typename T>
-    static inline return_type
-    apply(geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
-    {
-        return distance;
-    }
-};
-
-
-template <typename Point, typename PointOfSegment>
-struct default_strategy
-    <
-        point_tag, segment_tag, Point, PointOfSegment,
-        geographic_tag, geographic_tag
-    >
-{
-    typedef geographic_cross_track<> type;
-};
-
-
-template <typename PointOfSegment, typename Point>
-struct default_strategy
-    <
-        segment_tag, point_tag, PointOfSegment, Point,
-        geographic_tag, geographic_tag
-    >
-{
-    typedef typename default_strategy
-        <
-            point_tag, segment_tag, Point, PointOfSegment,
-            geographic_tag, geographic_tag
-        >::type type;
-};
-
-} // namespace services
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-}} // namespace strategy::distance
-
-}} // namespace boost::geometry
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISTANCE_CROSS_TRACK_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP

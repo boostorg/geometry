@@ -50,10 +50,15 @@ struct closest_points_policy
         : m_strategy(strategy)
     {}
 
-    typedef void return_type;
+    typedef Strategy strategy_type;
+    template <typename S, typename P, typename PS>
+    struct return_type
+    {
+        typedef void type;
+    };
 
     template <typename PointType>
-    return_type apply(PointType const& p1,
+    void apply(PointType const& p1,
                       PointType const& p2,
                       PointType const& p)
     {
@@ -75,19 +80,24 @@ struct closest_points
     static inline void apply(
         Geometry1 const& g1,
         Geometry2 const& g2,
-        Segment &shortest_seg,
+        Segment& shortest_seg,
         Strategy const& strategy)
     {
 
         typedef closest_points_policy<Geometry1, Geometry2, Strategy> Policy;
         Policy policy(strategy);
 
-        distance <
+        auto seg = distance <
+                                Geometry1, Geometry2, Strategy,
+                                point_tag, segment_tag, strategy_tag_distance_point_segment,
+                                false
+                            >::apply(g1, g2, strategy);
+/*        distance <
                                 Geometry1, Geometry2, Policy,
                                 point_tag, segment_tag, strategy_tag_distance_point_segment,
                                 false
                             >::apply(g1, g2, policy);
-        shortest_seg = policy.m_shortest_seg;
+*/        //shortest_seg = policy.m_shortest_seg;
     }
 };
 
