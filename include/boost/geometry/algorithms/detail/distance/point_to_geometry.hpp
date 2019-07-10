@@ -49,6 +49,8 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
+#include <boost/geometry/formulas/point_segment_distance.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -407,7 +409,7 @@ struct distance
         >
 {};
 
-/*
+
 // Point-segment version 2, with point-segment strategy
 template <typename Point, typename Segment, typename Strategy>
 struct distance
@@ -429,31 +431,6 @@ struct distance
 
         boost::ignore_unused(strategy);
         return strategy.apply(point, p[0], p[1]);
-    }
-};
-*/
-// Point-segment version 2, with point-segment strategy
-template <typename Point, typename Segment, typename Policy>
-struct distance
-    <
-        Point, Segment, Policy, point_tag, segment_tag,
-        strategy_tag_distance_point_segment, false
-    >
-{
-    static inline typename strategy::distance::services::return_type
-        <
-            Policy, Point, typename point_type<Segment>::type
-        >::type
-                apply(Point const& point,
-                      Segment const& segment,
-                      Policy const& policy)
-    {
-        typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
-
-        //boost::ignore_unused(strategy);
-        return policy.apply(point, p[0], p[1]);
     }
 };
 

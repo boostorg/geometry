@@ -11,6 +11,29 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
 #define BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
 
+#include <boost/algorithm/minmax.hpp>
+
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/radian_access.hpp>
+
+#include <boost/geometry/formulas/result_direct.hpp>
+#include <boost/geometry/formulas/mean_radius.hpp>
+#include <boost/geometry/formulas/meridian_inverse.hpp>
+
+#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/concepts/distance_concept.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
+#include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/distance.hpp>
+#include <boost/geometry/strategies/geographic/parameters.hpp>
+#include <boost/geometry/strategies/geographic/intersection.hpp>
+
+#ifndef BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS
+#define BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS 100
+#endif
+
 namespace boost { namespace geometry { namespace formula
 {
 
@@ -38,39 +61,7 @@ public :
         CT lat;
     };
 
-
-    static result_type apply()
-    {
-        return result_type();
-    }
-
 private :
-
-    result_type
-    static inline non_iterative_case(CT const& lon, CT const& lat, CT const& distance)
-    {
-        result_type result;
-        result.distance = distance;
-
-        if (EnableClosestPoint)
-        {
-            result.lon = lon;
-            result.lat = lat;
-        }
-        return result;
-    }
-
-    template <typename Spheroid>
-    result_type
-    static inline non_iterative_case(CT const& lon1, CT const& lat1, //p1
-                                     CT const& lon2, CT const& lat2, //p2
-                                     Spheroid const& spheroid)
-    {
-        CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
-                              ::apply(lon1, lat1, lon2, lat2, spheroid);
-
-        return non_iterative_case(lon1, lat1, distance);
-    }
 
     CT static inline normalize(CT const& g4, CT& der)
     {
@@ -351,7 +342,7 @@ public :
         typedef typename FormulaPolicy::template inverse<CT, true, true, true, false, false>
                 inverse_dist_azimuth_reverse_type;
 
-        CT const earth_radius = geometry::formula::mean_radius<CT>(spheroid);
+        double const earth_radius = geometry::formula::mean_radius<double>(spheroid);
 
         result_type result;
 
@@ -591,6 +582,33 @@ public :
 
         return result;
     }
+
+    result_type
+    static inline non_iterative_case(CT const& lon, CT const& lat, CT const& distance)
+    {
+        result_type result;
+        result.distance = distance;
+
+        if (EnableClosestPoint)
+        {
+            result.lon = lon;
+            result.lat = lat;
+        }
+        return result;
+    }
+
+    template <typename Spheroid>
+    result_type
+    static inline non_iterative_case(CT const& lon1, CT const& lat1, //p1
+                                     CT const& lon2, CT const& lat2, //p2
+                                     Spheroid const& spheroid)
+    {
+        CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
+                ::apply(lon1, lat1, lon2, lat2, spheroid);
+
+        return non_iterative_case(lon1, lat1, distance);
+    }
+
 
 };
 
