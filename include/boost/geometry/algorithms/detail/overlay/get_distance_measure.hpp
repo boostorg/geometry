@@ -12,7 +12,8 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/arithmetic/general_form.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <cmath>
@@ -105,10 +106,10 @@ struct get_distance_measure<CalculationType, cartesian_tag>
         // It is not a real distance and purpose is
         // to detect small differences in collinearity
 
-        typedef arithmetic::general_form<CalculationType> gf;
-        gf const f = arithmetic::construct_line<CalculationType>(p1, p2);
+        typedef model::infinite_line<CalculationType> line_type;
+        line_type const line = detail::make::make_infinite_line<CalculationType>(p1, p2);
         result_type result;
-        result.measure = arithmetic::side_value(f, p);
+        result.measure = arithmetic::side_value(line, p);
         return result;
     }
 };

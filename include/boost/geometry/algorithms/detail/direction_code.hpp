@@ -12,12 +12,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECITON_CODE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECITON_CODE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
 
 
 #include <boost/geometry/core/access.hpp>
-#include <boost/geometry/arithmetic/general_form.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
@@ -51,16 +52,16 @@ struct direction_code_impl<cartesian_tag>
                 Point1, Point2
             >::type calc_t;
 
-        typedef arithmetic::general_form<calc_t> gf;
+        typedef model::infinite_line<calc_t> line_type;
 
         // point b is often equal to the specified point, check that first
-        gf const q = arithmetic::construct_line<calc_t>(segment_b, point);
+        line_type const q = detail::make::make_infinite_line<calc_t>(segment_b, point);
         if (arithmetic::is_degenerate(q))
         {
             return 0;
         }
 
-        gf const p = arithmetic::construct_line<calc_t>(segment_a, segment_b);
+        line_type const p = detail::make::make_infinite_line<calc_t>(segment_a, segment_b);
         if (arithmetic::is_degenerate(p))
         {
             return 0;
@@ -252,4 +253,4 @@ inline int direction_code(Point1 const& segment_a, Point1 const& segment_b,
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECITON_CODE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP

@@ -31,6 +31,7 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
@@ -38,7 +39,7 @@
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 
-#include <boost/geometry/arithmetic/general_form.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
@@ -180,9 +181,9 @@ struct buffer_range
             output_point_type const& p1,
             output_point_type const& p2)
     {
-        typedef arithmetic::general_form<coordinate_type> gf;
-        gf const p = arithmetic::construct_line<coordinate_type>(p0, p1);
-        gf const q = arithmetic::construct_line<coordinate_type>(p1, p2);
+        typedef model::infinite_line<coordinate_type> line_type;
+        line_type const p = detail::make::make_infinite_line<coordinate_type>(p0, p1);
+        line_type const q = detail::make::make_infinite_line<coordinate_type>(p1, p2);
         return arithmetic::similar_direction(p, q);
     }
 

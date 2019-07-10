@@ -10,7 +10,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
 
-#include <boost/geometry/arithmetic/general_form.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
 namespace boost { namespace geometry
@@ -31,12 +32,12 @@ struct line_line_intersection
           Point& ip)
     {
         typedef typename coordinate_type<Point>::type ct;
-        typedef arithmetic::general_form<ct> gf;
+        typedef model::infinite_line<ct> line_type;
 
-        gf const p = arithmetic::construct_line<ct>(pi, pj);
-        gf const q = arithmetic::construct_line<ct>(qi, qj);
+        line_type const p = detail::make::make_infinite_line<ct>(pi, pj);
+        line_type const q = detail::make::make_infinite_line<ct>(qi, qj);
 
-        if (arithmetic::get_intersection(ip, p, q))
+        if (arithmetic::intersection_point(p, q, ip))
         {
             return strategy::buffer::join_convex;
         }
