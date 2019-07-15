@@ -139,7 +139,13 @@ public :
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        return (formula::point_segment_distance<typename return_type<Point, PointOfSegment>::type>
+        return (formula::point_segment_distance
+                <
+                    typename return_type<Point, PointOfSegment>::type,
+                    false,
+                    FormulaPolicy,
+                    Bisection
+                >
                        ::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
                                get_as_radian<0>(sp2), get_as_radian<1>(sp2),
                                get_as_radian<0>(p), get_as_radian<1>(p),
