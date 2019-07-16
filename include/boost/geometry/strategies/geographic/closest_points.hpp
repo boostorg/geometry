@@ -20,7 +20,6 @@ namespace boost { namespace geometry
 namespace strategy { namespace closest_points
 {
 
-
 template
 <
     typename FormulaPolicy = strategy::andoyer,
@@ -33,7 +32,26 @@ public :
 
     template <typename Point, typename PointOfSegment>
     struct return_type
-        : formula::point_segment_distance<double>::result_type
+        : promote_floating_point
+          <
+              typename select_calculation_type
+                  <
+                      Point,
+                      PointOfSegment,
+                      CalculationType
+                  >::type
+          >
+    {};
+
+    template <typename Point, typename PointOfSegment>
+    struct point_segment_distance_closest_point
+        : formula::point_segment_distance
+            <
+                typename return_type<Point, PointOfSegment>::type,
+                true,
+                FormulaPolicy,
+                false
+            >
     {};
 
     explicit geographic_closest_points(Spheroid const& spheroid = Spheroid())
@@ -41,191 +59,24 @@ public :
     {}
 
     template <typename Point, typename PointOfSegment>
-    formula::point_segment_distance<double, true>::result_type
+    typename point_segment_distance_closest_point<Point, PointOfSegment>::result_type
     apply(Point const& p,
           PointOfSegment const& sp1,
           PointOfSegment const& sp2) const
     {
-        //result_distance_point_segment<typename return_type<Point, PointOfSegment>::type>
-        formula::point_segment_distance<double, true>::result_type res =
-                formula::point_segment_distance<double, true>
-                                       ::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                                               get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                                               get_as_radian<0>(p), get_as_radian<1>(p),
-                                               this->m_spheroid);
-        return res;
-        //Point point;
-        /*
-        set_from_radian<0,0>(s, get_as_radian<0>(p));
-        set_from_radian<0,1>(s, get_as_radian<1>(p));
-        set_from_radian<1,0>(s, res.closest_point_lon);
-        set_from_radian<1,1>(s, res.closest_point_lat);
-        */
+        return point_segment_distance_closest_point<Point, PointOfSegment>
+                      ::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                              get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                              get_as_radian<0>(p), get_as_radian<1>(p),
+                              this->m_spheroid);
     }
 
     Spheroid m_spheroid;
-
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 namespace services
 {
-/*
-//tags
-template <typename FormulaPolicy>
-struct tag<geographic_closest_points<FormulaPolicy> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid
->
-struct tag<geographic_closest_points<FormulaPolicy, Spheroid> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct tag<geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct tag<detail::geographic_closest_points<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-    typedef strategy_tag_distance_point_segment type;
-};
-*/
-
-
-
-/*
-//comparable types
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct comparable_type<geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> >
-{
-    typedef geographic_closest_points
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        >  type;
-};
-
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct comparable_type<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-    typedef detail::geographic_cross_track
-        <
-            FormulaPolicy, Spheroid, CalculationType, Bisection
-        >  type;
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType
->
-struct get_comparable<geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> >
-{
-public :
-    static inline geographic_closest_points<FormulaPolicy, Spheroid, CalculationType>
-    apply(geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> const& strategy)
-    {
-        return strategy;
-    }
-};
-
-template
-<
-        typename FormulaPolicy,
-        typename Spheroid,
-        typename CalculationType,
-        bool Bisection
->
-struct get_comparable<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
-{
-public :
-    static inline detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
-    apply(detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
-    {
-        return strategy;
-    }
-};
-
-
-template
-<
-    typename FormulaPolicy,
-    typename P,
-    typename PS
->
-struct result_from_distance<geographic_closest_points<FormulaPolicy>, P, PS>
-{
-private :
-    typedef typename geographic_closest_points
-        <
-            FormulaPolicy
-        >::template return_type<P, PS>::type return_type;
-public :
-    template <typename T>
-    static inline return_type
-    apply(geographic_closest_points<FormulaPolicy> const& , T const& distance)
-    {
-        return distance;
-    }
-};
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType,
-    typename P,
-    typename PS
->
-struct result_from_distance<geographic_closest_points<FormulaPolicy, Spheroid, CalculationType>, P, PS>
-{
-private :
-    typedef typename geographic_closest_points
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        >::template return_type<P, PS>::type return_type;
-public :
-    template <typename T>
-    static inline return_type
-    apply(geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
-    {
-        return distance;
-    }
-};
-*/
 
 template <typename Point, typename PointOfSegment>
 struct default_strategy
@@ -255,10 +106,9 @@ struct default_strategy
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
-}} // namespace strategy::closest_points
+} // namespace closest_points
 
-namespace strategy { namespace distance {
-namespace services {
+namespace distance { namespace services {
 
 //tags
 template <typename FormulaPolicy>
@@ -283,7 +133,9 @@ template
         typename Spheroid,
         typename CalculationType
 >
-struct tag<closest_points::geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> >
+struct tag<closest_points::geographic_closest_points<FormulaPolicy,
+                                                     Spheroid,
+                                                     CalculationType> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
@@ -293,7 +145,9 @@ struct tag<closest_points::geographic_closest_points<FormulaPolicy, Spheroid, Ca
 template <typename FormulaPolicy, typename P, typename PS>
 struct return_type<closest_points::geographic_closest_points<FormulaPolicy>, P, PS>
 {
-    typedef formula::point_segment_distance<double, true>::result_type type;
+    typedef typename closest_points::geographic_closest_points<FormulaPolicy>
+                          ::template point_segment_distance_closest_point<P, PS>
+                          ::result_type type;
 };
 
 template
@@ -303,9 +157,12 @@ template
         typename P,
         typename PS
 >
-struct return_type<closest_points::geographic_closest_points<FormulaPolicy, Spheroid>, P, PS>
+struct return_type<closest_points::geographic_closest_points<FormulaPolicy,
+                                                             Spheroid>, P, PS>
 {
-    typedef formula::point_segment_distance<double, true>::result_type type;
+    typedef typename closest_points::geographic_closest_points<FormulaPolicy, Spheroid>
+                     ::template point_segment_distance_closest_point<P, PS>
+                     ::result_type type;
 };
 
 template
@@ -316,9 +173,17 @@ template
         typename P,
         typename PS
 >
-struct return_type<closest_points::geographic_closest_points<FormulaPolicy, Spheroid, CalculationType>, P, PS>
+struct return_type<closest_points::geographic_closest_points
+                   <
+                        FormulaPolicy,
+                        Spheroid,
+                        CalculationType
+                   >, P, PS>
 {
-    typedef formula::point_segment_distance<double, true>::result_type type;
+    typedef typename closest_points::geographic_closest_points
+                     <FormulaPolicy, Spheroid, CalculationType>
+                    ::template point_segment_distance_closest_point<P, PS>
+                    ::result_type type;
 };
 
 }}} // namespace strategy::distance::services

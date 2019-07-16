@@ -615,4 +615,4 @@ public :
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_FORMULAS_ANDOYER_INVERSE_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
