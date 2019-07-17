@@ -19,6 +19,7 @@
 #include <iomanip>
 
 #include <geometry_test_common.hpp>
+#include <algorithms/check_validity.hpp>
 #include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
@@ -194,8 +195,9 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 #endif
     {
         // std::cout << bg::dsv(result) << std::endl;
+        typedef bg::model::multi_polygon<OutputType> result_type;
         std::string message;
-        bool const valid = bg::is_valid(result, message);
+        bool const valid = check_validity<result_type>::apply(result, caseid, g1, g2, message);
         BOOST_CHECK_MESSAGE(valid,
             "difference: " << caseid << " not valid " << message
             << " type: " << (type_for_assert_message<G1, G2>()));

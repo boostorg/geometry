@@ -49,9 +49,7 @@
 template <typename P>
 void test_all()
 {
-    typedef bg::model::box<P> box;
     typedef bg::model::polygon<P> polygon;
-    typedef bg::model::ring<P> ring;
 
     typedef typename bg::coordinate_type<P>::type ct;
 
@@ -246,6 +244,45 @@ void test_all()
     TEST_DIFFERENCE(case_106, 1, 17.5, 2, 32.5, 3);
     TEST_DIFFERENCE(case_107, 2, 18.0, 2, 29.0, 4);
 
+    TEST_DIFFERENCE(case_precision_1, 1, 14.0, 1, BG_IF_RESCALED(8.00001, 8.0), 1);
+    TEST_DIFFERENCE(case_precision_2, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_3, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_4, 1, 14.0, 1, 8.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_5, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_6, 0, 0.0, 1, 57.0, 1);
+#endif
+    TEST_DIFFERENCE(case_precision_7, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_8, 0, 0.0, 1, 59.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_9, 0, 0.0, 1, 59.0, 1);
+    TEST_DIFFERENCE(case_precision_10, 0, 0.0, 1, 59.0, 1);
+#endif
+    TEST_DIFFERENCE(case_precision_11, 0, 0.0, 1, 59.0, 1);
+    TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
+    TEST_DIFFERENCE(case_precision_13, 1, BG_IF_RESCALED(12.00002, 12.0), 0, 0.0, 1);
+    TEST_DIFFERENCE(case_precision_14, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_15, 0, 0.0, 1, 59.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_16, 0, 0.0, 1, 59.0, 1);
+#endif
+    TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
+    TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_19, 0, 0.0, 1, 59.0, 1);
+#endif
+    TEST_DIFFERENCE(case_precision_20, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_21, 1, 14.0, 1, 7.99999, 1);
+    TEST_DIFFERENCE(case_precision_22, 0, 0.0, 1, 59.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_23, 0, 0.0, 1, 59.0, 1);
+#endif
+    TEST_DIFFERENCE(case_precision_24, 1, 14.0, 1, 8.0, 1);
+    TEST_DIFFERENCE(case_precision_25, 1, 14.0, 1, 7.99999, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    TEST_DIFFERENCE(case_precision_26, 0, 0.0, 1, 59.0, 1);
+#endif
+
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
         3, 37, 61,
@@ -317,8 +354,8 @@ void test_all()
         // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
         // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
         TEST_DIFFERENCE_WITH(geos_1,
-            -1, BG_IF_KRAMER(0.29171, 0.1898158),
-            -1, BG_IF_KRAMER(0.00076855, 0.000052889),
+            -1, BG_IF_KRAMER(0.29171, 0.189697476),
+            -1, BG_IF_KRAMER(0.00076855, 0.000018266),
             -1);
     }
 #endif
@@ -485,6 +522,10 @@ void test_all()
             2, 23, 62.25,
             0, 0, 0.0);
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    typedef bg::model::box<P> box;
+    typedef bg::model::ring<P> ring;
+
     // Other combinations
     {
         test_one<polygon, polygon, ring>(
@@ -544,6 +585,7 @@ void test_all()
             3, -1, 8.53333333333, 2, -1, 0.53333333333);
 
     }
+#endif
 
     // Rescaling generates a very small false polygon
     {
@@ -600,7 +642,6 @@ void test_specific()
     // Generates spikes, both a-b and b-a
     TEST_DIFFERENCE(ticket_11676, 2, 2537992.5, 2, 294963.5, 3);
 }
-
 
 int test_main(int, char* [])
 {
