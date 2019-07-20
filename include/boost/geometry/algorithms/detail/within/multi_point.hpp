@@ -223,15 +223,21 @@ struct multi_point_multi_geometry
             bool found_boundary = false;
             int boundaries = 0;
 
-            typedef typename box_pair_vector::const_iterator iterator;
-            for ( iterator box_it = inters_boxes.begin() ; box_it != inters_boxes.end() ; ++box_it )
+            typedef typename box_pair_vector::const_iterator box_iterator;
+            for (box_iterator box_it = inters_boxes.begin() ;
+                 box_it != inters_boxes.end() ; ++box_it )
             {
-                int in_val = point_in_geometry(*it, range::at(linear_or_areal, box_it->second), strategy);
+                int const in_val = point_in_geometry(*it,
+                    range::at(linear_or_areal, box_it->second), strategy);
 
                 if (in_val > 0)
+                {
                     found_interior = true;
+                }
                 else if (in_val == 0)
+                {
                     ++boundaries;
+                }
 
                 // If the result was set previously (interior or
                 // interior/boundary found) the only thing that needs to be
@@ -243,12 +249,16 @@ struct multi_point_multi_geometry
                 }
             }
 
-            if ( boundaries > 0)
+            if (boundaries > 0)
             {
                 if (is_linear && boundaries % 2 == 0)
+                {
                     found_interior = true;
+                }
                 else
+                {
                     found_boundary = true;
+                }
             }
 
             // exterior

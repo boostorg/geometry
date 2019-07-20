@@ -499,7 +499,6 @@ private:
                 }
 
                 // NOTE: this is probably not needed
-                calc_t const c0 = 0;
                 int a1_on_b = position_value(c0, dist_a1_b1, dist_a1_b2);
                 int a2_on_b = position_value(dist_a1_a2, dist_a1_b1, dist_a1_b2);
                 int b1_on_a = position_value(c0, dist_b1_a1, dist_b1_a2);
