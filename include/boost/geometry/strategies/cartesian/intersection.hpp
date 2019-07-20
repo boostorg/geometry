@@ -226,23 +226,21 @@ struct cartesian_segments
             // division.
             BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
 
-            typedef typename promote_integral<CoordinateType>::type integral_type;
+            typedef typename promote_integral<CoordinateType>::type calc_type;
 
-            integral_type const numerator
-                = boost::numeric_cast<integral_type>(ratio.numerator());
-            integral_type const denominator
-                = boost::numeric_cast<integral_type>(ratio.denominator());
-            integral_type const dx_promoted = boost::numeric_cast<integral_type>(dx);
-            integral_type const dy_promoted = boost::numeric_cast<integral_type>(dy);
+            calc_type const numerator
+                = boost::numeric_cast<calc_type>(ratio.numerator());
+            calc_type const denominator
+                = boost::numeric_cast<calc_type>(ratio.denominator());
+            calc_type const dx_calc = boost::numeric_cast<calc_type>(dx);
+            calc_type const dy_calc = boost::numeric_cast<calc_type>(dy);
 
-            set<0>(point, get<0, 0>(segment) + boost::numeric_cast
-                <
-                    CoordinateType
-                >(numerator * dx_promoted / denominator));
-            set<1>(point, get<0, 1>(segment) + boost::numeric_cast
-                <
-                    CoordinateType
-                >(numerator * dy_promoted / denominator));
+            set<0>(point, get<0, 0>(segment)
+                   + boost::numeric_cast<CoordinateType>(numerator * dx_calc
+                                                         / denominator));
+            set<1>(point, get<0, 1>(segment)
+                   + boost::numeric_cast<CoordinateType>(numerator * dy_calc
+                                                         / denominator));
         }
 
     public :
