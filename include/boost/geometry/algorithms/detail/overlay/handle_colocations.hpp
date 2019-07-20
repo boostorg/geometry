@@ -833,7 +833,7 @@ struct is_turn_index
         return indexed.turn_index == m_index;
     }
 
-    std::size_t m_index;
+    signed_size_type m_index;
 };
 
 

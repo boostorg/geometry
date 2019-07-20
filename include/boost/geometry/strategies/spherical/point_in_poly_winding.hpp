@@ -502,7 +502,7 @@ protected:
         typedef math::detail::constants_on_spheroid<CalcT, Units> constants;
 
         return constants::half_period() / CalcT(180);
-    };
+    }
 
     template <typename Units, typename CalcT>
     static inline bool longitudes_equal(CalcT const& lon1, CalcT const& lon2)

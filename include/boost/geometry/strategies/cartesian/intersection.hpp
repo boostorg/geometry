@@ -226,14 +226,14 @@ struct cartesian_segments
             // division.
             BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
 
-            typedef typename promote_integral<CoordinateType>::type promoted_type;
+            typedef typename promote_integral<CoordinateType>::type integral_type;
 
-            promoted_type const numerator
-                = boost::numeric_cast<promoted_type>(ratio.numerator());
-            promoted_type const denominator
-                = boost::numeric_cast<promoted_type>(ratio.denominator());
-            promoted_type const dx_promoted = boost::numeric_cast<promoted_type>(dx);
-            promoted_type const dy_promoted = boost::numeric_cast<promoted_type>(dy);
+            integral_type const numerator
+                = boost::numeric_cast<integral_type>(ratio.numerator());
+            integral_type const denominator
+                = boost::numeric_cast<integral_type>(ratio.denominator());
+            integral_type const dx_promoted = boost::numeric_cast<integral_type>(dx);
+            integral_type const dy_promoted = boost::numeric_cast<integral_type>(dy);
 
             set<0>(point, get<0, 0>(segment) + boost::numeric_cast
                 <
