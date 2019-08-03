@@ -59,6 +59,16 @@ public :
         CT distance;
         CT lon;
         CT lat;
+
+        bool operator<(const result_type& rhs) const
+        {
+            return distance < rhs.distance;
+        }
+
+        bool operator==(const result_type& rhs) const
+        {
+            return distance == rhs.distance;
+        }
     };
 
 private :

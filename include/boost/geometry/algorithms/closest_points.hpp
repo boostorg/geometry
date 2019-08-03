@@ -53,15 +53,33 @@ struct closest_points
     {
 
         typename strategy::distance::services::return_type
+                        <
+                            Strategy, Geometry1, typename point_type<Geometry2>::type
+                        >::type
+                        seg = distance <
+                                        Geometry1, Geometry2, Strategy
+                                        >::apply(g1, g2, strategy);
+        /*typename strategy::distance::services::return_type
+                <
+                    Strategy, Geometry1, typename point_type<Geometry2>::type
+                >::type
+                seg1 = distance <
+                                Geometry2, Geometry1, Strategy,
+                                Tag2, Tag1, StrategyTag,
+                                false
+                               >::apply(g2, g1, strategy);
+
+        typename strategy::distance::services::return_type
                 <
                     Strategy, Geometry1, typename point_type<Geometry2>::type
                 >::type
                 seg = distance <
                                 Geometry1, Geometry2, Strategy,
-                                point_tag, segment_tag, strategy_tag_distance_point_segment,
+                                point_tag, segment_tag,
+                                strategy_tag_distance_point_segment,
                                 false
                             >::apply(g1, g2, strategy);
-
+*/
         //set_from_radian<0,0>(shortest_seg, get_as_radian<0>(p));
         //set_from_radian<0,1>(shortest_seg, get_as_radian<1>(p));
         set_from_radian<1,0>(shortest_seg, seg.lon);

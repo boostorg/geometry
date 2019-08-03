@@ -104,7 +104,8 @@ public:
     static inline return_type apply(Point const& point, Range const& range,
                                     Strategy const& strategy)
     {
-        return_type const zero = return_type(0);
+
+        return_type const zero = return_type();
 
         if (boost::size(range) == 0)
         {
@@ -133,7 +134,6 @@ public:
                                                   Strategy
                                               >::apply(strategy),
                                           cd_min);
-
         return
             is_comparable<Strategy>::value
             ?

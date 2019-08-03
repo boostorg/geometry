@@ -30,6 +30,13 @@ class geographic_closest_points
 {
 public :
 
+    inline distance::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
+    get_geographic_cross_track() const
+    {
+        return distance::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType>
+                (m_spheroid);
+    }
+
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point
@@ -184,6 +191,128 @@ struct return_type<closest_points::geographic_closest_points
                      <FormulaPolicy, Spheroid, CalculationType>
                     ::template point_segment_distance_closest_point<P, PS>
                     ::result_type type;
+};
+
+//comparable types
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType
+>
+struct comparable_type<closest_points::geographic_closest_points
+                         <FormulaPolicy, Spheroid, CalculationType> >
+{
+    typedef closest_points::geographic_closest_points
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        >  type;
+};
+
+/*
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType,
+        bool Bisection
+>
+struct get_comparable<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+{
+public :
+    static inline detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
+    apply(detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
+    {
+        return strategy;
+    }
+};
+*/
+
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType
+>
+struct get_comparable<closest_points::geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> >
+{
+public :
+    static inline closest_points::geographic_closest_points
+                    <FormulaPolicy, Spheroid, CalculationType>
+    apply(closest_points::geographic_closest_points
+                    <FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    {
+        //return strategy.get_geographic_cross_track();
+        return strategy;
+    }
+};
+
+/*
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType,
+        bool Bisection
+>
+struct get_comparable<detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> >
+{
+public :
+    static inline detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection>
+    apply(detail::geographic_cross_track<FormulaPolicy, Spheroid, CalculationType, Bisection> const& strategy)
+    {
+        return strategy;
+    }
+};*/
+
+
+template
+<
+    typename FormulaPolicy,
+    typename P,
+    typename PS
+>
+struct result_from_distance<closest_points::geographic_closest_points<FormulaPolicy>, P, PS>
+{
+private :
+    typedef typename closest_points::geographic_closest_points
+        <
+            FormulaPolicy
+        >::template return_type<P, PS>::type return_type;
+public :
+    template <typename T>
+    static inline return_type
+    apply(closest_points::geographic_closest_points<FormulaPolicy> const& ,
+          T const& distance)
+    {
+        return distance;
+    }
+};
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType,
+    typename P,
+    typename PS
+>
+struct result_from_distance<closest_points::geographic_closest_points
+                  <FormulaPolicy, Spheroid, CalculationType>, P, PS>
+{
+private :
+    typedef typename closest_points::geographic_closest_points
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        >::template return_type<P, PS>::type return_type;
+public :
+    template <typename T>
+    static inline return_type
+    apply(closest_points::geographic_closest_points<FormulaPolicy, Spheroid, CalculationType> const& ,
+          T const& distance)
+    {
+        return distance;
+    }
 };
 
 }}} // namespace strategy::distance::services

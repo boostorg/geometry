@@ -53,7 +53,7 @@ protected:
     {
         BOOST_GEOMETRY_ASSERT( first != last );
 
-        Distance const zero = Distance(0);
+        Distance const zero = Distance();
 
         iterator_type it = first;
         iterator_type prev = it++;
