@@ -55,7 +55,7 @@ class WithinStrategyPolygonal
     struct checker
     {
         template <typename ApplyMethod, typename ResultMethod>
-        static void apply(ApplyMethod const&, ResultMethod const& )
+        static void apply(ApplyMethod, ResultMethod)
         {
             typedef typename parameter_type_of
                 <
@@ -129,7 +129,7 @@ class WithinStrategyPointBox
     struct checker
     {
         template <typename ApplyMethod>
-        static void apply(ApplyMethod const&)
+        static void apply(ApplyMethod)
         {
             typedef typename parameter_type_of
                 <
