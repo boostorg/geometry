@@ -3,6 +3,7 @@
     "key": "geometry/extensions",
     "boost-version": "1.47.0",
     "name": "Geometry Extensions",
+    "status": "hidden",
     "authors": [
       "Barend Gehrels",
       "Bruno Lalande",
