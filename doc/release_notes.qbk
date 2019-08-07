@@ -20,6 +20,25 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.71]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/568 568] Add a constructor that takes matrix_type to matrix_transformer.
+* [@https://github.com/boostorg/geometry/pull/605 605] Improvement of handling of coordinate systems in various algorithms.
+* Various improvements related to robustness of set and relational operation.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/596 596] boost::geometry::buffer generates (multi)polygon with spike.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/595 595] Fix inaccuracy in geographic point-segment distance computation.
+* Fix various compiler warnings.
+
+[/=================]
 [heading Boost 1.70]
 [/=================]
 
