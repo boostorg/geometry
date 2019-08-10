@@ -87,11 +87,13 @@ public:
                 is_acceptable_turn<Geometry>
             > interrupt_policy;
 
+        // Calculate self-turns, skipping adjacent segments
         detail::self_get_turn_points::self_turns<false, turn_policy>(geometry,
                                           strategy,
                                           robust_policy,
                                           turns,
-                                          interrupt_policy);
+                                          interrupt_policy,
+                                          0, true);
 
         if (interrupt_policy.has_intersections)
         {

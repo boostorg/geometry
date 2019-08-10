@@ -157,23 +157,25 @@ void test_areal()
         // output is discarded because of zero (rescaled) area
         // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
         ut_settings settings;
-        settings.sym_difference = false; // Validity problem in sym difference
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        settings.test_validity = false; // Invalid output in A
-        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 0, 0.0, 2);
+        settings.sym_difference = BG_IF_RESCALED(false, true);
+        settings.test_validity = BG_IF_RESCALED(false, true);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+        // No output for B
+        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 0, 0.0, 1);
 #else
+        // Very small sliver for B
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
 #endif
     }
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
-        // Without rescaling, this one misses one of the output polygons
         // With rescaling, it is complete but invalid
         ut_settings settings;
         settings.percentage = 0.001;
-        settings.test_validity = false;
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9081, 2, 0.0907392476356186, 4, 0.126018011439877, 4);
+        settings.test_validity = BG_IF_RESCALED(false, true);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9081, 2, 0.0907392476356186,
+                             4, 0.126018011439877, BG_IF_RESCALED(4, 3));
     }
 #endif
 
@@ -317,7 +319,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Misses one triangle
+    // Misses one triangle. It is NOT related to rescaling.
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
 #endif
 

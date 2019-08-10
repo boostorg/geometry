@@ -200,12 +200,9 @@ struct dissolve_ring
         cluster_type clusters;
 
         // Enrich/traverse the polygons
-        typename Strategy::side_strategy_type const
-            side_strategy = strategy.get_side_strategy();
-
         enrich_intersection_points<Reverse, Reverse, overlay_dissolve>(turns,
                     clusters, input_ring, input_ring, rescale_policy,
-                    side_strategy);
+                    strategy);
 
         visitor.visit_turns(2, turns);
 
@@ -374,7 +371,7 @@ struct dissolve_polygon
         // expect - alternatively, difference could be used to have them pure
         // as interior rings only
         return detail::sym_difference::sym_difference_insert<GeometryOut>(
-                    exterior_out, interior_out, rescale_policy, out);
+                    exterior_out, interior_out, out);
     }
 };
 
