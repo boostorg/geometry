@@ -19,7 +19,8 @@ const int samples = 100;
 
 template<typename Distribution, typename Generator, typename Mapper>
 void draw_samples(Distribution& d, Generator& g, Mapper& m) {
-    for (int i = 0 ; i < samples ; ++i) {
+    for (int i = 0 ; i < samples ; ++i)
+    {
         m.map(d(g), "fill-opacity:1;fill:rgb(255,0,0);stroke:rgb(255,0,0);stroke-width:1", 1);
     }
 }
@@ -39,8 +40,10 @@ int main()
     box b(point(0, 0), point(10, 10));
     segment s(point(11, 0), point(21, 10));
     multi_point mp;
-    for (double y = 11.0 ; y <= 21.0 ; y += 0.5) {
-        for(double x = 0.0 ; x <= 10.0 ; x += 0.5) {
+    for (double y = 11.0 ; y <= 21.0 ; y += 0.5)
+    {
+        for(double x = 0.0 ; x <= 10.0 ; x += 0.5)
+        {
             bg::append(mp, point(x, y));
         }
     }
@@ -68,7 +71,8 @@ int main()
     typedef bg::model::box<point_spherical> box_spherical;
     box_spherical sb(point_spherical(0, 0), point_spherical(90, 90));
     auto sb_dist = bg::random::uniform_point_distribution(sb);
-    for (int i = 0 ; i < 10*samples ; ++i) {
+    for (int i = 0 ; i < 10*samples ; ++i)
+    {
         point_spherical p = sb_dist(generator);
         double x = bg::get<0>(p) / 90 * 22;
         double y = 32 - bg::get<1>(p) / 90 * 10;

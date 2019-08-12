@@ -35,7 +35,8 @@ void test_geographic()
     std::mt19937 generator(0);
     int sample_count = 2000;
     int count_below_45 = 0;
-    for(int i = 0 ; i < sample_count ; ++i) {
+    for (int i = 0 ; i < sample_count ; ++i)
+    {
         point2d_geog sample = l_dist(generator);
         BOOST_CHECK( bg::distance(sample, ls) < 2000 );
         if(bg::get<0>(sample) < 45.0) count_below_45++;
@@ -55,7 +56,8 @@ void test_geographic()
     box b {{ 0.0, 0.0 }, { 90.0, 90.0 }};
     auto b_dist = bg::random::uniform_point_distribution(b);
     int under_60 = 0;
-    for(int i = 0 ; i < sample_count; ++i) {
+    for (int i = 0 ; i < sample_count ; ++i)
+    {
         point2d_geog sample = b_dist(generator);
         BOOST_CHECK( bg::within(sample, b) );
         if(bg::get<1>(sample) < 60.0) ++under_60;
@@ -84,14 +86,16 @@ void test_polygon()
     ss >> poly_dist2;
     BOOST_CHECK( poly_dist == poly_dist2 );
     std::mt19937 generator(0), generator2(0);
-    for(int i = 0; i < 100 ; ++i) {
+    for (int i = 0 ; i < 100 ; ++i)
+    {
         point2d_cart sample1 = poly_dist(generator);
         BOOST_CHECK( bg::equals(sample1, poly_dist2(generator2)) );
         BOOST_CHECK( bg::within(sample1, poly) );
     }
     std::vector<point2d_cart> randoms;
     const int uniformity_test_samples = 2000;
-    for(int i = 0; i < uniformity_test_samples ; ++i) {
+    for (int i = 0 ; i < uniformity_test_samples ; ++i)
+    {
         randoms.push_back(poly_dist(generator));
     }
     using box = bg::model::box<point2d_cart>;
@@ -106,7 +110,8 @@ void test_polygon()
     bg::intersection(lhalf, poly, lower);
     double area_ratio = bg::area(lower[0])/bg::area(poly);
     int in_lower = 0;
-    for(int i = 0 ; i < uniformity_test_samples ; ++i) {
+    for (int i = 0 ; i < uniformity_test_samples ; ++i)
+    {
         if(bg::within(randoms[i], lhalf))
             ++in_lower;
     }
@@ -123,7 +128,8 @@ void test_multipoint()
     auto mp_dist = bg::random::uniform_point_distribution(mp);
     std::mt19937 generator(0);
     int sample_count = 1000;
-    for(int i = 0 ; i < sample_count ; ++i) {
+    for (int i = 0 ; i < sample_count ; ++i)
+    {
         point3d_cart sample = mp_dist(generator);
         BOOST_CHECK( bg::within(sample, mp) );
         if(bg::equals(sample, mp[0])) ++first;

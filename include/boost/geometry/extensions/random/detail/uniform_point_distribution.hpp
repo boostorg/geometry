@@ -149,7 +149,8 @@ public:
         cit lhs_it = boost::begin(lhs_domain),
             lhs_end = boost::end(lhs_domain),
             rhs_it = boost::begin(rhs_domain);
-        while(lhs_it != lhs_end) {
+        while(lhs_it != lhs_end)
+        {
             if(!equals(*lhs_it++, *rhs_it++)) return false;
         }
         return true;
@@ -531,10 +532,14 @@ public:
         if(rhs.skip_list.size() != skip_list.size()
             || rhs.point_cache.size() != point_cache.size())
             return false;
-        for(std::size_t i = 0; i < skip_list.size(); ++i)
-            if(skip_list[i] != rhs.skip_list[i]) return false;
-        for(std::size_t i = 0; i < point_cache.size(); ++i)
-            if(!equals(point_cache[i], rhs.point_cache[i])) return false;
+        for (std::size_t i = 0; i < skip_list.size(); ++i)
+        {
+            if (skip_list[i] != rhs.skip_list[i]) return false;
+        }
+        for (std::size_t i = 0; i < point_cache.size(); ++i)
+        {
+            if (!equals(point_cache[i], rhs.point_cache[i])) return false;
+        }
         return true;
     }
     uniform_point_distribution(DomainGeometry const& g) : base(g)
@@ -549,11 +554,13 @@ public:
         std::size_t i = 0;
         point_cache.push_back(*segments_begin(p.domain())->first);
         accumulated_lengths.push_back(0);
-        for(auto it = segments_begin(p.domain()); it!=segments_end(p.domain());
-            ++it) {
+        for (auto it = segments_begin(p.domain()) ; it!=segments_end(p.domain()) ;
+            ++it)
+        {
             accumulated_lengths.push_back(
                 accumulated_lengths.back() + length(*it));
-            if(!equals(point_cache.back(),*it->first)) {
+            if (!equals(point_cache.back(), *it->first))
+            {
                 point_cache.push_back(*it->first);
                 skip_list.push_back(i);
             }
@@ -636,7 +643,8 @@ public:
     uniform_point_distribution(DomainGeometry const& g) :
         base(g),
         d(segment_view<DomainGeometry>(g)) {}
-    void param(typename base::param_type const& p) {
+    void param(typename base::param_type const& p)
+    {
         d = delegate_dist(segment_view<DomainGeometry>(p.domain()));
     }
     template<typename Generator>
