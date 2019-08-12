@@ -16,12 +16,9 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/extensions/random/uniform_point_distribution.hpp>
 
-namespace bg = boost::geometry;
-
-using point2d_cart = bg::model::point<double, 2, bg::cs::cartesian>;
-using point3d_cart = bg::model::point<double, 3, bg::cs::cartesian>;
-using point2d_geog =
-    bg::model::point<double, 2, bg::cs::geographic<bg::degree>>;
+typedef bg::model::point<double, 2, bg::cs::cartesian> point2d_cart;
+typedef bg::model::point<double, 3, bg::cs::cartesian> point3d_cart;
+typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree>> point2d_geog;
 
 void test_geographic()
 {
@@ -29,7 +26,7 @@ void test_geographic()
     //the great circle segment (<2 km distance on a sphere with
     //the radius of earth) and are distributed uniformly with respect
     //to great circle arc length.
-    using linestring = bg::model::linestring<point2d_geog>;
+    typedef bg::model::linestring<point2d_geog> linestring;
     linestring ls {{ 0.0, 0.0 }, { 45.0, 45.0 }, { 60.0, 60.0 }};
     auto l_dist = bg::random::uniform_point_distribution(ls);
     std::mt19937 generator(0);
@@ -52,7 +49,7 @@ void test_geographic()
     //(which is actually a triangle in this case) and whether the latitude
     //is distributed as expected for uniform spherical distribution, using
     //known area ratios of spherical caps.
-    using box = bg::model::box<point2d_geog>;
+    typedef bg::model::box<point2d_geog> box;
     box b {{ 0.0, 0.0 }, { 90.0, 90.0 }};
     auto b_dist = bg::random::uniform_point_distribution(b);
     int under_60 = 0;
@@ -73,7 +70,7 @@ void test_polygon()
     //(copied using operator<< and operator>>) generate the same sequence
     //of points and whether those points are uniformly distributed with
     //respect to cartesian area.
-    using polygon = bg::model::polygon<point2d_cart>;
+    typedef bg::model::polygon<point2d_cart> polygon;
     polygon poly;
     bg::read_wkt(
         "POLYGON((16 21,17.1226 17.5451,20.7553 17.5451, 17.8164 15.4098,18.9389 11.9549,16 14.0902,13.0611 11.9549, 14.1836 15.4098,11.2447 17.5451,14.8774 17.5451,16 21))",
@@ -98,7 +95,7 @@ void test_polygon()
     {
         randoms.push_back(poly_dist(generator));
     }
-    using box = bg::model::box<point2d_cart>;
+    typedef bg::model::box<point2d_cart> box;
     box env, lhalf;
     bg::envelope(poly, env);
     bg::set<bg::min_corner, 0>(lhalf, bg::get<bg::min_corner, 0>(env));
@@ -122,7 +119,7 @@ void test_polygon()
 
 void test_multipoint()
 {
-    using multipoint = bg::model::multi_point<point3d_cart>;
+    typedef bg::model::multi_point<point3d_cart> multipoint;
     multipoint mp {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
     int first = 0;
     auto mp_dist = bg::random::uniform_point_distribution(mp);
