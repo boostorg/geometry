@@ -37,28 +37,40 @@ template
 inline std::basic_ostream<Char, Traits>& operator<<
     (
         std::basic_ostream<Char, Traits> &os,
-        boost::geometry::random::dispatch::uniform_point_distribution<
-            DomainGeometry, Point> const& dist
+        boost::geometry::random::dispatch::uniform_point_distribution
+            <
+                DomainGeometry, Point
+            > const& dist
     )
 {
     os << boost::geometry::wkt<DomainGeometry>(dist.domain());
     return os;
 }
 
-template<typename Char, typename Traits, typename Point, typename DomainGeometry>
+template
+<
+    typename Char,
+    typename Traits,
+    typename Point,
+    typename DomainGeometry
+>
 inline std::basic_istream<Char, Traits>& operator>>
     (
         std::basic_istream<Char, Traits> &is,
-        boost::geometry::random::dispatch::uniform_point_distribution<
-            DomainGeometry, Point> & dist
+        boost::geometry::random::dispatch::uniform_point_distribution
+            <
+                DomainGeometry, Point
+            > & dist
     )
 {
     std::basic_string<Char, Traits> line;
     std::getline(is, line);
     DomainGeometry g;
     namespace bg = boost::geometry;
-    typedef typename bg::random::dispatch::uniform_point_distribution<
-        DomainGeometry, Point>::param_type param_type;
+    typedef typename bg::random::dispatch::uniform_point_distribution
+        <
+            DomainGeometry, Point
+        >::param_type param_type;
     bg::read_wkt<DomainGeometry>(line, g);
     dist.param( param_type(g) );
     return is;
