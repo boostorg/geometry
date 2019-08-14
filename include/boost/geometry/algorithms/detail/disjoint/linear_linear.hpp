@@ -34,6 +34,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
 
 #include <boost/geometry/policies/disjoint_interrupt_policy.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
@@ -78,7 +79,9 @@ struct disjoint_segment
                 intersection_return_type
             > intersection_policy;
 
-        intersection_return_type is = strategy.apply(segment1, segment2,
+        detail::segment_as_subrange<Segment1> sub_range1(segment1);
+        detail::segment_as_subrange<Segment2> sub_range2(segment2);
+        intersection_return_type is = strategy.apply(sub_range1, sub_range2,
                                                      intersection_policy(),
                                                      robust_policy);
 

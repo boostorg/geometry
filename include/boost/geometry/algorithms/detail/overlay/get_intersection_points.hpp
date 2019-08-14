@@ -22,10 +22,9 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
-
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -59,6 +58,13 @@ struct get_turn_without_info
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
+        // Make sure this is only called with no rescaling
+        BOOST_STATIC_ASSERT((boost::is_same
+           <
+               no_rescale_policy_tag,
+               typename rescale_policy_type<RobustPolicy>::type
+           >::value));
+
         typedef typename TurnInfo::point_type turn_point_type;
 
         typedef policies::relate::segments_intersection_points
@@ -73,28 +79,8 @@ struct get_turn_without_info
                     >
             > policy_type;
 
-        typedef model::referring_segment<Point1 const> segment_type1;
-        typedef model::referring_segment<Point2 const> segment_type2;
-        Point1 const& pi = range_p.at(0);
-        Point1 const& pj = range_p.at(1);
-        Point2 const& qi = range_q.at(0);
-        Point2 const& qj = range_q.at(1);
-        segment_type1 p1(pi, pj);
-        segment_type2 q1(qi, qj);
-
-        typedef typename geometry::robust_point_type
-            <
-                Point1, RobustPolicy
-            >::type robust_point_type;
-
-        robust_point_type pi_rob, pj_rob, qi_rob, qj_rob;
-        geometry::recalculate(pi_rob, pi, robust_policy);
-        geometry::recalculate(pj_rob, pj, robust_policy);
-        geometry::recalculate(qi_rob, qi, robust_policy);
-        geometry::recalculate(qj_rob, qj, robust_policy);
-        typename policy_type::return_type result
-            = strategy.apply(p1, q1, policy_type(), robust_policy,
-                             pi_rob, pj_rob, qi_rob, qj_rob);
+        typename policy_type::return_type const result
+            = strategy.apply(range_p, range_q, policy_type(), robust_policy);
 
         for (std::size_t i = 0; i < result.count; i++)
         {

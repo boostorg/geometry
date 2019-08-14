@@ -26,7 +26,7 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-// Probably this will be moved out of namespace detail
+// Redudant later.
 struct no_rescale_policy
 {
     static bool const enabled = false;

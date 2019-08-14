@@ -35,8 +35,9 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
 
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
@@ -75,28 +76,14 @@ struct intersection_segment_segment_point
             OutputIterator out,
             Strategy const& strategy)
     {
+        // Make sure this is only called with no rescaling
+        BOOST_STATIC_ASSERT((boost::is_same
+           <
+               no_rescale_policy_tag,
+               typename rescale_policy_type<RobustPolicy>::type
+           >::value));
+
         typedef typename point_type<PointOut>::type point_type;
-
-        typedef typename geometry::robust_point_type
-            <
-                typename geometry::point_type<Segment1>::type,
-                RobustPolicy
-            >::type robust_point_type;
-
-        // TODO: rescale segment -> robust points
-        robust_point_type pi_rob, pj_rob, qi_rob, qj_rob;
-        {
-            // Workaround:
-            point_type pi, pj, qi, qj;
-            assign_point_from_index<0>(segment1, pi);
-            assign_point_from_index<1>(segment1, pj);
-            assign_point_from_index<0>(segment2, qi);
-            assign_point_from_index<1>(segment2, qj);
-            geometry::recalculate(pi_rob, pi, robust_policy);
-            geometry::recalculate(pj_rob, pj, robust_policy);
-            geometry::recalculate(qi_rob, qi, robust_policy);
-            geometry::recalculate(qj_rob, qj, robust_policy);
-        }
 
         // Get the intersection point (or two points)
         typedef segment_intersection_points
@@ -113,10 +100,12 @@ struct intersection_segment_segment_point
                 intersection_return_type
             > policy_type;
 
+        detail::segment_as_subrange<Segment1> sub_range1(segment1);
+        detail::segment_as_subrange<Segment2> sub_range2(segment2);
+
         intersection_return_type
-            is = strategy.apply(segment1, segment2,
-                                policy_type(), robust_policy,
-                                pi_rob, pj_rob, qi_rob, qj_rob);
+            is = strategy.apply(sub_range1, sub_range2,
+                                policy_type(), robust_policy);
 
         for (std::size_t i = 0; i < is.count; i++)
         {
@@ -1290,7 +1279,7 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
 
     typedef typename geometry::rescale_policy_type
         <
-            typename geometry::point_type<Geometry1>::type, // TODO from both
+            typename geometry::point_type<Geometry1>::type,
             typename Strategy::cs_tag
         >::type rescale_policy_type;
 
