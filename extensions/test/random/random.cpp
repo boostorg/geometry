@@ -28,7 +28,7 @@ void test_geographic()
     //to great circle arc length.
     typedef bg::model::linestring<point2d_geog> linestring;
     linestring ls {{ 0.0, 0.0 }, { 45.0, 45.0 }, { 60.0, 60.0 }};
-    auto l_dist = bg::random::uniform_point_distribution(ls);
+    bg::random::uniform_point_distribution<linestring> l_dist(ls);
     std::mt19937 generator(0);
     int sample_count = 2000;
     int count_below_45 = 0;
@@ -51,7 +51,7 @@ void test_geographic()
     //known area ratios of spherical caps.
     typedef bg::model::box<point2d_geog> box;
     box b {{ 0.0, 0.0 }, { 90.0, 90.0 }};
-    auto b_dist = bg::random::uniform_point_distribution(b);
+    bg::random::uniform_point_distribution<box> b_dist(b);
     int under_60 = 0;
     for (int i = 0 ; i < sample_count ; ++i)
     {
@@ -75,8 +75,8 @@ void test_polygon()
     bg::read_wkt(
         "POLYGON((16 21,17.1226 17.5451,20.7553 17.5451, 17.8164 15.4098,18.9389 11.9549,16 14.0902,13.0611 11.9549, 14.1836 15.4098,11.2447 17.5451,14.8774 17.5451,16 21))",
         poly);
-    auto poly_dist = bg::random::uniform_point_distribution(poly);
-    decltype(poly_dist) poly_dist2;
+    bg::random::uniform_point_distribution<polygon> poly_dist(poly);
+    bg::random::uniform_point_distribution<polygon> poly_dist2;
     BOOST_CHECK( !(poly_dist == poly_dist2) );
     std::stringstream ss;
     ss << poly_dist;
@@ -122,7 +122,7 @@ void test_multipoint()
     typedef bg::model::multi_point<point3d_cart> multipoint;
     multipoint mp {{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, {0.0, 1.0, 0.0}};
     int first = 0;
-    auto mp_dist = bg::random::uniform_point_distribution(mp);
+    bg::random::uniform_point_distribution<multipoint> mp_dist(mp);
     std::mt19937 generator(0);
     int sample_count = 1000;
     for (int i = 0 ; i < sample_count ; ++i)

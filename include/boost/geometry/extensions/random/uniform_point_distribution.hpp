@@ -19,10 +19,24 @@ template
     typename DomainGeometry,
     typename Point = typename geometry::point_type<DomainGeometry>::type
 >
-inline dispatch::uniform_point_distribution<DomainGeometry, Point>
-    uniform_point_distribution(DomainGeometry const& domain)
+class uniform_point_distribution :
+    public dispatch::uniform_point_distribution<DomainGeometry, Point>
 {
-    return dispatch::uniform_point_distribution<DomainGeometry, Point>(domain);
+public:
+    typedef dispatch::uniform_point_distribution<DomainGeometry, Point> base;
+    using base::base;
+    uniform_point_distribution(DomainGeometry const& domain) : base(domain) {}
+};
+
+template
+<
+    typename DomainGeometry,
+    typename Point = typename geometry::point_type<DomainGeometry>::type
+>
+inline uniform_point_distribution<DomainGeometry, Point>
+    return_uniform_point_distribution(DomainGeometry const& domain)
+{
+    return uniform_point_distribution<DomainGeometry, Point>(domain);
 }
 
 }}} // namespace boost::geometry::random
@@ -37,7 +51,7 @@ template
 inline std::basic_ostream<Char, Traits>& operator<<
     (
         std::basic_ostream<Char, Traits> &os,
-        boost::geometry::random::dispatch::uniform_point_distribution
+        boost::geometry::random::uniform_point_distribution
             <
                 DomainGeometry, Point
             > const& dist
@@ -57,7 +71,7 @@ template
 inline std::basic_istream<Char, Traits>& operator>>
     (
         std::basic_istream<Char, Traits> &is,
-        boost::geometry::random::dispatch::uniform_point_distribution
+        boost::geometry::random::uniform_point_distribution
             <
                 DomainGeometry, Point
             > & dist
@@ -67,7 +81,7 @@ inline std::basic_istream<Char, Traits>& operator>>
     std::getline(is, line);
     DomainGeometry g;
     namespace bg = boost::geometry;
-    typedef typename bg::random::dispatch::uniform_point_distribution
+    typedef typename bg::random::uniform_point_distribution
         <
             DomainGeometry, Point
         >::param_type param_type;

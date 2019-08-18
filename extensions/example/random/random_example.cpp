@@ -47,10 +47,10 @@ int main()
             bg::append(mp, point(x, y));
         }
     }
-    auto box_dist = bg::random::uniform_point_distribution(b);
-    auto mp_dist = bg::random::uniform_point_distribution(mp);
-    auto seg_dist = bg::random::uniform_point_distribution(s);
-    auto poly_dist = bg::random::uniform_point_distribution(poly);
+    bg::random::uniform_point_distribution<box> box_dist(b);
+    bg::random::uniform_point_distribution<multi_point> mp_dist(mp);
+    bg::random::uniform_point_distribution<segment> seg_dist(s);
+    bg::random::uniform_point_distribution<polygon> poly_dist(poly);
     std::ofstream svg("random.svg");
     bg::svg_mapper<point> mapper(svg, 720, 720);
     mapper.add(poly);
@@ -70,7 +70,7 @@ int main()
     typedef bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree>> point_spherical;
     typedef bg::model::box<point_spherical> box_spherical;
     box_spherical sb(point_spherical(0, 0), point_spherical(90, 90));
-    auto sb_dist = bg::random::uniform_point_distribution(sb);
+    bg::random::uniform_point_distribution<box_spherical> sb_dist(sb);
     for (int i = 0 ; i < 10*samples ; ++i)
     {
         point_spherical p = sb_dist(generator);
