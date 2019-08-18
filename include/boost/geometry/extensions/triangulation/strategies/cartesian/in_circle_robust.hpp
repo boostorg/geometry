@@ -17,6 +17,14 @@ namespace boost { namespace geometry
 namespace strategy { namespace in_circle
 {
 
+/*!
+\brief Adaptive precision predicate to check whether a fourth point lies inside the circumcircle of the first three points:
+    inside (>0), outside (< 0), on the boundary (0).
+\ingroup strategies
+\tparam CalculationType \tparam_calculation (numeric_limits<ct>::epsilon() and numeric_limits<ct>::digits must be supported for calculation type ct)
+\tparam robustness Number that determines maximum precision. Values from 0 to 2 may make the calculation terminate faster for inputs that may require higher precision to ensure correctness. Full robustness (3) is not yet implemented.
+\details This predicate determines whether a fourth point lies inside the circumcircle of the first three points using an algorithm that is adapted from incircle as described in "Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates" by Jonathan Richard Shewchuk ( https://dl.acm.org/citation.cfm?doid=237218.237337 ). More information and copies of the paper can also be found at https://www.cs.cmu.edu/~quake/robust.html . It is designed to be adaptive in the sense that it should be fast for inputs that lead to correct results with plain float operations but robust for inputs that require higher precision arithmetics.
+ */
 template <typename CalculationType = double, int robustness = 2>
 class in_circle_robust
 {

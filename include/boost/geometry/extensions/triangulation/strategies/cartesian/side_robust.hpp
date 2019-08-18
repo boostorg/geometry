@@ -18,6 +18,14 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
+/*!
+\brief Adaptive precision predicate to check at which side of a segment a point lies:
+    left of segment (>0), right of segment (< 0), on segment (0).
+\ingroup strategies
+\tparam CalculationType \tparam_calculation (numeric_limits<ct>::epsilon() and numeric_limits<ct>::digits must be supported for calculation type ct)
+\tparam robustness Number that determines maximum precision. Values from 0 to 2 may make the calculation terminate faster for inputs that may require higher precision to ensure correctness.
+\details This predicate determines at which side of a segment a point lies using an algorithm that is adapted from orient2d as described in "Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates" by Jonathan Richard Shewchuk ( https://dl.acm.org/citation.cfm?doid=237218.237337 ). More information and copies of the paper can also be found at https://www.cs.cmu.edu/~quake/robust.html . It is designed to be adaptive in the sense that it should be fast for inputs that lead to correct results with plain float operations but robust for inputs that require higher precision arithmetics.
+ */
 template
 <
     typename CalculationType = void,
@@ -26,6 +34,7 @@ template
 struct side_robust
 {
 public:
+    //! \brief Computes double the signed area of the CCW triangle p1, p2, p
     template
     <
         typename CoordinateType,
@@ -44,6 +53,7 @@ public:
             <PromotedType, robustness>(pa, pb, pc);
     }
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     template
     <
         typename P1,
@@ -82,6 +92,7 @@ public:
             : sv < 0 ? -1
             : 0;
     }
+#endif
 
 };
 
