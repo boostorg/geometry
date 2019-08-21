@@ -21,12 +21,26 @@
 
 struct pj_ptr
 {
-    explicit pj_ptr(projPJ ptr)
+    explicit pj_ptr(projPJ ptr = NULL)
         : m_ptr(ptr)
+    {}
+
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    pj_ptr(pj_ptr && other)
+        : m_ptr(other.m_ptr)
     {
-        if (ptr == NULL)
-            throw std::runtime_error("bleh");
+        other.m_ptr = NULL;
     }
+
+    pj_ptr & operator=(pj_ptr && other)
+    {
+        if (m_ptr)
+            pj_free(m_ptr);
+        m_ptr = other.m_ptr;
+        other.m_ptr = NULL;
+        return *this;
+    }
+#endif
 
     projPJ get() const
     {
@@ -40,6 +54,9 @@ struct pj_ptr
     }
 
 private:
+    pj_ptr(pj_ptr const&);
+    pj_ptr & operator=(pj_ptr const&);
+
     projPJ m_ptr;
 };
 
@@ -96,18 +113,6 @@ struct pj_transformation
         , m_to(pj_init_plus(to.c_str()))
     {}
 
-    template <typename In, typename Out>
-    void forward(In const& in, Out & out) const
-    {
-        double x = boost::geometry::get_as_radian<0>(in);
-        double y = boost::geometry::get_as_radian<1>(in);
-    
-        pj_transform(m_from.get(), m_to.get(), 1, 0, &x, &y, NULL);
-
-        boost::geometry::set_from_radian<0>(out, x);
-        boost::geometry::set_from_radian<1>(out, y);
-    }
-
     void forward(std::vector<double> in_x,
                  std::vector<double> in_y,
                  std::vector<double> & out_x,
@@ -135,7 +140,48 @@ struct pj_transformation
             forward(in_xy[i], out_xy[i]);
     }
 
+    template <typename In, typename Out>
+    void forward(In const& in, Out & out,
+                 typename boost::enable_if_c
+                    <
+                        boost::is_same
+                            <
+                                typename boost::geometry::tag<In>::type,
+                                boost::geometry::point_tag
+                            >::value
+                    >::type* dummy = 0) const
+    {
+        transform_point(in, out, m_from, m_to);
+    }
+
+    template <typename In, typename Out>
+    void inverse(In const& in, Out & out,
+                 typename boost::enable_if_c
+                    <
+                        boost::is_same
+                            <
+                                typename boost::geometry::tag<In>::type,
+                                boost::geometry::point_tag
+                            >::value
+                    >::type* dummy = 0) const
+    {
+        transform_point(in, out, m_to, m_from);
+    }
+
 private:
+    template <typename In, typename Out>
+    static void transform_point(In const& in, Out & out,
+                                pj_ptr const& from, pj_ptr const& to)
+    {
+        double x = boost::geometry::get_as_radian<0>(in);
+        double y = boost::geometry::get_as_radian<1>(in);
+
+        pj_transform(from.get(), to.get(), 1, 0, &x, &y, NULL);
+
+        boost::geometry::set_from_radian<0>(out, x);
+        boost::geometry::set_from_radian<1>(out, y);
+    }
+
     pj_ptr m_from;
     pj_ptr m_to;
 };
