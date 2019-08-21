@@ -232,7 +232,7 @@ struct read_and_set_z
         double z;
         read_little(is, z);
 
-        geometry::set<2>(pt, v);
+        geometry::set<2>(pt, z);
     }
 };
 
