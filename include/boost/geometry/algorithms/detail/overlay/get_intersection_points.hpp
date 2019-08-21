@@ -55,7 +55,7 @@ struct get_turn_without_info
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& ,
                 Strategy const& strategy,
-                RobustPolicy const& robust_policy,
+                RobustPolicy const& ,
                 OutputIterator out)
     {
         // Make sure this is only called with no rescaling
@@ -69,18 +69,11 @@ struct get_turn_without_info
 
         typedef policies::relate::segments_intersection_points
             <
-                segment_intersection_points
-                    <
-                        turn_point_type,
-                        typename geometry::segment_ratio_type
-                            <
-                                turn_point_type, RobustPolicy
-                            >::type
-                    >
+                segment_intersection_points<turn_point_type>
             > policy_type;
 
         typename policy_type::return_type const result
-            = strategy.apply(range_p, range_q, policy_type(), robust_policy);
+            = strategy.apply(range_p, range_q, policy_type());
 
         for (std::size_t i = 0; i < result.count; i++)
         {

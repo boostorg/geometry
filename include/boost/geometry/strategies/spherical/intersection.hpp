@@ -254,12 +254,11 @@ struct ecef_segments
     <
         typename UniqueSubRange1,
         typename UniqueSubRange2,
-        typename Policy,
-        typename RobustPolicy
+        typename Policy
     >
     static inline typename Policy::return_type
         apply(UniqueSubRange1 const& range_p, UniqueSubRange2 const& range_q,
-              Policy const&, RobustPolicy const&)
+              Policy const&)
     {
         // For now create it using default constructor. In the future it could
         //  be stored in strategy. However then apply() wouldn't be static and

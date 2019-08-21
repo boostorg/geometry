@@ -52,8 +52,6 @@
 
 #include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
-
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <boost/geometry/io/wkt/write.hpp>
@@ -307,24 +305,15 @@ struct cartesian_segments
     <
         typename UniqueSubRange1,
         typename UniqueSubRange2,
-        typename Policy,
-        typename RobustPolicy
+        typename Policy
     >
     static inline typename Policy::return_type
         apply(UniqueSubRange1 const& range_p,
               UniqueSubRange2 const& range_q,
-              Policy const& policy,
-              RobustPolicy const& robust_policy)
+              Policy const& policy)
     {
-        // Make sure this is only called when there is no rescaling
-        BOOST_STATIC_ASSERT((boost::is_same
-           <
-               detail::no_rescale_policy_tag,
-               typename detail::rescale_policy_type<RobustPolicy>::type
-           >::value));
-
         // Pass the same ranges both as normal ranges and as robust ranges
-        return apply(range_p, range_q, policy, robust_policy, range_p, range_q);
+        return apply(range_p, range_q, policy, range_p, range_q);
     }
 
     // Main entry-routine, calculating intersections of segments p / q
@@ -333,7 +322,6 @@ struct cartesian_segments
         typename UniqueSubRange1,
         typename UniqueSubRange2,
         typename Policy,
-        typename RobustPolicy,
         typename RobustUniqueSubRange1,
         typename RobustUniqueSubRange2
     >
@@ -341,7 +329,6 @@ struct cartesian_segments
         apply(UniqueSubRange1 const& range_p,
               UniqueSubRange2 const& range_q,
               Policy const&,
-              RobustPolicy const& ,
               RobustUniqueSubRange1 const& robust_range_p,
               RobustUniqueSubRange2 const& robust_range_q)
     {
@@ -407,11 +394,7 @@ struct cartesian_segments
                 typename geometry::coordinate_type<robust_point2_type>::type
             >::type robust_coordinate_type;
 
-        typedef typename segment_ratio_type
-            <
-                point1_type, // TODO: most precise point?
-                RobustPolicy
-            >::type ratio_type;
+        typedef segment_ratio<robust_coordinate_type> ratio_type;
 
         segment_intersection_info
             <

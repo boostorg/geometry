@@ -72,7 +72,7 @@ struct intersection_segment_segment_point
     >
     static inline OutputIterator apply(Segment1 const& segment1,
             Segment2 const& segment2,
-            RobustPolicy const& robust_policy,
+            RobustPolicy const& ,
             OutputIterator out,
             Strategy const& strategy)
     {
@@ -86,14 +86,7 @@ struct intersection_segment_segment_point
         typedef typename point_type<PointOut>::type point_type;
 
         // Get the intersection point (or two points)
-        typedef segment_intersection_points
-                <
-                    point_type,
-                    typename segment_ratio_type
-                    <
-                        point_type, RobustPolicy
-                    >::type
-                > intersection_return_type;
+        typedef segment_intersection_points<point_type> intersection_return_type;
 
         typedef policies::relate::segments_intersection_points
             <
@@ -104,8 +97,7 @@ struct intersection_segment_segment_point
         detail::segment_as_subrange<Segment2> sub_range2(segment2);
 
         intersection_return_type
-            is = strategy.apply(sub_range1, sub_range2,
-                                policy_type(), robust_policy);
+            is = strategy.apply(sub_range1, sub_range2, policy_type());
 
         for (std::size_t i = 0; i < is.count; i++)
         {
@@ -133,13 +125,14 @@ struct intersection_linestring_linestring_point
             OutputIterator out,
             Strategy const& strategy)
     {
-        typedef typename point_type<PointOut>::type point_type;
+        // Make sure this is only called with no rescaling
+        BOOST_STATIC_ASSERT((boost::is_same
+           <
+               no_rescale_policy_tag,
+               typename rescale_policy_type<RobustPolicy>::type
+           >::value));
 
-        typedef detail::overlay::turn_info
-            <
-                point_type,
-                typename segment_ratio_type<point_type, RobustPolicy>::type
-            > turn_info;
+        typedef detail::overlay::turn_info<PointOut> turn_info;
         std::deque<turn_info> turns;
 
         geometry::get_intersection_points(linestring1, linestring2,
@@ -397,6 +390,13 @@ struct intersection_of_linestring_with_areal
             OutputIterator out,
             Strategy const& strategy)
     {
+        // Make sure this is only called with no rescaling
+        BOOST_STATIC_ASSERT((boost::is_same
+           <
+               no_rescale_policy_tag,
+               typename rescale_policy_type<RobustPolicy>::type
+           >::value));
+
         if (boost::size(linestring) == 0)
         {
             return out;
@@ -412,21 +412,26 @@ struct intersection_of_linestring_with_areal
                 > follower;
 
         typedef typename point_type<LineStringOut>::type point_type;
+
+        typedef geometry::segment_ratio
+            <
+                typename coordinate_type<point_type>::type
+            > ratio_type;
+
 #ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
         typedef detail::overlay::traversal_turn_info
             <
-                point_type,
-                typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+                point_type, ratio_type
             > turn_info;
 #else
         typedef detail::overlay::turn_info
             <
                 point_type,
-                typename geometry::segment_ratio_type<point_type, RobustPolicy>::type,
+                ratio_type,
                 detail::overlay::turn_operation_linear
                     <
                         point_type,
-                        typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+                        ratio_type
                     >
             > turn_info;
 #endif
@@ -591,19 +596,23 @@ struct intersection_linear_areal_point
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
-        typedef typename geometry::segment_ratio_type
-            <
-                PointOut, RobustPolicy
-            >::type segment_ratio_type;
+        // Make sure this is only called with no rescaling
+        BOOST_STATIC_ASSERT((boost::is_same
+           <
+               no_rescale_policy_tag,
+               typename rescale_policy_type<RobustPolicy>::type
+           >::value));
+
+        typedef geometry::segment_ratio<typename geometry::coordinate_type<PointOut>::type> ratio_type;
 
         typedef detail::overlay::turn_info
             <
                 PointOut,
-                segment_ratio_type,
+                ratio_type,
                 detail::overlay::turn_operation_linear
                     <
                         PointOut,
-                        segment_ratio_type
+                        ratio_type
                     >
             > turn_info;
 

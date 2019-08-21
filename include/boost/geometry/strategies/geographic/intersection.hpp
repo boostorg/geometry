@@ -248,12 +248,11 @@ struct geographic_segments
     <
         typename UniqueSubRange1,
         typename UniqueSubRange2,
-        typename Policy,
-        typename RobustPolicy
+        typename Policy
     >
     inline typename Policy::return_type apply(UniqueSubRange1 const& range_p,
                                               UniqueSubRange2 const& range_q,
-                                              Policy const&, RobustPolicy const&) const
+                                              Policy const&) const
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;

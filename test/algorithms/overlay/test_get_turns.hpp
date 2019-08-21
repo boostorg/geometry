@@ -171,7 +171,7 @@ void check_geometry_range(Geometry1 const& g1,
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
 
-    typedef typename bg::segment_ratio_type
+    typedef typename bg::detail::segment_ratio_type
         <
             point_type, robust_policy_type
         >::type segment_ratio_type;

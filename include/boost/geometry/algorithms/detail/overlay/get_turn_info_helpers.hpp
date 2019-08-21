@@ -247,10 +247,7 @@ public:
     typedef segment_intersection_points
     <
         TurnPoint,
-        typename geometry::segment_ratio_type
-            <
-                TurnPoint, RobustPolicy
-            >::type
+        geometry::segment_ratio<boost::long_long_type>
     > intersection_point_type;
     typedef policies::relate::segments_tupled
         <
@@ -294,7 +291,6 @@ public:
                       umbrella_strategy.get_side_strategy())
         , m_result(umbrella_strategy.apply(range_p, range_q,
                        intersection_policy_type(),
-                       robust_policy,
                        m_robust_range_p, m_robust_range_q))
     {}
 
@@ -346,14 +342,8 @@ class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, UmbrellaStrategy, RobustPolicy, no_rescale_policy_tag>
 {
 public:
-    typedef segment_intersection_points
-    <
-        TurnPoint,
-        typename geometry::segment_ratio_type
-            <
-                TurnPoint, RobustPolicy
-            >::type
-    > intersection_point_type;
+
+    typedef segment_intersection_points<TurnPoint> intersection_point_type;
     typedef policies::relate::segments_tupled
         <
             policies::relate::segments_intersection_points
@@ -382,14 +372,12 @@ public:
     intersection_info_base(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
                            UmbrellaStrategy const& umbrella_strategy,
-                           no_rescale_policy const& robust_policy)
+                           no_rescale_policy const& )
         : m_range_p(range_p)
         , m_range_q(range_q)
         , m_side_calc(range_p, range_q,
                       umbrella_strategy.get_side_strategy())
-        , m_result(umbrella_strategy.apply(range_p, range_q,
-                        intersection_policy_type(),
-                        robust_policy))
+        , m_result(umbrella_strategy.apply(range_p, range_q, intersection_policy_type()))
     {}
 
     inline bool p_is_last_segment() const { return m_range_p.is_last_segment(); }

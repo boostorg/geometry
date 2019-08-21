@@ -33,6 +33,7 @@
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 

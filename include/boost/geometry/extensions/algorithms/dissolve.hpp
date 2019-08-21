@@ -43,6 +43,8 @@
 
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
+
 #include <boost/geometry/extensions/algorithms/detail/overlay/dissolver.hpp>
 #include <boost/geometry/extensions/algorithms/detail/overlay/dissolve_traverse.hpp>
 

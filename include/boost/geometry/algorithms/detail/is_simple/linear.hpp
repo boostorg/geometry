@@ -206,14 +206,7 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
     typedef typename point_type<Linear>::type point_type;
 
     // compute self turns
-    typedef detail::overlay::turn_info
-        <
-            point_type,
-            geometry::segment_ratio
-                <
-                    typename geometry::coordinate_type<point_type>::type
-                >
-        > turn_info;
+    typedef detail::overlay::turn_info<point_type> turn_info;
 
     std::deque<turn_info> turns;
 
