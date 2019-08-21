@@ -256,6 +256,8 @@ struct geographic_segments
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
+        typedef model::referring_segment<point1_type const> segment_type1;
+        typedef model::referring_segment<point2_type const> segment_type2;
 
         BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point1_type>) );
         BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
@@ -274,17 +276,14 @@ struct geographic_segments
         bool const is_p_reversed = get<1>(range_p.at(0)) > get<1>(range_p.at(1));
         bool const is_q_reversed = get<1>(range_q.at(0)) > get<1>(range_q.at(1));
 
-        point1_type const& p1 = range_p.at(is_p_reversed ? 1 : 0);
-        point1_type const& p2 = range_p.at(is_p_reversed ? 0 : 1);
-        point2_type const& q1 = range_q.at(is_q_reversed ? 1 : 0);
-        point2_type const& q2 = range_q.at(is_q_reversed ? 0 : 1);
-
-        typedef model::referring_segment<point1_type const> segment_type1;
-        typedef model::referring_segment<point2_type const> segment_type2;
-        segment_type1 const p(p1, p2);
-        segment_type2 const q(q1, q2);
-
-        return apply<Policy>(p, q, p1, p2, q1, q2, is_p_reversed, is_q_reversed);
+        // Call apply with original segments and ordered points
+        return apply<Policy>(segment_type1(range_p.at(0), range_p.at(1)),
+                             segment_type2(range_q.at(0), range_q.at(1)),
+                             range_p.at(is_p_reversed ? 1 : 0),
+                             range_p.at(is_p_reversed ? 0 : 1),
+                             range_q.at(is_q_reversed ? 1 : 0),
+                             range_q.at(is_q_reversed ? 0 : 1),
+                             is_p_reversed, is_q_reversed);
     }
 
 private:

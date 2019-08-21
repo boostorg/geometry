@@ -1286,9 +1286,10 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
 
-    typedef typename geometry::rescale_policy_type
+    typedef typename geometry::rescale_overlay_policy_type
         <
-            typename geometry::point_type<Geometry1>::type,
+            Geometry1,
+            Geometry2,
             typename Strategy::cs_tag
         >::type rescale_policy_type;
 
