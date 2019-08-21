@@ -11,8 +11,13 @@
 #define BOOST_GEOMETRY_SRS_SHARED_GRIDS_STD_HPP
 
 
-#include <boost/geometry/srs/projections/grids.hpp>
+#include <boost/config.hpp>
 
+#ifdef BOOST_NO_CXX14_HDR_SHARED_MUTEX
+#error "C++14 <shared_mutex> header required."
+#endif
+
+#include <boost/geometry/srs/projections/grids.hpp>
 
 #include <mutex>
 #include <shared_mutex>
@@ -26,7 +31,16 @@ namespace srs
 
 class shared_grids_std
 {
+
+// VS 2015 Update 2
+#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 190023918)
     typedef std::shared_mutex mutex_type;
+// Other C++17
+#elif !defined(BOOST_NO_CXX14_HDR_SHARED_MUTEX) && (__cplusplus > 201402L)
+    typedef std::shared_mutex mutex_type;
+#else
+    typedef std::shared_timed_mutex mutex_type;
+#endif
 
 public:
     std::size_t size() const
