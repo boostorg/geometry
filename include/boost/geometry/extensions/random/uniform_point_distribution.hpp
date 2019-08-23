@@ -9,7 +9,13 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_RANDOM_UNIFORM_POINT_DISTRIBUTION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_RANDOM_UNIFORM_POINT_DISTRIBUTION_HPP
 
-#include <boost/geometry/extensions/random/dispatch/uniform_point_distribution.hpp>
+#include <boost/geometry/extensions/random/strategies/agnostic/uniform_envelope_rejection.hpp>
+#include <boost/geometry/extensions/random/strategies/agnostic/uniform_linear.hpp>
+#include <boost/geometry/extensions/random/strategies/agnostic/uniform_point_distribution_discrete.hpp>
+#include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_box.hpp>
+#include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_segment.hpp>
+#include <boost/geometry/extensions/random/strategies/spherical/edwilliams_avform_intermediate.hpp>
+#include <boost/geometry/extensions/random/strategies/spherical/uniform_inverse_transform_sampling.hpp>
 
 namespace boost { namespace geometry { namespace random
 {
@@ -17,15 +23,68 @@ namespace boost { namespace geometry { namespace random
 template
 <
     typename DomainGeometry,
-    typename Point = typename geometry::point_type<DomainGeometry>::type
+    typename Point = typename geometry::point_type<DomainGeometry>::type,
+    typename Strategy =
+        typename strategy::uniform_point_distribution::services::default_strategy
+            <
+                Point,
+                DomainGeometry
+            >
 >
-class uniform_point_distribution :
-    public dispatch::uniform_point_distribution<DomainGeometry, Point>
+class uniform_point_distribution
 {
 public:
-    typedef dispatch::uniform_point_distribution<DomainGeometry, Point> base;
-    using base::base;
-    uniform_point_distribution(DomainGeometry const& domain) : base(domain) {}
+    typedef Point result_type;
+    typedef DomainGeometry domain_type;
+    class param_type {
+    public:
+        param_type(DomainGeometry const& domain) : m_domain(domain) {}
+        param_type(param_type const& p) : m_domain(p.m_domain) {}
+        DomainGeometry const& domain() const { return m_domain; }
+        bool operator==(param_type const& rhs) const
+        {
+            return equals(m_domain, rhs.m_domain);
+        }
+    private:
+        DomainGeometry m_domain;
+    };
+    uniform_point_distribution(DomainGeometry const& domain)
+        : m_strategy(domain),
+          m_param(domain) {}
+    uniform_point_distribution()
+        : m_strategy(DomainGeometry()),
+          m_param(DomainGeometry()) {}
+    uniform_point_distribution(param_type const& param)
+        : m_strategy(param.domain()),
+          m_param(param) {}
+    void reset() { m_strategy.reset(); }
+    param_type param() const { return m_param; }
+    void param(param_type const& p)
+    {
+        m_param = p;
+        m_strategy = Strategy(p.domain());
+    }
+    bool operator==(uniform_point_distribution const& rhs) const
+    {
+        return m_strategy.equals(m_param.domain(),
+                                 rhs.domain(),
+                                 rhs.m_strategy);
+    }
+    domain_type const& domain() const { return m_param.domain(); }
+    template< typename Gen >
+    result_type operator()(Gen& g)
+    {
+        return m_strategy.apply(g, m_param.domain());
+    }
+    template< typename Gen >
+    result_type operator()(Gen& g, param_type const& p)
+    {
+        Strategy strat(p.domain());
+        return strat.apply(g, p.domain());
+    }
+private:
+    Strategy m_strategy;
+    param_type m_param;
 };
 
 template
