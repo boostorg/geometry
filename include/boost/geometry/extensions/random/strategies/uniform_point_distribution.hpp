@@ -9,6 +9,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_RANDOM_STRATEGIES_UNIFORM_POINT_DISTRIBUTION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_RANDOM_STRATEGIES_UNIFORM_POINT_DISTRIBUTION_HPP
 
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/int.hpp>
+
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -48,7 +51,13 @@ template
                                 >::type
 >
 struct default_strategy
-{};
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_IMPLEMENTED_FOR_THIS_TYPE
+            , (types<Tag, MultiOrSingle, boost::mpl::int_<Dim>>)
+        );
+};
 
 }}} // namespace strategy::uniform_point_distribution::services
 
