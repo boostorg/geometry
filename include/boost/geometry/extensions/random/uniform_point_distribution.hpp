@@ -105,14 +105,15 @@ template
     typename Char,
     typename Traits,
     typename Point,
-    typename DomainGeometry
+    typename DomainGeometry,
+    typename Strategy
 >
 inline std::basic_ostream<Char, Traits>& operator<<
     (
         std::basic_ostream<Char, Traits> &os,
         boost::geometry::random::uniform_point_distribution
             <
-                DomainGeometry, Point
+                DomainGeometry, Point, Strategy
             > const& dist
     )
 {
@@ -125,14 +126,15 @@ template
     typename Char,
     typename Traits,
     typename Point,
-    typename DomainGeometry
+    typename DomainGeometry,
+    typename Strategy
 >
 inline std::basic_istream<Char, Traits>& operator>>
     (
         std::basic_istream<Char, Traits> &is,
         boost::geometry::random::uniform_point_distribution
             <
-                DomainGeometry, Point
+                DomainGeometry, Point, Strategy
             > & dist
     )
 {
@@ -142,7 +144,7 @@ inline std::basic_istream<Char, Traits>& operator>>
     namespace bg = boost::geometry;
     typedef typename bg::random::uniform_point_distribution
         <
-            DomainGeometry, Point
+            DomainGeometry, Point, Strategy
         >::param_type param_type;
     bg::read_wkt<DomainGeometry>(line, g);
     dist.param( param_type(g) );
