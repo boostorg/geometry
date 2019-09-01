@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,7 +15,6 @@
 
 #include <string>
 
-#include <boost/geometry/srs/projections/factory_key.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -76,8 +75,8 @@ template <typename Params, typename T, typename Parameters> \
 inline void FUN_NAME(projections::detail::factory<Params, T, Parameters>& factory)
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(PROJ_NAME, ENTRY) \
-    factory.add_to_factory(projections::detail::factory_key(#PROJ_NAME, \
-                                                            srs::dpar::proj_##PROJ_NAME), \
+    factory.add_to_factory(#PROJ_NAME, \
+                           srs::dpar::proj_##PROJ_NAME, \
                            new ENTRY<Params, T, Parameters>);
 
 } // namespace detail
