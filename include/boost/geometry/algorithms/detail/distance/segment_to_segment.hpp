@@ -73,7 +73,7 @@ public:
     {
         if (geometry::intersects(segment1, segment2, strategy.get_relate_segment_segment_strategy()))
         {
-            return 0;
+            return return_type();
         }
 
         typename point_type<Segment1>::type p[2];

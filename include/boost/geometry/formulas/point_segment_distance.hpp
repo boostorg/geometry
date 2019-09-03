@@ -52,13 +52,17 @@ public :
     {
         result_type()
             : distance(0)
-            , lon(0)
-            , lat(0)
+            , lon1(0)
+            , lat1(0)
+            , lon2(0)
+            , lat2(0)
         {}
 
         CT distance;
-        CT lon;
-        CT lat;
+        CT lon1;
+        CT lat1;
+        CT lon2;
+        CT lat2;
 
         bool operator<(const result_type& rhs) const
         {
@@ -110,8 +114,8 @@ private :
 
         if (EnableClosestPoint)
         {
-            result.lon = res14.lon2;
-            result.lat = res14.lat2;
+            result.lon2 = res14.lon2;
+            result.lat2 = res14.lat2;
         }
     }
 
@@ -196,14 +200,7 @@ private :
                 std::cout << "Stop msg: counter" << std::endl;
             }
 #endif
-
-            result.distance = new_distance;
-
-            if (EnableClosestPoint)
-            {
-                result.lon = res14.lon2;
-                result.lat = res14.lat2;
-            }
+            set_result(new_distance, res14, result);
 
         } while (dist_improve
                  && counter++ < BOOST_GEOMETRY_DETAIL_POINT_SEGMENT_DISTANCE_MAX_STEPS);
@@ -468,7 +465,7 @@ public :
             typename meridian_inverse::result res =
                      meridian_inverse::apply(lon1, lat1, lon3, lat3, spheroid);
 
-            return non_iterative_case(lon1, lat2,
+            return non_iterative_case(lon1, lat2, lon3, lat3,
                                       res.meridian ? res.distance : res13.distance);
         }
 
@@ -485,7 +482,7 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
                 std::cout << "Point on meridian segment" << std::endl;
 #endif
-                return non_iterative_case(lon3, lat3, c0);
+                return non_iterative_case(lon3, lat3, lon3, lat3, c0);
             }
         }
 
@@ -590,19 +587,27 @@ public :
                    spheroid, s14_start, res12.azimuth, result);
         }
 
+        result.lon1 = lon3;
+        result.lat1 = lat3;
+
         return result;
     }
 
     result_type
-    static inline non_iterative_case(CT const& lon, CT const& lat, CT const& distance)
+    static inline non_iterative_case(CT const& lon1, CT const& lat1, //p1
+                                     CT const& lon2, CT const& lat2, //p2
+                                     CT const& distance)
     {
         result_type result;
+
         result.distance = distance;
 
         if (EnableClosestPoint)
         {
-            result.lon = lon;
-            result.lat = lat;
+            result.lon1 = lon1;
+            result.lat1 = lat1;
+            result.lon2 = lon2;
+            result.lat2 = lat2;
         }
         return result;
     }
@@ -616,10 +621,8 @@ public :
         CT distance = geometry::strategy::distance::geographic<FormulaPolicy, Spheroid, CT>
                 ::apply(lon1, lat1, lon2, lat2, spheroid);
 
-        return non_iterative_case(lon1, lat1, distance);
+        return non_iterative_case(lon1, lat1, lon2, lat2, distance);
     }
-
-
 };
 
 }}} // namespace boost::geometry::formula

@@ -82,8 +82,10 @@ struct closest_points
 */
         //set_from_radian<0,0>(shortest_seg, get_as_radian<0>(p));
         //set_from_radian<0,1>(shortest_seg, get_as_radian<1>(p));
-        set_from_radian<1,0>(shortest_seg, seg.lon);
-        set_from_radian<1,1>(shortest_seg, seg.lat);
+        set_from_radian<0,0>(shortest_seg, seg.lon1);
+        set_from_radian<0,1>(shortest_seg, seg.lat1);
+        set_from_radian<1,0>(shortest_seg, seg.lon2);
+        set_from_radian<1,1>(shortest_seg, seg.lat2);
     }
 };
 
