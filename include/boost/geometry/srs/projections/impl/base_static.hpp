@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -21,6 +21,7 @@
 
 #include <string>
 
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/srs/projections/impl/pj_fwd.hpp>
@@ -64,8 +65,10 @@ struct base_t_f
 public:
 
     inline base_t_f(Prj const& prj, P const& params)
-        : m_par(params), m_prj(prj)
-    {}
+        : m_par(params)
+    {
+        BOOST_GEOMETRY_ASSERT(&prj == this);
+    }
 
     inline P const& params() const { return m_par; }
 
@@ -76,7 +79,7 @@ public:
     {
         try
         {
-            pj_fwd(m_prj, m_par, lp, xy);
+            pj_fwd(this->prj(), this->m_par, lp, xy);
             return true;
         }
         catch(...)
@@ -100,9 +103,12 @@ public:
     }
 
 protected:
+    Prj const& prj() const
+    {
+        return static_cast<Prj const&>(*this);
+    }
 
     P m_par;
-    const Prj& m_prj;
 };
 
 // Base-template-forward/inverse
@@ -119,7 +125,7 @@ public :
     {
         try
         {
-            pj_inv(this->m_prj, this->m_par, xy, lp);
+            pj_inv(this->prj(), this->m_par, xy, lp);
             return true;
         }
         catch(...)
