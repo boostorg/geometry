@@ -73,6 +73,12 @@ public :
         {
             return distance == rhs.distance;
         }
+
+        void swap()
+        {
+            std::swap(lon1, lon2);
+            std::swap(lat1, lat2);
+        }
     };
 
 private :

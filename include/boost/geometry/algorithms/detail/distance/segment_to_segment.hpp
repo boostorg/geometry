@@ -31,6 +31,7 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
+#include <boost/type_traits/is_same.hpp>
 
 namespace boost { namespace geometry
 {
@@ -71,7 +72,8 @@ public:
     apply(Segment1 const& segment1, Segment2 const& segment2,
           Strategy const& strategy)
     {
-        if (geometry::intersects(segment1, segment2, strategy.get_relate_segment_segment_strategy()))
+        if (geometry::intersects(segment1, segment2,
+                                 strategy.get_relate_segment_segment_strategy()))
         {
             return return_type();
         }
@@ -103,6 +105,8 @@ public:
         {
             return d[imin];
         }
+
+        return strategy.apply(d[imin], imin < 2);
 
         switch (imin)
         {

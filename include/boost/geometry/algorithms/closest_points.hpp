@@ -56,6 +56,7 @@ struct closest_points
                         <
                             Strategy, Geometry1, typename point_type<Geometry2>::type
                         >::type
+
                         seg = distance <
                                         Geometry1, Geometry2, Strategy
                                         >::apply(g1, g2, strategy);
