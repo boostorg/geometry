@@ -137,7 +137,7 @@ std::vector<std::size_t> apply_overlay(
     typedef bg::detail::overlay::traversal_turn_info
     <
         point_type,
-        typename bg::segment_ratio_type<point_type, RobustPolicy>::type
+        typename bg::detail::segment_ratio_type<point_type, RobustPolicy>::type
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 

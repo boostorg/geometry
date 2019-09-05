@@ -254,23 +254,17 @@ struct areal_areal
                              Geometry2 const& geometry2,
                              IntersectionStrategy const& strategy)
     {
-        typedef detail::no_rescale_policy rescale_policy_type;
         typedef typename geometry::point_type<Geometry1>::type point_type;
-        typedef detail::overlay::turn_info
-            <
-                point_type,
-                typename segment_ratio_type<point_type, rescale_policy_type>::type
-            > turn_info;
+        typedef detail::overlay::turn_info<point_type> turn_info;
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
-        rescale_policy_type robust_policy;
         boost::geometry::get_turns
                 <
                     detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                     detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                     detail::overlay::assign_null_policy
-                >(geometry1, geometry2, strategy, robust_policy, turns, policy);
+                >(geometry1, geometry2, strategy, detail::no_rescale_policy(), turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2, strategy)
@@ -427,13 +421,8 @@ struct self_touches
             <
                 Geometry, Geometry
             >::type strategy_type;
-        typedef detail::no_rescale_policy rescale_policy_type;
         typedef typename geometry::point_type<Geometry>::type point_type;
-        typedef detail::overlay::turn_info
-            <
-                point_type,
-                typename segment_ratio_type<point_type, rescale_policy_type>::type
-            > turn_info;
+        typedef detail::overlay::turn_info<point_type> turn_info;
 
         typedef detail::overlay::get_turn_info
         <
@@ -443,12 +432,11 @@ struct self_touches
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
         strategy_type strategy;
-        rescale_policy_type robust_policy;
         // TODO: skip_adjacent should be set to false
         detail::self_get_turn_points::get_turns
         <
             false, policy_type
-        >::apply(geometry, strategy, robust_policy, turns, policy, 0, true);
+        >::apply(geometry, strategy, detail::no_rescale_policy(), turns, policy, 0, true);
 
         return policy.result();
     }
