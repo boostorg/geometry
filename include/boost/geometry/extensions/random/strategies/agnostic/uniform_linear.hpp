@@ -14,14 +14,15 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/transform.hpp>
-#include <boost/geometry/algorithms/within.hpp>
-#include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/line_interpolate.hpp>
+#include <boost/geometry/strategies/cartesian/line_interpolate.hpp>
+#include <boost/geometry/strategies/geographic/line_interpolate.hpp>
+#include <boost/geometry/strategies/spherical/line_interpolate.hpp>
 
 #include <boost/geometry/extensions/random/strategies/uniform_point_distribution.hpp>
-#include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_segment.hpp>
-#include <boost/geometry/extensions/random/strategies/spherical/edwilliams_avform_intermediate.hpp>
 
 namespace boost { namespace geometry
 {
@@ -32,13 +33,50 @@ template
 <
     typename Point,
     typename DomainGeometry,
-    typename SegmentStrategy = services::default_strategy
-        <
-            typename point_type<DomainGeometry>::type,
-            model::segment<typename point_type<DomainGeometry>::type>
-        >
+    typename InterpolationStrategy =
+        typename strategy::line_interpolate::services::default_strategy
+            <
+                typename cs_tag<DomainGeometry>::type
+            >::type
 >
-class uniform_linear
+struct uniform_linear_single
+{
+    uniform_linear_single(DomainGeometry const& g) {}
+    bool equals(DomainGeometry const& l_domain,
+                DomainGeometry const& r_domain,
+                uniform_linear_single const& r_strategy) const
+    {
+        return boost::geometry::equals(l_domain, r_domain);
+    }
+    
+    template<typename Gen>
+    Point apply(Gen& g, DomainGeometry const& d)
+    {
+        typedef typename select_most_precise
+            <
+                double,
+                typename coordinate_type<Point>::type
+            >::type sample_type;
+        std::uniform_real_distribution<sample_type> dist(0, length(d));
+        sample_type r = dist(g);
+        Point p;
+        boost::geometry::line_interpolate(d, r, p);
+        return p;
+    }
+    void reset(DomainGeometry const&) {};
+};
+
+template
+<
+    typename Point,
+    typename DomainGeometry,
+    typename InterpolationStrategy =
+        typename strategy::line_interpolate::services::default_strategy
+            <
+                typename cs_tag<DomainGeometry>::type
+            >::type
+>
+class uniform_linear_multi
 {
 private:
     typedef typename default_length_result<DomainGeometry>::type length_type;
@@ -47,7 +85,7 @@ private:
     std::vector<domain_point_type> point_cache;
     std::vector<length_type> accumulated_lengths;
 public:
-    uniform_linear(DomainGeometry const& g)
+    uniform_linear_multi(DomainGeometry const& g)
     {
         std::size_t i = 0;
         point_cache.push_back(*segments_begin(g)->first);
@@ -67,7 +105,7 @@ public:
     }
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
-                uniform_linear const& r_strategy) const
+                uniform_linear_multi const& r_strategy) const
     {
         if(r_strategy.skip_list.size() != skip_list.size()
             || r_strategy.point_cache.size() != point_cache.size())
@@ -90,6 +128,7 @@ public:
                 double,
                 typename coordinate_type<Point>::type
             >::type sample_type;
+        typedef model::segment<domain_point_type> segment;
         std::uniform_real_distribution<sample_type> dist(0, accumulated_lengths.back());
         sample_type r = dist(g);
         std::size_t i = std::distance(
@@ -100,19 +139,37 @@ public:
         std::size_t offset = std::distance(
             skip_list.begin(),
             std::lower_bound(skip_list.begin(), skip_list.end(), i));
-
-        return SegmentStrategy::template map
-            <
-                sample_type,
-                domain_point_type
-            >(point_cache[ i + offset - 1 ], point_cache[ i + offset ],
-                ( r - accumulated_lengths[ i - 1 ]) /
-                ( accumulated_lengths[ i ] - accumulated_lengths[ i - 1 ] ));
+        Point p;
+        boost::geometry::line_interpolate(
+            segment(point_cache[ i + offset - 1], point_cache[ i + offset ]),
+            r - accumulated_lengths[ i - 1 ],
+            p);
+        return p;
     }
     void reset(DomainGeometry const&) {};
 };
 
 namespace services {
+
+template
+<
+    typename Point,
+    typename DomainGeometry,
+    int Dim,
+    typename CsTag
+>
+struct default_strategy
+<
+    Point,
+    DomainGeometry,
+    segment_tag,
+    single_tag,
+    Dim,
+    CsTag
+> : public uniform_linear_single<Point, DomainGeometry> {
+    typedef uniform_linear_single<Point, DomainGeometry> base;
+    using base::base;
+};
 
 template
 <
@@ -130,8 +187,8 @@ struct default_strategy
     MultiOrSingle,
     Dim,
     CsTag
-> : public uniform_linear<Point, DomainGeometry> {
-    typedef uniform_linear<Point, DomainGeometry> base;
+> : public uniform_linear_multi<Point, DomainGeometry> {
+    typedef uniform_linear_multi<Point, DomainGeometry> base;
     using base::base;
 };
 

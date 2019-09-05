@@ -13,8 +13,6 @@
 #include <boost/geometry/extensions/random/strategies/agnostic/uniform_linear.hpp>
 #include <boost/geometry/extensions/random/strategies/agnostic/uniform_point_distribution_discrete.hpp>
 #include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_box.hpp>
-#include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_segment.hpp>
-#include <boost/geometry/extensions/random/strategies/spherical/edwilliams_avform_intermediate.hpp>
 #include <boost/geometry/extensions/random/strategies/spherical/uniform_inverse_transform_sampling.hpp>
 
 namespace boost { namespace geometry { namespace random
