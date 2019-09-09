@@ -494,6 +494,13 @@ public :
         }
     }
 
+    template <typename ResultType>
+    inline ResultType
+    apply(ResultType res, bool) const
+    {
+        return res;
+    }
+
     template <typename T1, typename T2>
     inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
     {
@@ -610,6 +617,13 @@ public :
         return_type const a = cstrategy.apply(p, sp1, sp2);
         return_type const c = return_type(2.0) * asin(math::sqrt(a));
         return c * radius();
+    }
+
+    template <typename ResultType>
+    inline ResultType
+    apply(ResultType res, bool) const
+    {
+        return ResultType(2.0) * asin(math::sqrt(res)) * radius();
     }
 
     template <typename T1, typename T2>

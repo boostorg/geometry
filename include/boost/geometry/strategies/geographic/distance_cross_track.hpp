@@ -152,6 +152,13 @@ public :
                                m_spheroid).distance);
     }
 
+    template <typename ResultType>
+    inline ResultType
+    apply(ResultType res, bool) const
+    {
+        return res;
+    }
+
     // points on a meridian not crossing poles
     template <typename CT>
     inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const

@@ -107,18 +107,6 @@ public:
         }
 
         return strategy.apply(d[imin], imin < 2);
-
-        switch (imin)
-        {
-        case 0:
-            return strategy.apply(q[0], p[0], p[1]);
-        case 1:
-            return strategy.apply(q[1], p[0], p[1]);
-        case 2:
-            return strategy.apply(p[0], q[0], q[1]);
-        default:
-            return strategy.apply(p[1], q[0], q[1]);
-        }
     }
 };
 

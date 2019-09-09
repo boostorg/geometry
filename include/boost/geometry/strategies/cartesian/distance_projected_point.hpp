@@ -184,6 +184,24 @@ public :
         return strategy.apply(p, projected);
     }
 
+    template <typename ResultType>
+    inline ResultType
+    apply(ResultType comparable_result, bool) const
+    {
+        if(boost::is_same
+                <
+                    Strategy,
+                    typename strategy::distance::services::comparable_type
+                      <
+                          Strategy
+                      >::type
+                >::value)
+        {
+            return comparable_result;
+        }
+        return std::sqrt(comparable_result);
+    }
+
     template <typename CT>
     inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
     {
