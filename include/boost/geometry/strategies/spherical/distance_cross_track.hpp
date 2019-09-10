@@ -496,9 +496,9 @@ public :
 
     template <typename ResultType>
     inline ResultType
-    apply(ResultType res, bool) const
+    apply(ResultType comparable_result, bool) const
     {
-        return res;
+        return comparable_result;
     }
 
     template <typename T1, typename T2>
@@ -621,9 +621,9 @@ public :
 
     template <typename ResultType>
     inline ResultType
-    apply(ResultType res, bool) const
+    apply(ResultType comparable_result, bool) const
     {
-        return ResultType(2.0) * asin(math::sqrt(res)) * radius();
+        return ResultType(2.0) * asin(math::sqrt(comparable_result)) * radius();
     }
 
     template <typename T1, typename T2>

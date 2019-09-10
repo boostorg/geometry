@@ -111,13 +111,13 @@ public :
 
     template <typename ResultType>
     ResultType
-    apply(ResultType res, bool swap) const
+    apply(ResultType comparable_result, bool swap) const
     {
         if (swap)
         {
-            res.swap();
+            comparable_result.swap();
         }
-        return res;
+        return comparable_result;
     }
 
     Spheroid m_spheroid;

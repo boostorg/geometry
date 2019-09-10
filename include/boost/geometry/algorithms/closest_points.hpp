@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -10,8 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CLOSEST_POINTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CLOSEST_POINTS_HPP
 
-
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -222,6 +222,9 @@ inline void closest_points(Geometry1 const& geometry1,
     concepts::check<Geometry2>();
 
     geometry::clear(shortest_seg);
+
+    detail::throw_on_empty_input(geometry1);
+    detail::throw_on_empty_input(geometry2);
 
     resolve_variant::closest_points
         <

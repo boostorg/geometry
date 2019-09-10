@@ -5,8 +5,8 @@
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 # Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
 #
-# This file was modified by Oracle on 2014, 2015, 2016, 2017.
-# Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014-2019.
+# Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -66,6 +66,7 @@ test-suite boost-geometry-algorithms
 
 build-project area ;
 build-project buffer ;
+build-project closest_points ;
 build-project covered_by ;
 build-project crosses ;
 build-project detail ;
