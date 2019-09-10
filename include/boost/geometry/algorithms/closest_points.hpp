@@ -12,6 +12,7 @@
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/detail/closest_points/default_strategies.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -122,7 +123,8 @@ struct closest_points
                              Segment& shortest_seg,
                              default_strategy)
     {
-        typedef typename detail::distance::default_strategy
+
+        typedef typename detail::closest_points::default_strategy
             <
                 Geometry1, Geometry2
             >::type strategy_type;

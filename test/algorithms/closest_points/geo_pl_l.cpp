@@ -55,7 +55,7 @@ void test_closest_points_point_segment()
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
-                  "SEGMENT(1 1,0.31099 0.67425)");
+                  "SEGMENT(1 1,0.503314 0.496737)");
 }
 
 //===========================================================================
@@ -66,7 +66,8 @@ void test_closest_points_point_segment_diff_spheroid(Strategy const& strategy)
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
-    std::cout << "point/segment closest_points tests spheroid" << std::endl;
+    std::cout << "point/segment closest_points tests non-default spheroid"
+              << std::endl;
 #endif
 
     typedef bg::model::segment<Point> Segment;
