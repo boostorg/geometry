@@ -65,13 +65,15 @@ void test_closest_points(Geometry1 const& geometry1,
 {
     Segment resulting_segment;
     bg::closest_points(geometry1, geometry2, resulting_segment, strategy);
-    //bg::closest_points(geometry2, geometry1, resulting_segment, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "closest_points : " << bg::wkt(resulting_segment) << std::endl;
 #endif
 
     compare_result_with_expected(exp_resulting_segment, resulting_segment);
+
+    //bg::closest_points(geometry2, geometry1, resulting_segment, strategy);
+    //compare_result_with_expected(exp_resulting_segment, resulting_segment);
 }
 
 template
@@ -86,7 +88,6 @@ void test_closest_points(Geometry1 const& geometry1,
 {
     Segment resulting_segment;
     bg::closest_points(geometry1, geometry2, resulting_segment);
-    //bg::closest_points(geometry2, geometry1, resulting_segment);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "closest_points : " << bg::wkt(resulting_segment) << std::endl;
@@ -220,6 +221,37 @@ void test_more_empty_input_pointlike_linear(Strategy const& strategy)
     //test_empty_input<Point>(multipoint_empty, line_empty, strategy);
     //test_empty_input<Point>(multipoint_empty, multiline_empty, strategy);
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << "done!" << std::endl;
+#endif
+}
+
+template <typename Point, typename Strategy>
+void test_more_empty_input_linear_linear(Strategy const& strategy)
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "testing on empty inputs... " << std::flush;
+#endif
+    bg::model::linestring<Point> line_empty;
+    bg::model::multi_linestring<bg::model::linestring<Point> > multiline_empty;
+
+    bg::model::linestring<Point> line =
+        from_wkt<bg::model::linestring<Point> >("LINESTRING(0 0,1 1)");
+/*
+    // 1st geometry is empty
+    test_empty_input(line_empty, line, strategy);
+    test_empty_input(multiline_empty, line, strategy);
+
+    // 2nd geometry is empty
+    test_empty_input(line, line_empty, strategy);
+    test_empty_input(line, multiline_empty, strategy);
+
+    // both geometries are empty
+    test_empty_input(line_empty, line_empty, strategy);
+    test_empty_input(multiline_empty, line_empty, strategy);
+    test_empty_input(multiline_empty, multiline_empty, strategy);
+*/
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "done!" << std::endl;
 #endif
