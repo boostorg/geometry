@@ -59,6 +59,9 @@ namespace projections
             static const double Y_COR = 0.05280;
             static const double PHI_LIM = .71093078197902358062;
 
+            // TODO: It would be possible to further decrease the size of par_goode
+            // because spherical sinu and moll has constant parameters.
+
             template <typename T, typename Par>
             struct par_goode
             {

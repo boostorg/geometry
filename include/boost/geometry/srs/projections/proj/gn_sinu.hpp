@@ -64,10 +64,15 @@ namespace projections
             static const double loop_tol = 1e-7;
 
             template <typename T>
-            struct par_gn_sinu
+            struct par_gn_sinu_e
             {
                 detail::en<T> en;
-                T    m, n, C_x, C_y;
+            };
+
+            template <typename T>
+            struct par_gn_sinu_s
+            {
+                T m, n, C_x, C_y;
             };
 
             /* Ellipsoidal Sinusoidal only */
@@ -75,7 +80,7 @@ namespace projections
             template <typename T, typename Parameters>
             struct base_gn_sinu_ellipsoid
             {
-                par_gn_sinu<T> m_proj_parm;
+                par_gn_sinu_e<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -115,7 +120,7 @@ namespace projections
             template <typename T, typename Parameters>
             struct base_gn_sinu_spheroid
             {
-                par_gn_sinu<T> m_proj_parm;
+                par_gn_sinu_s<T> m_proj_parm;
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
@@ -160,7 +165,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            inline void setup(Parameters& par, par_gn_sinu<T>& proj_parm) 
+            inline void setup(Parameters& par, par_gn_sinu_s<T>& proj_parm) 
             {
                 par.es = 0;
 
@@ -170,7 +175,7 @@ namespace projections
 
             // General Sinusoidal Series
             template <typename Params, typename Parameters, typename T>
-            inline void setup_gn_sinu(Params const& params, Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_gn_sinu(Params const& params, Parameters& par, par_gn_sinu_s<T>& proj_parm)
             {
                 if (pj_param_f<srs::spar::n>(params, "n", srs::dpar::n, proj_parm.n)
                  && pj_param_f<srs::spar::m>(params, "m", srs::dpar::m, proj_parm.m)) {
@@ -184,22 +189,23 @@ namespace projections
 
             // Sinusoidal (Sanson-Flamsteed)
             template <typename Parameters, typename T>
-            inline void setup_sinu(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_sinu(Parameters const& par, par_gn_sinu_e<T>& proj_parm)
             {
                 proj_parm.en = pj_enfn<T>(par.es);
+            }
 
-                if (par.es != 0.0) {
-                    /* empty */
-                } else {
-                    proj_parm.n = 1.;
-                    proj_parm.m = 0.;
-                    setup(par, proj_parm);
-                }
+            // Sinusoidal (Sanson-Flamsteed)
+            template <typename Parameters, typename T>
+            inline void setup_sinu(Parameters& par, par_gn_sinu_s<T>& proj_parm)
+            {
+                proj_parm.n = 1.;
+                proj_parm.m = 0.;
+                setup(par, proj_parm);
             }
 
             // Eckert VI
             template <typename Parameters, typename T>
-            inline void setup_eck6(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_eck6(Parameters& par, par_gn_sinu_s<T>& proj_parm)
             {
                 proj_parm.m = 1.;
                 proj_parm.n = 2.570796326794896619231321691;
@@ -208,7 +214,7 @@ namespace projections
 
             // McBryde-Thomas Flat-Polar Sinusoidal
             template <typename Parameters, typename T>
-            inline void setup_mbtfps(Parameters& par, par_gn_sinu<T>& proj_parm)
+            inline void setup_mbtfps(Parameters& par, par_gn_sinu_s<T>& proj_parm)
             {
                 proj_parm.m = 0.5;
                 proj_parm.n = 1.785398163397448309615660845;
