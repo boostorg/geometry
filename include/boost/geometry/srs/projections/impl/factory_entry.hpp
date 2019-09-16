@@ -31,7 +31,7 @@ template <typename Params, typename CT, typename Parameters>
 struct factory_entry
 {
     virtual ~factory_entry() {}
-    virtual base_v<CT, Parameters>* create_new(Params const& , Parameters const& ) const = 0;
+    virtual dynamic_wrapper_b<CT, Parameters>* create_new(Params const& , Parameters const& ) const = 0;
 };
 
 // Macros for entries definition
@@ -40,22 +40,22 @@ struct factory_entry
 template <typename Params, typename T, typename Parameters> \
 struct ENTRY : projections::detail::factory_entry<Params, T, Parameters> \
 { \
-    projections::detail::base_v<T, Parameters>* create_new(Params const& params, \
-                                                           Parameters const& parameters) const
+    projections::detail::dynamic_wrapper_b<T, Parameters>* create_new(Params const& params, \
+                                                                      Parameters const& parameters) const
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END };
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(ENTRY, PROJ) \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
 { \
-    return new projections::detail::base_v_f<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
+    return new projections::detail::dynamic_wrapper_f<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
 } \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
 
 #define BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(ENTRY, PROJ) \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
 { \
-    return new projections::detail::base_v_fi<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
+    return new projections::detail::dynamic_wrapper_fi<PROJ<T, Parameters>, T, Parameters>(params, parameters); \
 } \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
 
@@ -63,9 +63,9 @@ BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ENTRY) \
 { \
     if (parameters.es != 0.0) \
-        return new projections::detail::base_v_fi<PROJ_E<T, Parameters>, T, Parameters>(params, parameters); \
+        return new projections::detail::dynamic_wrapper_fi<PROJ_E<T, Parameters>, T, Parameters>(params, parameters); \
     else \
-        return new projections::detail::base_v_fi<PROJ_S<T, Parameters>, T, Parameters>(params, parameters); \
+        return new projections::detail::dynamic_wrapper_fi<PROJ_S<T, Parameters>, T, Parameters>(params, parameters); \
 } \
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
 

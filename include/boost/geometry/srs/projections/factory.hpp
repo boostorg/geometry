@@ -293,7 +293,7 @@ public:
         m_entries[key::get(name, id)] = ptr;
     }
 
-    detail::base_v<CT, ProjParams>* create_new(Params const& params, ProjParams const& proj_par) const
+    detail::dynamic_wrapper_b<CT, ProjParams>* create_new(Params const& params, ProjParams const& proj_par) const
     {
         typedef typename entries_map::const_iterator const_iterator;
         const_iterator it = m_entries.find(key::get(proj_par));
@@ -307,7 +307,7 @@ public:
 };
 
 template <typename T>
-inline detail::base_v<T, projections::parameters<T> >*
+inline detail::dynamic_wrapper_b<T, projections::parameters<T> >*
     create_new(srs::detail::proj4_parameters const& params,
                projections::parameters<T> const& parameters)
 {
@@ -316,7 +316,7 @@ inline detail::base_v<T, projections::parameters<T> >*
 }
 
 template <typename T>
-inline detail::base_v<T, projections::parameters<T> >*
+inline detail::dynamic_wrapper_b<T, projections::parameters<T> >*
     create_new(srs::dpar::parameters<T> const& params,
                projections::parameters<T> const& parameters)
 {

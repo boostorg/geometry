@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -59,11 +59,14 @@ namespace projections
     namespace detail { namespace igh
     {
             // TODO: consider replacing dynamically created projections
-            // with member objects
+            //   with member objects
+            // NOTE: dynamic_wrapper_b holds copy of Parameters 
+            // TODO: use only one copy of Parameters
+            //   it is doable if zone-specific x0, y0 and lam0 are stored in par_igh
             template <typename T, typename Parameters>
             struct par_igh
             {
-                boost::shared_ptr<base_v<T, Parameters> > pj[12];
+                boost::shared_ptr<dynamic_wrapper_b<T, Parameters> > pj[12];
                 T dy0;
             };
 
@@ -114,21 +117,17 @@ namespace projections
                 proj_parm.pj[n-1]->mutable_params().lam0 = lon_0;
             }
 
-            // template class, using CRTP to implement forward/inverse
             template <typename T, typename Parameters>
             struct base_igh_spheroid
-                : public base_t_fi<base_igh_spheroid<T, Parameters>, T, Parameters>
             {
                 par_igh<T, Parameters> m_proj_parm;
 
-                inline base_igh_spheroid(const Parameters& par)
-                    : base_t_fi<base_igh_spheroid<T, Parameters>, T, Parameters>(*this, par)
-                {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(Parameters const& , T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
+                    // Parameters ignored because m_proj_parm holds their own copies
+
                     static const T d4044118 = igh::d4044118<T>();
                     static const T d20  =  igh::d20<T>();
                     static const T d40  =  igh::d40<T>();
@@ -156,15 +155,17 @@ namespace projections
                         }
 
                         lp_lon -= this->m_proj_parm.pj[z-1]->params().lam0;
-                        this->m_proj_parm.pj[z-1]->fwd(lp_lon, lp_lat, xy_x, xy_y);
+                        this->m_proj_parm.pj[z-1]->fwd(this->m_proj_parm.pj[z-1]->params(), lp_lon, lp_lat, xy_x, xy_y);
                         xy_x += this->m_proj_parm.pj[z-1]->params().x0;
                         xy_y += this->m_proj_parm.pj[z-1]->params().y0;
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(Parameters const& , T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    // Parameters ignored because m_proj_parm holds their own copies
+
                     static const T d4044118 = igh::d4044118<T>();
                     static const T d10  =  igh::d10<T>();
                     static const T d20  =  igh::d20<T>();
@@ -207,7 +208,7 @@ namespace projections
 
                           xy_x -= this->m_proj_parm.pj[z-1]->params().x0;
                           xy_y -= this->m_proj_parm.pj[z-1]->params().y0;
-                          this->m_proj_parm.pj[z-1]->inv(xy_x, xy_y, lp_lon, lp_lat);
+                          this->m_proj_parm.pj[z-1]->inv(this->m_proj_parm.pj[z-1]->params(), xy_x, xy_y, lp_lon, lp_lat);
                           lp_lon += this->m_proj_parm.pj[z-1]->params().lam0;
 
                           switch (z) {
@@ -301,8 +302,8 @@ namespace projections
                     do_setup<moll_entry>(1, params, par, proj_parm, -d100, d0, -d100);
 
                     // y0 ?
-                     proj_parm.pj[0]->fwd(lp_lam, lp_phi, xy1_x, xy1_y); // zone 1
-                     proj_parm.pj[2]->fwd(lp_lam, lp_phi, xy3_x, xy3_y); // zone 3
+                    proj_parm.pj[0]->fwd(proj_parm.pj[0]->params(), lp_lam, lp_phi, xy1_x, xy1_y); // zone 1
+                    proj_parm.pj[2]->fwd(proj_parm.pj[2]->params(), lp_lam, lp_phi, xy3_x, xy3_y); // zone 3
                     // y0 + xy1_y = xy3_y for lt = 40d44'11.8"
                     proj_parm.dy0 = xy3_y - xy1_y;
 
@@ -338,10 +339,9 @@ namespace projections
     struct igh_spheroid : public detail::igh::base_igh_spheroid<T, Parameters>
     {
         template <typename Params>
-        inline igh_spheroid(Params const& params, Parameters const& par)
-            : detail::igh::base_igh_spheroid<T, Parameters>(par)
+        inline igh_spheroid(Params const& params, Parameters & par)
         {
-            detail::igh::setup_igh(params, this->m_par, this->m_proj_parm);
+            detail::igh::setup_igh(params, par, this->m_proj_parm);
         }
     };
 
@@ -350,7 +350,7 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::spar::proj_igh, igh_spheroid, igh_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_igh, igh_spheroid)
 
         // Factory entry(s)
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(igh_entry, igh_spheroid)
