@@ -78,7 +78,7 @@ namespace projections
                 T    cosph0;
                 T    Cb;
                 mode_type mode;
-                int  no_cut;    /* do not cut at hemisphere limit */
+                bool no_cut;    /* do not cut at hemisphere limit */
             };
 
             template <typename T, typename Parameters>

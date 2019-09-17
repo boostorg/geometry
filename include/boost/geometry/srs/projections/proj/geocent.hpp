@@ -90,7 +90,7 @@ namespace projections
             template <typename Parameters>
             inline void setup_geocent(Parameters& par)
             {
-                par.is_geocent = 1;
+                par.is_geocent = true;
                 par.x0 = 0.0;
                 par.y0 = 0.0;
             }

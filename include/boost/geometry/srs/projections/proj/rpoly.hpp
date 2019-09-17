@@ -60,10 +60,10 @@ namespace projections
             template <typename T>
             struct par_rpoly
             {
-                T   phi1;
-                T   fxa;
-                T   fxb;
-                int mode;
+                T    phi1;
+                T    fxa;
+                T    fxb;
+                bool mode; // TODO: Not really needed
             };
 
             template <typename T, typename Parameters>

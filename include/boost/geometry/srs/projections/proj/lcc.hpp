@@ -66,12 +66,12 @@ namespace projections
             template <typename T>
             struct par_lcc
             {
-                T   phi1;
-                T   phi2;
-                T   n;
-                T   rho0;
-                T   c;
-                int ellips;
+                T    phi1;
+                T    phi2;
+                T    n;
+                T    rho0;
+                T    c;
+                bool ellips;
             };
 
             template <typename T, typename Parameters>

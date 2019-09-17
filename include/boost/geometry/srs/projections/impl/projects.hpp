@@ -99,11 +99,11 @@ struct pj_consts
 
     // C O O R D I N A T E   H A N D L I N G
 
-    int over;                       /* over-range flag */
-    int geoc;                       /* geocentric latitude flag */
-    int is_latlong;                 /* proj=latlong ... not really a projection at all */
-    int is_geocent;                 /* proj=geocent ... not really a projection at all */
-    //int need_ellps;                 /* 0 for operations that are purely cartesian */
+    bool over;                       /* over-range flag */
+    bool geoc;                       /* geocentric latitude flag */
+    bool is_latlong;                 /* proj=latlong ... not really a projection at all */
+    bool is_geocent;                 /* proj=geocent ... not really a projection at all */
+    //bool need_ellps;                 /* 0 for operations that are purely cartesian */
 
     //enum pj_io_units left;          /* Flags for input/output coordinate types */
     //enum pj_io_units right;

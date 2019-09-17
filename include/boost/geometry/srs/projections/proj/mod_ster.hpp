@@ -64,9 +64,9 @@ namespace projections
             template <typename T>
             struct par_mod_ster
             {
-                pj_complex<T> *zcoeff;
-                T          cchio, schio;
-                int        n;
+                T              cchio, schio;
+                pj_complex<T>* zcoeff;
+                int            n;
             };
 
             /* based upon Snyder and Linck, USGS-NMD */

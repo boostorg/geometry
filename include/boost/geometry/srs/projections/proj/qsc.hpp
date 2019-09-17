@@ -107,11 +107,11 @@ namespace projections
             template <typename T>
             struct par_qsc
             {
-                face_type face;
                 T a_squared;
                 T b;
                 T one_minus_f;
                 T one_minus_f_squared;
+                face_type face;
             };
 
             static const double epsilon10 = 1.e-10;

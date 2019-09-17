@@ -63,9 +63,9 @@ namespace projections
             template <typename T>
             struct par_omerc
             {
-                T   A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
-                T   v_pole_n, v_pole_s, u_0;
-                int no_rot;
+                T    A, B, E, AB, ArB, BrA, rB, singam, cosgam, sinrot, cosrot;
+                T    v_pole_n, v_pole_s, u_0;
+                bool no_rot;
             };
 
             static const double tolerance = 1.e-7;

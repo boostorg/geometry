@@ -81,7 +81,7 @@ namespace projections
 
             struct par_bipc
             {
-                int    noskew;
+                bool   noskew;
             };
 
             template <typename T, typename Parameters>

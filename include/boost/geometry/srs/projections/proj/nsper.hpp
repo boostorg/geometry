@@ -85,7 +85,7 @@ namespace projections
                 T   sw;
                 T   cw;
                 mode_type mode;
-                int tilt;
+                bool tilt;
             };
 
             template <typename T, typename Parameters>
@@ -230,7 +230,7 @@ namespace projections
             template <typename Params, typename Parameters, typename T>
             inline void setup_nsper(Params const& params, Parameters& par, par_nsper<T>& proj_parm)
             {
-                proj_parm.tilt = 0;
+                proj_parm.tilt = false;
 
                 setup(params, par, proj_parm);
             }
@@ -241,7 +241,7 @@ namespace projections
             {
                 T const omega = pj_get_param_r<T, srs::spar::tilt>(params, "tilt", srs::dpar::tilt);
                 T const gamma = pj_get_param_r<T, srs::spar::azi>(params, "azi", srs::dpar::azi);
-                proj_parm.tilt = 1;
+                proj_parm.tilt = true;
                 proj_parm.cg = cos(gamma); proj_parm.sg = sin(gamma);
                 proj_parm.cw = cos(omega); proj_parm.sw = sin(omega);
 

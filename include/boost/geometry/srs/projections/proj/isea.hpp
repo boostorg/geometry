@@ -207,17 +207,17 @@ namespace projections
 
             template <typename T>
             struct isea_dgg {
-                //isea_poly         polyhedron; /* ignored, icosahedron */
                 T                 o_lat, o_lon, o_az; /* orientation, radians */
-                int               pole; /* true if standard snyder */
-                //isea_topology     topology; /* ignored, hexagon */
+                T                 radius; /* radius of the earth in meters, ignored 1.0 */
+                unsigned long     serial;
+                //int               pole; /* true if standard snyder */
                 int               aperture; /* valid values depend on partitioning method */
                 int               resolution;
-                T                 radius; /* radius of the earth in meters, ignored 1.0 */
-                isea_address_form output; /* an isea_address_form */
                 int               triangle; /* triangle of last transformed point */
                 int               quad; /* quad of last transformed point */
-                unsigned long     serial;
+                //isea_poly         polyhedron; /* ignored, icosahedron */
+                //isea_topology     topology; /* ignored, hexagon */
+                isea_address_form output; /* an isea_address_form */
             };
 
             template <typename T>
@@ -232,9 +232,9 @@ namespace projections
 
             template <typename T>
             struct isea_address {
+                T      x,y; /* or i,j or lon,lat depending on type */
                 int    type; /* enum isea_address_form */
                 int    number;
-                T      x,y; /* or i,j or lon,lat depending on type */
             };
 
             /* ENDINC */

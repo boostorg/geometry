@@ -88,12 +88,12 @@ namespace projections
                 T    cosph0;
                 detail::en<T> en;
                 T    M1;
-                T    N1;
+                //T    N1;
                 T    Mp;
-                T    He;
-                T    G;
+                //T    He;
+                //T    G;
+                T    b;
                 mode_type mode;
-                srs::spheroid<T> spheroid;
             };
 
             template <typename T, typename Par, typename ProjParm>
@@ -129,7 +129,7 @@ namespace projections
                         formula::vincenty_inverse
                             <
                                 T, true, true
-                            >::apply(par.lam0, par.phi0, lp_lon + par.lam0, lp_lat, proj_parm.spheroid);
+                            >::apply(par.lam0, par.phi0, lp_lon + par.lam0, lp_lat, srs::spheroid<T>(par.a, proj_parm.b));
                     //azi1 = inv.azimuth; s12 = inv.distance;
                     xy_x = inv.distance * sin(inv.azimuth) / par.a;
                     xy_y = inv.distance * cos(inv.azimuth) / par.a;
@@ -158,7 +158,7 @@ namespace projections
                         formula::vincenty_direct
                             <
                                 T, true
-                            >::apply(par.lam0, par.phi0, s12, azi1, proj_parm.spheroid);
+                            >::apply(par.lam0, par.phi0, s12, azi1, srs::spheroid<T>(par.a, proj_parm.b));
                     lp_lat = dir.lat2;
                     lp_lon = dir.lon2;
                     lp_lon -= par.lam0;
@@ -317,14 +317,13 @@ namespace projections
                             break;
                         case equit:
                         case obliq:
-                            proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
-                            proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
-                            proj_parm.He *= proj_parm.cosph0;
+                            //proj_parm.N1 = 1. / sqrt(1. - par.es * proj_parm.sinph0 * proj_parm.sinph0);
+                            //proj_parm.G = proj_parm.sinph0 * (proj_parm.He = par.e / sqrt(par.one_es));
+                            //proj_parm.He *= proj_parm.cosph0;
                             break;
                         }
                         // Boost.Geometry specific, in proj4 geodesic is initialized at the beginning
-                        T const b = math::sqrt(math::sqr(par.a) * (1. - par.es));
-                        proj_parm.spheroid = srs::spheroid<T>(par.a, b);
+                        proj_parm.b = math::sqrt(math::sqr(par.a) * (1. - par.es));
                     }
                 }
             }

@@ -61,8 +61,8 @@ namespace projections
 
             struct par_bacon
             {
-                int bacn;
-                int ortl;
+                bool bacn;
+                bool ortl;
             };
 
             template <typename T, typename Parameters>
@@ -103,7 +103,7 @@ namespace projections
             template <typename Parameters>
             inline void setup_apian(Parameters& par, par_bacon& proj_parm)
             {
-                proj_parm.bacn = proj_parm.ortl = 0;
+                proj_parm.bacn = proj_parm.ortl = false;
                 par.es = 0.;
             }
 
@@ -111,8 +111,8 @@ namespace projections
             template <typename Parameters>
             inline void setup_ortel(Parameters& par, par_bacon& proj_parm)
             {
-                proj_parm.bacn = 0;
-                proj_parm.ortl = 1;
+                proj_parm.bacn = false;
+                proj_parm.ortl = true;
                 par.es = 0.;
             }
 
@@ -120,8 +120,8 @@ namespace projections
             template <typename Parameters>
             inline void setup_bacon(Parameters& par, par_bacon& proj_parm)
             {
-                proj_parm.bacn = 1;
-                proj_parm.ortl = 0;
+                proj_parm.bacn = true;
+                proj_parm.ortl = false;
                 par.es = 0.;
             }
 

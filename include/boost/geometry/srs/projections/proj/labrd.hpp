@@ -59,8 +59,7 @@ namespace projections
             template <typename T>
             struct par_labrd
             {
-                T   Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
-                int rot;
+                T    Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
             };
 
             template <typename T, typename Parameters>
@@ -170,7 +169,6 @@ namespace projections
 
                 T Az, sinp, R, N, t;
 
-                proj_parm.rot = pj_get_param_b<srs::spar::no_rot>(params, "no_rot", srs::dpar::no_rot);
                 Az = pj_get_param_r<T, srs::spar::azi>(params, "azi", srs::dpar::azi);
                 sinp = sin(par.phi0);
                 t = 1. - par.es * sinp * sinp;

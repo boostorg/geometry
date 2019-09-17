@@ -88,7 +88,7 @@ namespace projections
                 T    phi1;
                 T    phi2;
                 detail::en<T> en;
-                int  ellips;
+                bool ellips;
             };
 
             /* determine latitude angle phi-1 */

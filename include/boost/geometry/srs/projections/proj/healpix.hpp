@@ -74,17 +74,17 @@ namespace projections
             template <typename T>
             struct par_healpix
             {
-                int north_square;
-                int south_square;
                 T qp;
                 detail::apa<T> apa;
+                int north_square;
+                int south_square;
             };
 
             template <typename T>
             struct cap_map
             {
-                int cn; /* An integer 0--3 indicating the position of the polar cap. */
                 T x, y; /* Coordinates of the pole point (point of most extreme latitude on the polar caps). */
+                int cn; /* An integer 0--3 indicating the position of the polar cap. */
                 enum region_type {north, south, equatorial} region;
             };
             template <typename T>
