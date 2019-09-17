@@ -131,7 +131,7 @@ struct pj_transformation
                  std::vector<double> & out_y) const
     {
         assert(in_x.size() == in_y.size());
-        pj_transform(m_from.get(), m_to.get(), in_x.size(), 1, &in_x[0], &in_y[0], NULL);
+        pj_transform(m_from.get(), m_to.get(), (long)in_x.size(), 1, &in_x[0], &in_y[0], NULL);
         out_x = std::move(in_x);
         out_y = std::move(in_y);
     }
@@ -140,7 +140,7 @@ struct pj_transformation
                  std::vector<double> & out_xy) const
     {
         assert(in_xy.size() % 2 == 0);
-        pj_transform(m_from.get(), m_to.get(), in_xy.size() / 2, 2, &in_xy[0], &in_xy[1], NULL);
+        pj_transform(m_from.get(), m_to.get(), (long)in_xy.size() / 2, 2, &in_xy[0], &in_xy[1], NULL);
         out_xy = std::move(in_xy);
     }
 
