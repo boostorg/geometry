@@ -214,7 +214,7 @@ inline void read_m(IStream & is)
 }
 
 template <typename IStream>
-inline void read_ms(IStream & is, boost::int32_t num_points)
+inline void read_ms(IStream & is, std::size_t num_points)
 {
     is.seekg(sizeof(double) * num_points, IStream::cur);
 }
