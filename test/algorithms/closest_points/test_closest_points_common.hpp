@@ -32,6 +32,19 @@ typedef bg::strategy::closest_points::geographic_closest_points
 
 //===========================================================================
 
+template <typename Segment>
+static inline Segment swap(Segment const& s)
+{
+    Segment s_swaped;
+
+    bg::set<0, 0>(s_swaped, bg::get<1, 0>(s));
+    bg::set<0, 1>(s_swaped, bg::get<1, 1>(s));
+    bg::set<1, 0>(s_swaped, bg::get<0, 0>(s));
+    bg::set<1, 1>(s_swaped, bg::get<0, 1>(s));
+
+    return s_swaped;
+}
+
 template <int i, int j, typename Segment>
 void compare_result_with_expected(Segment const& expected_resulting_segment,
                                   Segment const& resulting_segment)
@@ -63,17 +76,19 @@ void test_closest_points(Geometry1 const& geometry1,
                          Segment const& exp_resulting_segment,
                          Strategy const& strategy)
 {
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
+              << std::endl;
+#endif
     Segment resulting_segment;
     bg::closest_points(geometry1, geometry2, resulting_segment, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "closest_points : " << bg::wkt(resulting_segment) << std::endl;
+    std::cout << "closest_points : " << bg::wkt(resulting_segment)
+              << std::endl << std::endl;
 #endif
 
     compare_result_with_expected(exp_resulting_segment, resulting_segment);
-
-    //bg::closest_points(geometry2, geometry1, resulting_segment, strategy);
-    //compare_result_with_expected(exp_resulting_segment, resulting_segment);
 }
 
 template
@@ -86,6 +101,10 @@ void test_closest_points(Geometry1 const& geometry1,
                          Geometry2 const& geometry2,
                          Segment const& exp_resulting_segment)
 {
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
+              << std::endl;
+#endif
     Segment resulting_segment;
     bg::closest_points(geometry1, geometry2, resulting_segment);
 
@@ -116,6 +135,11 @@ struct test_geometry
                      expected_resulting_segment);
 
         test_closest_points(geometry1, geometry2, expected_resulting_segment,
+                            strategy);
+
+        // swap input geometries and expected segment
+        test_closest_points(geometry2, geometry1,
+                            swap(expected_resulting_segment),
                             strategy);
     }
 

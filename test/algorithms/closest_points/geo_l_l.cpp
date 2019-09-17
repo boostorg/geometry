@@ -36,12 +36,6 @@ void test_closest_points_segment_segment(Strategy const& strategy)
                   "SEGMENT(0 1,1 0)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
-
-    //TODO: do this inversion inside tester
-    tester::apply("SEGMENT(0 1,1 0)",
-                  "SEGMENT(0 2,2 0)",
-                  "SEGMENT(1 0,1.496909 0.503379)",
-                  strategy);
 }
 
 //===========================================================================
@@ -52,7 +46,7 @@ void test_closest_points_segment_linestring(Strategy const& strategy)
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl;
-    std::cout << "point/linestring closest_points tests" << std::endl;
+    std::cout << "segment/linestring closest_points tests" << std::endl;
 #endif
 
     typedef bg::model::linestring<Point> Linestring;
