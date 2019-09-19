@@ -218,6 +218,19 @@ struct tag<closest_points::geographic_closest_points<FormulaPolicy,
     typedef strategy_tag_distance_point_segment type;
 };
 
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType
+>
+struct tag<closest_points::comparable::geographic_closest_points<FormulaPolicy,
+                                                                 Spheroid,
+                                                                 CalculationType> >
+{
+    typedef strategy_tag_distance_point_segment type;
+};
+
 
 //return types
 template <typename FormulaPolicy, typename P, typename PS>

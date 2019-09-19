@@ -53,10 +53,10 @@ void test_closest_points_segment_linestring(Strategy const& strategy)
     typedef bg::model::segment<Point> Segment;
     typedef test_geometry<Segment, Linestring, Segment> tester;
 
-    //tester::apply("SEGMENT(0 2,2 0)",
-    //              "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
-    //              "SEGMENT(1 1,0.503314 0.496737)",
-    //             strategy);
+    tester::apply("SEGMENT(0 2,2 0)",
+                  "LINESTRING(-1 0,0 1,1 0,-1 -2)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy);
 }
 
 //===========================================================================

@@ -218,7 +218,7 @@ public:
         if (check_intersection
             && intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy))
         {
-            return 0;
+            return return_type();
         }
 
         comparable_strategy cstrategy =
@@ -239,7 +239,7 @@ public:
 
         // consider all distances of the points in the geometry to the
         // segment or box
-        comparable_return_type cd_min1(0);
+        comparable_return_type cd_min1;
         point_iterator_type pit_min;
         seg_or_box_const_iterator it_min1 = boost::const_begin(seg_or_box_points);
         seg_or_box_const_iterator it_min2 = it_min1;
@@ -271,7 +271,7 @@ public:
 
         // consider all distances of the points in the segment or box to the
         // segments of the geometry
-        comparable_return_type cd_min2(0);
+        comparable_return_type cd_min2;
         segment_iterator_type sit_min;
         seg_or_box_const_iterator it_min;
 
