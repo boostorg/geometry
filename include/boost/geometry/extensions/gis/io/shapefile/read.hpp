@@ -114,8 +114,6 @@ inline void double_endianness_check()
 // TODO: It is not clear that this will work on all machines because some of
 //   them may use mixed endianness (half little-endian, half big-endian) for
 //   doubles or different endianness than the one used for integers.
-//   It is also not clear why did the generic version above compile in the
-//   past.
 template <typename IStream>
 inline void read_little(IStream & is, double & v)
 {
