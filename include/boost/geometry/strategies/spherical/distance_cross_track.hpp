@@ -496,7 +496,7 @@ public :
 
     template <typename ResultType>
     inline ResultType
-    apply(ResultType comparable_result, bool) const
+    apply(ResultType comparable_result) const
     {
         return comparable_result;
     }
@@ -603,7 +603,6 @@ public :
                 (concepts::PointDistanceStrategy<Strategy, Point, PointOfSegment>)
             );
 #endif
-        typedef typename return_type<Point, PointOfSegment>::type return_type;
         typedef cross_track<CalculationType, Strategy> this_type;
 
         typedef typename services::comparable_type
@@ -614,14 +613,12 @@ public :
         comparable_type cstrategy
             = services::get_comparable<this_type>::apply(m_strategy);
 
-        return_type const a = cstrategy.apply(p, sp1, sp2);
-        return_type const c = return_type(2.0) * asin(math::sqrt(a));
-        return c * radius();
+        return apply(cstrategy.apply(p, sp1, sp2));
     }
 
     template <typename ResultType>
     inline ResultType
-    apply(ResultType comparable_result, bool) const
+    apply(ResultType comparable_result) const
     {
         return ResultType(2.0) * asin(math::sqrt(comparable_result)) * radius();
     }

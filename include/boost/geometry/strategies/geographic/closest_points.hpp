@@ -111,12 +111,8 @@ public :
 
     template <typename ResultType>
     ResultType
-    apply(ResultType comparable_result, bool swap) const
+    apply(ResultType comparable_result) const
     {
-        if (swap)
-        {
-            comparable_result.swap();
-        }
         return comparable_result;
     }
 

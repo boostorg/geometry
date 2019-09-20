@@ -106,7 +106,11 @@ public:
             return d[imin];
         }
 
-        return strategy.apply(d[imin], imin < 2);
+        if (imin < 2)
+        {
+            dispatch::swap<Strategy>::apply(d[imin]);
+        }
+        return strategy.apply(d[imin]);
     }
 };
 

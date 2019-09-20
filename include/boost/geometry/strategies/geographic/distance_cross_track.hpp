@@ -154,7 +154,7 @@ public :
 
     template <typename ResultType>
     inline ResultType
-    apply(ResultType comparable_result, bool) const
+    apply(ResultType comparable_result) const
     {
         return comparable_result;
     }
