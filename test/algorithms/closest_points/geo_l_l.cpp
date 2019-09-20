@@ -60,6 +60,27 @@ void test_closest_points_segment_linestring(Strategy const& strategy)
 }
 
 //===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_linestring_linestring(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/linestring closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::segment<Point> Segment;
+    typedef test_geometry<Linestring, Linestring, Segment> tester;
+
+    tester::apply("LINESTRING(0 2,2 0,3 0,4 0,5 0)",
+                  "LINESTRING(-1 0,0 1,1 0,-1 -2)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy);
+}
+
+//===========================================================================
 //===========================================================================
 //===========================================================================
 
@@ -68,6 +89,7 @@ void test_all_l_l(Strategy cp_strategy)
 {
     test_closest_points_segment_segment<Point>(cp_strategy);
     test_closest_points_segment_linestring<Point>(cp_strategy);
+    test_closest_points_linestring_linestring<Point>(cp_strategy);
 
     test_more_empty_input_linear_linear<Point>(cp_strategy);
 }

@@ -307,6 +307,21 @@ template
         typename Spheroid,
         typename CalculationType
 >
+struct comparable_type<closest_points::comparable::geographic_closest_points
+                         <FormulaPolicy, Spheroid, CalculationType> >
+{
+    typedef closest_points::comparable::geographic_closest_points
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        >  type;
+};
+
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType
+>
 struct get_comparable
         <
             closest_points::geographic_closest_points
@@ -332,6 +347,37 @@ public :
                     <FormulaPolicy, Spheroid, CalculationType> const& strategy)
     {
         return comparable_type(strategy.get_spheroid());
+    }
+};
+
+template
+<
+        typename FormulaPolicy,
+        typename Spheroid,
+        typename CalculationType
+>
+struct get_comparable
+        <
+            closest_points::comparable::geographic_closest_points
+                            <
+                                FormulaPolicy,
+                                Spheroid,
+                                CalculationType
+                            >
+        >
+{
+    typedef typename closest_points::comparable::geographic_closest_points
+    <
+        FormulaPolicy,
+        Spheroid,
+        CalculationType
+    > comparable_type;
+public :
+    static inline comparable_type
+    apply(closest_points::comparable::geographic_closest_points
+                    <FormulaPolicy, Spheroid, CalculationType> const& strategy)
+    {
+        return strategy;
     }
 };
 

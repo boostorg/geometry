@@ -80,6 +80,24 @@ struct swap<strategy::closest_points::geographic_closest_points<
     }
 };
 
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct swap<strategy::closest_points::comparable::geographic_closest_points<
+                                            FormulaPolicy,
+                                            Spheroid,
+                                            CalculationType> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
 
 // If reversal is needed, perform it
 template

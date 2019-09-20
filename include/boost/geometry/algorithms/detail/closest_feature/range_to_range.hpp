@@ -67,7 +67,7 @@ private:
         BOOST_GEOMETRY_ASSERT( rtree_first != rtree_last );
         BOOST_GEOMETRY_ASSERT( queries_first != queries_last );
 
-        Distance const zero = Distance(0);
+        Distance const zero = Distance();
         dist_min = zero;
 
         // create -- packing algorithm

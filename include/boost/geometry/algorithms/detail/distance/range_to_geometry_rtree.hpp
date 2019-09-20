@@ -113,7 +113,7 @@ public:
                         <
                             typename selector_type::iterator_type
                         >::value_type,
-                    Strategy
+                Strategy
                 >::apply(closest_features.first,
                          *closest_features.second,
                          strategy);
