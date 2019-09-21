@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2017, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018, 2019.
+// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -428,6 +428,8 @@ public :
 
         typedef following::action_selector<OverlayType, RemoveSpikes> action;
 
+        typedef typename Strategy::cs_tag cs_tag;
+
         typename Strategy::template point_in_geometry_strategy
             <
                 LineString, Polygon
@@ -442,7 +444,10 @@ public :
 #ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
         std::sort(boost::begin(turns), boost::end(turns), sort_on_segment<turn_type>());
 #else
-        typedef relate::turns::less<0, relate::turns::less_op_linear_areal_single<0> > turn_less;
+        typedef relate::turns::less
+            <
+                0, relate::turns::less_op_linear_areal_single<0>, cs_tag
+            > turn_less;
         std::sort(boost::begin(turns), boost::end(turns), turn_less());
 #endif
 
