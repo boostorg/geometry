@@ -90,7 +90,7 @@ struct multipoint_to_linear
                                     Linear const& linear,
                                     Strategy const& strategy)
     {
-        return detail::distance::point_or_segment_range_to_geometry_rtree
+        return_type res = detail::distance::point_or_segment_range_to_geometry_rtree
             <
                 typename boost::range_iterator<MultiPoint const>::type,
                 Linear,
@@ -99,6 +99,18 @@ struct multipoint_to_linear
                      boost::end(multipoint),
                      linear,
                      strategy);
+
+        bool is_multi = boost::is_same
+                <
+                    typename tag<Linear>::type,
+                    multi_linestring_tag
+                >::type::value;
+
+        if (!is_multi)
+        {
+            dispatch::swap<Strategy>::apply(res);
+        }
+        return res;
     }
 
     static inline return_type apply(Linear const& linear,
@@ -106,6 +118,40 @@ struct multipoint_to_linear
                                     Strategy const& strategy)
     {
         return apply(multipoint, linear, strategy);
+    }
+};
+
+template <typename MultiPoint, typename MultiLinestring, typename Strategy>
+struct multipoint_to_multilinestring
+{
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<MultiPoint>::type,
+            typename point_type<MultiLinestring>::type
+        >::type return_type;
+
+    static inline return_type apply(MultiPoint const& multipoint,
+                                    MultiLinestring const& multilinestring,
+                                    Strategy const& strategy)
+    {
+        return_type res = detail::distance::point_or_segment_range_to_geometry_rtree
+            <
+                typename boost::range_iterator<MultiPoint const>::type,
+                MultiLinestring,
+                Strategy
+            >::apply(boost::begin(multipoint),
+                     boost::end(multipoint),
+                     multilinestring,
+                     strategy);
+        return res;
+    }
+
+    static inline return_type apply(MultiLinestring const& multilinestring,
+                                    MultiPoint const& multipoint,
+                                    Strategy const& strategy)
+    {
+        return apply(multipoint, multilinestring, strategy);
     }
 };
 
@@ -200,7 +246,6 @@ struct distance
             MultiPoint1, MultiPoint2, Strategy
         >
 {};
-
 
 template <typename MultiPoint, typename Linear, typename Strategy>
 struct distance

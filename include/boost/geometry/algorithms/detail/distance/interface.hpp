@@ -52,7 +52,7 @@ namespace dispatch
 {
 
 //TODO: move it
-template <typename ResultType>
+template <typename StrategyType>
 struct swap
 {
     template <typename T>
