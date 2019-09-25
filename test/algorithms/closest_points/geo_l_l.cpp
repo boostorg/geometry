@@ -81,6 +81,73 @@ void test_closest_points_linestring_linestring(Strategy const& strategy)
 }
 
 //===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_segment_multi_linestring(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "segment/multi-linestring closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
+    typedef bg::model::segment<Point> Segment;
+    typedef test_geometry<Segment, MultiLinestring, Segment> tester;
+
+    tester::apply("SEGMENT(0 2,2 0)",
+                  "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_linestring_multi_linestring(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring /multi-linestring closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
+    typedef bg::model::segment<Point> Segment;
+    typedef test_geometry<Linestring, MultiLinestring, Segment> tester;
+
+    tester::apply("LINESTRING(0 2,2 0,2 -1)",
+                  "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_multi_linestring_multi_linestring(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multi-linestring /multi-linestring closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
+    typedef bg::model::segment<Point> Segment;
+    typedef test_geometry<MultiLinestring, MultiLinestring, Segment> tester;
+
+    tester::apply("MULTILINESTRING((0 2,2 0,2 -1)(0 2,-1 2))",
+                  "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy);
+}
+
+
+//===========================================================================
 //===========================================================================
 //===========================================================================
 
@@ -90,6 +157,10 @@ void test_all_l_l(Strategy cp_strategy)
     test_closest_points_segment_segment<Point>(cp_strategy);
     test_closest_points_segment_linestring<Point>(cp_strategy);
     test_closest_points_linestring_linestring<Point>(cp_strategy);
+
+    test_closest_points_segment_multi_linestring<Point>(cp_strategy);
+    test_closest_points_linestring_multi_linestring<Point>(cp_strategy);
+    test_closest_points_multi_linestring_multi_linestring<Point>(cp_strategy);
 
     test_more_empty_input_linear_linear<Point>(cp_strategy);
 }
