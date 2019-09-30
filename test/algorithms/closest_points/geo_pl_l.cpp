@@ -137,7 +137,7 @@ void test_closest_points_multi_point_segment(Strategy const& strategy)
     typedef bg::model::segment<Point> Segment;
     typedef test_geometry<MultiPoint, Segment, Segment> tester;
 
-    tester::apply("MULTIPOINT(2 0,1 1,1 2)",
+    tester::apply("MULTIPOINT((2 0),(1 1),(1 2))",
                   "SEGMENT(0 1,1 0)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -159,7 +159,7 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
     typedef bg::model::segment<Point> Segment;
     typedef test_geometry<MultiPoint, Linestring, Segment> tester;
 
-    tester::apply("MULTIPOINT(2 0,1 1,3 0)",
+    tester::apply("MULTIPOINT((2 0),(1 1),(3 0))",
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -182,7 +182,7 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
     typedef bg::model::segment<Point> Segment;
     typedef test_geometry<MultiPoint, MultiLinestring, Segment> tester;
 
-    tester::apply("MULTIPOINT(5 0,1 1,6 0)",
+    tester::apply("MULTIPOINT((5 0),(1 1),(6 0))",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);

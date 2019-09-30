@@ -166,7 +166,7 @@ struct point_to_ring
         if (within::within_point_geometry(point, ring,
                                           strategy.get_point_in_geometry_strategy()))
         {
-            return return_type(0);
+            return return_type();
         }
 
         return point_to_range
@@ -218,7 +218,7 @@ private:
                     return per_ring::apply(point, *it, strategy);
                 }
             }
-            return 0;
+            return return_type();
         }
 
         template <typename InteriorRings>
@@ -342,7 +342,7 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
         if (within::covered_by_point_geometry(point, multipolygon,
                                               strategy.get_point_in_geometry_strategy()))
         {
-            return 0;
+            return return_type();
         }
 
         return point_to_multigeometry

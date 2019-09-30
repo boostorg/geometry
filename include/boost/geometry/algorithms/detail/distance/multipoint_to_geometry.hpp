@@ -203,7 +203,7 @@ public:
                          boost::end(multipoint),
                          predicate))
         {
-            return detail::distance::point_or_segment_range_to_geometry_rtree
+            return_type res= detail::distance::point_or_segment_range_to_geometry_rtree
                 <
                     typename boost::range_iterator<MultiPoint const>::type,
                     Areal,
@@ -212,8 +212,24 @@ public:
                          boost::end(multipoint),
                          areal,
                          strategy);
+            bool is_ring = boost::is_same
+                    <
+                        typename tag<Areal>::type,
+                        ring_tag
+                    >::type::value;
+            bool is_multi_polygon = boost::is_same
+                    <
+                        typename tag<Areal>::type,
+                        multi_polygon_tag
+                    >::type::value;
+
+            if (!is_ring && !is_multi_polygon)
+            {
+                dispatch::swap<Strategy>::apply(res);
+            }
+            return res;
         }
-        return 0;
+        return return_type();
     }
 
     static inline return_type apply(Areal const& areal,
