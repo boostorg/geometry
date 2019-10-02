@@ -593,6 +593,36 @@ struct equal : public base_turn_handler
         int const side_pk_p = has_pk ? side.pk_wrt_p1() : 0;
         int const side_qk_p = has_qk ? side.qk_wrt_p1() : 0;
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+
+        if (has_pk && has_qk && side_pk_p == side_qk_p)
+        {
+            // They turn to the same side, or continue both collinearly
+            // Without rescaling, to check for union/intersection,
+            // try to check side values (without any thresholds)
+            typedef typename select_coordinate_type
+                    <
+                        typename UniqueSubRange1::point_type,
+                        typename UniqueSubRange2::point_type
+                        >::type coordinate_type;
+
+            typedef detail::distance_measure<coordinate_type> dm_type;
+
+            dm_type const dm_qk_p
+               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(1), range_q.at(2), range_p.at(2));
+            dm_type const dm_pk_q
+               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_p.at(1), range_p.at(2), range_q.at(2));
+
+            if (dm_pk_q.measure != dm_qk_p.measure)
+            {
+                // A (possibly very small) difference is detected, which
+                // can be used to distinguish between union/intersection
+                ui_else_iu(dm_pk_q.measure < dm_qk_p.measure, ti);
+                return;
+            }
+        }
+#endif
+
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear
         // The second condition checks if they do not continue
