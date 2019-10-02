@@ -44,13 +44,37 @@ struct linear_to_areal
         if ( geometry::intersects(linear, areal,
                                   strategy.get_relate_segment_segment_strategy()) )
         {
-            return 0;
+            return return_type();
         }
 
-        return linear_to_linear
+        return_type res = linear_to_linear
             <
                 Linear, Areal, Strategy
             >::apply(linear, areal, strategy, false);
+
+        bool is_ring = boost::is_same
+                <
+                    typename tag<Areal>::type,
+                    ring_tag
+                >::type::value;
+
+        bool is_multi_polygon = boost::is_same
+                <
+                    typename tag<Areal>::type,
+                    multi_polygon_tag
+                >::type::value;
+
+        bool is_multi_linestring = boost::is_same
+                <
+                    typename tag<Linear>::type,
+                    multi_linestring_tag
+                >::type::value;
+
+        if (!is_ring && !is_multi_polygon && is_multi_linestring)
+        {
+            dispatch::swap<Strategy>::apply(res);
+        }
+        return res;
     }
 
 

@@ -295,6 +295,8 @@ public:
             }
         }
 
+        return_type res;
+
         if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
         {
             return (std::min)(cd_min1, cd_min2);
@@ -302,11 +304,11 @@ public:
 
         if (cd_min1 < cd_min2)
         {
-            return strategy.apply(*pit_min, *it_min1, *it_min2);
+            res = strategy.apply(*pit_min, *it_min1, *it_min2);
         }
         else
         {
-            return dispatch::distance
+            res = dispatch::distance
                 <
                     segment_or_box_point,
                     typename std::iterator_traits
@@ -316,6 +318,17 @@ public:
                     Strategy
                 >::apply(*it_min, *sit_min, strategy);
         }
+        bool is_ring = boost::is_same
+                <
+                    typename tag<Geometry>::type,
+                    ring_tag
+                >::type::value;
+
+        if (is_ring)
+        {
+            dispatch::swap<Strategy>::apply(res);
+        }
+        return res;
     }
 
 
