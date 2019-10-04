@@ -103,7 +103,7 @@ struct areal_to_areal
         if ( geometry::intersects(areal1, areal2,
                                   strategy.get_relate_segment_segment_strategy()) )
         {
-            return 0;
+            return return_type();
         }
 
         return linear_to_linear

@@ -206,7 +206,7 @@ void test_closest_points_multi_linestring_multi_polygon(Strategy const& strategy
 //===========================================================================
 
 template <typename Point, typename Strategy>
-void test_all_pl_ar(Strategy cp_strategy)
+void test_all_l_ar(Strategy cp_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_segment_multi_polygon<Point>(cp_strategy);
@@ -223,7 +223,7 @@ void test_all_pl_ar(Strategy cp_strategy)
     //test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }
 
-BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
+BOOST_AUTO_TEST_CASE( test_all_linear_areal )
 {
     typedef bg::model::point
             <
@@ -231,9 +231,9 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_pl_ar<geo_point>(andoyer_cp());
-    test_all_pl_ar<geo_point>(thomas_cp());
-    test_all_pl_ar<geo_point>(vincenty_cp());
+    test_all_l_ar<geo_point>(andoyer_cp());
+    test_all_l_ar<geo_point>(thomas_cp());
+    test_all_l_ar<geo_point>(vincenty_cp());
 }
 
 
