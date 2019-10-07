@@ -23,11 +23,11 @@ namespace bg = boost::geometry;
 
 //===========================================================================
 
-typedef bg::strategy::closest_points::geographic_closest_points
+typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::andoyer> andoyer_cp;
-typedef bg::strategy::closest_points::geographic_closest_points
+typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::thomas> thomas_cp;
-typedef bg::strategy::closest_points::geographic_closest_points
+typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::vincenty> vincenty_cp;
 
 //===========================================================================
