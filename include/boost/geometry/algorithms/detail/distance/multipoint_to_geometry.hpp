@@ -52,7 +52,7 @@ struct multipoint_to_multipoint
         if (boost::size(multipoint2) < boost::size(multipoint1))
 
         {
-            return point_or_segment_range_to_geometry_rtree
+            return_type res = point_or_segment_range_to_geometry_rtree
                 <
                     typename boost::range_iterator<MultiPoint2 const>::type,
                     MultiPoint1,
@@ -61,6 +61,8 @@ struct multipoint_to_multipoint
                          boost::end(multipoint2),
                          multipoint1,
                          strategy);
+            dispatch::swap<Strategy>::apply(res);
+            return res;
         }
 
         return point_or_segment_range_to_geometry_rtree

@@ -39,16 +39,59 @@ void test_closest_points_point_point(Strategy const& strategy)
 }
 
 
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_point_multi_point(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "point/multi-point closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::multi_point<Point> MultiPoint;
+    typedef test_geometry<Point, MultiPoint, Segment> tester;
+
+    tester::apply("POINT(0 0)",
+                  "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "SEGMENT(0 0,0 1)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_multi_point_multi_point(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multi-point/multi-point closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::multi_point<Point> MultiPoint;
+    typedef test_geometry<MultiPoint, MultiPoint, Segment> tester;
+
+    tester::apply("MULTIPOINT((-1 -1),(0 0))",
+                  "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "SEGMENT(0 0,0 1)",
+                  strategy);
+}
+
 //===========================================================================
 //===========================================================================
 //===========================================================================
 
 template <typename Point, typename Strategy>
-void test_all_pl_pl(Strategy cp_strategy)
+void test_all_pl_pl(Strategy pp_strategy)
 {
-    //test_closest_points_point_point<Point>(cp_strategy);
-    //test_closest_points_point_multi_point<Point>(cp_strategy);
-    //test_closest_points_multi_point_multi_point<Point>(cp_strategy);
+    test_closest_points_point_point<Point>(pp_strategy);
+    test_closest_points_point_multi_point<Point>(pp_strategy);
+    test_closest_points_multi_point_multi_point<Point>(pp_strategy);
 
     //test_more_empty_input_pointlike_pointlike<Point>(cp_strategy);
 }
@@ -61,8 +104,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_pl_pl<geo_point>(andoyer_cp());
-    test_all_pl_pl<geo_point>(thomas_cp());
-    test_all_pl_pl<geo_point>(vincenty_cp());
+    test_all_pl_pl<geo_point>(andoyer_pp());
+    test_all_pl_pl<geo_point>(thomas_pp());
+    test_all_pl_pl<geo_point>(vincenty_pp());
 }
 

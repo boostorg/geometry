@@ -36,6 +36,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
+#include <boost/geometry/strategies/geographic/closest_points.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
@@ -98,6 +99,24 @@ struct swap<strategy::closest_points::comparable::geographic_cross_track<
     }
 };
 
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct swap<strategy::closest_points::geographic<
+                                            FormulaPolicy,
+                                            Spheroid,
+                                            CalculationType> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
 
 // If reversal is needed, perform it
 template
