@@ -42,6 +42,18 @@ void test_all()
             , std::sqrt(2.0)
             , "LINESTRING(10 1,2 2)"
         );
+    test_geometry<bg::model::linestring<P> >
+        (
+            "LINESTRING EMPTY"
+
+            , 0
+            , "LINESTRING()"
+            , "LINESTRING()"
+
+            , ""
+            , 0
+            , "LINESTRING()"
+        );
     test_geometry<bg::model::ring<P> >
         (
             "POLYGON((1 1,1 4,4 4,4 1,1 1))"
@@ -53,6 +65,18 @@ void test_all()
             , "((1, 1), (1, 4)) ((1, 4), (4, 4)) ((4, 4), (4, 1)) ((4, 1), (1, 1))"
             , 4 * 3.0
             , "POLYGON((10 1,10 4,4 4,4 1,1 1))"
+        );
+    test_geometry<bg::model::ring<P> >
+        (
+            "POLYGON EMPTY"
+
+            , 0
+            , "POLYGON(())"
+            , "POLYGON(())"
+
+            , ""
+            , 0
+            , "POLYGON(())"
         );
     test_geometry<bg::model::ring<P, true, false> > // open ring
         (
