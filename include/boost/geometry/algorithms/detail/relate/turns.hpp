@@ -21,7 +21,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -70,17 +70,14 @@ struct get_turns
     >
     struct turn_info_type
     {
+        typedef typename segment_ratio_type<point1_type, RobustPolicy>::type ratio_type;
         typedef overlay::turn_info
             <
                 point1_type,
-                typename segment_ratio_type<point1_type, RobustPolicy>::type,
+                ratio_type,
                 typename detail::get_turns::turn_operation_type
                     <
-                        Geometry1, Geometry2,
-                        typename segment_ratio_type
-                            <
-                                point1_type, RobustPolicy
-                            >::type
+                        Geometry1, Geometry2, ratio_type
                     >::type
             > type;
     };

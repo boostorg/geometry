@@ -63,7 +63,7 @@ public:
     typedef detail::overlay::turn_info
         <
             point_type,
-            typename geometry::segment_ratio_type
+            typename segment_ratio_type
                 <
                     point_type,
                     rescale_policy_type

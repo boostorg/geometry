@@ -390,7 +390,7 @@ public :
         typedef bg::detail::overlay::turn_info
         <
             Point,
-            typename bg::segment_ratio_type<Point, RescalePolicy>::type
+            typename bg::detail::segment_ratio_type<Point, RescalePolicy>::type
         > turn_info;
 
         std::vector<turn_info> turns;

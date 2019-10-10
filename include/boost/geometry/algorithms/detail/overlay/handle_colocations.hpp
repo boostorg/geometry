@@ -84,15 +84,6 @@ struct turn_operation_index
     signed_size_type op_index; // only 0,1
 };
 
-struct is_discarded
-{
-    template <typename Turn>
-    inline bool operator()(Turn const& turn) const
-    {
-        return turn.discarded;
-    }
-};
-
 template <typename Turns>
 struct less_by_fraction_and_type
 {
@@ -532,80 +523,6 @@ inline segment_identifier get_preceding_segment_id(segment_identifier const& id,
     result.segment_index--;
 
     return result;
-}
-
-// Turns marked with method <start> can be generated but are often duplicate,
-// unless (by floating point precision) the preceding touching turn is just missed.
-// This means that all <start> (nearly) colocated with preceding touching turn
-// can be deleted. This is done before colocation itself (because in colocated,
-// they are only discarded, and that can give issues in traversal)
-template <typename Turns, typename Geometry0, typename Geometry1>
-inline void erase_colocated_start_turns(Turns& turns,
-        Geometry0 const& geometry0, Geometry1 const& geometry1)
-{
-    typedef std::pair<segment_identifier, segment_identifier> seg_id_pair;
-    typedef std::map<seg_id_pair, std::size_t> map_type;
-
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename boost::range_iterator<Turns const>::type turn_it;
-    typedef map_type::const_iterator map_it;
-
-    // Collect starting turns into map
-    map_type preceding_segments;
-    std::size_t turn_index = 0;
-    for (turn_it it = boost::begin(turns); it != boost::end(turns); ++it, ++turn_index)
-    {
-        turn_type const& turn = *it;
-        if (turn.method == method_start)
-        {
-            // Insert identifiers for preceding segments of both operations.
-            // (For self turns geometry1 == geometry2)
-            seg_id_pair const pair(
-                get_preceding_segment_id(turn.operations[0].seg_id, geometry0, geometry1),
-                get_preceding_segment_id(turn.operations[1].seg_id, geometry0, geometry1));
-
-            // There should exist only one turn with such ids
-            BOOST_GEOMETRY_ASSERT(preceding_segments.find(pair) == preceding_segments.end());
-
-            preceding_segments[pair] = turn_index;
-        }
-    }
-
-    if (preceding_segments.empty())
-    {
-        return;
-    }
-
-    // Find touching turns on preceding segment id combinations
-    bool has_discarded = false;
-    for (turn_it it = boost::begin(turns); it != boost::end(turns); ++it)
-    {
-        turn_type const& turn = *it;
-        if (turn.method == method_touch)
-        {
-            seg_id_pair const pair(turn.operations[0].seg_id,
-                    turn.operations[1].seg_id);
-
-            map_it mit = preceding_segments.find(pair);
-
-            if (mit != preceding_segments.end())
-            {
-                // The found touching turn precedes the found starting turn.
-                // (To be completely sure we could verify if turn.point is (nearly) equal)
-                // These turns are duplicate, discard the starting turn.
-                has_discarded = true;
-                turn_type& extra_turn = turns[mit->second];
-                extra_turn.discarded = true;
-            }
-        }
-    }
-
-    if (has_discarded)
-    {
-        turns.erase(std::remove_if(boost::begin(turns), boost::end(turns),
-                                   is_discarded()),
-                    boost::end(turns));
-    }
 }
 
 template

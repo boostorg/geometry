@@ -96,8 +96,10 @@ private:
                     Point1, calculation_type, radian
                 >::type helper_point1, helper_point2;
 
-            Point1 point1_normalized = return_normalized<Point1>(point1);
-            Point2 point2_normalized = return_normalized<Point2>(point2);
+            Point1 point1_normalized;
+            strategy::normalize::spherical_point::apply(point1, point1_normalized);
+            Point2 point2_normalized;
+            strategy::normalize::spherical_point::apply(point2, point2_normalized);
 
             geometry::transform(point1_normalized, helper_point1);
             geometry::transform(point2_normalized, helper_point2);
