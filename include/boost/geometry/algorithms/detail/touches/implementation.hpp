@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2019.
+// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -292,8 +292,8 @@ namespace dispatch {
 
 // P/P
 
-template <typename Geometry1, typename Geometry2, typename Tag2>
-struct touches<Geometry1, Geometry2, point_tag, Tag2, pointlike_tag, pointlike_tag, false>
+template <typename Geometry1, typename Geometry2>
+struct touches<Geometry1, Geometry2, point_tag, point_tag, pointlike_tag, pointlike_tag, false>
 {
     template <typename Strategy>
     static inline bool apply(Geometry1 const& , Geometry2 const& , Strategy const&)
@@ -302,8 +302,18 @@ struct touches<Geometry1, Geometry2, point_tag, Tag2, pointlike_tag, pointlike_t
     }
 };
 
-template <typename Geometry1, typename Geometry2, typename Tag2>
-struct touches<Geometry1, Geometry2, multi_point_tag, Tag2, pointlike_tag, pointlike_tag, false>
+template <typename Geometry1, typename Geometry2>
+struct touches<Geometry1, Geometry2, point_tag, multi_point_tag, pointlike_tag, pointlike_tag, false>
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& , Geometry2 const& , Strategy const&)
+    {
+        return false;
+    }
+};
+
+template <typename Geometry1, typename Geometry2>
+struct touches<Geometry1, Geometry2, multi_point_tag, multi_point_tag, pointlike_tag, pointlike_tag, false>
 {
     template <typename Strategy>
     static inline bool apply(Geometry1 const&, Geometry2 const&, Strategy const&)
@@ -312,7 +322,7 @@ struct touches<Geometry1, Geometry2, multi_point_tag, Tag2, pointlike_tag, point
     }
 };
 
-// P/*
+// P/L P/A
 
 template <typename Point, typename Geometry, typename Tag2, typename CastedTag2>
 struct touches<Point, Geometry, point_tag, Tag2, pointlike_tag, CastedTag2, false>
@@ -328,6 +338,8 @@ struct touches<MultiPoint, MultiGeometry, multi_point_tag, Tag2, pointlike_tag, 
             MultiGeometry
         >
 {};
+
+// L/P A/P
 
 template <typename Geometry, typename MultiPoint, typename Tag1, typename CastedTag1>
 struct touches<Geometry, MultiPoint, Tag1, multi_point_tag, CastedTag1, pointlike_tag, false>
