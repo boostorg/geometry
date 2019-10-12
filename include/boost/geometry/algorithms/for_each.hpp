@@ -110,7 +110,9 @@ struct fe_range_per_segment_with_closure
 
         iterator_type it = boost::begin(range);
         if (it == boost::end(range))
+        {
             return;
+        }
 
         iterator_type previous = it++;
         while(it != boost::end(range))
