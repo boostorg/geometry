@@ -279,13 +279,13 @@ inline int scale_expansion_zeroelim(
 template
 <
     typename RealNumber,
-    int robustness = 3
+    std::size_t Robustness = 3
 >
 inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
                            std::array<RealNumber, 2> const& p2,
                            std::array<RealNumber, 2> const& p3)
 {
-    if(robustness == 0) {
+    if(Robustness == 0) {
         return (p1[0]-p3[0])*(p2[1]-p3[1]) - (p1[1]-p3[1])*(p2[0] - p3[0]);
     }
     std::array<RealNumber, 2> t1, t2, t3, t4;
@@ -317,7 +317,7 @@ inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
     t6_01[1] = two_product_tail(t3[0], t4[0], t6_01[0]);
     std::array<RealNumber, 4> tA_03 = two_two_expansion_diff(t5_01, t6_01);
     det = std::accumulate(tA_03.begin(), tA_03.end(), static_cast<RealNumber>(0));
-    if(robustness == 1) return det;
+    if(Robustness == 1) return det;
     // see p.39, mind the different definition of epsilon for error bound
     RealNumber B_relative_bound =
           (1 + 3 * std::numeric_limits<RealNumber>::epsilon())
@@ -344,7 +344,7 @@ inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
         * std::numeric_limits<RealNumber>::epsilon();
     absolute_bound = C_relative_bound * magnitude + sub_bound * std::abs(det);
     det += (t1[0] * t2[1] + t2[0] * t1[1]) - (t3[0] * t4[1] + t4[0] * t3[1]);
-    if (robustness == 2 || std::abs(det) >= absolute_bound) {
+    if (Robustness == 2 || std::abs(det) >= absolute_bound) {
         return det; //C estimate
     }
     std::array<RealNumber, 8> D_left;
@@ -384,7 +384,7 @@ inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
 template
 <
     typename RealNumber,
-    int robustness = 2
+    std::size_t Robustness = 2
 >
 RealNumber incircle(std::array<RealNumber, 2> const& p1,
                     std::array<RealNumber, 2> const& p2,
@@ -419,7 +419,7 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
     RealNumber det = A_13 * (A_21_x_A_32[0] - A_31_x_A_22[0])
       + A_23 * (A_31_x_A_12[0] - A_11_x_A_32[0])
       + A_33 * (A_11_x_A_22[0] - A_21_x_A_12[0]);
-    if(robustness == 0) return det;
+    if(Robustness == 0) return det;
 
     RealNumber magnitude =
           (std::abs(A_21_x_A_32[0]) + std::abs(A_31_x_A_22[0])) * A_13
@@ -546,7 +546,7 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
     det = std::accumulate(det_expansion.begin(),
                           det_expansion.begin() + det_expansion_nz,
                           static_cast<RealNumber>(0));
-    if(robustness == 1) return det;
+    if(Robustness == 1) return det;
     RealNumber B_relative_bound =
           (2 + 12 * std::numeric_limits<RealNumber>::epsilon())
         * std::numeric_limits<RealNumber>::epsilon();

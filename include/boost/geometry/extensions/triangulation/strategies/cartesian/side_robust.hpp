@@ -27,13 +27,13 @@ namespace strategy { namespace side
     left of segment (>0), right of segment (< 0), on segment (0).
 \ingroup strategies
 \tparam CalculationType \tparam_calculation (numeric_limits<ct>::epsilon() and numeric_limits<ct>::digits must be supported for calculation type ct)
-\tparam robustness Number that determines maximum precision. Values from 0 to 2 may make the calculation terminate faster for inputs that may require higher precision to ensure correctness.
+\tparam Robustness std::size_t value from 0 (fastest) to 3 (default, guarantees correct results).
 \details This predicate determines at which side of a segment a point lies using an algorithm that is adapted from orient2d as described in "Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates" by Jonathan Richard Shewchuk ( https://dl.acm.org/citation.cfm?doid=237218.237337 ). More information and copies of the paper can also be found at https://www.cs.cmu.edu/~quake/robust.html . It is designed to be adaptive in the sense that it should be fast for inputs that lead to correct results with plain float operations but robust for inputs that require higher precision arithmetics.
  */
 template
 <
     typename CalculationType = void,
-    int robustness = 3
+    std::size_t Robustness = 3
 >
 struct side_robust
 {
@@ -53,7 +53,7 @@ public:
         std::array<PromotedType, 2> pb {{ get<0>(p2), get<1>(p2) }};
         std::array<PromotedType, 2> pc {{ get<0>(p), get<1>(p) }};
         return ::boost::geometry::detail::precise_math::orient2d
-            <PromotedType, robustness>(pa, pb, pc);
+            <PromotedType, Robustness>(pa, pb, pc);
     }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
