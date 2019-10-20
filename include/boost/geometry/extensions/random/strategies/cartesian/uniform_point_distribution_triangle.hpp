@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -33,7 +36,7 @@ struct uniform_2d_cartesian_triangle
 private:
     typedef typename point_type<DomainGeometry>::type domain_point_type;
 public:
-    uniform_2d_cartesian_triangle(DomainGeometry const& g) {}
+    uniform_2d_cartesian_triangle(DomainGeometry const& d) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
                 uniform_2d_cartesian_triangle const& r_strategy) const
@@ -59,8 +62,8 @@ public:
         return out;
     }
 
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         typedef typename select_most_precise
             <

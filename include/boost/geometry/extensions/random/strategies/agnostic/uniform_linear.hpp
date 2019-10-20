@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -41,7 +44,7 @@ template
 >
 struct uniform_linear_single
 {
-    uniform_linear_single(DomainGeometry const& g) {}
+    uniform_linear_single(DomainGeometry const& d) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
                 uniform_linear_single const& r_strategy) const
@@ -49,8 +52,8 @@ struct uniform_linear_single
         return boost::geometry::equals(l_domain, r_domain);
     }
     
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         typedef typename select_most_precise
             <
@@ -85,12 +88,12 @@ private:
     std::vector<domain_point_type> point_cache;
     std::vector<length_type> accumulated_lengths;
 public:
-    uniform_linear_multi(DomainGeometry const& g)
+    uniform_linear_multi(DomainGeometry const& d)
     {
         std::size_t i = 0;
-        point_cache.push_back(*segments_begin(g)->first);
+        point_cache.push_back(*segments_begin(d)->first);
         accumulated_lengths.push_back(0);
-        for (auto it = segments_begin(g) ; it != segments_end(g) ; ++it)
+        for (auto it = segments_begin(d) ; it != segments_end(d) ; ++it)
         {
             accumulated_lengths.push_back(
                 accumulated_lengths.back() + length(*it));
@@ -120,8 +123,8 @@ public:
         }
         return true;
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         typedef typename select_most_precise
             <

@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -44,8 +47,8 @@ private:
 	envelope_type m_env;
 	BoxStrategy m_env_strat;
 public:
-    uniform_envelope_rejection(DomainGeometry const& g) :
-		m_env(return_envelope<envelope_type>(g)),
+    uniform_envelope_rejection(DomainGeometry const& d) :
+		m_env(return_envelope<envelope_type>(d)),
 		m_env_strat(m_env) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
@@ -53,14 +56,14 @@ public:
     {
         return boost::geometry::equals(l_domain, r_domain);
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         typedef typename point_type<DomainGeometry>::type domain_point;
         domain_point p;
         do {
             p = m_env_strat.apply(g, m_env);
-        }while( !::boost::geometry::within(p, d) );
+        } while( !::boost::geometry::within(p, d) );
         Point r;
         boost::geometry::transform(p, r);
         return r;

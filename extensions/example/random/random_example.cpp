@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -36,7 +39,10 @@ int main()
 
     std::default_random_engine generator(1);
     polygon poly;
-    boost::geometry::read_wkt("POLYGON((16 21,17.1226 17.5451,20.7553 17.5451,17.8164 15.4098,18.9389 11.9549,16 14.0902,13.0611 11.9549,14.1836 15.4098,11.2447 17.5451,14.8774 17.5451,16 21))", poly);
+    boost::geometry::read_wkt("POLYGON((16 21,17.1226 17.5451,20.7553 17.5451,"
+            "17.8164 15.4098,18.9389 11.9549,16 14.0902,13.0611 11.9549,"
+            "14.1836 15.4098,11.2447 17.5451,14.8774 17.5451,16 21))",
+            poly);
     box b(point(0, 0), point(10, 10));
     segment s(point(11, 0), point(21, 10));
     multi_point mp;

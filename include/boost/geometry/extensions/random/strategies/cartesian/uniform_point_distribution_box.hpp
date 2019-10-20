@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -76,19 +79,19 @@ template
 >
 struct interval_product_distribution
 {
-    interval_product_distribution(DomainGeometry const& g) {}
+    interval_product_distribution(DomainGeometry const& d) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
                 interval_product_distribution const& r_strategy) const
     {
         return boost::geometry::equals(l_domain.domain(), r_domain.domain());
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         Point r;
         for_each_coordinate(r,
-        	detail::interval_sample<Point, DomainGeometry, Gen>(d, g));
+        	detail::interval_sample<Point, DomainGeometry, Generator>(d, g));
         return r;
     }
     void reset(DomainGeometry const&) {};

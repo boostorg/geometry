@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -29,7 +32,7 @@ template
 >
 struct single_point_distribution
 {
-    single_point_distribution(DomainGeometry const& g) {}
+    single_point_distribution(DomainGeometry const& d) {}
     template<typename Strategy>
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
@@ -37,8 +40,8 @@ struct single_point_distribution
     {
         return boost::geometry::equals(l_domain.domain(), r_domain.domain());
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         Point r;
         boost::geometry::transform(d, r);
@@ -68,8 +71,8 @@ struct multi_point_distribution
             }
         return true;
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         Point r;
         if(boost::size(d) == 0) return r;

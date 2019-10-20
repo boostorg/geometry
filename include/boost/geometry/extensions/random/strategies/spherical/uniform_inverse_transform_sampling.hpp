@@ -2,6 +2,9 @@
 
 // Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
 
+// Contributed and/or modified by Tinko Bartels,
+//   as part of Google Summer of Code 2019 program.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -38,15 +41,15 @@ template
 >
 struct uniform_inverse_transform_sampling<Point, DomainGeometry, 2>
 {
-    uniform_inverse_transform_sampling(DomainGeometry const& g) {}
+    uniform_inverse_transform_sampling(DomainGeometry const& d) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
                 uniform_inverse_transform_sampling const& r_strategy) const
     {
         return boost::geometry::equals(l_domain.domain(), r_domain.domain());
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         Point out;
         typedef typename coordinate_type<Point>::type coordinate_type;
@@ -81,15 +84,15 @@ template
 >
 struct uniform_inverse_transform_sampling<Point, DomainGeometry, 3>
 {
-    uniform_inverse_transform_sampling(DomainGeometry const& g) {}
+    uniform_inverse_transform_sampling(DomainGeometry const& d) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
                 uniform_inverse_transform_sampling const& r_strategy) const
     {
         return boost::geometry::equals(l_domain.domain(), r_domain.domain());
     }
-    template<typename Gen>
-    Point apply(Gen& g, DomainGeometry const& d)
+    template<typename Generator>
+    Point apply(Generator& g, DomainGeometry const& d)
     {
         uniform_inverse_transform_sampling<Point, DomainGeometry, 2> helper(d);
         Point out = helper.apply(g, d);
