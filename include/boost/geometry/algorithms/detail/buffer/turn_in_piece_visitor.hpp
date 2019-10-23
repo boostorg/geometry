@@ -36,7 +36,6 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_of_intersection.hpp>
-#include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 
 
 namespace boost { namespace geometry
@@ -151,10 +150,11 @@ struct check_segment {};
 template <>
 struct check_segment<true>
 {
-    template <typename Point, typename Turn>
+    template <typename Point, typename Turn, typename SideStrategy>
     static inline analyse_result apply(Point const& previous,
             Point const& current, Turn const& turn,
-            bool from_monotonic)
+            bool from_monotonic,
+            SideStrategy const& )
     {
         typedef geometry::model::referring_segment<Point const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
@@ -182,17 +182,13 @@ struct check_segment<true>
 template <>
 struct check_segment<false>
 {
-    template <typename Point, typename Turn>
+    template <typename Point, typename Turn, typename SideStrategy>
     static inline analyse_result apply(Point const& previous,
             Point const& current, Turn const& turn,
-            bool from_monotonic)
+            bool from_monotonic,
+            SideStrategy const& side_strategy)
     {
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Point>::type
-            >::type side_strategy;
-
-        int const side = side_strategy::apply(previous, current, turn.robust_point);
+        int const side = side_strategy.apply(previous, current, turn.robust_point);
 
         if (side == 0)
         {
@@ -234,8 +230,10 @@ template <>
 class analyse_turn_wrt_point_piece<true>
 {
 public :
-    template <typename Turn, typename Piece>
-    static inline analyse_result apply(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename PointInGeometryStrategy, typename SideStrategy>
+    static inline analyse_result apply(Turn const& turn, Piece const& piece,
+                                       PointInGeometryStrategy const& ,
+                                       SideStrategy const& )
     {
         typedef typename Piece::section_type section_type;
         typedef typename Turn::robust_point_type point_type;
@@ -307,17 +305,16 @@ template <>
 class analyse_turn_wrt_point_piece<false>
 {
 public :
-    template <typename Turn, typename Piece>
-    static inline analyse_result apply(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename PointInGeometryStrategy, typename SideStrategy>
+    static inline analyse_result apply(Turn const& turn, Piece const& piece,
+                                       PointInGeometryStrategy const& point_in_geometry_strategy,
+                                       SideStrategy const& side_strategy)
     {
         typedef typename Piece::section_type section_type;
         typedef typename Turn::robust_point_type point_type;
         typedef typename geometry::coordinate_type<point_type>::type coordinate_type;
 
-        typedef strategy::within::winding<point_type> strategy_type;
-
-        typename strategy_type::state_type state;
-        strategy_type strategy;
+        typename PointInGeometryStrategy::state_type state;
 
         BOOST_GEOMETRY_ASSERT(! piece.sections.empty());
 
@@ -337,7 +334,7 @@ public :
                     point_type const& previous = piece.robust_ring[i - 1];
                     point_type const& current = piece.robust_ring[i];
 
-                    analyse_result code = check_segment<false>::apply(previous, current, turn, false);
+                    analyse_result code = check_segment<false>::apply(previous, current, turn, false, side_strategy);
                     if (code != analyse_continue)
                     {
                         return code;
@@ -345,12 +342,12 @@ public :
 
                     // Get the state (to determine it is within), we don't have
                     // to cover the on-segment case (covered above)
-                    strategy.apply(turn.robust_point, previous, current, state);
+                    point_in_geometry_strategy.apply(turn.robust_point, previous, current, state);
                 }
             }
         }
 
-        int const code = strategy.result(state);
+        int const code = point_in_geometry_strategy.result(state);
         if (code == 1)
         {
             return analyse_within;
@@ -372,11 +369,12 @@ struct check_helper_segment {};
 template <>
 struct check_helper_segment<true>
 {
-    template <typename Point, typename Turn>
+    template <typename Point, typename Turn,  typename SideStrategy>
     static inline analyse_result apply(Point const& s1,
                 Point const& s2, Turn const& turn,
                 bool is_original,
-                Point const& offsetted)
+                Point const& offsetted,
+                SideStrategy const& )
     {
         boost::ignore_unused(offsetted);
         boost::ignore_unused(is_original);
@@ -425,19 +423,16 @@ struct check_helper_segment<true>
 template <>
 struct check_helper_segment<false>
 {
-    template <typename Point, typename Turn>
+    template <typename Point, typename Turn, typename SideStrategy>
     static inline analyse_result apply(Point const& s1,
                 Point const& s2, Turn const& turn,
                 bool is_original,
-                Point const& offsetted)
+                Point const& offsetted,
+                SideStrategy const& side_strategy)
     {
         boost::ignore_unused(offsetted);
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Point>::type
-            >::type side_strategy;
 
-        switch(side_strategy::apply(s1, s2, turn.robust_point))
+        switch(side_strategy.apply(s1, s2, turn.robust_point))
         {
             case 1 :
                 return analyse_disjoint; // left of segment
@@ -486,8 +481,10 @@ struct check_helper_segment<false>
 template <bool UseSideOfIntersection>
 class analyse_turn_wrt_piece
 {
-    template <typename Turn, typename Piece>
-    static inline analyse_result check_helper_segments(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename SideStrategy>
+    static inline analyse_result
+    check_helper_segments(Turn const& turn, Piece const& piece,
+                          SideStrategy const& side_strategy)
     {
         typedef typename Turn::robust_point_type point_type;
         geometry::equal_to<point_type> comparator;
@@ -546,7 +543,7 @@ class analyse_turn_wrt_piece
         // Right side of the piece
         analyse_result result
             = check_helper_segment<UseSideOfIntersection>::apply(points[0], points[1], turn,
-                    false, points[0]);
+                    false, points[0], side_strategy);
         if (result != analyse_continue)
         {
             return result;
@@ -554,7 +551,7 @@ class analyse_turn_wrt_piece
 
         // Left side of the piece
         result = check_helper_segment<UseSideOfIntersection>::apply(points[2], points[3], turn,
-                    false, points[3]);
+                    false, points[3], side_strategy);
         if (result != analyse_continue)
         {
             return result;
@@ -564,7 +561,7 @@ class analyse_turn_wrt_piece
         {
             // Side of the piece at side of original geometry
             result = check_helper_segment<UseSideOfIntersection>::apply(points[1], points[2], turn,
-                        true, point);
+                        true, point, side_strategy);
             if (result != analyse_continue)
             {
                 return result;
@@ -576,12 +573,7 @@ class analyse_turn_wrt_piece
         if (! geometry::covered_by(point, piece.robust_offsetted_envelope))
         {
             // Not in offsetted-area. This makes a cheap check possible
-            typedef typename strategy::side::services::default_strategy
-                <
-                    typename cs_tag<point_type>::type
-                >::type side_strategy;
-
-            switch(side_strategy::apply(points[3], points[0], point))
+            switch(side_strategy.apply(points[3], points[0], point))
             {
                 case 1 : return analyse_disjoint;
                 case -1 : return analyse_within;
@@ -592,8 +584,8 @@ class analyse_turn_wrt_piece
         return analyse_continue;
     }
 
-    template <typename Turn, typename Piece, typename Compare>
-    static inline analyse_result check_monotonic(Turn const& turn, Piece const& piece, Compare const& compare)
+    template <typename Turn, typename Piece, typename Compare,  typename SideStrategy>
+    static inline analyse_result check_monotonic(Turn const& turn, Piece const& piece, Compare const& compare, SideStrategy const& side_strategy)
     {
         typedef typename Piece::piece_robust_ring_type ring_type;
         typedef typename ring_type::const_iterator it_type;
@@ -610,17 +602,17 @@ class analyse_turn_wrt_piece
             // w.r.t. specified direction, and prev points to a point smaller
             // We now know if it is inside/outside
             it_type prev = it - 1;
-            return check_segment<UseSideOfIntersection>::apply(*prev, *it, turn, true);
+            return check_segment<UseSideOfIntersection>::apply(*prev, *it, turn, true, side_strategy);
         }
         return analyse_continue;
     }
 
 public :
-    template <typename Turn, typename Piece>
-    static inline analyse_result apply(Turn const& turn, Piece const& piece)
+    template <typename Turn, typename Piece, typename SideStrategy>
+    static inline analyse_result apply(Turn const& turn, Piece const& piece, SideStrategy const& side_strategy)
     {
         typedef typename Turn::robust_point_type point_type;
-        analyse_result code = check_helper_segments(turn, piece);
+        analyse_result code = check_helper_segments(turn, piece, side_strategy);
         if (code != analyse_continue)
         {
             return code;
@@ -635,22 +627,22 @@ public :
             // We try it only once.
             if (piece.is_monotonic_increasing[0])
             {
-                code = check_monotonic(turn, piece, geometry::less<point_type, 0>());
+                code = check_monotonic(turn, piece, geometry::less<point_type, 0>(), side_strategy);
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_increasing[1])
             {
-                code = check_monotonic(turn, piece, geometry::less<point_type, 1>());
+                code = check_monotonic(turn, piece, geometry::less<point_type, 1>(), side_strategy);
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[0])
             {
-                code = check_monotonic(turn, piece, geometry::greater<point_type, 0>());
+                code = check_monotonic(turn, piece, geometry::greater<point_type, 0>(), side_strategy);
                 if (code != analyse_continue) return code;
             }
             else if (piece.is_monotonic_decreasing[1])
             {
-                code = check_monotonic(turn, piece, geometry::greater<point_type, 1>());
+                code = check_monotonic(turn, piece, geometry::greater<point_type, 1>(), side_strategy);
                 if (code != analyse_continue) return code;
             }
         }
@@ -667,7 +659,7 @@ public :
             // (on which any side or side-value would return 0)
             if (! comparator(previous, current))
             {
-                code = check_segment<UseSideOfIntersection>::apply(previous, current, turn, false);
+                code = check_segment<UseSideOfIntersection>::apply(previous, current, turn, false, side_strategy);
                 if (code != analyse_continue)
                 {
                     return code;
@@ -780,13 +772,16 @@ template
     typename CsTag,
     typename Turns,
     typename Pieces,
-    typename PointInGeometryStrategy
+    typename PointInGeometryStrategy,
+    typename SideStrategy
+
 >
 class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
     PointInGeometryStrategy const& m_point_in_geometry_strategy;
+    SideStrategy const& m_side_strategy;
 
     template <typename Operation, typename Piece>
     inline bool skip(Operation const& op, Piece const& piece) const
@@ -819,10 +814,12 @@ class turn_in_piece_visitor
 public:
 
     inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces,
-                                 PointInGeometryStrategy const& strategy)
+                                 PointInGeometryStrategy const& strategy,
+                                 SideStrategy const& side_strategy)
         : m_turns(turns)
         , m_pieces(pieces)
         , m_point_in_geometry_strategy(strategy)
+        , m_side_strategy(side_strategy)
     {}
 
     template <typename Turn, typename Piece>
@@ -886,8 +883,8 @@ public:
 
         analyse_result analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
-                ? analyse_turn_wrt_point_piece<use_soi>::apply(turn, piece)
-                : analyse_turn_wrt_piece<use_soi>::apply(turn, piece);
+                ? analyse_turn_wrt_point_piece<use_soi>::apply(turn, piece, m_point_in_geometry_strategy, m_side_strategy)
+                : analyse_turn_wrt_piece<use_soi>::apply(turn, piece, m_side_strategy);
 
         switch(analyse_code)
         {
