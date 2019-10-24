@@ -33,6 +33,8 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 
+#include <boost/geometry/core/config.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -56,7 +58,11 @@
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#else
+#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
+#endif
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/expand.hpp>
 
@@ -775,22 +781,30 @@ struct sectionalize_multi
 template <typename Sections>
 inline void enlarge_sections(Sections& sections)
 {
-    // Robustness issue. Increase sections a tiny bit such that all points are really within (and not on border)
-    // Reason: turns might, rarely, be missed otherwise (case: "buffer_mp1")
-    // Drawback: not really, range is now completely inside the section. Section is a tiny bit too large,
-    // which might cause (a small number) of more comparisons
+    // Enlarge sections slightly, this should be consistent with math::equals()
+    // and with the tolerances used in general_form intersections.
+    // This avoids missing turns.
     
-    // NOTE: above is old comment to the not used code expanding the Boxes by relaxed_epsilon(10)
-    
-    // Enlarge sections by scaled epsilon, this should be consistent with math::equals().
     // Points and Segments are equal-compared WRT machine epsilon, but Boxes aren't
     // Enlarging Boxes ensures that they correspond to the bound objects,
     // Segments in this case, since Sections are collections of Segments.
+
+    // It makes section a tiny bit too large, which might cause (a small number)
+    // of more comparisons
     for (typename boost::range_iterator<Sections>::type it = boost::begin(sections);
         it != boost::end(sections);
         ++it)
     {
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
         detail::expand_by_epsilon(it->bounding_box);
+
+#else
+        // Expand the box to avoid missing any intersection. The amount is
+        // should be larger than epsilon. About the value itself: the smaller
+        // it is, the higher the risk to miss intersections. The larger it is,
+        // the more comparisons are made. So it should be on the high side.
+        detail::buffer::buffer_box(it->bounding_box, 0.001, it->bounding_box);
+#endif
     }
 }
 
