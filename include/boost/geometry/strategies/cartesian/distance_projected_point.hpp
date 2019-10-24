@@ -203,9 +203,12 @@ public :
     }
 
     template <typename CT>
-    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
+    inline CT vertical_or_meridian(CT const& lat1,
+                                   CT const& lat2,
+                                   CT const& lon) const
     {
-        return lat1 - lat2;
+        boost::ignore_unused(lon);
+        return math::abs(lat1 - lat2);
     }
 
 };

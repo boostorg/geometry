@@ -116,6 +116,37 @@ public :
         return comparable_result;
     }
 
+    // points on a meridian not crossing poles
+    template <typename CT>
+    typename formula::point_segment_distance<CT, true, FormulaPolicy, false>::result_type
+    vertical_or_meridian(CT const& lat1, CT const& lat2, CT const& lon) const
+    {
+        typedef typename formula::meridian_inverse
+        <
+            CT,
+            strategy::default_order<FormulaPolicy>::value
+        > meridian_inverse;
+
+        CT distance = meridian_inverse::meridian_not_crossing_pole_dist(lat1, lat2,
+                                                                 m_spheroid);
+        typename formula::point_segment_distance
+                <
+                    CT,
+                    true,
+                    FormulaPolicy,
+                    false
+                >::result_type res;
+
+        res.distance = distance;
+        res.lon1 = lon;
+        res.lat1 = lat1;
+        res.lon2 = lon;
+        res.lat2 = lat2;
+
+        return res;
+
+    }
+
     Spheroid m_spheroid;
 };
 

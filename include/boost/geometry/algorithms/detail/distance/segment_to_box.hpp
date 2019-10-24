@@ -435,7 +435,8 @@ private:
                 ReturnType diff =
                 sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
                                     geometry::get_as_radian<1>(p_max),
-                                    geometry::get_as_radian<1>(top_left));
+                                    geometry::get_as_radian<1>(top_left),
+                                    geometry::get_as_radian<0>(p0));
 
                 return strategy::distance::services::result_from_distance
                     <

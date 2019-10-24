@@ -37,6 +37,12 @@ typedef bg::strategy::closest_points::geographic_cross_track
 typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::vincenty> vincenty_cp;
 
+typedef bg::strategy::closest_points::geographic_cross_track_point_box
+                      <bg::strategy::andoyer> andoyer_pb;
+typedef bg::strategy::closest_points::geographic_cross_track_point_box
+                      <bg::strategy::thomas> thomas_pb;
+typedef bg::strategy::closest_points::geographic_cross_track_point_box
+                      <bg::strategy::vincenty> vincenty_pb;
 
 
 //===========================================================================

@@ -389,6 +389,8 @@ public:
                                            >::apply(strategy),
                                        cd_min);
 
+        dispatch::swap<Strategy>::apply(cd_min);
+
         return
             is_comparable<Strategy>::value
             ?

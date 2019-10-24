@@ -165,7 +165,7 @@ public :
                     <
                         PSStrategy, box_point_type1, box_point_type2
                     >::apply(ps_strategy, ps_strategy
-                               .vertical_or_meridian(lat_min1, lat_max2));
+                               .vertical_or_meridian(lat_min1, lat_max2, 0.0));
             }
             else if (lat_max1 < lat_min2)
             {
@@ -173,7 +173,7 @@ public :
                     <
                         PSStrategy, box_point_type1, box_point_type2
                     >::apply(ps_strategy, ps_strategy
-                             .vertical_or_meridian(lat_min2, lat_max1));
+                             .vertical_or_meridian(lat_min2, lat_max1, 0.0));
             }
             else
             {

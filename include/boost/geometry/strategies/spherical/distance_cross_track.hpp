@@ -501,10 +501,13 @@ public :
         return comparable_result;
     }
 
-    template <typename T1, typename T2>
-    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    template <typename T1, typename T2, typename T3>
+    inline radius_type vertical_or_meridian(T1 const& lat1,
+                                            T2 const& lat2,
+                                            T3 const& lon) const
     {
-        return m_strategy.radius() * (lat1 - lat2);
+        boost::ignore_unused(lon);
+        return m_strategy.radius() * math::abs(lat1 - lat2);
     }
 
     inline typename Strategy::radius_type radius() const
@@ -623,10 +626,13 @@ public :
         return ResultType(2.0) * asin(math::sqrt(comparable_result)) * radius();
     }
 
-    template <typename T1, typename T2>
-    inline radius_type vertical_or_meridian(T1 lat1, T2 lat2) const
+    template <typename T1, typename T2, typename T3>
+    inline radius_type vertical_or_meridian(T1 const& lat1,
+                                            T2 const& lat2,
+                                            T3 const& lon) const
     {
-        return m_strategy.radius() * (lat1 - lat2);
+        boost::ignore_unused(lon);
+        return m_strategy.radius() * math::abs(lat1 - lat2);
     }
 
     inline typename Strategy::radius_type radius() const

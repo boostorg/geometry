@@ -161,8 +161,11 @@ public :
 
     // points on a meridian not crossing poles
     template <typename CT>
-    inline CT vertical_or_meridian(CT const& lat1, CT const& lat2) const
+    inline CT vertical_or_meridian(CT const& lat1,
+                                   CT const& lat2,
+                                   CT const& lon) const
     {
+        boost::ignore_unused(lon);
         typedef typename formula::meridian_inverse
         <
             CT,

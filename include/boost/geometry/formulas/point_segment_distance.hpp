@@ -466,13 +466,13 @@ public :
 #endif
             if (lon3 <= lon1)
             {
-                return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
+                return non_iterative_case(lon3, lat3, lon1, lat1, spheroid);
             }
             if (lon3 >= lon2)
             {
-                return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
+                return non_iterative_case(lon3, lat3, lon2, lat2, spheroid);
             }
-            return non_iterative_case(lon3, lat1, lon3, lat3, spheroid);
+            return non_iterative_case(lon3, lat3, lon3, lat1, spheroid);
         }
 
         if ( (meridian_not_crossing_pole || meridian_crossing_pole )
@@ -525,7 +525,7 @@ public :
             typename meridian_inverse::result res =
                      meridian_inverse::apply(lon1, lat1, lon3, lat3, spheroid);
 
-            return non_iterative_case(lon1, lat2, lon3, lat3, res.meridian
+            return non_iterative_case(lon3, lat3, lon1, lat2, res.meridian
                                       ? res.distance : res13.distance);
         }
 
@@ -564,7 +564,7 @@ public :
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p1
 
-            return non_iterative_case(lon1, lat1, lon3, lat3, spheroid);
+            return non_iterative_case(lon3, lat3, lon1, lat1, spheroid);
         }
 
         geometry::formula::result_inverse<CT> res23 =
@@ -590,7 +590,7 @@ public :
 #endif
             // projection of p3 on geodesic spanned by segment (p1,p2) fall
             // outside of segment on the side of p2
-            return non_iterative_case(lon2, lat2, lon3, lat3, spheroid);
+            return non_iterative_case(lon3, lat3, lon2, lat2, spheroid);
         }
 
         // Guess s14 (SPHERICAL) aka along-track distance
