@@ -179,23 +179,22 @@ struct buffered_piece_collection
             typename IntersectionStrategy::cs_tag
         >::type rescale_policy_type;
 
-    typedef typename geometry::segment_ratio_type
+    typedef geometry::segment_ratio
     <
-        point_type,
-        RobustPolicy
-    >::type segment_ratio_type;
+        typename geometry::coordinate_type<robust_point_type>::type
+    > ratio_type;
 
     typedef buffer_turn_info
     <
         point_type,
         robust_point_type,
-        segment_ratio_type
+        ratio_type
     > buffer_turn_info_type;
 
     typedef buffer_turn_operation
     <
         point_type,
-        segment_ratio_type
+        ratio_type
     > buffer_turn_operation_type;
 
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
@@ -206,7 +205,7 @@ struct buffered_piece_collection
         int operation_index;
         robust_point_type point;
         segment_identifier seg_id;
-        segment_ratio_type fraction;
+        ratio_type fraction;
     };
 
     struct piece
@@ -484,25 +483,25 @@ struct buffered_piece_collection
         //                 intersection-point -> outgoing)
         //    for all (co-located) points still present in the map
 
-        for (iterator_type it = boost::begin(m_turns);
-            it != boost::end(m_turns);
-            ++it)
+        for (iterator_type tit = boost::begin(m_turns);
+            tit != boost::end(m_turns);
+            ++tit)
         {
             typename occupation_map_type::iterator mit =
-                        occupation_map.find(it->get_robust_point());
+                        occupation_map.find(tit->get_robust_point());
 
             if (mit != occupation_map.end())
             {
                 buffer_occupation_info& info = mit->second;
                 for (int i = 0; i < 2; i++)
                 {
-                    add_incoming_and_outgoing_angles(it->get_robust_point(), *it,
+                    add_incoming_and_outgoing_angles(tit->get_robust_point(), *tit,
                                 m_pieces,
-                                i, it->operations[i].seg_id,
+                                i, tit->operations[i].seg_id,
                                 info);
                 }
 
-                it->count_on_multi++;
+                tit->count_on_multi++;
             }
         }
 
@@ -526,10 +525,10 @@ struct buffered_piece_collection
 #endif
 
         // Get left turns from all clusters
-        for (typename occupation_map_type::iterator it = occupation_map.begin();
-            it != occupation_map.end(); ++it)
+        for (typename occupation_map_type::iterator mit = occupation_map.begin();
+            mit != occupation_map.end(); ++mit)
         {
-            it->second.get_left_turns(it->first, m_turns, m_side_strategy);
+            mit->second.get_left_turns(mit->first, m_turns, m_side_strategy);
         }
     }
 

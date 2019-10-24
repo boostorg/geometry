@@ -84,7 +84,7 @@ void test_with_point(std::string const& caseid,
     typedef bg::detail::overlay::turn_info
         <
             P,
-            typename bg::segment_ratio_type<P, rescale_policy_type>::type
+            typename bg::detail::segment_ratio_type<P, rescale_policy_type>::type
         > turn_info;
     typedef std::vector<turn_info> tp_vector;
     turn_info model;

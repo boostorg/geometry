@@ -279,6 +279,10 @@ void test_areal()
 #endif
     TEST_UNION(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION(case_precision_22, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_23, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_24, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_25, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_26, 1, 1, -1, 73.0);
 
     TEST_UNION_REV(case_precision_1, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_2, 1, 0, -1, 22.0);
@@ -304,6 +308,10 @@ void test_areal()
 #endif
     TEST_UNION_REV(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_22, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_23, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_24, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_25, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_26, 1, 1, -1, 73.0);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
@@ -446,6 +454,7 @@ void test_areal()
     TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<ct, float>::value)) )
     {
         ut_settings ignore_validity;
         ignore_validity.test_validity = false;
@@ -527,7 +536,7 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                1, BG_IF_RESCALED(1, 0), 217, 36.752837);
+                1, BG_IF_RESCALED(1, (if_typed<ct, float>(1, 0))), 217, 36.752837);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],

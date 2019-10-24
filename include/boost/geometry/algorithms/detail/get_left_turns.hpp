@@ -247,17 +247,11 @@ inline void block_turns(AngleCollection& sorted, std::size_t cluster_size)
     for (typename boost::range_iterator<AngleCollection>::type it = sorted.begin();
         it != sorted.end(); ++it)
     {
-        signed_size_type cluster_index = static_cast<signed_size_type>(it->cluster_index);
-        signed_size_type previous_index = cluster_index - 1;
-        if (previous_index < 0)
-        {
-            previous_index = cluster_size - 1;
-        }
-        signed_size_type next_index = cluster_index + 1;
-        if (next_index >= static_cast<signed_size_type>(cluster_size))
-        {
-            next_index = 0;
-        }
+        std::size_t const cluster_index = it->cluster_index;
+        std::size_t const previous_index
+                = cluster_index == 0 ? cluster_size - 1 : cluster_index - 1;
+        std::size_t const next_index
+                = cluster_index + 1 >= cluster_size ? 0 : cluster_index + 1;
 
         if (directions[cluster_index].first
             && directions[cluster_index].second)

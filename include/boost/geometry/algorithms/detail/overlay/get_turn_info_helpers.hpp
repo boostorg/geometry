@@ -22,7 +22,7 @@
 #include <boost/geometry/policies/relate/direction.hpp>
 #include <boost/geometry/policies/relate/intersection_points.hpp>
 #include <boost/geometry/policies/relate/tupled.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
+#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
 namespace boost { namespace geometry {
@@ -153,18 +153,20 @@ template
     typename UniqueSubRange1, typename UniqueSubRange2,
     typename RobustPolicy
 >
-struct robust_points
+struct robust_point_calculator
 {
     typedef typename geometry::robust_point_type
         <
             typename UniqueSubRange1::point_type, RobustPolicy
         >::type robust_point1_type;
+    typedef typename geometry::robust_point_type
+        <
+            typename UniqueSubRange2::point_type, RobustPolicy
+        >::type robust_point2_type;
 
-    typedef robust_point1_type robust_point2_type;
-
-    inline robust_points(UniqueSubRange1 const& range_p,
-                         UniqueSubRange2 const& range_q,
-                         RobustPolicy const& robust_policy)
+    inline robust_point_calculator(UniqueSubRange1 const& range_p,
+                                   UniqueSubRange2 const& range_q,
+                                   RobustPolicy const& robust_policy)
         : m_robust_policy(robust_policy)
         , m_range_p(range_p)
         , m_range_q(range_q)
@@ -214,18 +216,52 @@ private :
     mutable bool m_qk_retrieved;
 };
 
+// Default version (empty - specialized below)
 template
 <
     typename UniqueSubRange1, typename UniqueSubRange2,
-    typename TurnPoint, typename UmbrellaStrategy, typename RobustPolicy>
-class intersection_info_base
-    : private robust_points<UniqueSubRange1, UniqueSubRange2, RobustPolicy>
+    typename TurnPoint, typename UmbrellaStrategy,
+    typename RobustPolicy,
+    typename Tag = typename rescale_policy_type<RobustPolicy>::type
+>
+class intersection_info_base {};
+
+// Version with rescaling, having robust points
+template
+<
+    typename UniqueSubRange1, typename UniqueSubRange2,
+    typename TurnPoint, typename UmbrellaStrategy,
+    typename RobustPolicy
+>
+class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
+        TurnPoint, UmbrellaStrategy, RobustPolicy, rescale_policy_tag>
 {
-    typedef robust_points<UniqueSubRange1, UniqueSubRange2, RobustPolicy> base;
+    typedef robust_point_calculator
+    <
+        UniqueSubRange1, UniqueSubRange2,
+        RobustPolicy
+    >
+    robust_calc_type;
 
 public:
-    typedef typename base::robust_point1_type robust_point1_type;
-    typedef typename base::robust_point2_type robust_point2_type;
+    typedef segment_intersection_points
+    <
+        TurnPoint,
+        geometry::segment_ratio<boost::long_long_type>
+    > intersection_point_type;
+    typedef policies::relate::segments_tupled
+        <
+            policies::relate::segments_intersection_points
+                <
+                    intersection_point_type
+                >,
+            policies::relate::segments_direction
+        > intersection_policy_type;
+
+    typedef typename intersection_policy_type::return_type result_type;
+
+    typedef typename robust_calc_type::robust_point1_type robust_point1_type;
+    typedef typename robust_calc_type::robust_point2_type robust_point2_type;
 
     typedef robust_subrange_adapter<robust_point1_type, UniqueSubRange1, RobustPolicy> robust_subrange1;
     typedef robust_subrange_adapter<robust_point2_type, UniqueSubRange2, RobustPolicy> robust_subrange2;
@@ -246,28 +282,31 @@ public:
                            UniqueSubRange2 const& range_q,
                            UmbrellaStrategy const& umbrella_strategy,
                            RobustPolicy const& robust_policy)
-        : base(range_p, range_q, robust_policy)
-        , m_range_p(range_p)
+        : m_range_p(range_p)
         , m_range_q(range_q)
-        , m_robust_range_p(range_p, base::m_rpi, base::m_rpj, robust_policy)
-        , m_robust_range_q(range_q, base::m_rqi, base::m_rqj, robust_policy)
+        , m_robust_calc(range_p, range_q, robust_policy)
+        , m_robust_range_p(range_p, m_robust_calc.m_rpi, m_robust_calc.m_rpj, robust_policy)
+        , m_robust_range_q(range_q, m_robust_calc.m_rqi, m_robust_calc.m_rqj, robust_policy)
         , m_side_calc(m_robust_range_p, m_robust_range_q,
                       umbrella_strategy.get_side_strategy())
+        , m_result(umbrella_strategy.apply(range_p, range_q,
+                       intersection_policy_type(),
+                       m_robust_range_p, m_robust_range_q))
     {}
 
-    inline typename UniqueSubRange1::point_type const& pi() const { return m_range_p.at(0); }
-    inline typename UniqueSubRange2::point_type const& qi() const { return m_range_q.at(0); }
+    inline bool p_is_last_segment() const { return m_range_p.is_last_segment(); }
+    inline bool q_is_last_segment() const { return m_range_q.is_last_segment(); }
 
-    inline robust_point1_type const& rpi() const { return base::m_rpi; }
-    inline robust_point1_type const& rpj() const { return base::m_rpj; }
-    inline robust_point1_type const& rpk() const { return base::get_rpk(); }
+    inline robust_point1_type const& rpi() const { return m_robust_calc.m_rpi; }
+    inline robust_point1_type const& rpj() const { return m_robust_calc.m_rpj; }
+    inline robust_point1_type const& rpk() const { return m_robust_calc.get_rpk(); }
 
-    inline robust_point2_type const& rqi() const { return base::m_rqi; }
-    inline robust_point2_type const& rqj() const { return base::m_rqj; }
-    inline robust_point2_type const& rqk() const { return base::get_rqk(); }
+    inline robust_point2_type const& rqi() const { return m_robust_calc.m_rqi; }
+    inline robust_point2_type const& rqj() const { return m_robust_calc.m_rqj; }
+    inline robust_point2_type const& rqk() const { return m_robust_calc.get_rqk(); }
 
     inline side_calculator_type const& sides() const { return m_side_calc; }
-    
+
     robust_swapped_side_calculator_type get_swapped_sides() const
     {
         robust_swapped_side_calculator_type result(
@@ -276,30 +315,48 @@ public:
         return result;
     }
 
+private :
+
     // Owned by get_turns
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
-private :
+
     // Owned by this class
+    robust_calc_type m_robust_calc;
     robust_subrange1 m_robust_range_p;
     robust_subrange2 m_robust_range_q;
     side_calculator_type m_side_calc;
+
+protected :
+    result_type m_result;
 };
 
+// Version without rescaling
 template
 <
     typename UniqueSubRange1, typename UniqueSubRange2,
-    typename TurnPoint, typename UmbrellaStrategy
+    typename TurnPoint, typename UmbrellaStrategy,
+    typename RobustPolicy
 >
 class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, UmbrellaStrategy, detail::no_rescale_policy>
+        TurnPoint, UmbrellaStrategy, RobustPolicy, no_rescale_policy_tag>
 {
 public:
+
+    typedef segment_intersection_points<TurnPoint> intersection_point_type;
+    typedef policies::relate::segments_tupled
+        <
+            policies::relate::segments_intersection_points
+                <
+                    intersection_point_type
+                >,
+            policies::relate::segments_direction
+        > intersection_policy_type;
+
+    typedef typename intersection_policy_type::return_type result_type;
+
     typedef typename UniqueSubRange1::point_type point1_type;
     typedef typename UniqueSubRange2::point_type point2_type;
-
-    typedef typename UniqueSubRange1::point_type robust_point1_type;
-    typedef typename UniqueSubRange2::point_type robust_point2_type;
 
     typedef typename UmbrellaStrategy::cs_tag cs_tag;
 
@@ -315,12 +372,16 @@ public:
     intersection_info_base(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
                            UmbrellaStrategy const& umbrella_strategy,
-                           no_rescale_policy const& /*robust_policy*/)
+                           no_rescale_policy const& )
         : m_range_p(range_p)
         , m_range_q(range_q)
         , m_side_calc(range_p, range_q,
                       umbrella_strategy.get_side_strategy())
+        , m_result(umbrella_strategy.apply(range_p, range_q, intersection_policy_type()))
     {}
+
+    inline bool p_is_last_segment() const { return m_range_p.is_last_segment(); }
+    inline bool q_is_last_segment() const { return m_range_q.is_last_segment(); }
 
     inline point1_type const& rpi() const { return m_side_calc.get_pi(); }
     inline point1_type const& rpj() const { return m_side_calc.get_pj(); }
@@ -340,13 +401,16 @@ public:
         return result;
     }
 
-protected :
+private :
     // Owned by get_turns
     UniqueSubRange1 const& m_range_p;
     UniqueSubRange2 const& m_range_q;
-private :
-    // Owned here, passed by .get_side_strategy()
+
+    // Owned by this class
     side_calculator_type m_side_calc;
+
+protected :
+    result_type m_result;
 };
 
 
@@ -365,37 +429,17 @@ class intersection_info
         TurnPoint, UmbrellaStrategy, RobustPolicy> base;
 
 public:
-    typedef segment_intersection_points
-    <
-        TurnPoint,
-        typename geometry::segment_ratio_type
-            <
-                TurnPoint, RobustPolicy
-            >::type
-    > intersection_point_type;
 
     typedef typename UniqueSubRange1::point_type point1_type;
     typedef typename UniqueSubRange2::point_type point2_type;
-
-    // NOTE: formerly defined in intersection_strategies
-    typedef policies::relate::segments_tupled
-        <
-            policies::relate::segments_intersection_points
-                <
-                    intersection_point_type
-                >,
-            policies::relate::segments_direction
-        > intersection_policy_type;
 
     typedef UmbrellaStrategy intersection_strategy_type;
     typedef typename UmbrellaStrategy::side_strategy_type side_strategy_type;
     typedef typename UmbrellaStrategy::cs_tag cs_tag;
 
-    typedef model::referring_segment<point1_type const> segment_type1;
-    typedef model::referring_segment<point2_type const> segment_type2;
     typedef typename base::side_calculator_type side_calculator_type;
+    typedef typename base::result_type result_type;
     
-    typedef typename intersection_policy_type::return_type result_type;
     typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
     typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
 
@@ -405,20 +449,13 @@ public:
                       RobustPolicy const& robust_policy)
         : base(range_p, range_q,
                umbrella_strategy, robust_policy)
-        , m_result(umbrella_strategy.apply(
-                        segment_type1(range_p.at(0), range_p.at(1)),
-                        segment_type2(range_q.at(0), range_q.at(1)),
-                        intersection_policy_type(),
-                        robust_policy,
-                        base::rpi(), base::rpj(),
-                        base::rqi(), base::rqj()))
         , m_intersection_strategy(umbrella_strategy)
         , m_robust_policy(robust_policy)
     {}
 
-    inline result_type const& result() const { return m_result; }
-    inline i_info_type const& i_info() const { return m_result.template get<0>(); }
-    inline d_info_type const& d_info() const { return m_result.template get<1>(); }
+    inline result_type const& result() const { return base::m_result; }
+    inline i_info_type const& i_info() const { return base::m_result.template get<0>(); }
+    inline d_info_type const& d_info() const { return base::m_result.template get<1>(); }
 
     inline side_strategy_type get_side_strategy() const
     {
@@ -428,7 +465,7 @@ public:
     // TODO: it's more like is_spike_ip_p
     inline bool is_spike_p() const
     {
-        if (base::m_range_p.is_last_segment())
+        if (base::p_is_last_segment())
         {
             return false;
         }
@@ -443,7 +480,7 @@ public:
             }
 
             // TODO: why is q used to determine spike property in p?
-            bool const has_qk = ! base::m_range_q.is_last_segment();
+            bool const has_qk = ! base::q_is_last_segment();
             int const qk_p1 = has_qk ? base::sides().qk_wrt_p1() : 0;
             int const qk_p2 = has_qk ? base::sides().qk_wrt_p2() : 0;
 
@@ -467,7 +504,7 @@ public:
 
     inline bool is_spike_q() const
     {
-        if (base::m_range_q.is_last_segment())
+        if (base::q_is_last_segment())
         {
             return false;
         }
@@ -481,7 +518,7 @@ public:
             }
 
             // TODO: why is p used to determine spike property in q?
-            bool const has_pk = ! base::m_range_p.is_last_segment();
+            bool const has_pk = ! base::p_is_last_segment();
             int const pk_q1 = has_pk ? base::sides().pk_wrt_q1() : 0;
             int const pk_q2 = has_pk ? base::sides().pk_wrt_q2() : 0;
                 
@@ -523,7 +560,6 @@ private:
         }
     }
 
-    result_type m_result;
     UmbrellaStrategy const& m_intersection_strategy;
     RobustPolicy const& m_robust_policy;
 };
