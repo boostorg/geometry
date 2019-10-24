@@ -35,26 +35,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template <typename Point1, typename Point2, typename Point3>
-inline bool collinear_point_is_spike_or_equal(Point1 const& last_point,
-                                              Point2 const& segment_a,
-                                              Point3 const& segment_b)
-{
-    // Check if segment is equal
-    int const sgn_x1 = sign_of_difference<0>(last_point, segment_b);
-    int const sgn_y1 = sign_of_difference<1>(last_point, segment_b);
-    if (sgn_x1 == 0 && sgn_y1 == 0)
-    {
-        return true;
-    }
-
-    // Check if segment moves forward
-    int const sgn_x2 = sign_of_difference<0>(segment_b, segment_a);
-    int const sgn_y2 = sign_of_difference<1>(segment_b, segment_a);
-
-    return sgn_x1 != sgn_x2 || sgn_y1 != sgn_y2;
-}
-
 // Checks if a point ("last_point") causes a spike w.r.t.
 // the specified two other points (segment_a, segment_b)
 //
@@ -81,15 +61,7 @@ inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
     if (side == 0)
     {
         // Last point is collinear w.r.t previous segment.
-#ifdef BOOST_GEOMETRY_ENABLE_POINT_IS_SPIKE_OR_EQUAL_TEST
-        bool r1 = collinear_point_is_spike_or_equal(last_point, segment_a, segment_b);
-        bool r2 = direction_code(segment_a, segment_b, last_point) < 1;
-        if (r1 != r2)
-            std::cout << "spike detection failure with: " << r1 << " " << r2 << std::endl;
-        return r2;
-#else
         return direction_code<cs_tag>(segment_a, segment_b, last_point) < 1;
-#endif
     }
     return false;
 }

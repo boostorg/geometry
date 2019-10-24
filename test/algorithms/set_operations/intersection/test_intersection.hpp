@@ -40,8 +40,8 @@
 #endif
 
 #include <geometry_test_common.hpp>
+#include <algorithms/check_validity.hpp>
 #include "../setop_output_type.hpp"
-#include "../check_validity.hpp"
 
 struct ut_settings
 {
@@ -57,17 +57,10 @@ struct ut_settings
 
 };
 
-template
-<
-    typename G1,
-    typename G2,
-    typename ResultType,
-    typename IntersectionOutput
->
-typename bg::default_area_result<G1>::type
-check_result(
-    IntersectionOutput const& intersection_output,
+template<typename IntersectionOutput, typename G1, typename G2>
+void check_result(IntersectionOutput const& intersection_output,
     std::string const& caseid,
+    G1 const& g1, G2 const& g2,
     std::size_t expected_count, std::size_t expected_holes_count,
     int expected_point_count, double expected_length_or_area,
     ut_settings const& settings)
@@ -110,7 +103,9 @@ check_result(
 #endif
     {
         std::string message;
-        bool const valid = check_validity<ResultType>::apply(intersection_output, message);
+        bool const valid = check_validity<IntersectionOutput>
+                ::apply(intersection_output, caseid, g1, g2, message);
+
         BOOST_CHECK_MESSAGE(valid,
             "intersection: " << caseid << " not valid: " << message
             << " type: " << (type_for_assert_message<G1, G2>()));
@@ -172,7 +167,6 @@ check_result(
     }
 #endif
 
-    return length_or_area;
 }
 
 
@@ -212,7 +206,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     result_type intersection_output;
     bg::intersection(g1, g2, intersection_output);
 
-    check_result<G1, G2, result_type>(intersection_output, caseid, expected_count,
+    check_result(intersection_output, caseid, g1, g2, expected_count,
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
 
@@ -221,21 +215,21 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
     intersection_output.clear();
     bg::intersection(boost::variant<G1>(g1), g2, intersection_output);
 
-    check_result<G1, G2, result_type>(intersection_output, caseid, expected_count,
+    check_result(intersection_output, caseid, g1, g2, expected_count,
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
 
     intersection_output.clear();
     bg::intersection(g1, boost::variant<G2>(g2), intersection_output);
 
-    check_result<G1, G2, result_type>(intersection_output, caseid, expected_count,
+    check_result(intersection_output, caseid, g1, g2, expected_count,
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
 
     intersection_output.clear();
     bg::intersection(boost::variant<G1>(g1), boost::variant<G2>(g2), intersection_output);
 
-    check_result<G1, G2, result_type>(intersection_output, caseid, expected_count,
+    check_result(intersection_output, caseid, g1, g2, expected_count,
         expected_holes_count, expected_point_count, expected_length_or_area,
         settings);
 #endif

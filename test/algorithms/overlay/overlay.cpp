@@ -25,7 +25,7 @@
 #endif
 
 #include <geometry_test_common.hpp>
-
+#include <algorithms/check_validity.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -432,6 +432,12 @@ void test_overlay(std::string const& caseid,
     Geometry result;
     overlay::apply(g1, g2, robust_policy, std::back_inserter(result),
                    strategy, visitor);
+
+    std::string message;
+    bool const valid = check_validity<Geometry>::apply(result, caseid, g1, g2, message);
+    BOOST_CHECK_MESSAGE(valid,
+        "overlay: " << caseid << " not valid: " << message
+        << " type: " << (type_for_assert_message<Geometry, Geometry>()));
 
     BOOST_CHECK_CLOSE(bg::area(result), expected_area, 0.001);
     BOOST_CHECK_MESSAGE((bg::num_interior_rings(result) == expected_hole_count),

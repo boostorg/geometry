@@ -1,8 +1,9 @@
 [
   {
     "key": "geometry/index",
-    "boost-version": "1.54.0",
+    "boost-version": "hidden",
     "name": "Geometry Index",
+    "status": "hidden",
     "authors": [
       "Barend Gehrels",
       "Bruno Lalande",

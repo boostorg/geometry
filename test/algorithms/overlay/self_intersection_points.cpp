@@ -60,22 +60,12 @@ static void test_self_intersection_points(std::string const& case_id,
             typename bg::cs_tag<Geometry>::type
         >::type strategy_type;
     typedef bg::detail::no_rescale_policy rescale_policy_type;
-    typedef bg::detail::overlay::turn_info
-        <
-            point_type,
-            typename bg::segment_ratio_type
-                <
-                    point_type, rescale_policy_type
-                >::type
-        > turn_info;
+    typedef bg::detail::overlay::turn_info<point_type> turn_info;
 
     std::vector<turn_info> turns;
 
     strategy_type strategy;
-    rescale_policy_type rescale_policy
-    ;
-           // = bg::get_rescale_policy<rescale_policy_type>(geometry);
-    ///bg::get_intersection_points(geometry, turns);
+    rescale_policy_type rescale_policy;
 
     bg::detail::self_get_turn_points::no_interrupt_policy policy;
     bg::self_turns

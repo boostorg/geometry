@@ -10,9 +10,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
 
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
 namespace boost { namespace geometry
 {
@@ -22,55 +22,33 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-
-// TODO: once change this to proper strategy
-// It is different from current segment intersection because these are not segments but lines
-// If we have the Line concept, we can create a strategy
-// Assumes a convex corner
+// TODO: it might once be changed this to proper strategy
 struct line_line_intersection
 {
-
     template <typename Point>
-    static inline strategy::buffer::join_selector apply(Point const& pi, Point const& pj,
-        Point const& qi, Point const& qj, Point& ip)
+    static inline strategy::buffer::join_selector
+    apply(Point const& pi, Point const& pj,
+          Point const& qi, Point const& qj,
+          Point& ip)
     {
         typedef typename coordinate_type<Point>::type ct;
+        typedef model::infinite_line<ct> line_type;
 
-        // Construct lines in general form (ax + by + c = 0),
-        // (will be replaced by a general_form structure in a next PR)
-        ct const pa = get<1>(pi) - get<1>(pj);
-        ct const pb = get<0>(pj) - get<0>(pi);
-        ct const pc = -pa * get<0>(pi) - pb * get<1>(pi);
+        line_type const p = detail::make::make_infinite_line<ct>(pi, pj);
+        line_type const q = detail::make::make_infinite_line<ct>(qi, qj);
 
-        ct const qa = get<1>(qi) - get<1>(qj);
-        ct const qb = get<0>(qj) - get<0>(qi);
-        ct const qc = -qa * get<0>(qi) - qb * get<1>(qi);
-
-        ct const denominator = pb * qa - pa * qb;
-
-        // Even if the corner was checked before (so it is convex now), that
-        // was done on the original geometry. This function runs on the buffered
-        // geometries, where sides are generated and might be slightly off. In
-        // Floating Point, that slightly might just exceed the limit and we have
-        // to check it again.
-
-        // For round joins, it will not be used at all.
-        // For miter joins, there is a miter limit
-        // If segments are parallel/collinear we must be distinguish two cases:
-        // they continue each other, or they form a spike
-        ct const zero = ct();
-        if (math::equals(denominator, zero))
+        if (arithmetic::intersection_point(p, q, ip))
         {
-            return parallel_continue(qb, -qa, pb, -pa)
-                ? strategy::buffer::join_continue
-                : strategy::buffer::join_spike
-                ;
+            return strategy::buffer::join_convex;
         }
 
-        set<0>(ip, (pc * qb - pb * qc) / denominator);
-        set<1>(ip, (pa * qc - pc * qa) / denominator);
-
-        return strategy::buffer::join_convex;
+        // The lines do not intersect.
+        // Distinguish between continuing lines (having a similar direction)
+        // and spikes (having the opposite direction).
+        return arithmetic::similar_direction(p, q)
+            ? strategy::buffer::join_continue
+            : strategy::buffer::join_spike
+            ;
     }
 };
 

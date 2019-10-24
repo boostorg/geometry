@@ -179,23 +179,22 @@ struct buffered_piece_collection
             typename IntersectionStrategy::cs_tag
         >::type rescale_policy_type;
 
-    typedef typename geometry::segment_ratio_type
+    typedef geometry::segment_ratio
     <
-        point_type,
-        RobustPolicy
-    >::type segment_ratio_type;
+        typename geometry::coordinate_type<robust_point_type>::type
+    > ratio_type;
 
     typedef buffer_turn_info
     <
         point_type,
         robust_point_type,
-        segment_ratio_type
+        ratio_type
     > buffer_turn_info_type;
 
     typedef buffer_turn_operation
     <
         point_type,
-        segment_ratio_type
+        ratio_type
     > buffer_turn_operation_type;
 
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
@@ -206,7 +205,7 @@ struct buffered_piece_collection
         int operation_index;
         robust_point_type point;
         segment_identifier seg_id;
-        segment_ratio_type fraction;
+        ratio_type fraction;
     };
 
     struct piece

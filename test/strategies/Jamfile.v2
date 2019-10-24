@@ -40,6 +40,7 @@ test-suite boost-geometry-strategies
     [ run thomas.cpp                         : : : : strategies_thomas ]
     [ run transform_cs.cpp                   : : : : strategies_transform_cs ]
     [ run transformer.cpp                    : : : : strategies_transformer ]
+    [ run matrix_transformer.cpp             : : : : strategies_matrix_transformer ]
     [ run vincenty.cpp                       : : : : strategies_vincenty ]
     [ run winding.cpp                        : : : : strategies_winding ]
     ;

@@ -50,9 +50,8 @@
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
+#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
-
 
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <boost/geometry/io/wkt/write.hpp>
@@ -301,62 +300,57 @@ struct cartesian_segments
         // IntersectionPoint = (x1 + r * dx_a, y1 + r * dy_a)
     }
 
-
-    // Relate segments a and b
+    // Version for non-rescaled policies
     template
     <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Policy
     >
     static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const& policy, RobustPolicy const& robust_policy)
+        apply(UniqueSubRange1 const& range_p,
+              UniqueSubRange2 const& range_q,
+              Policy const& policy)
     {
-        // type them all as in Segment1 - TODO reconsider this, most precise?
-        typedef typename geometry::point_type<Segment1>::type point_type;
-
-        typedef typename geometry::robust_point_type
-            <
-                point_type, RobustPolicy
-            >::type robust_point_type;
-
-        point_type a0, a1, b0, b1;
-        robust_point_type a0_rob, a1_rob, b0_rob, b1_rob;
-
-        detail::assign_point_from_index<0>(a, a0);
-        detail::assign_point_from_index<1>(a, a1);
-        detail::assign_point_from_index<0>(b, b0);
-        detail::assign_point_from_index<1>(b, b1);
-
-        geometry::recalculate(a0_rob, a0, robust_policy);
-        geometry::recalculate(a1_rob, a1, robust_policy);
-        geometry::recalculate(b0_rob, b0, robust_policy);
-        geometry::recalculate(b1_rob, b1, robust_policy);
-
-        return apply(a, b, policy, robust_policy, a0_rob, a1_rob, b0_rob, b1_rob);
+        // Pass the same ranges both as normal ranges and as robust ranges
+        return apply(range_p, range_q, policy, range_p, range_q);
     }
 
-    // The main entry-routine, calculating intersections of segments a / b
-    // NOTE: Robust* types may be the same as Segments' point types
+    // Main entry-routine, calculating intersections of segments p / q
     template
     <
-        typename Segment1,
-        typename Segment2,
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
         typename Policy,
-        typename RobustPolicy,
-        typename RobustPoint1,
-        typename RobustPoint2
+        typename RobustUniqueSubRange1,
+        typename RobustUniqueSubRange2
     >
     static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const&, RobustPolicy const& /*robust_policy*/,
-              RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
-              RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2)
+        apply(UniqueSubRange1 const& range_p,
+              UniqueSubRange2 const& range_q,
+              Policy const&,
+              RobustUniqueSubRange1 const& robust_range_p,
+              RobustUniqueSubRange2 const& robust_range_q)
     {
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
+        typedef typename UniqueSubRange1::point_type point1_type;
+        typedef typename UniqueSubRange2::point_type point2_type;
+
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point1_type>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
+
+        // Get robust points (to be omitted later)
+        typedef typename RobustUniqueSubRange1::point_type robust_point1_type;
+        typedef typename RobustUniqueSubRange2::point_type robust_point2_type;
+
+        point1_type const& p1 = range_p.at(0);
+        point1_type const& p2 = range_p.at(1);
+        point2_type const& q1 = range_q.at(0);
+        point2_type const& q2 = range_q.at(1);
+
+        robust_point1_type const& robust_a1 = robust_range_p.at(0);
+        robust_point1_type const& robust_a2 = robust_range_p.at(1);
+        robust_point2_type const& robust_b1 = robust_range_q.at(0);
+        robust_point2_type const& robust_b2 = robust_range_q.at(1);
 
         using geometry::detail::equals::equals_point_point;
         bool const a_is_point = equals_point_point(robust_a1, robust_a2, point_in_point_strategy_type());
@@ -364,8 +358,11 @@ struct cartesian_segments
 
         if(a_is_point && b_is_point)
         {
+            // Take either a or b
+            model::referring_segment<point1_type const> const d(p1, p2);
+
             return equals_point_point(robust_a1, robust_b2, point_in_point_strategy_type())
-                ? Policy::degenerate(a, true)
+                ? Policy::degenerate(d, true)
                 : Policy::disjoint()
                 ;
         }
@@ -393,26 +390,22 @@ struct cartesian_segments
 
         typedef typename select_most_precise
             <
-                typename geometry::coordinate_type<RobustPoint1>::type,
-                typename geometry::coordinate_type<RobustPoint2>::type
+                typename geometry::coordinate_type<robust_point1_type>::type,
+                typename geometry::coordinate_type<robust_point2_type>::type
             >::type robust_coordinate_type;
 
-        typedef typename segment_ratio_type
-            <
-                typename geometry::point_type<Segment1>::type, // TODO: most precise point?
-                RobustPolicy
-            >::type ratio_type;
+        typedef segment_ratio<robust_coordinate_type> ratio_type;
 
         segment_intersection_info
             <
-                typename select_calculation_type<Segment1, Segment2, CalculationType>::type,
+                typename select_calculation_type<point1_type, point2_type, CalculationType>::type,
                 ratio_type
             > sinfo;
 
-        sinfo.dx_a = get<1, 0>(a) - get<0, 0>(a); // distance in x-dir
-        sinfo.dx_b = get<1, 0>(b) - get<0, 0>(b);
-        sinfo.dy_a = get<1, 1>(a) - get<0, 1>(a); // distance in y-dir
-        sinfo.dy_b = get<1, 1>(b) - get<0, 1>(b);
+        sinfo.dx_a = get<0>(p2) - get<0>(p1); // distance in x-dir
+        sinfo.dx_b = get<0>(q2) - get<0>(q1);
+        sinfo.dy_a = get<1>(p2) - get<1>(p1); // distance in y-dir
+        sinfo.dy_b = get<1>(q2) - get<1>(q1);
 
         robust_coordinate_type const robust_dx_a = get<0>(robust_a2) - get<0>(robust_a1);
         robust_coordinate_type const robust_dx_b = get<0>(robust_b2) - get<0>(robust_b1);
@@ -455,6 +448,11 @@ struct cartesian_segments
             }
         }
 
+        // Declare segments, currently necessary for the policies
+        // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
+        model::referring_segment<point1_type const> const p(p1, p2);
+        model::referring_segment<point2_type const> const q(q1, q2);
+
         if (collinear)
         {
             std::pair<bool, bool> const collinear_use_first
@@ -471,21 +469,21 @@ struct cartesian_segments
 
                 if (collinear_use_first.first)
                 {
-                    return relate_collinear<0, Policy, ratio_type>(a, b,
+                    return relate_collinear<0, Policy, ratio_type>(p, q,
                             robust_a1, robust_a2, robust_b1, robust_b2,
                             a_is_point, b_is_point);
                 }
                 else
                 {
                     // Y direction contains larger segments (maybe dx is zero)
-                    return relate_collinear<1, Policy, ratio_type>(a, b,
+                    return relate_collinear<1, Policy, ratio_type>(p, q,
                             robust_a1, robust_a2, robust_b1, robust_b2,
                             a_is_point, b_is_point);
                 }
             }
         }
 
-        return Policy::segments_crosses(sides, sinfo, a, b);
+        return Policy::segments_crosses(sides, sinfo, p, q);
     }
 
 private:

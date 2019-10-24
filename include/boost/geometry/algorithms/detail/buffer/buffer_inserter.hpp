@@ -31,13 +31,15 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
-#include <boost/geometry/algorithms/detail/buffer/parallel_continue.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
+
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
@@ -175,6 +177,16 @@ struct buffer_range
         }
     }
 
+    static inline bool similar_direction(output_point_type const& p0,
+            output_point_type const& p1,
+            output_point_type const& p2)
+    {
+        typedef model::infinite_line<coordinate_type> line_type;
+        line_type const p = detail::make::make_infinite_line<coordinate_type>(p0, p1);
+        line_type const q = detail::make::make_infinite_line<coordinate_type>(p1, p2);
+        return arithmetic::similar_direction(p, q);
+    }
+
     template <typename Strategy>
     static inline geometry::strategy::buffer::join_selector get_join_type(
             output_point_type const& p0,
@@ -185,13 +197,8 @@ struct buffer_range
         int const side = strategy.apply(p0, p1, p2);
         return side == -1 ? geometry::strategy::buffer::join_convex
             :  side == 1  ? geometry::strategy::buffer::join_concave
-            :  parallel_continue
-                    (
-                        get<0>(p2) - get<0>(p1),
-                        get<1>(p2) - get<1>(p1),
-                        get<0>(p1) - get<0>(p0),
-                        get<1>(p1) - get<1>(p0)
-                    )  ? geometry::strategy::buffer::join_continue
+            :  similar_direction(p0, p1, p2)
+                          ? geometry::strategy::buffer::join_continue
             : geometry::strategy::buffer::join_spike;
     }
 

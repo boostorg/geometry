@@ -287,7 +287,7 @@ struct overlay
         typedef detail::overlay::traversal_turn_info
         <
             point_type,
-            typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+            typename segment_ratio_type<point_type, RobustPolicy>::type
         > turn_info;
         typedef std::deque<turn_info> turn_container_type;
 
@@ -318,15 +318,20 @@ std::cout << "get turns" << std::endl;
         visitor.visit_turns(1, turns);
 
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (needs_self_turns<Geometry1>::apply(geometry1))
+        if (! turns.empty() || OverlayType == overlay_dissolve)
         {
-            self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
-                strategy, robust_policy, turns, policy, 0);
-        }
-        if (needs_self_turns<Geometry2>::apply(geometry2))
-        {
-            self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
-                strategy, robust_policy, turns, policy, 1);
+            // Calculate self turns if the output contains turns already,
+            // and if necessary (e.g.: multi-geometry, polygon with interior rings)
+            if (needs_self_turns<Geometry1>::apply(geometry1))
+            {
+                self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
+                    strategy, robust_policy, turns, policy, 0);
+            }
+            if (needs_self_turns<Geometry2>::apply(geometry2))
+            {
+                self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
+                    strategy, robust_policy, turns, policy, 1);
+            }
         }
 #endif
 
