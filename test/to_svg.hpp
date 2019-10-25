@@ -361,7 +361,15 @@ inline void to_svg(G1 const& g1, G2 const& g2, std::string const& filename, bool
 
     if ( sort )
     {
-        typedef bg::detail::relate::turns::less<> less;
+        typedef bg::detail::relate::turns::less
+            <
+                0,
+                bg::detail::relate::turns::less_op_xxx_linear
+                    <
+                        0, bg::detail::relate::turns::op_to_int<>
+                    >,
+                typename bg::cs_tag<G1>::type
+            > less;
         std::sort(boost::begin(turns), boost::end(turns), less());
     }
 
