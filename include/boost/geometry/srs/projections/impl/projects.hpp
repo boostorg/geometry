@@ -97,17 +97,6 @@ struct pj_consts
 
     T es_orig, a_orig;              /* es and a before any +proj related adjustment */
 
-    // C O O R D I N A T E   H A N D L I N G
-
-    int over;                       /* over-range flag */
-    int geoc;                       /* geocentric latitude flag */
-    int is_latlong;                 /* proj=latlong ... not really a projection at all */
-    int is_geocent;                 /* proj=geocent ... not really a projection at all */
-    //int need_ellps;                 /* 0 for operations that are purely cartesian */
-
-    //enum pj_io_units left;          /* Flags for input/output coordinate types */
-    //enum pj_io_units right;
-
     // C A R T O G R A P H I C       O F F S E T S
 
     T lam0, phi0;                   /* central longitude, latitude */
@@ -121,27 +110,40 @@ struct pj_consts
 
     // D A T U M S   A N D   H E I G H T   S Y S T E M S    
 
-    detail::datum_type datum_type;        /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
-    srs::detail::towgs84<T> datum_params; /* Parameters for 3PARAM and 7PARAM */
-    srs::detail::nadgrids nadgrids;       /* Names of horozontal grid files. */
-
     T from_greenwich;               /* prime meridian offset (in radians) */
     T long_wrap_center;             /* 0.0 for -180 to 180, actually in radians*/
+
+    srs::detail::towgs84<T> datum_params; /* Parameters for 3PARAM and 7PARAM */
+    srs::detail::nadgrids nadgrids;       /* Names of horozontal grid files. */
+    detail::datum_type datum_type;        /* PJD_UNKNOWN/3PARAM/7PARAM/GRIDSHIFT/WGS84 */
+
     bool is_long_wrap_set;
+
+    // C O O R D I N A T E   H A N D L I N G
+
+    bool over;                       /* over-range flag */
+    bool geoc;                       /* geocentric latitude flag */
+    bool is_latlong;                 /* proj=latlong ... not really a projection at all */
+    bool is_geocent;                 /* proj=geocent ... not really a projection at all */
+    //bool need_ellps;                 /* 0 for operations that are purely cartesian */
+
+    //enum pj_io_units left;          /* Flags for input/output coordinate types */
+    //enum pj_io_units right;
 
     // Initialize all variables
     pj_consts()
         : a(0), ra(0)
         , e(0), es(0), one_es(0), rone_es(0)
         , es_orig(0), a_orig(0)
-        , over(0), geoc(0), is_latlong(0), is_geocent(0)
-        //, need_ellps(1)
-        //, left(PJ_IO_UNITS_ANGULAR), right(PJ_IO_UNITS_CLASSIC)
         , lam0(0), phi0(0)
         , x0(0), y0(0)/*, z0(0), t0(0)*/
         , k0(0) , to_meter(0), fr_meter(0), vto_meter(0), vfr_meter(0)
+        , from_greenwich(0), long_wrap_center(0)
         , datum_type(datum_unknown)
-        , from_greenwich(0), long_wrap_center(0), is_long_wrap_set(false)
+        , is_long_wrap_set(false)
+        , over(false), geoc(false), is_latlong(false), is_geocent(false)
+        //, need_ellps(true)
+        //, left(PJ_IO_UNITS_ANGULAR), right(PJ_IO_UNITS_CLASSIC)
     {}
 };
 

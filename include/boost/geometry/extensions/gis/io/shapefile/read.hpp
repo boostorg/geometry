@@ -15,6 +15,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/endian/conversion.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <boost/geometry/algorithms/detail/calculate_point_order.hpp>
@@ -74,14 +75,53 @@ template <typename IStream, typename T>
 inline void read_big(IStream & is, T & v)
 {
     is.read(reinterpret_cast<char*>(&v), sizeof(T));    
-    v = boost::endian::big_to_native(v);
+    boost::endian::big_to_native_inplace(v);
 }
 
 template <typename IStream, typename T>
 inline void read_little(IStream & is, T & v)
 {
     is.read(reinterpret_cast<char*>(&v), sizeof(T));
-    v = boost::endian::little_to_native(v);
+    boost::endian::little_to_native_inplace(v);
+}
+
+inline void double_endianness_check()
+{
+    BOOST_STATIC_ASSERT(sizeof(double) == 8);
+    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+
+    double d = 0;
+    unsigned char* c = reinterpret_cast<unsigned char*>(&d);
+    boost::int64_t* i = reinterpret_cast<boost::int64_t*>(&d);
+
+    c[0] = 0xd0;
+    c[1] = 0x61;
+    c[2] = 0xbe;
+    c[3] = 0xbc;
+    c[4] = 0x00;
+    c[5] = 0xa7;
+    c[6] = 0x62;
+    c[7] = 0xc0;
+
+    boost::endian::little_to_native_inplace(*i);
+        
+    if (static_cast<int>(d) != -149)
+    {
+        BOOST_THROW_EXCEPTION(read_shapefile_exception("Unexpected endianness of double, please contact developers."));
+    }
+}
+
+// TODO: It is not clear that this will work on all machines because some of
+//   them may use mixed endianness (half little-endian, half big-endian) for
+//   doubles or different endianness than the one used for integers.
+template <typename IStream>
+inline void read_little(IStream & is, double & v)
+{
+    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+
+    is.read(reinterpret_cast<char*>(&v), sizeof(double));
+    boost::int64_t * proxy = reinterpret_cast<boost::int64_t *>(&v);
+    boost::endian::little_to_native_inplace(*proxy);
 }
 
 template <typename IStream>
@@ -163,6 +203,8 @@ struct shape_type
     };
 };
 
+// NOTE: in case this is supported in the future
+//   floating point numbers smaller than -10^38 represent "no-data"
 template <typename IStream>
 inline void read_m(IStream & is)
 {
@@ -170,7 +212,7 @@ inline void read_m(IStream & is)
 }
 
 template <typename IStream>
-inline void read_ms(IStream & is, boost::int32_t num_points)
+inline void read_ms(IStream & is, std::size_t num_points)
 {
     is.seekg(sizeof(double) * num_points, IStream::cur);
 }
@@ -188,7 +230,7 @@ struct read_and_set_z
         double z;
         read_little(is, z);
 
-        geometry::set<2>(pt, v);
+        geometry::set<2>(pt, z);
     }
 };
 
@@ -872,6 +914,8 @@ inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries,
 
     geometry::concepts::check<geometry_type>();
 
+    detail::shapefile::double_endianness_check();
+
     dispatch::read_shapefile<geometry_type>::apply(is, range_of_geometries,
                                                    strategy);
 }
@@ -886,6 +930,8 @@ inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries)
         >::type strategy_type;
 
     geometry::concepts::check<geometry_type>();
+
+    detail::shapefile::double_endianness_check();
 
     dispatch::read_shapefile<geometry_type>::apply(is, range_of_geometries,
                                                    strategy_type());
