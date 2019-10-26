@@ -813,6 +813,27 @@ inline void sin_cos_degrees(T const& x,
 }
 
 /*!
+\brief Round off a given angle
+*/
+template<typename T>
+inline T round_angle(T x) {
+    static const T z = 1/T(16);
+
+    if (x == 0)
+    {
+        return 0;
+    }
+
+    T y = math::abs(x);
+
+    // z - (z - y) must not be simplified to y.
+    y = y < z ? z - (z - y) : y;
+
+    return x < 0 ? -y : y;
+}
+
+
+/*!
 \brief The error-free sum of two numbers.
 */
 template<typename T>

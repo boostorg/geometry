@@ -148,8 +148,8 @@ public:
         }
 
         // Make points close to the equator to lie on it.
-        lat1 = std::abs(lat1) > c90 ? c90 : lat1;
-        lat2 = std::abs(lat2) > c90 ? c90 : lat2;
+        lat1 = math::round_angle(std::abs(lat1) > c90 ? c90 : lat1);
+        lat2 = math::round_angle(std::abs(lat2) > c90 ? c90 : lat2);
 
         // Arrange points in a canonical form, as explained in
         // paper, Algorithms for geodesics, Eq. (44):
@@ -805,6 +805,7 @@ public:
             cos_alpha1 = -tiny;
         }
 
+
         CT sin_alpha0 = sin_alpha1 * cos_beta1;
         CT cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
@@ -839,9 +840,11 @@ public:
         sin_omega2 = sin_alpha0 * sin_beta2;
 
         cos_sigma2 = cos_omega2 =
-            cos_alpha2 * cos_beta2;
+            (cos_alpha2 * cos_beta2);
 
+        // Break degeneracy of equatorial line.
         math::normalize_unit_vector<CT>(sin_sigma2, cos_sigma2);
+
 
         // sig12 = sig2 - sig1, limit to [0, pi].
         sigma12 = atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
