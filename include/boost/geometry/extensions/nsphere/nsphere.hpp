@@ -34,6 +34,7 @@
 #include <boost/geometry/extensions/nsphere/algorithms/envelope.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/num_points.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/disjoint.hpp>
+#include <boost/geometry/extensions/nsphere/strategies/cartesian/disjoint.hpp>
 #include <boost/geometry/extensions/nsphere/strategies/cartesian/nsphere_in_box.hpp>
 #include <boost/geometry/extensions/nsphere/strategies/cartesian/point_in_nsphere.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/within.hpp>

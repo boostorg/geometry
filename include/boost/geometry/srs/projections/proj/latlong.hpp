@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -55,15 +55,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct lonlat {}; // Lat/long (Geodetic)
-    struct latlon {}; // Lat/long (Geodetic alias)
-    struct latlong {}; // Lat/long (Geodetic alias)
-    struct longlat {}; // Lat/long (Geodetic alias)
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -72,38 +63,27 @@ namespace projections
 
             /* very loosely based upon DMA code by Bradford W. Drew */
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_latlong_other : public base_t_fi<base_latlong_other<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_latlong_other
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_latlong_other(const Parameters& par)
-                    : base_t_fi<base_latlong_other<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     // TODO: in the original code a is not used
                     // different mechanism is probably used instead
-                    xy_x = lp_lon / this->m_par.a;
-                    xy_y = lp_lat / this->m_par.a;
+                    xy_x = lp_lon / par.a;
+                    xy_y = lp_lat / par.a;
                 }
 
                 // INVERSE(inverse)
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     // TODO: in the original code a is not used
                     // different mechanism is probably used instead
-                    lp_lat = xy_y * this->m_par.a;
-                    lp_lon = xy_x * this->m_par.a;
+                    lp_lat = xy_y * par.a;
+                    lp_lon = xy_x * par.a;
                 }
 
                 static inline std::string get_name()
@@ -115,34 +95,7 @@ namespace projections
 
             // Lat/long (Geodetic)
             template <typename Parameters>
-            inline void setup_lonlat(Parameters& par)
-            {
-                    par.is_latlong = 1;
-                    par.x0 = 0.0;
-                    par.y0 = 0.0;
-            }
-
-            // Lat/long (Geodetic alias)
-            template <typename Parameters>
-            inline void setup_latlon(Parameters& par)
-            {
-                    par.is_latlong = 1;
-                    par.x0 = 0.0;
-                    par.y0 = 0.0;
-            }
-
-            // Lat/long (Geodetic alias)
-            template <typename Parameters>
             inline void setup_latlong(Parameters& par)
-            {
-                    par.is_latlong = 1;
-                    par.x0 = 0.0;
-                    par.y0 = 0.0;
-            }
-
-            // Lat/long (Geodetic alias)
-            template <typename Parameters>
-            inline void setup_longlat(Parameters& par)
             {
                     par.is_latlong = 1;
                     par.x0 = 0.0;
@@ -159,68 +112,15 @@ namespace projections
         \tparam Cartesian xy point type
         \tparam Parameters parameter type
         \par Example
-        \image html ex_lonlat.gif
-    */
-    template <typename CalculationType, typename Parameters>
-    struct lonlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
-    {
-        inline lonlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-        {
-            detail::latlong::setup_lonlat(this->m_par);
-        }
-    };
-
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_latlon.gif
-    */
-    template <typename CalculationType, typename Parameters>
-    struct latlon_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
-    {
-        inline latlon_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-        {
-            detail::latlong::setup_latlon(this->m_par);
-        }
-    };
-
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
         \image html ex_latlong.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct latlong_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct latlong_other : public detail::latlong::base_latlong_other<T, Parameters>
     {
-        inline latlong_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline latlong_other(Params const& , Parameters & par)
         {
-            detail::latlong::setup_latlong(this->m_par);
-        }
-    };
-
-    /*!
-        \brief Lat/long (Geodetic alias) projection
-        \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
-        \tparam Parameters parameter type
-        \par Example
-        \image html ex_longlat.gif
-    */
-    template <typename CalculationType, typename Parameters>
-    struct longlat_other : public detail::latlong::base_latlong_other<CalculationType, Parameters>
-    {
-        inline longlat_other(const Parameters& par) : detail::latlong::base_latlong_other<CalculationType, Parameters>(par)
-        {
-            detail::latlong::setup_longlat(this->m_par);
+            detail::latlong::setup_latlong(par);
         }
     };
 
@@ -229,59 +129,20 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lonlat, lonlat_other, lonlat_other)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::latlon, latlon_other, latlon_other)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::latlong, latlong_other, latlong_other)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::longlat, longlat_other, longlat_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_lonlat, latlong_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_latlon, latlong_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_latlong, latlong_other)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_longlat, latlong_other)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lonlat_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(latlong_entry, latlong_other)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(latlong_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<lonlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class latlon_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<latlon_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class latlong_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<latlong_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class longlat_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<longlat_other<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void latlong_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("lonlat", new lonlat_entry<CalculationType, Parameters>);
-            factory.add_to_factory("latlon", new latlon_entry<CalculationType, Parameters>);
-            factory.add_to_factory("latlong", new latlong_entry<CalculationType, Parameters>);
-            factory.add_to_factory("longlat", new longlat_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lonlat, latlong_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(latlon, latlong_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(latlong, latlong_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(longlat, latlong_entry)
         }
 
     } // namespace detail

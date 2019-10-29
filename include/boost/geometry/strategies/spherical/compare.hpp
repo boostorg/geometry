@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -25,6 +25,7 @@
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/compare.hpp>
@@ -69,9 +70,9 @@ template
 struct spherical_latitude
 {
     typedef typename geometry::coordinate_type<Point1>::type coordinate1_type;
-    typedef typename geometry::coordinate_system<Point1>::type::units units1_type;
+    typedef typename geometry::detail::cs_angular_units<Point1>::type units1_type;
     typedef typename geometry::coordinate_type<Point2>::type coordinate2_type;
-    typedef typename geometry::coordinate_system<Point2>::type::units units2_type;
+    typedef typename geometry::detail::cs_angular_units<Point2>::type units2_type;
     typedef typename boost::is_same<units1_type, units2_type>::type same_units_type;
 
     template <typename T1, typename T2>
@@ -135,9 +136,9 @@ template
 struct spherical_longitude
 {
     typedef typename geometry::coordinate_type<Point1>::type coordinate1_type;
-    typedef typename geometry::coordinate_system<Point1>::type::units units1_type;
+    typedef typename geometry::detail::cs_angular_units<Point1>::type units1_type;
     typedef typename geometry::coordinate_type<Point2>::type coordinate2_type;
-    typedef typename geometry::coordinate_system<Point2>::type::units units2_type;
+    typedef typename geometry::detail::cs_angular_units<Point2>::type units2_type;
     typedef typename boost::is_same<units1_type, units2_type>::type same_units_type;
     typedef typename boost::mpl::if_<same_units_type, units1_type, geometry::radian>::type units_type;
 
@@ -278,6 +279,16 @@ struct spherical<ComparePolicy, 1>
 namespace services
 {
 
+
+template <typename ComparePolicy, typename Point1, typename Point2, int Dimension>
+struct default_strategy
+    <
+        ComparePolicy, Point1, Point2, Dimension,
+        spherical_tag, spherical_tag
+    >
+{
+    typedef compare::spherical<ComparePolicy, Dimension> type;
+};
 
 template <typename ComparePolicy, typename Point1, typename Point2, int Dimension>
 struct default_strategy

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2016.
 // Modifications copyright (c) 2016, Oracle and/or its affiliates.
@@ -11,7 +11,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -20,7 +20,7 @@
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <test_common/test_point.hpp>
+#include "test_common/test_point.hpp"
 
 
 static std::string const simplex = "LINESTRING(0 0,4 5)";
@@ -106,6 +106,8 @@ static std::string const mysql_23023665 = "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)";
 static std::string const mysql_25662426 = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4700)";
 static std::string const mysql_25662426a = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4750)";
 
+static std::string const issue_596 = "LINESTRING(292979.660 6688731.370, 292979.600 6688733.420, 292979.540 6688735.440, 292979.540 6688735.500)";
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -187,9 +189,9 @@ void test_all()
     // Having flat end
     test_one<linestring, polygon>("for_collinear", for_collinear, join_round, end_flat, 68.561, 2.0);
     test_one<linestring, polygon>("for_collinear", for_collinear, join_miter, end_flat, 72, 2.0);
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
-    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0, 2.0);
-    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0, 2.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_round, end_flat, 74.387, 2.0);
+    test_one<linestring, polygon>("for_collinear2", for_collinear2, join_miter, end_flat, 78.0, 2.0);
 #endif
 
     test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, ut_settings(), 3.0);
@@ -245,10 +247,8 @@ void test_all()
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym1", mysql_report_2015_03_02c, join_round(7), end_round(7), 39.714, d10, ut_settings(), d15);
         test_one<linestring, polygon>("mysql_report_2015_03_02c_asym2", mysql_report_2015_03_02c, join_round(7), end_round(7), 46.116, d15, ut_settings(), d10);
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         double const d100 = 10;
         test_one<linestring, polygon>("mysql_report_2015_04_01", mysql_report_2015_04_01, join_round(32), end_round(32), 632.234, d100);
-#endif
     }
 
     {
@@ -283,12 +283,21 @@ void test_all()
 
     test_one<linestring, polygon>("mikado1", mikado1, join_round32, end_round32, 5441135039.0979, 41751.0);
 
+    {
+        // This case gave a spike (invalid result) up to 1.70
+        // Fixed by general form for line/line intersection in miter calculation
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::end_round;
+        test_one<linestring, polygon>("issue_596", issue_596, join_round(12), end_round(12), 0.12462779, 0.015);
+        test_one<linestring, polygon>("issue_596", issue_596, join_miter, end_round(12), 0.12462807, 0.015);
+    }
+
     test_one<linestring, polygon>("mysql_report_2015_06_11",
             mysql_report_2015_06_11, join_round32, end_round32,
             27862.733459829971,
             5.9518403867035365);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_report_2015_09_08a", mysql_report_2015_09_08a, join_round32, end_round32, 0.0, 1.0);
     test_one<linestring, polygon>("mysql_report_2015_09_08b", mysql_report_2015_09_08b, join_round32, end_round32, 0.0, 1099511627778.0);
     test_one<linestring, polygon>("mysql_report_2015_09_08c", mysql_report_2015_09_08c, join_round32, end_round32, 0.0, 0xbe);
@@ -316,7 +325,7 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_flat, 227.8325, 5.0);
     test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_flat, 534.1084, 10.0);
 
-#if defined(BOOST_GEOMETRY_BUFFER_INCLUDE_FAILING_TESTS)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Left
     test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0, ut_settings(), 0.0);
     test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0, ut_settings(), 0.0);

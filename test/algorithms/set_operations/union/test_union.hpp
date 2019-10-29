@@ -18,8 +18,8 @@
 #include <fstream>
 
 #include <geometry_test_common.hpp>
+#include <algorithms/check_validity.hpp>
 #include "../setop_output_type.hpp"
-#include "../check_validity.hpp"
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
@@ -125,15 +125,16 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 #endif
 
+#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
     if (settings.test_validity)
+#endif
     {
         std::string message;
-        bool const valid = check_validity<result_type>::apply(clip, message);
+        bool const valid = check_validity<result_type>::apply(clip, caseid, g1, g2, message);
         BOOST_CHECK_MESSAGE(valid,
             "union: " << caseid << " not valid: " << message
             << " type: " << (type_for_assert_message<G1, G2>()));
     }
-
 
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
@@ -197,7 +198,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << " type: " << (type_for_assert_message<G1, G2>())
             );
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    // Without rescaling, point count might easily differ (which is no problem)
     BOOST_CHECK_MESSAGE(expected_point_count < 0 || std::abs(int(n) - expected_point_count) < 3,
             "union: " << caseid
             << " #points expected: " << expected_point_count
@@ -223,11 +225,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-           << "_no_self"
-#endif
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            << "_no_rob"
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
 #endif
             << ".svg";
 

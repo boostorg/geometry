@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,21 +40,16 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_LAGRNG_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_LAGRNG_HPP
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct lagrng {}; // Lagrange
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -62,7 +57,7 @@ namespace projections
     namespace detail { namespace lagrng
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             template <typename T>
             struct par_lagrng
@@ -72,37 +67,27 @@ namespace projections
                 T    hrw;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_lagrng_spheroid : public base_t_f<base_lagrng_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_lagrng_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_lagrng<CalculationType> m_proj_parm;
-
-                inline base_lagrng_spheroid(const Parameters& par)
-                    : base_t_f<base_lagrng_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_lagrng<T> m_proj_parm;
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType v, c;
+                    T v, c;
 
-                    if (fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    if (fabs(fabs(lp_lat) - half_pi) < tolerance) {
                         xy_x = 0;
                         xy_y = lp_lat < 0 ? -2. : 2.;
                     } else {
                         lp_lat = sin(lp_lat);
-                        v = this->m_proj_parm.a1 * pow((1. + lp_lat)/(1. - lp_lat), this->m_proj_parm.hrw);
-                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < TOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        v = this->m_proj_parm.a1 * math::pow((T(1) + lp_lat)/(T(1) - lp_lat), this->m_proj_parm.hrw);
+                        if ((c = 0.5 * (v + 1./v) + cos(lp_lon *= this->m_proj_parm.rw)) < tolerance) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }
                         xy_x = 2. * sin(lp_lon) / c;
                         xy_y = (v - 1./v) / c;
@@ -117,22 +102,32 @@ namespace projections
             };
 
             // Lagrange
-            template <typename Parameters, typename T>
-            inline void setup_lagrng(Parameters& par, par_lagrng<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_lagrng(Params const& params, Parameters& par, par_lagrng<T>& proj_parm)
             {
                 T phi1;
 
-                proj_parm.rw = pj_param(par.params, "dW").f;
+                proj_parm.rw = 0.0;
+                bool is_w_set = pj_param_f<srs::spar::w>(params, "W", srs::dpar::w, proj_parm.rw);
+                
+                // Boost.Geometry specific, set default parameters manually
+                if (! is_w_set) {
+                    bool const use_defaults = ! pj_get_param_b<srs::spar::no_defs>(params, "no_defs", srs::dpar::no_defs);
+                    if (use_defaults) {
+                        proj_parm.rw = 2;
+                    }
+                }
+
                 if (proj_parm.rw <= 0)
-                    BOOST_THROW_EXCEPTION( projection_exception(-27) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_w_or_m_zero_or_less) );
 
                 proj_parm.rw = 1. / proj_parm.rw;
                 proj_parm.hrw = 0.5 * proj_parm.rw;
-                phi1 = pj_param(par.params, "rlat_1").f;
-                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < TOL)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                if (fabs(fabs(phi1 = sin(phi1)) - 1.) < tolerance)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
-                proj_parm.a1 = pow((1. - phi1)/(1. + phi1), proj_parm.hrw);
+                proj_parm.a1 = math::pow((T(1) - phi1)/(T(1) + phi1), proj_parm.hrw);
 
                 par.es = 0.;
             }
@@ -156,12 +151,13 @@ namespace projections
         \par Example
         \image html ex_lagrng.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lagrng_spheroid : public detail::lagrng::base_lagrng_spheroid<T, Parameters>
     {
-        inline lagrng_spheroid(const Parameters& par) : detail::lagrng::base_lagrng_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline lagrng_spheroid(Params const& params, Parameters & par)
         {
-            detail::lagrng::setup_lagrng(this->m_par, this->m_proj_parm);
+            detail::lagrng::setup_lagrng(params, par, this->m_proj_parm);
         }
     };
 
@@ -170,23 +166,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lagrng, lagrng_spheroid, lagrng_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_lagrng, lagrng_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lagrng_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(lagrng_entry, lagrng_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(lagrng_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<lagrng_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void lagrng_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("lagrng", new lagrng_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lagrng, lagrng_entry);
         }
 
     } // namespace detail

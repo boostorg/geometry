@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2018.
+// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -41,9 +41,7 @@ template
 <
     typename GeometryOut, typename Geometry,
     typename TagOut = typename tag<GeometryOut>::type,
-    typename Tag = typename tag<Geometry>::type,
-    typename CSTagOut = typename cs_tag<GeometryOut>::type,
-    typename CSTag = typename cs_tag<Geometry>::type
+    typename Tag = typename tag<Geometry>::type
 >
 struct expand : not_implemented<TagOut, Tag>
 {};

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2016.
-// Modifications copyright (c) 2013-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015, 2016, 2019.
+// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -305,7 +305,7 @@ erase(Range & rng,
         it = boost::begin(rng)
                 + std::distance(boost::const_begin(rng), cit);
 
-    return erase(rng, it);
+    return range::erase(rng, it);
 }
 
 /*!
@@ -366,7 +366,7 @@ erase(Range & rng,
         last = boost::begin(rng)
                     + std::distance(boost::const_begin(rng), clast);
 
-    return erase(rng, first, last);
+    return range::erase(rng, first, last);
 }
 
 // back_inserter

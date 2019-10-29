@@ -4,6 +4,11 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,6 +20,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_SIMPLIFY_HPP
 
 #include <cstddef>
+#include <set>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
@@ -53,12 +59,13 @@ namespace boost { namespace geometry
 namespace detail { namespace simplify
 {
 
-template <typename Range>
-inline bool is_degenerate(Range const& range)
+template <typename Range, typename EqualsStrategy>
+inline bool is_degenerate(Range const& range, EqualsStrategy const& strategy)
 {
     return boost::size(range) == 2
         && detail::equals::equals_point_point(geometry::range::front(range),
-                                              geometry::range::back(range));
+                                              geometry::range::back(range),
+                                              strategy);
 }
 
 struct simplify_range_insert
@@ -67,9 +74,12 @@ struct simplify_range_insert
     static inline void apply(Range const& range, OutputIterator out,
                              Distance const& max_distance, Strategy const& strategy)
     {
+        typedef typename Strategy::distance_strategy_type::equals_point_point_strategy_type
+            equals_strategy_type;
+
         boost::ignore_unused(strategy);
 
-        if (is_degenerate(range))
+        if (is_degenerate(range, equals_strategy_type()))
         {
             std::copy(boost::begin(range), boost::begin(range) + 1, out);
         }
@@ -107,6 +117,9 @@ struct simplify_range
     static inline void apply(RangeIn const& range, RangeOut& out,
                     Distance const& max_distance, Strategy const& strategy)
     {
+        typedef typename Strategy::distance_strategy_type::equals_point_point_strategy_type
+            equals_strategy_type;
+
         // For a RING:
         // Note that, especially if max_distance is too large,
         // the output ring might be self intersecting while the input ring is
@@ -126,7 +139,7 @@ struct simplify_range
 
         // Verify the two remaining points are equal. If so, remove one of them.
         // This can cause the output being under the minimum size
-        if (is_degenerate(out))
+        if (is_degenerate(out, equals_strategy_type()))
         {
             range::resize(out, 1);
         }

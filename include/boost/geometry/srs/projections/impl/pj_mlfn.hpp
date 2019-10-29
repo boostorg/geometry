@@ -48,6 +48,8 @@
 
 #include <cstdlib>
 
+#include <boost/geometry/srs/projections/exception.hpp>
+#include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 #include <boost/geometry/util/math.hpp>
 
 
@@ -123,7 +125,7 @@ inline T pj_inv_mlfn(T const& arg, T const& es, detail::en<T> const& en)
         if (geometry::math::abs(t) < EPS)
             return phi;
     }
-    BOOST_THROW_EXCEPTION( projection_exception(-17) );
+    BOOST_THROW_EXCEPTION( projection_exception(error_non_conv_inv_meri_dist) );
     return phi;
 }
 

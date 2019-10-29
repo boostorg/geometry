@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -52,10 +52,10 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
     **    n should always be >= 1 though no checks are made
     */
     template <typename T>
-    inline COMPLEX<T>
-    pj_zpoly1(COMPLEX<T> z, const COMPLEX<T> *C, int n)
+    inline pj_complex<T>
+    pj_zpoly1(pj_complex<T> z, const pj_complex<T> *C, int n)
     {
-        COMPLEX<T> a;
+        pj_complex<T> a;
         T t;
 
         a = *(C += n);
@@ -71,14 +71,14 @@ namespace boost { namespace geometry { namespace projections { namespace detail 
 
     /* evaluate complex polynomial and derivative */
     template <typename T>
-    inline COMPLEX<T>
-    pj_zpolyd1(COMPLEX<T> z, const COMPLEX<T> *C, int n, COMPLEX<T> *der)
+    inline pj_complex<T>
+    pj_zpolyd1(pj_complex<T> z, const pj_complex<T> *C, int n, pj_complex<T> *der)
     {
         T t;
         bool first = true;
 
-        COMPLEX<T> a = *(C += n);
-        COMPLEX<T> b = a;
+        pj_complex<T> a = *(C += n);
+        pj_complex<T> b = a;
         while (n-- > 0)
         {
             if (first)

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,24 +40,20 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_EQDC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_EQDC_HPP
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
 #include <boost/geometry/srs/projections/impl/pj_msfn.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
+
+#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct eqdc {}; // Equidistant Conic
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -65,7 +61,7 @@ namespace projections
     namespace detail { namespace eqdc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             struct par_eqdc
@@ -79,26 +75,16 @@ namespace projections
                 bool ellips;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_eqdc_ellipsoid : public base_t_fi<base_eqdc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_eqdc_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_eqdc<CalculationType> m_proj_parm;
-
-                inline base_eqdc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_eqdc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_eqdc<T> m_proj_parm;
 
                 // FORWARD(e_forward)  sphere & ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType rho = 0.0;
+                    T rho = 0.0;
 
                     rho = this->m_proj_parm.c - (this->m_proj_parm.ellips ? pj_mlfn(lp_lat, sin(lp_lat),
                         cos(lp_lat), this->m_proj_parm.en) : lp_lat);
@@ -108,11 +94,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  sphere & ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static CalculationType const HALFPI = detail::HALFPI<CalculationType>();
+                    static T const half_pi = detail::half_pi<T>();
 
-                    CalculationType rho = 0.0;
+                    T rho = 0.0;
 
                     if ((rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
@@ -122,11 +108,11 @@ namespace projections
                         }
                         lp_lat = this->m_proj_parm.c - rho;
                         if (this->m_proj_parm.ellips)
-                            lp_lat = pj_inv_mlfn(lp_lat, this->m_par.es, this->m_proj_parm.en);
+                            lp_lat = pj_inv_mlfn(lp_lat, par.es, this->m_proj_parm.en);
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : -HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? half_pi : -half_pi;
                     }
                 }
 
@@ -138,23 +124,23 @@ namespace projections
             };
 
             // Equidistant Conic
-            template <typename Parameters, typename T>
-            inline void setup_eqdc(Parameters& par, par_eqdc<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_eqdc(Params const& params, Parameters& par, par_eqdc<T>& proj_parm)
             {
                 T cosphi, sinphi;
                 int secant;
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
+                proj_parm.phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                proj_parm.phi2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
 
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
 
                 proj_parm.en = pj_enfn<T>(par.es);
 
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es > 0.)) ) {
                     double ml1, m1;
 
@@ -196,12 +182,13 @@ namespace projections
         \par Example
         \image html ex_eqdc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct eqdc_ellipsoid : public detail::eqdc::base_eqdc_ellipsoid<T, Parameters>
     {
-        inline eqdc_ellipsoid(const Parameters& par) : detail::eqdc::base_eqdc_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline eqdc_ellipsoid(Params const& params, Parameters const& par)
         {
-            detail::eqdc::setup_eqdc(this->m_par, this->m_proj_parm);
+            detail::eqdc::setup_eqdc(params, par, this->m_proj_parm);
         }
     };
 
@@ -210,23 +197,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::eqdc, eqdc_ellipsoid, eqdc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_eqdc, eqdc_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class eqdc_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(eqdc_entry, eqdc_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(eqdc_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<eqdc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void eqdc_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("eqdc", new eqdc_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(eqdc, eqdc_entry);
         }
 
     } // namespace detail

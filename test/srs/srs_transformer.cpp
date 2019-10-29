@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -28,7 +28,6 @@ int test_main(int, char*[])
     using namespace boost::geometry;
     using namespace boost::geometry::model;
     using namespace boost::geometry::srs;
-    using namespace boost::geometry::srs::par4;
     using namespace bg::strategy::transform;
 
     typedef point<double, 2, cs::geographic<degree> > point_ll;
@@ -70,28 +69,30 @@ int test_main(int, char*[])
     }
 
     {
+        using namespace bg::srs::spar;
+
         srs_forward_transformer
             <
-                projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
+                projection<parameters<proj_tmerc, ellps_wgs84> >
             > strategy_pf;
         srs_forward_transformer
             <
-                projection<static_proj4<proj<tmerc>, ellps<WGS84> > >
+                projection<parameters<proj_tmerc, ellps_wgs84> >
             > strategy_pi;
         srs_forward_transformer
             <
                 transformation
                     <
-                        static_proj4<proj<tmerc>, ellps<WGS84> >,
-                        static_proj4<proj<tmerc>, ellps<clrk66> >
+                        parameters<proj_tmerc, ellps_wgs84>,
+                        parameters<proj_tmerc, ellps_clrk66>
                     >
             > strategy_tf;
         srs_forward_transformer
             <
                 transformation
                     <
-                        static_proj4<proj<tmerc>, ellps<WGS84> >,
-                        static_proj4<proj<tmerc>, ellps<clrk66> >
+                        parameters<proj_tmerc, ellps_wgs84>,
+                        parameters<proj_tmerc, ellps_clrk66>
                     >
             > strategy_ti;
     }

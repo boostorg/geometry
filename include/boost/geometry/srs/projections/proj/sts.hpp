@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -49,15 +49,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct kav5 {};    // Kavraisky V
-    struct qua_aut {}; // Quartic Authalic
-    struct fouc {};    // Foucaut
-    struct mbt_s {};   // McBryde-Thomas Flat-Polar Sine (No. 1)
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -70,26 +61,16 @@ namespace projections
                 bool tan_mode;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_sts_spheroid : public base_t_fi<base_sts_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_sts_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_sts<CalculationType> m_proj_parm;
-
-                inline base_sts_spheroid(const Parameters& par)
-                    : base_t_fi<base_sts_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_sts<T> m_proj_parm;
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType c;
+                    T c;
 
                     xy_x = this->m_proj_parm.C_x * lp_lon * cos(lp_lat);
                     xy_y = this->m_proj_parm.C_y;
@@ -106,9 +87,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType c;
+                    T c;
 
                     xy_y /= this->m_proj_parm.C_y;
                     c = cos(lp_lat = this->m_proj_parm.tan_mode ? atan(xy_y) : aasin(xy_y));
@@ -181,12 +162,13 @@ namespace projections
         \par Example
         \image html ex_kav5.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct kav5_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct kav5_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline kav5_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline kav5_spheroid(Params const& , Parameters & par)
         {
-            detail::sts::setup_kav5(this->m_par, this->m_proj_parm);
+            detail::sts::setup_kav5(par, this->m_proj_parm);
         }
     };
 
@@ -202,12 +184,13 @@ namespace projections
         \par Example
         \image html ex_qua_aut.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct qua_aut_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline qua_aut_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline qua_aut_spheroid(Params const& , Parameters & par)
         {
-            detail::sts::setup_qua_aut(this->m_par, this->m_proj_parm);
+            detail::sts::setup_qua_aut(par, this->m_proj_parm);
         }
     };
 
@@ -223,12 +206,13 @@ namespace projections
         \par Example
         \image html ex_mbt_s.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct mbt_s_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline mbt_s_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline mbt_s_spheroid(Params const& , Parameters & par)
         {
-            detail::sts::setup_mbt_s(this->m_par, this->m_proj_parm);
+            detail::sts::setup_mbt_s(par, this->m_proj_parm);
         }
     };
 
@@ -244,12 +228,13 @@ namespace projections
         \par Example
         \image html ex_fouc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct fouc_spheroid : public detail::sts::base_sts_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct fouc_spheroid : public detail::sts::base_sts_spheroid<T, Parameters>
     {
-        inline fouc_spheroid(const Parameters& par) : detail::sts::base_sts_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline fouc_spheroid(Params const& , Parameters & par)
         {
-            detail::sts::setup_fouc(this->m_par, this->m_proj_parm);
+            detail::sts::setup_fouc(par, this->m_proj_parm);
         }
     };
 
@@ -258,59 +243,23 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::kav5, kav5_spheroid, kav5_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::qua_aut, qua_aut_spheroid, qua_aut_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::mbt_s, mbt_s_spheroid, mbt_s_spheroid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::fouc, fouc_spheroid, fouc_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_kav5, kav5_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_qua_aut, qua_aut_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_mbt_s, mbt_s_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_fouc, fouc_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class kav5_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(kav5_entry, kav5_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(qua_aut_entry, qua_aut_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(mbt_s_entry, mbt_s_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(fouc_entry, fouc_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(sts_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<kav5_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class qua_aut_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<qua_aut_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class mbt_s_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<mbt_s_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class fouc_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<fouc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void sts_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("kav5", new kav5_entry<CalculationType, Parameters>);
-            factory.add_to_factory("qua_aut", new qua_aut_entry<CalculationType, Parameters>);
-            factory.add_to_factory("mbt_s", new mbt_s_entry<CalculationType, Parameters>);
-            factory.add_to_factory("fouc", new fouc_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(kav5, kav5_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(qua_aut, qua_aut_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(mbt_s, mbt_s_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(fouc, fouc_entry)
         }
 
     } // namespace detail

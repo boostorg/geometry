@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,6 +15,9 @@
 
 #include <map>
 
+#ifdef BOOST_GEOMETRY_DEBUG_CONNECT
+#include <iostream>
+#endif
 
 #include <boost/range.hpp>
 
@@ -144,7 +151,9 @@ struct map_policy
         // Alternatively, we might look for the closest points
         if (boost::size(range) == 0)
         {
+#ifdef BOOST_GEOMETRY_DEBUG_CONNECT
             std::cout << "nothing found" << std::endl;
+#endif
             return closest;
         }
 
@@ -318,7 +327,9 @@ struct fuzzy_policy
         // Alternatively, we might look for the closest points
         if (boost::size(range) == 0)
         {
+#ifdef BOOST_GEOMETRY_DEBUG_CONNECT
             std::cout << "nothing found" << std::endl;
+#endif
             return closest;
         }
 
@@ -339,7 +350,9 @@ struct fuzzy_policy
                     closest = *it;
                     min_dist = d;
 
+#ifdef BOOST_GEOMETRY_DEBUG_CONNECT
                     //std::cout << "TO " << geometry::wkt(p2) << std::endl;
+#endif
                 }
             }
         }
@@ -347,9 +360,12 @@ struct fuzzy_policy
     }
 };
 
+
 template <typename Policy>
 inline void debug(Policy const& policy)
 {
+#ifdef BOOST_GEOMETRY_DEBUG_CONNECT
+
     std::cout << "MAP" << std::endl;
     typedef typename Policy::map_type::const_iterator iterator;
     typedef typename Policy::point_type point_type;
@@ -369,8 +385,9 @@ inline void debug(Policy const& policy)
         }
         std::cout << std::endl;
     }
-}
 
+#endif // BOOST_GEOMETRY_DEBUG_CONNECT
+}
 
 
 

@@ -15,6 +15,7 @@
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -370,6 +371,9 @@ struct densify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 [heading Example]
 [densify_strategy]
 [densify_strategy_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.line_interpolate line_interpolate]
 }
 */
 template <typename Geometry, typename Distance, typename Strategy>
@@ -409,6 +413,9 @@ inline void densify(Geometry const& geometry,
 [heading Example]
 [densify]
 [densify_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.line_interpolate line_interpolate]
 }
 */
 template <typename Geometry, typename Distance>

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016, 2018.
+// Modifications copyright (c) 2016-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,6 +16,7 @@
 
 #include <boost/core/ignore_unused.hpp>
 
+#include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
@@ -38,12 +39,14 @@ struct original_get_box
     }
 };
 
+template <typename DisjointBoxBoxStrategy>
 struct original_ovelaps_box
 {
     template <typename Box, typename Original>
     static inline bool apply(Box const& box, Original const& original)
     {
-        return ! detail::disjoint::disjoint_box_box(box, original.m_box);
+        return ! detail::disjoint::disjoint_box_box(box, original.m_box,
+                                                    DisjointBoxBoxStrategy());
     }
 };
 
@@ -56,6 +59,7 @@ struct include_turn_policy
     }
 };
 
+template <typename DisjointPointBoxStrategy>
 struct turn_in_original_ovelaps_box
 {
     template <typename Box, typename Turn>
@@ -68,7 +72,7 @@ struct turn_in_original_ovelaps_box
         }
 
         return ! geometry::detail::disjoint::disjoint_point_box(
-                    turn.robust_point, box);
+                    turn.robust_point, box, DisjointPointBoxStrategy());
     }
 };
 
@@ -146,16 +150,11 @@ inline bool point_in_section(Strategy& strategy, State& state,
 }
 
 
-template <typename Point, typename Original>
-inline int point_in_original(Point const& point, Original const& original)
+template <typename Point, typename Original, typename PointInGeometryStrategy>
+inline int point_in_original(Point const& point, Original const& original,
+                             PointInGeometryStrategy const& strategy)
 {
-    // The winding strategy is scanning in x direction
-    // therefore it's critical to pass direction calculated
-    // for x dimension below.
-    typedef strategy::within::winding<Point> strategy_type;
-
-    typename strategy_type::state_type state;
-    strategy_type strategy;
+    typename PointInGeometryStrategy::state_type state;
 
     if (boost::size(original.m_sections) == 0
         || boost::size(original.m_ring) - boost::size(original.m_sections) < 16)
@@ -203,18 +202,19 @@ inline int point_in_original(Point const& point, Original const& original)
 }
 
 
-template <typename Turns>
+template <typename Turns, typename PointInGeometryStrategy>
 class turn_in_original_visitor
 {
 public:
-    turn_in_original_visitor(Turns& turns)
+    turn_in_original_visitor(Turns& turns, PointInGeometryStrategy const& strategy)
         : m_mutable_turns(turns)
+        , m_point_in_geometry_strategy(strategy)
     {}
 
     template <typename Turn, typename Original>
     inline bool apply(Turn const& turn, Original const& original, bool first = true)
     {
-        boost::ignore_unused_variable_warning(first);
+        boost::ignore_unused(first);
 
         if (turn.location != location_ok || turn.within_original)
         {
@@ -228,7 +228,7 @@ public:
             return true;
         }
 
-        int const code = point_in_original(turn.robust_point, original);
+        int const code = point_in_original(turn.robust_point, original, m_point_in_geometry_strategy);
 
         if (code == -1)
         {
@@ -265,6 +265,7 @@ public:
 
 private :
     Turns& m_mutable_turns;
+    PointInGeometryStrategy const& m_point_in_geometry_strategy;
 };
 
 

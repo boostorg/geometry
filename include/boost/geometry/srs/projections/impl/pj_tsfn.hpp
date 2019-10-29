@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,7 +50,7 @@ namespace detail {
     {
         sinphi *= e;
         return (tan (.5 * (geometry::math::half_pi<T>() - phi)) /
-           pow((1. - sinphi) / (1. + sinphi), .5 * e));
+           math::pow((T(1) - sinphi) / (T(1) + sinphi), T(0.5) * e));
     }
 
 } // namespace detail

@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -850,6 +851,9 @@ void test_open_multipolygons()
     // one polygon inside another and boundaries touching
     test::apply("mpg09",
                 "MULTIPOLYGON(((0 0,10 0,10 10,0 10)),((0 0,9 1,9 2)))",
+                bg::failure_intersecting_interiors);
+    test::apply("mpg09_2",
+                "MULTIPOLYGON(((0 0,5 1,10 0,10 10,0 10)),((1 1,9 1,9 2)))",
                 bg::failure_intersecting_interiors);
 
     // one polygon inside another and boundaries not touching

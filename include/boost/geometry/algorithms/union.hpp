@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018, 2019.
+// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -211,19 +211,20 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
     concepts::check<Geometry2 const>();
     concepts::check<GeometryOut>();
 
+    typename strategy::intersection::services::default_strategy
+        <
+            typename cs_tag<GeometryOut>::type
+        >::type strategy;
+
     typedef typename geometry::rescale_overlay_policy_type
         <
             Geometry1,
             Geometry2
         >::type rescale_policy_type;
 
-    typename strategy::intersection::services::default_strategy
-        <
-            typename cs_tag<GeometryOut>::type
-        >::type strategy;
-
     rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry1, geometry2);
+            = geometry::get_rescale_policy<rescale_policy_type>(
+                geometry1, geometry2, strategy);
 
     return dispatch::union_insert
            <
@@ -244,17 +245,26 @@ struct union_
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename Collection,
         typename Strategy
     >
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              Collection & output_collection,
                              Strategy const& strategy)
     {
         typedef typename boost::range_value<Collection>::type geometry_out;
+
+        typedef typename geometry::rescale_overlay_policy_type
+            <
+                Geometry1,
+                Geometry2,
+                typename Strategy::cs_tag
+            >::type rescale_policy_type;
+
+        rescale_policy_type robust_policy
+                = geometry::get_rescale_policy<rescale_policy_type>(
+                    geometry1, geometry2, strategy);
 
         dispatch::union_insert
            <
@@ -268,28 +278,20 @@ struct union_
     <
         typename Geometry1,
         typename Geometry2,
-        typename RobustPolicy,
         typename Collection
     >
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
-                             RobustPolicy const& robust_policy,
                              Collection & output_collection,
                              default_strategy)
     {
-        typedef typename boost::range_value<Collection>::type geometry_out;
-
-        typedef typename strategy::intersection::services::default_strategy
+        typedef typename strategy::relate::services::default_strategy
             <
-                typename cs_tag<geometry_out>::type
+                Geometry1,
+                Geometry2
             >::type strategy_type;
 
-        dispatch::union_insert
-           <
-               Geometry1, Geometry2, geometry_out
-           >::apply(geometry1, geometry2, robust_policy,
-                    range::back_inserter(output_collection),
-                    strategy_type());
+        apply(geometry1, geometry2, output_collection, strategy_type());
     }
 };
 
@@ -312,18 +314,7 @@ struct union_
         concepts::check<Geometry2 const>();
         concepts::check<typename boost::range_value<Collection>::type>();
 
-        typedef typename geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2
-            >::type rescale_policy_type;
-
-        rescale_policy_type robust_policy
-                = geometry::get_rescale_policy<rescale_policy_type>(geometry1,
-                                                                    geometry2);
-        
         resolve_strategy::union_::apply(geometry1, geometry2,
-                                        robust_policy,
                                         output_collection,
                                         strategy);
     }

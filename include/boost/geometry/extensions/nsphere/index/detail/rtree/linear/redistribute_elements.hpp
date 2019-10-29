@@ -12,6 +12,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_INDEX_DETAIL_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_INDEX_DETAIL_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/index/detail/rtree/linear/redistribute_elements.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -98,7 +100,7 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, nsp
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
 
-        ::boost::ignore_unused_variable_warning(parameters);
+        ::boost::ignore_unused(parameters);
     }
 };
 

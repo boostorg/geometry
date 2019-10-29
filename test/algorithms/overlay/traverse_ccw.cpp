@@ -59,7 +59,7 @@ intersect(Geometry1 const& g1, Geometry2 const& g2, std::string const& name,
     typedef bg::detail::overlay::traversal_turn_info
     <
         point_type,
-        typename bg::segment_ratio_type<point_type, rescale_policy_type>::type
+        typename bg::detail::segment_ratio_type<point_type, rescale_policy_type>::type
     > turn_info;
     std::vector<turn_info> turns;
 

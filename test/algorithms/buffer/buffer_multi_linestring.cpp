@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2016.
 // Modifications copyright (c) 2016, Oracle and/or its affiliates.
@@ -11,7 +11,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 static std::string const simplex = "MULTILINESTRING((0 0,4 5),(5 4,10 0))";
 static std::string const two_bends = "MULTILINESTRING((0 0,4 5,7 4,10 6),(1 5,5 9,8 6))";
@@ -141,7 +141,6 @@ void test_all()
     }
 
     {
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
         // Coordinates in one linestring vary so much that
         // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length
         // That geometry is skipped for the buffer
@@ -156,7 +155,6 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mysql_2015_04_10b",
             mysql_2015_04_10b, join_round32, end_round32,
             ut_settings::ignore_area(), 0.98, ut_settings::assertions_only());
-#endif
 
         // Two other cases with <inf> for length calculation
         test_one<multi_linestring_type, polygon>("mysql_2015_09_08a",
@@ -173,7 +171,7 @@ void test_all()
             mysql_23023665_1, join_round32, end_round32, 1, 1, 186.5504, 1.0);
     test_one<multi_linestring_type, polygon>("touching1_1",
             touching1, join_round32, end_round32, 2, 0, 78.70773, 1.0
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
             , ut_settings::ignore_validity() // false positive, due to rescaling. As we remove it, it is gone
 #endif
                                              );
@@ -199,7 +197,7 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
             mysql_23023665_1, join_round32, end_flat, 1, 1, 350.1135, 2.0);
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     {
         ut_settings settings(10.0);
         test_one<multi_linestring_type, polygon>("ticket_13444_1",

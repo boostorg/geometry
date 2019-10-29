@@ -15,6 +15,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_COVERED_BY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_COVERED_BY_HPP
 
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 
@@ -36,7 +37,7 @@ struct covered_by<NSphere, Box, nsphere_tag, box_tag>
     static inline bool apply(NSphere const& nsphere, Box const& box, Strategy const& strategy)
     {
         assert_dimension_equal<NSphere, Box>();
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
         return strategy.apply(nsphere, box);
     }
 };
@@ -48,7 +49,7 @@ struct covered_by<Point, NSphere, point_tag, nsphere_tag>
     static inline bool apply(Point const& point, NSphere const& nsphere, Strategy const& strategy)
     {
         assert_dimension_equal<Point, NSphere>();
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
         return strategy.apply(point, nsphere);
     }
 };

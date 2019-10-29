@@ -34,8 +34,8 @@ void test_box_of(std::string const& wkt_point, std::string const& wkt_box,
 
     // Also test with the non-default agnostic side version
     namespace wi = bg::strategy::within;
-    wi::point_in_box_by_side<Point, box_type> within_strategy;
-    wi::point_in_box_by_side<Point, box_type, wi::decide_covered_by> covered_by_strategy;
+    wi::point_in_box_by_side<> within_strategy;
+    wi::point_in_box_by_side<wi::decide_covered_by> covered_by_strategy;
 
     detected_within = bg::within(point, box, within_strategy);
     detected_covered_by = bg::covered_by(point, box, covered_by_strategy);

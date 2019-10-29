@@ -15,14 +15,16 @@
 # TODO: move project transformer test to strategies
 test-suite boost-geometry-srs
     :
-    [ compile par4.cpp                    : :     srs_par4 ]
     [ run projection.cpp                  : : : : srs_projection ]
     [ run projection_epsg.cpp             : : : : srs_projection_epsg ]
-    [ run projection_interface.cpp        : : : : srs_projection_interface ]
+    [ run projection_interface_d.cpp      : : : : srs_projection_interface_d ]
+	[ run projection_interface_p4.cpp     : : : : srs_projection_interface_p4 ]
+	[ run projection_interface_s.cpp      : : : : srs_projection_interface_s ]
     [ run projection_selftest.cpp         : : : : srs_projection_selftest ]
     [ run projections.cpp                 : : : : srs_projections ]
     [ run projections_combined.cpp        : : : : srs_projections_combined ]
     [ run projections_static.cpp          : : : : srs_projections_static ]
+    [ compile spar.cpp                    : :     srs_spar ]
     [ run srs_transformer.cpp             : : : : srs_srs_transformer ]
     [ run transformation_interface.cpp    : : : : srs_transformation_interface ]
     ;

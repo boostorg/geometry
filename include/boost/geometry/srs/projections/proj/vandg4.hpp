@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,59 +50,42 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct vandg4 {}; // van der Grinten IV
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace vandg4
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_vandg4_spheroid : public base_t_f<base_vandg4_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_vandg4_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_vandg4_spheroid(const Parameters& par)
-                    : base_t_f<base_vandg4_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType TWO_D_PI = detail::TWO_D_PI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T two_div_pi = detail::two_div_pi<T>();
 
-                    CalculationType x1, t, bt, ct, ft, bt2, ct2, dt, dt2;
+                    T x1, t, bt, ct, ft, bt2, ct2, dt, dt2;
 
-                    if (fabs(lp_lat) < TOL) {
+                    if (fabs(lp_lat) < tolerance) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) < TOL || fabs(fabs(lp_lat) - HALFPI) < TOL) {
+                    } else if (fabs(lp_lon) < tolerance || fabs(fabs(lp_lat) - half_pi) < tolerance) {
                         xy_x = 0.;
                         xy_y = lp_lat;
                     } else {
-                        bt = fabs(TWO_D_PI * lp_lat);
+                        bt = fabs(two_div_pi * lp_lat);
                         bt2 = bt * bt;
                         ct = 0.5 * (bt * (8. - bt * (2. + bt2)) - 5.)
                             / (bt2 * (bt - 1.));
                         ct2 = ct * ct;
-                        dt = TWO_D_PI * lp_lon;
+                        dt = two_div_pi * lp_lon;
                         dt = dt + 1. / dt;
                         dt = sqrt(dt * dt - 4.);
-                        if ((fabs(lp_lon) - HALFPI) < 0.) dt = -dt;
+                        if ((fabs(lp_lon) - half_pi) < 0.) dt = -dt;
                         dt2 = dt * dt;
                         x1 = bt + ct; x1 *= x1;
                         t = bt + 3.*ct;
@@ -111,8 +94,8 @@ namespace projections
                             ct2 * (12. * bt * ct + 4. * ct2) );
                         x1 = (dt*(x1 + ct2 - 1.) + 2.*sqrt(ft)) /
                             (4.* x1 + dt2);
-                        xy_x = HALFPI * x1;
-                        xy_y = HALFPI * sqrt(1. + dt * fabs(x1) - x1 * x1);
+                        xy_x = half_pi * x1;
+                        xy_y = half_pi * sqrt(1. + dt * fabs(x1) - x1 * x1);
                         if (lp_lon < 0.) xy_x = -xy_x;
                         if (lp_lat < 0.) xy_y = -xy_y;
                     }
@@ -148,12 +131,13 @@ namespace projections
         \par Example
         \image html ex_vandg4.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct vandg4_spheroid : public detail::vandg4::base_vandg4_spheroid<T, Parameters>
     {
-        inline vandg4_spheroid(const Parameters& par) : detail::vandg4::base_vandg4_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline vandg4_spheroid(Params const& , Parameters & par)
         {
-            detail::vandg4::setup_vandg4(this->m_par);
+            detail::vandg4::setup_vandg4(par);
         }
     };
 
@@ -162,23 +146,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::vandg4, vandg4_spheroid, vandg4_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_vandg4, vandg4_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class vandg4_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(vandg4_entry, vandg4_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(vandg4_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<vandg4_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void vandg4_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("vandg4", new vandg4_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(vandg4, vandg4_entry)
         }
 
     } // namespace detail

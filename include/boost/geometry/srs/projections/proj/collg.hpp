@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,12 +50,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct collg {};
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -64,25 +58,14 @@ namespace projections
 
             static const double FXC = 1.12837916709551257390;
             static const double FYC = 1.77245385090551602729;
-            static const double ONEEPS = 1.0000001;
+            static const double one_plus_eps = 1.0000001;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_collg_spheroid : public base_t_fi<base_collg_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_collg_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_collg_spheroid(const Parameters& par)
-                    : base_t_fi<base_collg_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     if ((xy_y = 1. - sin(lp_lat)) <= 0.)
                         xy_y = 0.;
@@ -94,17 +77,17 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static CalculationType const HALFPI = detail::HALFPI<CalculationType>();
+                    static T const half_pi = detail::half_pi<T>();
 
                     lp_lat = xy_y / FYC - 1.;
                     if (fabs(lp_lat = 1. - lp_lat * lp_lat) < 1.)
                         lp_lat = asin(lp_lat);
-                    else if (fabs(lp_lat) > ONEEPS) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    else if (fabs(lp_lat) > one_plus_eps) {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     } else {
-                        lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                        lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                     }
 
                     if ((lp_lon = 1. - sin(lp_lat)) <= 0.)
@@ -142,12 +125,13 @@ namespace projections
         \par Example
         \image html ex_collg.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct collg_spheroid : public detail::collg::base_collg_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct collg_spheroid : public detail::collg::base_collg_spheroid<T, Parameters>
     {
-        inline collg_spheroid(const Parameters& par) : detail::collg::base_collg_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline collg_spheroid(Params const& , Parameters & par)
         {
-            detail::collg::setup_collg(this->m_par);
+            detail::collg::setup_collg(par);
         }
     };
 
@@ -156,23 +140,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::collg, collg_spheroid, collg_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_collg, collg_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class collg_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(collg_entry, collg_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(collg_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<collg_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void collg_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("collg", new collg_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(collg, collg_entry);
         }
 
     } // namespace detail

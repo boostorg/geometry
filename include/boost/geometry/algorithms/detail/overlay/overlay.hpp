@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2019.
+// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -124,6 +124,12 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
         bool cluster_checked = false;
         bool has_blocked = false;
+
+        if (is_self_turn<OverlayType>(turn) && turn.discarded)
+        {
+            // Discarded self-turns don't count as traversed
+            continue;
+        }
 
         for (typename boost::range_iterator<container_type const>::type
                 op_it = boost::begin(turn.operations);
@@ -281,7 +287,7 @@ struct overlay
         typedef detail::overlay::traversal_turn_info
         <
             point_type,
-            typename geometry::segment_ratio_type<point_type, RobustPolicy>::type
+            typename segment_ratio_type<point_type, RobustPolicy>::type
         > turn_info;
         typedef std::deque<turn_info> turn_container_type;
 
@@ -312,15 +318,20 @@ std::cout << "get turns" << std::endl;
         visitor.visit_turns(1, turns);
 
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (needs_self_turns<Geometry1>::apply(geometry1))
+        if (! turns.empty() || OverlayType == overlay_dissolve)
         {
-            self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
-                strategy, robust_policy, turns, policy, 0);
-        }
-        if (needs_self_turns<Geometry2>::apply(geometry2))
-        {
-            self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
-                strategy, robust_policy, turns, policy, 1);
+            // Calculate self turns if the output contains turns already,
+            // and if necessary (e.g.: multi-geometry, polygon with interior rings)
+            if (needs_self_turns<Geometry1>::apply(geometry1))
+            {
+                self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
+                    strategy, robust_policy, turns, policy, 0);
+            }
+            if (needs_self_turns<Geometry2>::apply(geometry2))
+            {
+                self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
+                    strategy, robust_policy, turns, policy, 1);
+            }
         }
 #endif
 
@@ -328,14 +339,12 @@ std::cout << "get turns" << std::endl;
 #ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
 std::cout << "enrich" << std::endl;
 #endif
-        typename Strategy::side_strategy_type side_strategy = strategy.get_side_strategy();
+
         cluster_type clusters;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
-        geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
-                clusters, geometry1, geometry2,
-                    robust_policy,
-                    side_strategy);
+        geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(
+            turns, clusters, geometry1, geometry2, robust_policy, strategy);
 
         visitor.visit_turns(2, turns);
 

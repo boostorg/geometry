@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,22 +40,18 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
+
+#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct bipc {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -63,16 +59,16 @@ namespace projections
     namespace detail { namespace bipc
     {
 
-            static const double EPS = 1e-10;
-            static const double EPS10 = 1e-10;
-            static const double ONEEPS = 1.000000001;
-            static const int NITER = 10;
+            static const double epsilon = 1e-10;
+            static const double epsilon10 = 1e-10;
+            static const double one_plus_eps = 1.000000001;
+            static const int n_iter = 10;
             static const double lamB = -.34894976726250681539;
             static const double n = .63055844881274687180;
             static const double F = 1.89724742567461030582;
             static const double Azab = .81650043674686363166;
             static const double Azba = 1.82261843856185925133;
-            static const double T = 1.27246578267089012270;
+            static const double const_T = 1.27246578267089012270;
             static const double rhoc = 1.20709121521568721927;
             static const double cAzc = .69691523038678375519;
             static const double sAzc = .71715351331143607555;
@@ -85,40 +81,30 @@ namespace projections
 
             struct par_bipc
             {
-                int    noskew;
+                bool   noskew;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_bipc_spheroid : public base_t_fi<base_bipc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_bipc_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
                 par_bipc m_proj_parm;
-
-                inline base_bipc_spheroid(const Parameters& par)
-                    : base_t_fi<base_bipc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T pi = detail::pi<T>();
 
-                    CalculationType cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
+                    T cphi, sphi, tphi, t, al, Az, z, Av, cdlam, sdlam, r;
                     int tag;
 
                     cphi = cos(lp_lat);
                     sphi = sin(lp_lat);
                     cdlam = cos(sdlam = lamB - lp_lon);
                     sdlam = sin(sdlam);
-                    if (fabs(fabs(lp_lat) - HALFPI) < EPS10) {
-                        Az = lp_lat < 0. ? ONEPI : 0.;
+                    if (fabs(fabs(lp_lat) - half_pi) < epsilon10) {
+                        Az = lp_lat < 0. ? pi : 0.;
                         tphi = HUGE_VAL;
                     } else {
                         tphi = sphi / cphi;
@@ -129,8 +115,8 @@ namespace projections
                         sdlam = sin(sdlam);
                         z = S20 * sphi + C20 * cphi * cdlam;
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS)
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            if (fabs(z) > one_plus_eps)
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
                         } else
@@ -142,8 +128,8 @@ namespace projections
                     } else {
                         z = S45 * (sphi + cphi * cdlam);
                         if (fabs(z) > 1.) {
-                            if (fabs(z) > ONEEPS)
-                                BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            if (fabs(z) > one_plus_eps)
+                                BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             else
                                 z = z < 0. ? -1. : 1.;
                         } else
@@ -152,16 +138,16 @@ namespace projections
                         xy_y = -rhoc;
                     }
                     if (z < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    r = F * (t = pow(tan(.5 * z), n));
+                    r = F * (t = math::pow(tan(T(0.5) * z), n));
                     if ((al = .5 * (R104 - z)) < 0.) {
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }
-                    al = (t + pow(al, n)) / T;
+                    al = (t + math::pow(al, n)) / const_T;
                     if (fabs(al) > 1.) {
-                        if (fabs(al) > ONEEPS)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (fabs(al) > one_plus_eps)
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else
                             al = al < 0. ? -1. : 1.;
                     } else
@@ -179,9 +165,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType t, r, rp, rl, al, z, fAz, Az, s, c, Av;
+                    T t, r, rp, rl, al, z, fAz, Az, s, c, Av;
                     int neg, i;
 
                     if (this->m_proj_parm.noskew) {
@@ -202,18 +188,18 @@ namespace projections
                     }
                     rl = rp = r = boost::math::hypot(xy_x, xy_y);
                     fAz = fabs(Az = atan2(xy_x, xy_y));
-                    for (i = NITER; i ; --i) {
-                        z = 2. * atan(pow(r / F,1 / n));
-                        al = acos((pow(tan(.5 * z), n) +
-                           pow(tan(.5 * (R104 - z)), n)) / T);
+                    for (i = n_iter; i ; --i) {
+                        z = 2. * atan(math::pow(r / F,T(1) / n));
+                        al = acos((math::pow(tan(T(0.5) * z), n) +
+                           math::pow(tan(T(0.5) * (R104 - z)), n)) / const_T);
                         if (fAz < al)
                             r = rp * cos(al + (neg ? Az : -Az));
-                        if (fabs(rl - r) < EPS)
+                        if (fabs(rl - r) < epsilon)
                             break;
                         rl = r;
                     }
                     if (! i)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     Az = Av - Az / n;
                     lp_lat = asin(s * cos(z) + c * sin(z) * cos(Az));
                     lp_lon = atan2(sin(Az), c / tan(z) - s * cos(Az));
@@ -231,10 +217,10 @@ namespace projections
             };
 
             // Bipolar conic of western hemisphere
-            template <typename Parameters>
-            inline void setup_bipc(Parameters& par, par_bipc& proj_parm)
+            template <typename Params, typename Parameters>
+            inline void setup_bipc(Params const& params, Parameters& par, par_bipc& proj_parm)
             {
-                proj_parm.noskew = pj_param(par.params, "bns").i;
+                proj_parm.noskew = pj_get_param_b<srs::spar::ns>(params, "ns", srs::dpar::ns);
                 par.es = 0.;
             }
 
@@ -255,12 +241,13 @@ namespace projections
         \par Example
         \image html ex_bipc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct bipc_spheroid : public detail::bipc::base_bipc_spheroid<T, Parameters>
     {
-        inline bipc_spheroid(const Parameters& par) : detail::bipc::base_bipc_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline bipc_spheroid(Params const& params, Parameters & par)
         {
-            detail::bipc::setup_bipc(this->m_par, this->m_proj_parm);
+            detail::bipc::setup_bipc(params, par, this->m_proj_parm);
         }
     };
 
@@ -269,23 +256,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::bipc, bipc_spheroid, bipc_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_bipc, bipc_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class bipc_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(bipc_entry, bipc_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(bipc_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<bipc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void bipc_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("bipc", new bipc_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(bipc, bipc_entry)
         }
 
     } // namespace detail

@@ -20,6 +20,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range/functions.hpp>
 #include <boost/range/metafunctions.hpp>
 
@@ -93,7 +94,7 @@ struct ring_area
         assert_dimension<Ring, 2>();
 
         // Ignore warning (because using static method sometimes) on strategy
-        boost::ignore_unused_variable_warning(strategy);
+        boost::ignore_unused(strategy);
 
         // An open ring has at least three points,
         // A closed ring has at least four points,
@@ -215,15 +216,20 @@ struct area<MultiGeometry, multi_polygon_tag> : detail::multi_sum
 namespace resolve_strategy
 {
 
+template <typename Strategy>
 struct area
 {
-    template <typename Geometry, typename Strategy>
+    template <typename Geometry>
     static inline typename area_result<Geometry, Strategy>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         return dispatch::area<Geometry>::apply(geometry, strategy);
     }
+};
 
+template <>
+struct area<default_strategy>
+{
     template <typename Geometry>
     static inline typename area_result<Geometry>::type
     apply(Geometry const& geometry, default_strategy)
@@ -251,7 +257,7 @@ struct area
     static inline typename area_result<Geometry, Strategy>::type
         apply(Geometry const& geometry, Strategy const& strategy)
     {
-        return resolve_strategy::area::apply(geometry, strategy);
+        return resolve_strategy::area<Strategy>::apply(geometry, strategy);
     }
 };
 

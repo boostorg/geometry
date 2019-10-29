@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -65,14 +65,29 @@ struct test_envelope<FormulaPolicy, bg::geographic_tag>
     static inline void apply(Geometry& geometry,
                              Box& detected)
     {
-        bg::strategy::envelope::geographic_segment
-                <
-                    FormulaPolicy,
-                    bg::srs::spheroid<double>,
-                    double                                        
-                > envelope_geographic_segment_strategy;
+        typedef bg::strategy::envelope::spherical_point point_strategy_t;
+        typedef bg::strategy::envelope::spherical_multipoint multi_point_strategy_t;
+        typedef bg::strategy::envelope::spherical_box box_strategy_t;
+        typedef bg::strategy::envelope::geographic<FormulaPolicy, bg::srs::spheroid<double>, double> strategy_t;
 
-        bg::envelope(geometry, detected, envelope_geographic_segment_strategy);
+        typename boost::mpl::if_c
+            <
+                boost::is_same<typename bg::tag<Geometry>::type, bg::point_tag>::value,
+                point_strategy_t,
+                typename boost::mpl::if_c
+                    <
+                        boost::is_same<typename bg::tag<Geometry>::type, bg::multi_point_tag>::value,
+                        multi_point_strategy_t,
+                        typename boost::mpl::if_c
+                            <
+                                boost::is_same<typename bg::tag<Geometry>::type, bg::box_tag>::value,
+                                box_strategy_t,
+                                strategy_t
+                            >::type
+                    >::type
+            >::type strategy;
+
+        bg::envelope(geometry, detected, strategy);
     }
 };
 
@@ -2293,11 +2308,11 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_multilinestring )
                   from_wkt<G>("MULTILINESTRING((10 15))"),
                   10, 15, 10, 15);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply("ml01a",
                   from_wkt<G>("MULTILINESTRING((),(),(10 15),())"),
                   10, 15, 10, 15);
-#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#endif
 
     tester::apply("ml02",
                   from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
@@ -2357,11 +2372,11 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_multilinestring )
                   from_wkt<G>("MULTILINESTRING((10 15))"),
                   10, 15, 10, 15);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply("ml01a",
                   from_wkt<G>("MULTILINESTRING((),(),(10 15),())"),
                   10, 15, 10, 15);
-#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#endif
 
     tester::apply("ml02",
                   from_wkt<G>("MULTILINESTRING((-170 40,-100 80,10 40),(-10 25,10 35,100 45),(50 30,150 45,-160 30))"),
@@ -2401,11 +2416,11 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_sphere_with_height )
                   from_wkt<G>("MULTILINESTRING((10 15 1000))"),
                   10, 15, 1000, 10, 15, 1000);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply("mlh01a",
                   from_wkt<G>("MULTILINESTRING((),(),(10 15 1000),())"),
                   10, 15, 1000, 10, 15, 1000);
-#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#endif
 
     tester::apply("mlh02",
                   from_wkt<G>("MULTILINESTRING((-170 40 400,-100 80 300),(-10 25 600,10 35 700,120 45 450))"),
@@ -2424,11 +2439,11 @@ BOOST_AUTO_TEST_CASE( envelope_multilinestring_spheroid_with_height )
                   from_wkt<G>("MULTILINESTRING((10 15 1000))"),
                   10, 15, 1000, 10, 15, 1000);
 
-#ifdef BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     tester::apply("mlh01a",
                   from_wkt<G>("MULTILINESTRING((),(),(10 15 1000),())"),
                   10, 15, 1000, 10, 15, 1000);
-#endif // BOOST_GEOMETRY_INCLUDE_FAILING_TESTS
+#endif
 
     tester::apply("mlh02",
                   from_wkt<G>("MULTILINESTRING((-170 40 400,-100 80 300),(-10 25 600,10 35 700,120 45 450))"),
@@ -2469,6 +2484,17 @@ BOOST_AUTO_TEST_CASE( envelope_polygon )
                   from_wkt<G>("POLYGON((),(0.5 0.5,0.5 0.7,0.7 0.7,0.5 0.5),\
                               (0.7 0.5,0.9 0.5,0.9 0.7,0.7 0.5))"),
                   0.5, 0.5, 0.9, 0.70000106605644807);
+
+    // https://github.com/boostorg/geometry/issues/466
+    tester::apply("p5-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.9021,2.4 48.89,2.3 48.89,2.3 48.9021,2.4 48.9021))"),
+                  2.3, 48.89, 2.4, 48.902110807274966);
+    tester::apply("p6-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.90215,2.4 48.89,2.3 48.89,2.3 48.90215,2.4 48.90215))"),
+                  2.3, 48.89, 2.4, 48.902160807272381);
+    tester::apply("p7-issue466",
+                  from_wkt<G>("POLYGON((2.4 48.9022,2.4 48.89,2.3 48.89,2.3 48.9022,2.4 48.9022))"),
+                  2.3, 48.89, 2.4, 48.902210807269796);
 }
 
 // unit test for rings de-activated for now (current implementation

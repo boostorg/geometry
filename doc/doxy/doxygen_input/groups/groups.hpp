@@ -4,7 +4,9 @@
 
 // This file was modified by Oracle on 2018.
 // Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -32,8 +34,11 @@
 \defgroup cs coordinate systems
 \defgroup densify densify: add points to geometry, keeping shape
 \defgroup difference difference: difference of two geometries
+\defgroup discrete_frechet_distance discrete_frechet_distance : calculate discrete frechet distance between two geometries
+\defgroup discrete_hausdorff_distance discrete_hausdorff_distance : calculate discrete hausdorff distance between two geometries
 \defgroup disjoint disjoint: detect if geometries are not spatially related
 \defgroup distance distance: calculate distance between two geometries
+\defgroup dsv: stream DSV (Delimiter-Separated Values)
 \defgroup enum enum: enumerations
 \defgroup envelope envelope: calculate envelope (minimum bounding rectangle) of a geometry
 \defgroup equals equals: detect if two geometries are spatially equal
@@ -50,6 +55,7 @@
 \defgroup is_valid is_valid: detect if a geometry is valid
 \defgroup iterators iterators: iterators
 \defgroup length length: calculate length of a linear geometry
+\defgroup line_interpolate line_interpolate: interpolates points on a linestring
 \defgroup make make: construct geometries
 \defgroup num_geometries number of geometries: calculate the number of geometries in a multi-geometry
 \defgroup num_interior_rings number of interior rings: calculate the number of interior rings

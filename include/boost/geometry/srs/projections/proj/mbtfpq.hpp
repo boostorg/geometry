@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,21 +50,15 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct mbtfpq {}; // McBryde-Thomas Flat-Polar Quartic
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace mbtfpq
     {
 
-            static const int NITER = 20;
-            static const double EPS = 1e-7;
-            static const double ONETOL = 1.000001;
+            static const int n_iter = 20;
+            static const double epsilon = 1e-7;
+            static const double one_plus_tol = 1.000001;
             static const double C = 1.70710678118654752440;
             static const double RC = 0.58578643762690495119;
             static const double FYC = 1.87475828462269495505;
@@ -72,32 +66,21 @@ namespace projections
             static const double FXC = 0.31245971410378249250;
             static const double RXC = 3.20041258076506210122;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_mbtfpq_spheroid : public base_t_fi<base_mbtfpq_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_mbtfpq_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_mbtfpq_spheroid(const Parameters& par)
-                    : base_t_fi<base_mbtfpq_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType th1, c;
+                    T th1, c;
                     int i;
 
                     c = C * sin(lp_lat);
-                    for (i = NITER; i; --i) {
+                    for (i = n_iter; i; --i) {
                         lp_lat -= th1 = (sin(.5*lp_lat) + sin(lp_lat) - c) /
                             (.5*cos(.5*lp_lat)  + cos(lp_lat));
-                        if (fabs(th1) < EPS) break;
+                        if (fabs(th1) < epsilon) break;
                     }
                     xy_x = FXC * lp_lon * (1.0 + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     xy_y = FYC * sin(0.5 * lp_lat);
@@ -105,31 +88,31 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T pi = detail::pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType t;
+                    T t;
 
                     lp_lat = RYC * xy_y;
                     if (fabs(lp_lat) > 1.) {
-                        if (fabs(lp_lat) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (fabs(lp_lat) > one_plus_tol) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else if (lp_lat < 0.) {
-                            t = -1.; lp_lat = -ONEPI;
+                            t = -1.; lp_lat = -pi;
                         } else {
-                            t = 1.; lp_lat = ONEPI;
+                            t = 1.; lp_lat = pi;
                         }
                     } else
                         lp_lat = 2. * asin(t = lp_lat);
                     lp_lon = RXC * xy_x / (1. + 2. * cos(lp_lat)/cos(0.5 * lp_lat));
                     lp_lat = RC * (t + sin(lp_lat));
                     if (fabs(lp_lat) > 1.)
-                        if (fabs(lp_lat) > ONETOL) {
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if (fabs(lp_lat) > one_plus_tol) {
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         } else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                     else
                         lp_lat = asin(lp_lat);
                 }
@@ -163,12 +146,13 @@ namespace projections
         \par Example
         \image html ex_mbtfpq.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct mbtfpq_spheroid : public detail::mbtfpq::base_mbtfpq_spheroid<T, Parameters>
     {
-        inline mbtfpq_spheroid(const Parameters& par) : detail::mbtfpq::base_mbtfpq_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline mbtfpq_spheroid(Params const& , Parameters & par)
         {
-            detail::mbtfpq::setup_mbtfpq(this->m_par);
+            detail::mbtfpq::setup_mbtfpq(par);
         }
     };
 
@@ -177,23 +161,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::mbtfpq, mbtfpq_spheroid, mbtfpq_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_mbtfpq, mbtfpq_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class mbtfpq_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(mbtfpq_entry, mbtfpq_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(mbtfpq_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<mbtfpq_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void mbtfpq_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("mbtfpq", new mbtfpq_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(mbtfpq, mbtfpq_entry)
         }
 
     } // namespace detail

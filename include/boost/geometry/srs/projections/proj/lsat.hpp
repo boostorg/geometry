@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,29 +40,24 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_LSAT_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_LSAT_HPP
 
-#include <boost/geometry/util/math.hpp>
-
+#include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
-#include <boost/geometry/srs/projections/impl/aasincos.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct lsat {}; // Space oblique for LANDSAT
-
-}} //namespace srs::par4
 
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace lsat
     {
-            static const double TOL = 1e-7;
+            static const double tolerance = 1e-7;
 
             template <typename T>
             struct par_lsat
@@ -98,78 +93,68 @@ namespace projections
                 proj_parm.c3 += fc * cos(lam * 3.);
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_lsat_ellipsoid : public base_t_fi<base_lsat_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_lsat_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_lsat<CalculationType> m_proj_parm;
-
-                inline base_lsat_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_lsat_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_lsat<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType PI_HALFPI = detail::PI_HALFPI<CalculationType>();
-                    static const CalculationType TWOPI_HALFPI = detail::TWOPI_HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T one_and_half_pi = detail::one_and_half_pi<T>();
+                    static const T two_and_half_pi = detail::two_and_half_pi<T>();
 
                     int l, nn;
-                    CalculationType lamt = 0.0, xlam, sdsq, c, d, s, lamdp = 0.0, phidp, lampp, tanph;
-                    CalculationType lamtp, cl, sd, sp, sav, tanphi;
+                    T lamt = 0.0, xlam, sdsq, c, d, s, lamdp = 0.0, phidp, lampp, tanph;
+                    T lamtp, cl, sd, sp, sav, tanphi;
 
-                    if (lp_lat > HALFPI)
-                        lp_lat = HALFPI;
-                    else if (lp_lat < -HALFPI)
-                        lp_lat = -HALFPI;
+                    if (lp_lat > half_pi)
+                        lp_lat = half_pi;
+                    else if (lp_lat < -half_pi)
+                        lp_lat = -half_pi;
 
                     if (lp_lat >= 0. )
-                        lampp = HALFPI;
+                        lampp = half_pi;
                     else
-                        lampp = PI_HALFPI;
+                        lampp = one_and_half_pi;
                     tanphi = tan(lp_lat);
                     for (nn = 0;;) {
-                        CalculationType fac;
+                        T fac;
                         sav = lampp;
                         lamtp = lp_lon + this->m_proj_parm.p22 * lampp;
                         cl = cos(lamtp);
-                        if (fabs(cl) < TOL)
-                            lamtp -= TOL;
+                        if (fabs(cl) < tolerance)
+                            lamtp -= tolerance;
                         if( cl < 0 )
-                            fac = lampp + sin(lampp) * HALFPI;
+                            fac = lampp + sin(lampp) * half_pi;
                         else
-                            fac = lampp - sin(lampp) * HALFPI;
+                            fac = lampp - sin(lampp) * half_pi;
                         for (l = 50; l; --l) {
                             lamt = lp_lon + this->m_proj_parm.p22 * sav;
                             c = cos(lamt);
-                            if (fabs(c) < TOL)
-                                lamt -= TOL;
-                            xlam = (this->m_par.one_es * tanphi * this->m_proj_parm.sa + sin(lamt) * this->m_proj_parm.ca) / c;
+                            if (fabs(c) < tolerance)
+                                lamt -= tolerance;
+                            xlam = (par.one_es * tanphi * this->m_proj_parm.sa + sin(lamt) * this->m_proj_parm.ca) / c;
                             lamdp = atan(xlam) + fac;
-                            if (fabs(fabs(sav) - fabs(lamdp)) < TOL)
+                            if (fabs(fabs(sav) - fabs(lamdp)) < tolerance)
                                 break;
                             sav = lamdp;
                         }
                         if (!l || ++nn >= 3 || (lamdp > this->m_proj_parm.rlm && lamdp < this->m_proj_parm.rlm2))
                             break;
                         if (lamdp <= this->m_proj_parm.rlm)
-                            lampp = TWOPI_HALFPI;
+                            lampp = two_and_half_pi;
                         else if (lamdp >= this->m_proj_parm.rlm2)
-                            lampp = HALFPI;
+                            lampp = half_pi;
                     }
                     if (l) {
                         sp = sin(lp_lat);
-                        phidp = aasin((this->m_par.one_es * this->m_proj_parm.ca * sp - this->m_proj_parm.sa * cos(lp_lat) *
-                            sin(lamt)) / sqrt(1. - this->m_par.es * sp * sp));
-                        tanph = log(tan(FORTPI + .5 * phidp));
+                        phidp = aasin((par.one_es * this->m_proj_parm.ca * sp - this->m_proj_parm.sa * cos(lp_lat) *
+                            sin(lamt)) / sqrt(1. - par.es * sp * sp));
+                        tanph = log(tan(fourth_pi + .5 * phidp));
                         sd = sin(lamdp);
                         sdsq = sd * sd;
                         s = this->m_proj_parm.p22 * this->m_proj_parm.sa * cos(lamdp) * sqrt((1. + this->m_proj_parm.t * sdsq)
@@ -184,13 +169,13 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     int nn;
-                    CalculationType lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
+                    T lamt, sdsq, s, lamdp, phidp, sppsq, dd, sd, sl, fac, scl, sav, spp;
 
                     lamdp = xy_x / this->m_proj_parm.b;
                     nn = 50;
@@ -204,29 +189,29 @@ namespace projections
                             2. * lamdp) - this->m_proj_parm.a4 * sin(lamdp * 4.) - s / this->m_proj_parm.xj * (
                             this->m_proj_parm.c1 * sin(lamdp) + this->m_proj_parm.c3 * sin(lamdp * 3.));
                         lamdp /= this->m_proj_parm.b;
-                    } while (fabs(lamdp - sav) >= TOL && --nn);
+                    } while (fabs(lamdp - sav) >= tolerance && --nn);
                     sl = sin(lamdp);
                     fac = exp(sqrt(1. + s * s / this->m_proj_parm.xj / this->m_proj_parm.xj) * (xy_y -
                         this->m_proj_parm.c1 * sl - this->m_proj_parm.c3 * sin(lamdp * 3.)));
-                    phidp = 2. * (atan(fac) - FORTPI);
+                    phidp = 2. * (atan(fac) - fourth_pi);
                     dd = sl * sl;
-                    if (fabs(cos(lamdp)) < TOL)
-                        lamdp -= TOL;
+                    if (fabs(cos(lamdp)) < tolerance)
+                        lamdp -= tolerance;
                     spp = sin(phidp);
                     sppsq = spp * spp;
-                    lamt = atan(((1. - sppsq * this->m_par.rone_es) * tan(lamdp) *
+                    lamt = atan(((1. - sppsq * par.rone_es) * tan(lamdp) *
                         this->m_proj_parm.ca - spp * this->m_proj_parm.sa * sqrt((1. + this->m_proj_parm.q * dd) * (
                         1. - sppsq) - sppsq * this->m_proj_parm.u) / cos(lamdp)) / (1. - sppsq
                         * (1. + this->m_proj_parm.u)));
                     sl = lamt >= 0. ? 1. : -1.;
                     scl = cos(lamdp) >= 0. ? 1. : -1;
-                    lamt -= HALFPI * (1. - scl) * sl;
+                    lamt -= half_pi * (1. - scl) * sl;
                     lp_lon = lamt - this->m_proj_parm.p22 * lamdp;
-                    if (fabs(this->m_proj_parm.sa) < TOL)
-                        lp_lat = aasin(spp / sqrt(this->m_par.one_es * this->m_par.one_es + this->m_par.es * sppsq));
+                    if (fabs(this->m_proj_parm.sa) < tolerance)
+                        lp_lat = aasin(spp / sqrt(par.one_es * par.one_es + par.es * sppsq));
                     else
                         lp_lat = atan((tan(lamdp) * cos(lamt) - this->m_proj_parm.ca * sin(lamt)) /
-                            (this->m_par.one_es * this->m_proj_parm.sa));
+                            (par.one_es * this->m_proj_parm.sa));
                 }
 
                 static inline std::string get_name()
@@ -237,32 +222,32 @@ namespace projections
             };
 
             // Space oblique for LANDSAT
-            template <typename Parameters, typename T>
-            inline void setup_lsat(Parameters& par, par_lsat<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_lsat(Params const& params, Parameters& par, par_lsat<T>& proj_parm)
             {
-                static T const DEG_TO_RAD = geometry::math::d2r<T>();
-                static T const ONEPI = detail::ONEPI<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const d2r = geometry::math::d2r<T>();
+                static T const pi = detail::pi<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 int land, path;
                 T lam, alf, esc, ess;
 
-                land = pj_param(par.params, "ilsat").i;
+                land = pj_get_param_i<srs::spar::lsat>(params, "lsat", srs::dpar::lsat);
                 if (land <= 0 || land > 5)
-                    BOOST_THROW_EXCEPTION( projection_exception(-28) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lsat_not_in_range) );
 
-                path = pj_param(par.params, "ipath").i;
+                path = pj_get_param_i<srs::spar::path>(params, "path", srs::dpar::path);
                 if (path <= 0 || path > (land <= 3 ? 251 : 233))
-                    BOOST_THROW_EXCEPTION( projection_exception(-29) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_path_not_in_range) );
 
                 if (land <= 3) {
-                    par.lam0 = DEG_TO_RAD * 128.87 - TWOPI / 251. * path;
+                    par.lam0 = d2r * 128.87 - two_pi / 251. * path;
                     proj_parm.p22 = 103.2669323;
-                    alf = DEG_TO_RAD * 99.092;
+                    alf = d2r * 99.092;
                 } else {
-                    par.lam0 = DEG_TO_RAD * 129.3 - TWOPI / 233. * path;
+                    par.lam0 = d2r * 129.3 - two_pi / 233. * path;
                     proj_parm.p22 = 98.8841202;
-                    alf = DEG_TO_RAD * 98.2;
+                    alf = d2r * 98.2;
                 }
                 proj_parm.p22 /= 1440.;
                 proj_parm.sa = sin(alf);
@@ -277,8 +262,8 @@ namespace projections
                 proj_parm.t = ess * (2. - par.es) * par.rone_es * par.rone_es;
                 proj_parm.u = esc * par.rone_es;
                 proj_parm.xj = par.one_es * par.one_es * par.one_es;
-                proj_parm.rlm = ONEPI * (1. / 248. + .5161290322580645);
-                proj_parm.rlm2 = proj_parm.rlm + TWOPI;
+                proj_parm.rlm = pi * (1. / 248. + .5161290322580645);
+                proj_parm.rlm2 = proj_parm.rlm + two_pi;
                 proj_parm.a2 = proj_parm.a4 = proj_parm.b = proj_parm.c1 = proj_parm.c3 = 0.;
                 seraz0(0., 1., proj_parm);
                 for (lam = 9.; lam <= 81.0001; lam += 18.)
@@ -312,12 +297,13 @@ namespace projections
         \par Example
         \image html ex_lsat.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct lsat_ellipsoid : public detail::lsat::base_lsat_ellipsoid<T, Parameters>
     {
-        inline lsat_ellipsoid(const Parameters& par) : detail::lsat::base_lsat_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline lsat_ellipsoid(Params const& params, Parameters & par)
         {
-            detail::lsat::setup_lsat(this->m_par, this->m_proj_parm);
+            detail::lsat::setup_lsat(params, par, this->m_proj_parm);
         }
     };
 
@@ -326,23 +312,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::lsat, lsat_ellipsoid, lsat_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_lsat, lsat_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class lsat_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(lsat_entry, lsat_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(lsat_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<lsat_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void lsat_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("lsat", new lsat_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(lsat, lsat_entry)
         }
 
     } // namespace detail

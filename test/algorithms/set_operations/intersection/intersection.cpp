@@ -46,12 +46,15 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area)
 
-#if defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-    #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-        { ut_settings ignore_validity; ignore_validity.test_validity = false; \
-        (test_one<Polygon, Polygon, Polygon>) \
-        ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
-#endif
+#define TEST_INTERSECTION_REV(caseid, clips, points, area) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
+
+#define TEST_INTERSECTION_WITH(caseid, index1, index2, \
+     clips, points, area, settings) \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid "_" #index1 "_" #index2, caseid[index1], caseid[index2], \
+     clips, points, area, settings)
 
 template <typename Polygon>
 void test_areal()
@@ -175,10 +178,7 @@ void test_areal()
 
     {
         ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
-
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        settings.test_validity = false;
-#endif
+        settings.test_validity = BG_IF_RESCALED(true, false);
 
         // SQL Server gives: 88.1920416352664
         // PostGIS gives:    88.19203677911
@@ -188,27 +188,27 @@ void test_areal()
             settings);
     }
 
-    test_one<Polygon, Polygon, Polygon>("geos_1",
-        geos_1[0], geos_1[1],
-            1, -1, 3461.0214843, // MSVC 14 reports 3461.025390625
-            ut_settings(0.005, false));
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<ct, float>::value)) )
+    {
+        test_one<Polygon, Polygon, Polygon>("geos_1",
+            geos_1[0], geos_1[1],
+                1, -1, 3461.12321694, // MSVC 14 reports 3461.025390625
+                ut_settings(0.01, false));
+    }
 
     // Expectations:
     // In most cases: 0 (no intersection)
     // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
     // In some cases: 5.6022983000000002e-05 (powerpc64le-gcc-6-0)
-    test_one<Polygon, Polygon, Polygon>("geos_2",
-        geos_2[0], geos_2[1],
+    test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
             0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("geos_3",
         geos_3[0], geos_3[1],
             0, 0, 0.0);
-#endif
     test_one<Polygon, Polygon, Polygon>("geos_4",
         geos_4[0], geos_4[1],
-            1, -1, 0.08368849);
+            1, -1, 0.08368849, ut_settings(0.01));
 
 
     if ( BOOST_GEOMETRY_CONDITION(! ccw && open) )
@@ -226,23 +226,15 @@ void test_areal()
 
     // SQL Server reports: 0.400390625
     // PostGIS reports 0.4
-    // BG did report 0.4 but is changed to 0.397
+    // BG did report 0.4 but with rescaling 0.397
     // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4,
-        #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-            0.40
-        #else
-            0.397162651, ut_settings(0.01)
-        #endif
-            );
+        1, 4, BG_IF_RESCALED(0.397162651, 0.40), ut_settings(0.01));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         1, if_typed_tt<ct>(6, 5), 11151.6618);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
@@ -261,27 +253,29 @@ void test_areal()
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
         0, 0, 0, ut_settings(0.1));
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
+    TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
+
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || !defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
-
+#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                1, 4, 3.635930e-08, ut_settings(0.01));
+                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 3.635930e-08), ut_settings(0.01));
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
-                1, 4, 4.34355e-05, ut_settings(0.01));
+                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 4.34355e-05), ut_settings(0.01));
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
                 1, 4, 0.0003);
 
-    test_one<Polygon, Polygon, Polygon>("ticket_8310a", ticket_8310a[0], ticket_8310a[1],
-                1, 5, 0.3843747);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310b", ticket_8310b[0], ticket_8310b[1],
-                1, 5, 0.3734379);
-    test_one<Polygon, Polygon, Polygon>("ticket_8310c", ticket_8310c[0], ticket_8310c[1],
-                1, 5, 0.4689541);
+    TEST_INTERSECTION(ticket_8310a, 1, 5, 0.3843747);
+    TEST_INTERSECTION(ticket_8310b, 1, 5, 0.3734379);
+    TEST_INTERSECTION(ticket_8310c, 1, 5, 0.4689541);
+    TEST_INTERSECTION_REV(ticket_8310a, 1, 5, 0.3843747);
+    TEST_INTERSECTION_REV(ticket_8310b, 1, 5, 0.3734379);
+    TEST_INTERSECTION_REV(ticket_8310c, 1, 5, 0.4689541);
 
     test_one<Polygon, Polygon, Polygon>("ticket_9081_15",
                 ticket_9081_15[0], ticket_9081_15[1],
@@ -291,13 +285,11 @@ void test_areal()
                 ticket_10108_a[0], ticket_10108_a[1],
                 0, 0, 0.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     // msvc  5.6023011e-5
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-                0, 0, 5.6022983e-5);
-#endif
+            0, 0, 5.6022983e-5, ut_settings(-1.0));
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
@@ -311,16 +303,31 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_10747_d",
                 ticket_10747_d[0], ticket_10747_d[1],
                 1, 4, 703687777321.0);
+
+    // Delivers very small triangle < 1.0e-13, or zero
     test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
                 ticket_10747_e[0], ticket_10747_e[1],
-                1, 4, 7.0368748575710959e-15);
+                BG_IF_RESCALED(1, 0), -1, 1.0e-13, ut_settings(-1.0));
 
     test_one<Polygon, Polygon, Polygon>("ticket_11576",
                 ticket_11576[0], ticket_11576[1],
-                1, 0, 5.585617332907136e-07);
+                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 5.585617332907136e-07));
 
-    test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
-                1, 8, 129.90381);
+    {
+        // Not yet valid when rescaling is turned off
+        ut_settings settings;
+        settings.test_validity = BG_IF_RESCALED(true, false);
+        test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
+                    1, 8, 129.90381, settings);
+    }
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // With rescaling the output is empty
+    TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
+#endif
+
+    TEST_INTERSECTION(issue_566_a, 1, -1, 70.7107);
+    TEST_INTERSECTION(issue_566_b, 1, -1, 70.7107);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
@@ -354,15 +361,62 @@ void test_areal()
         0, -1, 0.0);
 
     TEST_INTERSECTION(case_105, 1, 34, 76.0);
-
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
-#else
-    TEST_INTERSECTION_IGNORE(case_106, 0, -1, 3.5);
-    TEST_INTERSECTION_IGNORE(case_107, 0, -1, 3.0);
-#endif
 
+    TEST_INTERSECTION(case_precision_1, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_2, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_4, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_6, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_7, 0, -1, 0.0);
+    TEST_INTERSECTION(case_precision_8, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_9, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_10, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_11, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_12, 1, -1, 2.0);
+    TEST_INTERSECTION(case_precision_13, 1, -1, 1.99998);
+    TEST_INTERSECTION(case_precision_14, 0, -1, 0.0);
+    TEST_INTERSECTION(case_precision_15, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_16, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_17, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_18, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_19, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_22, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_23, 1, -1, 14.0);
+    TEST_INTERSECTION(case_precision_24, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_25, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_26, 1, -1, 14.0);
+
+    TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_4, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_6, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_7, 0, -1, 0.0);
+    TEST_INTERSECTION_REV(case_precision_8, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_9, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_10, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_11, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_12, 1, -1, 2.0);
+    TEST_INTERSECTION_REV(case_precision_13, 1, -1, 1.99998);
+    TEST_INTERSECTION_REV(case_precision_14, 0, -1, 0.0);
+    TEST_INTERSECTION_REV(case_precision_15, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_16, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_17, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_18, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_19, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_20, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_21, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_22, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_23, 1, -1, 14.0);
+    TEST_INTERSECTION_REV(case_precision_24, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_25, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_26, 1, -1, 14.0);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964049",
         mysql_21964049[0], mysql_21964049[1],
@@ -377,12 +431,7 @@ void test_areal()
         mysql_21965285_b_inv[1],
         2, -1, 183.71376870369406);
 
-    // Needs self-intersections to solve validity
-#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
-#else
-    TEST_INTERSECTION_IGNORE(mysql_23023665_6, 1, -1, 11.812440191387557);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
@@ -890,7 +939,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
-#endif
 
     // Commented, because exception is now disabled:
     // test_exception<bg::model::d2::point_xy<double> >();
@@ -902,7 +950,7 @@ int test_main(int, char* [])
 
     test_boxes_nd<double>();
 
-#ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // ticket #10868 still fails for 32-bit integers
     test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 
@@ -917,6 +965,7 @@ int test_main(int, char* [])
 
 #if defined(BOOST_HAS_LONG_LONG)
     test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
+#endif
 #endif
 #endif
 

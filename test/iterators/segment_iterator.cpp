@@ -701,6 +701,7 @@ BOOST_AUTO_TEST_CASE( test_linestring_of_point_pointers )
     test::test_point_xy* zero = new test::test_point_xy;
     zero->x = 0;
     zero->y = 0;
+    delete zero;
 
     typedef test_segment_iterator_of_geometry<L, TML> tester;
 

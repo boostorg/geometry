@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -99,7 +99,9 @@ struct self_section_visitor
     template <typename Section>
     inline bool apply(Section const& sec1, Section const& sec2)
     {
-        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box, sec2.bounding_box)
+        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
+                                                 sec2.bounding_box,
+                                                 m_intersection_strategy.get_disjoint_box_box_strategy())
                 && ! sec1.duplicate
                 && ! sec2.duplicate)
         {
@@ -154,7 +156,8 @@ struct get_turns
 
         sections_type sec;
         geometry::sectionalize<Reverse, dimensions>(geometry, robust_policy, sec,
-                                                  intersection_strategy.get_envelope_strategy());
+                                                    intersection_strategy.get_envelope_strategy(),
+                                                    intersection_strategy.get_expand_strategy());
 
         self_section_visitor
             <
@@ -162,13 +165,22 @@ struct get_turns
                 Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
             > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index, skip_adjacent);
 
+        typedef detail::section::get_section_box
+            <
+                typename IntersectionStrategy::expand_box_strategy_type
+            > get_section_box_type;
+        typedef detail::section::overlaps_section_box
+            <
+                typename IntersectionStrategy::disjoint_box_box_strategy_type
+            > overlaps_section_box_type;
+
         // false if interrupted
         geometry::partition
             <
                 box_type
             >::apply(sec, visitor,
-                     detail::section::get_section_box(),
-                     detail::section::overlaps_section_box());
+                     get_section_box_type(),
+                     overlaps_section_box_type());
 
         return ! interrupt_policy.has_intersections;
     }
@@ -324,6 +336,8 @@ inline void self_turns(Geometry const& geometry,
     \param turns container which will contain intersection points
     \param interrupt_policy policy determining if process is stopped
         when intersection is found
+    \param source_index source index for generated turns
+    \param skip_adjacent indicates if adjacent turns should be skipped
  */
 template
 <

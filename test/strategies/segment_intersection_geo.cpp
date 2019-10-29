@@ -50,22 +50,22 @@ void test_geographic()
     test_strategies<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(-45 45, 45 -45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(-45 -45, 45 45)", "SEGMENT(45 -45, -45 45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(45 45, -45 -45)", "SEGMENT(-45 45, 45 -45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
     test_strategies<segment_t, point_t>(
         "SEGMENT(45 45, -45 -45)", "SEGMENT(45 -45, -45 45)",
         great_elliptic('i', "POINT(0 0)"),
-        geodesic_vincenty('i', "POINT(0 -0.0000000019543337739)"),
+        geodesic_vincenty('i', "POINT(0.000000001380087204053 -0.0000000000000063611)"),
         geodesic_andoyer('i', "POINT(0 0.0003512140328446071)"));
 
     // crossing   X
@@ -407,7 +407,6 @@ void test_geographic_radian()
     typedef bg::model::point<T, 2, bg::cs::geographic<bg::radian> > point_t;
     typedef bg::model::segment<point_t> segment_t;
 
-    T const d2r = bg::math::d2r<T>();
     bg::strategy::intersection::geographic_segments<bg::strategy::vincenty> strategy;
 
     // https://github.com/boostorg/geometry/issues/470

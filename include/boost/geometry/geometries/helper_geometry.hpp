@@ -32,60 +32,6 @@ namespace boost { namespace geometry
 namespace detail { namespace helper_geometries
 {
 
-template <typename Geometry, typename CS_Tag = typename cs_tag<Geometry>::type>
-struct default_units
-{
-    typedef typename coordinate_system<Geometry>::type::units type;
-};
-
-// The Cartesian coordinate system does not define the type units.
-// For that reason the generic implementation for default_units cannot be used
-// and specialization needs to be defined.
-// Moreover, it makes sense to define the units for the Cartesian
-// coordinate system to be radians, as this way a Cartesian point can
-// potentially be used in algorithms taking non-Cartesian strategies
-// and work as if it was as point in the non-Cartesian coordinate
-// system with radian units.
-template <typename Geometry>
-struct default_units<Geometry, cartesian_tag>
-{
-    typedef radian type;
-};
-
-
-template <typename Units, typename CS_Tag>
-struct cs_tag_to_coordinate_system
-{
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM,
-                         (types<CS_Tag>));
-};
-
-template <typename Units>
-struct cs_tag_to_coordinate_system<Units, cartesian_tag>
-{
-    typedef cs::cartesian type;
-};
-
-template <typename Units>
-struct cs_tag_to_coordinate_system<Units, spherical_equatorial_tag>
-{
-    typedef cs::spherical_equatorial<Units> type;
-};
-
-template <typename Units>
-struct cs_tag_to_coordinate_system<Units, spherical_polar_tag>
-{
-    typedef cs::spherical<Units> type;
-};
-
-template <typename Units>
-struct cs_tag_to_coordinate_system<Units, geographic_tag>
-{
-    typedef cs::geographic<Units> type;
-};
-
-
 template
 <
     typename Point,
@@ -154,10 +100,7 @@ template
 <
     typename Geometry,
     typename NewCoordinateType = typename coordinate_type<Geometry>::type,
-    typename NewUnits = typename detail::helper_geometries::default_units
-        <
-            Geometry
-        >::type
+    typename NewUnits = typename detail::cs_angular_units<Geometry>::type
 >
 struct helper_geometry
 {

@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -17,6 +21,8 @@
 
 #include <cstddef>
 
+#include <boost/geometry/extensions/algebra/core/access.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_dimension.hpp>
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 #include <boost/geometry/extensions/algebra/geometries/concepts/matrix_concept.hpp>
 
@@ -88,15 +94,6 @@ struct coordinate_type<model::matrix<CoordinateType, Rows, Cols> >
 //    typedef cs::cartesian type;
 //};
 
-// TODO - move this class to traits.hpp
-template <typename Geometry, std::size_t Index>
-struct indexed_dimension
-{
-     BOOST_MPL_ASSERT_MSG(false,
-                          NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEX,
-                          (Geometry, boost::integral_constant<std::size_t, Index>));
-};
-
 template <typename CoordinateType, std::size_t Rows, std::size_t Cols>
 struct indexed_dimension<model::matrix<CoordinateType, Rows, Cols>, 0>
     : boost::integral_constant<std::size_t, Rows>
@@ -108,7 +105,7 @@ struct indexed_dimension<model::matrix<CoordinateType, Rows, Cols>, 1>
 {};
 
 template <typename CoordinateType, std::size_t Rows, std::size_t Cols, std::size_t I, std::size_t J>
-struct indexed_access<model::matrix<CoordinateType, Dimension>, I, J>
+struct indexed_access<model::matrix<CoordinateType, Rows, Cols>, I, J>
 {
     typedef CoordinateType coordinate_type;
 

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -148,13 +148,13 @@ struct point_point_point
                                        Point2 const& point2,
                                        RobustPolicy const& ,
                                        OutputIterator oit,
-                                       Strategy const&)
+                                       Strategy const& strategy)
     {
         action_selector_pl_pl
             <
                 PointOut, OverlayType
             >::apply(point1,
-                     detail::equals::equals_point_point(point1, point2),
+                     detail::equals::equals_point_point(point1, point2, strategy),
                      oit);
 
         return oit;
@@ -182,7 +182,7 @@ struct multipoint_point_point
                                        Point const& point,
                                        RobustPolicy const& ,
                                        OutputIterator oit,
-                                       Strategy const&)
+                                       Strategy const& strategy)
     {
         BOOST_GEOMETRY_ASSERT( OverlayType == overlay_difference );
 
@@ -194,7 +194,7 @@ struct multipoint_point_point
                 <
                     PointOut, OverlayType
                 >::apply(*it,
-                         detail::equals::equals_point_point(*it, point),
+                         detail::equals::equals_point_point(*it, point, strategy),
                          oit);
         }
 
@@ -218,7 +218,7 @@ struct point_multipoint_point
                                        MultiPoint const& multipoint,
                                        RobustPolicy const& ,
                                        OutputIterator oit,
-                                       Strategy const&)
+                                       Strategy const& strategy)
     {
         typedef action_selector_pl_pl<PointOut, OverlayType> action;
 
@@ -226,7 +226,7 @@ struct point_multipoint_point
                  it = boost::begin(multipoint);
              it != boost::end(multipoint); ++it)
         {
-            if ( detail::equals::equals_point_point(*it, point) )
+            if ( detail::equals::equals_point_point(*it, point, strategy) )
             {
                 action::apply(point, true, oit);
                 return oit;
@@ -257,6 +257,8 @@ struct multipoint_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
+        typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+
         if ( OverlayType != overlay_difference
              && boost::size(multipoint1) > boost::size(multipoint2) )
         {
@@ -271,7 +273,7 @@ struct multipoint_multipoint_point
         std::vector<point2_type> points2(boost::begin(multipoint2),
                                          boost::end(multipoint2));
 
-        geometry::less<> const less = geometry::less<>();
+        less_type const less = less_type();
         std::sort(points2.begin(), points2.end(), less);
 
         for (typename boost::range_iterator<MultiPoint1 const>::type

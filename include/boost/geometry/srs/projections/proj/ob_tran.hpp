@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -43,22 +43,15 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
-#include <boost/geometry/srs/projections/impl/aasincos.hpp>
+#include <boost/geometry/srs/projections/impl/pj_ell_set.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    //struct ob_tran_oblique {};
-    //struct ob_tran_transverse {};
-    struct ob_tran {}; // General Oblique Transformation
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -66,111 +59,186 @@ namespace projections
     namespace detail {
     
         // fwd declaration needed below
-        template <typename CalculationType>
-        inline detail::base_v<CalculationType, parameters<CalculationType> >*
-            create_new(parameters<CalculationType> const& parameters);
+        template <typename T>
+        inline detail::dynamic_wrapper_b<T, projections::parameters<T> >*
+            create_new(srs::detail::proj4_parameters const& params,
+                       projections::parameters<T> const& parameters);
+
+        template <typename T>
+        inline detail::dynamic_wrapper_b<T, projections::parameters<T> >*
+            create_new(srs::dpar::parameters<T> const& params,
+                       projections::parameters<T> const& parameters);
 
     } // namespace detail
 
     namespace detail { namespace ob_tran
     {
 
-            static const double TOL = 1e-10;
+            static const double tolerance = 1e-10;
 
             template <typename Parameters>
-            inline Parameters o_proj_parameters(Parameters const& par)
+            inline Parameters o_proj_parameters(srs::detail::proj4_parameters const& params,
+                                                Parameters const& par)
             {
                 /* copy existing header into new */
                 Parameters pj = par;
 
                 /* get name of projection to be translated */
-                pj.name = pj_param(par.params, "so_proj").s;
-                if (pj.name.empty())
-                    BOOST_THROW_EXCEPTION( projection_exception(-26) );
+                pj.id = pj_get_param_s(params, "o_proj");
+                if (pj.id.is_unknown())
+                    BOOST_THROW_EXCEPTION( projection_exception(error_no_rotation_proj) );
 
                 /* avoid endless recursion */
-                if( pj.name == "ob_tran")
-                    BOOST_THROW_EXCEPTION( projection_exception(-37) );
+                if( pj.id.name == "ob_tran")
+                    BOOST_THROW_EXCEPTION( projection_exception(error_failed_to_find_proj) );
 
+                // Commented out for consistency with Proj4 >= 5.0.0
                 /* force spherical earth */
-                pj.one_es = pj.rone_es = 1.;
-                pj.es = pj.e = 0.;
+                //pj.one_es = pj.rone_es = 1.;
+                //pj.es = pj.e = 0.;
 
                 return pj;
             }
 
-            template <typename CalculationType, typename Parameters>
+            template <typename T, typename Parameters>
+            inline Parameters o_proj_parameters(srs::dpar::parameters<T> const& params,
+                                                Parameters const& par)
+            {
+                /* copy existing header into new */
+                Parameters pj = par;
+
+                /* get name of projection to be translated */
+                typename srs::dpar::parameters<T>::const_iterator
+                    it = pj_param_find(params, srs::dpar::o_proj);
+                if (it != params.end())
+                    pj.id = static_cast<srs::dpar::value_proj>(it->template get_value<int>());
+                else
+                    BOOST_THROW_EXCEPTION( projection_exception(error_no_rotation_proj) );
+
+                /* avoid endless recursion */
+                if( pj.id.id == srs::dpar::proj_ob_tran)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_failed_to_find_proj) );
+
+                // Commented out for consistency with Proj4 >= 5.0.0
+                /* force spherical earth */
+                //pj.one_es = pj.rone_es = 1.;
+                //pj.es = pj.e = 0.;
+
+                return pj;
+            }
+
+            template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename Parameters>
+            inline Parameters o_proj_parameters(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& /*params*/,
+                                                Parameters const& par)
+            {
+                /* copy existing header into new */
+                Parameters pj = par;
+
+                /* get name of projection to be translated */
+                typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> params_type;
+                typedef typename srs::spar::detail::tuples_find_if
+                    <
+                        params_type,
+                        srs::spar::detail::is_param_t<srs::spar::o_proj>::pred
+                    >::type o_proj_type;
+
+                static const bool is_found = srs::spar::detail::tuples_is_found<o_proj_type>::value;
+                BOOST_MPL_ASSERT_MSG((is_found), NO_ROTATION_PROJ, (params_type));
+
+                typedef typename o_proj_type::type proj_type;
+                static const bool is_specialized = srs::spar::detail::proj_traits<proj_type>::is_specialized;
+                BOOST_MPL_ASSERT_MSG((is_specialized), NO_ROTATION_PROJ, (params_type));
+
+                pj.id = srs::spar::detail::proj_traits<proj_type>::id;
+
+                /* avoid endless recursion */
+                static const bool is_non_resursive = ! boost::is_same<proj_type, srs::spar::proj_ob_tran>::value;
+                BOOST_MPL_ASSERT_MSG((is_non_resursive), INVALID_O_PROJ_PARAMETER, (params_type));
+
+                // Commented out for consistency with Proj4 >= 5.0.0
+                /* force spherical earth */
+                //pj.one_es = pj.rone_es = 1.;
+                //pj.es = pj.e = 0.;
+
+                return pj;
+            }
+
+            // TODO: It's possible that the original Parameters could be used
+            // instead of a copy in link.
+            // But it's not possible with the current implementation of
+            // dynamic_wrapper_b always storing params
+
+            template <typename T, typename Parameters>
             struct par_ob_tran
             {
-                par_ob_tran(Parameters const& par)
-                    : link(projections::detail::create_new(o_proj_parameters(par)))
+                template <typename Params>
+                par_ob_tran(Params const& params, Parameters const& par)
+                    : link(projections::detail::create_new(params, o_proj_parameters(params, par)))
                 {
                     if (! link.get())
-                        BOOST_THROW_EXCEPTION( projection_exception(-5) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_unknown_projection_id) );
                 }
 
-                template <typename T>
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    link->fwd(lp_lon, lp_lat, xy_x, xy_y);
+                    link->fwd(link->params(), lp_lon, lp_lat, xy_x, xy_y);
                 }
 
-                template <typename T>
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    link->inv(xy_x, xy_y, lp_lon, lp_lat);
+                    link->inv(link->params(), xy_x, xy_y, lp_lon, lp_lat);
                 }
 
-                boost::shared_ptr<base_v<CalculationType, Parameters> > link;
-                CalculationType lamp;
-                CalculationType cphip, sphip;
+                boost::shared_ptr<dynamic_wrapper_b<T, Parameters> > link;
+                T lamp;
+                T cphip, sphip;
             };
 
-            template <typename StaticParameters, typename CalculationType, typename Parameters>
+            template <typename StaticParameters, typename T, typename Parameters>
             struct par_ob_tran_static
             {
                 // this metafunction handles static error handling
-                typedef typename srs::par4::detail::pick_o_proj_tag
+                typedef typename srs::spar::detail::pick_o_proj_tag
                     <
                         StaticParameters
                     >::type o_proj_tag;
 
                 /* avoid endless recursion */
-                static const bool is_o_proj_ob_tran = boost::is_same<o_proj_tag, srs::par4::ob_tran>::value;
-                BOOST_MPL_ASSERT_MSG((! is_o_proj_ob_tran), INVALID_O_PROJ_PARAMETER, (StaticParameters));
+                static const bool is_o_proj_not_ob_tran = ! boost::is_same<o_proj_tag, srs::spar::proj_ob_tran>::value;
+                BOOST_MPL_ASSERT_MSG((is_o_proj_not_ob_tran), INVALID_O_PROJ_PARAMETER, (StaticParameters));
 
                 typedef typename projections::detail::static_projection_type
                     <
                         o_proj_tag,
-                        srs_sphere_tag, // force spherical
+                        // Commented out for consistency with Proj4 >= 5.0.0
+                        //srs_sphere_tag, // force spherical
+                        typename projections::detail::static_srs_tag<StaticParameters>::type,
                         StaticParameters,
-                        CalculationType,
+                        T,
                         Parameters
                     >::type projection_type;
 
-                par_ob_tran_static(Parameters const& par)
-                    : link(o_proj_parameters(par))
+                par_ob_tran_static(StaticParameters const& params, Parameters const& par)
+                    : link(params, o_proj_parameters(params, par))
                 {}
 
-                template <typename T>
-                inline void fwd(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y) const
+                inline void fwd(T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    link.fwd(lp_lon, lp_lat, xy_x, xy_y);
+                    link.fwd(link.params(), lp_lon, lp_lat, xy_x, xy_y);
                 }
 
-                template <typename T>
-                inline void inv(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    link.inv(xy_x, xy_y, lp_lon, lp_lat);
+                    link.inv(link.params(), xy_x, xy_y, lp_lon, lp_lat);
                 }
 
                 projection_type link;
-                CalculationType lamp;
-                CalculationType cphip, sphip;
+                T lamp;
+                T cphip, sphip;
             };
 
             template <typename T, typename Par>
-            inline void o_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& proj_parm)
+            inline void o_forward(T lp_lon, T lp_lat, T& xy_x, T& xy_y, Par const& proj_parm)
             {
                 T coslam, sinphi, cosphi;
                 
@@ -185,7 +253,7 @@ namespace projections
             }
 
             template <typename T, typename Par>
-            inline void o_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& proj_parm)
+            inline void o_inverse(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat, Par const& proj_parm)
             {
                 T coslam, sinphi, cosphi;
 
@@ -201,7 +269,7 @@ namespace projections
             }
 
             template <typename T, typename Par>
-            inline void t_forward(T& lp_lon, T& lp_lat, T& xy_x, T& xy_y, Par const& proj_parm)
+            inline void t_forward(T lp_lon, T lp_lat, T& xy_x, T& xy_y, Par const& proj_parm)
             {
                 T cosphi, coslam;
 
@@ -214,7 +282,7 @@ namespace projections
             }
 
             template <typename T, typename Par>
-            inline void t_inverse(T& xy_x, T& xy_y, T& lp_lon, T& lp_lat, Par const& proj_parm)
+            inline void t_inverse(T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat, Par const& proj_parm)
             {
                 T cosphi, t;
 
@@ -228,42 +296,43 @@ namespace projections
             }
 
             // General Oblique Transformation
-            template <typename CalculationType, typename Parameters, typename ProjParameters>
-            inline CalculationType setup_ob_tran(Parameters & par, ProjParameters& proj_parm)
+            template <typename T, typename Params, typename Parameters, typename ProjParameters>
+            inline T setup_ob_tran(Params const& params, Parameters & /*par*/, ProjParameters& proj_parm)
             {
-                static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                static const T half_pi = detail::half_pi<T>();
 
-                CalculationType phip;
+                T phip, alpha;
 
-                par.es = 0.; /* force to spherical */
+                // Commented out for consistency with Proj4 >= 5.0.0
+                //par.es = 0.; /* force to spherical */
 
                 // proj_parm.link should be created at this point
 
-                if (pj_param(par.params, "to_alpha").i) {
-                    CalculationType lamc, phic, alpha;
+                if (pj_param_r<srs::spar::o_alpha>(params, "o_alpha", srs::dpar::o_alpha, alpha)) {
+                    T lamc, phic;
 
-                    lamc    = pj_param(par.params, "ro_lon_c").f;
-                    phic    = pj_param(par.params, "ro_lat_c").f;
-                    alpha    = pj_param(par.params, "ro_alpha").f;
+                    lamc    = pj_get_param_r<T, srs::spar::o_lon_c>(params, "o_lon_c", srs::dpar::o_lon_c);
+                    phic    = pj_get_param_r<T, srs::spar::o_lon_c>(params, "o_lat_c", srs::dpar::o_lat_c);
+                    //alpha   = pj_get_param_r(par.params, "o_alpha");
             
-                    if (fabs(fabs(phic) - HALFPI) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-33) );
+                    if (fabs(fabs(phic) - half_pi) <= tolerance)
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
 
                     proj_parm.lamp = lamc + aatan2(-cos(alpha), -sin(alpha) * sin(phic));
                     phip = aasin(cos(phic) * sin(alpha));
-                } else if (pj_param(par.params, "to_lat_p").i) { /* specified new pole */
-                    proj_parm.lamp = pj_param(par.params, "ro_lon_p").f;
-                    phip = pj_param(par.params, "ro_lat_p").f;
+                } else if (pj_param_r<srs::spar::o_lat_p>(params, "o_lat_p", srs::dpar::o_lat_p, phip)) { /* specified new pole */
+                    proj_parm.lamp = pj_get_param_r<T, srs::spar::o_lon_p>(params, "o_lon_p", srs::dpar::o_lon_p);
+                    //phip = pj_param_r(par.params, "o_lat_p");
                 } else { /* specified new "equator" points */
-                    CalculationType lam1, lam2, phi1, phi2, con;
+                    T lam1, lam2, phi1, phi2, con;
 
-                    lam1 = pj_param(par.params, "ro_lon_1").f;
-                    phi1 = pj_param(par.params, "ro_lat_1").f;
-                    lam2 = pj_param(par.params, "ro_lon_2").f;
-                    phi2 = pj_param(par.params, "ro_lat_2").f;
-                    if (fabs(phi1 - phi2) <= TOL || (con = fabs(phi1)) <= TOL ||
-                        fabs(con - HALFPI) <= TOL || fabs(fabs(phi2) - HALFPI) <= TOL)
-                        BOOST_THROW_EXCEPTION( projection_exception(-32) );
+                    lam1 = pj_get_param_r<T, srs::spar::o_lon_1>(params, "o_lon_1", srs::dpar::o_lon_1);
+                    phi1 = pj_get_param_r<T, srs::spar::o_lat_1>(params, "o_lat_1", srs::dpar::o_lat_1);
+                    lam2 = pj_get_param_r<T, srs::spar::o_lon_2>(params, "o_lon_2", srs::dpar::o_lon_2);
+                    phi2 = pj_get_param_r<T, srs::spar::o_lat_2>(params, "o_lat_2", srs::dpar::o_lat_2);
+                    if (fabs(phi1 - phi2) <= tolerance || (con = fabs(phi1)) <= tolerance ||
+                        fabs(con - half_pi) <= tolerance || fabs(fabs(phi2) - half_pi) <= tolerance)
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_1_or_2_zero_or_90) );
 
                     proj_parm.lamp = atan2(cos(phi1) * sin(phi2) * cos(lam1) -
                         sin(phi1) * cos(phi2) * cos(lam2),
@@ -272,7 +341,7 @@ namespace projections
                     phip = atan(-cos(proj_parm.lamp - lam1) / tan(phi1));
                 }
 
-                if (fabs(phip) > TOL) { /* oblique */
+                if (fabs(phip) > tolerance) { /* oblique */
                     proj_parm.cphip = cos(phip);
                     proj_parm.sphip = sin(phip);
                 } else { /* transverse */
@@ -288,37 +357,28 @@ namespace projections
                 return phip;
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_ob_tran_oblique : public base_t_fi<base_ob_tran_oblique<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_ob_tran_oblique
             {
+                par_ob_tran<T, Parameters> m_proj_parm;
 
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ob_tran<CalculationType, Parameters> m_proj_parm;
-
-                inline base_ob_tran_oblique(Parameters const& par,
-                                            par_ob_tran<CalculationType, Parameters> const& proj_parm)
-                    : base_t_fi
-                        <
-                            base_ob_tran_oblique<CalculationType, Parameters>, CalculationType, Parameters
-                        >(*this, par)
-                    , m_proj_parm(proj_parm)
+                inline base_ob_tran_oblique(par_ob_tran<T, Parameters> const& proj_parm)
+                    : m_proj_parm(proj_parm)
                 {}
 
                 // FORWARD(o_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     o_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_proj_parm);
                 }
 
                 // INVERSE(o_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     o_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_proj_parm);
                 }
 
@@ -329,37 +389,28 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_ob_tran_transverse : public base_t_fi<base_ob_tran_transverse<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_ob_tran_transverse
             {
+                par_ob_tran<T, Parameters> m_proj_parm;
 
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ob_tran<CalculationType, Parameters> m_proj_parm;
-
-                inline base_ob_tran_transverse(Parameters const& par,
-                                               par_ob_tran<CalculationType, Parameters> const& proj_parm)
-                    : base_t_fi
-                        <
-                            base_ob_tran_transverse<CalculationType, Parameters>, CalculationType, Parameters
-                        >(*this, par)
-                    , m_proj_parm(proj_parm)
+                inline base_ob_tran_transverse(par_ob_tran<T, Parameters> const& proj_parm)
+                    : m_proj_parm(proj_parm)
                 {}
 
                 // FORWARD(t_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     t_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_proj_parm);
                 }
 
                 // INVERSE(t_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     t_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_proj_parm);
                 }
 
@@ -370,27 +421,21 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename StaticParameters, typename CalculationType, typename Parameters>
-            struct base_ob_tran_static : public base_t_fi<base_ob_tran_static<StaticParameters, CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename StaticParameters, typename T, typename Parameters>
+            struct base_ob_tran_static
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ob_tran_static<StaticParameters, CalculationType, Parameters> m_proj_parm;
+                par_ob_tran_static<StaticParameters, T, Parameters> m_proj_parm;
                 bool m_is_oblique;
 
-                inline base_ob_tran_static(Parameters const& par)
-                    : base_t_fi<base_ob_tran_static<StaticParameters, CalculationType, Parameters>, CalculationType, Parameters>(*this, par)
-                    , m_proj_parm(par)
+                inline base_ob_tran_static(StaticParameters const& params, Parameters const& par)
+                    : m_proj_parm(params, par)
                 {}
 
                 // FORWARD(o_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     if (m_is_oblique) {
                         o_forward(lp_lon, lp_lat, xy_x, xy_y, this->m_proj_parm);
                     } else {
@@ -400,8 +445,9 @@ namespace projections
 
                 // INVERSE(o_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    // NOTE: Parameters ignored, m_proj_parm.link has a copy
                     if (m_is_oblique) {
                         o_inverse(xy_x, xy_y, lp_lon, lp_lat, this->m_proj_parm);
                     } else {
@@ -444,12 +490,13 @@ namespace projections
         \par Example
         \image html ex_ob_tran.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ob_tran_oblique : public detail::ob_tran::base_ob_tran_oblique<T, Parameters>
     {
-        inline ob_tran_oblique(Parameters const& par,
-                               detail::ob_tran::par_ob_tran<CalculationType, Parameters> const& proj_parm)
-            : detail::ob_tran::base_ob_tran_oblique<CalculationType, Parameters>(par, proj_parm)
+        template <typename Params>
+        inline ob_tran_oblique(Params const& , Parameters const& ,
+                               detail::ob_tran::par_ob_tran<T, Parameters> const& proj_parm)
+            : detail::ob_tran::base_ob_tran_oblique<T, Parameters>(proj_parm)
         {
             // already done
             //detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
@@ -481,12 +528,13 @@ namespace projections
         \par Example
         \image html ex_ob_tran.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>
-    {
-        inline ob_tran_transverse(Parameters const& par,
-                                  detail::ob_tran::par_ob_tran<CalculationType, Parameters> const& proj_parm)
-            : detail::ob_tran::base_ob_tran_transverse<CalculationType, Parameters>(par, proj_parm)
+    template <typename T, typename Parameters>
+    struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<T, Parameters>
+    {        
+        template <typename Params>
+        inline ob_tran_transverse(Params const& , Parameters const& ,
+                                  detail::ob_tran::par_ob_tran<T, Parameters> const& proj_parm)
+            : detail::ob_tran::base_ob_tran_transverse<T, Parameters>(proj_parm)
         {
             // already done
             //detail::ob_tran::setup_ob_tran(this->m_par, this->m_proj_parm);
@@ -518,14 +566,14 @@ namespace projections
         \par Example
         \image html ex_ob_tran.gif
     */
-    template <typename StaticParameters, typename CalculationType, typename Parameters>
-    struct ob_tran_static : public detail::ob_tran::base_ob_tran_static<StaticParameters, CalculationType, Parameters>
+    template <typename StaticParameters, typename T, typename Parameters>
+    struct ob_tran_static : public detail::ob_tran::base_ob_tran_static<StaticParameters, T, Parameters>
     {
-        inline ob_tran_static(const Parameters& par)
-            : detail::ob_tran::base_ob_tran_static<StaticParameters, CalculationType, Parameters>(par)
+        inline ob_tran_static(StaticParameters const& params, Parameters const& par)
+            : detail::ob_tran::base_ob_tran_static<StaticParameters, T, Parameters>(params, par)
         {
-            CalculationType phip = detail::ob_tran::setup_ob_tran<CalculationType>(this->m_par, this->m_proj_parm);
-            this->m_is_oblique = fabs(phip) > detail::ob_tran::TOL;
+            T phip = detail::ob_tran::setup_ob_tran<T>(params, par, this->m_proj_parm);
+            this->m_is_oblique = fabs(phip) > detail::ob_tran::tolerance;
         }
     };
 
@@ -534,39 +582,34 @@ namespace projections
     {
 
         // Static projection
-        template <typename BGP, typename CT, typename P>
-        struct static_projection_type<srs::par4::ob_tran, srs_sphere_tag, BGP, CT, P>
+        template <typename SP, typename CT, typename P>
+        struct static_projection_type<srs::spar::proj_ob_tran, srs_sphere_tag, SP, CT, P>
         {
-            typedef ob_tran_static<BGP, CT, P> type;
+            typedef static_wrapper_fi<ob_tran_static<SP, CT, P>, P> type;
         };
-        template <typename BGP, typename CT, typename P>
-        struct static_projection_type<srs::par4::ob_tran, srs_spheroid_tag, BGP, CT, P>
+        template <typename SP, typename CT, typename P>
+        struct static_projection_type<srs::spar::proj_ob_tran, srs_spheroid_tag, SP, CT, P>
         {
-            typedef ob_tran_static<BGP, CT, P> type;
+            typedef static_wrapper_fi<ob_tran_static<SP, CT, P>, P> type;
         };
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class ob_tran_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_BEGIN(ob_tran_entry)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    Parameters params = par;
-                    detail::ob_tran::par_ob_tran<CalculationType, Parameters> proj_parm(params);
-                    CalculationType phip = detail::ob_tran::setup_ob_tran<CalculationType>(params, proj_parm);
+            Parameters parameters_copy = parameters;
+            detail::ob_tran::par_ob_tran<T, Parameters> proj_parm(params, parameters_copy);
+            T phip = detail::ob_tran::setup_ob_tran<T>(params, parameters_copy, proj_parm);
 
-                    if (fabs(phip) > detail::ob_tran::TOL)
-                        return new base_v_fi<ob_tran_oblique<CalculationType, Parameters>, CalculationType, Parameters>(params, proj_parm);
-                    else
-                        return new base_v_fi<ob_tran_transverse<CalculationType, Parameters>, CalculationType, Parameters>(params, proj_parm);
-                }
-        };
+            if (fabs(phip) > detail::ob_tran::tolerance)
+                return new dynamic_wrapper_fi<ob_tran_oblique<T, Parameters>, T, Parameters>(params, parameters_copy, proj_parm);
+            else
+                return new dynamic_wrapper_fi<ob_tran_transverse<T, Parameters>, T, Parameters>(params, parameters_copy, proj_parm);
+        }
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_END
 
-        template <typename CalculationType, typename Parameters>
-        inline void ob_tran_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(ob_tran_init)
         {
-            factory.add_to_factory("ob_tran", new ob_tran_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ob_tran, ob_tran_entry)
         }
 
     } // namespace detail

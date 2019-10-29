@@ -3,6 +3,10 @@
 
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -922,10 +926,10 @@ struct covered_by_impl
 
         BOOST_FOREACH(Value const& v, input)
         {
-            if ( bg::covered_by(
-                    bgi::detail::return_ref_or_bounds(
-                        tree.indexable_get()(v)),
-                    qbox) )
+            if ( bgi::detail::covered_by_bounds(
+                    tree.indexable_get()(v),
+                    qbox,
+                    bgi::detail::get_strategy(tree.parameters())) )
             {
                 expected_output.push_back(v);
             }
@@ -1416,7 +1420,7 @@ void copy_swap_move(Rtree const& tree, Box const& qbox)
 
     //TODO - test SWAP
 
-    ::boost::ignore_unused_variable_warning(params);
+    ::boost::ignore_unused(params);
 }
 
 template <typename I, typename O>
@@ -1839,7 +1843,8 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     generate::rtree(t, input, qbox);
 
-    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get());
+    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get(),
+                                          bgi::detail::get_strategy(parameters));
     
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
@@ -1851,7 +1856,8 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
         input.pop_back();
     }
 
-    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get());
+    b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get(),
+                                          bgi::detail::get_strategy(parameters));
 
     BOOST_CHECK(bg::equals(t.bounds(), b));
 

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -42,60 +42,44 @@
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct labrd {}; // Laborde
-
-}} //namespace srs::par4
 
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace labrd
     {
-            static const double EPS = 1.e-10;
+            static const double epsilon = 1.e-10;
 
             template <typename T>
             struct par_labrd
             {
-                T   Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
-                int rot;
+                T    Az, kRg, p0s, A, C, Ca, Cb, Cc, Cd;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_labrd_ellipsoid : public base_t_fi<base_labrd_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_labrd_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_labrd<CalculationType> m_proj_parm;
-
-                inline base_labrd_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_labrd_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_labrd<T> m_proj_parm;
 
                 // FORWARD(e_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
-                    CalculationType V1, V2, ps, sinps, cosps, sinps2, cosps2;
-                    CalculationType I1, I2, I3, I4, I5, I6, x2, y2, t;
+                    T V1, V2, ps, sinps, cosps, sinps2, cosps2;
+                    T I1, I2, I3, I4, I5, I6, x2, y2, t;
 
-                    V1 = this->m_proj_parm.A * log( tan(FORTPI + .5 * lp_lat) );
-                    t = this->m_par.e * sin(lp_lat);
-                    V2 = .5 * this->m_par.e * this->m_proj_parm.A * log ((1. + t)/(1. - t));
-                    ps = 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - FORTPI);
+                    V1 = this->m_proj_parm.A * log( tan(fourth_pi + .5 * lp_lat) );
+                    t = par.e * sin(lp_lat);
+                    V2 = .5 * par.e * this->m_proj_parm.A * log ((1. + t)/(1. - t));
+                    ps = 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - fourth_pi);
                     I1 = ps - this->m_proj_parm.p0s;
                     cosps = cos(ps);    cosps2 = cosps * cosps;
                     sinps = sin(ps);    sinps2 = sinps * sinps;
@@ -119,15 +103,15 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
 
                     /* t = 0.0 optimization is to avoid a false positive cppcheck warning */
                     /* (cppcheck git beaf29c15867984aa3c2a15cf15bd7576ccde2b3). Might no */
                     /* longer be necessary with later versions. */
-                    CalculationType x2, y2, V1, V2, V3, V4, t = 0.0, t2, ps, pe, tpe, s;
-                    CalculationType I7, I8, I9, I10, I11, d, Re;
+                    T x2, y2, V1, V2, V3, V4, t = 0.0, t2, ps, pe, tpe, s;
+                    T I7, I8, I9, I10, I11, d, Re;
                     int i;
 
                     x2 = xy_x * xy_x;
@@ -139,25 +123,25 @@ namespace projections
                     xy_x += - this->m_proj_parm.Ca * V1 - this->m_proj_parm.Cb * V2 + this->m_proj_parm.Cc * V3 + this->m_proj_parm.Cd * V4;
                     xy_y +=   this->m_proj_parm.Cb * V1 - this->m_proj_parm.Ca * V2 - this->m_proj_parm.Cd * V3 + this->m_proj_parm.Cc * V4;
                     ps = this->m_proj_parm.p0s + xy_y / this->m_proj_parm.kRg;
-                    pe = ps + this->m_par.phi0 - this->m_proj_parm.p0s;
+                    pe = ps + par.phi0 - this->m_proj_parm.p0s;
 
                     for ( i = 20; i; --i) {
-                        V1 = this->m_proj_parm.A * log(tan(FORTPI + .5 * pe));
-                        tpe = this->m_par.e * sin(pe);
-                        V2 = .5 * this->m_par.e * this->m_proj_parm.A * log((1. + tpe)/(1. - tpe));
-                        t = ps - 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - FORTPI);
+                        V1 = this->m_proj_parm.A * log(tan(fourth_pi + .5 * pe));
+                        tpe = par.e * sin(pe);
+                        V2 = .5 * par.e * this->m_proj_parm.A * log((1. + tpe)/(1. - tpe));
+                        t = ps - 2. * (atan(exp(V1 - V2 + this->m_proj_parm.C)) - fourth_pi);
                         pe += t;
-                        if (fabs(t) < EPS)
+                        if (fabs(t) < epsilon)
                             break;
                     }
 
-                    t = this->m_par.e * sin(pe);
+                    t = par.e * sin(pe);
                     t = 1. - t * t;
-                    Re = this->m_par.one_es / ( t * sqrt(t) );
+                    Re = par.one_es / ( t * sqrt(t) );
                     t = tan(ps);
                     t2 = t * t;
                     s = this->m_proj_parm.kRg * this->m_proj_parm.kRg;
-                    d = Re * this->m_par.k0 * this->m_proj_parm.kRg;
+                    d = Re * par.k0 * this->m_proj_parm.kRg;
                     I7 = t / (2. * d);
                     I8 = t * (5. + 3. * t2) / (24. * d * s);
                     d = cos(ps) * this->m_proj_parm.kRg * this->m_proj_parm.A;
@@ -178,15 +162,14 @@ namespace projections
             };
 
             // Laborde
-            template <typename Parameters, typename T>
-            inline void setup_labrd(Parameters& par, par_labrd<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_labrd(Params const& params, Parameters const& par, par_labrd<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T Az, sinp, R, N, t;
 
-                proj_parm.rot    = pj_param(par.params, "bno_rot").i == 0;
-                Az = pj_param(par.params, "razi").f;
+                Az = pj_get_param_r<T, srs::spar::azi>(params, "azi", srs::dpar::azi);
                 sinp = sin(par.phi0);
                 t = 1. - par.es * sinp * sinp;
                 N = 1. / sqrt(t);
@@ -196,8 +179,8 @@ namespace projections
                 proj_parm.A = sinp / sin(proj_parm.p0s);
                 t = par.e * sinp;
                 proj_parm.C = .5 * par.e * proj_parm.A * log((1. + t)/(1. - t)) +
-                    - proj_parm.A * log( tan(FORTPI + .5 * par.phi0))
-                    + log( tan(FORTPI + .5 * proj_parm.p0s));
+                    - proj_parm.A * log( tan(fourth_pi + .5 * par.phi0))
+                    + log( tan(fourth_pi + .5 * proj_parm.p0s));
                 t = Az + Az;
                 proj_parm.Ca = (1. - cos(t)) * ( proj_parm.Cb = 1. / (12. * proj_parm.kRg * proj_parm.kRg) );
                 proj_parm.Cb *= sin(t);
@@ -224,12 +207,13 @@ namespace projections
         \par Example
         \image html ex_labrd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct labrd_ellipsoid : public detail::labrd::base_labrd_ellipsoid<T, Parameters>
     {
-        inline labrd_ellipsoid(const Parameters& par) : detail::labrd::base_labrd_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline labrd_ellipsoid(Params const& params, Parameters const& par)
         {
-            detail::labrd::setup_labrd(this->m_par, this->m_proj_parm);
+            detail::labrd::setup_labrd(params, par, this->m_proj_parm);
         }
     };
 
@@ -238,23 +222,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::labrd, labrd_ellipsoid, labrd_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_labrd, labrd_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class labrd_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(labrd_entry, labrd_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(labrd_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<labrd_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void labrd_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("labrd", new labrd_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(labrd, labrd_entry)
         }
 
     } // namespace detail

@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
+// This file was modified by Oracle on 2016, 2019.
 // Modifications copyright (c) 2016, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,7 +11,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 
 static std::string const simplex
@@ -139,6 +139,12 @@ static std::string const ticket_10412
 
 static std::string const ticket_11580
     = "POLYGON((14.02 474.96,14.02 494.96,14.022 494.96,14.022 486.24,14.02 474.96))";
+
+static std::string const issue_369
+    = "POLYGON((-0.0149622653 -0.0269554816,-0.0149539290 -0.0271028206,-0.0149470828 -0.0271355230,-0.0149622653 -0.0269554816))";
+
+static std::string const issue_555
+    = "POLYGON((100.0637755102041 100.0770239202989,100.0360264929713 100.1,100 100.1,0 100.1,-0.0999999999999943 100.1,-0.09999999999999432 100,-0.1000000000000014 0,-0.1000000000000014 -0.1000000000000014,-1.836970198721056e-17 -0.1000000000000014,100 -0.1000000000000014,100.0360264929713 -0.1000000000000012,100.0637755102041 -0.07702392029888726,101.1041649480706 0.7844145387331185,103.4026139046043 2.203948968996805,105.8748306243106 3.293026604107826,108.4735936784235 4.030845140790255,111.1492644962378 4.403311621418428,113.8507355037622 4.403311621418428,116.5264063215765 4.030845140790252,119.1251693756894 3.293026604107823,121.5973860953957 2.203948968996801,123.8958350519294 0.7844145387331167,124.9362244897959 -0.07702392029888117,124.9639735070287 -0.09999999999999432,125 -0.09999999999999432,135 -0.1000000000000014,135.1 -0.0999999999999943,135.1 0,135.1 100,135.1 100.1,135 100.1,125 100.1,124.9639735070287 100.1,124.9362244897959 100.0770239202989,123.8958350519294 99.21558546126688,121.5973860953958 97.7960510310032,119.1251693756894 96.70697339589218,116.5264063215765 95.96915485920975,113.8507355037622 95.59668837858158,111.1492644962378 95.59668837858158,108.4735936784235 95.96915485920975,105.8748306243106 96.70697339589218,103.4026139046043 97.7960510310032,101.1041649480706 99.21558546126688,100.0637755102041 100.0770239202989),(124.9 71.15855631858324,124.9 28.84144368141676,124.9 27.45166011926875,124.5057975806765 24.70018817664119,123.7253617444602 22.03243382063001,122.574469398775 19.50232706258395,121.0763864178284 17.16101529763987,119.2613973111302 15.0558293341122,117.1661930067267 13.22932657712651,114.8331291254269 11.71843070902665,112.3093697403817 10.55368525835367,109.6459339313539 9.758636146879443,106.8966644080684 9.349355696820595,104.1171390524456 9.33411772066918,101.3635473834475 9.7132302618644,100.0275510204082 10.0961298147011,100.014047339233 10.09999999999999,100 10.09999999999999,29.6 10.1,28.20533247460344 10.1,25.44438883273841 10.49696376664363,22.76804145044581 11.28281026239098,20.2307730424806 12.44154191878281,17.88423507675108 13.94957030080114,15.77619629938279 15.77619629938281,13.94957030080113 17.88423507675109,12.44154191878281 20.23077304248061,11.28281026239098 22.76804145044582,10.49696376664362 25.44438883273843,10.1 28.20533247460346,10.1 29.6,10.1 70.40000000000001,10.1 71.79466752539656,10.49696376664363 74.5556111672616,11.28281026239098 77.23195854955421,12.44154191878281 79.76922695751941,13.94957030080114 82.11576492324893,15.77619629938281 84.22380370061721,17.88423507675109 86.05042969919887,20.23077304248062 87.5584580812172,22.76804145044583 88.71718973760903,25.44438883273843 89.50303623335638,28.20533247460346 89.90000000000001,29.6 89.90000000000001,100 89.90000000000001,100.014047339233 89.90000000000001,100.0275510204082 89.9038701852989,101.3635473834475 90.2867697381356,104.1171390524456 90.66588227933082,106.8966644080684 90.6506443031794,109.6459339313539 90.24136385312056,112.3093697403817 89.44631474164633,114.8331291254269 88.28156929097335,117.1661930067267 86.77067342287347,119.2613973111302 84.94417066588778,121.0763864178284 82.83898470236012,122.574469398775 80.49767293741604,123.7253617444602 77.96756617936998,124.5057975806765 75.29981182335879,124.9 72.54833988073125,124.9 71.15855631858324))";
 
 // CCW Polygons not working in 1.56
 static std::string const mysql_report_2014_10_24
@@ -368,7 +374,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("snake4", snake, join_miter, end_flat, 64.44, 0.4);
     test_one<polygon_type, polygon_type>("snake5", snake, join_miter, end_flat, 72, 0.5);
     test_one<polygon_type, polygon_type>("snake6", snake, join_miter, end_flat, 75.44, 0.6);
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<polygon_type, polygon_type>("snake16", snake, join_miter, end_flat, 114.24, 1.6);
 #endif
 
@@ -467,11 +473,12 @@ void test_all()
     }
 
     {
-        ut_settings settings(0.0000001);
-        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114092, 0.01, settings);
-        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00132859, 0.01,  settings);
-        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 3.94411299566854723e-05, -0.003, settings);
-        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 3.94301960113807581e-05, -0.003, settings);
+        ut_settings settings;
+        settings.use_ln_area = true;
+        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 0.00114, 0.01, settings);
+        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 0.00133, 0.01, settings);
+        test_one<polygon_type, polygon_type>("county1", county1, join_round, end_flat, 3.94411e-05, -0.003, settings);
+        test_one<polygon_type, polygon_type>("county1", county1, join_miter, end_flat, 3.94301e-05, -0.003, settings);
     }
 
     test_one<polygon_type, polygon_type>("parcel1_10", parcel1, join_round, end_flat, 7571.405, 10.0);
@@ -508,21 +515,15 @@ void test_all()
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_round, end_flat, 209.3579, -20.0);
     test_one<polygon_type, polygon_type>("parcel1_20", parcel1, join_miter, end_flat, 188.4224, -20.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737356.991, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953811.679, -0.5 * 1000.0);
-#else
-    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1, join_round, end_flat,  1848737292.653, -0.2 * 1000.0);
-    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1, join_round, end_flat,  1775953824.799, -0.5 * 1000.0);
-#endif
+    test_one<polygon_type, polygon_type>("nl_part1_2", nl_part1,
+        join_round, end_flat,  BG_IF_RESCALED(1848737356.991, 1848737292.653), -0.2 * 1000.0);
+    test_one<polygon_type, polygon_type>("nl_part1_5", nl_part1,
+        join_round, end_flat,  BG_IF_RESCALED(1775953811.679, 1775953824.799), -0.5 * 1000.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638814.956, 30.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180044.822, 50.0 * 1000.0);
-#else
-    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1, join_round, end_flat,  5015638827.704, 30.0 * 1000.0);
-    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1, join_round, end_flat, 11363180033.564, 50.0 * 1000.0);
-#endif
+    test_one<polygon_type, polygon_type>("italy_part1_30", italy_part1,
+        join_round, end_flat,  BG_IF_RESCALED(5015638814.956, 5015638827.704), 30.0 * 1000.0);
+    test_one<polygon_type, polygon_type>("italy_part1_50", italy_part1,
+        join_round, end_flat, BG_IF_RESCALED(11363180044.822, 11363180033.564), 50.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1, join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
 
     {
@@ -553,8 +554,8 @@ void test_all()
 
         test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, settings);
         test_one<polygon_type, polygon_type>("ticket_11580_100", ticket_11580, join_miter, end_flat, 52.0221000, 1.00, settings);
-    #ifdef BOOST_GEOMETRY_TEST_INCLUDE_FAILING_TESTS
-        // Larger distance, resulting in only one circle
+    #if defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Larger distance, resulting in only one circle. Not solved yet in non-rescaled mode.
         test_one<polygon_type, polygon_type>("ticket_11580_237", ticket_11580, join_miter, end_flat, 999.999, 2.37, settings);
     #endif
     }
@@ -562,6 +563,37 @@ void test_all()
     // Tickets - deflated
     test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 404.3936, -0.5);
     test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 246.7329, -2.5);
+
+    {
+        // Test issue 369 as reported (1.15e-3) and some variants
+        // Use high tolerance because output areas are very small
+        const double distance = 1.15e-3;
+        const double join_distance = 0.1e-3;
+        const int points_per_circle = 2 * 3.1415 * distance / join_distance;
+
+        ut_settings specific;
+        specific.use_ln_area = true;
+        specific.tolerance = 0.01;
+        bg::strategy::buffer::join_round jr(points_per_circle);
+        bg::strategy::buffer::end_round er(points_per_circle);
+        test_one<polygon_type, polygon_type>("issue_369", issue_369, jr, er, 4.566e-06, distance, specific);
+        test_one<polygon_type, polygon_type>("issue_369_10", issue_369, jr, er, 8.346e-08, distance / 10.0, specific);
+        test_one<polygon_type, polygon_type>("issue_369_100", issue_369, jr, er, 4.942e-09, distance / 100.0, specific);
+        test_one<polygon_type, polygon_type>("issue_369_1000", issue_369, jr, er, 7.881e-10, distance / 1000.0, specific);
+    }
+
+    {
+        // Test issue 555 as reported (-0.000001) and some variants
+        bg::strategy::buffer::join_round jr(180);
+        bg::strategy::buffer::end_round er(180);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+        // With rescaling the interior ring is missing
+        test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7942, -0.000001);
+#endif
+        test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7957, +0.000001);
+        test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4521.6280, +0.001);
+        test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4519.9627, -0.001);
+    }
 
     {
         bg::strategy::buffer::join_round join_round32(32);

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -24,6 +24,7 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/srs/projection.hpp>
+#include <boost/geometry/srs/projections/grids.hpp>
 #include <boost/geometry/srs/projections/impl/pj_transform.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
@@ -58,15 +59,11 @@ template
 <
     typename PtIn,
     typename PtOut,
-    bool SameUnits = geometry::is_radian
+    bool SameUnits = boost::is_same
                         <
-                            typename geometry::coordinate_system<PtIn>::type
-                        >::type::value
-                     ==
-                     geometry::is_radian
-                        <
-                            typename geometry::coordinate_system<PtOut>::type
-                        >::type::value
+                            typename geometry::detail::cs_angular_units<PtIn>::type,
+                            typename geometry::detail::cs_angular_units<PtOut>::type
+                        >::value
 >
 struct transform_geometry_point_coordinates
 {
@@ -298,11 +295,13 @@ struct transform_range
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename RangeIn, typename RangeOut
+        typename RangeIn, typename RangeOut,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             RangeIn const& in, RangeOut & out)
+                             RangeIn const& in, RangeOut & out,
+                             Grids const& grids1, Grids const& grids2)
     {
         // NOTE: this has to be consistent with pj_transform()
         bool const input_angles = !par1.is_geocent && par1.is_latlong;
@@ -312,9 +311,9 @@ struct transform_range
         bool res = true;
         try
         {
-            res = pj_transform(proj1, par1, proj2, par2, wrapper.get());
+            res = pj_transform(proj1, par1, proj2, par2, wrapper.get(), grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
@@ -336,18 +335,21 @@ struct transform_multi
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename MultiIn, typename MultiOut
+        typename MultiIn, typename MultiOut,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             MultiIn const& in, MultiOut & out)
+                             MultiIn const& in, MultiOut & out,
+                             Grids const& grids1, Grids const& grids2)
     {
         if (! same_object(in, out))
             range::resize(out, boost::size(in));
 
         return apply(proj1, par1, proj2, par2,
                      boost::begin(in), boost::end(in),
-                     boost::begin(out));
+                     boost::begin(out),
+                     grids1, grids2);
     }
 
 private:
@@ -355,16 +357,18 @@ private:
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename InIt, typename OutIt
+        typename InIt, typename OutIt,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             InIt in_first, InIt in_last, OutIt out_first)
+                             InIt in_first, InIt in_last, OutIt out_first,
+                             Grids const& grids1, Grids const& grids2)
     {
         bool res = true;
         for ( ; in_first != in_last ; ++in_first, ++out_first )
         {
-            if ( ! Policy::apply(proj1, par1, proj2, par2, *in_first, *out_first) )
+            if ( ! Policy::apply(proj1, par1, proj2, par2, *in_first, *out_first, grids1, grids2) )
             {
                 res = false;
             }
@@ -390,11 +394,13 @@ struct transform<Point, CT, point_tag>
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename PointIn, typename PointOut
+        typename PointIn, typename PointOut,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             PointIn const& in, PointOut & out)
+                             PointIn const& in, PointOut & out,
+                             Grids const& grids1, Grids const& grids2)
     {
         // NOTE: this has to be consistent with pj_transform()
         bool const input_angles = !par1.is_geocent && par1.is_latlong;
@@ -409,9 +415,9 @@ struct transform<Point, CT, point_tag>
         bool res = true;
         try
         {
-            res = pj_transform(proj1, par1, proj2, par2, range);
+            res = pj_transform(proj1, par1, proj2, par2, range, grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
@@ -438,11 +444,13 @@ struct transform<Segment, CT, segment_tag>
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename SegmentIn, typename SegmentOut
+        typename SegmentIn, typename SegmentOut,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             SegmentIn const& in, SegmentOut & out)
+                             SegmentIn const& in, SegmentOut & out,
+                             Grids const& grids1, Grids const& grids2)
     {
         // NOTE: this has to be consistent with pj_transform()
         bool const input_angles = !par1.is_geocent && par1.is_latlong;
@@ -464,9 +472,9 @@ struct transform<Segment, CT, segment_tag>
         bool res = true;
         try
         {
-            res = pj_transform(proj1, par1, proj2, par2, range);
+            res = pj_transform(proj1, par1, proj2, par2, range, grids1, grids2);
         }
-        catch (projection_exception)
+        catch (projection_exception const&)
         {
             res = false;
         }
@@ -506,24 +514,28 @@ struct transform<Polygon, CT, polygon_tag>
     <
         typename Proj1, typename Par1,
         typename Proj2, typename Par2,
-        typename PolygonIn, typename PolygonOut
+        typename PolygonIn, typename PolygonOut,
+        typename Grids
     >
     static inline bool apply(Proj1 const& proj1, Par1 const& par1,
                              Proj2 const& proj2, Par2 const& par2,
-                             PolygonIn const& in, PolygonOut & out)
+                             PolygonIn const& in, PolygonOut & out,
+                             Grids const& grids1, Grids const& grids2)
     {
         bool r1 = transform_range
                     <
                         CT
                     >::apply(proj1, par1, proj2, par2,
                              geometry::exterior_ring(in),
-                             geometry::exterior_ring(out));
+                             geometry::exterior_ring(out),
+                             grids1, grids2);
         bool r2 = transform_multi
                     <
                         transform_range<CT>
                      >::apply(proj1, par1, proj2, par2,
                               geometry::interior_rings(in),
-                              geometry::interior_rings(out));
+                              geometry::interior_rings(out),
+                              grids1, grids2);
         return r1 && r2;
     }
 };
@@ -567,22 +579,89 @@ class transformation
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
 public:
+    // Both static and default constructed
     transformation()
     {}
 
+    // First dynamic, second static and default constructed
     template <typename Parameters1>
-    explicit transformation(Parameters1 const& parameters1)
+    explicit transformation(Parameters1 const& parameters1,
+                            typename boost::enable_if_c
+                                <
+                                    boost::is_same<Proj1, srs::dynamic>::value
+                                 && projections::dynamic_parameters<Parameters1>::is_specialized
+                                >::type * = 0)
         : m_proj1(parameters1)
     {}
 
+    // First static, second static and default constructed
+    explicit transformation(Proj1 const& parameters1)
+        : m_proj1(parameters1)
+    {}
+
+    // Both dynamic
     template <typename Parameters1, typename Parameters2>
-    transformation(Parameters1 const& parameters1, Parameters2 const& parameters2)
+    transformation(Parameters1 const& parameters1,
+                   Parameters2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj1, srs::dynamic>::value
+                         && boost::is_same<Proj2, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters1>::is_specialized
+                         && projections::dynamic_parameters<Parameters2>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // First dynamic, second static
+    template <typename Parameters1>
+    transformation(Parameters1 const& parameters1,
+                   Proj2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj1, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters1>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // First static, second dynamic
+    template <typename Parameters2>
+    transformation(Proj1 const& parameters1,
+                   Parameters2 const& parameters2,
+                   typename boost::enable_if_c
+                        <
+                            boost::is_same<Proj2, srs::dynamic>::value
+                         && projections::dynamic_parameters<Parameters2>::is_specialized
+                        > * = 0)
+        : m_proj1(parameters1)
+        , m_proj2(parameters2)
+    {}
+
+    // Both static
+    transformation(Proj1 const& parameters1,
+                   Proj2 const& parameters2)
         : m_proj1(parameters1)
         , m_proj2(parameters2)
     {}
 
     template <typename GeometryIn, typename GeometryOut>
     bool forward(GeometryIn const& in, GeometryOut & out) const
+    {
+        return forward(in, out, transformation_grids<detail::empty_grids_storage>());
+    }
+
+    template <typename GeometryIn, typename GeometryOut>
+    bool inverse(GeometryIn const& in, GeometryOut & out) const
+    {
+        return inverse(in, out, transformation_grids<detail::empty_grids_storage>());
+    }
+
+    template <typename GeometryIn, typename GeometryOut, typename GridsStorage>
+    bool forward(GeometryIn const& in, GeometryOut & out,
+                 transformation_grids<GridsStorage> const& grids) const
     {
         BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
                              NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
@@ -594,11 +673,14 @@ public:
                     calc_t
                 >::apply(m_proj1.proj(), m_proj1.proj().params(),
                          m_proj2.proj(), m_proj2.proj().params(),
-                         in, out);
+                         in, out,
+                         grids.src_grids,
+                         grids.dst_grids);
     }
 
-    template <typename GeometryIn, typename GeometryOut>
-    bool inverse(GeometryIn const& in, GeometryOut & out) const
+    template <typename GeometryIn, typename GeometryOut, typename GridsStorage>
+    bool inverse(GeometryIn const& in, GeometryOut & out,
+                 transformation_grids<GridsStorage> const& grids) const
     {
         BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
                              NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
@@ -610,13 +692,30 @@ public:
                     calc_t
                 >::apply(m_proj2.proj(), m_proj2.proj().params(),
                          m_proj1.proj(), m_proj1.proj().params(),
-                         in, out);
+                         in, out,
+                         grids.dst_grids,
+                         grids.src_grids);
+    }
+
+    template <typename GridsStorage>
+    inline transformation_grids<GridsStorage> initialize_grids(GridsStorage & grids_storage) const
+    {
+        transformation_grids<GridsStorage> result(grids_storage);
+
+        using namespace projections::detail;
+        pj_gridlist_from_nadgrids(m_proj1.proj().params(),
+                                  result.src_grids);
+        pj_gridlist_from_nadgrids(m_proj2.proj().params(),
+                                  result.dst_grids);
+
+        return result;
     }
 
 private:
     projections::proj_wrapper<Proj1, CT> m_proj1;
     projections::proj_wrapper<Proj2, CT> m_proj2;
 };
+
 
 } // namespace srs
 

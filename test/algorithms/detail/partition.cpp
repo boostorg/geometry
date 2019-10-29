@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -65,7 +65,12 @@ struct ovelaps_box
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
     {
-        return ! bg::detail::disjoint::disjoint_box_box(box, item.box);
+        typename bg::strategy::disjoint::services::default_strategy
+            <
+                Box, Box
+            >::type strategy;
+
+        return ! bg::detail::disjoint::disjoint_box_box(box, item.box, strategy);
     }
 };
 

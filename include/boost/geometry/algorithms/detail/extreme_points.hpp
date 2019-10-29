@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -25,6 +25,7 @@
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>

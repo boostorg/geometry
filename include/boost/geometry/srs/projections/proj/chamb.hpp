@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,23 +40,19 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_CHAMB_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_CHAMB_HPP
 
-#include <boost/geometry/util/math.hpp>
 #include <cstdio>
 
+#include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
-#include <boost/geometry/srs/projections/impl/aasincos.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct chamb {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -64,14 +60,14 @@ namespace projections
     namespace detail { namespace chamb
     {
 
-            //static const double THIRD = 0.333333333333333333;
-            static const double TOL = 1e-9;
+            //static const double third = 0.333333333333333333;
+            static const double tolerance = 1e-9;
 
             // specific for 'chamb'
             template <typename T>
-            struct VECT { T r, Az; };
+            struct vect_ra { T r, Az; };
             template <typename T>
-            struct XY { T x, y; };
+            struct point_xy { T x, y; };
 
             template <typename T>
             struct par_chamb
@@ -79,19 +75,19 @@ namespace projections
                 struct { /* control point data */
                     T phi, lam;
                     T cosphi, sinphi;
-                    VECT<T> v;
-                    XY<T>   p;
+                    vect_ra<T> v;
+                    point_xy<T> p;
                     T Az;
                 } c[3];
-                XY<T> p;
+                point_xy<T> p;
                 T beta_0, beta_1, beta_2;
             };
 
             /* distance and azimuth from point 1 to point 2 */
             template <typename T>
-            inline VECT<T> vect(T const& dphi, T const& c1, T const& s1, T const& c2, T const& s2, T const& dlam)
+            inline vect_ra<T> vect(T const& dphi, T const& c1, T const& s1, T const& c2, T const& s2, T const& dlam)
             {
-                VECT<T> v;
+                vect_ra<T> v;
                 T cdl, dp, dl;
 
                 cdl = cos(dlam);
@@ -102,7 +98,7 @@ namespace projections
                     dl = sin(.5 * dlam);
                     v.r = 2. * aasin(sqrt(dp * dp + c1 * c2 * dl * dl));
                 }
-                if (fabs(v.r) > TOL)
+                if (fabs(v.r) > tolerance)
                     v.Az = atan2(c2 * sin(dlam), c1 * s2 - s1 * c2 * cdl);
                 else
                     v.r = v.Az = 0.;
@@ -116,29 +112,19 @@ namespace projections
                 return aacos(.5 * (b * b + c * c - a * a) / (b * c));
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_chamb_spheroid : public base_t_f<base_chamb_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_chamb_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_chamb<CalculationType> m_proj_parm;
-
-                inline base_chamb_spheroid(const Parameters& par)
-                    : base_t_f<base_chamb_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_chamb<T> m_proj_parm;
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType THIRD = detail::THIRD<CalculationType>();
+                    static const T third = detail::third<T>();
 
-                    CalculationType sinphi, cosphi, a;
-                    VECT<CalculationType> v[3];
+                    T sinphi, cosphi, a;
+                    vect_ra<T> v[3];
                     int i, j;
 
                     sinphi = sin(lp_lat);
@@ -172,8 +158,8 @@ namespace projections
                                 xy_y += v[i].r * sin(a);
                             }
                         }
-                        xy_x *= THIRD; /* mean of arc intercepts */
-                        xy_y *= THIRD;
+                        xy_x *= third; /* mean of arc intercepts */
+                        xy_y *= third;
                     }
                 }
 
@@ -184,20 +170,43 @@ namespace projections
 
             };
 
-            // Chamberlin Trimetric
-            template <typename Parameters, typename T>
-            inline void setup_chamb(Parameters& par, par_chamb<T>& proj_parm)
+            template <typename T>
+            inline T chamb_init_lat(srs::detail::proj4_parameters const& params, int i)
             {
-                static const T ONEPI = detail::ONEPI<T>();
+                static const std::string lat[3] = {"lat_1", "lat_2", "lat_3"};
+                return _pj_get_param_r<T>(params, lat[i]);
+            }
+            template <typename T>
+            inline T chamb_init_lat(srs::dpar::parameters<T> const& params, int i)
+            {
+                static const srs::dpar::name_r lat[3] = {srs::dpar::lat_1, srs::dpar::lat_2, srs::dpar::lat_3};
+                return _pj_get_param_r<T>(params, lat[i]);
+            }
+
+            template <typename T>
+            inline T chamb_init_lon(srs::detail::proj4_parameters const& params, int i)
+            {
+                static const std::string lon[3] = {"lon_1", "lon_2", "lon_3"};
+                return _pj_get_param_r<T>(params, lon[i]);
+            }
+            template <typename T>
+            inline T chamb_init_lon(srs::dpar::parameters<T> const& params, int i)
+            {
+                static const srs::dpar::name_r lon[3] = {srs::dpar::lon_1, srs::dpar::lon_2, srs::dpar::lon_3};
+                return _pj_get_param_r<T>(params, lon[i]);
+            }
+
+            // Chamberlin Trimetric
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_chamb(Params const& params, Parameters& par, par_chamb<T>& proj_parm)
+            {
+                static const T pi = detail::pi<T>();
 
                 int i, j;
-                char line[10];
 
                 for (i = 0; i < 3; ++i) { /* get control point locations */
-                    (void)sprintf(line, "rlat_%d", i+1);
-                    proj_parm.c[i].phi = pj_param(par.params, line).f;
-                    (void)sprintf(line, "rlon_%d", i+1);
-                    proj_parm.c[i].lam = pj_param(par.params, line).f;
+                    proj_parm.c[i].phi = chamb_init_lat<T>(params, i);
+                    proj_parm.c[i].lam = chamb_init_lon<T>(params, i);
                     proj_parm.c[i].lam = adjlon(proj_parm.c[i].lam - par.lam0);
                     proj_parm.c[i].cosphi = cos(proj_parm.c[i].phi);
                     proj_parm.c[i].sinphi = sin(proj_parm.c[i].phi);
@@ -207,12 +216,12 @@ namespace projections
                     proj_parm.c[i].v = vect(proj_parm.c[j].phi - proj_parm.c[i].phi, proj_parm.c[i].cosphi, proj_parm.c[i].sinphi,
                         proj_parm.c[j].cosphi, proj_parm.c[j].sinphi, proj_parm.c[j].lam - proj_parm.c[i].lam);
                     if (proj_parm.c[i].v.r == 0.0)
-                        BOOST_THROW_EXCEPTION( projection_exception(-25) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
                     /* co-linearity problem ignored for now */
                 }
                 proj_parm.beta_0 = lc(proj_parm.c[0].v.r, proj_parm.c[2].v.r, proj_parm.c[1].v.r);
                 proj_parm.beta_1 = lc(proj_parm.c[0].v.r, proj_parm.c[1].v.r, proj_parm.c[2].v.r);
-                proj_parm.beta_2 = ONEPI - proj_parm.beta_0;
+                proj_parm.beta_2 = pi - proj_parm.beta_0;
                 proj_parm.p.y = 2. * (proj_parm.c[0].p.y = proj_parm.c[1].p.y = proj_parm.c[2].v.r * sin(proj_parm.beta_0));
                 proj_parm.c[2].p.y = 0.;
                 proj_parm.c[0].p.x = - (proj_parm.c[1].p.x = 0.5 * proj_parm.c[0].v.r);
@@ -244,12 +253,13 @@ namespace projections
         \par Example
         \image html ex_chamb.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct chamb_spheroid : public detail::chamb::base_chamb_spheroid<T, Parameters>
     {
-        inline chamb_spheroid(const Parameters& par) : detail::chamb::base_chamb_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline chamb_spheroid(Params const& params, Parameters & par)
         {
-            detail::chamb::setup_chamb(this->m_par, this->m_proj_parm);
+            detail::chamb::setup_chamb(params, par, this->m_proj_parm);
         }
     };
 
@@ -258,23 +268,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::chamb, chamb_spheroid, chamb_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_chamb, chamb_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class chamb_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(chamb_entry, chamb_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(chamb_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<chamb_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void chamb_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("chamb", new chamb_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(chamb, chamb_entry);
         }
 
     } // namespace detail

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -49,24 +49,18 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_HEALPIX_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_HEALPIX_HPP
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_auth.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/pj_qsfn.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct healpix {}; // HEALPix
-    struct rhealpix {}; // rHEALPix
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -75,26 +69,26 @@ namespace projections
     {
 
             /* Fuzz to handle rounding errors: */
-            static const double EPS = 1e-15;
+            static const double epsilon = 1e-15;
 
             template <typename T>
             struct par_healpix
             {
-                int north_square;
-                int south_square;
                 T qp;
                 detail::apa<T> apa;
+                int north_square;
+                int south_square;
             };
 
             template <typename T>
-            struct CapMap
+            struct cap_map
             {
-                int cn; /* An integer 0--3 indicating the position of the polar cap. */
                 T x, y; /* Coordinates of the pole point (point of most extreme latitude on the polar caps). */
-                enum Region {north, south, equatorial} region;
+                int cn; /* An integer 0--3 indicating the position of the polar cap. */
+                enum region_type {north, south, equatorial} region;
             };
             template <typename T>
-            struct Point
+            struct point_xy
             {
                 T x, y;
             };
@@ -161,7 +155,7 @@ namespace projections
                 int i;
                 int counter = 0;
                 T xinters;
-                Point<T> p1, p2;
+                point_xy<T> p1, p2;
 
                 /* Check for boundrary cases */
                 for (i = 0; i < nvert; i++) {
@@ -204,47 +198,47 @@ namespace projections
             template <typename T>
             inline int in_image(T const& x, T const& y, int proj, int north_square, int south_square)
             {
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 if (proj == 0) {
                     T healpixVertsJit[][2] = {
-                        {-ONEPI - EPS,   FORTPI},
-                        {-3.0*FORTPI,   HALFPI + EPS},
-                        {-HALFPI,       FORTPI + EPS},
-                        {-FORTPI,       HALFPI + EPS},
-                        {0.0,           FORTPI + EPS},
-                        {FORTPI,        HALFPI + EPS},
-                        {HALFPI,        FORTPI + EPS},
-                        {3.0*FORTPI,    HALFPI + EPS},
-                        {ONEPI + EPS,    FORTPI},
-                        {ONEPI + EPS,   -FORTPI},
-                        {3.0*FORTPI,   -HALFPI - EPS},
-                        {HALFPI,       -FORTPI - EPS},
-                        {FORTPI,       -HALFPI - EPS},
-                        {0.0,          -FORTPI - EPS},
-                        {-FORTPI,      -HALFPI - EPS},
-                        {-HALFPI,      -FORTPI - EPS},
-                        {-3.0*FORTPI,  -HALFPI - EPS},
-                        {-ONEPI - EPS, -FORTPI}
+                        {-pi - epsilon,   fourth_pi},
+                        {-3.0*fourth_pi,  half_pi + epsilon},
+                        {-half_pi,        fourth_pi + epsilon},
+                        {-fourth_pi,      half_pi + epsilon},
+                        {0.0,             fourth_pi + epsilon},
+                        {fourth_pi,       half_pi + epsilon},
+                        {half_pi,         fourth_pi + epsilon},
+                        {3.0*fourth_pi,   half_pi + epsilon},
+                        {pi + epsilon,    fourth_pi},
+                        {pi + epsilon,   -fourth_pi},
+                        {3.0*fourth_pi,  -half_pi - epsilon},
+                        {half_pi,        -fourth_pi - epsilon},
+                        {fourth_pi,      -half_pi - epsilon},
+                        {0.0,            -fourth_pi - epsilon},
+                        {-fourth_pi,     -half_pi - epsilon},
+                        {-half_pi,       -fourth_pi - epsilon},
+                        {-3.0*fourth_pi, -half_pi - epsilon},
+                        {-pi - epsilon,  -fourth_pi}
                     };
                     return pnpoly((int)sizeof(healpixVertsJit)/
                                   sizeof(healpixVertsJit[0]), healpixVertsJit, x, y);
                 } else {
                     T rhealpixVertsJit[][2] = {
-                        {-ONEPI - EPS,                                FORTPI + EPS},
-                        {-ONEPI + north_square*HALFPI - EPS,          FORTPI + EPS},
-                        {-ONEPI + north_square*HALFPI - EPS,          3.0*FORTPI + EPS},
-                        {-ONEPI + (north_square + 1.0)*HALFPI + EPS,  3.0*FORTPI + EPS},
-                        {-ONEPI + (north_square + 1.0)*HALFPI + EPS,  FORTPI + EPS},
-                        {ONEPI + EPS,                                 FORTPI + EPS},
-                        {ONEPI + EPS,                                -FORTPI - EPS},
-                        {-ONEPI + (south_square + 1.0)*HALFPI + EPS, -FORTPI - EPS},
-                        {-ONEPI + (south_square + 1.0)*HALFPI + EPS, -3.0*FORTPI - EPS},
-                        {-ONEPI + south_square*HALFPI - EPS,         -3.0*FORTPI - EPS},
-                        {-ONEPI + south_square*HALFPI - EPS,         -FORTPI - EPS},
-                        {-ONEPI - EPS,                               -FORTPI - EPS}
+                        {-pi - epsilon,                                 fourth_pi + epsilon},
+                        {-pi + north_square*half_pi - epsilon,          fourth_pi + epsilon},
+                        {-pi + north_square*half_pi - epsilon,          3.0*fourth_pi + epsilon},
+                        {-pi + (north_square + 1.0)*half_pi + epsilon,  3.0*fourth_pi + epsilon},
+                        {-pi + (north_square + 1.0)*half_pi + epsilon,  fourth_pi + epsilon},
+                        {pi + epsilon,                                  fourth_pi + epsilon},
+                        {pi + epsilon,                                 -fourth_pi - epsilon},
+                        {-pi + (south_square + 1.0)*half_pi + epsilon, -fourth_pi - epsilon},
+                        {-pi + (south_square + 1.0)*half_pi + epsilon, -3.0*fourth_pi - epsilon},
+                        {-pi + south_square*half_pi - epsilon,         -3.0*fourth_pi - epsilon},
+                        {-pi + south_square*half_pi - epsilon,         -fourth_pi - epsilon},
+                        {-pi - epsilon,                                -fourth_pi - epsilon}
                     };
 
                     return pnpoly((int)sizeof(rhealpixVertsJit)/
@@ -283,9 +277,9 @@ namespace projections
             template <typename T>
             inline void healpix_sphere(T const& lp_lam, T const& lp_phi, T& xy_x, T& xy_y)
             {               
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T lam = lp_lam;
                 T phi = lp_phi;
@@ -294,17 +288,17 @@ namespace projections
                 /* equatorial region */
                 if ( fabsl(phi) <= phi0) {
                     xy_x = lam;
-                    xy_y = 3.0*ONEPI/8.0*sin(phi);
+                    xy_y = 3.0*pi/8.0*sin(phi);
                 } else {
                     T lamc;
                     T sigma = sqrt(3.0*(1 - math::abs(sin(phi))));
-                    T cn = floor(2*lam / ONEPI + 2);
+                    T cn = floor(2*lam / pi + 2);
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    lamc = -3*FORTPI + HALFPI*cn;
+                    lamc = -3*fourth_pi + half_pi*cn;
                     xy_x = lamc + (lam - lamc)*sigma;
-                    xy_y = pj_sign(phi)*FORTPI*(2 - sigma);
+                    xy_y = pj_sign(phi)*fourth_pi*(2 - sigma);
                 }
                 return;
             }
@@ -314,31 +308,31 @@ namespace projections
             template <typename T>
             inline void healpix_sphere_inverse(T const& xy_x, T const& xy_y, T& lp_lam, T& lp_phi)
             {                
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T x = xy_x;
                 T y = xy_y;
-                T y0 = FORTPI;
+                T y0 = fourth_pi;
 
                 /* Equatorial region. */
                 if (math::abs(y) <= y0) {
                     lp_lam = x;
-                    lp_phi = asin(8.0*y/(3.0*ONEPI));
-                } else if (fabsl(y) < HALFPI) {
-                    T cn = floor(2.0*x/ONEPI + 2.0);
+                    lp_phi = asin(8.0*y/(3.0*pi));
+                } else if (fabsl(y) < half_pi) {
+                    T cn = floor(2.0*x/pi + 2.0);
                     T xc, tau;
                     if (cn >= 4) {
                         cn = 3;
                     }
-                    xc = -3.0*FORTPI + (HALFPI)*cn;
-                    tau = 2.0 - 4.0*fabsl(y)/ONEPI;
+                    xc = -3.0*fourth_pi + (half_pi)*cn;
+                    tau = 2.0 - 4.0*fabsl(y)/pi;
                     lp_lam = xc + (x - xc)/tau;
-                    lp_phi = pj_sign(y)*asin(1.0 - pow(tau, 2)/3.0);
+                    lp_phi = pj_sign(y)*asin(1.0 - math::pow(tau, 2)/3.0);
                 } else {
-                    lp_lam = -1.0*ONEPI;
-                    lp_phi = pj_sign(y)*HALFPI;
+                    lp_lam = -1.0*pi;
+                    lp_phi = pj_sign(y)*half_pi;
                 }
                 return;
             }
@@ -347,7 +341,7 @@ namespace projections
              * @param ret holds a + b.
              **/
             template <typename T>
-            inline void vector_add(T a[2], T b[2], T *ret)
+            inline void vector_add(const T a[2], const T b[2], T ret[2])
             {
                 int i;
                 for(i = 0; i < 2; i++) {
@@ -359,7 +353,7 @@ namespace projections
              * @param ret holds a - b.
              **/
             template <typename T>
-            inline void vector_sub(T a[2], T b[2], T*ret)
+            inline void vector_sub(const T a[2], const T b[2], T ret[2])
             {
                 int i;
                 for(i = 0; i < 2; i++) {
@@ -372,7 +366,7 @@ namespace projections
              * @param ret holds a*b.
              **/
             template <typename T1, typename T2>
-            inline void dot_product(T1 a[2][2], T2 b[2], T2 *ret)
+            inline void dot_product(const T1 a[2][2], const T2 b[2], T2 ret[2])
             {
                 int i, j;
                 int length = 2;
@@ -392,81 +386,81 @@ namespace projections
              * (north_square, south_square)-rHEALPix projection of the unit sphere.
              **/
             template <typename T>
-            inline CapMap<T> get_cap(T x, T const& y, int north_square, int south_square,
+            inline cap_map<T> get_cap(T x, T const& y, int north_square, int south_square,
                                      int inverse)
             {
-                static const T ONEPI = detail::ONEPI<T>();
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T pi = detail::pi<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
-                CapMap<T> capmap;
+                cap_map<T> capmap;
                 T c;
                 capmap.x = x;
                 capmap.y = y;
                 if (inverse == 0) {
-                    if (y > FORTPI) {
-                        capmap.region = CapMap<T>::north;
-                        c = HALFPI;
-                    } else if (y < -FORTPI) {
-                        capmap.region = CapMap<T>::south;
-                        c = -HALFPI;
+                    if (y > fourth_pi) {
+                        capmap.region = cap_map<T>::north;
+                        c = half_pi;
+                    } else if (y < -fourth_pi) {
+                        capmap.region = cap_map<T>::south;
+                        c = -half_pi;
                     } else {
-                        capmap.region = CapMap<T>::equatorial;
+                        capmap.region = cap_map<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* polar region */
-                    if (x < -HALFPI) {
+                    if (x < -half_pi) {
                         capmap.cn = 0;
-                        capmap.x = (-3.0*FORTPI);
+                        capmap.x = (-3.0*fourth_pi);
                         capmap.y = c;
-                    } else if (x >= -HALFPI && x < 0) {
+                    } else if (x >= -half_pi && x < 0) {
                         capmap.cn = 1;
-                        capmap.x = -FORTPI;
+                        capmap.x = -fourth_pi;
                         capmap.y = c;
-                    } else if (x >= 0 && x < HALFPI) {
+                    } else if (x >= 0 && x < half_pi) {
                         capmap.cn = 2;
-                        capmap.x = FORTPI;
+                        capmap.x = fourth_pi;
                         capmap.y = c;
                     } else {
                         capmap.cn = 3;
-                        capmap.x = 3.0*FORTPI;
+                        capmap.x = 3.0*fourth_pi;
                         capmap.y = c;
                     }
                 } else {
-                    if (y > FORTPI) {
-                        capmap.region = CapMap<T>::north;
-                        capmap.x = (-3.0*FORTPI + north_square*HALFPI);
-                        capmap.y = HALFPI;
-                        x = x - north_square*HALFPI;
-                    } else if (y < -FORTPI) {
-                        capmap.region = CapMap<T>::south;
-                        capmap.x = (-3.0*FORTPI + south_square*ONEPI/2);
-                        capmap.y = -HALFPI;
-                        x = x - south_square*HALFPI;
+                    if (y > fourth_pi) {
+                        capmap.region = cap_map<T>::north;
+                        capmap.x = (-3.0*fourth_pi + north_square*half_pi);
+                        capmap.y = half_pi;
+                        x = x - north_square*half_pi;
+                    } else if (y < -fourth_pi) {
+                        capmap.region = cap_map<T>::south;
+                        capmap.x = (-3.0*fourth_pi + south_square*pi/2);
+                        capmap.y = -half_pi;
+                        x = x - south_square*half_pi;
                     } else {
-                        capmap.region = CapMap<T>::equatorial;
+                        capmap.region = cap_map<T>::equatorial;
                         capmap.cn = 0;
                         return capmap;
                     }
                     /* Polar Region, find the HEALPix polar cap number that
                        x, y moves to when rHEALPix polar square is disassembled. */
-                    if (capmap.region == CapMap<T>::north) {
-                        if (y >= -x - FORTPI - EPS && y < x + 5.0*FORTPI - EPS) {
+                    if (capmap.region == cap_map<T>::north) {
+                        if (y >= -x - fourth_pi - epsilon && y < x + 5.0*fourth_pi - epsilon) {
                             capmap.cn = (north_square + 1) % 4;
-                        } else if (y > -x -FORTPI + EPS && y >= x + 5.0*FORTPI - EPS) {
+                        } else if (y > -x -fourth_pi + epsilon && y >= x + 5.0*fourth_pi - epsilon) {
                             capmap.cn = (north_square + 2) % 4;
-                        } else if (y <= -x -FORTPI + EPS && y > x + 5.0*FORTPI + EPS) {
+                        } else if (y <= -x -fourth_pi + epsilon && y > x + 5.0*fourth_pi + epsilon) {
                             capmap.cn = (north_square + 3) % 4;
                         } else {
                             capmap.cn = north_square;
                         }
-                    } else if (capmap.region == CapMap<T>::south) {
-                        if (y <= x + FORTPI + EPS && y > -x - 5.0*FORTPI + EPS) {
+                    } else if (capmap.region == cap_map<T>::south) {
+                        if (y <= x + fourth_pi + epsilon && y > -x - 5.0*fourth_pi + epsilon) {
                             capmap.cn = (south_square + 1) % 4;
-                        } else if (y < x + FORTPI - EPS && y <= -x - 5.0*FORTPI + EPS) {
+                        } else if (y < x + fourth_pi - epsilon && y <= -x - 5.0*fourth_pi + epsilon) {
                             capmap.cn = (south_square + 2) % 4;
-                        } else if (y >= x + FORTPI - EPS && y < -x - 5.0*FORTPI - EPS) {
+                        } else if (y >= x + fourth_pi - epsilon && y < -x - 5.0*fourth_pi - epsilon) {
                             capmap.cn = (south_square + 3) % 4;
                         } else {
                             capmap.cn = south_square;
@@ -488,8 +482,8 @@ namespace projections
             inline void combine_caps(T& xy_x, T& xy_y, int north_square, int south_square,
                                      int inverse)
             {
-                static const T HALFPI = detail::HALFPI<T>();
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T half_pi = detail::half_pi<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
                 T v[2];
                 T c[2];
@@ -499,8 +493,8 @@ namespace projections
                 const double (*tmpRot)[2];
                 int pole = 0;
 
-                CapMap<T> capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
-                if (capmap.region == CapMap<T>::equatorial) {
+                cap_map<T> capmap = get_cap(xy_x, xy_y, north_square, south_square, inverse);
+                if (capmap.region == cap_map<T>::equatorial) {
                     xy_x = capmap.x;
                     xy_y = capmap.y;
                     return;
@@ -513,7 +507,7 @@ namespace projections
                     /* Rotate (xy_x, xy_y) about its polar cap tip and then translate it to
                        north_square or south_square. */
 
-                    if (capmap.region == CapMap<T>::north) {
+                    if (capmap.region == cap_map<T>::north) {
                         pole = north_square;
                         tmpRot = rot[get_rotate_index(capmap.cn - pole)];
                     } else {
@@ -525,7 +519,7 @@ namespace projections
                      Unrotate (xy_x, xy_y) and then translate it back. */
 
                     /* disassemble */
-                    if (capmap.region == CapMap<T>::north) {
+                    if (capmap.region == cap_map<T>::north) {
                         pole = north_square;
                         tmpRot = rot[get_rotate_index(-1*(capmap.cn - pole))];
                     } else {
@@ -542,9 +536,9 @@ namespace projections
                     /* Workaround cppcheck git issue */
                     T* pa = a;
                     // TODO: in proj4 5.0.0 this line is used instead
-                    //pa[0] = -3.0*FORTPI + ((inverse == 0) ? 0 : capmap.cn) *HALFPI;
-                    pa[0] = -3.0*FORTPI + ((inverse == 0) ? pole : capmap.cn) *HALFPI;
-                    pa[1] = HALFPI;
+                    //pa[0] = -3.0*fourth_pi + ((inverse == 0) ? 0 : capmap.cn) *half_pi;
+                    pa[0] = -3.0*fourth_pi + ((inverse == 0) ? pole : capmap.cn) *half_pi;
+                    pa[1] = half_pi;
                     vector_add(ret_dot, a, vector);
                 }
 
@@ -552,41 +546,31 @@ namespace projections
                 xy_y = vector[1];
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_healpix_ellipsoid : public base_t_fi<base_healpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_healpix_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
-
-                inline base_healpix_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_healpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_healpix<T> m_proj_parm;
 
                 // FORWARD(e_healpix_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
+                    lp_lat = auth_lat(par, m_proj_parm, lp_lat, 0);
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
                 // INVERSE(e_healpix_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image. */
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_x_or_y) );
                     }
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
-                    lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 1);
+                    lp_lat = auth_lat(par, m_proj_parm, lp_lat, 1);
                 }
 
                 static inline std::string get_name()
@@ -596,37 +580,27 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_healpix_spheroid : public base_t_fi<base_healpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_healpix_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
-
-                inline base_healpix_spheroid(const Parameters& par)
-                    : base_t_fi<base_healpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_healpix<T> m_proj_parm;
 
                 // FORWARD(s_healpix_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     return healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                 }
 
                 // INVERSE(s_healpix_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the HEALPix image */
                     if (in_image(xy_x, xy_y, 0, 0, 0) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_x_or_y) );
                     }
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
                 }
@@ -638,43 +612,33 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_rhealpix_ellipsoid : public base_t_fi<base_rhealpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_rhealpix_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
-
-                inline base_rhealpix_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_rhealpix_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_healpix<T> m_proj_parm;
 
                 // FORWARD(e_rhealpix_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 0);
+                    lp_lat = auth_lat(par, m_proj_parm, lp_lat, 0);
                     healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 0);
                 }
 
                 // INVERSE(e_rhealpix_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_x_or_y) );
                     }
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 1);
                     healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
-                    lp_lat = auth_lat(this->params(), m_proj_parm, lp_lat, 1);
+                    lp_lat = auth_lat(par, m_proj_parm, lp_lat, 1);
                 }
 
                 static inline std::string get_name()
@@ -684,24 +648,14 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_rhealpix_spheroid : public base_t_fi<base_rhealpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_rhealpix_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_healpix<CalculationType> m_proj_parm;
-
-                inline base_rhealpix_spheroid(const Parameters& par)
-                    : base_t_fi<base_rhealpix_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_healpix<T> m_proj_parm;
 
                 // FORWARD(s_rhealpix_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     healpix_sphere(lp_lon, lp_lat, xy_x, xy_y);
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 0);
@@ -709,13 +663,13 @@ namespace projections
 
                 // INVERSE(s_rhealpix_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
                     /* Check whether (x, y) lies in the rHEALPix image. */
                     if (in_image(xy_x, xy_y, 1, this->m_proj_parm.north_square, this->m_proj_parm.south_square) == 0) {
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-15) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_invalid_x_or_y) );
                     }
                     combine_caps(xy_x, xy_y, this->m_proj_parm.north_square, this->m_proj_parm.south_square, 1);
                     return healpix_sphere_inverse(xy_x, xy_y, lp_lon, lp_lat);
@@ -742,17 +696,17 @@ namespace projections
             }
 
             // rHEALPix
-            template <typename Parameters, typename T>
-            inline void setup_rhealpix(Parameters& par, par_healpix<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_rhealpix(Params const& params, Parameters& par, par_healpix<T>& proj_parm)
             {
-                proj_parm.north_square = pj_param(par.params,"inorth_square").i;
-                proj_parm.south_square = pj_param(par.params,"isouth_square").i;
+                proj_parm.north_square = pj_get_param_i<srs::spar::north_square>(params, "north_square", srs::dpar::north_square);
+                proj_parm.south_square = pj_get_param_i<srs::spar::south_square>(params, "south_square", srs::dpar::south_square);
                 /* Check for valid north_square and south_square inputs. */
-                if (proj_parm.north_square < 0 || proj_parm.north_square > 3) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-47) );
+                if ((proj_parm.north_square < 0) || (proj_parm.north_square > 3)) {
+                    BOOST_THROW_EXCEPTION( projection_exception(error_axis) );
                 }
-                if (proj_parm.south_square < 0 || proj_parm.south_square > 3) {
-                    BOOST_THROW_EXCEPTION( projection_exception(-47) );
+                if ((proj_parm.south_square < 0) || (proj_parm.south_square > 3)) {
+                    BOOST_THROW_EXCEPTION( projection_exception(error_axis) );
                 }
                 if (par.es != 0.0) {
                     proj_parm.apa = pj_authset<T>(par.es); /* For auth_lat(). */
@@ -780,12 +734,13 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct healpix_ellipsoid : public detail::healpix::base_healpix_ellipsoid<T, Parameters>
     {
-        inline healpix_ellipsoid(const Parameters& par) : detail::healpix::base_healpix_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline healpix_ellipsoid(Params const& , Parameters & par)
         {
-            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+            detail::healpix::setup_healpix(par, this->m_proj_parm);
         }
     };
 
@@ -801,12 +756,13 @@ namespace projections
         \par Example
         \image html ex_healpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct healpix_spheroid : public detail::healpix::base_healpix_spheroid<T, Parameters>
     {
-        inline healpix_spheroid(const Parameters& par) : detail::healpix::base_healpix_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline healpix_spheroid(Params const& , Parameters & par)
         {
-            detail::healpix::setup_healpix(this->m_par, this->m_proj_parm);
+            detail::healpix::setup_healpix(par, this->m_proj_parm);
         }
     };
 
@@ -825,12 +781,13 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct rhealpix_ellipsoid : public detail::healpix::base_rhealpix_ellipsoid<T, Parameters>
     {
-        inline rhealpix_ellipsoid(const Parameters& par) : detail::healpix::base_rhealpix_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline rhealpix_ellipsoid(Params const& params, Parameters & par)
         {
-            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+            detail::healpix::setup_rhealpix(params, par, this->m_proj_parm);
         }
     };
 
@@ -849,12 +806,13 @@ namespace projections
         \par Example
         \image html ex_rhealpix.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct rhealpix_spheroid : public detail::healpix::base_rhealpix_spheroid<T, Parameters>
     {
-        inline rhealpix_spheroid(const Parameters& par) : detail::healpix::base_rhealpix_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline rhealpix_spheroid(Params const& params, Parameters & par)
         {
-            detail::healpix::setup_rhealpix(this->m_par, this->m_proj_parm);
+            detail::healpix::setup_rhealpix(params, par, this->m_proj_parm);
         }
     };
 
@@ -863,41 +821,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::healpix, healpix_spheroid, healpix_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI2(srs::spar::proj_healpix, healpix_spheroid, healpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI2(srs::spar::proj_rhealpix, rhealpix_spheroid, rhealpix_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class healpix_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(healpix_entry, healpix_spheroid, healpix_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(rhealpix_entry, rhealpix_spheroid, rhealpix_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(healpix_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<healpix_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                    else
-                        return new base_v_fi<healpix_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        class rhealpix_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<rhealpix_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                    else
-                        return new base_v_fi<rhealpix_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void healpix_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("healpix", new healpix_entry<CalculationType, Parameters>);
-            factory.add_to_factory("rhealpix", new rhealpix_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(healpix, healpix_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(rhealpix, rhealpix_entry)
         }
 
     } // namespace detail

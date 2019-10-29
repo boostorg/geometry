@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,6 +20,7 @@
 // as mark_spikes is now replaced by remove_spikes
 
 #include <boost/range.hpp>
+#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>

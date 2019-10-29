@@ -2,8 +2,8 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,11 +14,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_GET_LEFT_TURNS_HPP
 
+#include <set>
+#include <vector>
+
 #include <boost/geometry/core/assert.hpp>
 
-#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/iterators/closing_iterator.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -244,17 +247,11 @@ inline void block_turns(AngleCollection& sorted, std::size_t cluster_size)
     for (typename boost::range_iterator<AngleCollection>::type it = sorted.begin();
         it != sorted.end(); ++it)
     {
-        signed_size_type cluster_index = static_cast<signed_size_type>(it->cluster_index);
-        signed_size_type previous_index = cluster_index - 1;
-        if (previous_index < 0)
-        {
-            previous_index = cluster_size - 1;
-        }
-        signed_size_type next_index = cluster_index + 1;
-        if (next_index >= static_cast<signed_size_type>(cluster_size))
-        {
-            next_index = 0;
-        }
+        std::size_t const cluster_index = it->cluster_index;
+        std::size_t const previous_index
+                = cluster_index == 0 ? cluster_size - 1 : cluster_index - 1;
+        std::size_t const next_index
+                = cluster_index + 1 >= cluster_size ? 0 : cluster_index + 1;
 
         if (directions[cluster_index].first
             && directions[cluster_index].second)

@@ -41,18 +41,12 @@
 
 #include <string>
 
+#include <boost/algorithm/string.hpp>
 #include <boost/static_assert.hpp>
 
-#if !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-#include <boost/lexical_cast.hpp>
-#endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-
-#include <boost/algorithm/string.hpp>
-
-#include <boost/config.hpp>
-
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/cs.hpp>
-
+#include <boost/geometry/srs/projections/str_cast.hpp>
 #include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -129,27 +123,23 @@ struct dms_parser
         bool has_dms[3];
 
         dms_value()
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+#ifdef BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
             : dms{0, 0, 0}
             , has_dms{false, false, false}
-#endif
+        {}
+#else
         {
-#ifdef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
             std::fill(dms, dms + 3, T(0));
             std::fill(has_dms, has_dms + 3, false);
-#endif
         }
+#endif
     };
 
 
     template <size_t I>
     static inline void assign_dms(dms_value& dms, std::string& value, bool& has_value)
     {
-#if !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-        dms.dms[I] = boost::lexical_cast<T>(value.c_str());
-#else // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
-        dms.dms[I] = std::atof(value.c_str());
-#endif // !defined(BOOST_GEOMETRY_NO_LEXICAL_CAST)
+        dms.dms[I] = geometry::str_cast<T>(value);
         dms.has_dms[I] = true;
         has_value = false;
         value.clear();
@@ -166,12 +156,12 @@ struct dms_parser
         }
     }
 
-    dms_result<T> apply(std::string const& is) const
+    static inline dms_result<T> apply(std::string const& is)
     {
         return apply(is.c_str());
     }
 
-    dms_result<T> apply(const char* is) const
+    static inline dms_result<T> apply(const char* is)
     {
         dms_value dms;
         bool has_value = false;

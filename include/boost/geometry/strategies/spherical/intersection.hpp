@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2018, Oracle and/or its affiliates.
+// Copyright (c) 2016-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,8 +41,12 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategies/spherical/envelope.hpp>
+#include <boost/geometry/strategies/spherical/expand_box.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -86,6 +90,8 @@ template
 >
 struct ecef_segments
 {
+    typedef spherical_tag cs_tag;
+
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()
@@ -149,13 +155,55 @@ struct ecef_segments
         return strategy_type();
     }
 
-    typedef envelope::spherical_segment<CalculationType>
+    typedef envelope::spherical<CalculationType>
         envelope_strategy_type;
 
     static inline envelope_strategy_type get_envelope_strategy()
     {
         return envelope_strategy_type();
     }
+
+    typedef expand::spherical_segment<CalculationType>
+        expand_strategy_type;
+
+    static inline expand_strategy_type get_expand_strategy()
+    {
+        return expand_strategy_type();
+    }
+
+    typedef within::spherical_point_point point_in_point_strategy_type;
+
+    static inline point_in_point_strategy_type get_point_in_point_strategy()
+    {
+        return point_in_point_strategy_type();
+    }
+
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
+    }
+
+    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
+
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
+    }
+
+    typedef disjoint::segment_box_spherical disjoint_segment_box_strategy_type;
+
+    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
+    {
+        return disjoint_segment_box_strategy_type();
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+    typedef within::spherical_point_box within_point_box_strategy_type;
+    typedef envelope::spherical_box envelope_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -204,43 +252,13 @@ struct ecef_segments
     // Relate segments a and b
     template
     <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Policy
     >
     static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const& policy, RobustPolicy const& robust_policy)
-    {
-        typedef typename point_type<Segment1>::type point1_t;
-        typedef typename point_type<Segment2>::type point2_t;
-        point1_t a1, a2;
-        point2_t b1, b2;
-
-        // TODO: use indexed_point_view if possible?
-        detail::assign_point_from_index<0>(a, a1);
-        detail::assign_point_from_index<1>(a, a2);
-        detail::assign_point_from_index<0>(b, b1);
-        detail::assign_point_from_index<1>(b, b2);
-
-        return apply(a, b, policy, robust_policy, a1, a2, b1, b2);
-    }
-
-    // Relate segments a and b
-    template
-    <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy,
-        typename Point1,
-        typename Point2
-    >
-    static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const&, RobustPolicy const&,
-              Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
+        apply(UniqueSubRange1 const& range_p, UniqueSubRange2 const& range_q,
+              Policy const&)
     {
         // For now create it using default constructor. In the future it could
         //  be stored in strategy. However then apply() wouldn't be static and
@@ -248,11 +266,23 @@ struct ecef_segments
         // Initialize explicitly to prevent compiler errors in case of PoD type
         CalcPolicy const calc_policy = CalcPolicy();
 
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
+        typedef typename UniqueSubRange1::point_type point1_type;
+        typedef typename UniqueSubRange2::point_type point2_type;
+
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point1_type>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
+
+        point1_type const& a1 = range_p.at(0);
+        point1_type const& a2 = range_p.at(1);
+        point2_type const& b1 = range_q.at(0);
+        point2_type const& b2 = range_q.at(1);
+
+        typedef model::referring_segment<point1_type const> segment1_type;
+        typedef model::referring_segment<point2_type const> segment2_type;
+        segment1_type const a(a1, a2);
+        segment2_type const b(b1, b2);
 
         // TODO: check only 2 first coordinates here?
-        using geometry::detail::equals::equals_point_point;
         bool a_is_point = equals_point_point(a1, a2);
         bool b_is_point = equals_point_point(b1, b2);
 
@@ -265,7 +295,7 @@ struct ecef_segments
         }
 
         typedef typename select_calculation_type
-            <Segment1, Segment2, CalculationType>::type calc_t;
+            <segment1_type, segment2_type, CalculationType>::type calc_t;
 
         calc_t const c0 = 0;
         calc_t const c1 = 1;
@@ -537,7 +567,7 @@ private:
 
     template <typename Point1, typename Point2, typename Vec3d, typename Plane, typename CalcT>
     static inline bool calculate_collinear_data(Point1 const& a1, Point1 const& a2, // in
-                                                Point2 const& b1, Point2 const& b2, // in
+                                                Point2 const& b1, Point2 const& /*b2*/, // in
                                                 Vec3d const& a1v,                   // in
                                                 Vec3d const& a2v,                   // in
                                                 Plane const& plane1,                // in
@@ -641,7 +671,6 @@ private:
         }
 
         // reassign the IP if some endpoints overlap
-        using geometry::detail::equals::equals_point_point;
         if (is_near_a1)
         {
             if (is_near_b1 && equals_point_point(a1, b1))
@@ -822,7 +851,6 @@ private:
                                          P1 const& ai, P2 const& b1)
     {
         static CalcT const c0 = 0;
-        using geometry::detail::equals::equals_point_point;
         return is_near(dist) && (math::equals(dist, c0) || equals_point_point(ai, b1));
     }
 
@@ -849,6 +877,13 @@ private:
               : ( ca1 > cb1 ? 0
                 : ca1 < cb2 ? 4
                 : 2 );
+    }
+
+    template <typename Point1, typename Point2>
+    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
+    {
+        return detail::equals::equals_point_point(point1, point2,
+                                                  point_in_point_strategy_type());
     }
 };
 
@@ -921,7 +956,7 @@ struct spherical_segments_calc_policy
         multiply_value(ip2, coord_t(-1));
 
         return true;
-    }
+    }    
 };
 
 

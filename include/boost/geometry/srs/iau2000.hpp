@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -23,58 +23,44 @@ namespace boost { namespace geometry
 namespace projections
 {
 
-template <typename CT>
-struct dynamic_parameters<srs::iau2000, CT>
+template <>
+struct dynamic_parameters<srs::iau2000>
 {
-    static inline projections::parameters<CT> apply(srs::iau2000 const& params)
+    static const bool is_specialized = true;
+    static inline srs::dpar::parameters<> apply(srs::iau2000 const& params)
     {
-        return projections::detail::pj_init_plus<CT>(
-                srs::dynamic(),
-                projections::detail::iau2000_to_string(params.code),
-                false);
-    }  
+        return projections::detail::iau2000_to_parameters(params.code);
+    }
 };
 
 template <int Code, typename CT>
 class proj_wrapper<srs::static_iau2000<Code>, CT>
-    : public static_proj_wrapper_base
+    : public proj_wrapper
         <
-            typename projections::detail::iau2000_traits<Code>::static_parameters_type,
+            typename projections::detail::iau2000_traits<Code>::parameters_type,
             CT
         >
 {
     typedef projections::detail::iau2000_traits<Code> iau2000_traits;
-    typedef typename iau2000_traits::static_parameters_type static_parameters_type;
-    typedef static_proj_wrapper_base<static_parameters_type, CT> base_t;
+
+    typedef proj_wrapper
+        <
+            typename iau2000_traits::parameters_type,
+            CT
+        > base_t;
 
 public:
     proj_wrapper()
-        : base_t(iau2000_traits::s_par(), iau2000_traits::par())
+        : base_t(iau2000_traits::parameters())
+    {}
+
+    explicit proj_wrapper(srs::static_iau2000<Code> const&)
+        : base_t(iau2000_traits::parameters())
     {}
 };
 
 
 } // namespace projections
-
-
-namespace srs
-{
-
-
-template <int Code, typename CT>
-class projection<srs::static_iau2000<Code>, CT>
-    : public projections::projection<srs::static_iau2000<Code>, CT>
-{
-    typedef projections::projection<srs::static_iau2000<Code>, CT> base_t;
-
-public:
-    projection()
-    {}
-};
-
-
-} // namespace srs
-
 
 }} // namespace boost::geometry
 

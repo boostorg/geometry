@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include <boost/geometry/srs/projections/exception.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry { namespace projections
@@ -32,16 +33,28 @@ namespace detail
     \tparam P parameters type
 */
 template <typename CT, typename P>
-class base_v
+class dynamic_wrapper_b
 {
 public :
+    dynamic_wrapper_b(P const& par)
+        : m_par(par)
+    {}
+
+    virtual ~dynamic_wrapper_b() {}
+
+    /// Forward projection using lon / lat and x / y separately
+    virtual void fwd(P const& par, CT const& lp_lon, CT const& lp_lat, CT& xy_x, CT& xy_y) const = 0;
+
+    /// Inverse projection using x / y and lon / lat
+    virtual void inv(P const& par, CT const& xy_x, CT const& xy_y, CT& lp_lon, CT& lp_lat) const = 0;
+
     /// Forward projection, from Latitude-Longitude to Cartesian
     template <typename LL, typename XY>
     inline bool forward(LL const& lp, XY& xy) const
     {
         try
         {
-            pj_fwd(*this, this->params(), lp, xy);
+            pj_fwd(*this, m_par, lp, xy);
             return true;
         }
         catch (...)
@@ -56,7 +69,7 @@ public :
     {
         try
         {
-            pj_inv(*this, this->params(), xy, lp);
+            pj_inv(*this, m_par, xy, lp);
             return true;
         }
         catch (projection_not_invertible_exception &)
@@ -69,77 +82,74 @@ public :
         }
     }
 
-    /// Forward projection using lon / lat and x / y separately
-    virtual void fwd(CT& lp_lon, CT& lp_lat, CT& xy_x, CT& xy_y) const = 0;
-
-    /// Inverse projection using x / y and lon / lat
-    virtual void inv(CT& xy_x, CT& xy_y, CT& lp_lon, CT& lp_lat) const = 0;
-
     /// Returns name of projection
-    virtual std::string name() const = 0;
+    std::string name() const { return m_par.id.name; }
 
     /// Returns parameters of projection
-    virtual P const& params() const = 0;
+    P const& params() const { return m_par; }
 
     /// Returns mutable parameters of projection
-    virtual P& mutable_params() = 0;
-
-    virtual ~base_v() {}
-};
-
-// Base-virtual-forward
-template <typename Prj, typename CT, typename P>
-class base_v_f : public base_v<CT, P>
-{
-public:
-    base_v_f(P const& params)
-        : m_proj(params)
-    {}
-
-    template <typename ProjP>
-    base_v_f(P const& params, ProjP const& proj_params)
-        : m_proj(params, proj_params)
-    {}
-
-    virtual void fwd(CT& lp_lon, CT& lp_lat, CT& xy_x, CT& xy_y) const
-    {
-        m_proj.fwd(lp_lon, lp_lat, xy_x, xy_y);
-    }
-
-    virtual void inv(CT& , CT& , CT& , CT& ) const
-    {
-        BOOST_THROW_EXCEPTION(projection_not_invertible_exception(params().name));
-    }
-
-    virtual std::string name() const { return m_proj.name(); }
-
-    virtual P const& params() const { return m_proj.params(); }
-
-    virtual P& mutable_params() { return m_proj.mutable_params(); }
+    P& mutable_params() { return m_par; }
 
 protected:
-    Prj m_proj;
+    P m_par;
 };
 
-// Base-virtual-forward/inverse
+// Forward
 template <typename Prj, typename CT, typename P>
-class base_v_fi : public base_v_f<Prj, CT, P>
+class dynamic_wrapper_f
+    : public dynamic_wrapper_b<CT, P>
+    , protected Prj
 {
-    typedef base_v_f<Prj, CT, P> base_t;
+    typedef dynamic_wrapper_b<CT, P> base_t;
 
 public:
-    base_v_fi(P const& params)
-        : base_t(params)
+    template <typename Params>
+    dynamic_wrapper_f(Params const& params, P const& par)
+        : base_t(par)
+        , Prj(params, this->m_par) // prj can modify parameters
     {}
 
-    template <typename ProjP>
-    base_v_fi(P const& params, ProjP const& proj_params)
-        : base_t(params, proj_params)
+    template <typename Params, typename P3>
+    dynamic_wrapper_f(Params const& params, P const& par, P3 const& p3)
+        : base_t(par)
+        , Prj(params, this->m_par, p3) // prj can modify parameters
     {}
 
-    virtual void inv(CT& xy_x, CT& xy_y, CT& lp_lon, CT& lp_lat) const
+    virtual void fwd(P const& par, CT const& lp_lon, CT const& lp_lat, CT& xy_x, CT& xy_y) const
     {
-        this->m_proj.inv(xy_x, xy_y, lp_lon, lp_lat);
+        prj().fwd(par, lp_lon, lp_lat, xy_x, xy_y);
+    }
+
+    virtual void inv(P const& , CT const& , CT const& , CT& , CT& ) const
+    {
+        BOOST_THROW_EXCEPTION(projection_not_invertible_exception(this->name()));
+    }
+
+protected:
+    Prj const& prj() const { return *this; }
+};
+
+// Forward/inverse
+template <typename Prj, typename CT, typename P>
+class dynamic_wrapper_fi : public dynamic_wrapper_f<Prj, CT, P>
+{
+    typedef dynamic_wrapper_f<Prj, CT, P> base_t;
+
+public:
+    template <typename Params>
+    dynamic_wrapper_fi(Params const& params, P const& par)
+        : base_t(params, par)
+    {}
+
+    template <typename Params, typename P3>
+    dynamic_wrapper_fi(Params const& params, P const& par, P3 const& p3)
+        : base_t(params, par, p3)
+    {}
+    
+    virtual void inv(P const& par, CT const& xy_x, CT const& xy_y, CT& lp_lon, CT& lp_lat) const
+    {
+        this->prj().inv(par, xy_x, xy_y, lp_lon, lp_lat);
     }
 };
 

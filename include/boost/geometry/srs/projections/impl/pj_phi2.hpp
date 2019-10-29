@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -39,6 +39,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_PHI2_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_PHI2_HPP
 
+#include <boost/geometry/srs/projections/exception.hpp>
+#include <boost/geometry/srs/projections/impl/pj_strerrno.hpp>
 #include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace projections {
@@ -58,12 +60,12 @@ inline T pj_phi2(T const& ts, T const& e)
     i = N_ITER;
     do {
         con = e * sin (Phi);
-        dphi = geometry::math::half_pi<T>() - 2. * atan (ts * pow((1. - con) /
-           (1. + con), eccnth)) - Phi;
+        dphi = geometry::math::half_pi<T>() - 2. * atan (ts * math::pow((T(1) - con) /
+           (T(1) + con), eccnth)) - Phi;
         Phi += dphi;
     } while ( geometry::math::abs(dphi) > TOL && --i);
     if (i <= 0)
-        BOOST_THROW_EXCEPTION( projection_exception(-18) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_non_con_inv_phi2) );
     return Phi;
 }
 

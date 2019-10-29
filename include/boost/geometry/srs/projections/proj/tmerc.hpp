@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -53,19 +53,13 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct tmerc {}; // Transverse Mercator
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace tmerc
     {
 
-            static const double EPS10 = 1.e-10;
+            static const double epsilon10 = 1.e-10;
 
             template <typename T>
             inline T FC1() { return 1.; }
@@ -92,36 +86,26 @@ namespace projections
                 detail::en<T> en;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tmerc_ellipsoid : public base_t_fi<base_tmerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tmerc_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_tmerc<CalculationType> m_proj_parm;
-
-                inline base_tmerc_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_tmerc_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_tmerc<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipse
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType FC1 = tmerc::FC1<CalculationType>();
-                    static const CalculationType FC2 = tmerc::FC2<CalculationType>();
-                    static const CalculationType FC3 = tmerc::FC3<CalculationType>();
-                    static const CalculationType FC4 = tmerc::FC4<CalculationType>();
-                    static const CalculationType FC5 = tmerc::FC5<CalculationType>();
-                    static const CalculationType FC6 = tmerc::FC6<CalculationType>();
-                    static const CalculationType FC7 = tmerc::FC7<CalculationType>();
-                    static const CalculationType FC8 = tmerc::FC8<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T FC1 = tmerc::FC1<T>();
+                    static const T FC2 = tmerc::FC2<T>();
+                    static const T FC3 = tmerc::FC3<T>();
+                    static const T FC4 = tmerc::FC4<T>();
+                    static const T FC5 = tmerc::FC5<T>();
+                    static const T FC6 = tmerc::FC6<T>();
+                    static const T FC7 = tmerc::FC7<T>();
+                    static const T FC8 = tmerc::FC8<T>();
 
-                    CalculationType al, als, n, cosphi, sinphi, t;
+                    T al, als, n, cosphi, sinphi, t;
 
                     /*
                      * Fail if our longitude is more than 90 degrees from the
@@ -130,11 +114,11 @@ namespace projections
                      *
                      *  http://trac.osgeo.org/proj/ticket/5
                      */
-                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    if( lp_lon < -half_pi || lp_lon > half_pi )
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                         return;
                     }
 
@@ -144,14 +128,14 @@ namespace projections
                     t *= t;
                     al = cosphi * lp_lon;
                     als = al * al;
-                    al /= sqrt(1. - this->m_par.es * sinphi * sinphi);
+                    al /= sqrt(1. - par.es * sinphi * sinphi);
                     n = this->m_proj_parm.esp * cosphi * cosphi;
-                    xy_x = this->m_par.k0 * al * (FC1 +
+                    xy_x = par.k0 * al * (FC1 +
                         FC3 * als * (1. - t + n +
                         FC5 * als * (5. + t * (t - 18.) + n * (14. - 58. * t)
                         + FC7 * als * (61. + t * ( t * (179. - t) - 479. ) )
                         )));
-                    xy_y = this->m_par.k0 * (pj_mlfn(lp_lat, sinphi, cosphi, this->m_proj_parm.en) - this->m_proj_parm.ml0 +
+                    xy_y = par.k0 * (pj_mlfn(lp_lat, sinphi, cosphi, this->m_proj_parm.en) - this->m_proj_parm.ml0 +
                         sinphi * al * lp_lon * FC2 * ( 1. +
                         FC4 * als * (5. - t + n * (9. + 4. * n) +
                         FC6 * als * (61. + t * (t - 58.) + n * (270. - 330 * t)
@@ -161,34 +145,34 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
-                    static const CalculationType FC1 = tmerc::FC1<CalculationType>();
-                    static const CalculationType FC2 = tmerc::FC2<CalculationType>();
-                    static const CalculationType FC3 = tmerc::FC3<CalculationType>();
-                    static const CalculationType FC4 = tmerc::FC4<CalculationType>();
-                    static const CalculationType FC5 = tmerc::FC5<CalculationType>();
-                    static const CalculationType FC6 = tmerc::FC6<CalculationType>();
-                    static const CalculationType FC7 = tmerc::FC7<CalculationType>();
-                    static const CalculationType FC8 = tmerc::FC8<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T FC1 = tmerc::FC1<T>();
+                    static const T FC2 = tmerc::FC2<T>();
+                    static const T FC3 = tmerc::FC3<T>();
+                    static const T FC4 = tmerc::FC4<T>();
+                    static const T FC5 = tmerc::FC5<T>();
+                    static const T FC6 = tmerc::FC6<T>();
+                    static const T FC7 = tmerc::FC7<T>();
+                    static const T FC8 = tmerc::FC8<T>();
 
-                    CalculationType n, con, cosphi, d, ds, sinphi, t;
+                    T n, con, cosphi, d, ds, sinphi, t;
 
-                    lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / this->m_par.k0, this->m_par.es, this->m_proj_parm.en);
-                    if (fabs(lp_lat) >= HALFPI) {
-                        lp_lat = xy_y < 0. ? -HALFPI : HALFPI;
+                    lp_lat = pj_inv_mlfn(this->m_proj_parm.ml0 + xy_y / par.k0, par.es, this->m_proj_parm.en);
+                    if (fabs(lp_lat) >= half_pi) {
+                        lp_lat = xy_y < 0. ? -half_pi : half_pi;
                         lp_lon = 0.;
                     } else {
                         sinphi = sin(lp_lat);
                         cosphi = cos(lp_lat);
                         t = fabs(cosphi) > 1e-10 ? sinphi/cosphi : 0.;
                         n = this->m_proj_parm.esp * cosphi * cosphi;
-                        d = xy_x * sqrt(con = 1. - this->m_par.es * sinphi * sinphi) / this->m_par.k0;
+                        d = xy_x * sqrt(con = 1. - par.es * sinphi * sinphi) / par.k0;
                         con *= t;
                         t *= t;
                         ds = d * d;
-                        lp_lat -= (con * ds / (1.-this->m_par.es)) * FC2 * (1. -
+                        lp_lat -= (con * ds / (1.-par.es)) * FC2 * (1. -
                             ds * FC4 * (5. + t * (3. - 9. *  n) + n * (1. - 4 * n) -
                             ds * FC6 * (61. + t * (90. - 252. * n +
                                 45. * t) + 46. * n
@@ -209,28 +193,18 @@ namespace projections
 
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tmerc_spheroid : public base_t_fi<base_tmerc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tmerc_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_tmerc<CalculationType> m_proj_parm;
-
-                inline base_tmerc_spheroid(const Parameters& par)
-                    : base_t_fi<base_tmerc_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_tmerc<T> m_proj_parm;
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType b, cosphi;
+                    T b, cosphi;
 
                     /*
                      * Fail if our longitude is more than 90 degrees from the
@@ -239,48 +213,48 @@ namespace projections
                      *
                      *  http://trac.osgeo.org/proj/ticket/5
                      */
-                    if( lp_lon < -HALFPI || lp_lon > HALFPI )
+                    if( lp_lon < -half_pi || lp_lon > half_pi )
                     {
                         xy_x = HUGE_VAL;
                         xy_y = HUGE_VAL;
-                        BOOST_THROW_EXCEPTION( projection_exception(-14) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                         return;
                     }
 
                     cosphi = cos(lp_lat);
                     b = cosphi * sin(lp_lon);
-                    if (fabs(fabs(b) - 1.) <= EPS10)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                    if (fabs(fabs(b) - 1.) <= epsilon10)
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                     xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
                     xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b);
 
                     b = fabs( xy_y );
                     if (b >= 1.) {
-                        if ((b - 1.) > EPS10)
-                            BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        if ((b - 1.) > epsilon10)
+                            BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         else xy_y = 0.;
                     } else
                         xy_y = acos(xy_y);
 
                     if (lp_lat < 0.)
                         xy_y = -xy_y;
-                    xy_y = this->m_proj_parm.esp * (xy_y - this->m_par.phi0);
+                    xy_y = this->m_proj_parm.esp * (xy_y - par.phi0);
                 }
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType h, g;
+                    T h, g;
 
                     h = exp(xy_x / this->m_proj_parm.esp);
                     g = .5 * (h - 1. / h);
-                    h = cos(this->m_par.phi0 + xy_y / this->m_proj_parm.esp);
+                    h = cos(par.phi0 + xy_y / this->m_proj_parm.esp);
                     lp_lat = asin(sqrt((1. - h * h) / (1. + g * g)));
 
                     /* Make sure that phi is on the correct hemisphere when false northing is used */
-                    if (xy_y < 0. && -lp_lat+this->m_par.phi0 < 0.0) lp_lat = -lp_lat;
+                    if (xy_y < 0. && -lp_lat+par.phi0 < 0.0) lp_lat = -lp_lat;
 
                     lp_lon = (g != 0.0 || h != 0.0) ? atan2(g, h) : 0.;
                 }
@@ -293,7 +267,7 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            inline void setup(Parameters& par, par_tmerc<T>& proj_parm)
+            inline void setup(Parameters const& par, par_tmerc<T>& proj_parm)
             {
                 if (par.es != 0.0) {
                     proj_parm.en = pj_enfn<T>(par.es);
@@ -321,12 +295,13 @@ namespace projections
         \par Example
         \image html ex_tmerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid<T, Parameters>
     {
-        inline tmerc_ellipsoid(const Parameters& par) : detail::tmerc::base_tmerc_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline tmerc_ellipsoid(Params const&, Parameters const& par)
         {
-            detail::tmerc::setup(this->m_par, this->m_proj_parm);
+            detail::tmerc::setup(par, this->m_proj_parm);
         }
     };
 
@@ -343,12 +318,13 @@ namespace projections
         \par Example
         \image html ex_tmerc.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tmerc_spheroid : public detail::tmerc::base_tmerc_spheroid<T, Parameters>
     {
-        inline tmerc_spheroid(const Parameters& par) : detail::tmerc::base_tmerc_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline tmerc_spheroid(Params const&, Parameters const& par)
         {
-            detail::tmerc::setup(this->m_par, this->m_proj_parm);
+            detail::tmerc::setup(par, this->m_proj_parm);
         }
     };
 
@@ -357,26 +333,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tmerc, tmerc_spheroid, tmerc_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI2(srs::spar::proj_tmerc, tmerc_spheroid, tmerc_ellipsoid)
         
         // Factory entry(s) - dynamic projection
-        template <typename CalculationType, typename Parameters>
-        class tmerc_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI2(tmerc_entry, tmerc_spheroid, tmerc_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(tmerc_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    if (par.es)
-                        return new base_v_fi<tmerc_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                    else
-                        return new base_v_fi<tmerc_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void tmerc_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("tmerc", new tmerc_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(tmerc, tmerc_entry)
         }
 
     } // namespace detail

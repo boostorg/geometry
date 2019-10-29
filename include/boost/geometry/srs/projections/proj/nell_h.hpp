@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,38 +50,21 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct nell_h {}; // Nell-Hammer
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace nell_h
     {
 
-            static const int NITER = 9;
-            static const double EPS = 1e-7;
+            static const int n_iter = 9;
+            static const double epsilon = 1e-7;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nell_h_spheroid : public base_t_fi<base_nell_h_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nell_h_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_nell_h_spheroid(const Parameters& par)
-                    : base_t_fi<base_nell_h_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
                     xy_x = 0.5 * lp_lon * (1. + cos(lp_lat));
                     xy_y = 2.0 * (lp_lat - tan(0.5 *lp_lat));
@@ -89,22 +72,22 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType V, c, p;
+                    T V, c, p;
                     int i;
 
                     p = 0.5 * xy_y;
-                    for (i = NITER; i ; --i) {
+                    for (i = n_iter; i ; --i) {
                         c = cos(0.5 * lp_lat);
                         lp_lat -= V = (lp_lat - tan(lp_lat/2) - p)/(1. - 0.5/(c*c));
-                        if (fabs(V) < EPS)
+                        if (fabs(V) < epsilon)
                             break;
                     }
                     if (!i) {
-                        lp_lat = p < 0. ? -HALFPI : HALFPI;
+                        lp_lat = p < 0. ? -half_pi : half_pi;
                         lp_lon = 2. * xy_x;
                     } else
                         lp_lon = 2. * xy_x / (1. + cos(lp_lat));
@@ -139,12 +122,13 @@ namespace projections
         \par Example
         \image html ex_nell_h.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nell_h_spheroid : public detail::nell_h::base_nell_h_spheroid<T, Parameters>
     {
-        inline nell_h_spheroid(const Parameters& par) : detail::nell_h::base_nell_h_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline nell_h_spheroid(Params const& , Parameters & par)
         {
-            detail::nell_h::setup_nell_h(this->m_par);
+            detail::nell_h::setup_nell_h(par);
         }
     };
 
@@ -153,23 +137,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nell_h, nell_h_spheroid, nell_h_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_nell_h, nell_h_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nell_h_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<nell_h_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(nell_h_entry, nell_h_spheroid)
 
-        template <typename CalculationType, typename Parameters>
-        inline void nell_h_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(nell_h_init)
         {
-            factory.add_to_factory("nell_h", new nell_h_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(nell_h, nell_h_entry)
         }
 
     } // namespace detail

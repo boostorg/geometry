@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2017, 2018.
+// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,10 +15,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_APPEND_NO_DUPS_OR_SPIKES_HPP
 
 #include <boost/range.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+
+#include <boost/geometry/core/closure.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -33,12 +36,13 @@ namespace detail { namespace overlay
 {
 
 // TODO: move this / rename this
-template <typename Point1, typename Point2, typename RobustPolicy>
+template <typename Point1, typename Point2, typename EqualsStrategy, typename RobustPolicy>
 inline bool points_equal_or_close(Point1 const& point1,
         Point2 const& point2,
+        EqualsStrategy const& strategy,
         RobustPolicy const& robust_policy)
 {
-    if (detail::equals::equals_point_point(point1, point2))
+    if (detail::equals::equals_point_point(point1, point2, strategy))
     {
         return true;
     }
@@ -59,7 +63,14 @@ inline bool points_equal_or_close(Point1 const& point1,
     geometry::recalculate(point1_rob, point1, robust_policy);
     geometry::recalculate(point2_rob, point2, robust_policy);
 
-    return detail::equals::equals_point_point(point1_rob, point2_rob);
+    // Only if this is the case the same strategy can be used.
+    BOOST_STATIC_ASSERT((boost::is_same
+                            <
+                                typename geometry::cs_tag<Point1>::type,
+                                typename geometry::cs_tag<robust_point_type>::type
+                            >::value));
+
+    return detail::equals::equals_point_point(point1_rob, point2_rob, strategy);
 }
 
 
@@ -76,8 +87,10 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
     // The code below this condition checks all spikes/dups
     // for geometries >= 3 points.
     // So we have to check the first potential duplicate differently
-    if (boost::size(range) == 1
-        && points_equal_or_close(*(boost::begin(range)), point, robust_policy))
+    if ( boost::size(range) == 1
+      && points_equal_or_close(*(boost::begin(range)), point,
+                               strategy.get_equals_point_point_strategy(),
+                               robust_policy) )
     {
         return;
     }
@@ -113,8 +126,10 @@ inline void append_no_collinear(Range& range, Point const& point,
     // The code below this condition checks all spikes/dups
     // for geometries >= 3 points.
     // So we have to check the first potential duplicate differently
-    if (boost::size(range) == 1
-        && points_equal_or_close(*(boost::begin(range)), point, robust_policy))
+    if ( boost::size(range) == 1
+      && points_equal_or_close(*(boost::begin(range)), point,
+                               strategy.get_equals_point_point_strategy(),
+                               robust_policy) )
     {
         return;
     }

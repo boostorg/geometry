@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -44,17 +44,12 @@
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct ocea {}; // Oblique Cylindrical Equal Area
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -72,43 +67,33 @@ namespace projections
                 T    cosgam;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_ocea_spheroid : public base_t_fi<base_ocea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_ocea_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_ocea<CalculationType> m_proj_parm;
-
-                inline base_ocea_spheroid(const Parameters& par)
-                    : base_t_fi<base_ocea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_ocea<T> m_proj_parm;
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType ONEPI = detail::ONEPI<CalculationType>();
+                    static const T pi = detail::pi<T>();
 
-                    CalculationType t;
+                    T t;
 
                     xy_y = sin(lp_lon);
                     t = cos(lp_lon);
                     xy_x = atan((tan(lp_lat) * this->m_proj_parm.cosphi + this->m_proj_parm.sinphi * xy_y) / t);
                     if (t < 0.)
-                        xy_x += ONEPI;
+                        xy_x += pi;
                     xy_x *= this->m_proj_parm.rtk;
                     xy_y = this->m_proj_parm.rok * (this->m_proj_parm.sinphi * sin(lp_lat) - this->m_proj_parm.cosphi * cos(lp_lat) * xy_y);
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType t, s;
+                    T t, s;
 
                     xy_y /= this->m_proj_parm.rok;
                     xy_x /= this->m_proj_parm.rtk;
@@ -126,20 +111,20 @@ namespace projections
             };
 
             // Oblique Cylindrical Equal Area
-            template <typename Parameters, typename T>
-            inline void setup_ocea(Parameters& par, par_ocea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_ocea(Params const& params, Parameters& par, par_ocea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
                 T phi_0=0.0, phi_1, phi_2, lam_1, lam_2, lonz, alpha;
 
                 proj_parm.rok = 1. / par.k0;
                 proj_parm.rtk = par.k0;
                 /*If the keyword "alpha" is found in the sentence then use 1point+1azimuth*/
-                if ( pj_param(par.params, "talpha").i) {
+                if ( pj_param_r<srs::spar::alpha>(params, "alpha", srs::dpar::alpha, alpha)) {
                     /*Define Pole of oblique transformation from 1 point & 1 azimuth*/
-                    alpha    = pj_param(par.params, "ralpha").f;
-                    lonz = pj_param(par.params, "rlonc").f;
+                    //alpha = pj_get_param_r(par.params, "alpha"); // set above
+                    lonz = pj_get_param_r<T, srs::spar::lonc>(params, "lonc", srs::dpar::lonc);
                     /*Equation 9-8 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan(-cos(alpha)/(-sin(phi_0) * sin(alpha))) + lonz;
                     /*Equation 9-7 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
@@ -147,10 +132,10 @@ namespace projections
                 /*If the keyword "alpha" is NOT found in the sentence then use 2points*/
                 } else {
                     /*Define Pole of oblique transformation from 2 points*/
-                    phi_1 = pj_param(par.params, "rlat_1").f;
-                    phi_2 = pj_param(par.params, "rlat_2").f;
-                    lam_1 = pj_param(par.params, "rlon_1").f;
-                    lam_2 = pj_param(par.params, "rlon_2").f;
+                    phi_1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                    phi_2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
+                    lam_1 = pj_get_param_r<T, srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1);
+                    lam_2 = pj_get_param_r<T, srs::spar::lon_2>(params, "lon_2", srs::dpar::lon_2);
                     /*Equation 9-1 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.singam = atan2(cos(phi_1) * sin(phi_2) * cos(lam_1) -
                         sin(phi_1) * cos(phi_2) * cos(lam_2),
@@ -158,13 +143,13 @@ namespace projections
                         cos(phi_1) * sin(phi_2) * sin(lam_1) );
 
                     /* take care of P->lam0 wrap-around when +lam_1=-90*/
-                    if (lam_1 == -HALFPI)
+                    if (lam_1 == -half_pi)
                         proj_parm.singam = -proj_parm.singam;
 
                     /*Equation 9-2 page 80 (http://pubs.usgs.gov/pp/1395/report.pdf)*/
                     proj_parm.sinphi = atan(-cos(proj_parm.singam - lam_1) / tan(phi_1));
                 }
-                par.lam0 = proj_parm.singam + HALFPI;
+                par.lam0 = proj_parm.singam + half_pi;
                 proj_parm.cosphi = cos(proj_parm.sinphi);
                 proj_parm.sinphi = sin(proj_parm.sinphi);
                 proj_parm.cosgam = cos(proj_parm.singam);
@@ -194,12 +179,13 @@ namespace projections
         \par Example
         \image html ex_ocea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct ocea_spheroid : public detail::ocea::base_ocea_spheroid<T, Parameters>
     {
-        inline ocea_spheroid(const Parameters& par) : detail::ocea::base_ocea_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline ocea_spheroid(Params const& params, Parameters & par)
         {
-            detail::ocea::setup_ocea(this->m_par, this->m_proj_parm);
+            detail::ocea::setup_ocea(params, par, this->m_proj_parm);
         }
     };
 
@@ -208,23 +194,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::ocea, ocea_spheroid, ocea_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_ocea, ocea_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class ocea_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<ocea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(ocea_entry, ocea_spheroid)
 
-        template <typename CalculationType, typename Parameters>
-        inline void ocea_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(ocea_init)
         {
-            factory.add_to_factory("ocea", new ocea_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(ocea, ocea_entry)
         }
 
     } // namespace detail

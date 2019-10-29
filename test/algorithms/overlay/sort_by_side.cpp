@@ -4,8 +4,8 @@
 // Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2019.
+// Modifications copyright (c) 2017, 2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -137,7 +137,7 @@ std::vector<std::size_t> apply_overlay(
     typedef bg::detail::overlay::traversal_turn_info
     <
         point_type,
-        typename bg::segment_ratio_type<point_type, RobustPolicy>::type
+        typename bg::detail::segment_ratio_type<point_type, RobustPolicy>::type
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 
@@ -157,13 +157,10 @@ std::vector<std::size_t> apply_overlay(
             detail::overlay::assign_null_policy
         >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
-    typename Strategy::side_strategy_type side_strategy;
     cluster_type clusters;
 
     bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
-            clusters, geometry1, geometry2,
-                robust_policy,
-                side_strategy);
+            clusters, geometry1, geometry2, robust_policy, strategy);
 
     // Gather cluster properties, with test option
     return ::gather_cluster_properties<Reverse1, Reverse2, OverlayType>(

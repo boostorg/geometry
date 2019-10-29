@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,22 +40,17 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_IMW_P_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_IMW_P_HPP
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct imw_p {}; // International Map of the World Polyconic
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -63,16 +58,16 @@ namespace projections
     namespace detail { namespace imw_p
     {
 
-            static const double TOL = 1e-10;
-            static const double EPS = 1e-10;
+            static const double tolerance = 1e-10;
+            static const double epsilon = 1e-10;
 
             template <typename T>
-            struct XY { T x, y; }; // specific for IMW_P
+            struct point_xy { T x, y; }; // specific for IMW_P
 
-            enum Mode {
-                NONE_IS_ZERO  =  0, /* phi_1 and phi_2 != 0 */
-                PHI_1_IS_ZERO =  1, /* phi_1 = 0 */
-                PHI_2_IS_ZERO = -1  /* phi_2 = 0 */
+            enum mode_type {
+                none_is_zero  =  0, /* phi_1 and phi_2 != 0 */
+                phi_1_is_zero =  1, /* phi_1 = 0 */
+                phi_2_is_zero = -1  /* phi_2 = 0 */
             };
 
             template <typename T>
@@ -81,32 +76,34 @@ namespace projections
                 T    P, Pp, Q, Qp, R_1, R_2, sphi_1, sphi_2, C2;
                 T    phi_1, phi_2, lam_1;
                 detail::en<T> en;
-                enum Mode mode;
+                mode_type mode;
             };
 
-            template <typename Parameters, typename T>
-            inline int
-            phi12(Parameters& par, par_imw_p<T>& proj_parm, T *del, T *sig)
+            template <typename Params, typename T>
+            inline int phi12(Params const& params,
+                             par_imw_p<T> & proj_parm, T *del, T *sig)
             {
                 int err = 0;
 
-                if (!pj_param(par.params, "tlat_1").i ||
-                    !pj_param(par.params, "tlat_2").i) {
+                if (!pj_param_r<srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1, proj_parm.phi_1) ||
+                    !pj_param_r<srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2, proj_parm.phi_2)) {
                     err = -41;
                 } else {
-                    proj_parm.phi_1 = pj_param(par.params, "rlat_1").f;
-                    proj_parm.phi_2 = pj_param(par.params, "rlat_2").f;
+                    //proj_parm.phi_1 = pj_get_param_r(par.params, "lat_1"); // set above
+                    //proj_parm.phi_2 = pj_get_param_r(par.params, "lat_2"); // set above
                     *del = 0.5 * (proj_parm.phi_2 - proj_parm.phi_1);
                     *sig = 0.5 * (proj_parm.phi_2 + proj_parm.phi_1);
-                    err = (fabs(*del) < EPS || fabs(*sig) < EPS) ? -42 : 0;
+                    err = (fabs(*del) < epsilon || fabs(*sig) < epsilon) ? -42 : 0;
                 }
                 return err;
             }
             template <typename Parameters, typename T>
-            inline XY<T>
-            loc_for(T const& lp_lam, T const& lp_phi, Parameters const& par, par_imw_p<T> const& proj_parm, T *yc)
+            inline point_xy<T> loc_for(T const& lp_lam, T const& lp_phi,
+                                       Parameters const& par,
+                                       par_imw_p<T> const& proj_parm,
+                                       T *yc)
             {
-                XY<T> xy;
+                point_xy<T> xy;
 
                 if (lp_phi == 0.0) {
                     xy.x = lp_lam;
@@ -122,7 +119,7 @@ namespace projections
                     C = sqrt(R * R - xa * xa);
                     if (lp_phi < 0.) C = - C;
                     C += ya - R;
-                    if (proj_parm.mode == PHI_2_IS_ZERO) {
+                    if (proj_parm.mode == phi_2_is_zero) {
                         xb = lp_lam;
                         yb = proj_parm.C2;
                     } else {
@@ -130,7 +127,7 @@ namespace projections
                         xb = proj_parm.R_2 * sin(t);
                         yb = proj_parm.C2 + proj_parm.R_2 * (1. - cos(t));
                     }
-                    if (proj_parm.mode == PHI_1_IS_ZERO) {
+                    if (proj_parm.mode == phi_1_is_zero) {
                         xc = lp_lam;
                         *yc = 0.;
                     } else {
@@ -152,8 +149,9 @@ namespace projections
                 return (xy);
             }
             template <typename Parameters, typename T>
-            inline void
-            xy(Parameters const& par, par_imw_p<T> const& proj_parm, T const& phi, T *x, T *y, T *sp, T *R)
+            inline void xy(Parameters const& par, par_imw_p<T> const& proj_parm,
+                           T const& phi,
+                           T *x, T *y, T *sp, T *R)
             {
                 T F;
 
@@ -164,50 +162,40 @@ namespace projections
                 *x = *R * sin(F);
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_imw_p_ellipsoid : public base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_imw_p_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_imw_p<CalculationType> m_proj_parm;
-
-                inline base_imw_p_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_imw_p_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_imw_p<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType yc = 0;
-                    XY<CalculationType> xy = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                    T yc = 0;
+                    point_xy<T> xy = loc_for(lp_lon, lp_lat, par, m_proj_parm, &yc);
                     xy_x = xy.x; xy_y = xy.y;
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    XY<CalculationType> t;
-                    CalculationType yc = 0.0;
+                    point_xy<T> t;
+                    T yc = 0.0;
                     int i = 0;
-                    const int N_MAX_ITER = 1000; /* Arbitrarily choosen number... */
+                    const int n_max_iter = 1000; /* Arbitrarily choosen number... */
 
                     lp_lat = this->m_proj_parm.phi_2;
                     lp_lon = xy_x / cos(lp_lat);
                     do {
-                        t = loc_for(lp_lon, lp_lat, this->m_par, m_proj_parm, &yc);
+                        t = loc_for(lp_lon, lp_lat, par, m_proj_parm, &yc);
                         lp_lat = ((lp_lat - this->m_proj_parm.phi_1) * (xy_y - yc) / (t.y - yc)) + this->m_proj_parm.phi_1;
                         lp_lon = lp_lon * xy_x / t.x;
                         i++;
-                    } while (i < N_MAX_ITER &&
-                             (fabs(t.x - xy_x) > TOL || fabs(t.y - xy_y) > TOL));
+                    } while (i < n_max_iter &&
+                             (fabs(t.x - xy_x) > tolerance || fabs(t.y - xy_y) > tolerance));
 
-                    if( i == N_MAX_ITER )
+                    if( i == n_max_iter )
                     {
                         lp_lon = lp_lat = HUGE_VAL;
                     }
@@ -221,41 +209,41 @@ namespace projections
             };
 
             // International Map of the World Polyconic
-            template <typename Parameters, typename T>
-            inline void setup_imw_p(Parameters& par, par_imw_p<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_imw_p(Params const& params, Parameters const& par, par_imw_p<T>& proj_parm)
             {
                 T del, sig, s, t, x1, x2, T2, y1, m1, m2, y2;
                 int err;
 
                 proj_parm.en = pj_enfn<T>(par.es);
-                if( (err = phi12(par, proj_parm, &del, &sig)) != 0)
+                if( (err = phi12(params, proj_parm, &del, &sig)) != 0)
                     BOOST_THROW_EXCEPTION( projection_exception(err) );
                 if (proj_parm.phi_2 < proj_parm.phi_1) { /* make sure proj_parm.phi_1 most southerly */
                     del = proj_parm.phi_1;
                     proj_parm.phi_1 = proj_parm.phi_2;
                     proj_parm.phi_2 = del;
                 }
-                if (pj_param(par.params, "tlon_1").i)
-                    proj_parm.lam_1 = pj_param(par.params, "rlon_1").f;
-                else { /* use predefined based upon latitude */
+                if (pj_param_r<srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1, proj_parm.lam_1)) {
+                    /* empty */
+                } else { /* use predefined based upon latitude */
                     sig = fabs(sig * geometry::math::r2d<T>());
                     if (sig <= 60)      sig = 2.;
                     else if (sig <= 76) sig = 4.;
                     else                sig = 8.;
                     proj_parm.lam_1 = sig * geometry::math::d2r<T>();
                 }
-                proj_parm.mode = NONE_IS_ZERO;
+                proj_parm.mode = none_is_zero;
                 if (proj_parm.phi_1 != 0.0)
                     xy(par, proj_parm, proj_parm.phi_1, &x1, &y1, &proj_parm.sphi_1, &proj_parm.R_1);
                 else {
-                    proj_parm.mode = PHI_1_IS_ZERO;
+                    proj_parm.mode = phi_1_is_zero;
                     y1 = 0.;
                     x1 = proj_parm.lam_1;
                 }
                 if (proj_parm.phi_2 != 0.0)
                     xy(par, proj_parm, proj_parm.phi_2, &x2, &T2, &proj_parm.sphi_2, &proj_parm.R_2);
                 else {
-                    proj_parm.mode = PHI_2_IS_ZERO;
+                    proj_parm.mode = phi_2_is_zero;
                     T2 = 0.;
                     x2 = proj_parm.lam_1;
                 }
@@ -291,12 +279,13 @@ namespace projections
         \par Example
         \image html ex_imw_p.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct imw_p_ellipsoid : public detail::imw_p::base_imw_p_ellipsoid<T, Parameters>
     {
-        inline imw_p_ellipsoid(const Parameters& par) : detail::imw_p::base_imw_p_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline imw_p_ellipsoid(Params const& params, Parameters const& par)
         {
-            detail::imw_p::setup_imw_p(this->m_par, this->m_proj_parm);
+            detail::imw_p::setup_imw_p(params, par, this->m_proj_parm);
         }
     };
 
@@ -305,23 +294,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::imw_p, imw_p_ellipsoid, imw_p_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_imw_p, imw_p_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class imw_p_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(imw_p_entry, imw_p_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(imw_p_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<imw_p_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void imw_p_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("imw_p", new imw_p_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(imw_p, imw_p_entry)
         }
 
     } // namespace detail

@@ -22,9 +22,11 @@
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
@@ -81,7 +83,6 @@ struct turn_operation_index
     signed_size_type turn_index;
     signed_size_type op_index; // only 0,1
 };
-
 
 template <typename Turns>
 struct less_by_fraction_and_type
@@ -246,7 +247,7 @@ inline void handle_colocation_cluster(Turns& turns,
         turn_type& turn = turns[toi.turn_index];
         turn_operation_type const& op = turn.operations[toi.op_index];
 
-        BOOST_ASSERT(ref_op.seg_id == op.seg_id);
+        BOOST_GEOMETRY_ASSERT(ref_op.seg_id == op.seg_id);
 
         if (ref_op.fraction == op.fraction)
         {
@@ -256,7 +257,7 @@ inline void handle_colocation_cluster(Turns& turns,
             {
                 ref_id = add_turn_to_cluster(ref_turn, cluster_per_segment, cluster_id);
             }
-            BOOST_ASSERT(ref_id != -1);
+            BOOST_GEOMETRY_ASSERT(ref_id != -1);
 
             // ref_turn (both operations) are already added to cluster,
             // so also "op" is already added to cluster,
@@ -504,6 +505,26 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
     }
 }
 
+template <typename Geometry0, typename Geometry1>
+inline segment_identifier get_preceding_segment_id(segment_identifier const& id,
+        Geometry0 const& geometry0, Geometry1 const& geometry1)
+{
+    segment_identifier result = id;
+
+    if (result.segment_index == 0)
+    {
+        // Assign to segment_count before decrement
+        result.segment_index
+                = id.source_index == 0
+                ? segment_count_on_ring(geometry0, id)
+                : segment_count_on_ring(geometry1, id);
+    }
+
+    result.segment_index--;
+
+    return result;
+}
+
 template
 <
     overlay_type OverlayType,
@@ -537,11 +558,7 @@ inline void set_colocation(Turns& turns, Clusters const& clusters)
             for (set_iterator it = ids.begin(); it != ids.end(); ++it)
             {
                 turn_type& turn = turns[*it];
-
-                if (both_target)
-                {
-                    turn.has_colocated_both = true;
-                }
+                turn.has_colocated_both = true;
             }
         }
     }
@@ -733,7 +750,7 @@ struct is_turn_index
         return indexed.turn_index == m_index;
     }
 
-    std::size_t m_index;
+    signed_size_type m_index;
 };
 
 
@@ -832,7 +849,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
                 continue;
             }
 
-            if (OverlayType != overlay_difference
+            if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_difference)
                     && is_self_turn<OverlayType>(turn))
             {
                 // Difference needs the self-turns, TODO: investigate

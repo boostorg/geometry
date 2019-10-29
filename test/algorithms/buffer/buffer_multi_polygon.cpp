@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2016.
 // Modifications copyright (c) 2016, Oracle and/or its affiliates.
@@ -11,7 +11,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 
 static std::string const simplex
@@ -368,29 +368,31 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_d", rt_d, join_round, end_flat, 18.8726, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_round, end_flat, 14.1866, 0.3);
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_g1", rt_g1, join_round, end_flat, 24.719, 1.0);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_g3", rt_g3, join_miter, end_flat, 16.5711, 1.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_d", rt_d, join_miter, end_flat, 19.8823, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_e", rt_e, join_miter, end_flat, 15.1198, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_f", rt_f, join_miter, end_flat, 4.60853, 0.3);
     test_one<multi_polygon_type, polygon_type>("rt_g1", rt_g1, join_miter, end_flat, 30.3137, 1.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_g2", rt_g2, join_miter, end_flat, 18.5711, 1.0);
 #endif
 
     test_one<multi_polygon_type, polygon_type>("rt_h", rt_h, join_round, end_flat, 47.6012, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_h", rt_h, join_miter, end_flat, 61.7058, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_i", rt_i, join_round, end_flat, 10.7528, 1.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_i", rt_i, join_miter, end_flat, 13.6569, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_j", rt_j, join_round, end_flat, 28.7309, 1.0);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_j", rt_j, join_miter, end_flat, 35.1421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_round, end_flat, 42.0092, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_k", rt_k, join_miter, end_flat, 48.0563, 1.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_l", rt_l, join_miter, end_flat, 19.3995, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_round, end_flat, 14.1074, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_m1", rt_m1, join_miter, end_flat, 19.4853, 1.0);
@@ -399,27 +401,27 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_n", rt_n,  join_miter, end_flat, 18.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_round, end_flat, 17.536, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_o1", rt_o1, join_miter, end_flat, 20.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_o2", rt_o2, join_miter, end_flat, 25.7426, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_o3", rt_o3, join_miter, end_flat, 28.8247, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_o4", rt_o4, join_miter, end_flat, 34.6532, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_p1", rt_p1, join_miter, end_flat, 24.8211, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p2", rt_p2, join_miter, end_flat, 21.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p3", rt_p3, join_miter, end_flat, 22.3995, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p4", rt_p4, join_miter, end_flat, 33.0563, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_p5", rt_p5, join_miter, end_flat, 17.0, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_p6", rt_p6, join_miter, end_flat, 18.4853, 1.0);
+
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p7", rt_p7, join_miter, end_flat, 26.2279, 1.0);
+#endif
+
     test_one<multi_polygon_type, polygon_type>("rt_p8", rt_p8, join_miter, end_flat, 29.0563, 1.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p9", rt_p9, join_miter, end_flat, 26.1421, 1.0);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_p10", rt_p10, join_miter, end_flat, 23.3995, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_p11", rt_p11, join_miter, end_flat, 28.7426, 1.0);
@@ -427,37 +429,32 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p13", rt_p13, join_miter, end_flat, 19.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p14", rt_p14, join_miter, end_flat, 20.8284, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p15", rt_p15, join_miter, end_flat, 23.6569, 1.0);
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p16", rt_p16, join_miter, end_flat, 23.4853, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-    test_one<multi_polygon_type, polygon_type>("rt_p17", rt_p17, join_miter, end_flat, 25.3137, 1.0);
 #endif
+
+    test_one<multi_polygon_type, polygon_type>("rt_p17", rt_p17, join_miter, end_flat, 25.3137, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_p18", rt_p18, join_miter, end_flat, 23.3137, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p19", rt_p19, join_miter, end_flat, 25.5637, 1.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p20", rt_p20, join_miter, end_flat, 25.4853, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_p21", rt_p21, join_miter, end_flat, 17.1716, 1.0);
-#endif
-
     test_one<multi_polygon_type, polygon_type>("rt_p22", rt_p22, join_miter, end_flat, 26.5711, 1.0);
+#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_q1", rt_q1, join_miter, end_flat, 27, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 26.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 0.9697, -0.25);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_r", rt_r, join_miter, end_flat, 21.0761, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_s1", rt_s1, join_miter, end_flat, 20.4853, 1.0);
 #endif
 
-    test_one<multi_polygon_type, polygon_type>("rt_s1", rt_s1, join_miter, end_flat, 20.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_s2", rt_s2, join_miter, end_flat, 24.6495, 1.0);
 
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
     test_one<multi_polygon_type, polygon_type>("rt_t1", rt_t, join_miter, end_flat, 15.6569, 1.0);
-#endif
-
     test_one<multi_polygon_type, polygon_type>("rt_t2", rt_t, join_miter, end_flat, 0.1679, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u1", rt_u1, join_round, end_flat, 33.2032, 1.0);
@@ -473,7 +470,9 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0); // PG: 144.085786772487
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51); // PG: 0.167380307629637
 
     // TODO: now one small triangle missing due to clusters/uu turns
@@ -485,10 +484,8 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u11_50", rt_u11, join_miter, end_flat, 0.04289, -0.50);
     test_one<multi_polygon_type, polygon_type>("rt_u11_25", rt_u11, join_miter, end_flat, 10.1449, -0.25);
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 142.1348, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
         neighbouring,
@@ -523,6 +520,3 @@ int test_main(int, char* [])
     
     return 0;
 }
-
-// intersecting:
-//= "MULTIPOLYGON(((8 6,9 7,9 6,8 6)),((0 6,0 7,1 6,0 6)),((1 6,1 7,2 7,2 6,1 6)),((2 0,2 1,3 0,2 0)),((9 2,10 3,10 2,9 2)),((7 0,7 1,8 1,7 0)),((4 6,5 7,5 6,4 6)),((7 1,7 2,8 2,7 1)),((0 8,0 9,1 8,0 8)),((0 1,0 2,1 2,0 1)),((7 2,7 3,8 3,7 2)),((9 8,9 9,10 8,9 8)),((5 2,5 3,6 3,6 2,5 2)),((1 1,1 2,2 2,2 1,1 1)),((5 3,4 2,4 3,5 4,6 5,6 6,6 7,7 7,7 6,8 6,7 5,8 4,7 4,6 4,5 3)),((3 4,2 4,2 5,2 6,3 6,3 5,4 5,3 4)),((3 7,2 7,2 8,3 8,4 8,5 8,4 7,3 7)))";

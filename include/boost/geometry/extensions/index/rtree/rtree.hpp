@@ -17,6 +17,7 @@
 #include <vector>
 
 #include <boost/concept_check.hpp>
+#include <boost/core/ignore_unused.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
@@ -56,7 +57,7 @@ public:
         , m_max_elems_per_node(maximum)
         , m_root(new rtree_node<Box, Value>(node_pointer(), 1))
     {
-        boost::ignore_unused_variable_warning(box);
+        boost::ignore_unused(box);
     }
 
     /**

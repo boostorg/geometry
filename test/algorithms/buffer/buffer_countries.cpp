@@ -1,13 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2014-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 
 template <typename MultiPolygon>
@@ -134,7 +134,7 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 
     settings.tolerance = 10000.0;
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // in case robustness policies are changed, areas should be adapted
     settings.tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
 #endif

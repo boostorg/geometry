@@ -2,10 +2,10 @@
 #
 # Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 # Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
-# Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+# Copyright (c) 2009-2018 Mateusz Loskot, London, UK.
 #
-# This file was modified by Oracle on 2017, 2018.
-# Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
+# This file was modified by Oracle on 2017, 2018, 2019.
+# Modifications copyright (c) 2017-2019 Oracle and/or its affiliates.
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
 # Use, modification and distribution is subject to the Boost Software License,
@@ -49,7 +49,9 @@ build-project strategies ;
 build-project policies ;
 build-project io ;
 build-project srs ;
+build-project cs_undefined ;
 build-project util ;
 build-project views ;
 
 }
+

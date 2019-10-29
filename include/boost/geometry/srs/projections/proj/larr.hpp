@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -48,45 +48,23 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct larr {}; // Larrivee
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace larr
     {
 
-            //static const double SIXTH = .16666666666666666;
-
-            template <typename T>
-            inline T SIXTH() { return .16666666666666666666666666666666; }
-
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_larr_spheroid : public base_t_f<base_larr_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_larr_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_larr_spheroid(const Parameters& par)
-                    : base_t_f<base_larr_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType SIXTH = larr::SIXTH<CalculationType>();
+                    static const T sixth = detail::sixth<T>();
 
                     xy_x = 0.5 * lp_lon * (1. + sqrt(cos(lp_lat)));
-                    xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(SIXTH * lp_lon));
+                    xy_y = lp_lat / (cos(0.5 * lp_lat) * cos(sixth * lp_lon));
                 }
 
                 static inline std::string get_name()
@@ -119,12 +97,13 @@ namespace projections
         \par Example
         \image html ex_larr.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct larr_spheroid : public detail::larr::base_larr_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct larr_spheroid : public detail::larr::base_larr_spheroid<T, Parameters>
     {
-        inline larr_spheroid(const Parameters& par) : detail::larr::base_larr_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline larr_spheroid(Params const& , Parameters & par)
         {
-            detail::larr::setup_larr(this->m_par);
+            detail::larr::setup_larr(par);
         }
     };
 
@@ -133,23 +112,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::larr, larr_spheroid, larr_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_larr, larr_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class larr_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(larr_entry, larr_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(larr_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<larr_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void larr_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("larr", new larr_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(larr, larr_entry);
         }
 
     } // namespace detail

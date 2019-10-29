@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,18 +57,12 @@
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
 #include <boost/geometry/srs/projections/impl/pj_msfn.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/pj_qsfn.hpp>
 
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct aea {};
-    struct leac {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -76,11 +70,11 @@ namespace projections
     namespace detail { namespace aea
     {
 
-            static const double EPS10 = 1.e-10;
-            static const double TOL7 = 1.e-7;
-            static const double EPSILON = 1.0e-7;
-            static const double TOL = 1.0e-10;
-            static const int N_ITER = 15;
+            static const double epsilon10 = 1.e-10;
+            static const double tolerance7 = 1.e-7;
+            static const double epsilon = 1.0e-7;
+            static const double tolerance = 1.0e-10;
+            static const int n_iter = 15;
 
             template <typename T>
             struct par_aea
@@ -94,7 +88,7 @@ namespace projections
                 T    phi1;
                 T    phi2;
                 detail::en<T> en;
-                int  ellips;
+                bool ellips;
             };
 
             /* determine latitude angle phi-1 */
@@ -105,9 +99,9 @@ namespace projections
                 T Phi, sinpi, cospi, con, com, dphi;
 
                 Phi = asin (.5 * qs);
-                if (Te < EPSILON)
+                if (Te < epsilon)
                     return( Phi );
-                i = N_ITER;
+                i = n_iter;
                 do {
                     sinpi = sin (Phi);
                     cospi = cos (Phi);
@@ -117,34 +111,24 @@ namespace projections
                        sinpi / com + .5 / Te * log ((1. - con) /
                        (1. + con)));
                     Phi += dphi;
-                } while (fabs(dphi) > TOL && --i);
+                } while (fabs(dphi) > tolerance && --i);
                 return( i ? Phi : HUGE_VAL );
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_aea_ellipsoid : public base_t_fi<base_aea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_aea_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_aea<CalculationType> m_proj_parm;
-
-                inline base_aea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_aea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_aea<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipsoid & spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
-                                                                    ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), this->m_par.e, this->m_par.one_es)
+                    T rho = this->m_proj_parm.c - (this->m_proj_parm.ellips
+                                                                    ? this->m_proj_parm.n * pj_qsfn(sin(lp_lat), par.e, par.one_es)
                                                                     : this->m_proj_parm.n2 * sin(lp_lat));
                     if (rho < 0.)
-                        BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     rho = this->m_proj_parm.dd * sqrt(rho);
                     xy_x = rho * sin( lp_lon *= this->m_proj_parm.n );
                     xy_y = this->m_proj_parm.rho0 - rho * cos(lp_lon);
@@ -152,11 +136,11 @@ namespace projections
 
                 // INVERSE(e_inverse)  ellipsoid & spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    CalculationType rho = 0.0;
+                    T rho = 0.0;
                     if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
@@ -166,19 +150,19 @@ namespace projections
                         lp_lat =  rho / this->m_proj_parm.dd;
                         if (this->m_proj_parm.ellips) {
                             lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n;
-                            if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > TOL7) {
-                                if ((lp_lat = phi1_(lp_lat, this->m_par.e, this->m_par.one_es)) == HUGE_VAL)
-                                    BOOST_THROW_EXCEPTION( projection_exception(-20) );
+                            if (fabs(this->m_proj_parm.ec - fabs(lp_lat)) > tolerance7) {
+                                if ((lp_lat = phi1_(lp_lat, par.e, par.one_es)) == HUGE_VAL)
+                                    BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                             } else
-                                lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                                lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                         } else if (fabs(lp_lat = (this->m_proj_parm.c - lp_lat * lp_lat) / this->m_proj_parm.n2) <= 1.)
                             lp_lat = asin(lp_lat);
                         else
-                            lp_lat = lp_lat < 0. ? -HALFPI : HALFPI;
+                            lp_lat = lp_lat < 0. ? -half_pi : half_pi;
                         lp_lon = atan2(xy_x, xy_y) / this->m_proj_parm.n;
                     } else {
                         lp_lon = 0.;
-                        lp_lat = this->m_proj_parm.n > 0. ? HALFPI : - HALFPI;
+                        lp_lat = this->m_proj_parm.n > 0. ? half_pi : - half_pi;
                     }
                 }
 
@@ -190,16 +174,16 @@ namespace projections
             };
 
             template <typename Parameters, typename T>
-            inline void setup(Parameters& par, par_aea<T>& proj_parm) 
+            inline void setup(Parameters const& par, par_aea<T>& proj_parm) 
             {
                 T cosphi, sinphi;
                 int secant;
 
-                if (fabs(proj_parm.phi1 + proj_parm.phi2) < EPS10)
-                    BOOST_THROW_EXCEPTION( projection_exception(-21) );
+                if (fabs(proj_parm.phi1 + proj_parm.phi2) < epsilon10)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_conic_lat_equal) );
                 proj_parm.n = sinphi = sin(proj_parm.phi1);
                 cosphi = cos(proj_parm.phi1);
-                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= EPS10;
+                secant = fabs(proj_parm.phi1 - proj_parm.phi2) >= epsilon10;
                 if( (proj_parm.ellips = (par.es > 0.))) {
                     T ml1, m1;
 
@@ -235,22 +219,36 @@ namespace projections
 
 
             // Albers Equal Area
-            template <typename Parameters, typename T>
-            inline void setup_aea(Parameters& par, par_aea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_aea(Params const& params, Parameters const& par, par_aea<T>& proj_parm)
             {
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi2 = pj_param(par.params, "rlat_2").f;
+                proj_parm.phi1 = 0.0;
+                proj_parm.phi2 = 0.0;
+                bool is_phi1_set = pj_param_r<srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1, proj_parm.phi1);
+                bool is_phi2_set = pj_param_r<srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2, proj_parm.phi2);
+
+                // Boost.Geometry specific, set default parameters manually
+                if (! is_phi1_set || ! is_phi2_set) {
+                    bool const use_defaults = ! pj_get_param_b<srs::spar::no_defs>(params, "no_defs", srs::dpar::no_defs);
+                    if (use_defaults) {
+                        if (!is_phi1_set)
+                            proj_parm.phi1 = 29.5;
+                        if (!is_phi2_set)
+                            proj_parm.phi2 = 45.5;
+                    }
+                }
+
                 setup(par, proj_parm);
             }
 
             // Lambert Equal Area Conic
-            template <typename Parameters, typename T>
-            inline void setup_leac(Parameters& par, par_aea<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_leac(Params const& params, Parameters const& par, par_aea<T>& proj_parm)
             {
-                static const T HALFPI = detail::HALFPI<T>();
+                static const T half_pi = detail::half_pi<T>();
 
-                proj_parm.phi2 = pj_param(par.params, "rlat_1").f;
-                proj_parm.phi1 = pj_param(par.params, "bsouth").i ? -HALFPI : HALFPI;
+                proj_parm.phi2 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                proj_parm.phi1 = pj_get_param_b<srs::spar::south>(params, "south", srs::dpar::south) ? -half_pi : half_pi;
                 setup(par, proj_parm);
             }
 
@@ -273,12 +271,13 @@ namespace projections
         \par Example
         \image html ex_aea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct aea_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline aea_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline aea_ellipsoid(Params const& params, Parameters const& par)
         {
-            detail::aea::setup_aea(this->m_par, this->m_proj_parm);
+            detail::aea::setup_aea(params, par, this->m_proj_parm);
         }
     };
 
@@ -298,12 +297,13 @@ namespace projections
         \par Example
         \image html ex_leac.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct leac_ellipsoid : public detail::aea::base_aea_ellipsoid<T, Parameters>
     {
-        inline leac_ellipsoid(const Parameters& par) : detail::aea::base_aea_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline leac_ellipsoid(Params const& params, Parameters const& par)
         {
-            detail::aea::setup_leac(this->m_par, this->m_proj_parm);
+            detail::aea::setup_leac(params, par, this->m_proj_parm);
         }
     };
 
@@ -312,35 +312,17 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::aea, aea_ellipsoid, aea_ellipsoid)
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::leac, leac_ellipsoid, leac_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_aea, aea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_leac, leac_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class aea_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<aea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(aea_entry, aea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(leac_entry, leac_ellipsoid)
 
-        template <typename CalculationType, typename Parameters>
-        class leac_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(aea_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<leac_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void aea_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("aea", new aea_entry<CalculationType, Parameters>);
-            factory.add_to_factory("leac", new leac_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(aea, aea_entry)
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(leac, leac_entry)
         }
 
     } // namespace detail

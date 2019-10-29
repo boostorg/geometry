@@ -41,9 +41,11 @@
 
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/srs/projections/impl/geocent.hpp>
+#include <boost/geometry/srs/projections/impl/pj_apply_gridshift.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/invalid_point.hpp>
 
@@ -157,14 +159,6 @@ private:
 // Boost.Geometry helpers end
 // -----------------------------------------------------------
 
-/*#ifndef SRS_WGS84_SEMIMAJOR
-#define SRS_WGS84_SEMIMAJOR 6378137.0
-#endif
-
-#ifndef SRS_WGS84_ESQUARED
-#define SRS_WGS84_ESQUARED 0.0066943799901413165
-#endif*/
-
 template <typename Par>
 inline typename Par::type Dx_BF(Par const& defn) { return defn.datum_params[0]; }
 template <typename Par>
@@ -226,10 +220,18 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
 /*      projection specific components).                                */
 /************************************************************************/
 
-template <typename SrcPrj, typename DstPrj2, typename Par, typename Range>
+template <
+    typename SrcPrj,
+    typename DstPrj2,
+    typename Par,
+    typename Range,
+    typename Grids
+>
 inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                          DstPrj2 const& dstprj, Par const& dstdefn,
-                         Range & range)
+                         Range & range,
+                         Grids const& srcgrids,
+                         Grids const& dstgrids)
 
 {
     typedef typename boost::range_value<Range>::type point_type;
@@ -263,7 +265,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         // Point should be cartesian 3D (ECEF)
         if (dimension < 3)
-            BOOST_THROW_EXCEPTION( projection_exception(PJD_ERR_GEOCENTRIC) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_geocentric) );
             //return PJD_ERR_GEOCENTRIC;
 
         if( srcdefn.to_meter != 1.0 )
@@ -416,7 +418,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Convert datums if needed, and possible.                         */
 /* -------------------------------------------------------------------- */
-    if ( ! pj_datum_transform( srcdefn, dstdefn, range ) )
+    if ( ! pj_datum_transform( srcdefn, dstdefn, range, srcgrids, dstgrids ) )
     {
         result = false;
     }
@@ -456,7 +458,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
     {
         // Point should be cartesian 3D (ECEF)
         if (dimension < 3)
-            BOOST_THROW_EXCEPTION( projection_exception(PJD_ERR_GEOCENTRIC) );
+            BOOST_THROW_EXCEPTION( projection_exception(error_geocentric) );
             //return PJD_ERR_GEOCENTRIC;
 
         // NOTE: In the original code the return value of the following
@@ -625,7 +627,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
     GeocentricInfo<T> gi;
     if( pj_Set_Geocentric_Parameters( gi, a, b ) != 0 )
     {
-        return PJD_ERR_GEOCENTRIC;
+        return error_geocentric;
     }
 
     for( std::size_t i = 0 ; i < point_count ; ++i )
@@ -642,7 +644,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
                                                range_wrapper.get_z(i), // Height
                                                X, Y, Z ) != 0 )
         {
-            ret_errno = -14;
+            ret_errno = error_lat_or_lon_exceed_limit;
             set_invalid_point(point);
             /* but keep processing points! */
         }
@@ -678,7 +680,7 @@ inline int pj_geocentric_to_geodetic( T const& a, T const& es,
     GeocentricInfo<T> gi;
     if( pj_Set_Geocentric_Parameters( gi, a, b ) != 0 )
     {
-        return PJD_ERR_GEOCENTRIC;
+        return error_geocentric;
     }
 
     for( std::size_t i = 0 ; i < point_count ; ++i )
@@ -724,13 +726,13 @@ inline bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
            considered identical */
         return false;
     }
-    else if( srcdefn.datum_type == PJD_3PARAM )
+    else if( srcdefn.datum_type == datum_3param )
     {
         return (srcdefn.datum_params[0] == dstdefn.datum_params[0]
                 && srcdefn.datum_params[1] == dstdefn.datum_params[1]
                 && srcdefn.datum_params[2] == dstdefn.datum_params[2]);
     }
-    else if( srcdefn.datum_type == PJD_7PARAM )
+    else if( srcdefn.datum_type == datum_7param )
     {
         return (srcdefn.datum_params[0] == dstdefn.datum_params[0]
                 && srcdefn.datum_params[1] == dstdefn.datum_params[1]
@@ -740,10 +742,9 @@ inline bool pj_compare_datums( Par & srcdefn, Par & dstdefn )
                 && srcdefn.datum_params[5] == dstdefn.datum_params[5]
                 && srcdefn.datum_params[6] == dstdefn.datum_params[6]);
     }
-    else if( srcdefn.datum_type == PJD_GRIDSHIFT )
+    else if( srcdefn.datum_type == datum_gridshift )
     {
-        return pj_param(srcdefn.params,"snadgrids").s
-            == pj_param(dstdefn.params,"snadgrids").s;
+        return srcdefn.nadgrids == dstdefn.nadgrids;
     }
     else
         return true;
@@ -764,7 +765,7 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
     Range & rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
 
-    if( defn.datum_type == PJD_3PARAM )
+    if( defn.datum_type == datum_3param )
     {
         for(std::size_t i = 0; i < point_count; i++ )
         {
@@ -778,7 +779,7 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
             range_wrapper.set_z(i, range_wrapper.get_z(i) + Dz_BF(defn));
         }
     }
-    else if( defn.datum_type == PJD_7PARAM )
+    else if( defn.datum_type == datum_7param )
     {
         for(std::size_t i = 0; i < point_count; i++ )
         {
@@ -821,7 +822,7 @@ inline int pj_geocentric_from_wgs84( Par const& defn,
     Range & rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
 
-    if( defn.datum_type == PJD_3PARAM )
+    if( defn.datum_type == datum_3param )
     {
         for(std::size_t i = 0; i < point_count; i++ )
         {
@@ -835,7 +836,7 @@ inline int pj_geocentric_from_wgs84( Par const& defn,
             range_wrapper.set_z(i, range_wrapper.get_z(i) - Dz_BF(defn));
         }
     }
-    else if( defn.datum_type == PJD_7PARAM )
+    else if( defn.datum_type == datum_7param )
     {
         for(std::size_t i = 0; i < point_count; i++ )
         {
@@ -879,12 +880,22 @@ inline bool pj_datum_check_error(int err)
 /*      coordinates in radians in the destination datum.                */
 /************************************************************************/
 
-template <typename Par, typename Range>
-inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
-                                Range & range )
+template <typename Par, typename Range, typename Grids>
+inline bool pj_datum_transform(Par const& srcdefn,
+                               Par const& dstdefn,
+                               Range & range,
+                               Grids const& srcgrids,
+                               Grids const& dstgrids)
 
 {
     typedef typename Par::type calc_t;
+
+    // This has to be consistent with default spheroid and pj_ellps
+    // TODO: Define in one place
+    static const calc_t wgs84_a = 6378137.0;
+    static const calc_t wgs84_b = 6356752.3142451793;
+    static const calc_t wgs84_es = 1. - (wgs84_b * wgs84_b) / (wgs84_a * wgs84_a);
+
     bool result = true;
 
     calc_t      src_a, src_es, dst_a, dst_es;
@@ -895,8 +906,8 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /*      (ie. only a +ellps declaration, no +datum).  This is new        */
 /*      behavior for PROJ 4.6.0.                                        */
 /* -------------------------------------------------------------------- */
-    if( srcdefn.datum_type == PJD_UNKNOWN
-        || dstdefn.datum_type == PJD_UNKNOWN )
+    if( srcdefn.datum_type == datum_unknown
+        || dstdefn.datum_type == datum_unknown )
         return result;
 
 /* -------------------------------------------------------------------- */
@@ -921,34 +932,34 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /*      If this datum requires grid shifts, then apply it to geodetic   */
 /*      coordinates.                                                    */
 /* -------------------------------------------------------------------- */
-    /*if( srcdefn.datum_type == PJD_GRIDSHIFT )
+    if( srcdefn.datum_type == datum_gridshift )
     {
         try {
-            pj_apply_gridshift_2( srcdefn, 0, point_count, point_offset, x, y, z );
+            pj_apply_gridshift_2<false>( srcdefn, range, srcgrids );
         } catch (projection_exception const& e) {
             if (pj_datum_check_error(e.code())) {
                 BOOST_RETHROW
             }
         }
 
-        src_a = SRS_WGS84_SEMIMAJOR;
-        src_es = SRS_WGS84_ESQUARED;
+        src_a = wgs84_a;
+        src_es = wgs84_es;
     }
 
-    if( dstdefn.datum_type == PJD_GRIDSHIFT )
+    if( dstdefn.datum_type == datum_gridshift )
     {
-        dst_a = SRS_WGS84_SEMIMAJOR;
-        dst_es = SRS_WGS84_ESQUARED;
-    }*/
+        dst_a = wgs84_a;
+        dst_es = wgs84_es;
+    }
 
 /* ==================================================================== */
 /*      Do we need to go through geocentric coordinates?                */
 /* ==================================================================== */
     if( src_es != dst_es || src_a != dst_a
-        || srcdefn.datum_type == PJD_3PARAM
-        || srcdefn.datum_type == PJD_7PARAM
-        || dstdefn.datum_type == PJD_3PARAM
-        || dstdefn.datum_type == PJD_7PARAM)
+        || srcdefn.datum_type == datum_3param
+        || srcdefn.datum_type == datum_7param
+        || dstdefn.datum_type == datum_3param
+        || dstdefn.datum_type == datum_7param)
     {
 /* -------------------------------------------------------------------- */
 /*      Convert to geocentric coordinates.                              */
@@ -962,8 +973,8 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /* -------------------------------------------------------------------- */
 /*      Convert between datums.                                         */
 /* -------------------------------------------------------------------- */
-        if( srcdefn.datum_type == PJD_3PARAM
-            || srcdefn.datum_type == PJD_7PARAM )
+        if( srcdefn.datum_type == datum_3param
+            || srcdefn.datum_type == datum_7param )
         {
             try {
                 pj_geocentric_to_wgs84( srcdefn, z_range );
@@ -974,8 +985,8 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
             }
         }
 
-        if( dstdefn.datum_type == PJD_3PARAM
-            || dstdefn.datum_type == PJD_7PARAM )
+        if( dstdefn.datum_type == datum_3param
+            || dstdefn.datum_type == datum_7param )
         {
             try {
                 pj_geocentric_from_wgs84( dstdefn, z_range );
@@ -999,15 +1010,15 @@ inline bool pj_datum_transform( Par const& srcdefn, Par const& dstdefn,
 /* -------------------------------------------------------------------- */
 /*      Apply grid shift to destination if required.                    */
 /* -------------------------------------------------------------------- */
-    /*if( dstdefn.datum_type == PJD_GRIDSHIFT )
+    if( dstdefn.datum_type == datum_gridshift )
     {
         try {
-            pj_apply_gridshift_2( dstdefn, 1, point_count, point_offset, x, y, z );
+            pj_apply_gridshift_2<true>( dstdefn, range, dstgrids );
         } catch (projection_exception const& e) {
             if (pj_datum_check_error(e.code()))
                 BOOST_RETHROW
         }
-    }*/
+    }
 
     return result;
 }

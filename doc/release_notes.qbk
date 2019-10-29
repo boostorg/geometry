@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015, 2017, 2018.
-  Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015, 2017, 2018, 2019.
+  Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -20,13 +20,98 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.71]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/568 568] Add a constructor that takes matrix_type to matrix_transformer.
+* [@https://github.com/boostorg/geometry/pull/605 605] Improvement of handling of coordinate systems in various algorithms.
+* Various improvements related to robustness of set and relational operation.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/596 596] boost::geometry::buffer generates (multi)polygon with spike.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/595 595] Fix inaccuracy in geographic point-segment distance computation.
+* Fix various compiler warnings.
+
+[/=================]
+[heading Boost 1.70]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/526 526] New line interpolate algorithm.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/450 450] Not supported negative distance in geodesic direct formulas.
+* [@https://github.com/boostorg/geometry/issues/466 466] Invalid result of spherical/geographic disjoint(box, polygon).
+* [@https://github.com/boostorg/geometry/issues/547 547] Undefined behavior in rtree constructed with zip_iterator.
+* [@https://github.com/boostorg/geometry/issues/560 560] Inaccuracy of karney_direct formula.
+* [@https://github.com/boostorg/geometry/issues/577 577] R-tree with interprocess allocator compilation error with clang.
+* [@https://github.com/boostorg/geometry/issues/579 579] Invalid result of spherical/geographic disjoint(segment, box).
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/538 538] Workaround for msvc-12 faulty array initialization.
+* [@https://github.com/boostorg/geometry/pull/553 553] Pass spheroid correctly in geographic comparable strategies.
+* [@https://github.com/boostorg/geometry/pull/570 570] Fix for spherical/geographic distance between geometries.
+* [@https://github.com/boostorg/geometry/pull/571 571] Fix nan result in geographic distance.
+* Workarounds in R-tree for compilation errors with gcc-4.6 and msvc-10, 11, 12.
+
+[*Changes in behavior]
+
+* Different strategies expected in envelope for some combinations of geometries.
+
+[/=================]
+[heading Boost 1.69]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/486 486] Karney's solution of direct geodesic problem for internal use (thanks to Adeel Ahmad).
+* [@https://github.com/boostorg/geometry/pull/490 490] Discrete Frechet and Hausdorff distance algorithms (thanks to Yaghyavardhan Singh Khangarot).
+* [@https://github.com/boostorg/geometry/pull/496 496] New run-time and upgraded compile-time SRS transformation interfaces (undocumented for now due to potential interface changes).
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/520 520] Missing documentation for dsv().
+* [@https://github.com/boostorg/geometry/issues/521 521] Wrong documentation description for distance().
+* [@https://github.com/boostorg/geometry/issues/524 524] Fixed 'enumeration values not handled in switch' warnings.
+* [@https://github.com/boostorg/geometry/issues/527 527] Workaround for VS 2017 (msvc-15).
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/505 505] Fixed overflow in overlay algorithms (thanks to Dane Springmeyer).
+* [@https://github.com/boostorg/geometry/pull/518 518] Fixed passing of temporaries in append() (thanks to xventura81).
+* [@https://github.com/boostorg/geometry/pull/522 522] Support python3 in building documentation.
+
+[/=================]
 [heading Boost 1.68]
 [/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/469 469] Horizontal grid shift (nadgrids) in SRS transformations (undocumented for now due to potential interface changes).
+* [@https://github.com/boostorg/geometry/pull/478 478] Box-Segment distance for spherical and geographic coordinate systems.
+* [@https://github.com/boostorg/geometry/pull/487 487] Missing combinations of geometries in distance for spherical and geographic cs
+* [@https://github.com/boostorg/geometry/pull/489 489] Additional direct geodesic problem formulas for internal use
 
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/470 470] Assertion failure with short spherical and geographic segments.
 * [@https://github.com/boostorg/geometry/issues/471 471] Invalid envelope of spherical polygon
+* [@https://github.com/boostorg/geometry/issues/498 498] Unexpected results with expand() and make_inverse() for spherical and geographic CS
+* [@https://github.com/boostorg/geometry/issues/504 504] Unused parameter warnings.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/488 488] Handle non-true-references in closing_iterator and ever_circling_range_iterator
+* [@https://github.com/boostorg/geometry/pull/495 495] VxWorks 7 cross-compilation issue.
 
 [/=================]
 [heading Boost 1.67]
@@ -318,7 +403,7 @@
 [*Bugfixes]
 
 * Bug in multipoint/polygon multipoint/multipolygon distance computation (wrong detection of points inside the areal geometry)
-* Bug in flatten_iterator's assignment operator causing an access violation 
+* Bug in flatten_iterator's assignment operator causing an access violation
 * Bug in Cartesian segment-segment intersection strategy when one segment degenerates to a point and is collinear to the other non-degenerate segment
 * Bug in centroid(), non-deterministic result if calculated for e.g. a Polygon with zero-area.
 * Bug in buffers for joins with a limited number of points
@@ -639,9 +724,9 @@
 [*Additional coordinate types]
 
 * Basic (limited) support for Boost.Rational
-         
+
 [heading Boost 1.47]
 
-Original release         
+Original release
 
 [endsect]

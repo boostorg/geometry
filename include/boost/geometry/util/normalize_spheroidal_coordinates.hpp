@@ -6,6 +6,7 @@
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -363,6 +364,37 @@ inline void normalize_longitude(CoordinateType& longitude)
         >::apply(longitude);
 }
 
+/*!
+\brief Short utility to normalize the azimuth on a spheroid
+       in the range (-180, 180].
+\tparam Units The units of the coordindate system in the spheroid
+\tparam CoordinateType The type of the coordinates
+\param angle Angle
+\ingroup utility
+*/
+template <typename Units, typename CoordinateType>
+inline void normalize_azimuth(CoordinateType& angle)
+{
+    normalize_longitude<Units, CoordinateType>(angle);
+}
+
+/*!
+\brief Normalize the given values.
+\tparam ValueType The type of the values
+\param x Value x
+\param y Value y
+TODO: adl1995 - Merge this function with
+formulas/vertex_longitude.hpp
+*/
+template<typename ValueType>
+inline void normalize_unit_vector(ValueType& x, ValueType& y)
+{
+    ValueType h = boost::math::hypot(x, y);
+
+    BOOST_GEOMETRY_ASSERT(h > 0);
+
+    x /= h; y /= h;
+}
 
 /*!
 \brief Short utility to calculate difference between two longitudes

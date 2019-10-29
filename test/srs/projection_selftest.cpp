@@ -16,10 +16,7 @@
 #include <boost/geometry/srs/projection.hpp>
 
 #include "projection_selftest_cases.hpp"
-
-#ifdef TEST_WITH_PROJ4
-#include <proj_api.h>
-#endif
+#include "proj4.hpp"
 
 
 void test_projection(std::string const& id, std::string const& parameters,
@@ -29,7 +26,7 @@ void test_projection(std::string const& id, std::string const& parameters,
     bg::srs::projection<> prj = bg::srs::proj4(parameters);
 
 #ifdef TEST_WITH_PROJ4
-    projPJ pj_par = pj_init_plus(parameters.c_str());
+    pj_projection pj_par(parameters);
 #endif
 
     for (std::size_t i = 0 ; i < 4 ; ++i)
@@ -50,20 +47,17 @@ void test_projection(std::string const& id, std::string const& parameters,
                                 << bg::wkt(fwd_expected[i]) << "}");
 
 #ifdef TEST_WITH_PROJ4
-            if (pj_par)
             {
-                projUV pj_ll = {bg::get_as_radian<0>(fwd_in[i]), bg::get_as_radian<1>(fwd_in[i])};
-                projUV pj_xy = pj_fwd(pj_ll, pj_par);
-                //bool same_as_pj = bg::get<0>(fwd_out) == pj_xy.u
-                //               && bg::get<1>(fwd_out) == pj_xy.v;
-                double d1 = bg::math::abs(bg::get<0>(fwd_out) - pj_xy.u);
-                double d2 = bg::math::abs(bg::get<1>(fwd_out) - pj_xy.v);
+                XY pj_xy;
+                pj_par.forward(fwd_in[i], pj_xy);
+                double d1 = bg::math::abs(bg::get<0>(fwd_out) - bg::get<0>(pj_xy));
+                double d2 = bg::math::abs(bg::get<1>(fwd_out) - bg::get<1>(pj_xy));
                 double d = (std::max)(d1, d2);
                 bool same_as_pj = d < 1e-15;
                 BOOST_CHECK_MESSAGE((same_as_pj),
                                     std::setprecision(16) << "Result of " << id << " forward projection {"
-                                    << bg::wkt(fwd_out) << "} different than Proj4 {POINT("
-                                    << pj_xy.u << " " << pj_xy.v << ")} by " << d);
+                                    << bg::wkt(fwd_out) << "} different than Proj4 {"
+                                    << bg::wkt(pj_xy) << "} by " << d);
             }
 #endif
         }
@@ -84,33 +78,21 @@ void test_projection(std::string const& id, std::string const& parameters,
                                 << bg::wkt(inv_expected[i]) << "}");
 
 #ifdef TEST_WITH_PROJ4
-            if (pj_par)
             {
-                projUV pj_xy = {bg::get<0>(inv_in[i]), bg::get<1>(inv_in[i])};
-                projUV pj_ll = pj_inv(pj_xy, pj_par);
-                pj_ll.u *= RAD_TO_DEG;
-                pj_ll.v *= RAD_TO_DEG;
-                //bool same_as_pj = bg::get<0>(inv_out) == pj_ll.u
-                //               && bg::get<1>(inv_out) == pj_ll.v;
-                double d1 = bg::math::abs(bg::get<0>(inv_out) - pj_ll.u);
-                double d2 = bg::math::abs(bg::get<1>(inv_out) - pj_ll.v);
+                LL pj_ll;
+                pj_par.inverse(inv_in[i], pj_ll);
+                double d1 = bg::math::abs(bg::get<0>(inv_out) - bg::get<0>(pj_ll));
+                double d2 = bg::math::abs(bg::get<1>(inv_out) - bg::get<1>(pj_ll));
                 double d = (std::max)(d1, d2);
                 bool same_as_pj = d < 1e-15;
                 BOOST_CHECK_MESSAGE((same_as_pj),
                                     std::setprecision(16) << "Result of " << id << " inverse projection {"
-                                    << bg::wkt(inv_out) << "} different than Proj4 {POINT("
-                                    << pj_ll.u << " " << pj_ll.v << ")} by " << d);
+                                    << bg::wkt(inv_out) << "} different than Proj4 {"
+                                    << bg::wkt(pj_ll) << "} by " << d);
             }
 #endif
         }
     }
-
-#ifdef TEST_WITH_PROJ4
-    if (pj_par)
-    {
-        pj_free(pj_par);
-    }
-#endif
 }
 
 void test_projections(const projection_case * cases, std::size_t n)

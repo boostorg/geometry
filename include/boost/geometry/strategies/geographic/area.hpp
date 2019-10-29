@@ -20,6 +20,7 @@
 #include <boost/geometry/formulas/authalic_radius_sqr.hpp>
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
 
+#include <boost/geometry/strategies/area.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 
 

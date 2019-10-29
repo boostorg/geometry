@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -48,46 +48,30 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct tcea {}; // Transverse Cylindrical Equal Area
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace tcea
     {
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tcea_spheroid : public base_t_fi<base_tcea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tcea_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-                
-                inline base_tcea_spheroid(const Parameters& par)
-                    : base_t_fi<base_tcea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    xy_x = cos(lp_lat) * sin(lp_lon) / this->m_par.k0;
-                    xy_y = this->m_par.k0 * (atan2(tan(lp_lat), cos(lp_lon)) - this->m_par.phi0);
+                    xy_x = cos(lp_lat) * sin(lp_lon) / par.k0;
+                    xy_y = par.k0 * (atan2(tan(lp_lat), cos(lp_lon)) - par.phi0);
                 }
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType t;
+                    T t;
 
-                    xy_y = xy_y / this->m_par.k0 + this->m_par.phi0;
-                    xy_x *= this->m_par.k0;
+                    xy_y = xy_y / par.k0 + par.phi0;
+                    xy_x *= par.k0;
                     t = sqrt(1. - xy_x * xy_x);
                     lp_lat = asin(t * sin(xy_y));
                     lp_lon = atan2(xy_x, t * cos(xy_y));
@@ -122,12 +106,13 @@ namespace projections
         \par Example
         \image html ex_tcea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tcea_spheroid : public detail::tcea::base_tcea_spheroid<T, Parameters>
     {
-        inline tcea_spheroid(const Parameters& par) : detail::tcea::base_tcea_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline tcea_spheroid(Params const& , Parameters & par)
         {
-            detail::tcea::setup_tcea(this->m_par);
+            detail::tcea::setup_tcea(par);
         }
     };
 
@@ -136,23 +121,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tcea, tcea_spheroid, tcea_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_tcea, tcea_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class tcea_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(tcea_entry, tcea_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(tcea_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<tcea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void tcea_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("tcea", new tcea_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(tcea, tcea_entry)
         }
 
     } // namespace detail

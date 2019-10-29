@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,28 +40,23 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_LOXIM_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_LOXIM_HPP
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct loxim {}; // Loximuthal
-
-}} //namespace srs::par4
 
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace loxim
     {
-            static const double EPS = 1e-8;
+            static const double epsilon = 1e-8;
 
             template <typename T>
             struct par_loxim
@@ -71,34 +66,24 @@ namespace projections
                 T tanphi1;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_loxim_spheroid : public base_t_fi<base_loxim_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_loxim_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_loxim<CalculationType> m_proj_parm;
-
-                inline base_loxim_spheroid(const Parameters& par)
-                    : base_t_fi<base_loxim_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_loxim<T> m_proj_parm;
 
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     xy_y = lp_lat - this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS)
+                    if (fabs(xy_y) < epsilon)
                         xy_x = lp_lon * this->m_proj_parm.cosphi1;
                     else {
-                        xy_x = FORTPI + 0.5 * lp_lat;
-                        if (fabs(xy_x) < EPS || fabs(fabs(xy_x) - HALFPI) < EPS)
+                        xy_x = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(xy_x) < epsilon || fabs(fabs(xy_x) - half_pi) < epsilon)
                             xy_x = 0.;
                         else
                             xy_x = lp_lon * xy_y / log( tan(xy_x) / this->m_proj_parm.tanphi1 );
@@ -107,17 +92,17 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const&, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType FORTPI = detail::FORTPI<CalculationType>();
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T fourth_pi = detail::fourth_pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
 
                     lp_lat = xy_y + this->m_proj_parm.phi1;
-                    if (fabs(xy_y) < EPS) {
+                    if (fabs(xy_y) < epsilon) {
                         lp_lon = xy_x / this->m_proj_parm.cosphi1;
                     } else {
-                        lp_lon = FORTPI + 0.5 * lp_lat;
-                        if (fabs(lp_lon) < EPS || fabs(fabs(lp_lon) - HALFPI) < EPS)
+                        lp_lon = fourth_pi + 0.5 * lp_lat;
+                        if (fabs(lp_lon) < epsilon || fabs(fabs(lp_lon) - half_pi) < epsilon)
                             lp_lon = 0.;
                         else
                             lp_lon = xy_x * log( tan(lp_lon) / this->m_proj_parm.tanphi1 ) / xy_y ;
@@ -132,17 +117,17 @@ namespace projections
             };
 
             // Loximuthal
-            template <typename Parameters, typename T>
-            inline void setup_loxim(Parameters& par, par_loxim<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_loxim(Params const& params, Parameters& par, par_loxim<T>& proj_parm)
             {
-                static const T FORTPI = detail::FORTPI<T>();
+                static const T fourth_pi = detail::fourth_pi<T>();
 
-                proj_parm.phi1 = pj_param(par.params, "rlat_1").f;
+                proj_parm.phi1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
                 proj_parm.cosphi1 = cos(proj_parm.phi1);
-                if (proj_parm.cosphi1 < EPS)
-                    BOOST_THROW_EXCEPTION( projection_exception(-22) );
+                if (proj_parm.cosphi1 < epsilon)
+                    BOOST_THROW_EXCEPTION( projection_exception(error_lat_larger_than_90) );
 
-                proj_parm.tanphi1 = tan(FORTPI + 0.5 * proj_parm.phi1);
+                proj_parm.tanphi1 = tan(fourth_pi + 0.5 * proj_parm.phi1);
 
                 par.es = 0.;
             }
@@ -164,12 +149,13 @@ namespace projections
         \par Example
         \image html ex_loxim.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct loxim_spheroid : public detail::loxim::base_loxim_spheroid<T, Parameters>
     {
-        inline loxim_spheroid(const Parameters& par) : detail::loxim::base_loxim_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline loxim_spheroid(Params const& params, Parameters & par)
         {
-            detail::loxim::setup_loxim(this->m_par, this->m_proj_parm);
+            detail::loxim::setup_loxim(params, par, this->m_proj_parm);
         }
     };
 
@@ -178,23 +164,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::loxim, loxim_spheroid, loxim_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_loxim, loxim_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class loxim_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(loxim_entry, loxim_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(loxim_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<loxim_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void loxim_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("loxim", new loxim_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(loxim, loxim_entry)
         }
 
     } // namespace detail

@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,9 +20,12 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_VECTOR_CONCEPT_HPP
 
 #include <boost/concept_check.hpp>
-
-#include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/access.hpp>
+#include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/extensions/algebra/core/access.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_dimension.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_type.hpp>
+#include <boost/geometry/extensions/algebra/core/coordinate_system.hpp>
 
 namespace boost { namespace geometry { namespace concepts {
 
@@ -82,7 +89,7 @@ class ConstVector
         {
             const V* v = 0;
             ctype coord(geometry::get<Dimension>(*v));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<V, Dimension+1, DimensionCount>::apply();
         }
     };

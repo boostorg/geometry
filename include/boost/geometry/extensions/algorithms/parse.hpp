@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,13 +20,13 @@
 
 #include <string>
 
-
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/extensions/gis/geographic/strategies/dms_parser.hpp>
-#include <boost/geometry/extensions/strategies/parse.hpp>
+#include <boost/geometry/srs/projections/impl/dms_parser.hpp>
+//#include <boost/geometry/extensions/strategies/parse.hpp>
 
 
 namespace boost { namespace geometry
@@ -51,30 +55,39 @@ struct parsing<point_tag, Point>
     static inline void parse(Point& point, std::string const& c1, std::string const& c2, S const& strategy)
     {
         assert_dimension<Point, 2>();
-        dms_result r1 = strategy(c1.c_str());
-        dms_result r2 = strategy(c2.c_str());
+
+        typedef typename coordinate_type<Point>::type coord_t;
+        typedef boost::geometry::projections::detail::dms_result<coord_t> dms_result_t;
+        dms_result_t r1 = strategy(c1.c_str());
+        dms_result_t r2 = strategy(c2.c_str());
 
         if (0 == r1.axis())
-            set<0>(point, r1);
+            set<0>(point, r1.angle());
         else
-            set<1>(point, r1);
+            set<1>(point, r1.angle());
 
         if (0 == r2.axis())
-            set<0>(point, r2);
+            set<0>(point, r2.angle());
         else
-            set<1>(point, r2);
+            set<1>(point, r2.angle());
     }
 
     static inline void parse(Point& point, std::string const& c1, std::string const& c2)
     {
+        typedef typename coordinate_type<Point>::type coord_t;
         // strategy-parser corresponding to degree/radian
-        typename strategy_parse
-            <
-            typename cs_tag<Point>::type,
-            typename coordinate_system<Point>::type
-            >::type strategy;
+        //typename strategy_parse
+        //    <
+        //        typename cs_tag<Point>::type,
+        //        typename coordinate_system<Point>::type
+        //    >::type strategy;
+        typedef boost::geometry::projections::detail::dms_parser
+                    <
+                        coord_t/*,
+                        as_radian*/
+                    > dms_parser_t;
 
-        parse(point, c1, c2, strategy);
+        parse(point, c1, c2, dms_parser_t());
     }
 };
 

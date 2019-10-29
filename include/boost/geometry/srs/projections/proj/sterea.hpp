@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -54,12 +54,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct sterea {}; // Oblique Stereographic Alternative
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -72,47 +66,37 @@ namespace projections
                 T phic0;
                 T cosc0, sinc0;
                 T R2;
-                gauss::GAUSS<T> en;
+                gauss<T> en;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_sterea_ellipsoid : public base_t_fi<base_sterea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_sterea_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_sterea<CalculationType> m_proj_parm;
-
-                inline base_sterea_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_sterea_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_sterea<T> m_proj_parm;
 
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType cosc, sinc, cosl_, k;
+                    T cosc, sinc, cosl_, k;
 
-                    detail::gauss::gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_fwd(m_proj_parm.en, lp_lon, lp_lat);
                     sinc = sin(lp_lat);
                     cosc = cos(lp_lat);
                     cosl_ = cos(lp_lon);
-                    k = this->m_par.k0 * this->m_proj_parm.R2 / (1. + this->m_proj_parm.sinc0 * sinc + this->m_proj_parm.cosc0 * cosc * cosl_);
+                    k = par.k0 * this->m_proj_parm.R2 / (1. + this->m_proj_parm.sinc0 * sinc + this->m_proj_parm.cosc0 * cosc * cosl_);
                     xy_x = k * cosc * sin(lp_lon);
                     xy_y = k * (this->m_proj_parm.cosc0 * sinc - this->m_proj_parm.sinc0 * cosc * cosl_);
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType rho, c, sinc, cosc;
+                    T rho, c, sinc, cosc;
 
-                    xy_x /= this->m_par.k0;
-                    xy_y /= this->m_par.k0;
+                    xy_x /= par.k0;
+                    xy_y /= par.k0;
                     if((rho = boost::math::hypot(xy_x, xy_y)) != 0.0) {
                         c = 2. * atan2(rho, this->m_proj_parm.R2);
                         sinc = sin(c);
@@ -124,7 +108,7 @@ namespace projections
                         lp_lat = this->m_proj_parm.phic0;
                         lp_lon = 0.;
                     }
-                    detail::gauss::inv_gauss(m_proj_parm.en, lp_lon, lp_lat);
+                    detail::gauss_inv(m_proj_parm.en, lp_lon, lp_lat);
                 }
 
                 static inline std::string get_name()
@@ -136,11 +120,11 @@ namespace projections
 
             // Oblique Stereographic Alternative
             template <typename Parameters, typename T>
-            inline void setup_sterea(Parameters& par, par_sterea<T>& proj_parm)
+            inline void setup_sterea(Parameters const& par, par_sterea<T>& proj_parm)
             {
                 T R;
 
-                proj_parm.en = detail::gauss::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
+                proj_parm.en = detail::gauss_ini(par.e, par.phi0, proj_parm.phic0, R);
                 proj_parm.sinc0 = sin(proj_parm.phic0);
                 proj_parm.cosc0 = cos(proj_parm.phic0);
                 proj_parm.R2 = 2. * R;
@@ -162,12 +146,13 @@ namespace projections
         \par Example
         \image html ex_sterea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct sterea_ellipsoid : public detail::sterea::base_sterea_ellipsoid<T, Parameters>
     {
-        inline sterea_ellipsoid(const Parameters& par) : detail::sterea::base_sterea_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline sterea_ellipsoid(Params const& , Parameters const& par)
         {
-            detail::sterea::setup_sterea(this->m_par, this->m_proj_parm);
+            detail::sterea::setup_sterea(par, this->m_proj_parm);
         }
     };
 
@@ -176,23 +161,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::sterea, sterea_ellipsoid, sterea_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_sterea, sterea_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class sterea_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(sterea_entry, sterea_ellipsoid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(sterea_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<sterea_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void sterea_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("sterea", new sterea_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(sterea, sterea_entry)
         }
 
     } // namespace detail

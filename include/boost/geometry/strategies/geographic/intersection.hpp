@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2018, Oracle and/or its affiliates.
+// Copyright (c) 2016-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,11 +37,15 @@
 #include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
+#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
+#include <boost/geometry/strategies/spherical/expand_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
@@ -70,6 +74,8 @@ template
 >
 struct geographic_segments
 {
+    typedef geographic_tag cs_tag;
+
     typedef side::geographic
         <
             FormulaPolicy, Spheroid, CalculationType
@@ -141,13 +147,58 @@ struct geographic_segments
         return strategy_type(m_spheroid);
     }
 
-    typedef envelope::geographic_segment<FormulaPolicy, Spheroid, CalculationType>
+    typedef envelope::geographic<FormulaPolicy, Spheroid, CalculationType>
         envelope_strategy_type;
 
     inline envelope_strategy_type get_envelope_strategy() const
     {
         return envelope_strategy_type(m_spheroid);
     }
+
+    typedef expand::geographic_segment<FormulaPolicy, Spheroid, CalculationType>
+        expand_strategy_type;
+
+    inline expand_strategy_type get_expand_strategy() const
+    {
+        return expand_strategy_type(m_spheroid);
+    }
+
+    typedef within::spherical_point_point point_in_point_strategy_type;
+
+    static inline point_in_point_strategy_type get_point_in_point_strategy()
+    {
+        return point_in_point_strategy_type();
+    }
+
+    typedef within::spherical_point_point equals_point_point_strategy_type;
+
+    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
+    {
+        return equals_point_point_strategy_type();
+    }
+
+    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
+
+    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
+    {
+        return disjoint_box_box_strategy_type();
+    }
+
+    typedef disjoint::segment_box_geographic
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        > disjoint_segment_box_strategy_type;
+
+    inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy() const
+    {
+        return disjoint_segment_box_strategy_type(m_spheroid);
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+    typedef within::spherical_point_box within_point_box_strategy_type;
+    typedef envelope::spherical_box envelope_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -195,56 +246,44 @@ struct geographic_segments
     // Relate segments a and b
     template
     <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Policy
     >
-    inline typename Policy::return_type apply(Segment1 const& a, Segment2 const& b,
-                                              Policy const& policy,
-                                              RobustPolicy const& robust_policy) const
+    inline typename Policy::return_type apply(UniqueSubRange1 const& range_p,
+                                              UniqueSubRange2 const& range_q,
+                                              Policy const&) const
     {
-        typedef typename point_type<Segment1>::type point1_t;
-        typedef typename point_type<Segment2>::type point2_t;
-        point1_t a1, a2;
-        point2_t b1, b2;
+        typedef typename UniqueSubRange1::point_type point1_type;
+        typedef typename UniqueSubRange2::point_type point2_type;
+        typedef model::referring_segment<point1_type const> segment_type1;
+        typedef model::referring_segment<point2_type const> segment_type2;
 
-        detail::assign_point_from_index<0>(a, a1);
-        detail::assign_point_from_index<1>(a, a2);
-        detail::assign_point_from_index<0>(b, b1);
-        detail::assign_point_from_index<1>(b, b2);
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point1_type>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
 
-        return apply(a, b, policy, robust_policy, a1, a2, b1, b2);
-    }
+        /*
+        typename coordinate_type<Point1>::type
+            const a1_lon = get<0>(a1),
+            const a2_lon = get<0>(a2);
+        typename coordinate_type<Point2>::type
+            const b1_lon = get<0>(b1),
+            const b2_lon = get<0>(b2);
+        bool is_a_reversed = a1_lon > a2_lon || a1_lon == a2_lon && get<1>(a1) > get<1>(a2);
+        bool is_b_reversed = b1_lon > b2_lon || b1_lon == b2_lon && get<1>(b1) > get<1>(b2);
+        */
 
-    // Relate segments a and b
-    template
-    <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy,
-        typename Point1,
-        typename Point2
-    >
-    inline typename Policy::return_type apply(Segment1 const& a, Segment2 const& b,
-                                              Policy const&, RobustPolicy const&,
-                                              Point1 a1, Point1 a2, Point2 b1, Point2 b2) const
-    {
-        bool is_a_reversed = get<1>(a1) > get<1>(a2);
-        bool is_b_reversed = get<1>(b1) > get<1>(b2);
-                           
-        if (is_a_reversed)
-        {
-            std::swap(a1, a2);
-        }
+        bool const is_p_reversed = get<1>(range_p.at(0)) > get<1>(range_p.at(1));
+        bool const is_q_reversed = get<1>(range_q.at(0)) > get<1>(range_q.at(1));
 
-        if (is_b_reversed)
-        {
-            std::swap(b1, b2);
-        }
-
-        return apply<Policy>(a, b, a1, a2, b1, b2, is_a_reversed, is_b_reversed);
+        // Call apply with original segments and ordered points
+        return apply<Policy>(segment_type1(range_p.at(0), range_p.at(1)),
+                             segment_type2(range_q.at(0), range_q.at(1)),
+                             range_p.at(is_p_reversed ? 1 : 0),
+                             range_p.at(is_p_reversed ? 0 : 1),
+                             range_q.at(is_q_reversed ? 1 : 0),
+                             range_q.at(is_q_reversed ? 0 : 1),
+                             is_p_reversed, is_q_reversed);
     }
 
 private:
@@ -276,7 +315,6 @@ private:
         spheroid_type spheroid = formula::unit_spheroid<spheroid_type>(m_spheroid);
 
         // TODO: check only 2 first coordinates here?
-        using geometry::detail::equals::equals_point_point;
         bool a_is_point = equals_point_point(a1, a2);
         bool b_is_point = equals_point_point(b1, b2);
 
@@ -440,7 +478,6 @@ private:
                 }
 
                 // NOTE: this is probably not needed
-                calc_t const c0 = 0;
                 int a1_on_b = position_value(c0, dist_a1_b1, dist_a1_b2);
                 int a2_on_b = position_value(dist_a1_a2, dist_a1_b1, dist_a1_b2);
                 int b1_on_a = position_value(c0, dist_b1_a1, dist_b1_a2);
@@ -606,7 +643,7 @@ private:
     //       in order to make this independent from is_near()
     template <typename Point1, typename Point2, typename ResultInverse, typename CalcT>
     static inline bool calculate_collinear_data(Point1 const& a1, Point1 const& a2, // in
-                                                Point2 const& b1, Point2 const& b2, // in
+                                                Point2 const& b1, Point2 const& /*b2*/, // in
                                                 ResultInverse const& res_a1_a2,     // in
                                                 ResultInverse const& res_a1_b1,     // in
                                                 ResultInverse const& res_a1_b2,     // in
@@ -679,7 +716,6 @@ private:
         dist_b1_b2 = res_b1_b2.distance;
 
         // assign the IP if some endpoints overlap
-        using geometry::detail::equals::equals_point_point;
         if (equals_point_point(a1, b1))
         {
             lon = a1_lon;
@@ -885,7 +921,6 @@ private:
                                          P1 const& ai, P2 const& b1)
     {
         static CalcT const c0 = 0;
-        using geometry::detail::equals::equals_point_point;
         return is_near(dist) && (math::equals(dist, c0) || equals_point_point(ai, b1));
     }
 
@@ -943,6 +978,13 @@ private:
         ip_flag = ip_flag == ipi_at_p1 ? ipi_at_p2 :
                   ip_flag == ipi_at_p2 ? ipi_at_p1 :
                   ip_flag;
+    }
+
+    template <typename Point1, typename Point2>
+    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
+    {
+        return detail::equals::equals_point_point(point1, point2,
+                                                  point_in_point_strategy_type());
     }
 
 private:

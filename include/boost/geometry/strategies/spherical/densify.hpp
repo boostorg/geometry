@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2019, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -22,6 +23,8 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
+#include <boost/geometry/formulas/interpolate_point_spherical.hpp>
+#include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/strategies/spherical/get_radius.hpp>
@@ -79,15 +82,10 @@ public:
                 CalculationType
             >::type calc_t;
 
-        calc_t const c0 = 0;
-        calc_t const c1 = 1;
-        calc_t const pi = math::pi<calc_t>();
+        calc_t angle01;
 
-        typedef model::point<calc_t, 3, cs::cartesian> point3d_t;
-        point3d_t const xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
-        point3d_t const xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
-        calc_t const dot01 = geometry::dot_product(xyz0, xyz1);
-        calc_t const angle01 = acos(dot01);
+        formula::interpolate_point_spherical<calc_t> formula;
+        formula.compute_angle(p0, p1, angle01);
 
         BOOST_GEOMETRY_ASSERT(length_threshold > T(0));
 
@@ -95,59 +93,16 @@ public:
         if (n <= 0)
             return;
 
-        point3d_t axis;
-        if (! math::equals(angle01, pi))
-        {
-            axis = geometry::cross_product(xyz0, xyz1);
-            geometry::detail::vec_normalize(axis);
-        }
-        else // antipodal
-        {
-            calc_t const half_pi = math::half_pi<calc_t>();
-            calc_t const lat = geometry::get_as_radian<1>(p0);
-
-            if (math::equals(lat, half_pi))
-            {
-                // pointing east, segment lies on prime meridian, going south
-                axis = point3d_t(c0, c1, c0);
-            }
-            else if (math::equals(lat, -half_pi))
-            {
-                // pointing west, segment lies on prime meridian, going north
-                axis = point3d_t(c0, -c1, c0);
-            }
-            else
-            {
-                // lon rotated west by pi/2 at equator
-                calc_t const lon = geometry::get_as_radian<0>(p0);
-                axis = point3d_t(sin(lon), -cos(lon), c0);
-            }
-        }
+        formula.compute_axis(p0, angle01);
 
         calc_t step = angle01 / (n + 1);
 
         calc_t a = step;
         for (signed_size_type i = 0 ; i < n ; ++i, a += step)
         {
-            // Axis-Angle rotation
-            // see: https://en.wikipedia.org/wiki/Axis-angle_representation
-            calc_t const cos_a = cos(a);
-            calc_t const sin_a = sin(a);
-            // cos_a * v
-            point3d_t s1 = xyz0;
-            geometry::multiply_value(s1, cos_a);
-            // sin_a * (n x v)
-            point3d_t s2 = geometry::cross_product(axis, xyz0);
-            geometry::multiply_value(s2, sin_a);
-            // (1 - cos_a)(n.v) * n
-            point3d_t s3 = axis;
-            geometry::multiply_value(s3, (c1 - cos_a) * geometry::dot_product(axis, xyz0));
-            // v_rot = cos_a * v + sin_a * (n x v) + (1 - cos_a)(n.v) * e
-            point3d_t v_rot = s1;
-            geometry::add_point(v_rot, s2);
-            geometry::add_point(v_rot, s3);
-            
-            out_point_t p = formula::cart3d_to_sph<out_point_t>(v_rot);
+            out_point_t p;
+            formula.compute_point(a, p);
+
             geometry::detail::conversion::point_to_point
                 <
                     Point, out_point_t,

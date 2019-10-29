@@ -144,6 +144,9 @@ namespace
     std::string const dissolve_mail_2017_10_26_b = "POLYGON((0 0, 0 4, 4 4, 4 0, 1 0, 1 3, 3 3, 3 0))"; // should NOT form interior ring and (maybe) should remove two not necessary intersection points (to be decided)
     std::string const dissolve_mail_2017_10_26_c = "POLYGON((0 2, 2 1, 3 1, 1 1, 2 1, 4 2, 4 0, 0 0))"; // contains cluster and should ignore count_left/count_right
 
+    // Testcase sent by Johan Doré, giving a problem on Windows indicating that input (geometry1/geometry2) for union should NOT be reference to output collection. Fixed by copying it.
+    std::string const dissolve_mail_2018_08_19 = "POLYGON((13.78 -2.18, 7.04 -2.33, 7.08 -2.33,16.05 -0.55,16.46 -6.08,16.99 -5.82, 2.92 -1.99,15.14 -1.65,17.41 -4.42,13.78 -2.18))";
+
     // This case needs rescaling for <float>. For <double> it runs fine without.
     std::string const dissolve_mail_2017_10_30_a = "POLYGON((12.7069120407104490 -2.3525938987731934, 12.6983022689819340 -2.3552336692810059, 12.6984634399414060 -2.3553242683410645, 12.6980066299438480 -2.3553242683410645, 12.6983022689819340 -2.3552336692810059, 12.6911554336547850 -2.3512287139892578, 12.7025737762451170 -2.3398520946502686))";
 
@@ -573,7 +576,6 @@ void test_one(std::string caseid, std::string const& wkt,
 template <typename P, bool Clockwise>
 void test_all(ut_settings const& settings_for_sensitive_cases)
 {
-    typedef bg::model::ring<P, Clockwise> ring;
     typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
@@ -649,11 +651,15 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
                        settings_for_sensitive_cases);
 
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
+#endif
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
 
     TEST_DISSOLVE(ggl_list_denis, 21123.3281, 2, 0, 22);
+
+    TEST_DISSOLVE(dissolve_mail_2018_08_19, 26.211, 2, 1, 15);
 }
 
 

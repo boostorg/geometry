@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -56,34 +56,26 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct nzmg {}; // New Zealand Map Grid
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace nzmg
     {
 
-            static const double EPSLN = 1e-10;
-            //static const double SEC5_TO_RAD = 0.4848136811095359935899141023;
-            //static const double RAD_TO_SEC5 = 2.062648062470963551564733573;
+            static const double epsilon = 1e-10;
             static const int Nbf = 5;
             static const int Ntpsi = 9;
             static const int Ntphi = 8;
 
             template <typename T>
-            inline T SEC5_TO_RAD() { return 0.4848136811095359935899141023; }
+            inline T sec5_to_rad() { return 0.4848136811095359935899141023; }
             template <typename T>
-            inline T RAD_TO_SEC5() { return 2.062648062470963551564733573; }
+            inline T rad_to_sec5() { return 2.062648062470963551564733573; }
 
             template <typename T>
-            inline const COMPLEX<T> * bf()
+            inline const pj_complex<T> * bf()
             {
-                static const COMPLEX<T> result[] = {
+                static const pj_complex<T> result[] = {
                     {.7557853228,    0.0},
                     {.249204646,    .003371507},
                     {-.001541739,    .041058560},
@@ -110,68 +102,57 @@ namespace projections
                 return result;
             }
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nzmg_ellipsoid : public base_t_fi<base_nzmg_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nzmg_ellipsoid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_nzmg_ellipsoid(const Parameters& par)
-                    : base_t_fi<base_nzmg_ellipsoid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(e_forward)  ellipsoid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& par, T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType RAD_TO_SEC5 = nzmg::RAD_TO_SEC5<CalculationType>();
+                    static const T rad_to_sec5 = nzmg::rad_to_sec5<T>();
 
-                    COMPLEX<CalculationType> p;
-                    const CalculationType * C;
+                    pj_complex<T> p;
+                    const T * C;
                     int i;
 
-                    lp_lat = (lp_lat - this->m_par.phi0) * RAD_TO_SEC5;
-                    for (p.r = *(C = tpsi<CalculationType>() + (i = Ntpsi)); i ; --i)
+                    lp_lat = (lp_lat - par.phi0) * rad_to_sec5;
+                    for (p.r = *(C = tpsi<T>() + (i = Ntpsi)); i ; --i)
                         p.r = *--C + lp_lat * p.r;
                     p.r *= lp_lat;
                     p.i = lp_lon;
-                    p = pj_zpoly1(p, bf<CalculationType>(), Nbf);
+                    p = pj_zpoly1(p, bf<T>(), Nbf);
                     xy_x = p.i;
                     xy_y = p.r;
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType SEC5_TO_RAD = nzmg::SEC5_TO_RAD<CalculationType>();
+                    static const T sec5_to_rad = nzmg::sec5_to_rad<T>();
 
                     int nn, i;
-                    COMPLEX<CalculationType> p, f, fp, dp;
-                    CalculationType den;
-                    const CalculationType* C;
+                    pj_complex<T> p, f, fp, dp;
+                    T den;
+                    const T* C;
 
                     p.r = xy_y;
                     p.i = xy_x;
                     for (nn = 20; nn ;--nn) {
-                        f = pj_zpolyd1(p, bf<CalculationType>(), Nbf, &fp);
+                        f = pj_zpolyd1(p, bf<T>(), Nbf, &fp);
                         f.r -= xy_y;
                         f.i -= xy_x;
                         den = fp.r * fp.r + fp.i * fp.i;
                         p.r += dp.r = -(f.r * fp.r + f.i * fp.i) / den;
                         p.i += dp.i = -(f.i * fp.r - f.r * fp.i) / den;
-                        if ((fabs(dp.r) + fabs(dp.i)) <= EPSLN)
+                        if ((fabs(dp.r) + fabs(dp.i)) <= epsilon)
                             break;
                     }
                     if (nn) {
                         lp_lon = p.i;
-                        for (lp_lat = *(C = tphi<CalculationType>() + (i = Ntphi)); i ; --i)
+                        for (lp_lat = *(C = tphi<T>() + (i = Ntphi)); i ; --i)
                             lp_lat = *--C + p.r * lp_lat;
-                        lp_lat = this->m_par.phi0 + p.r * lp_lat * SEC5_TO_RAD;
+                        lp_lat = par.phi0 + p.r * lp_lat * sec5_to_rad;
                     } else
                         lp_lon = lp_lat = HUGE_VAL;
                 }
@@ -188,11 +169,13 @@ namespace projections
             inline void setup_nzmg(Parameters& par)
             {
                 typedef typename Parameters::type calc_t;
+                static const calc_t d2r = geometry::math::d2r<calc_t>();
 
                 /* force to International major axis */
-                par.ra = 1. / (par.a = 6378388.0);
-                par.lam0 = geometry::math::d2r<calc_t>() * 173.;
-                par.phi0 = geometry::math::d2r<calc_t>() * -41.;
+                par.a = 6378388.0;
+                par.ra = 1. / par.a;
+                par.lam0 = 173. * d2r;
+                par.phi0 = -41. * d2r;
                 par.x0 = 2510000.;
                 par.y0 = 6023150.;
             }
@@ -211,12 +194,13 @@ namespace projections
         \par Example
         \image html ex_nzmg.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nzmg_ellipsoid : public detail::nzmg::base_nzmg_ellipsoid<T, Parameters>
     {
-        inline nzmg_ellipsoid(const Parameters& par) : detail::nzmg::base_nzmg_ellipsoid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline nzmg_ellipsoid(Params const& , Parameters & par)
         {
-            detail::nzmg::setup_nzmg(this->m_par);
+            detail::nzmg::setup_nzmg(par);
         }
     };
 
@@ -225,23 +209,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nzmg, nzmg_ellipsoid, nzmg_ellipsoid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_nzmg, nzmg_ellipsoid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nzmg_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<nzmg_ellipsoid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(nzmg_entry, nzmg_ellipsoid)
 
-        template <typename CalculationType, typename Parameters>
-        inline void nzmg_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(nzmg_init)
         {
-            factory.add_to_factory("nzmg", new nzmg_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(nzmg, nzmg_entry)
         }
 
     } // namespace detail

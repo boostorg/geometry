@@ -34,6 +34,70 @@ namespace boost { namespace geometry { namespace projections
 namespace detail
 {
 
+// Originally defined in projects.hpp
+/* library errors */
+enum error_type
+{
+    error_no_args                 =  -1,
+    error_no_option_in_init_file  =  -2,
+    error_no_colon_in_init_string =  -3,
+    error_proj_not_named          =  -4,
+    error_unknown_projection_id   =  -5,
+    error_eccentricity_is_one     =  -6,
+    error_unknow_unit_id          =  -7,
+    error_invalid_boolean_param   =  -8,
+    error_unknown_ellp_param      =  -9,
+    error_rev_flattening_is_zero  = -10,
+    error_ref_rad_larger_than_90  = -11,
+    error_es_less_than_zero       = -12,
+    error_major_axis_not_given    = -13,
+    error_lat_or_lon_exceed_limit = -14,
+    error_invalid_x_or_y          = -15,
+    error_wrong_format_dms_value  = -16,
+    error_non_conv_inv_meri_dist  = -17,
+    error_non_con_inv_phi2        = -18,
+    error_acos_asin_arg_too_large = -19,
+    error_tolerance_condition     = -20,
+    error_conic_lat_equal         = -21,
+    error_lat_larger_than_90      = -22,
+    error_lat1_is_zero            = -23,
+    error_lat_ts_larger_than_90   = -24,
+    error_control_point_no_dist   = -25,
+    error_no_rotation_proj        = -26,
+    error_w_or_m_zero_or_less     = -27,
+    error_lsat_not_in_range       = -28,
+    error_path_not_in_range       = -29,
+    error_h_less_than_zero        = -30,
+    error_k_less_than_zero        = -31,
+    error_lat_1_or_2_zero_or_90   = -32,
+    error_lat_0_or_alpha_eq_90    = -33,
+    error_ellipsoid_use_required  = -34,
+    error_invalid_utm_zone        = -35,
+    error_tcheby_val_out_of_range = -36,
+    error_failed_to_find_proj     = -37,
+    error_failed_to_load_grid     = -38,
+    error_invalid_m_or_n          = -39,
+    error_n_out_of_range          = -40,
+    error_lat_1_2_unspecified     = -41,
+    error_abs_lat1_eq_abs_lat2    = -42,
+    error_lat_0_half_pi_from_mean = -43,
+    error_unparseable_cs_def      = -44,
+    error_geocentric              = -45,
+    error_unknown_prime_meridian  = -46,
+    error_axis                    = -47,
+    error_grid_area               = -48,
+    error_invalid_sweep_axis      = -49,
+    error_malformed_pipeline      = -50,
+    error_unit_factor_less_than_0 = -51,
+    error_invalid_scale           = -52,
+    error_non_convergent          = -53,
+    error_missing_args            = -54,
+    error_lat_0_is_zero           = -55,
+    error_ellipsoidal_unsupported = -56,
+    error_too_many_inits          = -57,
+    error_invalid_arg             = -58
+};
+
     static const char *
 pj_err_list[] = {
     "no arguments in initialization list",                             /*  -1 */

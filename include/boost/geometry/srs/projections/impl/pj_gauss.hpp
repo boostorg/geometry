@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018.
+// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,18 +40,17 @@
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GAUSS_HPP
 
 
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/srs/projections/constants.hpp>
+#include <boost/geometry/srs/projections/exception.hpp>
 
 
 namespace boost { namespace geometry { namespace projections {
 
-namespace detail { namespace gauss {
+namespace detail {
 
-
-static const int MAX_ITER = 20;
 
 template <typename T>
-struct GAUSS
+struct gauss
 {
     T C;
     T K;
@@ -62,13 +61,13 @@ struct GAUSS
 template <typename T>
 inline T srat(T const& esinp, T const& exp)
 {
-    return (pow((1.0 - esinp) / (1.0 + esinp), exp));
+    return (math::pow((T(1) - esinp) / (T(1) + esinp), exp));
 }
 
 template <typename T>
-inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
+inline gauss<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
 {
-    static const T FORTPI = detail::FORTPI<T>();
+    static const T fourth_pi = detail::fourth_pi<T>();
 
     using std::asin;
     using std::cos;
@@ -80,7 +79,7 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
     T cphi = 0;
     T es = 0;
 
-    GAUSS<T> en;
+    gauss<T> en;
     es = e * e;
     en.e = e;
     sphi = sin(phi0);
@@ -91,38 +90,41 @@ inline GAUSS<T> gauss_ini(T const& e, T const& phi0, T& chi, T& rc)
     en.C = sqrt(1.0 + es * cphi * cphi / (1.0 - es));
     chi = asin(sphi / en.C);
     en.ratexp = 0.5 * en.C * e;
-    en.K = tan(0.5 * chi + FORTPI)
-           / (pow(tan(0.5 * phi0 + FORTPI), en.C) * srat(en.e * sphi, en.ratexp));
+    en.K = tan(0.5 * chi + fourth_pi)
+           / (math::pow(tan(T(0.5) * phi0 + fourth_pi), en.C) * srat(en.e * sphi, en.ratexp));
 
     return en;
 }
 
 template <typename T>
-inline void gauss(GAUSS<T> const& en, T& lam, T& phi)
+inline void gauss_fwd(gauss<T> const& en, T& lam, T& phi)
 {
-    static const T FORTPI = detail::FORTPI<T>();
+    static const T fourth_pi = detail::fourth_pi<T>();
+    static const T half_pi = detail::half_pi<T>();
 
-    phi = 2.0 * atan(en.K * pow(tan(0.5 * phi + FORTPI), en.C)
-          * srat(en.e * sin(phi), en.ratexp) ) - geometry::math::half_pi<T>();
+    phi = T(2) * atan(en.K * math::pow(tan(T(0.5) * phi + fourth_pi), en.C)
+          * srat(en.e * sin(phi), en.ratexp) ) - half_pi;
 
     lam *= en.C;
 }
 
 template <typename T>
-inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
+inline void gauss_inv(gauss<T> const& en, T& lam, T& phi)
 {
-    static const T FORTPI = detail::FORTPI<T>();
-    static const T DEL_TOL = 1e-14;
+    static const int max_iter = 20;
+    static const T fourth_pi = detail::fourth_pi<T>();
+    static const T half_pi = detail::half_pi<T>();
+    static const T del_tol = 1e-14;
 
     lam /= en.C;
-    const T num = pow(tan(0.5 * phi + FORTPI) / en.K, 1.0 / en.C);
+    const T num = math::pow(tan(T(0.5) * phi + fourth_pi) / en.K, T(1) / en.C);
 
     int i = 0;
-    for (i = MAX_ITER; i; --i)
+    for (i = max_iter; i; --i)
     {
-        const T elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - geometry::math::half_pi<T>();
+        const T elp_phi = 2.0 * atan(num * srat(en.e * sin(phi), - 0.5 * en.e)) - half_pi;
 
-        if (geometry::math::abs(elp_phi - phi) < DEL_TOL)
+        if (geometry::math::abs(elp_phi - phi) < del_tol)
         {
             break;
         }
@@ -132,11 +134,12 @@ inline void inv_gauss(GAUSS<T> const& en, T& lam, T& phi)
     /* convergence failed */
     if (!i)
     {
-        BOOST_THROW_EXCEPTION( projection_exception(-17) );
+        BOOST_THROW_EXCEPTION( projection_exception(error_non_conv_inv_meri_dist) );
     }
 }
 
-}} // namespace detail::gauss
+} // namespace detail
+
 }}} // namespace boost::geometry::projections
 
 #endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GAUSS_HPP

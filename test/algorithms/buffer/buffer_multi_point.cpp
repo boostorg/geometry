@@ -1,13 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <test_buffer.hpp>
+#include "test_buffer.hpp"
 
 static std::string const simplex = "MULTIPOINT((5 5),(7 7))";
 static std::string const three = "MULTIPOINT((5 8),(9 8),(7 11))";
@@ -47,7 +47,7 @@ void test_all()
     test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
 
     test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
-#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // For no-rescaling, fails in CCW mode
     test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
 #endif
@@ -68,12 +68,9 @@ void test_all()
                 grid_a, join, end_flat,
                 distance_strategy(0.5), side_strategy, point_strategy, 7.0);
 
-#if defined(BOOST_GEOMETRY_BUFFER_USE_SIDE_OF_INTERSECTION)
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join, end_flat,
                 distance_strategy(0.54), side_strategy, point_strategy, 7.819);
-#endif
-
     }
 
     test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",
@@ -83,14 +80,21 @@ void test_all()
             115057490003226.125, ut_settings(1.0));
 
     {
+        typename bg::strategy::area::services::default_strategy
+            <
+                typename bg::cs_tag<P>::type
+            >::type area_strategy;
+
         multi_point_type g;
         bg::read_wkt(mysql_report_3, g);
-        test_buffer<polygon>("mysql_report_3", g,
+        bg::model::multi_polygon<polygon> buffered;
+        test_buffer<polygon>("mysql_report_3", buffered, g,
             bg::strategy::buffer::join_round(36),
             bg::strategy::buffer::end_round(36),
             distance_strategy(1),
             side_strategy,
             bg::strategy::buffer::point_circle(36),
+            area_strategy,
             1, 0, 3.12566719800474635, ut_settings(1.0));
     }
 }
@@ -118,7 +122,7 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     double const tolerance = 1000.0;
 #else
     double const tolerance = 1.0;

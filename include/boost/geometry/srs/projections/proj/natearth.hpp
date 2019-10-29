@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -61,12 +61,6 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct natearth {}; // Natural Earth
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
@@ -88,33 +82,22 @@ namespace projections
             static const double C2 = (7 * B2);
             static const double C3 = (9 * B3);
             static const double C4 = (11 * B4);
-            static const double EPS = 1e-11;
+            static const double epsilon = 1e-11;
 
             template <typename T>
-            inline T MAX_Y() { return (0.8707 * 0.52 * detail::ONEPI<T>()); }
+            inline T max_y() { return (0.8707 * 0.52 * detail::pi<T>()); }
 
-            /* Not sure at all of the appropriate number for MAX_ITER... */
-            static const int MAX_ITER = 100;
+            /* Not sure at all of the appropriate number for max_iter... */
+            static const int max_iter = 100;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_natearth_spheroid : public base_t_fi<base_natearth_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_natearth_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_natearth_spheroid(const Parameters& par)
-                    : base_t_fi<base_natearth_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType phi2, phi4;
+                    T phi2, phi4;
 
                     phi2 = lp_lat * lp_lat;
                     phi4 = phi2 * phi2;
@@ -124,34 +107,34 @@ namespace projections
 
                 // INVERSE(s_inverse)  spheroid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    static const CalculationType MAX_Y = natearth::MAX_Y<CalculationType>();
+                    static const T max_y = natearth::max_y<T>();
 
-                    CalculationType yc, tol, y2, y4, f, fder;
+                    T yc, tol, y2, y4, f, fder;
                     int i;
 
                     /* make sure y is inside valid range */
-                    if (xy_y > MAX_Y) {
-                        xy_y = MAX_Y;
-                    } else if (xy_y < -MAX_Y) {
-                        xy_y = -MAX_Y;
+                    if (xy_y > max_y) {
+                        xy_y = max_y;
+                    } else if (xy_y < -max_y) {
+                        xy_y = -max_y;
                     }
 
                     /* latitude */
                     yc = xy_y;
-                    for (i = MAX_ITER; i ; --i) { /* Newton-Raphson */
+                    for (i = max_iter; i ; --i) { /* Newton-Raphson */
                         y2 = yc * yc;
                         y4 = y2 * y2;
                         f = (yc * (B0 + y2 * (B1 + y4 * (B2 + B3 * y2 + B4 * y4)))) - xy_y;
                         fder = C0 + y2 * (C1 + y4 * (C2 + C3 * y2 + C4 * y4));
                         yc -= tol = f / fder;
-                        if (fabs(tol) < EPS) {
+                        if (fabs(tol) < epsilon) {
                             break;
                         }
                     }
                     if( i == 0 )
-                        BOOST_THROW_EXCEPTION( projection_exception(-53) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_non_convergent) );
                     lp_lat = yc;
 
                     /* longitude */
@@ -188,12 +171,13 @@ namespace projections
         \par Example
         \image html ex_natearth.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct natearth_spheroid : public detail::natearth::base_natearth_spheroid<T, Parameters>
     {
-        inline natearth_spheroid(const Parameters& par) : detail::natearth::base_natearth_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline natearth_spheroid(Params const& , Parameters & par)
         {
-            detail::natearth::setup_natearth(this->m_par);
+            detail::natearth::setup_natearth(par);
         }
     };
 
@@ -202,23 +186,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::natearth, natearth_spheroid, natearth_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_natearth, natearth_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class natearth_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<natearth_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(natearth_entry, natearth_spheroid)
 
-        template <typename CalculationType, typename Parameters>
-        inline void natearth_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(natearth_init)
         {
-            factory.add_to_factory("natearth", new natearth_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(natearth, natearth_entry)
         }
 
     } // namespace detail

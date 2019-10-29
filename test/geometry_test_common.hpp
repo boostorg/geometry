@@ -49,7 +49,7 @@
 
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
 
 #include <string_from_type.hpp>
@@ -101,6 +101,7 @@
 // - do NOT use "using namespace boost::geometry" to make clear what is Boost.Geometry
 // - use bg:: as short alias
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -113,7 +114,7 @@ inline T1 if_typed_tt(T1 value_tt, T2 value)
 #if defined(HAVE_TTMATH)
     return boost::is_same<CoordinateType, ttmath_big>::type::value ? value_tt : value;
 #else
-    boost::ignore_unused_variable_warning(value_tt);
+    boost::ignore_unused(value_tt);
     return value;
 #endif
 }
@@ -160,6 +161,16 @@ struct mathematical_policy
 
 };
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+#define BG_IF_RESCALED(a, b) a
+#else
+#define BG_IF_RESCALED(a, b) b
+#endif
 
+#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#define BG_IF_KRAMER(a, b) a
+#else
+#define BG_IF_KRAMER(a, b) b
+#endif
 
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP

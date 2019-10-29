@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -43,20 +43,15 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
+#include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
-#include <boost/geometry/srs/projections/impl/aasincos.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct tpeqd {}; // Two Point Equidistant
-
-}} //namespace srs::par4
 
 namespace projections
 {
@@ -70,26 +65,16 @@ namespace projections
                 T hz0, thz0, rhshz0, ca, sa, lp, lamc;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_tpeqd_spheroid : public base_t_fi<base_tpeqd_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_tpeqd_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_tpeqd<CalculationType> m_proj_parm;
-
-                inline base_tpeqd_spheroid(const Parameters& par)
-                    : base_t_fi<base_tpeqd_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_tpeqd<T> m_proj_parm;
 
                 // FORWARD(s_forward)  sphere
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    CalculationType t, z1, z2, dl1, dl2, sp, cp;
+                    T t, z1, z2, dl1, dl2, sp, cp;
 
                     sp = sin(lp_lat);
                     cp = cos(lp_lat);
@@ -107,9 +92,9 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(cartesian_type& xy_x, cartesian_type& xy_y, geographic_type& lp_lon, geographic_type& lp_lat) const
+                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    CalculationType cz1, cz2, s, d, cp, sp;
+                    T cz1, cz2, s, d, cp, sp;
 
                     cz1 = cos(boost::math::hypot(xy_y, xy_x + this->m_proj_parm.hz0));
                     cz2 = cos(boost::math::hypot(xy_y, xy_x - this->m_proj_parm.hz0));
@@ -134,19 +119,19 @@ namespace projections
             };
 
             // Two Point Equidistant
-            template <typename Parameters, typename T>
-            inline void setup_tpeqd(Parameters& par, par_tpeqd<T>& proj_parm)
+            template <typename Params, typename Parameters, typename T>
+            inline void setup_tpeqd(Params const& params, Parameters& par, par_tpeqd<T>& proj_parm)
             {
                 T lam_1, lam_2, phi_1, phi_2, A12, pp;
 
                 /* get control point locations */
-                phi_1 = pj_param(par.params, "rlat_1").f;
-                lam_1 = pj_param(par.params, "rlon_1").f;
-                phi_2 = pj_param(par.params, "rlat_2").f;
-                lam_2 = pj_param(par.params, "rlon_2").f;
+                phi_1 = pj_get_param_r<T, srs::spar::lat_1>(params, "lat_1", srs::dpar::lat_1);
+                lam_1 = pj_get_param_r<T, srs::spar::lon_1>(params, "lon_1", srs::dpar::lon_1);
+                phi_2 = pj_get_param_r<T, srs::spar::lat_2>(params, "lat_2", srs::dpar::lat_2);
+                lam_2 = pj_get_param_r<T, srs::spar::lon_2>(params, "lon_2", srs::dpar::lon_2);
 
                 if (phi_1 == phi_2 && lam_1 == lam_2)
-                    BOOST_THROW_EXCEPTION( projection_exception(-25) );
+                    BOOST_THROW_EXCEPTION( projection_exception(error_control_point_no_dist) );
 
                 par.lam0 = adjlon(0.5 * (lam_1 + lam_2));
                 proj_parm.dlam2 = adjlon(lam_2 - lam_1);
@@ -195,12 +180,13 @@ namespace projections
         \par Example
         \image html ex_tpeqd.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct tpeqd_spheroid : public detail::tpeqd::base_tpeqd_spheroid<T, Parameters>
     {
-        inline tpeqd_spheroid(const Parameters& par) : detail::tpeqd::base_tpeqd_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline tpeqd_spheroid(Params const& params, Parameters & par)
         {
-            detail::tpeqd::setup_tpeqd(this->m_par, this->m_proj_parm);
+            detail::tpeqd::setup_tpeqd(params, par, this->m_proj_parm);
         }
     };
 
@@ -209,23 +195,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::tpeqd, tpeqd_spheroid, tpeqd_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_FI(srs::spar::proj_tpeqd, tpeqd_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class tpeqd_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(tpeqd_entry, tpeqd_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(tpeqd_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_fi<tpeqd_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void tpeqd_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("tpeqd", new tpeqd_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(tpeqd, tpeqd_entry)
         }
 
     } // namespace detail

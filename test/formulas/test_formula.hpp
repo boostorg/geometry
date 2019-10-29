@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -29,6 +29,38 @@ void normalize_deg(double & deg)
     ::boost::test_tools::check_is_close_t(), M, CHECK, CHECK_MSG, (L)(R)(::boost::math::fpc::percent_tolerance(T)) )
 
 
+void check_one(std::string const& name, double result, double expected)
+{
+    std::string id = name.empty() ? "" : (name + " : ");
+
+    double eps = std::numeric_limits<double>::epsilon();
+    double abs_result = bg::math::abs(result);
+    double abs_expected = bg::math::abs(expected);
+    double res_max = (std::max)(abs_result, abs_expected);
+    double res_min = (std::min)(abs_result, abs_expected);
+    if (res_min <= eps) // including 0
+    {
+        bool is_close = abs_result <= 30 * eps && abs_expected <= 30 * eps;
+        BOOST_CHECK_MESSAGE((is_close),
+            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+    }
+    else if (res_max > 100 * eps)
+    {
+        BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.1,
+            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+    }
+    else if (res_max > 10 * eps)
+    {
+        BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 10,
+            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+    }
+    else if (res_max > eps)
+    {
+        BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 1000,
+            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+    }
+}
+
 void check_one(std::string const& name,
                double result, double expected, double reference, double reference_error,
                bool normalize = false, bool check_reference_only = false)
@@ -44,32 +76,7 @@ void check_one(std::string const& name,
 
     if (! check_reference_only)
     {
-        double eps = std::numeric_limits<double>::epsilon();
-        double abs_result = bg::math::abs(result);
-        double abs_expected = bg::math::abs(expected);
-        double res_max = (std::max)(abs_result, abs_expected);
-        double res_min = (std::min)(abs_result, abs_expected);
-        if (res_min <= eps) // including 0
-        {
-            bool is_close = abs_result <= 30 * eps && abs_expected <= 30 * eps;
-            BOOST_CHECK_MESSAGE((is_close),
-                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
-        }
-        else if (res_max > 100 * eps)
-        {
-            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.1,
-                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
-        }
-        else if (res_max > 10 * eps)
-        {
-            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 10,
-                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
-        }
-        else if (res_max > eps)
-        {
-            BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 1000,
-                id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
-        }
+        check_one(name, result, expected);
     }
 
     // NOTE: in some cases it probably will be necessary to normalize

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -46,75 +46,61 @@
 #include <sstream>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/geometry/util/math.hpp>
+
+#include <boost/geometry/core/assert.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
-#include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
+#include <boost/geometry/srs/projections/impl/pj_param.hpp>
+#include <boost/geometry/srs/projections/impl/projects.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
-
-namespace srs { namespace par4
-{
-    struct isea {};
-
-}} //namespace srs::par4
 
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace isea
     {
+            static const double epsilon = std::numeric_limits<double>::epsilon();
 
-            static const double E = 52.62263186;
-            static const double F = 10.81231696;
-            //static const double DEG60 = 1.04719755119659774614;
-            //static const double DEG120 = 2.09439510239319549229;
-            //static const double DEG72 = 1.25663706143591729537;
-            //static const double DEG90 = 1.57079632679489661922;
-            //static const double DEG144 = 2.51327412287183459075;
-            //static const double DEG36 = 0.62831853071795864768;
-            //static const double DEG108 = 1.88495559215387594306;
-            //static const double DEG180 = geometry::math::pi<double>();
             /* sqrt(5)/M_PI */
-            static const double ISEA_SCALE = 0.8301572857837594396028083;
+            static const double isea_scale = 0.8301572857837594396028083;
             /* 26.565051177 degrees */
-            static const double V_LAT = 0.46364760899944494524;
+            static const double v_lat = 0.46364760899944494524;
             /* 52.62263186 */
-            static const double E_RAD = 0.91843818702186776133;
+            static const double e_rad = 0.91843818702186776133;
             /* 10.81231696 */
-            static const double F_RAD = 0.18871053072122403508;
+            static const double f_rad = 0.18871053072122403508;
             /* R tan(g) sin(60) */
-            static const double TABLE_G = 0.6615845383;
+            static const double table_g = 0.6615845383;
             /* H = 0.25 R tan g = */
-            static const double TABLE_H = 0.1909830056;
-            static const double RPRIME = 0.91038328153090290025;
-            static const double PRECISION = 0.0000000000005;
-            static const double ISEA_STD_LAT = 1.01722196792335072101;
-            static const double ISEA_STD_LON = .19634954084936207740;
+            static const double table_h = 0.1909830056;
+            //static const double RPRIME = 0.91038328153090290025;
+            static const double isea_std_lat = 1.01722196792335072101;
+            static const double isea_std_lon = .19634954084936207740;
 
             template <typename T>
-            inline T DEG30() { return T(30) * geometry::math::d2r<T>(); }
+            inline T deg30_rad() { return T(30) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG60() { return T(60) * geometry::math::d2r<T>(); }
+            inline T deg120_rad() { return T(120) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG120() { return T(120) * geometry::math::d2r<T>(); }
+            inline T deg72_rad() { return T(72) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG72() { return T(72) * geometry::math::d2r<T>(); }
+            inline T deg90_rad() { return geometry::math::half_pi<T>(); }
             template <typename T>
-            inline T DEG90() { return geometry::math::half_pi<T>(); }
+            inline T deg144_rad() { return T(144) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG144() { return T(144) * geometry::math::d2r<T>(); }
+            inline T deg36_rad() { return T(36) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG36() { return T(36) * geometry::math::d2r<T>(); }
+            inline T deg108_rad() { return T(108) * geometry::math::d2r<T>(); }
             template <typename T>
-            inline T DEG108() { return T(108) * geometry::math::d2r<T>(); }
-            template <typename T>
-            inline T DEG180() { return geometry::math::pi<T>(); }
+            inline T deg180_rad() { return geometry::math::pi<T>(); }
 
-            inline bool DOWNTRI(int tri) { return (((tri - 1) / 5) % 2 == 1); }
+            inline bool downtri(int tri) { return (((tri - 1) / 5) % 2 == 1); }
 
             /*
              * Proj 4 provides its own entry points into
@@ -160,14 +146,16 @@ namespace projections
 
             template <typename T>
             inline
-            int hexbin2(T const& width, T x, T y,
-                        int *i, int *j) {
+            int hexbin2(T const& width, T x, T y, int *i, int *j)
+            {
                 T z, rx, ry, rz;
                 T abs_dx, abs_dy, abs_dz;
                 int ix, iy, iz, s;
                 struct hex h;
 
-                x = x / cos(DEG30<T>()); /* rotated X coord */
+                static const T cos_deg30 = cos(deg30_rad<T>());
+
+                x = x / cos_deg30; /* rotated X coord */
                 y = y - x / 2.0; /* adjustment for rotated X */
 
                 /* adjust for actual hexwidth */
@@ -209,25 +197,27 @@ namespace projections
                 return ix * 100 + iy;
             }
 
-            enum isea_poly { ISEA_NONE, ISEA_ICOSAHEDRON = 20 };
-            enum isea_topology { ISEA_HEXAGON=6, ISEA_TRIANGLE=3, ISEA_DIAMOND=4 };
-            enum isea_address_form { ISEA_GEO, ISEA_Q2DI, ISEA_SEQNUM, ISEA_INTERLEAVE,
-                ISEA_PLANE, ISEA_Q2DD, ISEA_PROJTRI, ISEA_VERTEX2DD, ISEA_HEX
+            //enum isea_poly { isea_none = 0, isea_icosahedron = 20 };
+            //enum isea_topology { isea_hexagon=6, isea_triangle=3, isea_diamond=4 };
+            enum isea_address_form {
+                /*isea_addr_geo,*/ isea_addr_q2di, isea_addr_seqnum,
+                /*isea_addr_interleave,*/ isea_addr_plane, isea_addr_q2dd,
+                isea_addr_projtri, isea_addr_vertex2dd, isea_addr_hex
             };
 
             template <typename T>
             struct isea_dgg {
-                int    polyhedron; /* ignored, icosahedron */
-                T      o_lat, o_lon, o_az; /* orientation, radians */
-                int    pole; /* true if standard snyder */
-                int    topology; /* ignored, hexagon */
-                int    aperture; /* valid values depend on partitioning method */
-                int    resolution;
-                T      radius; /* radius of the earth in meters, ignored 1.0 */
-                int    output; /* an isea_address_form */
-                int    triangle; /* triangle of last transformed point */
-                int    quad; /* quad of last transformed point */
-                unsigned long serial;
+                T                 o_lat, o_lon, o_az; /* orientation, radians */
+                T                 radius; /* radius of the earth in meters, ignored 1.0 */
+                unsigned long     serial;
+                //int               pole; /* true if standard snyder */
+                int               aperture; /* valid values depend on partitioning method */
+                int               resolution;
+                int               triangle; /* triangle of last transformed point */
+                int               quad; /* quad of last transformed point */
+                //isea_poly         polyhedron; /* ignored, icosahedron */
+                //isea_topology     topology; /* ignored, hexagon */
+                isea_address_form output; /* an isea_address_form */
             };
 
             template <typename T>
@@ -242,18 +232,18 @@ namespace projections
 
             template <typename T>
             struct isea_address {
+                T      x,y; /* or i,j or lon,lat depending on type */
                 int    type; /* enum isea_address_form */
                 int    number;
-                T      x,y; /* or i,j or lon,lat depending on type */
             };
 
             /* ENDINC */
 
             enum snyder_polyhedron {
-                SNYDER_POLY_HEXAGON, SNYDER_POLY_PENTAGON,
-                SNYDER_POLY_TETRAHEDRON, SNYDER_POLY_CUBE,
-                SNYDER_POLY_OCTAHEDRON, SNYDER_POLY_DODECAHEDRON,
-                SNYDER_POLY_ICOSAHEDRON
+                snyder_poly_hexagon = 0, snyder_poly_pentagon = 1,
+                snyder_poly_tetrahedron = 2, snyder_poly_cube = 3,
+                snyder_poly_octahedron = 4, snyder_poly_dodecahedron = 5,
+                snyder_poly_icosahedron = 6
             };
 
             template <typename T>
@@ -281,18 +271,18 @@ namespace projections
             inline const isea_geo<T> * vertex()
             {
                 static isea_geo<T> result[] = {
-                    {0.0, DEG90<T>()},
-                    {DEG180<T>(), V_LAT},
-                    {-DEG108<T>(), V_LAT},
-                    {-DEG36<T>(), V_LAT},
-                    {DEG36<T>(), V_LAT},
-                    {DEG108<T>(), V_LAT},
-                    {-DEG144<T>(), -V_LAT},
-                    {-DEG72<T>(), -V_LAT},
-                    {0.0, -V_LAT},
-                    {DEG72<T>(), -V_LAT},
-                    {DEG144<T>(), -V_LAT},
-                    {0.0, -DEG90<T>()}
+                    { 0.0,              deg90_rad<T>()},
+                    { deg180_rad<T>(),  v_lat},
+                    {-deg108_rad<T>(),  v_lat},
+                    {-deg36_rad<T>(),   v_lat},
+                    { deg36_rad<T>(),   v_lat},
+                    { deg108_rad<T>(),  v_lat},
+                    {-deg144_rad<T>(), -v_lat},
+                    {-deg72_rad<T>(),  -v_lat},
+                    { 0.0,             -v_lat},
+                    { deg72_rad<T>(),  -v_lat},
+                    { deg144_rad<T>(), -v_lat},
+                    { 0.0,             -deg90_rad<T>()}
                 };
                 return result;
             }
@@ -306,27 +296,27 @@ namespace projections
             inline const isea_geo<T> * icostriangles()
             {
                 static isea_geo<T> result[] = {
-                    {0.0, 0.0},
-                    {-DEG144<T>(), E_RAD},
-                    {-DEG72<T>(), E_RAD},
-                    {0.0, E_RAD},
-                    {DEG72<T>(), E_RAD},
-                    {DEG144<T>(), E_RAD},
-                    {-DEG144<T>(), F_RAD},
-                    {-DEG72<T>(), F_RAD},
-                    {0.0, F_RAD},
-                    {DEG72<T>(), F_RAD},
-                    {DEG144<T>(), F_RAD},
-                    {-DEG108<T>(), -F_RAD},
-                    {-DEG36<T>(), -F_RAD},
-                    {DEG36<T>(), -F_RAD},
-                    {DEG108<T>(), -F_RAD},
-                    {DEG180<T>(), -F_RAD},
-                    {-DEG108<T>(), -E_RAD},
-                    {-DEG36<T>(), -E_RAD},
-                    {DEG36<T>(), -E_RAD},
-                    {DEG108<T>(), -E_RAD},
-                    {DEG180<T>(), -E_RAD},
+                    { 0.0,              0.0},
+                    {-deg144_rad<T>(),  e_rad},
+                    {-deg72_rad<T>(),   e_rad},
+                    { 0.0,              e_rad},
+                    { deg72_rad<T>(),   e_rad},
+                    { deg144_rad<T>(),  e_rad},
+                    {-deg144_rad<T>(),  f_rad},
+                    {-deg72_rad<T>(),   f_rad},
+                    { 0.0,              f_rad},
+                    { deg72_rad<T>(),   f_rad},
+                    { deg144_rad<T>(),  f_rad},
+                    {-deg108_rad<T>(), -f_rad},
+                    {-deg36_rad<T>(),  -f_rad},
+                    { deg36_rad<T>(),  -f_rad},
+                    { deg108_rad<T>(), -f_rad},
+                    { deg180_rad<T>(), -f_rad},
+                    {-deg108_rad<T>(), -e_rad},
+                    {-deg36_rad<T>(),  -e_rad},
+                    { deg36_rad<T>(),  -e_rad},
+                    { deg108_rad<T>(), -e_rad},
+                    { deg180_rad<T>(), -e_rad},
                 };
                 return result;
             }
@@ -358,22 +348,22 @@ namespace projections
 
                 triangle = (triangle - 1) % 20;
 
-                c.x = TABLE_G * ((triangle % 5) - 2) * 2.0;
+                c.x = table_g * ((triangle % 5) - 2) * 2.0;
                 if (triangle > 9) {
-                    c.x += TABLE_G;
+                    c.x += table_g;
                 }
                 switch (triangle / 5) {
                 case 0:
-                    c.y = 5.0 * TABLE_H;
+                    c.y = 5.0 * table_h;
                     break;
                 case 1:
-                    c.y = TABLE_H;
+                    c.y = table_h;
                     break;
                 case 2:
-                    c.y = -TABLE_H;
+                    c.y = -table_h;
                     break;
                 case 3:
-                    c.y = -5.0 * TABLE_H;
+                    c.y = -5.0 * table_h;
                     break;
                 default:
                     /* should be impossible */
@@ -402,8 +392,8 @@ namespace projections
             template <typename T>
             inline int isea_snyder_forward(isea_geo<T> * ll, isea_pt<T> * out)
             {
-                static T const TWOPI = detail::TWOPI<T>();
-                static T const DEG2RAD = geometry::math::d2r<T>();
+                static T const two_pi = detail::two_pi<T>();
+                static T const d2r = geometry::math::d2r<T>();
 
                 int             i;
 
@@ -443,10 +433,10 @@ namespace projections
                  */
 
                 /* TODO put these constants in as radians to begin with */
-                c = constants<T>()[SNYDER_POLY_ICOSAHEDRON];
-                theta = c.theta * DEG2RAD;
-                g = c.g * DEG2RAD;
-                G = c.G * DEG2RAD;
+                c = constants<T>()[snyder_poly_icosahedron];
+                theta = c.theta * d2r;
+                g = c.g * d2r;
+                G = c.G * d2r;
 
                 for (i = 1; i <= 20; i++) {
                     T          z;
@@ -475,7 +465,7 @@ namespace projections
                     /* TODO I don't know why we do this.  It's not in snyder */
                     /* maybe because we should have picked a better vertex */
                     if (Az < 0.0) {
-                        Az += TWOPI;
+                        Az += two_pi;
                     }
                     /*
                      * adjust Az for the point to fall within the range of 0 to
@@ -488,11 +478,11 @@ namespace projections
 
                     Az_adjust_multiples = 0;
                     while (Az < 0.0) {
-                        Az += DEG120<T>();
+                        Az += deg120_rad<T>();
                         Az_adjust_multiples--;
                     }
-                    while (Az > DEG120<T>() + DBL_EPSILON) {
-                        Az -= DEG120<T>();
+                    while (Az > deg120_rad<T>() + epsilon) {
+                        Az -= deg120_rad<T>();
                         Az_adjust_multiples++;
                     }
 
@@ -521,8 +511,8 @@ namespace projections
                     H = acos(sin(Az) * sin(G) * cos(g) - cos(Az) * cos(G));
 
                     /* eq 7 */
-                    /* Ag = (Az + G + H - DEG180) * M_PI * R * R / DEG180; */
-                    Ag = Az + G + H - DEG180<T>();
+                    /* Ag = (Az + G + H - deg180_rad) * M_PI * R * R / deg180_rad; */
+                    Ag = Az + G + H - deg180_rad<T>();
 
                     /* eq 8 */
                     Azprime = atan2(2.0 * Ag, Rprime * Rprime * tan_g * tan_g - 2.0 * Ag * cot_theta);
@@ -542,7 +532,7 @@ namespace projections
                      * 2 to Azprime
                      */
 
-                    Azprime += DEG120<T>() * Az_adjust_multiples;
+                    Azprime += deg120_rad<T>() * Az_adjust_multiples;
 
                     /* calculate rectangular coordinates */
 
@@ -597,8 +587,8 @@ namespace projections
             template <typename T>
             inline isea_geo<T> snyder_ctran(isea_geo<T> * np, isea_geo<T> * pt)
             {
-                static T const ONEPI = detail::ONEPI<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const pi = detail::pi<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 isea_geo<T> npt;
                 T           alpha, phi, lambda, lambda0, beta, lambdap, phip;
@@ -628,11 +618,11 @@ namespace projections
 
                 /* normalize longitude */
                 /* TODO can we just do a modulus ? */
-                lambdap = fmod(lambdap, TWOPI);
-                while (lambdap > ONEPI)
-                    lambdap -= TWOPI;
-                while (lambdap < -ONEPI)
-                    lambdap += TWOPI;
+                lambdap = fmod(lambdap, two_pi);
+                while (lambdap > pi)
+                    lambdap -= two_pi;
+                while (lambdap < -pi)
+                    lambdap += two_pi;
 
                 phip = asin(sin_phip);
 
@@ -645,28 +635,28 @@ namespace projections
             template <typename T>
             inline isea_geo<T> isea_ctran(isea_geo<T> * np, isea_geo<T> * pt, T const& lon0)
             {
-                static T const ONEPI = detail::ONEPI<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const pi = detail::pi<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 isea_geo<T> npt;
 
-                np->lon += ONEPI;
+                np->lon += pi;
                 npt = snyder_ctran(np, pt);
-                np->lon -= ONEPI;
+                np->lon -= pi;
 
-                npt.lon -= (ONEPI - lon0 + np->lon);
+                npt.lon -= (pi - lon0 + np->lon);
 
                 /*
                  * snyder is down tri 3, isea is along side of tri1 from vertex 0 to
                  * vertex 1 these are 180 degrees apart
                  */
-                npt.lon += ONEPI;
+                npt.lon += pi;
                 /* normalize longitude */
-                npt.lon = fmod(npt.lon, TWOPI);
-                while (npt.lon > ONEPI)
-                    npt.lon -= TWOPI;
-                while (npt.lon < -ONEPI)
-                    npt.lon += TWOPI;
+                npt.lon = fmod(npt.lon, two_pi);
+                while (npt.lon > pi)
+                    npt.lon -= two_pi;
+                while (npt.lon < -pi)
+                    npt.lon += two_pi;
 
                 return npt;
             }
@@ -681,14 +671,14 @@ namespace projections
                 if (!g)
                     return 0;
 
-                g->polyhedron = 20;
-                g->o_lat = ISEA_STD_LAT;
-                g->o_lon = ISEA_STD_LON;
+                //g->polyhedron = isea_icosahedron;
+                g->o_lat = isea_std_lat;
+                g->o_lon = isea_std_lon;
                 g->o_az = 0.0;
                 g->aperture = 4;
                 g->resolution = 6;
                 g->radius = 1.0;
-                g->topology = 6;
+                //g->topology = isea_hexagon;
 
                 return 1;
             }
@@ -698,8 +688,8 @@ namespace projections
             {
                 if (!g)
                     return 0;
-                g->o_lat = ISEA_STD_LAT;
-                g->o_lon = ISEA_STD_LON;
+                g->o_lat = isea_std_lat;
+                g->o_lon = isea_std_lon;
                 g->o_az = 0.0;
                 return 1;
             }
@@ -707,11 +697,11 @@ namespace projections
             template <typename T>
             inline int isea_orient_pole(isea_dgg<T> * g)
             {
-                static T const HALFPI = detail::HALFPI<T>();
+                static T const half_pi = detail::half_pi<T>();
 
                 if (!g)
                     return 0;
-                g->o_lat = HALFPI;
+                g->o_lat = half_pi;
                 g->o_lon = 0.0;
                 g->o_az = 0;
                 return 1;
@@ -741,16 +731,16 @@ namespace projections
             template <typename T>
             inline void isea_rotate(isea_pt<T> * pt, T const& degrees)
             {
-                static T const DEG2RAD = geometry::math::d2r<T>();
-                static T const TWOPI = detail::TWOPI<T>();
+                static T const d2r = geometry::math::d2r<T>();
+                static T const two_pi = detail::two_pi<T>();
 
                 T          rad;
 
                 T          x, y;
 
-                rad = -degrees * DEG2RAD;
-                while (rad >= TWOPI) rad -= TWOPI;
-                while (rad <= -TWOPI) rad += TWOPI;
+                rad = -degrees * d2r;
+                while (rad >= two_pi) rad -= two_pi;
+                while (rad <= -two_pi) rad += two_pi;
 
                 x = pt->x * cos(rad) + pt->y * sin(rad);
                 y = -pt->x * sin(rad) + pt->y * cos(rad);
@@ -764,7 +754,7 @@ namespace projections
             {
                 isea_pt<T> tc; /* center of triangle */
 
-                if (DOWNTRI(tri)) {
+                if (downtri(tri)) {
                     isea_rotate(pt, 180.0);
                 }
                 tc = isea_triangle_xy<T>(tri);
@@ -797,7 +787,7 @@ namespace projections
             template <typename T>
             inline int isea_dddi_ap3odd(isea_dgg<T> *g, int quad, isea_pt<T> *pt, isea_pt<T> *di)
             {
-                static T const ONEPI = detail::ONEPI<T>();
+                static T const pi = detail::pi<T>();
 
                 isea_pt<T> v;
                 T          hexwidth;
@@ -807,10 +797,10 @@ namespace projections
                 hex        h;
 
                 /* This is the number of hexes from apex to base of a triangle */
-                sidelength = (pow(2.0, g->resolution) + 1.0) / 2.0;
+                sidelength = (math::pow(T(2), g->resolution) + T(1)) / T(2);
 
                 /* apex to base is cos(30deg) */
-                hexwidth = cos(ONEPI / 6.0) / sidelength;
+                hexwidth = cos(pi / 6.0) / sidelength;
 
                 /* TODO I think sidelength is always x.5, so
                  * (int)sidelength * 2 + 1 might be just as good
@@ -887,7 +877,7 @@ namespace projections
                 }
                 /* todo might want to do this as an iterated loop */
                 if (g->aperture >0) {
-                    sidelength = (int) (pow(T(g->aperture), T(g->resolution / 2.0)) + 0.5);
+                    sidelength = (int) (math::pow(T(g->aperture), T(g->resolution / T(2))) + T(0.5));
                 } else {
                     sidelength = g->resolution;
                 }
@@ -973,19 +963,19 @@ namespace projections
                     return g->serial;
                 }
                 /* hexes in a quad */
-                hexes = (int) (pow(T(g->aperture), T(g->resolution)) + 0.5);
+                hexes = (int) (math::pow(T(g->aperture), T(g->resolution)) + T(0.5));
                 if (quad == 11) {
                     g->serial = 1 + 10 * hexes + 1;
                     return g->serial;
                 }
                 if (g->aperture == 3 && g->resolution % 2 == 1) {
-                    height = (int) (pow(T(g->aperture), T((g->resolution - 1) / 2.0)));
+                    height = (int) (math::pow(T(g->aperture), T((g->resolution - 1) / T(2))));
                     sn = ((int) di->x) * height;
                     sn += ((int) di->y) / height;
                     sn += (quad - 1) * hexes;
                     sn += 2;
                 } else {
-                    sidelength = (int) (pow(T(g->aperture), T(g->resolution / 2.0)) + 0.5);
+                    sidelength = (int) (math::pow(T(g->aperture), T(g->resolution / T(2))) + T(0.5));
                     sn = (int) ((quad - 1) * hexes + sidelength * di->x + di->y + 2);
                 }
 
@@ -1070,42 +1060,46 @@ namespace projections
 
                 tri = isea_transform(g, in, &out);
 
-                if (g->output == ISEA_PLANE) {
+                if (g->output == isea_addr_plane) {
                     isea_tri_plane(tri, &out, g->radius);
                     return out;
                 }
 
                 /* convert to isea standard triangle size */
-                out.x = out.x / g->radius * ISEA_SCALE;
-                out.y = out.y / g->radius * ISEA_SCALE;
+                out.x = out.x / g->radius * isea_scale;
+                out.y = out.y / g->radius * isea_scale;
                 out.x += 0.5;
                 out.y += 2.0 * .14433756729740644112;
 
                 switch (g->output) {
-                case ISEA_PROJTRI:
-                    /* nothing to do, already in projected triangle */
-                    break;
-                case ISEA_VERTEX2DD:
-                    g->quad = isea_ptdd(tri, &out);
-                    break;
-                case ISEA_Q2DD:
-                    /* Same as above, we just don't print as much */
-                    g->quad = isea_ptdd(tri, &out);
-                    break;
-                case ISEA_Q2DI:
-                    g->quad = isea_ptdi(g, tri, &out, &coord);
-                    return coord;
-                    break;
-                case ISEA_SEQNUM:
-                    isea_ptdi(g, tri, &out, &coord);
-                    /* disn will set g->serial */
-                    isea_disn(g, g->quad, &coord);
-                    return coord;
-                    break;
-                case ISEA_HEX:
-                    isea_hex(g, tri, &out, &coord);
-                    return coord;
-                    break;
+                    case isea_addr_projtri:
+                        /* nothing to do, already in projected triangle */
+                        break;
+                    case isea_addr_vertex2dd:
+                        g->quad = isea_ptdd(tri, &out);
+                        break;
+                    case isea_addr_q2dd:
+                        /* Same as above, we just don't print as much */
+                        g->quad = isea_ptdd(tri, &out);
+                        break;
+                    case isea_addr_q2di:
+                        g->quad = isea_ptdi(g, tri, &out, &coord);
+                        return coord;
+                        break;
+                    case isea_addr_seqnum:
+                        isea_ptdi(g, tri, &out, &coord);
+                        /* disn will set g->serial */
+                        isea_disn(g, g->quad, &coord);
+                        return coord;
+                        break;
+                    case isea_addr_hex:
+                        isea_hex(g, tri, &out, &coord);
+                        return coord;
+                        break;
+                    default:
+                        // isea_addr_plane handled above
+                        BOOST_GEOMETRY_ASSERT(false);
+                        break;
                 }
 
                 return out;
@@ -1120,32 +1114,22 @@ namespace projections
                 isea_dgg<T> dgg;
             };
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_isea_spheroid : public base_t_f<base_isea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_isea_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-                par_isea<CalculationType> m_proj_parm;
-
-                inline base_isea_spheroid(const Parameters& par)
-                    : base_t_f<base_isea_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
+                par_isea<T> m_proj_parm;
 
                 // FORWARD(s_forward)
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    isea_pt<CalculationType> out;
-                    isea_geo<CalculationType> in;
+                    isea_pt<T> out;
+                    isea_geo<T> in;
 
                     in.lon = lp_lon;
                     in.lat = lp_lat;
 
-                    isea_dgg<CalculationType> copy = this->m_proj_parm.dgg;
+                    isea_dgg<T> copy = this->m_proj_parm.dgg;
                     out = isea_forward(&copy, &in);
 
                     xy_x = out.x;
@@ -1159,82 +1143,119 @@ namespace projections
 
             };
 
-            // Icosahedral Snyder Equal Area
-            template <typename Parameters, typename T>
-            inline void setup_isea(Parameters& par, par_isea<T>& proj_parm)
+            template <typename T>
+            inline void isea_orient_init(srs::detail::proj4_parameters const& params,
+                                         par_isea<T>& proj_parm)
             {
-                std::string opt;
-
-                isea_grid_init(&proj_parm.dgg);
-
-                proj_parm.dgg.output = ISEA_PLANE;
-            /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
-                /* calling library will scale, I think */
-
-                opt = pj_param(par.params, "sorient").s;
+                std::string opt = pj_get_param_s(params, "orient");
                 if (! opt.empty()) {
                     if (opt == std::string("isea")) {
                         isea_orient_isea(&proj_parm.dgg);
                     } else if (opt == std::string("pole")) {
                         isea_orient_pole(&proj_parm.dgg);
                     } else {
-                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                     }
                 }
+            }
 
-                if (pj_param(par.params, "tazi").i) {
-                    proj_parm.dgg.o_az = pj_param(par.params, "razi").f;
+            template <typename T>
+            inline void isea_orient_init(srs::dpar::parameters<T> const& params,
+                                         par_isea<T>& proj_parm)
+            {
+                typename srs::dpar::parameters<T>::const_iterator
+                    it = pj_param_find(params, srs::dpar::orient);
+                if (it != params.end()) {
+                    srs::dpar::value_orient o = static_cast<srs::dpar::value_orient>(it->template get_value<int>());
+                    if (o == srs::dpar::orient_isea) {
+                        isea_orient_isea(&proj_parm.dgg);
+                    } else if (o == srs::dpar::orient_pole) {
+                        isea_orient_pole(&proj_parm.dgg);
+                    } else {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
+                    }
                 }
+            }
 
-                if (pj_param(par.params, "tlon_0").i) {
-                    proj_parm.dgg.o_lon = pj_param(par.params, "rlon_0").f;
-                }
-
-                if (pj_param(par.params, "tlat_0").i) {
-                    proj_parm.dgg.o_lat = pj_param(par.params, "rlat_0").f;
-                }
-
-                // TODO: this parameter is set below second time
-                if (pj_param(par.params, "taperture").i) {
-                    proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
-                }
-
-                // TODO: this parameter is set below second time
-                if (pj_param(par.params, "tresolution").i) {
-                    proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
-                }
-
-                opt = pj_param(par.params, "smode").s;
+            template <typename T>
+            inline void isea_mode_init(srs::detail::proj4_parameters const& params,
+                                       par_isea<T>& proj_parm)
+            {
+                std::string opt = pj_get_param_s(params, "mode");
                 if (! opt.empty()) {
                     if (opt == std::string("plane")) {
-                        proj_parm.dgg.output = ISEA_PLANE;
+                        proj_parm.dgg.output = isea_addr_plane;
                     } else if (opt == std::string("di")) {
-                        proj_parm.dgg.output = ISEA_Q2DI;
-                    }
-                    else if (opt == std::string("dd")) {
-                        proj_parm.dgg.output = ISEA_Q2DD;
-                    }
-                    else if (opt == std::string("hex")) {
-                        proj_parm.dgg.output = ISEA_HEX;
-                    }
-                    else {
-                        /* TODO verify error code.  Possibly eliminate magic */
-                        BOOST_THROW_EXCEPTION( projection_exception(-34) );
+                        proj_parm.dgg.output = isea_addr_q2di;
+                    } else if (opt == std::string("dd")) {
+                        proj_parm.dgg.output = isea_addr_q2dd;
+                    } else if (opt == std::string("hex")) {
+                        proj_parm.dgg.output = isea_addr_hex;
+                    } else {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
                     }
                 }
+            }
 
-                if (pj_param(par.params, "trescale").i) {
-                    proj_parm.dgg.radius = ISEA_SCALE;
+            template <typename T>
+            inline void isea_mode_init(srs::dpar::parameters<T> const& params,
+                                       par_isea<T>& proj_parm)
+            {
+                typename srs::dpar::parameters<T>::const_iterator
+                    it = pj_param_find(params, srs::dpar::mode);
+                if (it != params.end()) {
+                    srs::dpar::value_mode m = static_cast<srs::dpar::value_mode>(it->template get_value<int>());
+                    if (m == srs::dpar::mode_plane) {
+                        proj_parm.dgg.output = isea_addr_plane;
+                    } else if (m == srs::dpar::mode_di) {
+                        proj_parm.dgg.output = isea_addr_q2di;
+                    } else if (m == srs::dpar::mode_dd) {
+                        proj_parm.dgg.output = isea_addr_q2dd;
+                    } else if (m == srs::dpar::mode_hex) {
+                        proj_parm.dgg.output = isea_addr_hex;
+                    } else {
+                        BOOST_THROW_EXCEPTION( projection_exception(error_ellipsoid_use_required) );
+                    }
+                }
+            }
+
+            // Icosahedral Snyder Equal Area
+            template <typename Params, typename T>
+            inline void setup_isea(Params const& params, par_isea<T>& proj_parm)
+            {
+                std::string opt;
+
+                isea_grid_init(&proj_parm.dgg);
+
+                proj_parm.dgg.output = isea_addr_plane;
+            /*        proj_parm.dgg.radius = par.a; / * otherwise defaults to 1 */
+                /* calling library will scale, I think */
+
+                isea_orient_init(params, proj_parm);
+
+                pj_param_r<srs::spar::azi>(params, "azi", srs::dpar::azi, proj_parm.dgg.o_az);
+                pj_param_r<srs::spar::lon_0>(params, "lon_0", srs::dpar::lon_0, proj_parm.dgg.o_lon);
+                pj_param_r<srs::spar::lat_0>(params, "lat_0", srs::dpar::lat_0, proj_parm.dgg.o_lat);
+                // TODO: this parameter is set below second time
+                pj_param_i<srs::spar::aperture>(params, "aperture", srs::dpar::aperture, proj_parm.dgg.aperture);
+                // TODO: this parameter is set below second time
+                pj_param_i<srs::spar::resolution>(params, "resolution", srs::dpar::resolution, proj_parm.dgg.resolution);
+                
+                isea_mode_init(params, proj_parm);
+
+                // TODO: pj_param_exists -> pj_get_param_b ?
+                if (pj_param_exists<srs::spar::rescale>(params, "rescale", srs::dpar::rescale)) {
+                    proj_parm.dgg.radius = isea_scale;
                 }
 
-                if (pj_param(par.params, "tresolution").i) {
-                    proj_parm.dgg.resolution = pj_param(par.params, "iresolution").i;
+                if (pj_param_i<srs::spar::resolution>(params, "resolution", srs::dpar::resolution, proj_parm.dgg.resolution)) {
+                    /* empty */
                 } else {
                     proj_parm.dgg.resolution = 4;
                 }
 
-                if (pj_param(par.params, "taperture").i) {
-                    proj_parm.dgg.aperture = pj_param(par.params, "iaperture").i;
+                if (pj_param_i<srs::spar::aperture>(params, "aperture", srs::dpar::aperture, proj_parm.dgg.aperture)) {
+                    /* empty */
                 } else {
                     proj_parm.dgg.aperture = 3;
                 }
@@ -1263,12 +1284,13 @@ namespace projections
         \par Example
         \image html ex_isea.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct isea_spheroid : public detail::isea::base_isea_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct isea_spheroid : public detail::isea::base_isea_spheroid<T, Parameters>
     {
-        inline isea_spheroid(const Parameters& par) : detail::isea::base_isea_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline isea_spheroid(Params const& params, Parameters const& )
         {
-            detail::isea::setup_isea(this->m_par, this->m_proj_parm);
+            detail::isea::setup_isea(params, this->m_proj_parm);
         }
     };
 
@@ -1277,23 +1299,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::isea, isea_spheroid, isea_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_isea, isea_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class isea_entry : public detail::factory_entry<CalculationType, Parameters>
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(isea_entry, isea_spheroid)
+        
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(isea_init)
         {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<isea_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
-
-        template <typename CalculationType, typename Parameters>
-        inline void isea_init(detail::base_factory<CalculationType, Parameters>& factory)
-        {
-            factory.add_to_factory("isea", new isea_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(isea, isea_entry)
         }
 
     } // namespace detail

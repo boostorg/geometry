@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2018.
+// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -14,6 +18,7 @@
 #include <boost/geometry/extensions/algebra/algorithms/detail.hpp>
 
 #include <boost/geometry/extensions/algebra/geometries/concepts/rotation_quaternion_concept.hpp>
+#include <boost/geometry/extensions/algebra/geometries/vector.hpp>
 
 // TODO - for multiplication of coordinates
 // if coordinate_type is_integral - use double as the result type

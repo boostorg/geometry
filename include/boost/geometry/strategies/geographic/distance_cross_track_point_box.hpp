@@ -62,14 +62,22 @@ template
 class geographic_cross_track_point_box
 {
 public:
-    typedef geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> Strategy;
+    // point-point strategy getters
+    struct distance_ps_strategy
+    {
+        typedef geographic_cross_track<FormulaPolicy, Spheroid, CalculationType> type;
+    };
 
     template <typename Point, typename Box>
     struct return_type
-        : services::return_type<Strategy, Point, typename point_type<Box>::type>
+        : services::return_type<typename distance_ps_strategy::type,
+                                Point, typename point_type<Box>::type>
     {};
 
-    inline geographic_cross_track_point_box()
+    //constructor
+
+    explicit geographic_cross_track_point_box(Spheroid const& spheroid = Spheroid())
+             : m_spheroid(spheroid)
     {}
 
     template <typename Point, typename Box>
@@ -91,8 +99,12 @@ public:
         typedef typename return_type<Point, Box>::type return_type;
 
         return details::cross_track_point_box_generic
-                        <return_type>::apply(point, box, Strategy());
+                        <return_type>::apply(point, box,
+                                             typename distance_ps_strategy::type(m_spheroid));
     }
+
+private :
+    Spheroid m_spheroid;
 };
 
 
@@ -145,13 +157,11 @@ struct comparable_type<geographic_cross_track_point_box<Strategy, Spheroid, Calc
 template <typename Strategy, typename Spheroid, typename CalculationType>
 struct get_comparable<geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
 {
-    typedef geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> this_strategy;
-    typedef typename comparable_type<this_strategy>::type comparable_type;
-
 public:
-    static inline comparable_type apply(this_strategy const&)
+    static inline geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>
+    apply(geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> const& str)
     {
-        return comparable_type();
+        return str;
     }
 };
 

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,57 +50,40 @@
 namespace boost { namespace geometry
 {
 
-namespace srs { namespace par4
-{
-    struct nicol {}; // Nicolosi Globular
-
-}} //namespace srs::par4
-
 namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail { namespace nocol
     {
 
-            static const double EPS = 1e-10;
+            static const double epsilon = 1e-10;
 
-            // template class, using CRTP to implement forward/inverse
-            template <typename CalculationType, typename Parameters>
-            struct base_nocol_spheroid : public base_t_f<base_nocol_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>
+            template <typename T, typename Parameters>
+            struct base_nocol_spheroid
             {
-
-                typedef CalculationType geographic_type;
-                typedef CalculationType cartesian_type;
-
-
-                inline base_nocol_spheroid(const Parameters& par)
-                    : base_t_f<base_nocol_spheroid<CalculationType, Parameters>,
-                     CalculationType, Parameters>(*this, par) {}
-
                 // FORWARD(s_forward)  spheroid
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
-                inline void fwd(geographic_type& lp_lon, geographic_type& lp_lat, cartesian_type& xy_x, cartesian_type& xy_y) const
+                inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    static const CalculationType HALFPI = detail::HALFPI<CalculationType>();
+                    static const T half_pi = detail::half_pi<T>();
 
-                    if (fabs(lp_lon) < EPS) {
+                    if (fabs(lp_lon) < epsilon) {
                         xy_x = 0;
                         xy_y = lp_lat;
-                    } else if (fabs(lp_lat) < EPS) {
+                    } else if (fabs(lp_lat) < epsilon) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(fabs(lp_lon) - HALFPI) < EPS) {
+                    } else if (fabs(fabs(lp_lon) - half_pi) < epsilon) {
                         xy_x = lp_lon * cos(lp_lat);
-                        xy_y = HALFPI * sin(lp_lat);
-                    } else if (fabs(fabs(lp_lat) - HALFPI) < EPS) {
+                        xy_y = half_pi * sin(lp_lat);
+                    } else if (fabs(fabs(lp_lat) - half_pi) < epsilon) {
                         xy_x = 0;
                         xy_y = lp_lat;
                     } else {
-                        CalculationType tb, c, d, m, n, r2, sp;
+                        T tb, c, d, m, n, r2, sp;
 
-                        tb = HALFPI / lp_lon - lp_lon / HALFPI;
-                        c = lp_lat / HALFPI;
+                        tb = half_pi / lp_lon - lp_lon / half_pi;
+                        c = lp_lat / half_pi;
                         d = (1 - c * c)/((sp = sin(lp_lat)) - c);
                         r2 = tb / d;
                         r2 *= r2;
@@ -108,10 +91,10 @@ namespace projections
                         n = (sp / r2 + 0.5 * d)/(1. + 1./r2);
                         xy_x = cos(lp_lat);
                         xy_x = sqrt(m * m + xy_x * xy_x / (1. + r2));
-                        xy_x = HALFPI * ( m + (lp_lon < 0. ? -xy_x : xy_x));
+                        xy_x = half_pi * ( m + (lp_lon < 0. ? -xy_x : xy_x));
                         xy_y = sqrt(n * n - (sp * sp / r2 + d * sp - 1.) /
                             (1. + 1./r2));
-                        xy_y = HALFPI * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
+                        xy_y = half_pi * ( n + (lp_lat < 0. ? xy_y : -xy_y ));
                     }
                 }
 
@@ -145,12 +128,13 @@ namespace projections
         \par Example
         \image html ex_nicol.gif
     */
-    template <typename CalculationType, typename Parameters>
-    struct nicol_spheroid : public detail::nocol::base_nocol_spheroid<CalculationType, Parameters>
+    template <typename T, typename Parameters>
+    struct nicol_spheroid : public detail::nocol::base_nocol_spheroid<T, Parameters>
     {
-        inline nicol_spheroid(const Parameters& par) : detail::nocol::base_nocol_spheroid<CalculationType, Parameters>(par)
+        template <typename Params>
+        inline nicol_spheroid(Params const& , Parameters & par)
         {
-            detail::nocol::setup_nicol(this->m_par);
+            detail::nocol::setup_nicol(par);
         }
     };
 
@@ -159,23 +143,14 @@ namespace projections
     {
 
         // Static projection
-        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION(srs::par4::nicol, nicol_spheroid, nicol_spheroid)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_STATIC_PROJECTION_F(srs::spar::proj_nicol, nicol_spheroid)
 
         // Factory entry(s)
-        template <typename CalculationType, typename Parameters>
-        class nicol_entry : public detail::factory_entry<CalculationType, Parameters>
-        {
-            public :
-                virtual base_v<CalculationType, Parameters>* create_new(const Parameters& par) const
-                {
-                    return new base_v_f<nicol_spheroid<CalculationType, Parameters>, CalculationType, Parameters>(par);
-                }
-        };
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_F(nicol_entry, nicol_spheroid)
 
-        template <typename CalculationType, typename Parameters>
-        inline void nocol_init(detail::base_factory<CalculationType, Parameters>& factory)
+        BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(nocol_init)
         {
-            factory.add_to_factory("nicol", new nicol_entry<CalculationType, Parameters>);
+            BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(nicol, nicol_entry)
         }
 
     } // namespace detail

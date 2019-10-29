@@ -12,6 +12,7 @@ project boost-geometry-doc-example-strategies
     ;
 
 exe buffer_point_circle : buffer_point_circle.cpp ;
+exe buffer_geographic_point_circle : buffer_geographic_point_circle.cpp ;
 exe buffer_point_square : buffer_point_square.cpp ;
 exe buffer_join_round : buffer_join_round.cpp ;
 exe buffer_join_miter : buffer_join_miter.cpp ;
