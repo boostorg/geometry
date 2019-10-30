@@ -884,7 +884,7 @@ private:
             //   3. f1-f2 may be 0 which means that the intermediate point is on the vertex
             //      In this case it's not possible to check if this is the correct result
             //   4. f1-f2 may also be 0 in other cases, e.g.
-            //      geodesics are symetrical wrt equator and longitude directions are different
+            //      geodesics are symmetrical wrt equator and longitude directions are different
 
             CT const dbeta_denom = f1 - f2;
             //CT const dbeta_denom = math::abs(f1) + math::abs(f2);
