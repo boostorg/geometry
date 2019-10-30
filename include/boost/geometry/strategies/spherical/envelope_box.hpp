@@ -34,6 +34,8 @@ namespace strategy { namespace envelope
 struct spherical_box
     : geometry::detail::envelope::envelope_box_on_spheroid
 {
+    typedef spherical_tag cs_tag;
+
     typedef strategy::expand::spherical_box box_expand_strategy_type;
 
     static inline box_expand_strategy_type get_box_expand_strategy()
