@@ -347,28 +347,26 @@ void test_all()
     // Left
     test_one<linestring, polygon>("mysql_25662426a_left_05", mysql_25662426a, join_round32, end_round32, 14.2803, 0.5, settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_1", mysql_25662426a, join_round32, end_round32, 30.1214, 1.0, settings, 0.0);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    test_one<linestring, polygon>("mysql_25662426a_left_2", mysql_25662426a, join_round32, end_round32, 999.9, 2.0, settings, 0.0);
-    test_one<linestring, polygon>("mysql_25662426a_left_3", mysql_25662426a, join_round32, end_round32, 999.9, 3.0, settings, 0.0);
-    test_one<linestring, polygon>("mysql_25662426a_left_4", mysql_25662426a, join_round32, end_round32, 999.9, 4.0, settings, 0.0);
-    test_one<linestring, polygon>("mysql_25662426a_left_5", mysql_25662426a, join_round32, end_round32, 999.9, 5.0, settings, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_left_2", mysql_25662426a, join_round32, end_round32, 66.4858, 2.0, ut_settings(0.01, false), 0.0); // It has a self touching point
+    test_one<linestring, polygon>("mysql_25662426a_left_3", mysql_25662426a, join_round32, end_round32, 108.3305, 3.0, settings, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_left_4", mysql_25662426a, join_round32, end_round32, 155.5128, 4.0, settings, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_left_5", mysql_25662426a, join_round32, end_round32, 208.1289, 5.0, settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_10", mysql_25662426a, join_round32, end_round32, 554.8818, 10.0, settings, 0.0);
-#endif
 
     // Right
     test_one<linestring, polygon>("mysql_25662426a_right_05", mysql_25662426a, join_round32, end_round32, 12.9451, 0.0, settings, 0.5);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    test_one<linestring, polygon>("mysql_25662426a_right_1", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 1.0);
-    test_one<linestring, polygon>("mysql_25662426a_right_2", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 2.0);
-    test_one<linestring, polygon>("mysql_25662426a_right_3", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 3.0);
-    test_one<linestring, polygon>("mysql_25662426a_right_4", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 4.0);
-    test_one<linestring, polygon>("mysql_25662426a_right_5", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 5.0);
-    test_one<linestring, polygon>("mysql_25662426a_right_10", mysql_25662426a, join_round32, end_round32, 999.9, 0.0, settings, 10.0);
-#endif
+    test_one<linestring, polygon>("mysql_25662426a_right_1", mysql_25662426a, join_round32, end_round32, 24.3902, 0.0, settings, 1.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_2", mysql_25662426a, join_round32, end_round32, 37.5607, 0.0, settings, 2.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_3", mysql_25662426a, join_round32, end_round32, 46.2741, 0.0, settings, 3.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_4", mysql_25662426a, join_round32, end_round32, 70.2429, 0.0, settings, 4.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_5", mysql_25662426a, join_round32, end_round32, 95.7545, 0.0, settings, 5.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_10", mysql_25662426a, join_round32, end_round32, 244.5337, 0.0, settings, 10.0);
 
     // Flat end for one-sided buffer
     test_one<linestring, polygon>("mysql_25662426a_left_05", mysql_25662426a, join_round32, end_flat, 14.0853, 0.5, settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_right_05", mysql_25662426a, join_round32, end_flat, 12.7500, 0.0, settings, 0.5);
+    test_one<linestring, polygon>("mysql_25662426a_left_25", mysql_25662426a, join_round32, end_flat, 82.1318, 2.5, settings, 0.0);
+    test_one<linestring, polygon>("mysql_25662426a_right_25", mysql_25662426a, join_round32, end_flat, 39.0000, 0.0, settings, 2.5);
 }
 
 template <bool Clockwise, typename P>

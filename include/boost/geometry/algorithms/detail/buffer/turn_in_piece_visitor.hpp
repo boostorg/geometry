@@ -122,6 +122,24 @@ inline bool in_box(Point const& previous,
     return geometry::covered_by(point, box);
 }
 
+template <typename NumericType>
+inline bool is_one_sided(NumericType const& left, NumericType const& right)
+{
+    static NumericType const zero = 0;
+    return geometry::math::equals(left, zero)
+        || geometry::math::equals(right, zero);
+}
+
+template <typename Point, typename DistanceStrategy>
+inline bool has_zero_distance_at(Point const& point,
+                                 DistanceStrategy const& distance_strategy)
+{
+    return is_one_sided(distance_strategy.apply(point, point,
+            strategy::buffer::buffer_side_left),
+        distance_strategy.apply(point, point,
+            strategy::buffer::buffer_side_right));
+}
+
 // meta-programming-structure defining if to use side-of-intersection
 // (only for cartesian / only necessary with rescaling)
 template <typename Tag>
@@ -373,11 +391,12 @@ struct check_helper_segment<true>
     static inline analyse_result apply(Point const& s1,
                 Point const& s2, Turn const& turn,
                 bool is_original,
+                analyse_result result_for_original,
                 Point const& offsetted,
                 SideStrategy const& )
     {
-        boost::ignore_unused(offsetted);
-        boost::ignore_unused(is_original);
+        boost::ignore_unused(offsetted, is_original);
+
         typedef geometry::model::referring_segment<Point const> segment_type;
         segment_type const p(turn.rob_pi, turn.rob_pj);
         segment_type const q(turn.rob_qi, turn.rob_qj);
@@ -402,9 +421,7 @@ struct check_helper_segment<true>
 
             if (geometry::covered_by(turn.robust_point, box))
             {
-                // Points on helper-segments (and not on its corners)
-                // are considered as within
-                return analyse_within;
+                return result_for_original;
             }
 
             // It is collinear but not on the segment. Because these
@@ -427,11 +444,10 @@ struct check_helper_segment<false>
     static inline analyse_result apply(Point const& s1,
                 Point const& s2, Turn const& turn,
                 bool is_original,
+                analyse_result result_for_original,
                 Point const& offsetted,
                 SideStrategy const& side_strategy)
     {
-        boost::ignore_unused(offsetted);
-
         switch(side_strategy.apply(s1, s2, turn.robust_point))
         {
             case 1 :
@@ -452,16 +468,14 @@ struct check_helper_segment<false>
                         if (! is_original
                             && geometry::comparable_distance(turn.robust_point, offsetted) <= 1)
                         {
-                            // It is close to the offsetted-boundary, take
-                            // any rounding-issues into account
+                            // It is within, and close to the offsetted-boundary,
+                            // take any rounding-issues into account
                             return analyse_near_offsetted;
                         }
 
                         // Points on helper-segments are considered as within
                         // Points on original boundary are processed differently
-                        return is_original
-                            ? analyse_on_original_boundary
-                            : analyse_within;
+                        return result_for_original;
                     }
 
                     // It is collinear but not on the segment. Because these
@@ -481,9 +495,16 @@ struct check_helper_segment<false>
 template <bool UseSideOfIntersection>
 class analyse_turn_wrt_piece
 {
-    template <typename Turn, typename Piece, typename SideStrategy>
+    template
+    <
+        typename Turn,
+        typename Piece,
+        typename DistanceStrategy,
+        typename SideStrategy
+    >
     static inline analyse_result
     check_helper_segments(Turn const& turn, Piece const& piece,
+                          DistanceStrategy const& distance_strategy,
                           SideStrategy const& side_strategy)
     {
         typedef typename Turn::robust_point_type point_type;
@@ -523,6 +544,16 @@ class analyse_turn_wrt_piece
             return analyse_continue;
         }
 
+        // If a turn is located on the original, it is considered as within,
+        // unless it is at a flat start or end, or the buffer (at that point)
+        // is one-sided (zero-distance)
+        bool const one_sided = has_zero_distance_at(turn.point, distance_strategy);
+
+        analyse_result const result_for_original
+                = one_sided || piece.is_flat_end || piece.is_flat_start
+                ? analyse_on_original_boundary
+                : analyse_within;
+
         // First check point-equality
         point_type const& point = turn.robust_point;
         if (comparator(point, points[0]) || comparator(point, points[3]))
@@ -531,37 +562,40 @@ class analyse_turn_wrt_piece
         }
         if (comparator(point, points[1]))
         {
-            // On original, right corner
-            return piece.is_flat_end ? analyse_continue : analyse_on_original_boundary;
+            // On original, with right corner of piece
+            return result_for_original;
         }
         if (comparator(point, points[2]))
         {
-            // On original, left corner
-            return piece.is_flat_start ? analyse_continue : analyse_on_original_boundary;
+            // On original, with left corner of piece
+            return result_for_original;
         }
 
-        // Right side of the piece
+        // Right side of the piece (never an original)
         analyse_result result
             = check_helper_segment<UseSideOfIntersection>::apply(points[0], points[1], turn,
-                    false, points[0], side_strategy);
+                    false, analyse_within, points[0], side_strategy);
         if (result != analyse_continue)
         {
             return result;
         }
 
-        // Left side of the piece
+        // Left side of the piece (never an original)
         result = check_helper_segment<UseSideOfIntersection>::apply(points[2], points[3], turn,
-                    false, points[3], side_strategy);
+                    false, analyse_within, points[3], side_strategy);
         if (result != analyse_continue)
         {
             return result;
         }
 
+        // Side of the piece at side of original geometry
+        // (here flat start/end will result in within)
         if (! comparator(points[1], points[2]))
         {
-            // Side of the piece at side of original geometry
-            result = check_helper_segment<UseSideOfIntersection>::apply(points[1], points[2], turn,
-                        true, point, side_strategy);
+            result = check_helper_segment<UseSideOfIntersection>::apply(points[1],
+                    points[2], turn, true,
+                    one_sided ? analyse_on_original_boundary : analyse_within,
+                    point, side_strategy);
             if (result != analyse_continue)
             {
                 return result;
@@ -608,11 +642,19 @@ class analyse_turn_wrt_piece
     }
 
 public :
-    template <typename Turn, typename Piece, typename SideStrategy>
-    static inline analyse_result apply(Turn const& turn, Piece const& piece, SideStrategy const& side_strategy)
+    template
+    <
+        typename Turn,
+        typename Piece,
+        typename DistanceStrategy,
+        typename SideStrategy
+    >
+    static inline analyse_result apply(Turn const& turn, Piece const& piece,
+                                       DistanceStrategy const& distance_strategy,
+                                       SideStrategy const& side_strategy)
     {
         typedef typename Turn::robust_point_type point_type;
-        analyse_result code = check_helper_segments(turn, piece, side_strategy);
+        analyse_result code = check_helper_segments(turn, piece, distance_strategy, side_strategy);
         if (code != analyse_continue)
         {
             return code;
@@ -772,6 +814,7 @@ template
     typename CsTag,
     typename Turns,
     typename Pieces,
+    typename DistanceStrategy,
     typename PointInGeometryStrategy,
     typename SideStrategy
 
@@ -780,6 +823,7 @@ class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
+    DistanceStrategy const& m_distance_strategy; // to check if point is on original
     PointInGeometryStrategy const& m_point_in_geometry_strategy;
     SideStrategy const& m_side_strategy;
 
@@ -814,10 +858,12 @@ class turn_in_piece_visitor
 public:
 
     inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces,
+                                 DistanceStrategy const& distance_strategy,
                                  PointInGeometryStrategy const& strategy,
                                  SideStrategy const& side_strategy)
         : m_turns(turns)
         , m_pieces(pieces)
+        , m_distance_strategy(distance_strategy)
         , m_point_in_geometry_strategy(strategy)
         , m_side_strategy(side_strategy)
     {}
@@ -884,7 +930,7 @@ public:
         analyse_result const analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
                 ? analyse_turn_wrt_point_piece<use_soi>::apply(turn, piece, m_point_in_geometry_strategy, m_side_strategy)
-                : analyse_turn_wrt_piece<use_soi>::apply(turn, piece, m_side_strategy);
+                : analyse_turn_wrt_piece<use_soi>::apply(turn, piece, m_distance_strategy, m_side_strategy);
 
         switch(analyse_code)
         {

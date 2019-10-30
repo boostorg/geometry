@@ -972,7 +972,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             end_strategy, point_strategy,
             robust_policy, intersection_strategy.get_side_strategy());
 
-    collection.get_turns();
+    collection.get_turns(distance_strategy);
     collection.classify_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
