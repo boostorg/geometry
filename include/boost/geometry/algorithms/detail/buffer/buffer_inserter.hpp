@@ -97,7 +97,7 @@ struct buffer_range
         typename JoinStrategy,
         typename EndStrategy,
         typename RobustPolicy,
-        typename Strategy
+        typename SideStrategy
     >
     static inline
     void add_join(Collection& collection,
@@ -113,13 +113,13 @@ struct buffer_range
             JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy,
             RobustPolicy const& ,
-            Strategy const& strategy) // side strategy
+            SideStrategy const& side_strategy) // side strategy
     {
         output_point_type intersection_point;
         geometry::assign_zero(intersection_point);
 
         geometry::strategy::buffer::join_selector join
-                = get_join_type(penultimate_input, previous_input, input, strategy);
+                = get_join_type(penultimate_input, previous_input, input, side_strategy);
         if (join == geometry::strategy::buffer::join_convex)
         {
             // Calculate the intersection-point formed by the two sides.
@@ -187,14 +187,14 @@ struct buffer_range
         return arithmetic::similar_direction(p, q);
     }
 
-    template <typename Strategy>
+    template <typename SideStrategy>
     static inline geometry::strategy::buffer::join_selector get_join_type(
             output_point_type const& p0,
             output_point_type const& p1,
             output_point_type const& p2,
-            Strategy const& strategy) // side strategy
+            SideStrategy const& side_strategy)
     {
-        int const side = strategy.apply(p0, p1, p2);
+        int const side = side_strategy.apply(p0, p1, p2);
         return side == -1 ? geometry::strategy::buffer::join_convex
             :  side == 1  ? geometry::strategy::buffer::join_concave
             :  similar_direction(p0, p1, p2)

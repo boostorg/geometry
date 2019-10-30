@@ -881,7 +881,7 @@ public:
         static const bool use_soi = use_side_of_intersection<CsTag>::value;
         boost::ignore_unused(use_soi);
 
-        analyse_result analyse_code =
+        analyse_result const analyse_code =
             piece.type == geometry::strategy::buffer::buffered_point
                 ? analyse_turn_wrt_point_piece<use_soi>::apply(turn, piece, m_point_in_geometry_strategy, m_side_strategy)
                 : analyse_turn_wrt_piece<use_soi>::apply(turn, piece, m_side_strategy);
