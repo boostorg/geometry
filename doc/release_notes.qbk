@@ -20,6 +20,18 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.72]
+[/=================]
+
+[*Improvements]
+
+* Various improvements related to robustness of set and relational operation.
+
+[*Bugfixes]
+
+* Fixed errors in generation of asymmetric one-sided buffer
+
+[/=================]
 [heading Boost 1.71]
 [/=================]
 

@@ -547,10 +547,6 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-            if (it->count_on_original_boundary > 0)
-            {
-                it->location = inside_buffer;
-            }
             if (it->count_within_near_offsetted > 0)
             {
                 // Within can have in rare cases a rounding issue. We don't discard this
@@ -920,7 +916,8 @@ struct buffered_piece_collection
         }
     }
 
-    inline void get_turns()
+    template <typename DistanceStrategy>
+    inline void get_turns(DistanceStrategy const& distance_strategy)
     {
         for(typename boost::range_iterator<sections_type>::type it
                 = boost::begin(monotonic_sections);
@@ -973,9 +970,11 @@ struct buffered_piece_collection
                 <
                     typename geometry::cs_tag<point_type>::type,
                     turn_vector_type, piece_vector_type,
+                    DistanceStrategy,
                     point_in_geometry_strategy_type,
                     side_strategy_type
                 > visitor(m_turns, m_pieces,
+                          distance_strategy,
                           m_point_in_geometry_strategy,
                           m_side_strategy);
 
