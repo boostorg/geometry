@@ -832,7 +832,25 @@ inline T round_angle(T x) {
     return x < 0 ? -y : y;
 }
 
-/*
+
+/*!
+\brief The error-free sum of two numbers.
+*/
+template<typename T>
+inline T sum_error(T u, T v, T& t)
+{
+    volatile T s = u + v;
+    volatile T up = s - v;
+    volatile T vpp = s - up;
+
+    up -= u;
+    vpp -= v;
+    t = -(up + vpp);
+
+    return s;
+}
+
+/*!
 \brief Evaluate the polynomial in x using Horner's method.
 */
 // TODO: adl1995 - Merge these functions with formulas/area_formulas.hpp
@@ -852,7 +870,7 @@ inline NT horner_evaluate(NT x,
     return result;
 }
 
-/*
+/*!
 \brief Evaluate the polynomial.
 */
 template<typename IteratorType, typename CT>
