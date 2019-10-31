@@ -28,8 +28,9 @@ struct error{
 void check_result(double const& result, double const& expected,
                   double const& reference, error const& reference_error)
 {
-    BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.0000001,
-        std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+    BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.1,
+    std::setprecision(20) << "result {" << result
+                          << "} different than expected {" << expected << "}.");
 
     double reference_error_value = result > 2000 ? reference_error.long_distance
                                  : result > 100  ? reference_error.short_distance
@@ -37,7 +38,9 @@ void check_result(double const& result, double const& expected,
                                  : reference_error.very_very_short_distance;
 
     BOOST_GEOMETRY_CHECK_CLOSE(result, reference, reference_error_value,
-        std::setprecision(20) << "result {" << result << "} different than reference {" << reference << "}.");
+        std::setprecision(20) << "result {" << result
+                              << "} different than reference {"
+                              << reference << "}.");
 }
 
 template <typename Point>
