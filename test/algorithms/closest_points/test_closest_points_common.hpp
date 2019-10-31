@@ -23,6 +23,7 @@ namespace bg = boost::geometry;
 
 //===========================================================================
 
+// pt-pt
 typedef bg::strategy::closest_points::geographic
                       <bg::strategy::andoyer> andoyer_pp;
 typedef bg::strategy::closest_points::geographic
@@ -30,6 +31,7 @@ typedef bg::strategy::closest_points::geographic
 typedef bg::strategy::closest_points::geographic
                       <bg::strategy::vincenty> vincenty_pp;
 
+// pt-seg
 typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::andoyer> andoyer_cp;
 typedef bg::strategy::closest_points::geographic_cross_track
@@ -37,12 +39,21 @@ typedef bg::strategy::closest_points::geographic_cross_track
 typedef bg::strategy::closest_points::geographic_cross_track
                       <bg::strategy::vincenty> vincenty_cp;
 
+//pt-box
 typedef bg::strategy::closest_points::geographic_cross_track_point_box
                       <bg::strategy::andoyer> andoyer_pb;
 typedef bg::strategy::closest_points::geographic_cross_track_point_box
                       <bg::strategy::thomas> thomas_pb;
 typedef bg::strategy::closest_points::geographic_cross_track_point_box
                       <bg::strategy::vincenty> vincenty_pb;
+
+//box-box
+typedef bg::strategy::closest_points::geographic_cross_track_box_box
+                      <bg::strategy::andoyer> andoyer_bb;
+typedef bg::strategy::closest_points::geographic_cross_track_box_box
+                      <bg::strategy::thomas> thomas_bb;
+typedef bg::strategy::closest_points::geographic_cross_track_box_box
+                      <bg::strategy::vincenty> vincenty_bb;
 
 
 //===========================================================================

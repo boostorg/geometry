@@ -67,6 +67,14 @@ public :
             >
     {};
 
+    inline geographic()
+        : m_spheroid()
+    {}
+
+    explicit inline geographic(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
+    {}
+
     Spheroid get_spheroid() const
     {
         return m_spheroid;

@@ -99,17 +99,23 @@ public :
                                              bottom_left2, bottom_right2,
                                              top_left2, top_right2);
 
-        ReturnType lon_min1 = geometry::get_as_radian<0>(bottom_left1);
-        ReturnType const lat_min1 = geometry::get_as_radian<1>(bottom_left1);
-        ReturnType lon_max1 = geometry::get_as_radian<0>(top_right1);
-        ReturnType const lat_max1 = geometry::get_as_radian<1>(top_right1);
+        typedef typename select_most_precise
+                <
+                    typename coordinate_type<Box1>::type,
+                    typename coordinate_type<Box2>::type
+                >::type CT;
 
-        ReturnType lon_min2 = geometry::get_as_radian<0>(bottom_left2);
-        ReturnType const lat_min2 = geometry::get_as_radian<1>(bottom_left2);
-        ReturnType lon_max2 = geometry::get_as_radian<0>(top_right2);
-        ReturnType const lat_max2 = geometry::get_as_radian<1>(top_right2);
+        CT lon_min1 = geometry::get_as_radian<0>(bottom_left1);
+        CT const lat_min1 = geometry::get_as_radian<1>(bottom_left1);
+        CT lon_max1 = geometry::get_as_radian<0>(top_right1);
+        CT const lat_max1 = geometry::get_as_radian<1>(top_right1);
 
-        ReturnType const two_pi = math::two_pi<ReturnType>();
+        CT lon_min2 = geometry::get_as_radian<0>(bottom_left2);
+        CT const lat_min2 = geometry::get_as_radian<1>(bottom_left2);
+        CT lon_max2 = geometry::get_as_radian<0>(top_right2);
+        CT const lat_max2 = geometry::get_as_radian<1>(top_right2);
+
+        CT const two_pi = math::two_pi<CT>();
 
         // Test which sides of the boxes are closer and if boxes cross
         // antimeridian
@@ -152,33 +158,46 @@ public :
         bool left = lon_min1 >= lon_max2;
         bool lon_max12 = lon_max1 <= lon_max2;
 
-        if ((lon_min12 && !right)
-                || (!left && !lon_max12)
-                || (!lon_min12 && lon_max12))
+        bool condA = lon_min12 && !right;
+        bool condB = !left && !lon_max12;
+        bool condC = !lon_min12 && lon_max12;
+
+        CT lon_closest = condA ? lon_min2 :
+                         condB ? lon_max2 :
+                                 lon_min2;
+
+        if ( condA || condB || condC )
         {
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(up-down)\n";
 #endif
             if (lat_min1 > lat_max2)
             {
-                return geometry::strategy::distance::services::result_from_distance
-                    <
-                        PSStrategy, box_point_type1, box_point_type2
-                    >::apply(ps_strategy, ps_strategy
-                               .vertical_or_meridian(lat_min1, lat_max2, 0.0));
+                return ps_strategy.vertical_or_meridian(lat_min1, lat_max2,
+                                                        lon_closest);
+                //return geometry::strategy::distance::services::result_from_distance
+                //    <
+                //        PSStrategy, box_point_type1, box_point_type2
+                //    >::apply(ps_strategy, ps_strategy
+                //               .vertical_or_meridian(lat_min1, lat_max2));
             }
             else if (lat_max1 < lat_min2)
             {
-                return geometry::strategy::distance::services::result_from_distance
-                    <
-                        PSStrategy, box_point_type1, box_point_type2
-                    >::apply(ps_strategy, ps_strategy
-                             .vertical_or_meridian(lat_min2, lat_max1, 0.0));
+                ReturnType res = ps_strategy.vertical_or_meridian(lat_min2,
+                                                                  lat_max1,
+                                                                  lon_closest);
+                dispatch::swap<PSStrategy>::apply(res);
+                return res;
+                //return geometry::strategy::distance::services::result_from_distance
+                //    <
+                //        PSStrategy, box_point_type1, box_point_type2
+                //    >::apply(ps_strategy, ps_strategy
+                //             .vertical_or_meridian(lat_min2, lat_max1));
             }
             else
             {
                 //BOOST_GEOMETRY_ASSERT(plat >= lat_min && plat <= lat_max);
-                return ReturnType(0);
+                return ReturnType();
             }
         }
 
@@ -186,8 +205,8 @@ public :
         // the max lat of box2 should be less than the max lat of box1
         bool bottom_max;
 
-        ReturnType top_common = (std::min)(lat_max1, lat_max2);
-        ReturnType bottom_common = (std::max)(lat_min1, lat_min2);
+        CT top_common = (std::min)(lat_max1, lat_max2);
+        CT bottom_common = (std::max)(lat_min1, lat_min2);
 
         // true if the closest points are on northern hemisphere
         bool north_shortest = top_common + bottom_common > 0;
@@ -211,20 +230,27 @@ public :
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(bottom left)";
 #endif
-            return diagonal_case(top_right2, top_left1,
-                                 bottom_right2, bottom_left1,
-                                 north_shortest, non_overlap,
-                                 pp_strategy, ps_strategy);
+            ReturnType res = diagonal_case(top_right2, top_left1,
+                                           bottom_right2, bottom_left1,
+                                           north_shortest, non_overlap,
+                                           pp_strategy, ps_strategy);
+
+            dispatch::swap<PSStrategy>::apply(res);
+            return res;
         }
         if (bottom_max && right_wrap)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK_BOX_BOX
             std::cout << "(bottom right)";
 #endif
-            return diagonal_case(top_left2, top_right1,
-                                 bottom_left2, bottom_right1,
-                                 north_shortest, non_overlap,
-                                 pp_strategy, ps_strategy);
+            ReturnType res =  diagonal_case(top_left2, top_right1,
+                                            bottom_left2, bottom_right1,
+                                            north_shortest, non_overlap,
+                                            pp_strategy, ps_strategy);
+
+            dispatch::swap<PSStrategy>::apply(res);
+            return res;
+
         }
         if (!bottom_max && !right_wrap)
         {
@@ -246,7 +272,7 @@ public :
                                  north_shortest, non_overlap,
                                  pp_strategy, ps_strategy);
         }
-        return ReturnType(0);
+        return ReturnType();
     }
 };
 
