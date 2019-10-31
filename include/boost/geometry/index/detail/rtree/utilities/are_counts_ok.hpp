@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -17,13 +21,14 @@ namespace boost { namespace geometry { namespace index { namespace detail { name
 
 namespace visitors {
 
-template <typename Value, typename Options, typename Box, typename Allocators>
+template <typename MembersHolder>
 class are_counts_ok
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public MembersHolder::visitor_const
 {
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
 public:
     inline are_counts_ok(parameters_type const& parameters)
@@ -94,10 +99,7 @@ bool are_counts_ok(Rtree const& tree)
     RTV rtv(tree);
 
     visitors::are_counts_ok<
-        typename RTV::value_type,
-        typename RTV::options_type,
-        typename RTV::box_type,
-        typename RTV::allocators_type
+        typename RTV::members_holder
     > v(tree.parameters());
     
     rtv.apply_visitor(v);

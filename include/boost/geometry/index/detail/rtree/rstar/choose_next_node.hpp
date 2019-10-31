@@ -33,19 +33,20 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
 
-template <typename Value, typename Options, typename Box, typename Allocators>
-class choose_next_node<Value, Options, Box, Allocators, choose_by_overlap_diff_tag>
+template <typename MembersHolder>
+class choose_next_node<MembersHolder, choose_by_overlap_diff_tag>
 {
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::box_type box_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+
+    typedef typename MembersHolder::node node;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
     typedef typename rtree::elements_type<internal_node>::type children_type;
     typedef typename children_type::value_type child_type;
 
-    typedef typename Options::parameters_type parameters_type;
-
-    typedef typename index::detail::default_content_result<Box>::type content_type;
+    typedef typename index::detail::default_content_result<box_type>::type content_type;
 
 public:
     template <typename Indexable>
@@ -109,7 +110,7 @@ private:
             child_type const& ch_i = children[i];
 
             // expanded child node's box
-            Box box_exp(ch_i.first);
+            box_type box_exp(ch_i.first);
             index::detail::expand(box_exp, indexable, strategy);
 
             // areas difference
@@ -183,7 +184,7 @@ private:
 
             child_type const& ch_i = children[i];
 
-            Box box_exp(ch_i.first);
+            box_type box_exp(ch_i.first);
             // calculate expanded box of child node ch_i
             index::detail::expand(box_exp, indexable, strategy);
 
@@ -238,7 +239,7 @@ private:
             child_type const& ch_i = children[i];
 
             // expanded child node's box
-            Box box_exp(ch_i.first);
+            box_type box_exp(ch_i.first);
             index::detail::expand(box_exp, indexable, strategy);
 
             // areas difference
