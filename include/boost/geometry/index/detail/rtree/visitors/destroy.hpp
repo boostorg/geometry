@@ -31,8 +31,8 @@ public:
     typedef typename MembersHolder::allocators_type allocators_type;
     typedef typename MembersHolder::node_pointer node_pointer;
 
-    inline destroy(node_pointer root_node, allocators_type & allocators)
-        : m_current_node(root_node)
+    inline destroy(node_pointer node, allocators_type & allocators)
+        : m_current_node(node)
         , m_allocators(allocators)
     {}
 
@@ -62,6 +62,12 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(&l == &rtree::get<leaf>(*m_current_node), "invalid pointers");
 
         rtree::destroy_node<allocators_type, leaf>::apply(m_allocators, m_current_node);
+    }
+
+    static inline void apply(node_pointer node, allocators_type & allocators)
+    {
+        destroy v(node, allocators);
+        rtree::apply_visitor(v, *node);
     }
 
 private:

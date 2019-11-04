@@ -31,10 +31,9 @@
 #include <boost/geometry/index/detail/rtree/node/variant_dynamic.hpp>
 #include <boost/geometry/index/detail/rtree/node/variant_static.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
-
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
@@ -114,7 +113,8 @@ struct destroy_element
     inline static void apply(typename internal_node::elements_type::value_type & element,
                              allocators_type & allocators)
     {
-         rtree::subtree_destroyer<MembersHolder> dummy(element.second, allocators);
+         detail::rtree::visitors::destroy<MembersHolder>::apply(element.second, allocators);
+
          element.second = 0;
     }
 
@@ -155,7 +155,8 @@ private:
     {
         for ( ; first != last ; ++first )
         {
-            rtree::subtree_destroyer<MembersHolder> dummy(first->second, allocators);
+            detail::rtree::visitors::destroy<MembersHolder>::apply(first->second, allocators);
+
             first->second = 0;
         }
     }
@@ -167,6 +168,7 @@ private:
 };
 
 // clears node, deletes all subtrees stored in node
+/*
 template <typename MembersHolder>
 struct clear_node
 {
@@ -202,6 +204,7 @@ struct clear_node
         rtree::elements(leaf).clear();
     }
 };
+*/
 
 template <typename Container, typename Iterator>
 void move_from_back(Container & container, Iterator it)

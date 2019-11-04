@@ -15,6 +15,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_REMOVE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_REMOVE_HPP
 
+#include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
@@ -283,7 +284,7 @@ private:
             // destroy current and remaining nodes
             for ( ; it != m_underflowed_nodes.rend() ; ++it )
             {
-                subtree_destroyer dummy(it->second, m_allocators);
+                rtree::visitors::destroy<MembersHolder>::apply(it->second, m_allocators);
             }
 
             //m_underflowed_nodes.clear();
@@ -315,8 +316,7 @@ private:
         BOOST_CATCH(...)
         {
             ++it;
-            rtree::destroy_elements<MembersHolder>
-                ::apply(it, elements.end(), m_allocators);
+            rtree::destroy_elements<MembersHolder>::apply(it, elements.end(), m_allocators);
             elements.clear();
             BOOST_RETHROW                                                                                     // RETHROW
         }

@@ -20,6 +20,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
 #include <boost/geometry/index/detail/algorithms/nth_element.hpp>
+#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
 
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 

@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_COPY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_COPY_HPP
 
+#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {

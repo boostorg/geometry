@@ -1639,8 +1639,7 @@ private:
         if ( t.m_members.root )
         {
             detail::rtree::visitors::destroy<members_holder>
-                del_v(t.m_members.root, t.m_members.allocators());
-            detail::rtree::apply_visitor(del_v, *t.m_members.root);
+                ::apply(t.m_members.root, t.m_members.allocators());
 
             t.m_members.root = 0;
         }
@@ -1677,8 +1676,8 @@ private:
         if ( dst.m_members.root )
         {
             detail::rtree::visitors::destroy<members_holder>
-                del_v(dst.m_members.root, dst.m_members.allocators());
-            detail::rtree::apply_visitor(del_v, *dst.m_members.root);
+                ::apply(dst.m_members.root, dst.m_members.allocators());
+
             dst.m_members.root = 0;
         }
 

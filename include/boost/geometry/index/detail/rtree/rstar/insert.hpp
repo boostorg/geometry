@@ -394,8 +394,7 @@ struct level_insert
                 // NOTE: exception-safety
                 // if the insert fails above, the element won't be stored in the tree, so delete it
 
-                rtree::visitors::destroy<MembersHolder> del_v(base::m_element.second, base::m_allocators);
-                rtree::apply_visitor(del_v, *base::m_element.second);
+                rtree::visitors::destroy<MembersHolder>::apply(base::m_element.second, base::m_allocators);
 
                 BOOST_RETHROW                                                                                 // RETHROW
             }

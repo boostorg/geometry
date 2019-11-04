@@ -47,8 +47,7 @@ public:
     {
         if ( m_ptr && m_ptr != ptr )
         {
-            detail::rtree::visitors::destroy<MembersHolder> del_v(m_ptr, m_allocators);
-            detail::rtree::apply_visitor(del_v, *m_ptr);
+            detail::rtree::visitors::destroy<MembersHolder>::apply(m_ptr, m_allocators);
         }
         m_ptr = ptr;
     }

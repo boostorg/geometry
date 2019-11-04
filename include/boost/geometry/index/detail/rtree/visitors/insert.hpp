@@ -23,6 +23,8 @@
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 
+#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
@@ -533,8 +535,7 @@ public:
             {
                 // if the insert fails above, the element won't be stored in the tree
 
-                rtree::visitors::destroy<MembersHolder> del_v(base::m_element.second, base::m_allocators);
-                rtree::apply_visitor(del_v, *base::m_element.second);
+                rtree::visitors::destroy<MembersHolder>::apply(base::m_element.second, base::m_allocators);
 
                 BOOST_RETHROW                                                                                     // RETHROW
             }
