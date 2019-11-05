@@ -379,6 +379,25 @@ inline void normalize_azimuth(CoordinateType& angle)
 }
 
 /*!
+\brief The exact difference of two angles reduced to
+       (&minus;180&deg;, 180&deg;].
+*/
+template<typename T>
+inline T difference_angle(T x, T y, T& e)
+{
+    T t, d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
+
+    normalize_azimuth<degree, T>(d);
+
+    // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and
+    // abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
+    // addition of t takes the result outside the range (-180,180] is d = 180
+    // and t > 0.  The case, d = -180 + eps, t = -eps, can't happen, since
+    // sum_error would have returned the exact result in such a case (i.e., given t = 0).
+    return math::sum_error(d == 180 && t > 0 ? -180 : d, t, e);
+}
+
+/*!
 \brief Normalize the given values.
 \tparam ValueType The type of the values
 \param x Value x

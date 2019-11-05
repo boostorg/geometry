@@ -41,6 +41,11 @@ struct segment_as_subrange
         return index == 0 ? m_p1 : m_p2;
     }
 
+    static inline bool is_last_segment()
+    {
+        return true;
+    }
+
     point_type m_p1, m_p2;
 
     Segment const& m_segment;

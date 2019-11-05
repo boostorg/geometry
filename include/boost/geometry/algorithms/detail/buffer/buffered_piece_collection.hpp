@@ -167,7 +167,7 @@ struct buffered_piece_collection
             robust_point_type
         >::type robust_area_result_type;
 
-    typedef typename strategy::point_in_geometry::services::default_strategy
+    typedef typename IntersectionStrategy::template point_in_geometry_strategy
         <
             robust_point_type,
             robust_ring_type
@@ -348,6 +348,7 @@ struct buffered_piece_collection
     area_strategy_type m_area_strategy;
     envelope_strategy_type m_envelope_strategy;
     expand_strategy_type m_expand_strategy;
+    point_in_geometry_strategy_type m_point_in_geometry_strategy;
 
     robust_area_strategy_type m_robust_area_strategy;
     RobustPolicy const& m_robust_policy;
@@ -367,10 +368,15 @@ struct buffered_piece_collection
         , m_has_deflated(false)
         , m_intersection_strategy(intersection_strategy)
         , m_side_strategy(intersection_strategy.get_side_strategy())
-        , m_area_strategy(intersection_strategy.template get_area_strategy<point_type>())
+        , m_area_strategy(intersection_strategy
+            .template get_area_strategy<point_type>())
         , m_envelope_strategy(intersection_strategy.get_envelope_strategy())
         , m_expand_strategy(intersection_strategy.get_expand_strategy())
-        , m_robust_area_strategy(intersection_strategy.template get_area_strategy<robust_point_type>())
+        , m_point_in_geometry_strategy(intersection_strategy
+            .template get_point_in_geometry_strategy<robust_point_type,
+                        robust_ring_type>())
+        , m_robust_area_strategy(intersection_strategy
+            .template get_area_strategy<robust_point_type>())
         , m_robust_policy(robust_policy)
     {}
 
@@ -541,10 +547,6 @@ struct buffered_piece_collection
             {
                 it->location = inside_buffer;
             }
-            if (it->count_on_original_boundary > 0)
-            {
-                it->location = inside_buffer;
-            }
             if (it->count_within_near_offsetted > 0)
             {
                 // Within can have in rare cases a rounding issue. We don't discard this
@@ -658,7 +660,12 @@ struct buffered_piece_collection
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
             > original_ovelaps_box_type;
 
-        turn_in_original_visitor<turn_vector_type> visitor(m_turns);
+        turn_in_original_visitor
+            <
+                turn_vector_type,
+                point_in_geometry_strategy_type
+            > visitor(m_turns, m_point_in_geometry_strategy);
+
         geometry::partition
             <
                 robust_box_type,
@@ -808,14 +815,14 @@ struct buffered_piece_collection
         }
     }
 
-    static inline void determine_properties(piece& pc)
+    inline void determine_properties(piece& pc) const
     {
         pc.is_monotonic_increasing[0] = true;
         pc.is_monotonic_increasing[1] = true;
         pc.is_monotonic_decreasing[0] = true;
         pc.is_monotonic_decreasing[1] = true;
 
-        pc.is_convex = geometry::is_convex(pc.robust_ring);
+        pc.is_convex = geometry::is_convex(pc.robust_ring, m_side_strategy);
 
         if (pc.offsetted_count < 2)
         {
@@ -909,7 +916,8 @@ struct buffered_piece_collection
         }
     }
 
-    inline void get_turns()
+    template <typename DistanceStrategy>
+    inline void get_turns(DistanceStrategy const& distance_strategy)
     {
         for(typename boost::range_iterator<sections_type>::type it
                 = boost::begin(monotonic_sections);
@@ -962,8 +970,13 @@ struct buffered_piece_collection
                 <
                     typename geometry::cs_tag<point_type>::type,
                     turn_vector_type, piece_vector_type,
-                    point_in_geometry_strategy_type
-                > visitor(m_turns, m_pieces, point_in_geometry_strategy_type());
+                    DistanceStrategy,
+                    point_in_geometry_strategy_type,
+                    side_strategy_type
+                > visitor(m_turns, m_pieces,
+                          distance_strategy,
+                          m_point_in_geometry_strategy,
+                          m_side_strategy);
 
             typedef turn_ovelaps_box
                 <
@@ -1421,11 +1434,7 @@ struct buffered_piece_collection
         enrich_intersection_points<false, false, overlay_buffer>(m_turns,
             m_clusters, offsetted_rings, offsetted_rings,
             m_robust_policy,
-            m_intersection_strategy.template get_point_in_geometry_strategy
-                <
-                    buffered_ring<Ring>,
-                    buffered_ring<Ring>
-                >());
+            m_intersection_strategy);
     }
 
     // Discards all rings which do have not-OK intersection points only.
@@ -1476,7 +1485,7 @@ struct buffered_piece_collection
 
             int const geometry_code
                 = detail::within::point_in_geometry(any_point,
-                    original.m_ring, point_in_geometry_strategy_type());
+                    original.m_ring, m_point_in_geometry_strategy);
 
             if (geometry_code == -1)
             {
