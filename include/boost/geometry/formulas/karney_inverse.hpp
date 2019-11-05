@@ -4,6 +4,11 @@
 
 // Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program.
 
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -114,9 +119,9 @@ public:
         CT const tol_bisection = tol0 * tol2;
 
         CT const etol2 = c0_1 * tol2 /
-            sqrt(std::max(CT(0.001), std::abs(f)) * std::min(CT(1), CT(1) - f / CT(2)) / c2);
+            sqrt((std::max)(CT(0.001), std::abs(f)) * (std::min)(CT(1), CT(1) - f / CT(2)) / c2);
 
-        CT tiny = std::sqrt(std::numeric_limits<CT>::min());
+        CT tiny = std::sqrt((std::numeric_limits<CT>::min)());
 
         CT const n = f / two_minus_f;
         CT const e2 = f * two_minus_f;
@@ -175,14 +180,14 @@ public:
         sin_beta1 *= one_minus_f;
 
         math::normalize_unit_vector<CT>(sin_beta1, cos_beta1);
-        cos_beta1 = std::max(tiny, cos_beta1);
+        cos_beta1 = (std::max)(tiny, cos_beta1);
 
         CT sin_beta2, cos_beta2;
         math::sin_cos_degrees(lat2, sin_beta2, cos_beta2);
         sin_beta2 *= one_minus_f;
 
         math::normalize_unit_vector<CT>(sin_beta2, cos_beta2);
-        cos_beta2 = std::max(tiny, cos_beta2);
+        cos_beta2 = (std::max)(tiny, cos_beta2);
 
         // If cos_beta1 < -sin_beta1, then cos_beta2 - cos_beta1 is a
         // sensitive measure of the |beta1| - |beta2|. Alternatively,
@@ -237,8 +242,8 @@ public:
             CT sin_sigma2 = sin_beta2;
             CT cos_sigma2 = cos_alpha2 * cos_beta2;
 
-            CT sigma12 = std::atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                                    cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+            CT sigma12 = std::atan2((std::max)(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                                      cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
             CT dummy;
             meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
@@ -670,12 +675,12 @@ public:
                 // Strip near cut.
                 if (f >= c0)
                 {
-                    sin_alpha1 = std::min(CT(1), -CT(x));
+                    sin_alpha1 = (std::min)(CT(1), -CT(x));
                     cos_alpha1 = - math::sqrt(c1 - math::sqr(sin_alpha1));
                 }
                 else
                 {
-                    cos_alpha1 = std::max(CT(x > -tol1 ? c0 : -c1), CT(x));
+                    cos_alpha1 = (std::max)(CT(x > -tol1 ? c0 : -c1), CT(x));
                     sin_alpha1 = math::sqrt(c1 - math::sqr(cos_alpha1));
                 }
             }
@@ -847,11 +852,11 @@ public:
 
 
         // sig12 = sig2 - sig1, limit to [0, pi].
-        sigma12 = atan2(std::max(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                        cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+        sigma12 = atan2((std::max)(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                          cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
         // omg12 = omg2 - omg1, limit to [0, pi].
-        sin_omega12 = std::max(CT(0), cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
+        sin_omega12 = (std::max)(CT(0), cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
         cos_omega12 = cos_omega1 * cos_omega2 + sin_omega1 * sin_omega2;
 
         // eta = omg12 - lam120.
