@@ -33,6 +33,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/series_expansion.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
