@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,8 +15,8 @@
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
-#include <boost/geometry/formulas/karney_direct.hpp>
-#include <boost/geometry/formulas/karney_inverse.hpp>
+//#include <boost/geometry/formulas/karney_direct.hpp>
+//#include <boost/geometry/formulas/karney_inverse.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/integral_c.hpp>
@@ -137,7 +137,7 @@ struct vincenty
             >
     {};
 };
-
+/*
 struct karney
 {
     template
@@ -178,7 +178,7 @@ struct karney
             >
     {};
 };
-
+*/
 template <typename FormulaPolicy>
 struct default_order
 {
@@ -203,11 +203,12 @@ template<>
 struct default_order<vincenty>
     : boost::mpl::integral_c<unsigned int, 4>
 {};
-
+/*
 template<>
 struct default_order<karney>
     : boost::mpl::integral_c<unsigned int, 8>
 {};
+*/
 
 }}} // namespace boost::geometry::strategy
 
