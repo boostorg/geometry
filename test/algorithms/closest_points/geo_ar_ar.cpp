@@ -144,6 +144,31 @@ void test_closest_points_box_box(Strategy const& strategy)
     tester::apply("BOX(10 10,20 20)",
                   "BOX(15 30,40 40)",
                   "SEGMENT(15 20,15 30)",
+                  strategy, false);
+
+    tester::apply("BOX(15 30,40 40)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(20 30,20 20)",
+                  strategy, false);
+
+    tester::apply("BOX(10 10,20 20)",
+                  "BOX(5 30,40 40)",
+                  "SEGMENT(10 20,10 30)",
+                  strategy);
+
+    tester::apply("BOX(10 10,20 20)",
+                  "BOX(5 30,15 40)",
+                  "SEGMENT(15 20,15 30)",
+                  strategy, false);
+
+    tester::apply("BOX(5 30,15 40)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(10 30,10 20)",
+                  strategy, false);
+
+    tester::apply("BOX(10 10,20 20)",
+                  "BOX(0 30,5 40)",
+                  "SEGMENT(10 20,5 30)",
                   strategy);
 }
 

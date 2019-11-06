@@ -149,7 +149,8 @@ struct test_geometry
     inline static void apply(std::string const& wkt1,
                              std::string const& wkt2,
                              std::string const& wkt_expected_resulting_segment,
-                             Strategy const& strategy)
+                             Strategy const& strategy,
+                             bool swap_geometries = true)
     {
         Geometry1 geometry1;
         bg::read_wkt(wkt1, geometry1);
@@ -163,10 +164,13 @@ struct test_geometry
         test_closest_points(geometry1, geometry2, expected_resulting_segment,
                             strategy);
 
-        // swap input geometries and expected segment
-        test_closest_points(geometry2, geometry1,
-                            swap(expected_resulting_segment),
-                            strategy);
+        if (swap_geometries)
+        {
+            // swap input geometries and expected segment
+            test_closest_points(geometry2, geometry1,
+                                swap(expected_resulting_segment),
+                                strategy);
+        }
     }
 
     inline static void apply(std::string const& wkt1,

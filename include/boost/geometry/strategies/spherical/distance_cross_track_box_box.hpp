@@ -164,7 +164,8 @@ public :
 
         CT lon_closest = condA ? lon_min2 :
                          condB ? lon_max2 :
-                                 lon_min2;
+                         lon_min12 ? lon_min2 :
+                                     lon_min1;
 
         if ( condA || condB || condC )
         {
@@ -175,11 +176,6 @@ public :
             {
                 return ps_strategy.vertical_or_meridian(lat_min1, lat_max2,
                                                         lon_closest);
-                //return geometry::strategy::distance::services::result_from_distance
-                //    <
-                //        PSStrategy, box_point_type1, box_point_type2
-                //    >::apply(ps_strategy, ps_strategy
-                //               .vertical_or_meridian(lat_min1, lat_max2));
             }
             else if (lat_max1 < lat_min2)
             {
@@ -188,11 +184,6 @@ public :
                                                                   lon_closest);
                 dispatch::swap<PSStrategy>::apply(res);
                 return res;
-                //return geometry::strategy::distance::services::result_from_distance
-                //    <
-                //        PSStrategy, box_point_type1, box_point_type2
-                //    >::apply(ps_strategy, ps_strategy
-                //             .vertical_or_meridian(lat_min2, lat_max1));
             }
             else
             {
