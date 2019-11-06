@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015, 2018.
-// Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2018, 2019.
+// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -453,7 +453,7 @@ struct relaxed_epsilon
 // compared values but here is only one value, though it should work the same way.
 // (a-a) <= max(a, a) * EPS       -> 0 <= a*EPS
 // (a+da-a) <= max(a+da, a) * EPS -> da <= (a+da)*EPS
-template <typename T, bool IsFloat = boost::is_floating_point<T>::value>
+template <typename T, bool IsIntegral = boost::is_integral<T>::value>
 struct scaled_epsilon
 {
     static inline T apply(T const& val)
@@ -461,12 +461,23 @@ struct scaled_epsilon
         return (std::max)(abs<T>::apply(val), T(1))
                     * std::numeric_limits<T>::epsilon();
     }
+
+    static inline T apply(T const& val, T const& eps)
+    {
+        return (std::max)(abs<T>::apply(val), T(1))
+                    * eps;
+    }
 };
 
 template <typename T>
-struct scaled_epsilon<T, false>
+struct scaled_epsilon<T, true>
 {
     static inline T apply(T const&)
+    {
+        return T(0);
+    }
+
+    static inline T apply(T const&, T const&)
     {
         return T(0);
     }
@@ -531,6 +542,11 @@ inline T scaled_epsilon(T const& value)
     return detail::scaled_epsilon<T>::apply(value);
 }
 
+template <typename T>
+inline T scaled_epsilon(T const& value, T const& eps)
+{
+    return detail::scaled_epsilon<T>::apply(value, eps);
+}
 
 // Maybe replace this by boost equals or so
 
@@ -832,7 +848,25 @@ inline T round_angle(T x) {
     return x < 0 ? -y : y;
 }
 
-/*
+
+/*!
+\brief The error-free sum of two numbers.
+*/
+template<typename T>
+inline T sum_error(T u, T v, T& t)
+{
+    volatile T s = u + v;
+    volatile T up = s - v;
+    volatile T vpp = s - up;
+
+    up -= u;
+    vpp -= v;
+    t = -(up + vpp);
+
+    return s;
+}
+
+/*!
 \brief Evaluate the polynomial in x using Horner's method.
 */
 // TODO: adl1995 - Merge these functions with formulas/area_formulas.hpp
@@ -852,7 +886,7 @@ inline NT horner_evaluate(NT x,
     return result;
 }
 
-/*
+/*!
 \brief Evaluate the polynomial.
 */
 template<typename IteratorType, typename CT>

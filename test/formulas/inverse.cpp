@@ -1,9 +1,13 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
+// Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
+
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -21,8 +25,9 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
+template <typename Result>
 void check_inverse(std::string const& name,
-                   expected_results const& results,
+                   Result const& results,
                    bg::formula::result_inverse<double> const& result,
                    expected_result const& expected,
                    expected_result const& reference,

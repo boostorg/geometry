@@ -23,6 +23,9 @@
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
+
 #include <boost/type_traits/is_base_of.hpp>
 
 
@@ -282,9 +285,8 @@ struct less_other_multi_index
 };
 
 // sort turns by G1 - source_index == 0 by:
-// seg_id -> distance -> operation
-template <std::size_t OpId = 0,
-          typename LessOp = less_op_xxx_linear< OpId, op_to_int<> > >
+// seg_id -> distance and coordinates -> operation
+template <std::size_t OpId, typename LessOp, typename CSTag>
 struct less
 {
     BOOST_STATIC_ASSERT(OpId < 2);
@@ -292,16 +294,27 @@ struct less
     template <typename Turn>
     static inline bool use_fraction(Turn const& left, Turn const& right)
     {
+        typedef typename geometry::strategy::within::services::default_strategy
+            <
+                typename Turn::point_type, typename Turn::point_type,
+                point_tag, point_tag,
+                pointlike_tag, pointlike_tag,
+                typename tag_cast<CSTag, spherical_tag>::type,
+                typename tag_cast<CSTag, spherical_tag>::type
+            >::type eq_pp_strategy_type;
+
         static LessOp less_op;
 
-        return
-            geometry::math::equals(left.operations[OpId].fraction,
-                                   right.operations[OpId].fraction)
-            ?
-            less_op(left, right)
-            :
-            (left.operations[OpId].fraction < right.operations[OpId].fraction)
-            ;
+        // NOTE: Assuming fraction is more permissive and faster than
+        //       comparison of points with strategy.
+        return geometry::math::equals(left.operations[OpId].fraction,
+                                      right.operations[OpId].fraction)
+                && eq_pp_strategy_type::apply(left.point, right.point)
+             ?
+             less_op(left, right)
+             :
+             (left.operations[OpId].fraction < right.operations[OpId].fraction)
+             ;
     }
 
     template <typename Turn>

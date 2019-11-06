@@ -102,11 +102,11 @@ public:
         CT const ep2 = e2 / math::sqr(one_minus_f);
 
         CT sin_alpha1, cos_alpha1;
-        math::sin_cos_degrees<CT>(math::round_angle<CT>(azi12), sin_alpha1, cos_alpha1);
+        math::sin_cos_degrees<CT>(azi12, sin_alpha1, cos_alpha1);
 
         // Find the reduced latitude.
         CT sin_beta1, cos_beta1;
-        math::sin_cos_degrees<CT>(math::round_angle<CT>(lat1), sin_beta1, cos_beta1);
+        math::sin_cos_degrees<CT>(lat1, sin_beta1, cos_beta1);
         sin_beta1 *= one_minus_f;
 
         math::normalize_unit_vector<CT>(sin_beta1, cos_beta1);

@@ -875,12 +875,15 @@ private:
             return false;
         }
         
+        typedef typename FormulaPolicy::template inverse<CalcT, true, false, false, false, false> inverse_dist;
+
         ip_flag = ipi_inters;
 
         if (is_on_b1)
         {
             lon = b1_lon;
             lat = b1_lat;
+            dist_a1_ip = inverse_dist::apply(a1_lon, a1_lat, lon, lat, spheroid).distance; // for consistency
             dist_b1_ip = 0;
             ip_flag = ipi_at_b1;
         }
@@ -888,6 +891,7 @@ private:
         {
             lon = b2_lon;
             lat = b2_lat;
+            dist_a1_ip = inverse_dist::apply(a1_lon, a1_lat, lon, lat, spheroid).distance; // for consistency
             dist_b1_ip = res_b1_b2.distance;
             ip_flag = ipi_at_b2;
         }
@@ -897,6 +901,7 @@ private:
             lon = a1_lon;
             lat = a1_lat;
             dist_a1_ip = 0;
+            dist_b1_ip = inverse_dist::apply(b1_lon, b1_lat, lon, lat, spheroid).distance; // for consistency
             ip_flag = ipi_at_a1;
         }
         else if (is_on_a2)
@@ -904,6 +909,7 @@ private:
             lon = a2_lon;
             lat = a2_lat;
             dist_a1_ip = res_a1_a2.distance;
+            dist_b1_ip = inverse_dist::apply(b1_lon, b1_lat, lon, lat, spheroid).distance; // for consistency
             ip_flag = ipi_at_a2;
         }        
 

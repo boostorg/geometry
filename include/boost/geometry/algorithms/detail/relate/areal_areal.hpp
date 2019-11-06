@@ -235,6 +235,8 @@ struct areal_areal
         if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
+        typedef typename IntersectionStrategy::cs_tag cs_tag;
+
         typedef typename IntersectionStrategy::template point_in_geometry_strategy
             <
                 Geometry1, Geometry2
@@ -270,7 +272,7 @@ struct areal_areal
           || may_update<exterior, interior, '2'>(result) )
         {
             // sort turns
-            typedef turns::less<0, turns::less_op_areal_areal<0> > less;
+            typedef turns::less<0, turns::less_op_areal_areal<0>, cs_tag> less;
             std::sort(turns.begin(), turns.end(), less());
 
             /*if ( may_update<interior, exterior, '2'>(result)
@@ -311,7 +313,7 @@ struct areal_areal
           || may_update<exterior, interior, '2', true>(result) )
         {
             // sort turns
-            typedef turns::less<1, turns::less_op_areal_areal<1> > less;
+            typedef turns::less<1, turns::less_op_areal_areal<1>, cs_tag> less;
             std::sort(turns.begin(), turns.end(), less());
 
             /*if ( may_update<interior, exterior, '2', true>(result)

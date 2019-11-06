@@ -19,7 +19,6 @@
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
