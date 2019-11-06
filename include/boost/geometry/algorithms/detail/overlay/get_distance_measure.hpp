@@ -34,8 +34,8 @@ struct distance_measure
         : measure(T())
     {}
 
-    bool is_small() const { return true; }
-    bool is_zero() const { return true; }
+    bool is_small() const { return false; }
+    bool is_zero() const { return false; }
     bool is_positive() const { return false; }
     bool is_negative() const { return false; }
 };
