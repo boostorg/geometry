@@ -138,8 +138,8 @@ public :
 
 /*!
 \brief Affine transformation strategy in Cartesian system.
-\details The strategy serves as a generic definition of affine transformation matrix
-         and procedure of application it to given point.
+\details The strategy serves as a generic definition of an affine transformation
+         matrix and procedure for applying it to a given point.
 \see http://en.wikipedia.org/wiki/Affine_transformation
      and http://www.devmaster.net/wiki/Transformation_matrices
 \ingroup strategies
@@ -496,7 +496,7 @@ public :
 
 /*!
 \brief Strategy for rotate transformation in Cartesian coordinate system.
-\details Rotate rotates a geometry of specified angle about a fixed point (e.g. origin).
+\details Rotate rotates a geometry by a specified angle about a fixed point (e.g. origin).
 \see http://en.wikipedia.org/wiki/Rotation_%28mathematics%29
 \ingroup strategies
 \tparam DegreeOrRadian degree/or/radian, type of rotation angle specification
