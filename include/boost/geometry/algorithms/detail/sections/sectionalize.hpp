@@ -58,11 +58,9 @@
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#else
 #include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
-#endif
+
 #include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/expand.hpp>
 
