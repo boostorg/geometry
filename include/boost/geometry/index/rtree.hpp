@@ -98,123 +98,6 @@
 
 namespace boost { namespace geometry { namespace index {
 
-
-namespace detail { namespace rtree {
-
-template
-<
-    typename Value,
-    typename Bounds,
-    typename Parameters,
-    typename IndexableGetter,
-    typename EqualTo,
-    typename Allocator
->
-struct members_holder
-    : public detail::translator<IndexableGetter, EqualTo>
-    , public Parameters
-    , public detail::rtree::allocators
-        <
-            Allocator,
-            Value,
-            Parameters,
-            Bounds,
-            typename detail::rtree::options_type<Parameters>::type::node_tag
-        >
-{
-    typedef Value value_type;
-    typedef Bounds bounds_type;
-    typedef Parameters parameters_type;
-    //typedef IndexableGetter indexable_getter;
-    //typedef EqualTo value_equal;
-    //typedef Allocator allocator_type;
-
-    typedef Bounds box_type;
-    typedef detail::translator<IndexableGetter, EqualTo> translator_type;
-    typedef typename detail::rtree::options_type<Parameters>::type options_type;
-    typedef typename options_type::node_tag node_tag;
-    typedef detail::rtree::allocators
-        <
-            Allocator, Value, Parameters, Bounds, node_tag
-        > allocators_type;
-
-    typedef typename detail::rtree::node
-        <
-            value_type, parameters_type, bounds_type, allocators_type, node_tag
-        >::type node;
-    typedef typename detail::rtree::internal_node
-        <
-            value_type, parameters_type, bounds_type, allocators_type, node_tag
-        >::type internal_node;
-    typedef typename detail::rtree::leaf
-        <
-            value_type, parameters_type, bounds_type, allocators_type, node_tag
-        >::type leaf;
-
-    // TODO: only one visitor type is needed
-    typedef typename detail::rtree::visitor
-        <
-            value_type, parameters_type, bounds_type, allocators_type, node_tag, false
-        >::type visitor;
-    typedef typename detail::rtree::visitor
-        <
-            value_type, parameters_type, bounds_type, allocators_type, node_tag, true
-        >::type visitor_const;
-
-    typedef typename allocators_type::node_pointer node_pointer;
-
-    typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
-    typedef typename allocators_type::size_type size_type;
-
-private:
-    members_holder(members_holder const&);
-    members_holder & operator=(members_holder const&);
-
-public:
-    template <typename IndGet, typename ValEq, typename Alloc>
-    members_holder(IndGet const& ind_get,
-                   ValEq const& val_eq,
-                   Parameters const& parameters,
-                   BOOST_FWD_REF(Alloc) alloc)
-        : translator_type(ind_get, val_eq)
-        , Parameters(parameters)
-        , allocators_type(boost::forward<Alloc>(alloc))
-        , values_count(0)
-        , leafs_level(0)
-        , root(0)
-    {}
-
-    template <typename IndGet, typename ValEq>
-    members_holder(IndGet const& ind_get,
-                   ValEq const& val_eq,
-                   Parameters const& parameters)
-        : translator_type(ind_get, val_eq)
-        , Parameters(parameters)
-        , allocators_type()
-        , values_count(0)
-        , leafs_level(0)
-        , root(0)
-    {}
-
-    translator_type const& translator() const { return *this; }
-
-    IndexableGetter const& indexable_getter() const { return *this; }
-    IndexableGetter & indexable_getter() { return *this; }
-    EqualTo const& equal_to() const { return *this; }
-    EqualTo & equal_to() { return *this; }
-    Parameters const& parameters() const { return *this; }
-    Parameters & parameters() { return *this; }
-    allocators_type const& allocators() const { return *this; }
-    allocators_type & allocators() { return *this; }
-
-    size_type values_count;
-    size_type leafs_level;
-    node_pointer root;
-};
-
-}} // namespace detail::rtree
-
-
 /*!
 \brief The R-tree spatial index.
 
@@ -309,15 +192,107 @@ private:
 
     typedef bounds_type box_type;
 
-    typedef detail::rtree::members_holder
-        <
-            value_type,
-            bounds_type,
-            parameters_type,
-            indexable_getter,
-            value_equal,
-            allocator_type
-        > members_holder;
+    struct members_holder
+        : public detail::translator<IndexableGetter, EqualTo>
+        , public Parameters
+        , public detail::rtree::allocators
+            <
+                Allocator,
+                Value,
+                Parameters,
+                bounds_type,
+                typename detail::rtree::options_type<Parameters>::type::node_tag
+            >
+    {
+        typedef Value value_type;
+        typedef typename rtree::bounds_type bounds_type;
+        typedef Parameters parameters_type;
+        //typedef IndexableGetter indexable_getter;
+        //typedef EqualTo value_equal;
+        //typedef Allocator allocator_type;
+
+        typedef bounds_type box_type;
+        typedef detail::translator<IndexableGetter, EqualTo> translator_type;
+        typedef typename detail::rtree::options_type<Parameters>::type options_type;
+        typedef typename options_type::node_tag node_tag;
+        typedef detail::rtree::allocators
+            <
+                Allocator, Value, Parameters, bounds_type, node_tag
+            > allocators_type;
+
+        typedef typename detail::rtree::node
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type node;
+        typedef typename detail::rtree::internal_node
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type internal_node;
+        typedef typename detail::rtree::leaf
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type leaf;
+
+        // TODO: only one visitor type is needed
+        typedef typename detail::rtree::visitor
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag, false
+            >::type visitor;
+        typedef typename detail::rtree::visitor
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag, true
+            >::type visitor_const;
+
+        typedef typename allocators_type::node_pointer node_pointer;
+
+        typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+        typedef typename allocators_type::size_type size_type;
+
+    private:
+        members_holder(members_holder const&);
+        members_holder & operator=(members_holder const&);
+
+    public:
+        template <typename IndGet, typename ValEq, typename Alloc>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
+                       Parameters const& parameters,
+                       BOOST_FWD_REF(Alloc) alloc)
+            : translator_type(ind_get, val_eq)
+            , Parameters(parameters)
+            , allocators_type(boost::forward<Alloc>(alloc))
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
+
+        template <typename IndGet, typename ValEq>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
+                       Parameters const& parameters)
+            : translator_type(ind_get, val_eq)
+            , Parameters(parameters)
+            , allocators_type()
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
+
+        translator_type const& translator() const { return *this; }
+
+        IndexableGetter const& indexable_getter() const { return *this; }
+        IndexableGetter & indexable_getter() { return *this; }
+        EqualTo const& equal_to() const { return *this; }
+        EqualTo & equal_to() { return *this; }
+        Parameters const& parameters() const { return *this; }
+        Parameters & parameters() { return *this; }
+        allocators_type const& allocators() const { return *this; }
+        allocators_type & allocators() { return *this; }
+
+        size_type values_count;
+        size_type leafs_level;
+        node_pointer root;
+    };
 
     typedef typename members_holder::translator_type translator_type;    
     typedef typename members_holder::options_type options_type;
