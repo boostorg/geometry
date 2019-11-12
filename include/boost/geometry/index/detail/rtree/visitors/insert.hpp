@@ -139,12 +139,13 @@ protected:
     typedef typename MembersHolder::box_type box_type;
     typedef typename MembersHolder::translator_type translator_type;
     typedef typename MembersHolder::allocators_type allocators_type;
+    typedef typename MembersHolder::size_type size_type;
 
     typedef typename MembersHolder::node node;
     typedef typename MembersHolder::internal_node internal_node;
     typedef typename MembersHolder::leaf leaf;
 
-    typedef rtree::subtree_destroyer<MembersHolder> subtree_destroyer;
+    typedef typename MembersHolder::node_pointer node_pointer;
 
 public:
     typedef index::detail::varray<
@@ -163,37 +164,55 @@ public:
         // TODO - consider creating nodes always with sufficient memory allocated
 
         // create additional node, use auto destroyer for automatic destruction on exception
-        subtree_destroyer second_node(rtree::create_node<allocators_type, Node>::apply(allocators), allocators);     // MAY THROW, STRONG (N: alloc)
+        node_pointer n2_ptr = rtree::create_node<allocators_type, Node>::apply(allocators);                  // MAY THROW, STRONG (N: alloc)
         // create reference to the newly created node
-        Node & n2 = rtree::get<Node>(*second_node);
+        Node & n2 = rtree::get<Node>(*n2_ptr);
 
-        // NOTE: thread-safety
-        // After throwing an exception by redistribute_elements the original node may be not changed or
-        // both nodes may be empty. In both cases the tree won't be valid r-tree.
-        // The alternative is to create 2 (or more) additional nodes here and store backup info
-        // in the original node, then, if exception was thrown, the node would always have more than max
-        // elements.
-        // The alternative is to use moving semantics in the implementations of redistribute_elements,
-        // it will be possible to throw from boost::move() in the case of e.g. static size nodes.
+        BOOST_TRY
+        {
+            // NOTE: thread-safety
+            // After throwing an exception by redistribute_elements the original node may be not changed or
+            // both nodes may be empty. In both cases the tree won't be valid r-tree.
+            // The alternative is to create 2 (or more) additional nodes here and store backup info
+            // in the original node, then, if exception was thrown, the node would always have more than max
+            // elements.
+            // The alternative is to use moving semantics in the implementations of redistribute_elements,
+            // it will be possible to throw from boost::move() in the case of e.g. static size nodes.
 
-        // redistribute elements
-        box_type box2;
-        redistribute_elements<MembersHolder>
-            ::apply(n, n2, n_box, box2, parameters, translator, allocators);                                   // MAY THROW (V, E: alloc, copy, copy)
+            // redistribute elements
+            box_type box2;
+            redistribute_elements<MembersHolder>
+                ::apply(n, n2, n_box, box2, parameters, translator, allocators);                                   // MAY THROW (V, E: alloc, copy, copy)
 
-        // check numbers of elements
-        BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&
-            rtree::elements(n).size() <= parameters.get_max_elements(),
-            "unexpected number of elements");
-        BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n2).size() &&
-            rtree::elements(n2).size() <= parameters.get_max_elements(),
-            "unexpected number of elements");
+            // check numbers of elements
+            BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n).size() &&
+                rtree::elements(n).size() <= parameters.get_max_elements(),
+                "unexpected number of elements");
+            BOOST_GEOMETRY_INDEX_ASSERT(parameters.get_min_elements() <= rtree::elements(n2).size() &&
+                rtree::elements(n2).size() <= parameters.get_max_elements(),
+                "unexpected number of elements");
 
-        // return the list of newly created nodes (this algorithm returns one)
-        additional_nodes.push_back(rtree::make_ptr_pair(box2, second_node.get()));                           // MAY THROW, STRONG (alloc, copy)
+            // return the list of newly created nodes (this algorithm returns one)
+            additional_nodes.push_back(rtree::make_ptr_pair(box2, n2_ptr));                                  // MAY THROW, STRONG (alloc, copy)
+        }
+        BOOST_CATCH(...)
+        {
+            // NOTE: This code is here to prevent leaving the rtree in a state
+            //  after an exception is thrown in which pushing new element could
+            //  result in assert or putting it outside the memory of node elements.
+            typename rtree::elements_type<Node>::type & elements = rtree::elements(n);
+            size_type const max_size = parameters.get_max_elements();
+            if (elements.size() > max_size)
+            {
+                rtree::destroy_element<MembersHolder>::apply(elements[max_size], allocators);
+                elements.pop_back();
+            }
 
-        // release the ptr
-        second_node.release();
+            rtree::visitors::destroy<MembersHolder>::apply(n2_ptr, allocators);
+
+            BOOST_RETHROW
+        }
+        BOOST_CATCH_END
     }
 };
 
