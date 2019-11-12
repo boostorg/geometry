@@ -31,8 +31,11 @@ class are_counts_ok
     typedef typename MembersHolder::leaf leaf;
 
 public:
-    inline are_counts_ok(parameters_type const& parameters)
-        : result(true), m_current_level(0), m_parameters(parameters)
+    inline are_counts_ok(parameters_type const& parameters, bool check_min = true)
+        : result(true)
+        , m_current_level(0)
+        , m_parameters(parameters)
+        , m_check_min(check_min)
     {}
 
     inline void operator()(internal_node const& n)
@@ -41,7 +44,7 @@ public:
         elements_type const& elements = rtree::elements(n);
 
         // root internal node shouldn't contain 0 elements
-        if ( elements.empty()
+        if ( (elements.empty() && m_check_min)
           || !check_count(elements) )
         {
             result = false;
@@ -67,7 +70,7 @@ public:
         elements_type const& elements = rtree::elements(n);
 
         // empty leaf in non-root node
-        if ( ( m_current_level > 0 && elements.empty() )
+        if ( (m_current_level > 0 && elements.empty() && m_check_min)
           || !check_count(elements) )
         {
             result = false;
@@ -83,24 +86,25 @@ private:
         // root may contain count < min but should never contain count > max
         return elements.size() <= m_parameters.get_max_elements()
             && ( elements.size() >= m_parameters.get_min_elements()
-              || m_current_level == 0 );
+              || m_current_level == 0 || !m_check_min );
     }
 
     size_t m_current_level;
     parameters_type const& m_parameters;
+    bool m_check_min;
 };
 
 } // namespace visitors
 
 template <typename Rtree> inline
-bool are_counts_ok(Rtree const& tree)
+bool are_counts_ok(Rtree const& tree, bool check_min = true)
 {
     typedef utilities::view<Rtree> RTV;
     RTV rtv(tree);
 
     visitors::are_counts_ok<
         typename RTV::members_holder
-    > v(tree.parameters());
+    > v(tree.parameters(), check_min);
     
     rtv.apply_visitor(v);
 
