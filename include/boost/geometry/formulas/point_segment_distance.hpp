@@ -64,6 +64,15 @@ public :
         CT lon2;
         CT lat2;
 
+        result_type(result_type const& res)
+        {
+            distance = res.distance;
+            lon1 = res.lon1;
+            lat1 = res.lat1;
+            lon2 = res.lon2;
+            lat2 = res.lat2;
+        }
+
         bool operator<(const result_type& rhs) const
         {
             return distance < rhs.distance;

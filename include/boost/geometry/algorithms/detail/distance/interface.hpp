@@ -39,6 +39,7 @@
 #include <boost/geometry/strategies/geographic/closest_points.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
@@ -52,90 +53,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
-//TODO: move it
-template <typename StrategyType>
-struct swap
-{
-    template <typename T>
-    static inline T apply(T& t)
-    {
-        return t;
-    }
-};
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
->
-struct swap<strategy::closest_points::geographic_cross_track<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
-{
-    template <typename Result>
-    static inline void apply(Result& res)
-    {
-        res.swap();
-    }
-};
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
->
-struct swap<strategy::closest_points::comparable::geographic_cross_track<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
-{
-    template <typename Result>
-    static inline void apply(Result& res)
-    {
-        res.swap();
-    }
-};
-
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
->
-struct swap<strategy::closest_points::geographic<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
-{
-    template <typename Result>
-    static inline void apply(Result& res)
-    {
-        res.swap();
-    }
-};
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
->
-struct swap<strategy::closest_points::geographic_cross_track_point_box<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
-{
-    template <typename Result>
-    static inline void apply(Result& res)
-    {
-        res.swap();
-    }
-};
 
 // If reversal is needed, perform it
 template

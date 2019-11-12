@@ -100,7 +100,7 @@ struct generic_segment_box
 
         if (disjoint_result == disjoint_info_type::intersect) //intersect
         {
-            return 0;
+            return ReturnType();
         }
         // disjoint but vertex not computed
         if (disjoint_result == disjoint_info_type::disjoint_no_vertex)

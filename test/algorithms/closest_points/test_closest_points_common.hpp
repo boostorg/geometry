@@ -55,6 +55,14 @@ typedef bg::strategy::closest_points::geographic_cross_track_box_box
 typedef bg::strategy::closest_points::geographic_cross_track_box_box
                       <bg::strategy::vincenty> vincenty_bb;
 
+//segment-box
+typedef bg::strategy::closest_points::geographic_segment_box
+                      <bg::strategy::andoyer> andoyer_sb;
+typedef bg::strategy::closest_points::geographic_segment_box
+                      <bg::strategy::thomas> thomas_sb;
+typedef bg::strategy::closest_points::geographic_segment_box
+                      <bg::strategy::vincenty> vincenty_sb;
+
 
 //===========================================================================
 

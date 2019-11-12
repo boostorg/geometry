@@ -92,7 +92,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
 
     tester::apply("SEGMENT(2 0,0 2)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(0 0,10 10)",
+                  "SEGMENT(0.983761 1.0167,10 10)",
                   strategy);
 }
 
@@ -227,11 +227,11 @@ void test_closest_points_multi_linestring_multi_polygon(Strategy const& strategy
 //===========================================================================
 
 template <typename Point, typename PSStrategy, typename PBStrategy>
-void test_all_l_ar(PSStrategy cp_strategy, PBStrategy pb_strategy)
+void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_segment_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_segment_box<Point>(pb_strategy);
+    test_closest_points_segment_box<Point>(sb_strategy);
 
     test_closest_points_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_linestring_multi_polygon<Point>(cp_strategy);
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( test_all_linear_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_l_ar<geo_point>(andoyer_cp(), andoyer_pb());
-    test_all_l_ar<geo_point>(thomas_cp(), thomas_pb());
-    test_all_l_ar<geo_point>(vincenty_cp(), vincenty_pb());
+    test_all_l_ar<geo_point>(andoyer_cp(), andoyer_sb());
+    test_all_l_ar<geo_point>(thomas_cp(), thomas_sb());
+    test_all_l_ar<geo_point>(vincenty_cp(), vincenty_sb());
 }

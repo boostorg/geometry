@@ -34,6 +34,7 @@
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
+#include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
@@ -45,6 +46,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
@@ -320,8 +322,9 @@ private:
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
         {
-            return std::less_equal<T>()(cast_to_result<T>::apply(t1),
-                                        cast_to_result<T>::apply(t2));
+            return t1 < t2;
+            //return std::less_equal<T>()(cast_to_result<T>::apply(t1),
+            //                            cast_to_result<T>::apply(t2));
         }
     };
 
@@ -333,8 +336,9 @@ private:
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
         {
-            return std::greater_equal<T>()(cast_to_result<T>::apply(t1),
-                                           cast_to_result<T>::apply(t2));
+            return t1 > t2;
+            //return std::greater_equal<T>()(cast_to_result<T>::apply(t1),
+            //                               cast_to_result<T>::apply(t2));
         }
     };
 
@@ -432,16 +436,17 @@ private:
             // then compute the vertical (i.e. meridian for spherical) distance
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
-                ReturnType diff =
-                sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
+                //ReturnType diff =
+                return
+                        sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
                                     geometry::get_as_radian<1>(p_max),
                                     geometry::get_as_radian<1>(top_left),
                                     geometry::get_as_radian<0>(p0));
 
-                return strategy::distance::services::result_from_distance
-                    <
-                        SBStrategy, SegmentPoint, BoxPoint
-                    >::apply(sb_strategy, math::abs(diff));
+                //return strategy::distance::services::result_from_distance
+                //    <
+                //        SBStrategy, SegmentPoint, BoxPoint
+                //    >::apply(sb_strategy, math::abs(diff));
             }
 
             // p0 is to the left of the box, but p1 is above the box
@@ -507,7 +512,7 @@ private:
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
-                result = sb_strategy.template segment_below_of_box
+                auto res = sb_strategy.template segment_below_of_box
                         <
                             LessEqual,
                             ReturnType
@@ -546,9 +551,15 @@ private:
             typename SBStrategy::side_strategy_type
                 side_strategy = sb_strategy.get_side_strategy();
 
-            typedef cast_to_result<ReturnType> cast;
-            ReturnType diff1 = cast::apply(geometry::get<1>(p1))
-                               - cast::apply(geometry::get<1>(p0));
+            typedef typename geometry::select_most_precise
+                    <
+                        typename coordinate_type<SegmentPoint>::type,
+                        typename coordinate_type<BoxPoint>::type
+                    >::type CT;
+
+            typedef cast_to_result<CT> cast;
+            CT diff1 = cast::apply(geometry::get<1>(p1))
+                       - cast::apply(geometry::get<1>(p0));
 
             typename SBStrategy::distance_ps_strategy::type ps_strategy =
                                 sb_strategy.get_distance_ps_strategy();
@@ -556,12 +567,12 @@ private:
             int sign = diff1 < 0 ? -1 : 1;
             if (side_strategy.apply(p0, p1, corner1) * sign < 0)
             {
-                result = cast::apply(ps_strategy.apply(corner1, p0, p1));
+                //result = cast::apply(ps_strategy.apply(corner1, p0, p1));
                 return true;
             }
             if (side_strategy.apply(p0, p1, corner2) * sign > 0)
             {
-                result = cast::apply(ps_strategy.apply(corner2, p0, p1));
+                //result = cast::apply(ps_strategy.apply(corner2, p0, p1));
                 return true;
             }
             return false;
@@ -588,7 +599,7 @@ private:
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1));
 
-        ReturnType result(0);
+        ReturnType result;
 
         if (check_right_left_of_box
                 <
@@ -639,7 +650,7 @@ private:
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1) );
 
-        ReturnType result(0);
+        ReturnType result;
 
         if (check_right_left_of_box
                 <
@@ -817,7 +828,7 @@ public:
         }
         else
         {
-            return segment_to_box_2D
+            auto res = segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -826,6 +837,9 @@ public:
                 >::apply(p[1], p[0],
                          top_left, top_right, bottom_left, bottom_right,
                          sb_strategy);
+
+            dispatch::swap<SBStrategy>::apply(res);
+            return res;
         }
     }
 };
