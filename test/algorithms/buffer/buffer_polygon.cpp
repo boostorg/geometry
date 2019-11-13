@@ -828,20 +828,22 @@ void test_mixed()
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
+    BoostGeometryWriteTestConfiguration();
+
+    typedef bg::model::point<default_test_type, 2, bg::cs::cartesian> dpoint;
 
     test_all<true, dpoint>();
+    test_deflate_special_cases<true, dpoint>();
+
+
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
     test_all<false, dpoint>();
-#endif
-
-    typedef bg::model::point<float, 2, bg::cs::cartesian> fpoint;
-    test_deflate_special_cases<true, fpoint>();
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
-    test_deflate_special_cases<true, dpoint>();
+    test_deflate_special_cases<false, dpoint>();
 #endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    typedef bg::model::point<float, 2, bg::cs::cartesian> fpoint;
+    test_deflate_special_cases<true, fpoint>();
 
     test_mixed<dpoint, dpoint, false, false, true, true>();
     test_mixed<dpoint, dpoint, false, true, true, true>();

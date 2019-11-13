@@ -645,7 +645,8 @@ void test_specific()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 

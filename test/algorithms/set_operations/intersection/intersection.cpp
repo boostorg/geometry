@@ -929,7 +929,8 @@ void test_ticket_10868(std::string const& wkt_out)
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

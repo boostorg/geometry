@@ -161,6 +161,8 @@ struct mathematical_policy
 
 };
 
+typedef double default_test_type;
+
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
 #define BG_IF_RESCALED(a, b) a
 #else
@@ -172,5 +174,29 @@ struct mathematical_policy
 #else
 #define BG_IF_KRAMER(a, b) b
 #endif
+
+inline void BoostGeometryWriteTestConfiguration()
+{
+    std::cout << std::endl << "Test configuration:" << std::endl;
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    std::cout << "  - Using rescaling" << std::endl;
+#endif
+#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+    std::cout << "  - Using Kramer rule" << std::endl;
+#else
+    std::cout << "  - Using general form" << std::endl;
+#endif
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    std::cout << "  - Testing only one type" << std::endl;
+#endif
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    std::cout << "  - Testing only one order" << std::endl;
+#endif
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    std::cout << "  - Including failing test cases" << std::endl;
+#endif
+    std::cout << "  - Default test type: " << string_from_type<default_test_type>::name() << std::endl;
+    std::cout << std::endl;
+}
 
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP
