@@ -192,7 +192,7 @@ void test_areal()
     {
         test_one<Polygon, Polygon, Polygon>("geos_1",
             geos_1[0], geos_1[1],
-                1, -1, 3461.12321694, // MSVC 14 reports 3461.025390625
+                1, -1, BG_IF_RESCALED(3461.12321694, BG_IF_KRAMER(3461.02336, 3461.105448)), // MSVC 14 reports 3461.025390625
                 ut_settings(0.01, false));
     }
 
@@ -256,7 +256,7 @@ void test_areal()
     TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
     TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || !defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4,  0.00029437899183903937, ut_settings(0.01));
 #endif

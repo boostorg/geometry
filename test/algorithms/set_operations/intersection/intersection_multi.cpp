@@ -137,13 +137,10 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
-        ut_settings ignore_validity;
-
         // Rescaling misses one intersection
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
             case_108_multi[0], case_108_multi[1],
-            7, -1, 7.5,
-            ignore_validity);
+            7, -1, 7.5);
     }
 #endif
 
@@ -326,7 +323,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
     TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
     TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_INTERSECTION(case_recursive_boxes_85, 1, -1, 0.25);
 #endif
     TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
