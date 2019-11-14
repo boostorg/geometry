@@ -52,9 +52,8 @@ struct ranked_point
         , operation(operation_none)
     {}
 
-    template <typename Op>
-    ranked_point(const Point& p, signed_size_type ti, int oi,
-                 direction_type d, Op op)
+    ranked_point(Point const& p, signed_size_type ti, int oi,
+                 direction_type d, operation_type op, segment_identifier const& si)
         : point(p)
         , rank(0)
         , zone(-1)
@@ -63,8 +62,8 @@ struct ranked_point
         , direction(d)
         , count_left(0)
         , count_right(0)
-        , operation(op.operation)
-        , seg_id(op.seg_id)
+        , operation(op)
+        , seg_id(si)
     {}
 
     Point point;
@@ -126,8 +125,8 @@ template <typename Point, typename SideStrategy, typename LessOnSame, typename C
 struct less_by_side
 {
     less_by_side(const Point& p1, const Point& p2, SideStrategy const& strategy)
-        : m_p1(p1)
-        , m_p2(p2)
+        : m_origin(p1)
+        , m_turn_point(p2)
         , m_strategy(strategy)
     {}
 
@@ -139,16 +138,16 @@ struct less_by_side
         LessOnSame on_same;
         Compare compare;
 
-        int const side_first = m_strategy.apply(m_p1, m_p2, first.point);
-        int const side_second = m_strategy.apply(m_p1, m_p2, second.point);
+        int const side_first = m_strategy.apply(m_origin, m_turn_point, first.point);
+        int const side_second = m_strategy.apply(m_origin, m_turn_point, second.point);
 
         if (side_first == 0 && side_second == 0)
         {
             // Both collinear. They might point into different directions: <------*------>
             // If so, order the one going backwards as the very first.
 
-            int const first_code = direction_code<cs_tag>(m_p1, m_p2, first.point);
-            int const second_code = direction_code<cs_tag>(m_p1, m_p2, second.point);
+            int const first_code = direction_code<cs_tag>(m_origin, m_turn_point, first.point);
+            int const second_code = direction_code<cs_tag>(m_origin, m_turn_point, second.point);
 
             // Order by code, backwards first, then forward.
             return first_code != second_code
@@ -157,14 +156,14 @@ struct less_by_side
                 ;
         }
         else if (side_first == 0
-                && direction_code<cs_tag>(m_p1, m_p2, first.point) == -1)
+                && direction_code<cs_tag>(m_origin, m_turn_point, first.point) == -1)
         {
             // First collinear and going backwards.
             // Order as the very first, so return always true
             return true;
         }
         else if (side_second == 0
-            && direction_code<cs_tag>(m_p1, m_p2, second.point) == -1)
+            && direction_code<cs_tag>(m_origin, m_turn_point, second.point) == -1)
         {
             // Second is collinear and going backwards
             // Order as very last, so return always false
@@ -180,7 +179,7 @@ struct less_by_side
 
         // They are both left, both right, and/or both collinear (with each other and/or with p1,p2)
         // Check mutual side
-        int const side_second_wrt_first = m_strategy.apply(m_p2, first.point, second.point);
+        int const side_second_wrt_first = m_strategy.apply(m_turn_point, first.point, second.point);
 
         if (side_second_wrt_first == 0)
         {
@@ -197,7 +196,8 @@ struct less_by_side
     }
 
 private :
-    Point m_p1, m_p2;
+    Point const& m_origin;
+    Point const& m_turn_point;
     SideStrategy const& m_strategy;
 };
 
@@ -245,6 +245,35 @@ public :
         , m_strategy(strategy)
     {}
 
+    void add_segment_from(signed_size_type turn_index, int op_index,
+            Point const& point_from,
+            operation_type op, segment_identifier const& si,
+            bool is_origin)
+    {
+        m_ranked_points.push_back(rp(point_from, turn_index, op_index, dir_from, op, si));
+        if (is_origin)
+        {
+            m_origin = point_from;
+            m_origin_count++;
+        }
+    }
+
+    void add_segment_to(signed_size_type turn_index, int op_index,
+            Point const& point_to,
+            operation_type op, segment_identifier const& si)
+    {
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op, si));
+    }
+
+    void add_segment(signed_size_type turn_index, int op_index,
+            Point const& point_from, Point const& point_to,
+            operation_type op, segment_identifier const& si,
+            bool is_origin)
+    {
+        add_segment_from(turn_index, op_index, point_from, op, si, is_origin);
+        add_segment_to(turn_index, op_index, point_to, op, si);
+    }
+
     template <typename Operation, typename Geometry1, typename Geometry2>
     Point add(Operation const& op, signed_size_type turn_index, int op_index,
             Geometry1 const& geometry1,
@@ -255,14 +284,7 @@ public :
         geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
                 op.seg_id, point1, point2, point3);
         Point const& point_to = op.fraction.is_one() ? point3 : point2;
-
-        m_ranked_points.push_back(rp(point1, turn_index, op_index, dir_from, op));
-        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op));
-        if (is_origin)
-        {
-            m_origin = point1;
-            m_origin_count++;
-        }
+        add_segment(turn_index, op_index, point1, point_to, op.operation, op.seg_id, is_origin);
         return point1;
     }
 
@@ -639,6 +661,23 @@ public :
             ;
     }
 
+};
+
+
+//! Metafunction to define side_order (clockwise, ccw) by operation_type
+template <operation_type OpType>
+struct side_compare {};
+
+template <>
+struct side_compare<operation_union>
+{
+    typedef std::greater<int> type;
+};
+
+template <>
+struct side_compare<operation_intersection>
+{
+    typedef std::less<int> type;
 };
 
 
