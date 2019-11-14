@@ -28,7 +28,11 @@ struct swap
 
 }}}
 
-#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/strategies/geographic/closest_points.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 
 namespace boost { namespace geometry
 {

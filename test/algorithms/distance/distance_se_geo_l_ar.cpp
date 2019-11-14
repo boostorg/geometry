@@ -9,6 +9,7 @@
 // http://www.boost.org/users/license.html
 
 #include <iostream>
+#define BOOST_GEOMETRY_TEST_DEBUG
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_linear_areal

@@ -313,7 +313,6 @@ private:
         }
     };
 
-
     template <typename T, bool IsLess /* true */>
     struct compare_less_equal
     {
@@ -322,9 +321,8 @@ private:
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
         {
-            return t1 < t2;
-            //return std::less_equal<T>()(cast_to_result<T>::apply(t1),
-            //                            cast_to_result<T>::apply(t2));
+            return std::less_equal<T>()(cast_to_result<T>::apply(t1),
+                                        cast_to_result<T>::apply(t2));
         }
     };
 
@@ -336,9 +334,8 @@ private:
         template <typename T1, typename T2>
         inline bool operator()(T1 const& t1, T2 const& t2) const
         {
-            return t1 > t2;
-            //return std::greater_equal<T>()(cast_to_result<T>::apply(t1),
-            //                               cast_to_result<T>::apply(t2));
+            return std::greater_equal<T>()(cast_to_result<T>::apply(t1),
+                                           cast_to_result<T>::apply(t2));
         }
     };
 
@@ -369,8 +366,6 @@ private:
             // for negative slope segments swap the roles of bottom_right
             // and top_right and use greater_equal instead of less_equal.
 
-            typedef cast_to_result<ReturnType> cast;
-
             LessEqual less_equal;
 
             typename SBStrategy::distance_ps_strategy::type ps_strategy =
@@ -387,21 +382,21 @@ private:
                         SegmentPoint high = geometry::get<1>(p1) > geometry::get<1>(p0) ? p1 : p0;
                         if (less_equal(geometry::get<1>(high), geometry::get<1>(top_right)))
                         {
-                            return cast::apply(ps_strategy.apply(high, bottom_right, top_right));
+                            return cast_to_result<ReturnType>::apply(ps_strategy.apply(high, bottom_right, top_right));
                         }
-                        return cast::apply(ps_strategy.apply(top_right, p0, p1));
+                        return cast_to_result<ReturnType>::apply(ps_strategy.apply(top_right, p0, p1));
                     }
-                    return cast::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                    return cast_to_result<ReturnType>::apply(ps_strategy.apply(p0, bottom_right, top_right));
                 }
                 // distance is realized between the top-right
                 // corner of the box and the segment
-                return cast::apply(ps_strategy.apply(top_right, p0, p1));
+                return cast_to_result<ReturnType>::apply(ps_strategy.apply(top_right, p0, p1));
             }
             else
             {
                 // distance is realized between the bottom-right
                 // corner of the box and the segment
-                return cast::apply(ps_strategy.apply(bottom_right, p0, p1));
+                return cast_to_result<ReturnType>::apply(ps_strategy.apply(bottom_right, p0, p1));
             }
         }
     };
@@ -429,31 +424,30 @@ private:
                                        SBStrategy const& sb_strategy)
         {
             boost::ignore_unused(sb_strategy);
-            typedef cast_to_result<ReturnType> cast;
+
             LessEqual less_equal;
 
             // p0 is above the upper segment of the box (and inside its band)
             // then compute the vertical (i.e. meridian for spherical) distance
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
-                //ReturnType diff =
-                return
-                        sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
+                ReturnType diff = sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
                                     geometry::get_as_radian<1>(p_max),
                                     geometry::get_as_radian<1>(top_left),
                                     geometry::get_as_radian<0>(p0));
 
-                //return strategy::distance::services::result_from_distance
-                //    <
-                //        SBStrategy, SegmentPoint, BoxPoint
-                //    >::apply(sb_strategy, math::abs(diff));
+                return strategy::distance::services::result_from_distance
+                    <
+                        SBStrategy, SegmentPoint, BoxPoint
+                    >::apply(sb_strategy, diff);
             }
 
             // p0 is to the left of the box, but p1 is above the box
             // in this case the distance is realized between the
             // top-left corner of the box and the segment
-            return cast::apply(sb_strategy.get_distance_ps_strategy().
-                                                      apply(top_left, p0, p1));
+            return cast_to_result<ReturnType>
+                    ::apply(sb_strategy.get_distance_ps_strategy()
+                    .apply(top_left, p0, p1));
         }
     };
 
@@ -507,18 +501,25 @@ private:
                                  SBStrategy const& sb_strategy,
                                  ReturnType& result)
         {
-            typedef compare_less_equal<ReturnType, false> GreaterEqual;
+            typedef typename geometry::select_most_precise
+                    <
+                        typename coordinate_type<SegmentPoint>::type,
+                        typename coordinate_type<BoxPoint>::type
+                    >::type CT;
+
+            typedef compare_less_equal<CT, false> GreaterEqual;
 
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
-                auto res = sb_strategy.template segment_below_of_box
+                result = sb_strategy.template segment_below_of_box
                         <
                             LessEqual,
                             ReturnType
                         >(p0, p1,
                           top_left, top_right,
                           bottom_left, bottom_right);
+
                 return true;
             }
 
@@ -567,12 +568,14 @@ private:
             int sign = diff1 < 0 ? -1 : 1;
             if (side_strategy.apply(p0, p1, corner1) * sign < 0)
             {
-                //result = cast::apply(ps_strategy.apply(corner1, p0, p1));
+                result = cast_to_result<ReturnType>
+                         ::apply(ps_strategy.apply(corner1, p0, p1));
                 return true;
             }
             if (side_strategy.apply(p0, p1, corner2) * sign > 0)
             {
-                //result = cast::apply(ps_strategy.apply(corner2, p0, p1));
+                result = cast_to_result<ReturnType>
+                         ::apply(ps_strategy.apply(corner2, p0, p1));
                 return true;
             }
             return false;
@@ -588,7 +591,13 @@ private:
                                BoxPoint const& bottom_right,
                                SBStrategy const& sb_strategy)
     {
-        typedef compare_less_equal<ReturnType, true> less_equal;
+        typedef typename geometry::select_most_precise
+                <
+                    typename coordinate_type<SegmentPoint>::type,
+                    typename coordinate_type<BoxPoint>::type
+                >::type CT;
+
+        typedef compare_less_equal<CT, true> less_equal;
 
         // assert that the segment has non-negative slope
         BOOST_GEOMETRY_ASSERT( ( math::equals(geometry::get<0>(p0), geometry::get<0>(p1))
@@ -599,7 +608,7 @@ private:
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1));
 
-        ReturnType result;
+        ReturnType result(0);
 
         if (check_right_left_of_box
                 <
@@ -642,7 +651,13 @@ private:
                            BoxPoint const& bottom_right,
                            SBStrategy const& sb_strategy)
     {
-        typedef compare_less_equal<ReturnType, false> greater_equal;
+        typedef typename geometry::select_most_precise
+                <
+                    typename coordinate_type<SegmentPoint>::type,
+                    typename coordinate_type<BoxPoint>::type
+                >::type CT;
+
+        typedef compare_less_equal<CT, false> greater_equal;
 
         // assert that the segment has negative slope
         BOOST_GEOMETRY_ASSERT( ( geometry::get<0>(p0) < geometry::get<0>(p1)
@@ -650,7 +665,7 @@ private:
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1) );
 
-        ReturnType result;
+        ReturnType result(0);
 
         if (check_right_left_of_box
                 <
@@ -828,7 +843,7 @@ public:
         }
         else
         {
-            auto res = segment_to_box_2D
+            return_type res = segment_to_box_2D
                 <
                     return_type,
                     segment_point,

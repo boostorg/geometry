@@ -32,6 +32,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/detail/closest_points/swap_geometries.hpp>
+
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>

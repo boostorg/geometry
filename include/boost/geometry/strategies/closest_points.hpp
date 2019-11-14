@@ -12,6 +12,7 @@
 
 
 #include <boost/mpl/assert.hpp>
+#include <boost/geometry/core/cs.hpp>
 
 
 namespace boost { namespace geometry

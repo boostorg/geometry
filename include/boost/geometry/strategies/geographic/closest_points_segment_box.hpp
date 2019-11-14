@@ -127,7 +127,7 @@ struct geographic_segment_box
 
     template <typename SegmentPoint, typename BoxPoint>
     struct point_segment_distance_closest_point
-        : formula::point_segment_distance
+        : boost::geometry::formula::point_segment_distance
             <
                 typename return_type<SegmentPoint, BoxPoint>::type,
                 true,
@@ -138,9 +138,18 @@ struct geographic_segment_box
 
     // methods
 
-    template <typename LessEqual, typename ReturnType,
-              typename SegmentPoint, typename BoxPoint>
-    inline point_segment_distance_closest_point<SegmentPoint, BoxPoint>
+    template
+    <
+        typename LessEqual,
+        typename ReturnType,
+        typename SegmentPoint,
+        typename BoxPoint
+    >
+    inline typename point_segment_distance_closest_point
+                    <
+                        SegmentPoint,
+                        BoxPoint
+                    >::result_type
     segment_below_of_box(SegmentPoint const& p0,
                          SegmentPoint const& p1,
                          BoxPoint const& top_left,
@@ -164,7 +173,7 @@ struct geographic_segment_box
         > envelope_segment_strategy_type;
         envelope_segment_strategy_type es_strategy(m_spheroid);
 
-        auto res = distance::generic_segment_box::segment_below_of_box
+        return distance::generic_segment_box::segment_below_of_box
                <
                     LessEqual,
                     ReturnType
@@ -174,8 +183,6 @@ struct geographic_segment_box
                  normalize::spherical_point(),
                  covered_by::spherical_point_box(),
                  disjoint::spherical_box_box());
-
-         return point_segment_distance_closest_point<SegmentPoint, BoxPoint>();
     }
 
     template <typename SPoint, typename BPoint>
@@ -348,16 +355,14 @@ private :
     typedef typename closest_points::geographic_segment_box
         <
             FormulaPolicy
-        >::template return_type<PS, PB>::type return_type;
+        >::template point_segment_distance_closest_point<PS, PB>::result_type return_type;
 public :
     template <typename T>
     static inline return_type
-    apply(closest_points::geographic_segment_box<FormulaPolicy> const& strategy, T const& distance)
+    apply(closest_points::geographic_segment_box<FormulaPolicy> const& strategy,
+          T const& distance)
     {
-        result_from_distance
-            <
-                closest_points::geographic_segment_box<FormulaPolicy>, PS, PB
-            >::apply(strategy, distance);
+        return distance;
     }
 };
 
@@ -375,11 +380,14 @@ private :
     typedef typename closest_points::geographic_segment_box
         <
             FormulaPolicy, Spheroid, CalculationType
-        >::template return_type<PS, PB>::type return_type;
+        >::template point_segment_distance_closest_point<PS, PB>::result_type return_type;
 public :
     template <typename T>
     static inline return_type
-    apply(closest_points::geographic_segment_box<FormulaPolicy, Spheroid, CalculationType> const& , T const& distance)
+    apply(closest_points::geographic_segment_box<FormulaPolicy,
+                                                 Spheroid,
+                                                 CalculationType> const& ,
+          T const& distance)
     {
         return distance;
     }
