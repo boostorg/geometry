@@ -67,7 +67,7 @@
 # pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
 
-# include <boost/test/floating_point_comparison.hpp>
+# include <boost/test/tools/floating_point_comparison.hpp>
 #ifndef BOOST_TEST_MODULE
 # include <boost/test/included/test_exec_monitor.hpp>
 //#  include <boost/test/included/prg_exec_monitor.hpp>
