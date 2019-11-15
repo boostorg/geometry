@@ -4,6 +4,10 @@
 //
 // Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2019.
+// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -12,7 +16,7 @@
 #define BOOST_GEOMETRY_INDEX_PREDICATES_HPP
 
 #include <boost/geometry/index/detail/predicates.hpp>
-#include <boost/geometry/index/detail/tuples.hpp>
+#include <boost/geometry/util/tuples.hpp>
 
 /*!
 \defgroup predicates Predicates (boost::geometry::index::)
@@ -408,7 +412,7 @@ operator&&(Pred1 const& p1, Pred2 const& p2)
 }
 
 template <typename Head, typename Tail, typename Pred> inline
-typename tuples::push_back<
+typename geometry::tuples::push_back<
     boost::tuples::cons<Head, Tail>, Pred
 >::type
 operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
@@ -417,7 +421,7 @@ operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
     namespace bt = boost::tuples;
 
     return
-    tuples::push_back<
+    geometry::tuples::push_back<
         bt::cons<Head, Tail>, Pred
     >::apply(t, p);
 }

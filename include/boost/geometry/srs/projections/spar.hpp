@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,8 +22,7 @@
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 
-// TODO: move this functionality
-#include <boost/geometry/index/detail/tuples.hpp>
+#include <boost/geometry/util/tuples.hpp>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/if.hpp>
@@ -214,7 +213,7 @@ struct add_parameter
 // NOTE: parameters has to be convertible to tuples::cons
 template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename Parameter>
 struct add_parameter<spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, Parameter>
-    : index::detail::tuples::push_back
+    : geometry::tuples::push_back
         <
             typename detail::map_params_to_cons<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>::type,
             Parameter
@@ -223,7 +222,7 @@ struct add_parameter<spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, Par
 
 template <typename Head, typename Tail, typename Parameter>
 struct add_parameter<boost::tuples::cons<Head, Tail>, Parameter>
-    : index::detail::tuples::push_back
+    : geometry::tuples::push_back
         <
             boost::tuples::cons<Head, Tail>,
             Parameter
