@@ -13,156 +13,108 @@
 #ifndef BOOST_GEOMETRY_UTIL_TUPLES_HPP
 #define BOOST_GEOMETRY_UTIL_TUPLES_HPP
 
+#include <utility>
+
 #include <boost/tuple/tuple.hpp>
+#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 namespace boost { namespace geometry { namespace tuples {
 
-// find_index
 
-namespace detail {
+// find_index_if
+// Searches for the index of an element for which UnaryPredicate returns true
+// If such element is not found the result is N
 
-template <typename Tuple, typename El, size_t N>
-struct find_index;
+template
+<
+    typename Tuple,
+    template <typename> class UnaryPred,
+    int I = 0,
+    int N = boost::tuples::length<Tuple>::value
+>
+struct find_index_if
+    : boost::mpl::if_c
+        <
+            UnaryPred<typename boost::tuples::element<I, Tuple>::type>::value,
+            boost::integral_constant<int, I>,
+            typename find_index_if<Tuple, UnaryPred, I+1, N>::type
+        >::type
+{};
 
-template <typename Tuple, typename El, size_t N, typename CurrentEl>
-struct find_index_impl
+template
+<
+    typename Tuple,
+    template <typename> class UnaryPred,
+    int N
+>
+struct find_index_if<Tuple, UnaryPred, N, N>
+    : boost::integral_constant<int, N>
+{};
+
+
+// find_if
+// Searches for an element for which UnaryPredicate returns true
+// If such element is not found the result is boost::tuples::null_type
+
+template
+<
+    typename Tuple,
+    template <typename> class UnaryPred,
+    int I = 0,
+    int N = boost::tuples::length<Tuple>::value
+>
+struct find_if
+    : boost::mpl::if_c
+        <
+            UnaryPred<typename boost::tuples::element<I, Tuple>::type>::value,
+            boost::tuples::element<I, Tuple>,
+            typename find_if<Tuple, UnaryPred, I+1, N>
+        >::type
+{};
+
+template
+<
+    typename Tuple,
+    template <typename> class UnaryPred,
+    int N
+>
+struct find_if<Tuple, UnaryPred, N, N>
 {
-    static const size_t value = find_index<Tuple, El, N - 1>::value;
+    typedef boost::tuples::null_type type;
 };
 
-template <typename Tuple, typename El, size_t N>
-struct find_index_impl<Tuple, El, N, El>
-{
-    static const size_t value = N - 1;
-};
 
-template <typename Tuple, typename El, typename CurrentEl>
-struct find_index_impl<Tuple, El, 1, CurrentEl>
-{
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        ELEMENT_NOT_FOUND,
-        (find_index_impl));
-};
+// is_found
+// Returns true if a type T (the result of find_if) was found.
 
-template <typename Tuple, typename El>
-struct find_index_impl<Tuple, El, 1, El>
-{
-    static const size_t value = 0;
-};
+template <typename T>
+struct is_found
+    : boost::mpl::not_<boost::is_same<T, boost::tuples::null_type> >
+{};
 
-template <typename Tuple, typename El, size_t N>
-struct find_index
-{
-    static const size_t value =
-        find_index_impl<
-            Tuple,
-            El,
-            N,
-            typename boost::tuples::element<N - 1, Tuple>::type
-        >::value;
-};
 
-} // namespace detail
+// is_not_found
+// Returns true if a type T (the result of find_if) was not found.
 
-template <typename Tuple, typename El>
-struct find_index
-{
-    static const size_t value =
-        detail::find_index<
-            Tuple,
-            El,
-            boost::tuples::length<Tuple>::value
-        >::value;
-};
+template <typename T>
+struct is_not_found
+    : boost::is_same<T, boost::tuples::null_type>
+{};
 
-// has
 
-namespace detail {
+// exists_if
+// Returns true if search for element meeting UnaryPred can be found.
 
-template <typename Tuple, typename El, size_t N>
-struct has
-{
-    static const bool value
-        = boost::is_same<
-            typename boost::tuples::element<N - 1, Tuple>::type,
-            El
-        >::value
-        || has<Tuple, El, N - 1>::value;
-};
+template <typename Tuple, template <typename> class UnaryPred>
+struct exists_if
+    : is_found<typename find_if<Tuple, UnaryPred>::type>
+{};
 
-template <typename Tuple, typename El>
-struct has<Tuple, El, 1>
-{
-    static const bool value
-        = boost::is_same<
-            typename boost::tuples::element<0, Tuple>::type,
-            El
-        >::value;
-};
 
-} // namespace detail
-
-template <typename Tuple, typename El>
-struct has
-{
-    static const bool value
-        = detail::has<
-            Tuple,
-            El,
-            boost::tuples::length<Tuple>::value
-        >::value;
-};
-
-// add
-
-template <typename Tuple, typename El>
-struct add
-{
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THIS_TUPLE_TYPE,
-        (add));
-};
-
-template <typename T1, typename T>
-struct add<boost::tuple<T1>, T>
-{
-    typedef boost::tuple<T1, T> type;
-};
-
-template <typename T1, typename T2, typename T>
-struct add<boost::tuple<T1, T2>, T>
-{
-    typedef boost::tuple<T1, T2, T> type;
-};
-
-// add_if
-
-template <typename Tuple, typename El, bool Cond>
-struct add_if
-{
-    typedef Tuple type;
-};
-
-template <typename Tuple, typename El>
-struct add_if<Tuple, El, true>
-{
-    typedef typename add<Tuple, El>::type type;
-};
-
-// add_unique
-
-template <typename Tuple, typename El>
-struct add_unique
-{
-    typedef typename add_if<
-        Tuple,
-        El,
-        !has<Tuple, El>::value
-    >::type type;
-};
+// push_back
+// A utility used to create a type/object of a Tuple containing
+//   all types/objects stored in another Tuple plus additional one.
 
 template <typename Tuple,
           typename T,

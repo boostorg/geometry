@@ -506,7 +506,7 @@ namespace projections
                         <
                             boost::is_same
                                 <
-                                    typename srs::spar::detail::tuples_find_if
+                                    typename geometry::tuples::find_if
                                         <
                                             BGP,
                                             //srs::par4::detail::is_guam

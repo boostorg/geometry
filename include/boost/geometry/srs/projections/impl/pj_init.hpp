@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -98,13 +98,13 @@ inline void pj_init_proj(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL
                          parameters<T> & par)
 {
     typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> params_type;
-    typedef typename srs::spar::detail::tuples_find_if
+    typedef typename geometry::tuples::find_if
         <
             params_type,
             srs::spar::detail::is_param_tr<srs::spar::detail::proj_traits>::pred
         >::type proj_type;
 
-    static const bool is_found = srs::spar::detail::tuples_is_found<proj_type>::value;
+    static const bool is_found = geometry::tuples::is_found<proj_type>::value;
 
     BOOST_MPL_ASSERT_MSG((is_found), PROJECTION_NOT_NAMED, (params_type));
 
@@ -227,7 +227,7 @@ template
 <
     typename Params,
     bool Vertical,
-    int UnitsI = srs::spar::detail::tuples_find_index_if
+    int UnitsI = geometry::tuples::find_index_if
         <
             Params,
             boost::mpl::if_c
@@ -237,7 +237,7 @@ template
                     srs::spar::detail::is_param_tr<srs::spar::detail::units_traits>
                 >::type::template pred
         >::value,
-    int ToMeterI = srs::spar::detail::tuples_find_index_if
+    int ToMeterI = geometry::tuples::find_index_if
         <
             Params,
             boost::mpl::if_c
@@ -391,7 +391,7 @@ inline void pj_init_pm(srs::dpar::parameters<T> const& params, T& val)
 template
 <
     typename Params,
-    int I = srs::spar::detail::tuples_find_index_if
+    int I = geometry::tuples::find_index_if
         <
             Params,
             srs::spar::detail::is_param_tr<srs::spar::detail::pm_traits>::pred

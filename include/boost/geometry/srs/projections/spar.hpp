@@ -30,9 +30,7 @@
 #include <boost/mpl/not.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/variant/variant.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_void.hpp>
 
 #include <string>
 #include <vector>
@@ -1012,73 +1010,6 @@ BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_UNITS(units_ind_ft)
 BOOST_GEOMETRY_PROJECTIONS_DETAIL_REGISTER_UNITS(units_ind_ch)
 
 
-template
-<
-    typename Tuple,
-    template <typename> class IsSamePred,
-    int I = 0,
-    int N = boost::tuples::length<Tuple>::value
->
-struct tuples_find_index_if
-    : boost::mpl::if_c
-        <
-            IsSamePred<typename boost::tuples::element<I, Tuple>::type>::value,
-            boost::integral_constant<int, I>,
-            typename tuples_find_index_if<Tuple, IsSamePred, I+1, N>::type
-        >::type
-{};
-
-template
-<
-    typename Tuple,
-    template <typename> class IsSamePred,
-    int N
->
-struct tuples_find_index_if<Tuple, IsSamePred, N, N>
-    : boost::integral_constant<int, N>
-{};
-
-template
-<
-    typename Tuple,
-    template <typename> class IsSamePred,
-    int I = tuples_find_index_if<Tuple, IsSamePred>::value,
-    int N = boost::tuples::length<Tuple>::value
->
-struct tuples_find_if
-    : boost::tuples::element<I, Tuple>
-{};
-
-template
-<
-    typename Tuple,
-    template <typename> class IsSamePred,
-    int N
->
-struct tuples_find_if<Tuple, IsSamePred, N, N>
-{
-    typedef boost::tuples::null_type type;
-};
-
-template <typename T>
-struct tuples_is_found
-    : boost::mpl::not_<boost::is_same<T, boost::tuples::null_type> >
-{};
-
-template <typename T>
-struct tuples_is_not_found
-    : boost::is_same<T, boost::tuples::null_type>
-{};
-
-template <typename Tuple, template <typename> class IsSamePred>
-struct tuples_exists_if
-    : tuples_is_found
-        <
-            typename tuples_find_if<Tuple, IsSamePred>::type
-        >
-{};
-
-
 template <typename T, template <typename> class Param>
 struct is_same_t : boost::false_type {};
 template <typename T, template <typename> class Param>
@@ -1139,13 +1070,13 @@ struct is_param_tr
 template <typename Tuple>
 struct pick_proj_tag
 {
-    typedef typename tuples_find_if
+    typedef typename geometry::tuples::find_if
         <
             Tuple,
             is_param_tr<proj_traits>::pred
         >::type proj_type;
 
-    static const bool is_found = tuples_is_found<proj_type>::value;
+    static const bool is_found = geometry::tuples::is_found<proj_type>::value;
 
     BOOST_MPL_ASSERT_MSG((is_found), PROJECTION_NOT_NAMED, (Tuple));
 
@@ -1156,13 +1087,13 @@ struct pick_proj_tag
 template <typename Tuple>
 struct pick_o_proj_tag
 {
-    typedef typename tuples_find_if
+    typedef typename geometry::tuples::find_if
         <
             Tuple,
             is_param_t<o_proj>::pred
         >::type o_proj_type;
 
-    static const bool is_found = tuples_is_found<o_proj_type>::value;
+    static const bool is_found = geometry::tuples::is_found<o_proj_type>::value;
 
     BOOST_MPL_ASSERT_MSG((is_found), NO_O_PROJ_PARAMETER, (Tuple));
 
