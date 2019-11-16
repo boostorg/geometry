@@ -13,13 +13,156 @@
 #ifndef BOOST_GEOMETRY_UTIL_TUPLES_HPP
 #define BOOST_GEOMETRY_UTIL_TUPLES_HPP
 
-#include <utility>
+#include <boost/config.hpp>
 
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/not.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 #include <boost/type_traits/is_same.hpp>
 
+#include <utility>
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+
+#include <tuple>
+
+#endif // C++11
+
 namespace boost { namespace geometry { namespace tuples {
+
+
+using boost::tuples::null_type;
+
+
+template <int I, typename Tuple>
+struct element
+    : boost::tuples::element<I, Tuple>
+{};
+
+template <typename Tuple>
+struct size
+    : boost::tuples::length<Tuple>
+{};
+
+template <int I, typename HT, typename TT>
+inline typename boost::tuples::access_traits
+    <
+        typename boost::tuples::element<I, boost::tuples::cons<HT, TT> >::type
+    >::non_const_type
+get(boost::tuples::cons<HT, TT> & tup)
+{
+    return boost::tuples::get<I>(tup);
+}
+
+template <int I, typename HT, typename TT>
+inline typename boost::tuples::access_traits
+    <
+        typename boost::tuples::element<I, boost::tuples::cons<HT, TT> >::type
+    >::const_type
+get(boost::tuples::cons<HT, TT> const& tup)
+{
+    return boost::tuples::get<I>(tup);
+}
+
+
+template <int I, typename F, typename S>
+struct element<I, std::pair<F, S> >
+{};
+
+template <typename F, typename S>
+struct element<0, std::pair<F, S> >
+{
+    typedef F type;
+};
+
+template <typename F, typename S>
+struct element<1, std::pair<F, S> >
+{
+    typedef S type;
+};
+
+template <typename F, typename S>
+struct size<std::pair<F, S> >
+    : boost::integral_constant<int, 2>
+{};
+
+template <int I, typename Pair>
+struct get_pair;
+
+template <typename F, typename S>
+struct get_pair<0, std::pair<F, S> >
+{
+    typedef F type;
+
+    static inline F& apply(std::pair<F, S> & p)
+    {
+        return p.first;
+    }
+
+    static inline F const& apply(std::pair<F, S> const& p)
+    {
+        return p.first;
+    }
+};
+
+template <typename F, typename S>
+struct get_pair<1, std::pair<F, S> >
+{
+    typedef S type;
+
+    static inline S& apply(std::pair<F, S> & p)
+    {
+        return p.second;
+    }
+
+    static inline S const& apply(std::pair<F, S> const& p)
+    {
+        return p.second;
+    }
+};
+
+template <int I, typename F, typename S>
+inline typename get_pair<I, std::pair<F, S> >::type&
+get(std::pair<F, S> & p)
+{
+    return get_pair<I, std::pair<F, S> >::apply(p);
+}
+
+template <int I, typename F, typename S>
+inline typename get_pair<I, std::pair<F, S> >::type const&
+get(std::pair<F, S> const& p)
+{
+    return get_pair<I, std::pair<F, S> >::apply(p);
+}
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+
+template <int I, typename ...Ts>
+struct element<I, std::tuple<Ts...> >
+    : std::tuple_element<I, std::tuple<Ts...> >
+{};
+
+template <typename ...Ts>
+struct size<std::tuple<Ts...> >
+    : std::tuple_size<std::tuple<Ts...> >
+{};
+
+template <int I, typename ...Ts>
+inline typename std::tuple_element<I, std::tuple<Ts...> >::type&
+get(std::tuple<Ts...> & tup)
+{
+    return std::get<I>(tup);
+}
+
+template <int I, typename ...Ts>
+inline typename std::tuple_element<I, std::tuple<Ts...> >::type const&
+get(std::tuple<Ts...> const& tup)
+{
+    return std::get<I>(tup);
+}
+
+#endif // C++11
 
 
 // find_index_if
@@ -31,12 +174,12 @@ template
     typename Tuple,
     template <typename> class UnaryPred,
     int I = 0,
-    int N = boost::tuples::length<Tuple>::value
+    int N = size<Tuple>::value
 >
 struct find_index_if
     : boost::mpl::if_c
         <
-            UnaryPred<typename boost::tuples::element<I, Tuple>::type>::value,
+            UnaryPred<typename element<I, Tuple>::type>::value,
             boost::integral_constant<int, I>,
             typename find_index_if<Tuple, UnaryPred, I+1, N>::type
         >::type
@@ -62,14 +205,14 @@ template
     typename Tuple,
     template <typename> class UnaryPred,
     int I = 0,
-    int N = boost::tuples::length<Tuple>::value
+    int N = size<Tuple>::value
 >
 struct find_if
     : boost::mpl::if_c
         <
-            UnaryPred<typename boost::tuples::element<I, Tuple>::type>::value,
-            boost::tuples::element<I, Tuple>,
-            typename find_if<Tuple, UnaryPred, I+1, N>
+            UnaryPred<typename element<I, Tuple>::type>::value,
+            element<I, Tuple>,
+            find_if<Tuple, UnaryPred, I+1, N>
         >::type
 {};
 
@@ -119,27 +262,27 @@ struct exists_if
 template <typename Tuple,
           typename T,
           size_t I = 0,
-          size_t N = boost::tuples::length<Tuple>::value>
-struct push_back
+          size_t N = size<Tuple>::value>
+struct push_back_bt
 {
     typedef
     boost::tuples::cons<
-        typename boost::tuples::element<I, Tuple>::type,
-        typename push_back<Tuple, T, I+1, N>::type
+        typename element<I, Tuple>::type,
+        typename push_back_bt<Tuple, T, I+1, N>::type
     > type;
 
     static type apply(Tuple const& tup, T const& t)
     {
         return
         type(
-            boost::get<I>(tup),
-            push_back<Tuple, T, I+1, N>::apply(tup, t)
+            geometry::tuples::get<I>(tup),
+            push_back_bt<Tuple, T, I+1, N>::apply(tup, t)
         );
     }
 };
 
 template <typename Tuple, typename T, size_t N>
-struct push_back<Tuple, T, N, N>
+struct push_back_bt<Tuple, T, N, N>
 {
     typedef boost::tuples::cons<T, boost::tuples::null_type> type;
 
@@ -148,6 +291,103 @@ struct push_back<Tuple, T, N, N>
         return type(t, boost::tuples::null_type());
     }
 };
+
+template <typename Tuple, typename T>
+struct push_back
+    : push_back_bt<Tuple, T>
+{};
+
+template <typename F, typename S, typename T>
+struct push_back<std::pair<F, S>, T>
+{
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+    typedef std::tuple<F, S, T> type;
+#else
+    typedef boost::tuple<F, S, T> type;
+#endif // C++11
+
+    static type apply(std::pair<F, S> const& p, T const& t)
+    {
+        return type(p.first, p.second, t);
+    }
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+
+    static type apply(std::pair<F, S> && p, T const& t)
+    {
+        return type(std::move(p.first), std::move(p.second), t);
+    }
+
+    static type apply(std::pair<F, S> && p, T && t)
+    {
+        return type(std::move(p.first), std::move(p.second), std::move(t));
+    }
+
+#endif
+#endif
+
+};
+
+#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+
+// NOTE: In C++14 std::integer_sequence and std::make_integer_sequence could be used
+
+template <int... Is>
+struct int_sequence {};
+
+template <int N, int ...Is>
+struct make_int_sequence
+{
+    typedef typename make_int_sequence<N - 1, N - 1, Is...>::type type;
+};
+
+template <int ...Is>
+struct make_int_sequence<0, Is...>
+{
+    typedef int_sequence<Is...> type;
+};
+
+template <typename Is, typename Tuple, typename T>
+struct push_back_st;
+
+template <int ...Is, typename ...Ts, typename T>
+struct push_back_st<int_sequence<Is...>, std::tuple<Ts...>, T>
+{
+    typedef std::tuple<Ts..., T> type;
+
+    static type apply(std::tuple<Ts...> const& tup, T const& t)
+    {
+        return type(std::get<Is>(tup)..., t);
+    }
+
+#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+
+    static type apply(std::tuple<Ts...> && tup, T const& t)
+    {
+        return type(std::move(std::get<Is>(tup))..., t);
+    }
+
+    static type apply(std::tuple<Ts...> && tup, T && t)
+    {
+        return type(std::move(std::get<Is>(tup))..., std::move(t));
+    }
+
+#endif
+};
+
+template <typename ...Ts, typename T>
+struct push_back<std::tuple<Ts...>, T>
+    : push_back_st
+        <
+            typename make_int_sequence<sizeof...(Ts)>::type,
+            std::tuple<Ts...>,
+            T
+        >
+{};
+
+#endif // C++11
+
 
 }}} // namespace boost::geometry::tuples
 
