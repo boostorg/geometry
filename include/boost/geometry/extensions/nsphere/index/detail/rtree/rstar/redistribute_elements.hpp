@@ -2,7 +2,7 @@
 //
 // R-tree R*-tree split algorithm implementation
 //
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 //
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,11 +17,13 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace rstar {
 
-template <typename Element, typename Translator, size_t AxisIndex>
-class element_axis_corner_less<Element, Translator, nsphere_tag, min_corner, AxisIndex>
+template <typename Element, typename Parameters, typename Translator, size_t AxisIndex>
+class element_axis_corner_less<Element, Parameters, Translator, nsphere_tag, min_corner, AxisIndex>
 {
+    typedef typename index::detail::strategy_type<Parameters>::type strategy_type;
+
 public:
-    element_axis_corner_less(Translator const& tr)
+    element_axis_corner_less(Translator const& tr, strategy_type const&)
         : m_tr(tr)
     {}
 
@@ -39,11 +41,13 @@ private:
     Translator const& m_tr;
 };
 
-template <typename Element, typename Translator, size_t AxisIndex>
-class element_axis_corner_less<Element, Translator, nsphere_tag, max_corner, AxisIndex>
+template <typename Element, typename Parameters, typename Translator, size_t AxisIndex>
+class element_axis_corner_less<Element, Parameters, Translator, nsphere_tag, max_corner, AxisIndex>
 {
+    typedef typename index::detail::strategy_type<Parameters>::type strategy_type;
+
 public:
-    element_axis_corner_less(Translator const& tr)
+    element_axis_corner_less(Translator const& tr, strategy_type const&)
         : m_tr(tr)
     {}
 
