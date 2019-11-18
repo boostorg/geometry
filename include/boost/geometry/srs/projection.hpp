@@ -338,7 +338,7 @@ class proj_wrapper<srs::dynamic, CT>
     typedef typename projections::detail::promote_to_double<CT>::type calc_t;
 
     typedef projections::parameters<calc_t> parameters_type;
-    typedef projections::detail::base_v<calc_t, parameters_type> vprj_t;
+    typedef projections::detail::dynamic_wrapper_b<calc_t, parameters_type> vprj_t;
 
 public:
     template <typename Params>

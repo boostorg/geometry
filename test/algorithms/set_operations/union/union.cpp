@@ -34,6 +34,13 @@
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid "_rev", caseid[1], caseid[0], clips, holes, points, area)
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) \
+    && defined(BOOST_GEOMETRY_USE_KRAMER_RULE) \
+    && ! defined(BOOST_GEOMETRY_TEST_FAILURES)
+// These testcases are failing for non-rescaled Kramer rule
+#define BOOST_GEOMETRY_EXCLUDE
+#endif
+
 
 template <typename Ring, typename Polygon>
 void test_areal()
@@ -274,11 +281,15 @@ void test_areal()
     TEST_UNION(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_19, 1, 1, -1, 73.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION(case_precision_20, 1, 0, -1, 22.0);
 #endif
     TEST_UNION(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION(case_precision_22, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_23, 1, 1, -1, 73.0);
+    TEST_UNION(case_precision_24, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_25, 1, 0, -1, 22.0);
+    TEST_UNION(case_precision_26, 1, 1, -1, 73.0);
 
     TEST_UNION_REV(case_precision_1, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_2, 1, 0, -1, 22.0);
@@ -299,11 +310,15 @@ void test_areal()
     TEST_UNION_REV(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_19, 1, 1, -1, 73.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION_REV(case_precision_20, 1, 0, -1, 22.0);
 #endif
     TEST_UNION_REV(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_22, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_23, 1, 1, -1, 73.0);
+    TEST_UNION_REV(case_precision_24, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_25, 1, 0, -1, 22.0);
+    TEST_UNION_REV(case_precision_26, 1, 1, -1, 73.0);
 
     /*
     test_one<Polygon, Polygon, Polygon>(102,
@@ -354,7 +369,7 @@ void test_areal()
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110820_christophe",
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
@@ -436,7 +451,7 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("ticket_11725", ticket_11725[0], ticket_11725[1],
             1, 1, 10, 7.5);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // With rescaling an extra overlapping polygon is generated
     TEST_UNION(issue_548, 1, 0, -1, 617382720000);
 #endif
@@ -446,6 +461,7 @@ void test_areal()
     TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<ct, float>::value)) )
     {
         ut_settings ignore_validity;
         ignore_validity.test_validity = false;
@@ -471,7 +487,7 @@ void test_areal()
         test_one<Polygon, Polygon, Polygon>("buffer_rt_a_rev", buffer_rt_a[1], buffer_rt_a[0],
                     1, 0, -1, 19.28, settings);
     }
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 0, -1, 4.60853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f_rev", buffer_rt_f[1], buffer_rt_f[0],
@@ -481,7 +497,7 @@ void test_areal()
                 1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, -1, 16.571);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, -1, 13.6569);
 #endif
@@ -512,7 +528,7 @@ void test_areal()
                 1, 0, -1, 18.5710);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q_rev", buffer_rt_q[1], buffer_rt_q[0],
                 1, 0, -1, 18.5710);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r", buffer_rt_r[0], buffer_rt_r[1],
                 1, 0, -1, 21.07612);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_r_rev", buffer_rt_r[1], buffer_rt_r[0],
@@ -527,7 +543,7 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                1, BG_IF_RESCALED(1, 0), 217, 36.752837);
+                1, BG_IF_RESCALED(1, (if_typed<ct, float>(1, 0))), 217, 36.752837);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
@@ -610,7 +626,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
 

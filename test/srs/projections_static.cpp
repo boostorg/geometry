@@ -35,7 +35,11 @@ void test_forward(GeoPoint const& geo_point1, GeoPoint const& geo_point2,
     typedef typename bg::coordinate_type<GeoPoint>::type coordinate_type;
     typedef bg::model::d2::point_xy<coordinate_type> cartesian_point_type;
     typedef bg::projections::parameters<double> parameters_type;
-    typedef Projection<coordinate_type, parameters_type> projection_type;
+    typedef bg::projections::detail::static_wrapper_f
+        <
+            Projection<coordinate_type, parameters_type>,
+            parameters_type
+        > projection_type;
 
     try
     {

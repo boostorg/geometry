@@ -576,7 +576,6 @@ void test_one(std::string caseid, std::string const& wkt,
 template <typename P, bool Clockwise>
 void test_all(ut_settings const& settings_for_sensitive_cases)
 {
-    typedef bg::model::ring<P, Clockwise> ring;
     typedef bg::model::polygon<P, Clockwise> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
@@ -652,7 +651,9 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
                        settings_for_sensitive_cases);
 
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
+#endif
 
     TEST_DISSOLVE(gitter_2013_04_b, 31210.429356259738, 1, 0, 11);
 

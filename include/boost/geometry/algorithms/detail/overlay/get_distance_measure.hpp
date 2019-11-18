@@ -12,6 +12,8 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
+#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <cmath>
@@ -32,8 +34,8 @@ struct distance_measure
         : measure(T())
     {}
 
-    bool is_small() const { return true; }
-    bool is_zero() const { return true; }
+    bool is_small() const { return false; }
+    bool is_zero() const { return false; }
     bool is_positive() const { return false; }
     bool is_negative() const { return false; }
 };
@@ -100,26 +102,14 @@ struct get_distance_measure<CalculationType, cartesian_tag>
     static result_type apply(SegmentPoint const& p1, SegmentPoint const& p2,
                              Point const& p)
     {
-        typedef CalculationType ct;
+        // Get the distance measure / side value
+        // It is not a real distance and purpose is
+        // to detect small differences in collinearity
 
-        // Construct a line in general form (ax + by + c = 0),
-        // (will be replaced by a general_form structure in next PR)
-        ct const x1 = geometry::get<0>(p1);
-        ct const y1 = geometry::get<1>(p1);
-        ct const x2 = geometry::get<0>(p2);
-        ct const y2 = geometry::get<1>(p2);
-        ct const a = y1 - y2;
-        ct const b = x2 - x1;
-        ct const c = -a * x1 - b * y1;
-
-        // Returns a distance measure
-        // https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Line_defined_by_an_equation
-        // dividing by sqrt(a*a+b*b) is not necessary for this distance measure,
-        // it is not a real distance and purpose is to detect small differences
-        // in collinearity
+        typedef model::infinite_line<CalculationType> line_type;
+        line_type const line = detail::make::make_infinite_line<CalculationType>(p1, p2);
         result_type result;
-        result.measure = a * geometry::get<0>(p) + b * geometry::get<1>(p) + c;
-
+        result.measure = arithmetic::side_value(line, p);
         return result;
     }
 };

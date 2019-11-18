@@ -593,6 +593,36 @@ struct equal : public base_turn_handler
         int const side_pk_p = has_pk ? side.pk_wrt_p1() : 0;
         int const side_qk_p = has_qk ? side.qk_wrt_p1() : 0;
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+
+        if (has_pk && has_qk && side_pk_p == side_qk_p)
+        {
+            // They turn to the same side, or continue both collinearly
+            // Without rescaling, to check for union/intersection,
+            // try to check side values (without any thresholds)
+            typedef typename select_coordinate_type
+                    <
+                        typename UniqueSubRange1::point_type,
+                        typename UniqueSubRange2::point_type
+                        >::type coordinate_type;
+
+            typedef detail::distance_measure<coordinate_type> dm_type;
+
+            dm_type const dm_qk_p
+               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(1), range_q.at(2), range_p.at(2));
+            dm_type const dm_pk_q
+               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_p.at(1), range_p.at(2), range_q.at(2));
+
+            if (dm_pk_q.measure != dm_qk_p.measure)
+            {
+                // A (possibly very small) difference is detected, which
+                // can be used to distinguish between union/intersection
+                ui_else_iu(dm_pk_q.measure < dm_qk_p.measure, ti);
+                return;
+            }
+        }
+#endif
+
         // If pk is collinear with qj-qk, they continue collinearly.
         // This can be on either side of p1 (== q1), or collinear
         // The second condition checks if they do not continue
@@ -618,133 +648,6 @@ struct equal : public base_turn_handler
         }
     }
 };
-
-
-template
-<
-    typename TurnInfo
->
-struct start : public base_turn_handler
-{
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename IntersectionInfo,
-        typename DirInfo,
-        typename SideCalculator,
-        typename UmbrellaStrategy
-    >
-    static inline bool apply(UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q,
-                TurnInfo& ti,
-                IntersectionInfo const& info,
-                DirInfo const& dir_info,
-                SideCalculator const& side,
-                UmbrellaStrategy const& )
-    {
-        // For now disabled. TODO: remove all code or fix inconsistencies
-        // within validity and relations
-        return false;
-
-        if (dir_info.opposite)
-        {
-            // They should not be collinear
-            return false;
-        }
-
-        int const side_pj_q1 = side.pj_wrt_q1();
-        int const side_qj_p1 = side.qj_wrt_p1();
-
-        // Get side values at starting point
-        typedef detail::distance_measure
-            <
-                typename select_coordinate_type
-                    <
-                        typename UniqueSubRange1::point_type,
-                        typename UniqueSubRange2::point_type
-                    >::type
-            > dm_type;
-
-        typedef typename UmbrellaStrategy::cs_tag cs_tag;
-        dm_type const dm_pi_q1 = get_distance_measure<cs_tag>(range_q.at(0), range_q.at(1), range_p.at(0));
-        dm_type const dm_qi_p1 = get_distance_measure<cs_tag>(range_p.at(0), range_p.at(1), range_q.at(0));
-
-        if (dir_info.how_a == -1 && dir_info.how_b == -1)
-        {
-            // Both p and q leave
-            if (dm_pi_q1.is_zero() && dm_qi_p1.is_zero())
-            {
-                // Exactly collinear, not necessary to handle it
-                return false;
-            }
-
-            if (! (dm_pi_q1.is_small() && dm_qi_p1.is_small()))
-            {
-                // Not nearly collinear
-                return false;
-            }
-
-           if (side_qj_p1 == 0)
-            {
-                // Collinear is not handled
-                return false;
-            }
-
-            ui_else_iu(side_qj_p1 == -1, ti);
-        }
-        else if (dir_info.how_b == -1)
-        {
-            // p --------------->
-            //             |
-            //             | q         q leaves
-            //             v
-            //
-
-            if (dm_qi_p1.is_zero() || ! dm_qi_p1.is_small())
-            {
-                // Exactly collinear
-                return false;
-            }
-
-            if (side_qj_p1 == 0)
-            {
-                // Collinear is not handled
-                return false;
-            }
-
-            ui_else_iu(side_qj_p1 == -1, ti);
-        }
-        else if (dir_info.how_a == -1)
-        {
-            if (dm_pi_q1.is_zero() || ! dm_pi_q1.is_small())
-            {
-                // It starts exactly, not necessary to handle it
-                return false;
-            }
-
-            // p leaves
-            if (side_pj_q1 == 0)
-            {
-                // Collinear is not handled
-                return false;
-            }
-
-            ui_else_iu(side_pj_q1 == 1, ti);
-        }
-        else
-        {
-            // Not supported
-            return false;
-        }
-
-        // Copy intersection point
-        assign_point(ti, method_start, info, 0);
-        return true;
-    }
-
-};
-
 
 template
 <
@@ -1169,6 +1072,8 @@ struct get_turn_info
         switch(method)
         {
             case 'a' : // "angle"
+            case 'f' : // "from"
+            case 's' : // "start"
                 do_only_convert = true;
                 break;
 
@@ -1208,20 +1113,6 @@ struct get_turn_info
                 // Both touch (both arrive there)
                 touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
                 *out++ = tp;
-            }
-            break;
-            case 'f' :
-            case 's' :
-            {
-                // "from" or "start" without rescaling, it is in some cases necessary to handle
-                if (start<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy))
-                {
-                    *out++ = tp;
-                }
-                else
-                {
-                    do_only_convert = true;
-                }
             }
             break;
             case 'e':

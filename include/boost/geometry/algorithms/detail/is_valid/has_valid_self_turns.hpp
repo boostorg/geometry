@@ -63,7 +63,7 @@ public:
     typedef detail::overlay::turn_info
         <
             point_type,
-            typename geometry::segment_ratio_type
+            typename segment_ratio_type
                 <
                     point_type,
                     rescale_policy_type
@@ -87,11 +87,13 @@ public:
                 is_acceptable_turn<Geometry>
             > interrupt_policy;
 
+        // Calculate self-turns, skipping adjacent segments
         detail::self_get_turn_points::self_turns<false, turn_policy>(geometry,
                                           strategy,
                                           robust_policy,
                                           turns,
-                                          interrupt_policy);
+                                          interrupt_policy,
+                                          0, true);
 
         if (interrupt_policy.has_intersections)
         {

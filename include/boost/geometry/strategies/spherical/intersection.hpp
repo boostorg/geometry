@@ -252,43 +252,13 @@ struct ecef_segments
     // Relate segments a and b
     template
     <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename Policy
     >
     static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const& policy, RobustPolicy const& robust_policy)
-    {
-        typedef typename point_type<Segment1>::type point1_t;
-        typedef typename point_type<Segment2>::type point2_t;
-        point1_t a1, a2;
-        point2_t b1, b2;
-
-        // TODO: use indexed_point_view if possible?
-        detail::assign_point_from_index<0>(a, a1);
-        detail::assign_point_from_index<1>(a, a2);
-        detail::assign_point_from_index<0>(b, b1);
-        detail::assign_point_from_index<1>(b, b2);
-
-        return apply(a, b, policy, robust_policy, a1, a2, b1, b2);
-    }
-
-    // Relate segments a and b
-    template
-    <
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
-        typename RobustPolicy,
-        typename Point1,
-        typename Point2
-    >
-    static inline typename Policy::return_type
-        apply(Segment1 const& a, Segment2 const& b,
-              Policy const&, RobustPolicy const&,
-              Point1 const& a1, Point1 const& a2, Point2 const& b1, Point2 const& b2)
+        apply(UniqueSubRange1 const& range_p, UniqueSubRange2 const& range_q,
+              Policy const&)
     {
         // For now create it using default constructor. In the future it could
         //  be stored in strategy. However then apply() wouldn't be static and
@@ -296,8 +266,21 @@ struct ecef_segments
         // Initialize explicitly to prevent compiler errors in case of PoD type
         CalcPolicy const calc_policy = CalcPolicy();
 
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment1>) );
-        BOOST_CONCEPT_ASSERT( (concepts::ConstSegment<Segment2>) );
+        typedef typename UniqueSubRange1::point_type point1_type;
+        typedef typename UniqueSubRange2::point_type point2_type;
+
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point1_type>) );
+        BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
+
+        point1_type const& a1 = range_p.at(0);
+        point1_type const& a2 = range_p.at(1);
+        point2_type const& b1 = range_q.at(0);
+        point2_type const& b2 = range_q.at(1);
+
+        typedef model::referring_segment<point1_type const> segment1_type;
+        typedef model::referring_segment<point2_type const> segment2_type;
+        segment1_type const a(a1, a2);
+        segment2_type const b(b1, b2);
 
         // TODO: check only 2 first coordinates here?
         bool a_is_point = equals_point_point(a1, a2);
@@ -312,7 +295,7 @@ struct ecef_segments
         }
 
         typedef typename select_calculation_type
-            <Segment1, Segment2, CalculationType>::type calc_t;
+            <segment1_type, segment2_type, CalculationType>::type calc_t;
 
         calc_t const c0 = 0;
         calc_t const c1 = 1;
@@ -468,23 +451,19 @@ struct ecef_segments
             {
                 calc_t dist_a1_b1, dist_a1_b2;
                 calc_t dist_b1_a1, dist_b1_a2;
-                // use shorter segment
-                if (len1 <= len2)
-                {
-                    calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b1v, b2v, dist_a1_a2, dist_a1_b1);
-                    calculate_collinear_data(a1, a2, b2, b1, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
-                    dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
-                    dist_b1_a1 = -dist_a1_b1;
-                    dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
-                }
-                else
-                {
-                    calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a1v, a2v, dist_b1_b2, dist_b1_a1);
-                    calculate_collinear_data(b1, b2, a2, a1, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
-                    dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
-                    dist_a1_b1 = -dist_b1_a1;
-                    dist_a1_b2 = dist_b1_b2 - dist_b1_a1;
-                }
+                calculate_collinear_data(a1, a2, b1, b2, a1v, a2v, plane1, b1v, b2v, dist_a1_a2, dist_a1_b1);
+                calculate_collinear_data(a1, a2, b2, b1, a1v, a2v, plane1, b2v, b1v, dist_a1_a2, dist_a1_b2);
+                calculate_collinear_data(b1, b2, a1, a2, b1v, b2v, plane2, a1v, a2v, dist_b1_b2, dist_b1_a1);
+                calculate_collinear_data(b1, b2, a2, a1, b1v, b2v, plane2, a2v, a1v, dist_b1_b2, dist_b1_a2);
+                // NOTE: The following optimization causes problems with consitency
+                // It may either be caused by numerical issues or the way how distance is coded:
+                //   as cosine of angle scaled and translated, see: calculate_dist()
+                /*dist_b1_b2 = dist_a1_b2 - dist_a1_b1;
+                dist_b1_a1 = -dist_a1_b1;
+                dist_b1_a2 = dist_a1_a2 - dist_a1_b1;
+                dist_a1_a2 = dist_b1_a2 - dist_b1_a1;
+                dist_a1_b1 = -dist_b1_a1;
+                dist_a1_b2 = dist_b1_b2 - dist_b1_a1;*/
 
                 segment_ratio<calc_t> ra_from(dist_b1_a1, dist_b1_b2);
                 segment_ratio<calc_t> ra_to(dist_b1_a2, dist_b1_b2);
@@ -741,6 +720,7 @@ private:
         {
             if (is_near_b1 && sides.template get<1, 0>() == 0) // b1 wrt a
             {
+                calculate_dist(a1v, a2v, plane1, b1v, dist_a1_ip); // for consistency
                 dist_b1_ip = 0;
                 //i1 = b1v;
                 ip_flag = ipi_at_b1;
@@ -749,6 +729,7 @@ private:
 
             if (is_near_b2 && sides.template get<1, 1>() == 0) // b2 wrt a
             {
+                calculate_dist(a1v, a2v, plane1, b2v, dist_a1_ip); // for consistency
                 dist_b1_ip = dist_b1_b2;
                 //i1 = b2v;
                 ip_flag = ipi_at_b2;
@@ -761,6 +742,7 @@ private:
             if (is_near_a1 && sides.template get<0, 0>() == 0) // a1 wrt b
             {
                 dist_a1_ip = 0;
+                calculate_dist(b1v, b2v, plane2, a1v, dist_b1_ip); // for consistency
                 //i1 = a1v;
                 ip_flag = ipi_at_a1;
                 return true;
@@ -769,6 +751,7 @@ private:
             if (is_near_a2 && sides.template get<0, 1>() == 0) // a2 wrt b
             {
                 dist_a1_ip = dist_a1_a2;
+                calculate_dist(b1v, b2v, plane2, a2v, dist_b1_ip); // for consistency
                 //i1 = a2v;
                 ip_flag = ipi_at_a2;
                 return true;

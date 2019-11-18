@@ -9,7 +9,7 @@
 
 #include <cstddef>
 
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/test/included/test_exec_monitor.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>

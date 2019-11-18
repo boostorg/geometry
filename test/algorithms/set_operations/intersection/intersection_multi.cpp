@@ -137,13 +137,10 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
-        ut_settings ignore_validity;
-
         // Rescaling misses one intersection
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
             case_108_multi[0], case_108_multi[1],
-            7, -1, 7.5,
-            ignore_validity);
+            7, -1, 7.5);
     }
 #endif
 
@@ -326,7 +323,7 @@ void test_areal()
     TEST_INTERSECTION(case_recursive_boxes_82, 5, -1, 8.5);
     TEST_INTERSECTION(case_recursive_boxes_83, 5, -1, 10.25);
     TEST_INTERSECTION(case_recursive_boxes_84, 1, -1, 0.5);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_INTERSECTION(case_recursive_boxes_85, 1, -1, 0.25);
 #endif
     TEST_INTERSECTION(case_recursive_boxes_86, 0, -1, 0.0);
@@ -370,6 +367,16 @@ void test_areal()
     );
 
     TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Result is wrong with rescaling
+    TEST_INTERSECTION(issue_630_a, 1, -1, 0.1770);
+#endif
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Two cases produce either too large, or no output if Kramer rule is used
+    TEST_INTERSECTION(issue_630_b, 1, -1, 0.1714);
+    TEST_INTERSECTION(issue_630_c, 1, -1, 0.1770);
+#endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
         mysql_23023665_7[0], mysql_23023665_7[1],
@@ -486,7 +493,8 @@ void test_all()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

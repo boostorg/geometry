@@ -11,7 +11,6 @@
 // http://www.boost.org/users/license.html
 
 #include <iostream>
-#define BOOST_GEOMETRY_TEST_DEBUG
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_spherical_equatorial_pointlike_linear
@@ -278,6 +277,18 @@ void test_distance_point_linestring(Strategy const& strategy)
                   0.06146397739758279 * r,
                   0.000944156107132969,
                   strategy);
+
+    //https://github.com/boostorg/geometry/issues/557
+    tester::apply("p-l-issue557",
+                  "POINT(51.99999790563572 43.71656981636763)",
+                  "LINESTRING(52.0000243071011 43.716569742012496,\
+                              52.0000121532845 43.71656942616241,\
+                              52.0 43.7165690998572,\
+                              51.999987847203 43.7165687638793)",
+                  1.35062e-08 * r,
+                  4.5604e-17,
+                  strategy);
+
 }
 
 //===========================================================================

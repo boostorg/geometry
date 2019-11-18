@@ -15,7 +15,7 @@
 
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 

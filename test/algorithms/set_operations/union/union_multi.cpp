@@ -416,6 +416,16 @@ void test_areal()
 
     TEST_UNION(ticket_12503, 42, 1, -1, 945.625);
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Failure with rescaling
+    TEST_UNION(issue_630_a, 1, 0, -1, 2.200326);
+#endif
+    TEST_UNION(issue_630_b, 1, 0, -1, 1.675976);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Failure with Kramer rule
+    TEST_UNION(issue_630_c, 1, 0, -1, 1.670367);
+#endif
+
 #if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
     // Two polygons, should ideally be merged
     TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
@@ -463,7 +473,9 @@ void test_specific()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double>, true, true>();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type>, true, true>();
+
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<double>, false, false>();
 

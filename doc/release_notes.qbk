@@ -20,6 +20,50 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.72]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/500 500] Karney's solution of inverse geodesic problem for internal use (thanks to Adeel Ahmad).
+* [@https://github.com/boostorg/geometry/pull/561 561] New algorithm detail::calculate_point_order() for internal use.
+* [@https://github.com/boostorg/geometry/pull/584 584] Support for arbitrary dimensions in matrix_transformer (thanks to Tinko Bartels).
+* [@https://github.com/boostorg/geometry/pull/616 616] Various improvements of srs::transformation, incl. support for std threading primitives.
+* [@https://github.com/boostorg/geometry/pull/627 627] Improved genericity of relational operations.
+* Various improvements related to robustness of set and relational operation.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/557 557] Invalid result of distance between point and linestring in spherical-equatorial coordinate system.
+* [@https://github.com/boostorg/geometry/issues/612 612] Invalid result of set operations in geographic coordinate system.
+* [@https://github.com/boostorg/geometry/issues/619 619] Invalid result of set operations in spherical-equatorial coordinate system.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/479 479] Various fixes for set operations in spherical and geographic coordinate systems.
+* [@https://github.com/boostorg/geometry/pull/623 623] Potential integral overflow in set and relational operations.
+* [@https://github.com/boostorg/geometry/pull/632 632] Fixed errors in generation of asymmetric one-sided buffer.
+
+[/=================]
+[heading Boost 1.71]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/568 568] Add a constructor that takes matrix_type to matrix_transformer.
+* [@https://github.com/boostorg/geometry/pull/605 605] Improvement of handling of coordinate systems in various algorithms.
+* Various improvements related to robustness of set and relational operation.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/596 596] boost::geometry::buffer generates (multi)polygon with spike.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/595 595] Fix inaccuracy in geographic point-segment distance computation.
+* Fix various compiler warnings.
+
+[/=================]
 [heading Boost 1.70]
 [/=================]
 

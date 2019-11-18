@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -171,12 +171,28 @@ void test_all(expected_results const& results)
 #endif
 }
 
+void test_bugs()
+{
+    // https://github.com/boostorg/geometry/issues/612
+    {
+        double lon, lat;
+        bg::formula::sjoberg_intersection<double, bg::formula::andoyer_inverse, 1>
+            ::apply(-0.0872665, -0.0872665, -0.0872665, 0.0872665,
+                    0.0, 1.57e-07, -0.392699, 1.57e-07,
+                    lon, lat, bg::srs::spheroid<double>());
+        check_one("issue 612", lon, -0.087266500535674751);
+        check_one("issue 612", lat, 1.5892499139622920e-07);
+    }
+}
+
 int test_main(int, char*[])
 {
     for (size_t i = 0; i < expected_size; ++i)
     {
         test_all(expected[i]);
     }
+
+    test_bugs();
 
     return 0;
 }
