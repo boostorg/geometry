@@ -841,14 +841,15 @@ public:
         detail::assign_box_corners(box, bottom_left, bottom_right,
                                    top_left, top_right);
 
-        SBStrategy::mirror(p[0], p[1],
-                           bottom_left, bottom_right,
-                           top_left, top_right);
+        bool mirror = SBStrategy::mirror(p[0], p[1],
+                                         bottom_left, bottom_right,
+                                         top_left, top_right);
 
+        return_type result(0);
         typedef geometry::less<segment_point, -1, typename SBStrategy::cs_tag> less_type;
         if (less_type()(p[0], p[1]))
         {
-            return segment_to_box_2D
+            result = segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -860,7 +861,7 @@ public:
         }
         else
         {
-            return segment_to_box_2D
+            result = segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -870,6 +871,12 @@ public:
                          top_left, top_right, bottom_left, bottom_right,
                          sb_strategy);
         }
+        if (mirror)
+        {
+            dispatch::mirror<SBStrategy>::apply(result);
+            return result;
+        }
+        return result;
     }
 };
 

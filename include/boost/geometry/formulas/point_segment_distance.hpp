@@ -97,6 +97,12 @@ public :
             std::swap(lon1, lon2);
             std::swap(lat1, lat2);
         }
+
+        void mirror()
+        {
+            lat1 *= -1;
+            lat2 *= -1;
+        }
     };
 
 private :

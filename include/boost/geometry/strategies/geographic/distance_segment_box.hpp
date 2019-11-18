@@ -166,7 +166,7 @@ struct geographic_segment_box
     }
 
     template <typename SPoint, typename BPoint>
-    static void mirror(SPoint& p0,
+    static bool mirror(SPoint& p0,
                        SPoint& p1,
                        BPoint& bottom_left,
                        BPoint& bottom_right,
@@ -174,9 +174,9 @@ struct geographic_segment_box
                        BPoint& top_right)
     {
 
-       generic_segment_box::mirror(p0, p1,
-                                   bottom_left, bottom_right,
-                                   top_left, top_right);
+       return generic_segment_box::mirror(p0, p1,
+                                          bottom_left, bottom_right,
+                                          top_left, top_right);
     }
 
 private :

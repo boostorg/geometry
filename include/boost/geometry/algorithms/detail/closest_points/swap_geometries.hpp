@@ -26,6 +26,16 @@ struct swap
     }
 };
 
+template <typename StrategyType>
+struct mirror
+{
+    template <typename T>
+    static inline T apply(T& t)
+    {
+        return t;
+    }
+};
+
 }}}
 
 #include <boost/geometry/strategies/geographic/closest_points.hpp>
@@ -128,6 +138,26 @@ struct swap<strategy::closest_points::geographic_segment_box<
     static inline void apply(Result& res)
     {
         res.swap();
+    }
+};
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct mirror<strategy::closest_points::geographic_segment_box
+                                        <
+                                            FormulaPolicy,
+                                            Spheroid,
+                                            CalculationType>
+                                        >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.mirror();
     }
 };
 

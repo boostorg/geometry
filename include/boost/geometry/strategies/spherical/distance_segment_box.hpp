@@ -170,7 +170,7 @@ struct generic_segment_box
     }
 
     template <typename SPoint, typename BPoint>
-    static void mirror(SPoint& p0,
+    static bool mirror(SPoint& p0,
                        SPoint& p1,
                        BPoint& bottom_left,
                        BPoint& bottom_right,
@@ -188,7 +188,9 @@ struct generic_segment_box
             geometry::set<1>(top_left, geometry::get<1>(bl) * -1);
             geometry::set<1>(bottom_right, geometry::get<1>(top_right) * -1);
             geometry::set<1>(top_right, geometry::get<1>(br) * -1);
+            return true;
         }
+        return false;
     }
 };
 
