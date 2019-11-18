@@ -42,6 +42,31 @@
 #include <boost/geometry/formulas/result_inverse.hpp>
 
 
+namespace boost { namespace geometry { namespace math {
+
+// TODO: Moved temporarily because of C++11 is used
+
+/*!
+\brief The exact difference of two angles reduced to (-180deg, 180deg].
+*/
+template<typename T>
+inline T difference_angle(T const& x, T const& y, T& e)
+{
+    T t, d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
+
+    normalize_azimuth<degree, T>(d);
+
+    // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and
+    // abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
+    // addition of t takes the result outside the range (-180,180] is d = 180
+    // and t > 0.  The case, d = -180 + eps, t = -eps, can't happen, since
+    // sum_error would have returned the exact result in such a case (i.e., given t = 0).
+    return math::sum_error(d == 180 && t > 0 ? -180 : d, t, e);
+}
+
+}}} // namespace boost::geometry::math
+
+
 namespace boost { namespace geometry { namespace formula
 {
 
