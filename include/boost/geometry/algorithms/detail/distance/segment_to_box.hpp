@@ -379,24 +379,37 @@ private:
                     // segment & crosses band (TODO:merge with box-box dist)
                     if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
                     {
-                        SegmentPoint high = geometry::get<1>(p1) > geometry::get<1>(p0) ? p1 : p0;
-                        if (less_equal(geometry::get<1>(high), geometry::get<1>(top_right)))
+                        SegmentPoint high = geometry::get<1>(p1)
+                                            > geometry::get<1>(p0) ? p1 : p0;
+                        if (less_equal(geometry::get<1>(high),
+                                       geometry::get<1>(top_right)))
                         {
-                            return cast_to_result<ReturnType>::apply(ps_strategy.apply(high, bottom_right, top_right));
+                            return cast_to_result<ReturnType>::apply(ps_strategy
+                                         .apply(high, bottom_right, top_right));
                         }
-                        return cast_to_result<ReturnType>::apply(ps_strategy.apply(top_right, p0, p1));
+                        ReturnType res = cast_to_result<ReturnType>::apply
+                                         (ps_strategy.apply(top_right, p0, p1));
+                        dispatch::swap<SBStrategy>::apply(res);
+                        return res;
                     }
-                    return cast_to_result<ReturnType>::apply(ps_strategy.apply(p0, bottom_right, top_right));
+                    return cast_to_result<ReturnType>::apply
+                               (ps_strategy.apply(p0, bottom_right, top_right));
                 }
                 // distance is realized between the top-right
                 // corner of the box and the segment
-                return cast_to_result<ReturnType>::apply(ps_strategy.apply(top_right, p0, p1));
+                ReturnType res = cast_to_result<ReturnType>
+                                  ::apply(ps_strategy.apply(top_right, p0, p1));
+                dispatch::swap<SBStrategy>::apply(res);
+                return res;
             }
             else
             {
                 // distance is realized between the bottom-right
                 // corner of the box and the segment
-                return cast_to_result<ReturnType>::apply(ps_strategy.apply(bottom_right, p0, p1));
+               ReturnType res = cast_to_result<ReturnType>
+                               ::apply(ps_strategy.apply(bottom_right, p0, p1));
+               dispatch::swap<SBStrategy>::apply(res);
+               return res;
             }
         }
     };
@@ -445,9 +458,11 @@ private:
             // p0 is to the left of the box, but p1 is above the box
             // in this case the distance is realized between the
             // top-left corner of the box and the segment
-            return cast_to_result<ReturnType>
+            ReturnType res = cast_to_result<ReturnType>
                     ::apply(sb_strategy.get_distance_ps_strategy()
                     .apply(top_left, p0, p1));
+            dispatch::swap<SBStrategy>::apply(res);
+            return res;
         }
     };
 
@@ -570,12 +585,14 @@ private:
             {
                 result = cast_to_result<ReturnType>
                          ::apply(ps_strategy.apply(corner1, p0, p1));
+                dispatch::swap<SBStrategy>::apply(result);
                 return true;
             }
             if (side_strategy.apply(p0, p1, corner2) * sign > 0)
             {
                 result = cast_to_result<ReturnType>
                          ::apply(ps_strategy.apply(corner2, p0, p1));
+                dispatch::swap<SBStrategy>::apply(result);
                 return true;
             }
             return false;
@@ -843,7 +860,7 @@ public:
         }
         else
         {
-            return_type res = segment_to_box_2D
+            return segment_to_box_2D
                 <
                     return_type,
                     segment_point,
@@ -852,9 +869,6 @@ public:
                 >::apply(p[1], p[0],
                          top_left, top_right, bottom_left, bottom_right,
                          sb_strategy);
-
-            dispatch::swap<SBStrategy>::apply(res);
-            return res;
         }
     }
 };

@@ -148,7 +148,10 @@ struct generic_segment_box
                        geometry::get_as_radian<0>(p_max)))
         {
             result = boost::numeric_cast<ReturnType>(typename
-                        SegmentBoxStrategy::distance_ps_strategy::type().apply(bottom_left, p0, p1));
+                        SegmentBoxStrategy::distance_ps_strategy::type()
+                                            .apply(bottom_left, p0, p1));
+
+            dispatch::swap<SegmentBoxStrategy>::apply(result);
         }
         else
         {

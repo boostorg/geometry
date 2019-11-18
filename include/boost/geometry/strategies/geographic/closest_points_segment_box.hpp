@@ -359,7 +359,7 @@ private :
 public :
     template <typename T>
     static inline return_type
-    apply(closest_points::geographic_segment_box<FormulaPolicy> const& strategy,
+    apply(closest_points::geographic_segment_box<FormulaPolicy> const&,
           T const& distance)
     {
         return distance;
