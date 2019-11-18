@@ -117,13 +117,15 @@ struct cartesian_segment_box
     }
 
     template <typename SPoint, typename BPoint>
-    static void mirror(SPoint&,
+    static bool mirror(SPoint&,
                        SPoint&,
                        BPoint&,
                        BPoint&,
                        BPoint&,
                        BPoint&)
-    {}
+    {
+        return false;
+    }
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
