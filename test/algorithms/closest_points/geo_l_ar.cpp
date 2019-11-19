@@ -332,6 +332,28 @@ void test_closest_points_linestring_multi_polygon(Strategy const& strategy)
 //===========================================================================
 
 template <typename Point, typename Strategy>
+void test_closest_points_linestring_box(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "linestring/box closest_points tests" << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::box<Point> Box;
+    typedef test_geometry<Linestring, Box, Segment> tester;
+
+    tester::apply("LINESTRING(2 0,0 2,0 0,-1 -1)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(0.983761 1.0167,10 10)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
 void test_closest_points_multi_linestring_polygon_or_ring(Strategy
                                                           const& strategy)
 {
@@ -396,6 +418,31 @@ void test_closest_points_multi_linestring_multi_polygon(Strategy const& strategy
 }
 
 //===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_multi_linestring_box(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "multi-linestring/polygon or ring closest_points tests"
+              << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::linestring<Point> Linestring;
+    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
+    typedef bg::model::box<Point> Box;
+
+    typedef test_geometry<MultiLinestring, Box, Segment> tester;
+
+    tester::apply("MULTILINESTRING((2 0,0 2,0 0,-1 -1)(-1 0,-1 2,0 5))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(0 5,10 10)",
+                  strategy);
+}
+
+//===========================================================================
 //===========================================================================
 //===========================================================================
 
@@ -408,11 +455,11 @@ void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
 
     test_closest_points_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_linestring_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_linestring_box<Point>(cp_strategy);
+    test_closest_points_linestring_box<Point>(sb_strategy);
 
     test_closest_points_multi_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_multi_linestring_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_multi_linestring_box<Point>(cp_strategy);
+    test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
     //test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }
