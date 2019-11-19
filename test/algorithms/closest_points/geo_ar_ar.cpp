@@ -21,7 +21,7 @@ namespace bg = boost::geometry;
 //===========================================================================
 
 template <typename Point, typename Strategy>
-void test_closest_points_polygon_or_ring(Strategy const& strategy)
+void test_closest_points_polygon_or_ring_polygon_or_ring(Strategy const& strategy)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -122,6 +122,64 @@ void test_closest_points_multi_polygon_multi_polygon(Strategy const& strategy)
 //===========================================================================
 
 template <typename Point, typename Strategy>
+void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "box / polygon or ring closest_points tests"
+              << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::ring<Point> Ring;
+    typedef bg::model::polygon<Point> Polygon;
+    typedef bg::model::box<Point> Box;
+
+    typedef test_geometry<Box, Ring, Segment> tester;
+
+    tester::apply("BOX(10 10,20 20)",
+                  "POLYGON((0 0,2 0,0 2,0 0))",
+                  "SEGMENT(10 10,0.983761 1.0167)",
+                  strategy);
+
+    typedef test_geometry<Box, Polygon, Segment> tester2;
+
+    tester2::apply("BOX(10 10,20 20)",
+                  "POLYGON((0 0,2 0,0 2,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                  "SEGMENT(10 10,0.983761 1.0167)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
+void test_closest_points_box_multi_polygon(Strategy const& strategy)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl;
+    std::cout << "box / multi-polygon closest_points tests"
+              << std::endl;
+#endif
+
+    typedef bg::model::segment<Point> Segment;
+    typedef bg::model::polygon<Point> Polygon;
+    typedef bg::model::multi_polygon<Polygon> MultiPolygon;
+    typedef bg::model::box<Point> Box;
+
+    typedef test_geometry<Box, MultiPolygon, Segment> tester;
+
+    tester::apply("BOX(10 10,20 20)",
+                  "MULTIPOLYGON(((0 0,2 0,0 2,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(10 10,0.983761 1.0167)",
+                  strategy);
+}
+
+//===========================================================================
+
+template <typename Point, typename Strategy>
 void test_closest_points_box_box(Strategy const& strategy)
 {
 
@@ -176,13 +234,23 @@ void test_closest_points_box_box(Strategy const& strategy)
 //===========================================================================
 //===========================================================================
 
-template <typename Point, typename PSStrategy, typename BBStrategy>
-void test_all_ar_ar(PSStrategy cp_strategy, BBStrategy bb_strategy)
+template
+<
+        typename Point,
+        typename PSStrategy,
+        typename BBStrategy,
+        typename SBStrategy
+>
+void test_all_ar_ar(PSStrategy cp_strategy,
+                    BBStrategy bb_strategy,
+                    SBStrategy sb_strategy)
 {
-    test_closest_points_polygon_or_ring<Point>(cp_strategy);
+    test_closest_points_polygon_or_ring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_polygon_multi_polygon<Point>(cp_strategy);
     test_closest_points_multi_polygon_multi_polygon<Point>(cp_strategy);
 
+    test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
+    test_closest_points_box_multi_polygon<Point>(sb_strategy);
     test_closest_points_box_box<Point>(bb_strategy);
 
     //test_more_empty_input_areal_areal<Point>(cp_strategy);
@@ -196,8 +264,8 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_ar_ar<geo_point>(andoyer_cp(), andoyer_bb());
-    test_all_ar_ar<geo_point>(thomas_cp(), thomas_bb());
-    test_all_ar_ar<geo_point>(vincenty_cp(), vincenty_bb());
+    test_all_ar_ar<geo_point>(andoyer_cp(), andoyer_bb(), andoyer_sb());
+    test_all_ar_ar<geo_point>(thomas_cp(), thomas_bb(), thomas_sb());
+    test_all_ar_ar<geo_point>(vincenty_cp(), vincenty_bb(), vincenty_sb());
 }
 
