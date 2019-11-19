@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 #include "test_closest_points_common.hpp"
+#include "test_empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 

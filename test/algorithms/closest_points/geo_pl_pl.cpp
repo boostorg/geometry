@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 #include "test_closest_points_common.hpp"
+#include "test_empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -93,7 +94,7 @@ void test_all_pl_pl(Strategy pp_strategy)
     test_closest_points_point_multi_point<Point>(pp_strategy);
     test_closest_points_multi_point_multi_point<Point>(pp_strategy);
 
-    //test_more_empty_input_pointlike_pointlike<Point>(cp_strategy);
+    test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )

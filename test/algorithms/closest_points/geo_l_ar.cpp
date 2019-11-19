@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_TEST_DEBUG
 
 #include "test_closest_points_common.hpp"
+#include "test_empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -461,7 +462,7 @@ void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
     test_closest_points_multi_linestring_multi_polygon<Point>(cp_strategy);
     test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
-    //test_more_empty_input_pointlike_areal<Point>(cp_strategy);
+    test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )
