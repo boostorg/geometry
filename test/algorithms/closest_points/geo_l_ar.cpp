@@ -222,71 +222,51 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(10 -10,10 10)",
                   strategy);
-/*
-
-    //Segment and box on different hemispheres
-    std::string const box_south = "BOX(10 -20,20 -10)";
-
-    tester::apply("test_ns1", "SEGMENT(10 20, 15 30)", box_south,
-                  ps_distance<Point>("POINT(10 -10)", "SEGMENT(10 20, 15 30)", strategy_ps),
-                  strategy_sb);
-    tester::apply("test_ns2", "SEGMENT(0 10, 12 10)", box_south,
-                  pp_distance<Point>("POINT(12 10)", "POINT(12 -10)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_ns3", "SEGMENT(10 10, 20 10)", box_south,
-                  pp_distance<Point>("POINT(10 10)", "POINT(10 -10)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_ns4", "SEGMENT(0 -10, 12 -10)", box_north,
-                  pp_distance<Point>("POINT(12 10)", "POINT(12 -10)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_ns5", "SEGMENT(10 -10, 20 -10)", box_north,
-                  pp_distance<Point>("POINT(10 -10)", "POINT(10 10)", strategy_pp),
-                  strategy_sb);
-
     //Box crossing equator
-    std::string const box_crossing_eq = "BOX(10 -10,20 10)";
-
-    tester::apply("test_cr1", "SEGMENT(10 20, 15 30)", box_crossing_eq,
-                  pp_distance<Point>("POINT(10 10)", "POINT(10 20)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_cr2", "SEGMENT(10 -20, 15 -30)", box_crossing_eq,
-                  pp_distance<Point>("POINT(10 10)", "POINT(10 20)", strategy_pp),
-                  strategy_sb);
+    tester::apply("SEGMENT(10 20, 15 30)",
+                  "BOX(10 -10,20 10)",
+                  "SEGMENT(10 20,10 10)",
+                  strategy);
+    tester::apply("SEGMENT(10 -20, 15 -30)",
+                  "BOX(10 -10,20 10)",
+                  "SEGMENT(10 -20,10 -10)",
+                  strategy);
 
     //Box crossing prime meridian
-
-    std::string const box_crossing_mer = "BOX(-10 10,15 20)";
-
-    tester::apply("test_cr3", "SEGMENT(-5 25, 10 30)", box_crossing_mer,
-                  pp_distance<Point>("POINT(-5 25)", "POINT(-5 20)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_cr4", "SEGMENT(-5 5, 10 7)", box_crossing_mer,
-                  pp_distance<Point>("POINT(10 7)", "POINT(10 10)", strategy_pp),
-                  strategy_sb);
-    tester::apply("test_cr5", "SEGMENT(-5 5, 10 5)", box_crossing_mer,
-                  ps_distance<Point>("POINT(2.5 10)", "SEGMENT(-5 5, 10 5)", strategy_ps),
-                  strategy_sb);
-
-
+    tester::apply("SEGMENT(-5 25, 10 30)",
+                  "BOX(-10 10,15 20)",
+                  "SEGMENT(-5 25,-5 20)",
+                  strategy);
+    tester::apply("SEGMENT(-5 5, 10 7)",
+                  "BOX(-10 10,15 20)",
+                  "SEGMENT(10 7,10 10)",
+                  strategy);
+    tester::apply("SEGMENT(-5 5, 10 5)",
+                  "BOX(-10 10,15 20)",
+                  "SEGMENT(10 5.04321,10 10)",
+                  strategy);
     //Geometries in south hemisphere
-    tester::apply("test_south1", "SEGMENT(10 -30, 15 -30)", box_south,
-                  ps_distance<Point>("POINT(10 -20)", "SEGMENT(10 -30, 15 -30)", strategy_ps),
-                  strategy_sb);
-
+    tester::apply("SEGMENT(10 -30, 15 -30)",
+                  "BOX(10 -20,20 -10)",
+                  "SEGMENT(10 -30,10 -20)",
+                  strategy);
     //Segments in boxes corner
-    tester::apply("corner1", "SEGMENT(17 21, 25 20)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(17 21, 25 20)", strategy_ps),
-                  strategy_sb);
-    tester::apply("corner2", "SEGMENT(17 21, 0 20)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(17 21, 0 20)", strategy_ps),
-                  strategy_sb);
-    tester::apply("corner3", "SEGMENT(17 5, 0 10)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(17 5, 0 10)", strategy_ps),
-                  strategy_sb);
-    tester::apply("corner4", "SEGMENT(17 5, 25 9)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(17 5, 25 9)", strategy_ps),
-                  strategy_sb);
-                  */
+    tester::apply("SEGMENT(17 21, 25 20)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(20.0886 20.6593,20 20)",
+                  strategy);
+    tester::apply("SEGMENT(17 21, 0 20)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(9.9552 20.7908,10 20)",
+                  strategy);
+    tester::apply("SEGMENT(17 5, 0 10)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(9.21495 7.38567,10 10)",
+                  strategy);
+    tester::apply("SEGMENT(17 5, 25 9)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(21.3999 7.22557,20 10)",
+                  strategy);
 }
 
 //===========================================================================
