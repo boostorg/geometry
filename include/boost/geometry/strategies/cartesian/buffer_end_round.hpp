@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 
+#include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -116,6 +118,7 @@ public :
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
+        boost::ignore_unused(perp_left_point);
         typedef typename coordinate_type<Point>::type coordinate_type;
 
         typedef typename geometry::select_most_precise
