@@ -12,6 +12,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
+#include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
@@ -43,7 +44,7 @@ template
 struct geographic_segment_box
 {
     template <typename PointOfSegment, typename PointOfBox>
-    struct return_type
+    struct calculation_type
         : promote_floating_point
           <
               typename select_calculation_type
@@ -126,15 +127,13 @@ struct geographic_segment_box
     {}
 
     template <typename SegmentPoint, typename BoxPoint>
-    struct point_segment_distance_closest_point
-        : boost::geometry::formula::point_segment_distance
-            <
-                typename return_type<SegmentPoint, BoxPoint>::type,
-                true,
-                FormulaPolicy,
-                false
-            >
-    {};
+    struct closest_point_result
+    {
+        typedef geometry::detail::closest_points::result
+        <
+            typename calculation_type<SegmentPoint, BoxPoint>::type
+        > type;
+    };
 
     // methods
 
@@ -145,11 +144,7 @@ struct geographic_segment_box
         typename SegmentPoint,
         typename BoxPoint
     >
-    inline typename point_segment_distance_closest_point
-                    <
-                        SegmentPoint,
-                        BoxPoint
-                    >::result_type
+    inline typename closest_point_result<SegmentPoint, BoxPoint>::type
     segment_below_of_box(SegmentPoint const& p0,
                          SegmentPoint const& p1,
                          BoxPoint const& top_left,
@@ -270,11 +265,9 @@ struct tag<closest_points::geographic_segment_box<FormulaPolicy, Spheroid, Calcu
 
 template <typename FormulaPolicy, typename PS, typename PB>
 struct return_type<closest_points::geographic_segment_box<FormulaPolicy>, PS, PB>
-{
-    typedef typename closest_points::geographic_segment_box<FormulaPolicy>
-                          ::template point_segment_distance_closest_point<PS, PB>
-                          ::result_type type;
-};
+    :   closest_points::geographic_segment_box<FormulaPolicy>
+        ::template closest_point_result<PS,PB>
+{};
 
 template
 <
@@ -284,11 +277,10 @@ template
         typename PB
 >
 struct return_type<closest_points::geographic_segment_box<FormulaPolicy, Spheroid>, PS, PB>
-{
-    typedef typename closest_points::geographic_segment_box<FormulaPolicy, Spheroid>
-                          ::template point_segment_distance_closest_point<PS, PB>
-                          ::result_type type;
-};
+        :   closest_points::geographic_segment_box<FormulaPolicy, Spheroid>
+            ::template closest_point_result<PS,PB>
+{};
+
 
 template
 <
@@ -299,11 +291,10 @@ template
         typename PB
 >
 struct return_type<closest_points::geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>, PS, PB>
-{
-    typedef typename closest_points::geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>
-                          ::template point_segment_distance_closest_point<PS, PB>
-                          ::result_type type;
-};
+        :   closest_points::geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>
+            ::template closest_point_result<PS,PB>
+{};
+
 
 //comparable types
 
@@ -355,10 +346,10 @@ private :
     typedef typename closest_points::geographic_segment_box
         <
             FormulaPolicy
-        >::template point_segment_distance_closest_point<PS, PB>::result_type return_type;
+        >::template closest_point_result<PS, PB>::type closest_point_result;
 public :
     template <typename T>
-    static inline return_type
+    static inline closest_point_result
     apply(closest_points::geographic_segment_box<FormulaPolicy> const&,
           T const& distance)
     {

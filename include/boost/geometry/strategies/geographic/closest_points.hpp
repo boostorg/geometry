@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_CLOSEST_POINTS_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_CLOSEST_POINTS_HPP
 
+#include <boost/geometry/algorithms/detail/closest_points/result.hpp>
+
 #include <boost/geometry/strategies/closest_points.hpp>
 #include <boost/geometry/formulas/point_segment_distance.hpp>
 
@@ -44,28 +46,13 @@ public :
     {};
 
     template <typename Point, typename PointOfSegment>
-    struct return_type
-        : promote_floating_point
-          <
-              typename select_calculation_type
-                  <
-                      Point,
-                      PointOfSegment,
-                      CalculationType
-                  >::type
-          >
-    {};
-
-    template <typename Point, typename PointOfSegment>
-    struct point_segment_distance_closest_point
-        : formula::point_segment_distance
-            <
-                typename return_type<Point, PointOfSegment>::type,
-                true,
-                FormulaPolicy,
-                false
-            >
-    {};
+    struct closest_point_result
+    {
+        typedef geometry::detail::closest_points::result
+                <
+                    typename calculation_type<Point, PointOfSegment>::type
+                > type;
+    };
 
     inline geographic()
         : m_spheroid()
@@ -81,14 +68,13 @@ public :
     }
 
     template <typename Point1, typename Point2>
-    typename point_segment_distance_closest_point<Point1, Point2>::result_type
+    typename closest_point_result<Point1, Point2>::type
     apply(Point1 const& p1,
           Point2 const& p2) const
     {
         typedef typename calculation_type<Point1, Point2>::type CT;
 
-        typename formula::point_segment_distance<CT, true, FormulaPolicy, false>
-                        ::result_type result;
+        typename closest_point_result<Point1, Point2>::type result;
 
         result.lon1 = get_as_radian<0>(p1);
         result.lat1 = get_as_radian<1>(p1);
@@ -163,17 +149,16 @@ struct tag<closest_points::geographic<FormulaPolicy,
 //return types
 template <typename FormulaPolicy, typename P, typename PS>
 struct return_type<closest_points::geographic<FormulaPolicy>, P, PS>
-{
-    typedef typename closest_points::geographic<FormulaPolicy>
-                          ::template point_segment_distance_closest_point<P, PS>
-                          ::result_type type;
-};
+        : closest_points::geographic<FormulaPolicy>
+                   ::template closest_point_result<P, PS>
+{};
+
 /*
 template <typename FormulaPolicy, typename P, typename PS>
 struct return_type<closest_points::comparable::geographic<FormulaPolicy>, P, PS>
 {
     typedef typename closest_points::geographic_cross_track<FormulaPolicy>
-                          ::template point_segment_distance_closest_point<P, PS>
+                          ::template closest_point_result<P, PS>
                           ::result_type type;
 };
 
@@ -188,7 +173,7 @@ struct return_type<closest_points::comparable::geographic_cross_track<FormulaPol
                                                              Spheroid>, P, PS>
 {
     typedef typename closest_points::geographic_cross_track<FormulaPolicy, Spheroid>
-                     ::template point_segment_distance_closest_point<P, PS>
+                     ::template closest_point_result<P, PS>
                      ::result_type type;
 };
 
@@ -209,7 +194,7 @@ struct return_type<closest_points::comparable::geographic_cross_track
 {
     typedef typename closest_points::geographic_cross_track
                      <FormulaPolicy, Spheroid, CalculationType>
-                    ::template point_segment_distance_closest_point<P, PS>
+                    ::template closest_point_result<P, PS>
                     ::result_type type;
 };
 */

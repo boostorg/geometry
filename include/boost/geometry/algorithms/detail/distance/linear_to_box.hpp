@@ -61,7 +61,7 @@ struct linear_to_box
     {
         if ( geometry::intersects(linear, box) )
         {
-            return 0;
+            return return_type(0);
         }
 
         return apply(box,

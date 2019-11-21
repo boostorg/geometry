@@ -22,6 +22,8 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/closest_points/result.hpp>
+
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
@@ -56,7 +58,7 @@ public:
     };
 
     template <typename Point, typename Box>
-    struct return_type
+    struct calculation_type
         : promote_floating_point
           <
               typename select_calculation_type
@@ -70,32 +72,30 @@ public:
 
     //constructor
 
-    explicit geographic_cross_track_point_box(Spheroid const& spheroid = Spheroid())
+    explicit geographic_cross_track_point_box(Spheroid const&
+                                              spheroid = Spheroid())
              : m_spheroid(spheroid)
     {}
 
     template <typename Point, typename Box>
-    struct point_segment_distance_closest_point
-        : formula::point_segment_distance
-            <
-                typename return_type<Point, Box>::type,
-                true,
-                FormulaPolicy,
-                false
-            >
-    {};
+    struct closest_point_result
+    {
+        typedef geometry::detail::closest_points::result
+        <
+            typename calculation_type<Point, Box>::type
+        > type;
+    };
 
     template <typename Point, typename Box>
-    typename point_segment_distance_closest_point<Point, Box>::result_type
+    typename closest_point_result<Point, Box>::type
     apply(Point const& point, Box const& box) const
     {
-        typedef typename point_segment_distance_closest_point<Point, Box>::result_type return_type;
-
-        return //typename point_segment_distance_closest_point<Point, Box>::result_type();
-                distance::details::cross_track_point_box_generic
-                <return_type>::apply(point, box,
-                                     typename closest_points_ps_strategy
-                                                ::type(m_spheroid));
+        return distance::details::cross_track_point_box_generic
+               <
+                    typename closest_point_result<Point, Box>::type
+               >::apply(point,
+                        box,
+                        typename closest_points_ps_strategy::type(m_spheroid));
     }
 
 private :
@@ -141,82 +141,187 @@ struct tag<closest_points::geographic_cross_track_point_box<FormulaPolicy> >
 };
 
 template <typename FormulaPolicy, typename Spheroid>
-struct tag<closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid> >
+struct tag
+        <
+             closest_points::geographic_cross_track_point_box
+             <
+                 FormulaPolicy,
+                 Spheroid
+             >
+        >
 {
     typedef strategy_tag_distance_point_box type;
 };
 
 template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
-struct tag<closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid, CalculationType> >
+struct tag
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >
+       >
 {
     typedef strategy_tag_distance_point_box type;
 };
 
 //return types
-template <typename FormulaPolicy, typename Spheroid, typename CalculationType, typename P, typename Box>
-struct return_type<closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid, CalculationType>, P, Box>
-{
-    typedef typename closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid, CalculationType>
-                          ::template point_segment_distance_closest_point<P, Box>
-                          ::result_type type;
-};
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType,
+    typename P,
+    typename Box
+>
+struct return_type
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >,
+            P,
+            Box
+       >
+        : closest_points::geographic_cross_track_point_box
+          <
+              FormulaPolicy,
+              Spheroid,
+              CalculationType
+          >::template closest_point_result<P, Box>
+{};
 
-template <typename FormulaPolicy, typename Spheroid, typename P, typename Box>
-struct return_type<closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid>, P, Box>
-{
-    typedef typename closest_points::geographic_cross_track_point_box<FormulaPolicy, Spheroid>
-                          ::template point_segment_distance_closest_point<P, Box>
-                          ::result_type type;
-};
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename P,
+    typename Box
+>
+struct return_type
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                FormulaPolicy,
+                Spheroid
+            >,
+            P,
+            Box
+       >
+        : closest_points::geographic_cross_track_point_box
+          <
+              FormulaPolicy,
+              Spheroid
+          >::template closest_point_result<P, Box>
+{};
 
-template <typename FormulaPolicy, typename P, typename Box>
-struct return_type<closest_points::geographic_cross_track_point_box<FormulaPolicy>, P, Box>
-{
-    typedef typename closest_points::geographic_cross_track_point_box<FormulaPolicy>
-                          ::template point_segment_distance_closest_point<P, Box>
-                          ::result_type type;
-};
-
+template
+<
+    typename FormulaPolicy,
+    typename P,
+    typename Box
+>
+struct return_type
+       <
+            closest_points::geographic_cross_track_point_box<FormulaPolicy>,
+            P,
+            Box
+       >
+        : closest_points::geographic_cross_track_point_box
+          <
+              FormulaPolicy
+          >::template closest_point_result<P, Box>
+{};
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
-struct comparable_type<closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
+struct comparable_type
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                Strategy,
+                Spheroid,
+                CalculationType
+            >
+       >
 {
     typedef closest_points::geographic_cross_track_point_box
-        <
-            Strategy, Spheroid, CalculationType
-        > type;
+            <
+                Strategy, Spheroid, CalculationType
+            > type;
 };
 
 
 template <typename Strategy, typename Spheroid, typename CalculationType>
-struct get_comparable<closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> >
+struct get_comparable
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                Strategy,
+                Spheroid,
+                CalculationType
+            >
+       >
 {
 public:
-    static inline closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>
-    apply(closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> const& str)
+    static inline closest_points::geographic_cross_track_point_box
+                  <
+                    Strategy,
+                    Spheroid,
+                    CalculationType
+                  >
+    apply(closest_points::geographic_cross_track_point_box
+          <
+            Strategy,
+            Spheroid,
+            CalculationType
+          > const& str)
     {
         return str;
     }
 };
 
 
-template <typename Strategy, typename Spheroid, typename CalculationType, typename P, typename Box>
+template
+<
+    typename Strategy,
+    typename Spheroid,
+    typename CalculationType,
+    typename P,
+    typename Box
+>
 struct result_from_distance
-    <
-        closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType>, P, Box
-    >
+       <
+            closest_points::geographic_cross_track_point_box
+            <
+                Strategy,
+                Spheroid,
+                CalculationType
+            >,
+            P,
+            Box
+        >
 {
 private:
-    typedef closest_points::geographic_cross_track_point_box<Strategy, Spheroid, CalculationType> this_strategy;
+    typedef closest_points::geographic_cross_track_point_box
+            <
+                Strategy,
+                Spheroid,
+                CalculationType
+            > this_strategy;
 
-    typedef typename this_strategy::template return_type
-        <
-            P, Box
-        >::type return_type;
+    typedef typename this_strategy::template calculation_type
+                     <
+                        P,
+                        Box
+                     >::type calculation_type;
 
 public:
     template <typename T>
-    static inline return_type apply(this_strategy const& strategy,
+    static inline calculation_type apply(this_strategy const& strategy,
                                     T const& distance)
     {
         result_from_distance

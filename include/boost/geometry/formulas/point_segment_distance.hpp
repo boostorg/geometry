@@ -58,20 +58,20 @@ public :
             , lat2(0)
         {}
 
-        result_type(CT init)
-            : distance(init)
-            , lon1(0)
-            , lat1(0)
-            , lon2(0)
-            , lat2(0)
-        {}
+        //result_type(CT init)
+        //    : distance(init)
+        //    , lon1(0)
+        //    , lat1(0)
+        //    , lon2(0)
+        //    , lat2(0)
+        //{}
 
         CT distance;
         CT lon1;
         CT lat1;
         CT lon2;
         CT lat2;
-
+/*
         template <typename T>
         void operator=(T const& res)
         {
@@ -103,6 +103,7 @@ public :
             lat1 *= -1;
             lat2 *= -1;
         }
+*/
     };
 
 private :
