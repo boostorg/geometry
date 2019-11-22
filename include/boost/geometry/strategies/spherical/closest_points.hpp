@@ -86,7 +86,7 @@ struct default_strategy
         spherical_equatorial_tag, spherical_equatorial_tag
     >
 {
-    typedef geographic<> type;
+    typedef spherical<> type;
 };
 
 } // namespace services

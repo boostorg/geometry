@@ -244,9 +244,9 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_pl_ar<geo_point>(andoyer_cp(), andoyer_pb());
-    test_all_pl_ar<geo_point>(thomas_cp(), thomas_pb());
-    test_all_pl_ar<geo_point>(vincenty_cp(), vincenty_pb());
+    test_all_pl_ar<geo_point>(andoyer_ps(), andoyer_pb());
+    test_all_pl_ar<geo_point>(thomas_ps(), thomas_pb());
+    test_all_pl_ar<geo_point>(vincenty_ps(), vincenty_pb());
 }
 
 

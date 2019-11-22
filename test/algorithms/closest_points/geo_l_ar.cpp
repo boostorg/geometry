@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE( test_all_linear_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_l_ar<geo_point>(andoyer_cp(), andoyer_sb());
-    test_all_l_ar<geo_point>(thomas_cp(), thomas_sb());
-    test_all_l_ar<geo_point>(vincenty_cp(), vincenty_sb());
+    test_all_l_ar<geo_point>(andoyer_ps(), andoyer_sb());
+    test_all_l_ar<geo_point>(thomas_ps(), thomas_sb());
+    test_all_l_ar<geo_point>(vincenty_ps(), vincenty_sb());
 }
