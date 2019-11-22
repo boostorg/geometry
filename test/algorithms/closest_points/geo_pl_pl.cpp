@@ -91,14 +91,23 @@ template <typename Point, typename Strategy>
 void test_all_pl_pl(Strategy pp_strategy)
 {
     test_closest_points_point_point<Point>(pp_strategy);
-    test_closest_points_point_multi_point<Point>(pp_strategy);
-    test_closest_points_multi_point_multi_point<Point>(pp_strategy);
+    //test_closest_points_point_multi_point<Point>(pp_strategy);
+    //test_closest_points_multi_point_multi_point<Point>(pp_strategy);
 
-    test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
+    //test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
 {
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
+    test_all_pl_pl<sph_point>(spherical_pp());
+
+
     typedef bg::model::point
             <
                 double, 2,

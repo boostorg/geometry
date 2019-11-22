@@ -23,6 +23,16 @@ namespace bg = boost::geometry;
 
 //===========================================================================
 
+// spherical strategies
+
+// pt-pt
+typedef bg::strategy::closest_points::spherical
+                      <double> spherical_pp;
+
+//===========================================================================
+
+// geographic strategies
+
 // pt-pt
 typedef bg::strategy::closest_points::geographic
                       <bg::strategy::andoyer> andoyer_pp;
@@ -62,7 +72,6 @@ typedef bg::strategy::closest_points::geographic_segment_box
                       <bg::strategy::thomas> thomas_sb;
 typedef bg::strategy::closest_points::geographic_segment_box
                       <bg::strategy::vincenty> vincenty_sb;
-
 
 //===========================================================================
 
