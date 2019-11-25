@@ -44,6 +44,10 @@ struct mirror
 #include <boost/geometry/strategies/geographic/closest_points_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 
+#include <boost/geometry/strategies/spherical/closest_points.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track.hpp>
+
+
 namespace boost { namespace geometry
 {
 
@@ -60,6 +64,20 @@ struct swap<strategy::closest_points::geographic_cross_track<
                                             FormulaPolicy,
                                             Spheroid,
                                             CalculationType> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap<strategy::closest_points::cross_track<CalculationType, Strategy> >
 {
     template <typename Result>
     static inline void apply(Result& res)

@@ -117,7 +117,7 @@ public :
 
         closest_point_result.distance
                 = typename distance::services::comparable_type<Strategy>
-                          ::type().apply(p, result_p);
+                                   ::type().apply(p, result_p);
 
         return closest_point_result;
     }

@@ -35,28 +35,15 @@ void test_closest_points_point_segment(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
-}
-
-//===========================================================================
-
-template <typename Point>
-void test_closest_points_point_segment()
-{
-
-#ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::endl;
-    std::cout << "point/segment closest_points tests default strategy"
-              << std::endl;
-#endif
-
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, Segment, Segment> tester;
-
+    //default strategy
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
-                  "SEGMENT(1 1,0.503314 0.496737)");
+                  "SEGMENT(1 1,0.499962 0.500095)",
+                  "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -76,6 +63,7 @@ void test_closest_points_point_segment_diff_spheroid(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.31099 0.67425)",
                   "SEGMENT(1 1,0.31099 0.67425)",
                   strategy);
 }
@@ -97,6 +85,7 @@ void test_closest_points_point_linestring(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -119,6 +108,7 @@ void test_closest_points_point_multi_linestring(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -140,6 +130,7 @@ void test_closest_points_multi_point_segment(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((2 0),(1 1),(1 2))",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -162,6 +153,7 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((2 0),(1 1),(3 0))",
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -185,6 +177,7 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((5 0),(1 1),(6 0))",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -196,13 +189,12 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
 template <typename Point, typename Strategy>
 void test_all_pl_l(Strategy cp_strategy)
 {
-    test_closest_points_point_segment<Point>();
     test_closest_points_point_segment<Point>(cp_strategy);
     test_closest_points_point_linestring<Point>(cp_strategy);
     test_closest_points_point_multi_linestring<Point>(cp_strategy);
 
     test_closest_points_multi_point_segment<Point>(cp_strategy);
-    test_closest_points_multi_point_linestring<Point>(cp_strategy);
+    //test_closest_points_multi_point_linestring<Point>(cp_strategy);
     test_closest_points_multi_point_multi_linestring<Point>(cp_strategy);
 
     test_more_empty_input_pointlike_linear<Point>(cp_strategy);

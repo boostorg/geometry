@@ -39,8 +39,6 @@ void test_closest_points_point_point(Strategy const& strategy)
                   strategy);
 }
 
-
-
 //===========================================================================
 
 template <typename Point, typename Strategy>

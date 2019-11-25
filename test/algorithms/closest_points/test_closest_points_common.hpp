@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_TEST_CLOSEST_POINTS_COMMON_HPP
 #define BOOST_GEOMETRY_TEST_CLOSEST_POINTS_COMMON_HPP
 
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/algorithms/closest_points.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -20,6 +22,26 @@
 #include <from_wkt.hpp>
 
 namespace bg = boost::geometry;
+
+//===========================================================================
+
+struct expected_results
+{
+    std::string g1;
+    std::string g2;
+    std::string geo;
+    std::string sph;
+};
+
+expected_results expected[] =
+{
+    {
+        "POINT(1 1)",
+        "SEGMENT(0 1,1 0)",
+        "SEGMENT(1 1,0.503314 0.496737)",
+        "SEGMENT(1 1,0.499962 0.500095)"
+    }
+};
 
 //===========================================================================
 
@@ -111,6 +133,8 @@ void compare_result_with_expected(Segment const& exp_resulting_segment,
     compare_result_with_expected<1,1>(exp_resulting_segment, resulting_segment);
 }
 
+//==============================================================================
+
 template
 <
     typename Geometry1,
@@ -118,26 +142,57 @@ template
     typename Segment,
     typename Strategy
 >
-void test_closest_points(Geometry1 const& geometry1,
-                         Geometry2 const& geometry2,
-                         Segment const& exp_resulting_segment,
-                         Strategy const& strategy)
+void compute_result(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    Segment const& exp_resulting_segment,
+                    Strategy const& strategy,
+                    bool const& default_strategy)
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
               << std::endl;
 #endif
     Segment resulting_segment;
-    bg::closest_points(geometry1, geometry2, resulting_segment, strategy);
-
+    if(default_strategy)
+    {
+        bg::closest_points(geometry1, geometry2, resulting_segment);
+    }
+    else
+    {
+        bg::closest_points(geometry1, geometry2, resulting_segment, strategy);
+    }
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "closest_points : " << bg::wkt(resulting_segment)
               << std::endl << std::endl;
 #endif
-
     compare_result_with_expected(exp_resulting_segment, resulting_segment);
 }
 
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Segment,
+    typename Strategy
+>
+void compute_result(Geometry1 const& geometry1,
+                    Geometry2 const& geometry2,
+                    Segment const& exp_resulting_segment,
+                    Strategy const& strategy,
+                    bool const& swap_geometries,
+                    bool const& default_strategy)
+{
+    compute_result(geometry1, geometry2, exp_resulting_segment, strategy,
+                   default_strategy);
+    if (swap_geometries)
+    {
+        // swap input geometries and expected segment
+        compute_result(geometry2, geometry1,
+                       swap(exp_resulting_segment), strategy,
+                       default_strategy);
+    }
+}
+/*
 template
 <
     typename Geometry1,
@@ -146,7 +201,7 @@ template
 >
 void test_closest_points(Geometry1 const& geometry1,
                          Geometry2 const& geometry2,
-                         Segment const& exp_resulting_segment)
+                         expected_results const& exp_resulting_segment)
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
@@ -161,6 +216,78 @@ void test_closest_points(Geometry1 const& geometry1,
 
     compare_result_with_expected(exp_resulting_segment, resulting_segment);
 }
+*/
+
+//==============================================================================
+
+template <typename CS_tag>
+struct test_closest_points_dispatch
+{};
+
+template <>
+struct test_closest_points_dispatch<bg::spherical_equatorial_tag>
+{
+    template
+    <
+        typename OutputSegment,
+        typename Geometry1,
+        typename Geometry2,
+        typename Strategy
+    >
+    void static apply(Geometry1 const& geometry1,
+                      Geometry2 const& geometry2,
+                      std::string const& expected_resulting_segment_sph,
+                      std::string const& expected_resulting_segment_geo,
+                      Strategy const& strategy,
+                      bool swap_geometries,
+                      bool default_strategy)
+    {
+        boost::ignore_unused(expected_resulting_segment_geo);
+        OutputSegment expected_resulting_segment;
+        bg::read_wkt(expected_resulting_segment_sph,
+                     expected_resulting_segment);
+        compute_result(geometry1,
+                       geometry2,
+                       expected_resulting_segment,
+                       strategy,
+                       swap_geometries,
+                       default_strategy);
+    }
+};
+
+
+template <>
+struct test_closest_points_dispatch<bg::geographic_tag>
+{
+    template
+    <
+        typename OutputSegment,
+        typename Geometry1,
+        typename Geometry2,
+        typename Strategy
+    >
+    void static apply(Geometry1 const& geometry1,
+                      Geometry2 const& geometry2,
+                      std::string const& expected_resulting_segment_sph,
+                      std::string const& expected_resulting_segment_geo,
+                      Strategy const& strategy,
+                      bool swap_geometries,
+                      bool default_strategy)
+    {
+        boost::ignore_unused(expected_resulting_segment_sph);
+        OutputSegment expected_resulting_segment;
+        bg::read_wkt(expected_resulting_segment_geo,
+                     expected_resulting_segment);
+        compute_result(geometry1,
+                       geometry2,
+                       expected_resulting_segment,
+                       strategy,
+                       swap_geometries,
+                       default_strategy);
+    }
+};
+
+//==============================================================================
 
 
 template <typename Geometry1, typename Geometry2, typename OutputSegment>
@@ -169,45 +296,27 @@ struct test_geometry
     template <typename Strategy>
     inline static void apply(std::string const& wkt1,
                              std::string const& wkt2,
-                             std::string const& wkt_expected_resulting_segment,
+                             std::string const& expected_resulting_segment_sph,
+                             std::string const& expected_resulting_segment_geo,
                              Strategy const& strategy,
-                             bool swap_geometries = true)
+                             bool swap_geometries = true,
+                             bool default_strategy = false)
     {
+        typedef typename bg::cs_tag<Geometry1>::type CS_tag;
+
         Geometry1 geometry1;
         bg::read_wkt(wkt1, geometry1);
         Geometry2 geometry2;
         bg::read_wkt(wkt2, geometry2);
 
-        OutputSegment expected_resulting_segment;
-        bg::read_wkt(wkt_expected_resulting_segment,
-                     expected_resulting_segment);
-
-        test_closest_points(geometry1, geometry2, expected_resulting_segment,
-                            strategy);
-
-        if (swap_geometries)
-        {
-            // swap input geometries and expected segment
-            test_closest_points(geometry2, geometry1,
-                                swap(expected_resulting_segment),
-                                strategy);
-        }
-    }
-
-    inline static void apply(std::string const& wkt1,
-                             std::string const& wkt2,
-                             std::string const& wkt_expected_resulting_segment)
-    {
-        Geometry1 geometry1;
-        bg::read_wkt(wkt1, geometry1);
-        Geometry2 geometry2;
-        bg::read_wkt(wkt2, geometry2);
-
-        OutputSegment expected_resulting_segment;
-        bg::read_wkt(wkt_expected_resulting_segment,
-                     expected_resulting_segment);
-
-        test_closest_points(geometry1, geometry2, expected_resulting_segment);
+        test_closest_points_dispatch<CS_tag>
+               ::template apply<OutputSegment>(geometry1,
+                                               geometry2,
+                                               expected_resulting_segment_sph,
+                                               expected_resulting_segment_geo,
+                                               strategy,
+                                               swap_geometries,
+                                               default_strategy);
     }
 };
 
