@@ -36,6 +36,7 @@ void test_closest_points_point_point(Strategy const& strategy)
     tester::apply("POINT(1 1)",
                   "POINT(0 0)",
                   "SEGMENT(1 1,0 0)",
+                  "SEGMENT(1 1,0 0)",
                   strategy);
 }
 
@@ -56,6 +57,7 @@ void test_closest_points_point_multi_point(Strategy const& strategy)
 
     tester::apply("POINT(0 0)",
                   "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "SEGMENT(0 0,1 0)",
                   "SEGMENT(0 0,0 1)",
                   strategy);
 }
@@ -77,6 +79,7 @@ void test_closest_points_multi_point_multi_point(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((-1 -1),(0 0))",
                   "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "SEGMENT(0 0,1 0)",
                   "SEGMENT(0 0,0 1)",
                   strategy);
 }
@@ -89,10 +92,10 @@ template <typename Point, typename Strategy>
 void test_all_pl_pl(Strategy pp_strategy)
 {
     test_closest_points_point_point<Point>(pp_strategy);
-    //test_closest_points_point_multi_point<Point>(pp_strategy);
-    //test_closest_points_multi_point_multi_point<Point>(pp_strategy);
+    test_closest_points_point_multi_point<Point>(pp_strategy);
+    test_closest_points_multi_point_multi_point<Point>(pp_strategy);
 
-    //test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
+    test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )

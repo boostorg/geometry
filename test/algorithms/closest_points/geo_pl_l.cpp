@@ -152,7 +152,7 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
     typedef test_geometry<MultiPoint, Linestring, Segment> tester;
 
     tester::apply("MULTIPOINT((2 0),(1 1),(3 0))",
-                  "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -194,7 +194,7 @@ void test_all_pl_l(Strategy cp_strategy)
     test_closest_points_point_multi_linestring<Point>(cp_strategy);
 
     test_closest_points_multi_point_segment<Point>(cp_strategy);
-    //test_closest_points_multi_point_linestring<Point>(cp_strategy);
+    test_closest_points_multi_point_linestring<Point>(cp_strategy);
     test_closest_points_multi_point_multi_linestring<Point>(cp_strategy);
 
     test_more_empty_input_pointlike_linear<Point>(cp_strategy);
@@ -209,6 +209,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
             > sph_point;
 
     test_all_pl_l<sph_point>(spherical_ps());
+    test_all_pl_l<sph_point>(spherical_ps(bg::formula::mean_radius
+                                          <double>(bg::srs::spheroid<double>())));
 
     typedef bg::model::point
             <

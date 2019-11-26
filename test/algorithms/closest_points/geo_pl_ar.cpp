@@ -227,11 +227,11 @@ void test_all_pl_ar(PSStrategy cp_strategy, PBStrategy pb_strategy)
 {
     test_closest_points_point_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_point_multi_polygon<Point>(cp_strategy);
-    test_closest_points_point_box<Point>(pb_strategy);
+    //test_closest_points_point_box<Point>(pb_strategy);
 
     test_closest_points_multi_point_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_multi_point_multi_polygon<Point>(cp_strategy);
-    test_closest_points_multi_point_box<Point>(pb_strategy);
+    //test_closest_points_multi_point_box<Point>(pb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }

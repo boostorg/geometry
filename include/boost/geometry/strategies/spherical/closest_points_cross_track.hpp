@@ -84,6 +84,13 @@ public :
                 > type;
     };
 
+    inline cross_track()
+    {}
+
+    explicit inline cross_track(typename Strategy::radius_type const& r)
+        : m_strategy(r)
+    {}
+
     template <typename Point, typename PointOfSegment>
     typename closest_point_result<Point, PointOfSegment>::type
     apply(Point const& p,
@@ -119,6 +126,56 @@ public :
                 = typename distance::services::comparable_type<Strategy>
                                    ::type().apply(p, result_p);
 
+        geometry::detail::vec_normalize(vp);
+        geometry::detail::vec_normalize(vp1);
+        geometry::detail::vec_normalize(vp2);
+/*
+        std::cout << std::setprecision(10)
+                  << get_as_radian<0>(p) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(p) * math::r2d<CT>() << " ("
+                  << get_as_radian<0>(sp1) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(sp1) * math::r2d<CT>() << ")--("
+                  << get_as_radian<0>(sp2) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(sp2) * math::r2d<CT>() << ") "
+                  << get_as_radian<0>(result_p) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(result_p) * math::r2d<CT>() << ": "
+                  << dot_product(vp,vp1) << " "
+                  << dot_product(vp,vp2) << " "
+                  << dot_product(vp,X) << " "
+                  << std::endl;
+*/
+        CT lon1 = get_as_radian<0>(sp1);
+        CT lat1 = get_as_radian<1>(sp1);
+        CT lon2 = get_as_radian<0>(sp2);
+        CT lat2 = get_as_radian<1>(sp2);
+
+        Strategy distance_strategy = Strategy();
+        CT XTD = distance::cross_track<CT,Strategy>().apply(p, sp1, sp2);
+        CT dist_AD = distance_strategy.apply(p, sp1);
+        CT ATD = acos(cos(dist_AD)/cos(XTD));
+        CT a12 = geometry::formula::spherical_azimuth<>(lon1, lat1, lon2, lat2);
+        geometry::formula::result_direct<CT> res
+                = geometry::formula::spherical_direct<true, false>
+                  (lon1, lat1, ATD, a12, srs::sphere<CT>(distance_strategy.radius()));
+
+        closest_point_result.lon1 = get_as_radian<0>(p);
+        closest_point_result.lat1 = get_as_radian<1>(p);
+        closest_point_result.lon2 = res.lon2;
+        closest_point_result.lat2 = res.lat2;
+        closest_point_result.distance = XTD;
+
+        std::cout << std::setprecision(10)
+                  << get_as_radian<0>(p) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(p) * math::r2d<CT>() << " ("
+                  << get_as_radian<0>(sp1) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(sp1) * math::r2d<CT>() << ")--("
+                  << get_as_radian<0>(sp2) * math::r2d<CT>() << ","
+                  << get_as_radian<1>(sp2) * math::r2d<CT>() << ") "
+                  << res.lon2 * math::r2d<CT>() << ","
+                  << res.lat2 * math::r2d<CT>() << ": "
+                  << XTD
+                  << std::endl;
+
         return closest_point_result;
     }
 
@@ -147,6 +204,9 @@ public :
 
         return res;
     }
+
+private :
+    Strategy m_strategy;
 };
 
 namespace comparable {

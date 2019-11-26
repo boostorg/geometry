@@ -452,15 +452,15 @@ void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_segment_multi_polygon<Point>(cp_strategy);
-    test_closest_points_segment_box<Point>(sb_strategy);
+    //test_closest_points_segment_box<Point>(sb_strategy);
 
     test_closest_points_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_linestring_multi_polygon<Point>(cp_strategy);
-    test_closest_points_linestring_box<Point>(sb_strategy);
+    //test_closest_points_linestring_box<Point>(sb_strategy);
 
     test_closest_points_multi_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_multi_linestring_multi_polygon<Point>(cp_strategy);
-    test_closest_points_multi_linestring_box<Point>(sb_strategy);
+    //test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }

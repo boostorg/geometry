@@ -54,16 +54,15 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
+//spherical
+
+
 template
 <
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
+    typename CalculationType,
+    typename Strategy
 >
-struct swap<strategy::closest_points::geographic_cross_track<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
+struct swap<strategy::closest_points::spherical<CalculationType, Strategy> >
 {
     template <typename Result>
     static inline void apply(Result& res)
@@ -78,6 +77,26 @@ template
     typename Strategy
 >
 struct swap<strategy::closest_points::cross_track<CalculationType, Strategy> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+// geographic
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct swap<strategy::closest_points::geographic_cross_track<
+                                            FormulaPolicy,
+                                            Spheroid,
+                                            CalculationType> >
 {
     template <typename Result>
     static inline void apply(Result& res)
