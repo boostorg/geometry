@@ -666,6 +666,25 @@ struct intersection_areal_linear_point
 };
 
 
+struct tupled_output_tag {};
+
+
+template
+<
+    typename GeometryOut,
+    bool IsTupled = geometry::detail::is_tupled_range_values<GeometryOut>::value
+>
+struct tag
+    : geometry::tag<GeometryOut>
+{};
+
+template <typename GeometryOut>
+struct tag<GeometryOut, true>
+{
+    typedef tupled_output_tag type;
+};
+
+
 }} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
 
@@ -685,11 +704,10 @@ template
     // orientation
     bool Reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
     bool Reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-    bool ReverseOut = detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
     // tag dispatching:
     typename TagIn1 = typename geometry::tag<Geometry1>::type,
     typename TagIn2 = typename geometry::tag<Geometry2>::type,
-    typename TagOut = typename geometry::tag<GeometryOut>::type,
+    typename TagOut = typename detail::intersection::tag<GeometryOut>::type,
     // metafunction finetuning helpers:
     typename CastedTagIn1 = typename geometry::tag_cast<TagIn1, areal_tag, linear_tag, pointlike_tag>::type,
     typename CastedTagIn2 = typename geometry::tag_cast<TagIn2, areal_tag, linear_tag, pointlike_tag>::type,
@@ -710,7 +728,7 @@ template
     typename Geometry1, typename Geometry2,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename TagIn1, typename TagIn2, typename TagOut
 >
 struct intersection_insert
@@ -718,11 +736,15 @@ struct intersection_insert
         Geometry1, Geometry2,
         GeometryOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         TagIn1, TagIn2, TagOut,
         areal_tag, areal_tag, areal_tag
     > : detail::overlay::overlay
-        <Geometry1, Geometry2, Reverse1, Reverse2, ReverseOut, GeometryOut, OverlayType>
+        <
+            Geometry1, Geometry2, Reverse1, Reverse2,
+            detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
+            GeometryOut, OverlayType
+        >
 {};
 
 
@@ -732,7 +754,7 @@ template
     typename Geometry, typename Box,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename TagIn, typename TagOut
 >
 struct intersection_insert
@@ -740,11 +762,15 @@ struct intersection_insert
         Geometry, Box,
         GeometryOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         TagIn, box_tag, TagOut,
         areal_tag, areal_tag, areal_tag
     > : detail::overlay::overlay
-        <Geometry, Box, Reverse1, Reverse2, ReverseOut, GeometryOut, OverlayType>
+        <
+            Geometry, Box, Reverse1, Reverse2,
+            detail::overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value,
+            GeometryOut, OverlayType
+        >
 {};
 
 
@@ -753,14 +779,14 @@ template
     typename Segment1, typename Segment2,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Segment1, Segment2,
         GeometryOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         segment_tag, segment_tag, point_tag,
         linear_tag, linear_tag, pointlike_tag
     > : detail::intersection::intersection_segment_segment_point<GeometryOut>
@@ -772,14 +798,14 @@ template
     typename Linestring1, typename Linestring2,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Linestring1, Linestring2,
         GeometryOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         linestring_tag, linestring_tag, point_tag,
         linear_tag, linear_tag, pointlike_tag
     > : detail::intersection::intersection_linestring_linestring_point<GeometryOut>
@@ -790,14 +816,14 @@ template
 <
     typename Linestring, typename Box,
     typename GeometryOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Linestring, Box,
         GeometryOut,
         overlay_intersection,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         linestring_tag, box_tag, linestring_tag,
         linear_tag, areal_tag, linear_tag
     >
@@ -821,14 +847,14 @@ template
     typename Linestring, typename Polygon,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseLinestring, bool ReversePolygon, bool ReverseOut
+    bool ReverseLinestring, bool ReversePolygon
 >
 struct intersection_insert
     <
         Linestring, Polygon,
         GeometryOut,
         OverlayType,
-        ReverseLinestring, ReversePolygon, ReverseOut,
+        ReverseLinestring, ReversePolygon,
         linestring_tag, polygon_tag, linestring_tag,
         linear_tag, areal_tag, linear_tag
     > : detail::intersection::intersection_of_linestring_with_areal
@@ -845,14 +871,14 @@ template
     typename Linestring, typename Ring,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool ReverseLinestring, bool ReverseRing, bool ReverseOut
+    bool ReverseLinestring, bool ReverseRing
 >
 struct intersection_insert
     <
         Linestring, Ring,
         GeometryOut,
         OverlayType,
-        ReverseLinestring, ReverseRing, ReverseOut,
+        ReverseLinestring, ReverseRing,
         linestring_tag, ring_tag, linestring_tag,
         linear_tag, areal_tag, linear_tag
     > : detail::intersection::intersection_of_linestring_with_areal
@@ -868,14 +894,14 @@ template
     typename Segment, typename Box,
     typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Segment, Box,
         GeometryOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         segment_tag, box_tag, linestring_tag,
         linear_tag, areal_tag, linear_tag
     >
@@ -900,7 +926,7 @@ template
     typename Geometry1, typename Geometry2,
     typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag1, typename Tag2
 >
 struct intersection_insert
@@ -908,7 +934,7 @@ struct intersection_insert
         Geometry1, Geometry2,
         PointOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         Tag1, Tag2, point_tag,
         areal_tag, areal_tag, pointlike_tag
     >
@@ -923,7 +949,7 @@ template
     typename Geometry1, typename Geometry2,
     typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag1, typename Tag2
 >
 struct intersection_insert
@@ -931,7 +957,7 @@ struct intersection_insert
         Geometry1, Geometry2,
         PointOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         Tag1, Tag2, point_tag,
         linear_tag, areal_tag, pointlike_tag
     >
@@ -946,7 +972,7 @@ template
     typename Geometry1, typename Geometry2,
     typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag1, typename Tag2
 >
 struct intersection_insert
@@ -954,7 +980,7 @@ struct intersection_insert
         Geometry1, Geometry2,
         PointOut,
         OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         Tag1, Tag2, point_tag,
         areal_tag, linear_tag, pointlike_tag
     >
@@ -968,7 +994,7 @@ template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert_reversed
 {
@@ -983,7 +1009,7 @@ struct intersection_insert_reversed
             <
                 Geometry2, Geometry1, GeometryOut,
                 OverlayType,
-                Reverse2, Reverse1, ReverseOut
+                Reverse2, Reverse1
             >::apply(g2, g1, robust_policy, out, strategy);
     }
 };
@@ -994,7 +1020,7 @@ template
 <
     typename Geometry1, typename Geometry2,
     typename LinestringOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag1, typename Tag2
 >
 struct intersection_insert
@@ -1002,7 +1028,7 @@ struct intersection_insert
         Geometry1, Geometry2,
         LinestringOut,
         overlay_intersection,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         Tag1, Tag2, linestring_tag,
         areal_tag, areal_tag, linear_tag
     >
@@ -1035,13 +1061,13 @@ template
 <
     typename Linear1, typename Linear2, typename LineStringOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename TagIn1, typename TagIn2
 >
 struct intersection_insert
     <
         Linear1, Linear2, LineStringOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         TagIn1, TagIn2, linestring_tag,
         linear_tag, linear_tag, linear_tag
     > : detail::overlay::linear_linear_linestring
@@ -1050,6 +1076,59 @@ struct intersection_insert
         >
 {};
 
+template
+<
+    typename Linear1, typename Linear2, typename TupledOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename TagIn1, typename TagIn2
+>
+struct intersection_insert
+    <
+        Linear1, Linear2, TupledOut, OverlayType,
+        Reverse1, Reverse2,
+        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+        linear_tag, linear_tag, detail::intersection::tupled_output_tag
+    >
+{
+    static const bool is_point_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
+        >::value;
+    static const bool is_linestring_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
+        >::value;
+    static const bool is_output_correct = is_point_found && is_linestring_found;
+
+    // NOTE: This is not fully correct because points can be the result only in
+    // case of intersection but intersection_insert is called also by difference.
+    // So this requirement could be relaxed in the future.
+    BOOST_MPL_ASSERT_MSG
+        (
+            is_output_correct, POINTLIKE_AND_LINEAR_GEOMETRIES_EXPECTED_IN_TUPLED_OUTPUT
+            , (types<Linear1, Linear2, TupledOut>)
+        );
+
+    // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
+    // iterators in OutputIterators tuple/pair.
+    template
+    <
+        typename RobustPolicy, typename OutputIterators, typename Strategy
+    >
+    static inline OutputIterators apply(Linear1 const& linear1,
+                                        Linear2 const& linear2,
+                                        RobustPolicy const& robust_policy,
+                                        OutputIterators oit,
+                                        Strategy const& strategy)
+    {
+        return detail::overlay::linear_linear_linestring
+            <
+                Linear1, Linear2, TupledOut, OverlayType
+            >::apply(linear1, linear2, robust_policy, oit, strategy);
+    }
+};
+
 
 // dispatch for difference/intersection of point-like geometries
 
@@ -1057,12 +1136,12 @@ template
 <
     typename Point1, typename Point2, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Point1, Point2, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         point_tag, point_tag, point_tag,
         pointlike_tag, pointlike_tag, pointlike_tag
     > : detail::overlay::point_point_point
@@ -1076,12 +1155,12 @@ template
 <
     typename MultiPoint, typename Point, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         MultiPoint, Point, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         multi_point_tag, point_tag, point_tag,
         pointlike_tag, pointlike_tag, pointlike_tag
     > : detail::overlay::multipoint_point_point
@@ -1095,12 +1174,12 @@ template
 <
     typename Point, typename MultiPoint, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Point, MultiPoint, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         point_tag, multi_point_tag, point_tag,
         pointlike_tag, pointlike_tag, pointlike_tag
     > : detail::overlay::point_multipoint_point
@@ -1114,12 +1193,12 @@ template
 <
     typename MultiPoint1, typename MultiPoint2, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         MultiPoint1, MultiPoint2, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         multi_point_tag, multi_point_tag, point_tag,
         pointlike_tag, pointlike_tag, pointlike_tag
     > : detail::overlay::multipoint_multipoint_point
@@ -1134,13 +1213,13 @@ template
 <
     typename Point, typename Linear, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag
 >
 struct intersection_insert
     <
         Point, Linear, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         point_tag, Tag, point_tag,
         pointlike_tag, linear_tag, pointlike_tag
     > : detail_dispatch::overlay::pointlike_linear_point
@@ -1155,13 +1234,13 @@ template
 <
     typename MultiPoint, typename Linear, typename PointOut,
     overlay_type OverlayType,
-    bool Reverse1, bool Reverse2, bool ReverseOut,
+    bool Reverse1, bool Reverse2,
     typename Tag
 >
 struct intersection_insert
     <
         MultiPoint, Linear, PointOut, OverlayType,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         multi_point_tag, Tag, point_tag,
         pointlike_tag, linear_tag, pointlike_tag
     > : detail_dispatch::overlay::pointlike_linear_point
@@ -1176,12 +1255,12 @@ struct intersection_insert
 template
 <
     typename Linestring, typename MultiPoint, typename PointOut,
-    bool Reverse1, bool Reverse2, bool ReverseOut
+    bool Reverse1, bool Reverse2
 >
 struct intersection_insert
     <
         Linestring, MultiPoint, PointOut, overlay_intersection,
-        Reverse1, Reverse2, ReverseOut,
+        Reverse1, Reverse2,
         linestring_tag, multi_point_tag, point_tag,
         linear_tag, pointlike_tag, pointlike_tag
     >
@@ -1236,8 +1315,7 @@ inline OutputIterator insert(Geometry1 const& geometry1,
             GeometryOut,
             OverlayType,
             overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-            overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value,
-            overlay::do_reverse<geometry::point_order<GeometryOut>::value>::value
+            overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
         >,
         geometry::dispatch::intersection_insert
         <

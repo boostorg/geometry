@@ -140,6 +140,46 @@ static inline bool was_entered(Turn const& turn, Operation const& op, bool first
 }
 
 
+template
+<
+    typename GeometryOut,
+    typename Tag = typename geometry::tag<GeometryOut>::type
+>
+struct add_isolated_point
+{};
+
+template <typename LineStringOut>
+struct add_isolated_point<LineStringOut, linestring_tag>
+{
+    template <typename Point, typename OutputIterator>
+    static inline void apply(Point const& point, OutputIterator& out)
+    {
+        LineStringOut isolated_point_ls;
+        geometry::append(isolated_point_ls, point);
+
+#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+        geometry::append(isolated_point_ls, point);
+#endif // BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+
+        *out++ = isolated_point_ls;
+    }
+};
+
+template <typename PointOut>
+struct add_isolated_point<PointOut, point_tag>
+{
+    template <typename Point, typename OutputIterator>
+    static inline void apply(Point const& point, OutputIterator& out)
+    {
+        PointOut isolated_point;
+
+        geometry::detail::conversion::convert_point_to_point(point, isolated_point);
+
+        *out++ = isolated_point;
+    }
+};
+
+
 // Template specialization structure to call the right actions for the right type
 template <overlay_type OverlayType, bool RemoveSpikes = true>
 struct action_selector
@@ -213,26 +253,14 @@ struct action_selector<overlay_intersection, RemoveSpikes>
 
     template
     <
-        typename OutputIterator,
-        typename LineStringOut,
-        typename LineString,
+        typename LineStringOrPointOut,
         typename Point,
-        typename Operation
+        typename OutputIterator
     >
-    static inline void isolated_point(LineStringOut&,
-                LineString const&,
-                segment_identifier&,
-                signed_size_type, Point const& point,
-                Operation const& , OutputIterator& out)
+    static inline void isolated_point(Point const& point,
+                                      OutputIterator& out)
     {
-        LineStringOut isolated_point_ls;
-        geometry::append(isolated_point_ls, point);
-
-#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-        geometry::append(isolated_point_ls, point);
-#endif // BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-
-        *out++ = isolated_point_ls;
+        add_isolated_point<LineStringOrPointOut>::apply(point, out);
     }
 
     static inline bool is_entered(bool entered)
@@ -301,17 +329,12 @@ struct action_selector<overlay_difference, RemoveSpikes>
 
     template
     <
-        typename OutputIterator,
-        typename LineStringOut,
-        typename LineString,
+        typename LineStringOrPointOut,
         typename Point,
-        typename Operation
+        typename OutputIterator
     >
-    static inline void isolated_point(LineStringOut&,
-                LineString const&,
-                segment_identifier&,
-                signed_size_type, Point const&,
-                Operation const&, OutputIterator&)
+    static inline void isolated_point(Point const&,
+                                      OutputIterator const&)
     {
     }
 
@@ -327,7 +350,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
 
 };
 
-}
+} // namespace following
 
 /*!
 \brief Follows a linestring from intersection point to intersection point, outputting which
