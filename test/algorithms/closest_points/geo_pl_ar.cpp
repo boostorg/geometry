@@ -12,6 +12,8 @@
 #define BOOST_TEST_MODULE test_closest_points_geographic_pointlike_areal
 #endif
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include "test_closest_points_common.hpp"
 #include "test_empty_geometry.hpp"
 
@@ -35,6 +37,7 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 
@@ -42,11 +45,13 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
 
     tester2::apply("POINT(1 1)",
                    "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(1 1,0.499962 0.500095)",
                    "SEGMENT(1 1,0.503314 0.496737)",
                    strategy);
 
     tester2::apply("POINT(1 1)",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(1 1,0.499962 0.500095)",
                    "SEGMENT(1 1,0.503314 0.496737)",
                    strategy);
 }
@@ -70,46 +75,55 @@ void test_closest_points_point_box(Strategy const& strategy)
     tester::apply("POINT(5 25)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(5 25,10 20)",
+                  "SEGMENT(5 25,10 20)",
                   strategy);
 
     tester::apply("POINT(15 25)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(15 25,15 20)",
                   "SEGMENT(15 25,15 20)",
                   strategy);
 
     tester::apply("POINT(25 25)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(25 25,20 20)",
+                  "SEGMENT(25 25,20 20)",
                   strategy);
 
     tester::apply("POINT(5 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(5 15,10 15.055045985544346)",
                   "SEGMENT(5 15,10 15.055045985544346)",
                   strategy);
 
     tester::apply("POINT(25 15)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(25 15,20 15.055045985544346)",
+                  "SEGMENT(25 15,20 15.055045985544346)",
                   strategy);
 
     tester::apply("POINT(5 5)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(5 5,10 10)",
                   "SEGMENT(5 5,10 10)",
                   strategy);
 
     tester::apply("POINT(15 5)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 5,15 10)",
+                  "SEGMENT(15 5,15 10)",
                   strategy);
 
     tester::apply("POINT(25 5)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(25 5,20 10)",
                   "SEGMENT(25 5,20 10)",
                   strategy);
 
     //inside
     tester::apply("POINT(15 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(0 0,0 0)",
                   "SEGMENT(0 0,0 0)",
                   strategy);
 }
@@ -133,6 +147,7 @@ void test_closest_points_point_multi_polygon(Strategy const& strategy)
     tester::apply("POINT(1 1)",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -156,6 +171,7 @@ void test_closest_points_multi_point_polygon_or_ring(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((2 1),(1 1))",
                   "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 
@@ -163,11 +179,13 @@ void test_closest_points_multi_point_polygon_or_ring(Strategy const& strategy)
 
     tester2::apply("MULTIPOINT((2 1),(1 1))",
                    "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(1 1,0.499962 0.500095)",
                    "SEGMENT(1 1,0.503314 0.496737)",
                    strategy);
 
     tester2::apply("MULTIPOINT((2 1),(1 1))",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(1 1,0.499962 0.500095)",
                    "SEGMENT(1 1,0.503314 0.496737)",
                    strategy);
 }
@@ -192,6 +210,7 @@ void test_closest_points_multi_point_multi_polygon(Strategy const& strategy)
     tester::apply("MULTIPOINT((2 1),(1 1))",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 }
@@ -215,6 +234,7 @@ void test_closest_points_multi_point_box(Strategy const& strategy)
     tester::apply("MULTIPOINT(5 25,0 0,0 20)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(5 25,10 20)",
+                  "SEGMENT(5 25,10 20)",
                   strategy);
 }
 
@@ -227,17 +247,29 @@ void test_all_pl_ar(PSStrategy cp_strategy, PBStrategy pb_strategy)
 {
     test_closest_points_point_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_point_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_point_box<Point>(pb_strategy);
+    test_closest_points_point_box<Point>(pb_strategy);
 
     test_closest_points_multi_point_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_multi_point_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_multi_point_box<Point>(pb_strategy);
+    test_closest_points_multi_point_box<Point>(pb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
+    auto radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
+
+    test_all_pl_ar<sph_point>(spherical_ps(), spherical_pb());
+    test_all_pl_ar<sph_point>(spherical_ps(radius), spherical_pb(radius));
+
+
     typedef bg::model::point
             <
                 double, 2,

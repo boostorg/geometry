@@ -15,6 +15,10 @@
 
 #include <boost/geometry/strategies/closest_points.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+
+#include <boost/geometry/formulas/spherical.hpp>
+
 #include <iostream>
 
 namespace boost { namespace geometry
@@ -91,6 +95,10 @@ public :
         : m_strategy(r)
     {}
 
+    explicit inline cross_track(Strategy const& s)
+        : m_strategy(s)
+    {}
+
     template <typename Point, typename PointOfSegment>
     typename closest_point_result<Point, PointOfSegment>::type
     apply(Point const& p,
@@ -101,7 +109,7 @@ public :
                  closest_point_result;
 
         typedef typename calculation_type<Point, PointOfSegment>::type CT;
-
+/*
         typedef model::point<CT, 3, cs::cartesian> point3d_t;
 
         point3d_t vp1 = formula::sph_to_cart3d<point3d_t>(sp1);
@@ -129,7 +137,7 @@ public :
         geometry::detail::vec_normalize(vp);
         geometry::detail::vec_normalize(vp1);
         geometry::detail::vec_normalize(vp2);
-/*
+
         std::cout << std::setprecision(10)
                   << get_as_radian<0>(p) * math::r2d<CT>() << ","
                   << get_as_radian<1>(p) * math::r2d<CT>() << " ("
@@ -143,27 +151,43 @@ public :
                   << dot_product(vp,vp2) << " "
                   << dot_product(vp,X) << " "
                   << std::endl;
-*/
+
         CT lon1 = get_as_radian<0>(sp1);
         CT lat1 = get_as_radian<1>(sp1);
         CT lon2 = get_as_radian<0>(sp2);
         CT lat2 = get_as_radian<1>(sp2);
 
-        Strategy distance_strategy = Strategy();
+        Strategy distance_strategy = Strategy(m_strategy);
         CT XTD = distance::cross_track<CT,Strategy>().apply(p, sp1, sp2);
+        std::cout << "dist_cross_track=" << XTD << std::endl;
+        std::cout << "dist_cross_track_comp=" << distance::comparable::cross_track<CT,Strategy>().apply(p, sp1, sp2) << std::endl;
+        std::cout << "dist_cross_track radius=" << distance_strategy.radius() << std::endl;
+        std::cout << "dist_cross_track asin=" <<
+                     asin(math::sqrt(distance::comparable::cross_track<CT,Strategy>().apply(p, sp1, sp2))) << std::endl;
         CT dist_AD = distance_strategy.apply(p, sp1);
         CT ATD = acos(cos(dist_AD)/cos(XTD));
         CT a12 = geometry::formula::spherical_azimuth<>(lon1, lat1, lon2, lat2);
         geometry::formula::result_direct<CT> res
                 = geometry::formula::spherical_direct<true, false>
                   (lon1, lat1, ATD, a12, srs::sphere<CT>(distance_strategy.radius()));
+*/
+        Strategy distance_strategy = Strategy(m_strategy);
+        typedef geometry::formula::spherical_point_segment_distance<CT>
+                spherical_point_segment_distance;
+        typename spherical_point_segment_distance::result_type result
+                = spherical_point_segment_distance()
+                  .apply(p,
+                         sp1,
+                         sp2,
+                         distance::services::get_comparable<Strategy>
+                                 ::apply(distance_strategy));
 
         closest_point_result.lon1 = get_as_radian<0>(p);
         closest_point_result.lat1 = get_as_radian<1>(p);
-        closest_point_result.lon2 = res.lon2;
-        closest_point_result.lat2 = res.lat2;
-        closest_point_result.distance = XTD;
-
+        closest_point_result.lon2 = result.lon2;
+        closest_point_result.lat2 = result.lat2;
+        closest_point_result.distance = result.distance;
+/*
         std::cout << std::setprecision(10)
                   << get_as_radian<0>(p) * math::r2d<CT>() << ","
                   << get_as_radian<1>(p) * math::r2d<CT>() << " ("
@@ -175,7 +199,7 @@ public :
                   << res.lat2 * math::r2d<CT>() << ": "
                   << XTD
                   << std::endl;
-
+*/
         return closest_point_result;
     }
 
@@ -192,7 +216,8 @@ public :
     vertical_or_meridian(CT const& lat1, CT const& lat2, CT const& lon) const
     {
         CT distance = distance::comparable
-                      ::cross_track<CalculationType, Strategy>(lat1, lat2);
+                      ::cross_track<CalculationType, Strategy>()
+                        .vertical_or_meridian(lat1, lat2, lon);
 
         geometry::detail::closest_points::result<CT> res;
 

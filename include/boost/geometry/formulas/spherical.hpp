@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_SPHERICAL_HPP
 #define BOOST_GEOMETRY_FORMULAS_SPHERICAL_HPP
 
+#include <boost/geometry/srs/sphere.hpp>
+
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -27,6 +29,9 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/formulas/result_direct.hpp>
+
+//#define BOOST_GEOMETRY_DEBUG_PT_SEG
+#include <iostream>
 
 namespace boost { namespace geometry {
     
@@ -277,6 +282,199 @@ inline result_direct<CT> spherical_direct(CT const& lon1,
 
     return result;
 }
+
+template <
+    typename CalculationType,
+    bool EnableClosestPoint = false
+>
+class spherical_point_segment_distance
+{
+
+public :
+
+    struct result_type
+    {
+        result_type()
+            : distance(0)
+            , lon1(0)
+            , lat1(0)
+            , lon2(0)
+            , lat2(0)
+        {}
+
+        CalculationType distance;
+        CalculationType lon1;
+        CalculationType lat1;
+        CalculationType lon2;
+        CalculationType lat2;
+    };
+
+    template <typename Point, typename PointOfSegment, typename Strategy>
+    inline result_type
+    apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2,
+          Strategy const& comparable_distance_strategy) const
+    {
+
+#if !defined(BOOST_MSVC)
+        BOOST_CONCEPT_ASSERT
+            (
+                (concepts::PointDistanceStrategy<Strategy, Point, PointOfSegment>)
+            );
+#endif
+
+
+        result_type res;
+        res.lon1 = get_as_radian<0>(p);
+        res.lat1 = get_as_radian<1>(p);
+
+
+        typedef CalculationType return_type;
+
+        // http://williams.best.vwh.net/avform.htm#XTE
+        return_type d1 = comparable_distance_strategy.apply(sp1, p);
+        return_type d3 = comparable_distance_strategy.apply(sp1, sp2);
+
+        if (geometry::math::equals(d3, 0.0))
+        {
+            // "Degenerate" segment, return either d1 or d2
+            res.distance = d1;
+            res.lon2 = get_as_radian<0>(sp1);
+            res.lat2 = get_as_radian<1>(sp1);
+            return res;
+        }
+
+        return_type d2 = comparable_distance_strategy.apply(sp2, p);
+
+        return_type lon1 = geometry::get_as_radian<0>(sp1);
+        return_type lat1 = geometry::get_as_radian<1>(sp1);
+        return_type lon2 = geometry::get_as_radian<0>(sp2);
+        return_type lat2 = geometry::get_as_radian<1>(sp2);
+        return_type lon = geometry::get_as_radian<0>(p);
+        return_type lat = geometry::get_as_radian<1>(p);
+
+        return_type crs_AD = spherical_azimuth<return_type, false>
+                             (lon1, lat1, lon, lat).azimuth;
+
+        result_spherical<return_type> result = spherical_azimuth<return_type, true>
+                                               (lon1, lat1, lon2, lat2);
+        return_type crs_AB = result.azimuth;
+        return_type crs_BA = result.reverse_azimuth - geometry::math::pi<return_type>();
+
+        return_type crs_BD = geometry::formula::spherical_azimuth<return_type, false>
+                             (lon2, lat2, lon, lat).azimuth;
+
+        return_type d_crs1 = crs_AD - crs_AB;
+        return_type d_crs2 = crs_BD - crs_BA;
+
+        // d1, d2, d3 are in principle not needed, only the sign matters
+        return_type projection1 = cos( d_crs1 ) * d1 / d3;
+        return_type projection2 = cos( d_crs2 ) * d2 / d3;
+
+#ifdef BOOST_GEOMETRY_DEBUG_PT_SEG
+        /*
+        std::cout << "Course " << dsv(sp1) << " to " << dsv(p) << " "
+                  << crs_AD * geometry::math::r2d<return_type>() << std::endl;
+        std::cout << "Course " << dsv(sp1) << " to " << dsv(sp2) << " "
+                  << crs_AB * geometry::math::r2d<return_type>() << std::endl;
+        std::cout << "Course " << dsv(sp2) << " to " << dsv(sp1) << " "
+                  << crs_BA * geometry::math::r2d<return_type>() << std::endl;
+        std::cout << "Course " << dsv(sp2) << " to " << dsv(p) << " "
+                  << crs_BD * geometry::math::r2d<return_type>() << std::endl;*/
+        std::cout << "Projection AD-AB " << projection1 << " : "
+                  << d_crs1 * geometry::math::r2d<return_type>() << std::endl;
+        std::cout << "Projection BD-BA " << projection2 << " : "
+                  << d_crs2 * geometry::math::r2d<return_type>() << std::endl;
+        std::cout << " d1: " << (d1 )
+                  << " d2: " << (d2 )
+                  << std::endl;
+#endif
+
+        if (projection1 > 0.0 && projection2 > 0.0)
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_PT_SEG
+            return_type XTD = comparable_distance_strategy.radius() * geometry::math::abs( asin( sin( d1 ) * sin( d_crs1 ) ));
+
+            std::cout << "Projection ON the segment" << std::endl;
+            std::cout << "XTD: " << XTD
+                      << " d1: " << (d1 * comparable_distance_strategy.radius())
+                      << " d2: " << (d2 * comparable_distance_strategy.radius())
+                      << std::endl;
+#endif
+            return_type const half(0.5);
+            return_type const quarter(0.25);
+
+            return_type sin_d_crs1 = sin(d_crs1);
+            /*
+              This is the straightforward obvious way to continue:
+
+              return_type discriminant
+                  = 1.0 - 4.0 * (d1 - d1 * d1) * sin_d_crs1 * sin_d_crs1;
+              return 0.5 - 0.5 * math::sqrt(discriminant);
+
+              Below we optimize the number of arithmetic operations
+              and account for numerical robustness:
+            */
+            return_type d1_x_sin = d1 * sin_d_crs1;
+            return_type d = d1_x_sin * (sin_d_crs1 - d1_x_sin);
+            res.distance = d / (half + math::sqrt(quarter - d));
+#ifdef BOOST_GEOMETRY_DEBUG_PT_SEG
+            //boost::geometry::strategy::distance::cross_track<return_type,Strategy> str;
+            //std::cout << str.apply(p, sp1, sp2)
+            //        << std::endl;
+            std::cout << "dist=" << res.distance << std::endl;
+            std::cout << "dist_cross_track radius=" << comparable_distance_strategy.radius() << std::endl;
+            std::cout << "dist_cross_track asin=" <<
+                         asin(math::sqrt(res.distance)) << std::endl;
+
+
+#endif
+            return_type dist = return_type(2) * asin(math::sqrt(res.distance)) * comparable_distance_strategy.radius();
+            return_type dist_d1 = return_type(2) * asin(math::sqrt(d1)) * comparable_distance_strategy.radius();
+
+            return_type earth_radius = comparable_distance_strategy.radius();
+            return_type cos_frac = cos(dist_d1 / earth_radius) / cos(dist / earth_radius);
+            return_type s14_sph = cos_frac >= 1 ? return_type(0)
+                         : cos_frac <= -1 ? math::pi<return_type>() * earth_radius
+                         : acos(cos_frac) * earth_radius;
+
+            //return_type ATD = acos(cos(dist_d1)/cos(dist));
+            //return_type ATD = asin(math::sqrt( (sin(dist_d1))*(sin(dist_d1))
+            //                 - (sin(dist))*(sin(dist)) )/cos(dist));
+            return_type a12 = spherical_azimuth<>(lon1, lat1, lon2, lat2);
+            result_direct<return_type> res_direct
+                    = geometry::formula::spherical_direct<true, false>
+                      (lon1, lat1, s14_sph, a12, srs::sphere<return_type>(comparable_distance_strategy.radius()));
+
+            res.lon2 = res_direct.lon2;
+            res.lat2 = res_direct.lat2;
+
+            std::cout << "dist=" << res.distance << std::endl;
+
+            return res;
+        }
+        else
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_PT_SEG
+            std::cout << "Projection OUTSIDE the segment" << std::endl;
+#endif
+
+            // Return shortest distance, project either on point sp1 or sp2
+            if (d1 < d2)
+            {
+                res.distance = return_type(d1);
+                res.lon2 = get_as_radian<0>(sp1);
+                res.lat2 = get_as_radian<1>(sp1);
+            }
+            else
+            {
+                res.distance = return_type(d2);
+                res.lon2 = get_as_radian<0>(sp2);
+                res.lat2 = get_as_radian<1>(sp2);
+            }
+            return res;
+        }
+    }
+};
 
 } // namespace formula
 

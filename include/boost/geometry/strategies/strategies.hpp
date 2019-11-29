@@ -92,6 +92,7 @@
 #include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/closest_points.hpp>
 #include <boost/geometry/strategies/spherical/closest_points_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/compare.hpp>
 #include <boost/geometry/strategies/spherical/envelope_box.hpp>
 #include <boost/geometry/strategies/spherical/envelope_point.hpp>

@@ -107,6 +107,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
             > sph_point;
 
     test_all_pl_pl<sph_point>(spherical_pp());
+    test_all_pl_pl<sph_point>(spherical_pp(bg::formula::mean_radius
+                                           <double>(bg::srs::spheroid<double>())));
 
 
     typedef bg::model::point

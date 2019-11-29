@@ -25,26 +25,6 @@ namespace bg = boost::geometry;
 
 //===========================================================================
 
-struct expected_results
-{
-    std::string g1;
-    std::string g2;
-    std::string geo;
-    std::string sph;
-};
-
-expected_results expected[] =
-{
-    {
-        "POINT(1 1)",
-        "SEGMENT(0 1,1 0)",
-        "SEGMENT(1 1,0.503314 0.496737)",
-        "SEGMENT(1 1,0.499962 0.500095)"
-    }
-};
-
-//===========================================================================
-
 // spherical strategies
 
 // pt-pt
@@ -54,6 +34,10 @@ typedef bg::strategy::closest_points::spherical
 // pt-seg
 typedef bg::strategy::closest_points::cross_track
                       <double> spherical_ps;
+
+// pt-box
+typedef bg::strategy::closest_points::cross_track_point_box
+                      <double> spherical_pb;
 
 //===========================================================================
 
