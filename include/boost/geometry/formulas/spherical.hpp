@@ -327,7 +327,6 @@ public :
         res.lon1 = get_as_radian<0>(p);
         res.lat1 = get_as_radian<1>(p);
 
-
         typedef CalculationType return_type;
 
         // http://williams.best.vwh.net/avform.htm#XTE
@@ -428,27 +427,30 @@ public :
 
 
 #endif
-            return_type dist = return_type(2) * asin(math::sqrt(res.distance)) * comparable_distance_strategy.radius();
-            return_type dist_d1 = return_type(2) * asin(math::sqrt(d1)) * comparable_distance_strategy.radius();
-
+            return_type dist = return_type(2)
+                               * asin(math::sqrt(res.distance))
+                               * comparable_distance_strategy.radius();
+            return_type dist_d1 = return_type(2)
+                                  * asin(math::sqrt(d1))
+                                  * comparable_distance_strategy.radius();
+            // this is similar to spherical computation in geographic
+            // point_segment_distance formula
             return_type earth_radius = comparable_distance_strategy.radius();
-            return_type cos_frac = cos(dist_d1 / earth_radius) / cos(dist / earth_radius);
+            return_type cos_frac = cos(dist_d1 / earth_radius)
+                                 / cos(dist / earth_radius);
             return_type s14_sph = cos_frac >= 1 ? return_type(0)
-                         : cos_frac <= -1 ? math::pi<return_type>() * earth_radius
+                         : cos_frac <= -1 ? math::pi<return_type>()
+                                            * earth_radius
                          : acos(cos_frac) * earth_radius;
 
-            //return_type ATD = acos(cos(dist_d1)/cos(dist));
-            //return_type ATD = asin(math::sqrt( (sin(dist_d1))*(sin(dist_d1))
-            //                 - (sin(dist))*(sin(dist)) )/cos(dist));
             return_type a12 = spherical_azimuth<>(lon1, lat1, lon2, lat2);
             result_direct<return_type> res_direct
                     = geometry::formula::spherical_direct<true, false>
-                      (lon1, lat1, s14_sph, a12, srs::sphere<return_type>(comparable_distance_strategy.radius()));
+                      (lon1, lat1, s14_sph, a12,
+                       srs::sphere<return_type>(earth_radius));
 
             res.lon2 = res_direct.lon2;
             res.lat2 = res_direct.lat2;
-
-            std::cout << "dist=" << res.distance << std::endl;
 
             return res;
         }
