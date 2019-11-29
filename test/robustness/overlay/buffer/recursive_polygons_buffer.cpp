@@ -201,11 +201,9 @@ bool test_buffer(MultiPolygon& result, int& index,
 
 
     typedef typename bg::coordinate_type<MultiPolygon>::type coordinate_type;
-    typedef typename bg::point_type<MultiPolygon>::type point_type;
     typedef bg::strategy::buffer::distance_asymmetric<coordinate_type> distance_strategy_type;
     distance_strategy_type distance_strategy(settings.distance, settings.distance);
 
-    typedef typename boost::range_value<MultiPolygon>::type polygon_type;
     MultiPolygon buffered;
 
     std::ostringstream out;

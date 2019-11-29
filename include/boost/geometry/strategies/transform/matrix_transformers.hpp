@@ -74,7 +74,7 @@ template
 struct set_point_from_vec<Point, DimensionCount, DimensionCount>
 {
     template <typename Vector>
-    static inline void apply(Point &, Vector const& v) {}
+    static inline void apply(Point &, Vector const&) {}
 };
 
 template
@@ -101,7 +101,7 @@ template
 struct set_vec_from_point<Point, DimensionCount, DimensionCount>
 {
     template <typename Vector>
-    static inline void apply(Point const& p, Vector & v) {}
+    static inline void apply(Point const&, Vector &) {}
 };
 
 template

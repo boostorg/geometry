@@ -206,8 +206,13 @@ void test_many_points_per_circle()
 
 int test_main(int, char* [])
 {
-    test_all<true, bg::model::point<double, 2, bg::cs::cartesian> >();
-    test_all<false, bg::model::point<double, 2, bg::cs::cartesian> >();
+    BoostGeometryWriteTestConfiguration();
+
+    test_all<true, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+#endif
 
 #if defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE) && ! defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG)
     test_many_points_per_circle<bg::model::point<double, 2, bg::cs::cartesian> >();

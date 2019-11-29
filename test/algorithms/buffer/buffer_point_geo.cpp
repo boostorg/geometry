@@ -35,8 +35,13 @@ void test_point()
 
 int test_main(int, char* [])
 {
-    test_point<true, bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
+    BoostGeometryWriteTestConfiguration();
+
+    test_point<true, bg::model::point<default_test_type, 2, bg::cs::geographic<bg::degree> > >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_point<true, bg::model::point<long double, 2, bg::cs::geographic<bg::degree> > >();
+#endif
 
     return 0;
 }

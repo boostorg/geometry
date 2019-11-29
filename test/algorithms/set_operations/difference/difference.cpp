@@ -200,8 +200,8 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-    // Fails, a-b is partly generated, b-a does not have any output
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails with rescaling, a-b is partly generated, b-a does not have any output
     // It failed already in 1.59
     test_one<polygon, polygon, polygon>("case_58_iet",
         case_58[0], case_58[2],
@@ -215,8 +215,8 @@ void test_all()
         1, 9, 44.5,
         1, 10, 84.5);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-    // Fails, holes are not subtracted
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails without rescaling, holes are not subtracted
     test_one<polygon, polygon, polygon>("case_81",
         case_81[0], case_81[1],
         1, 8, 80.5,
@@ -244,42 +244,42 @@ void test_all()
     TEST_DIFFERENCE(case_106, 1, 17.5, 2, 32.5, 3);
     TEST_DIFFERENCE(case_107, 2, 18.0, 2, 29.0, 4);
 
-    TEST_DIFFERENCE(case_precision_1, 1, 14.0, 1, BG_IF_RESCALED(8.00001, 8.0), 1);
+    TEST_DIFFERENCE(case_precision_1, 1, 14.0, 1, BG_IF_KRAMER(8.00001, 8.0), 1);
     TEST_DIFFERENCE(case_precision_2, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_3, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_4, 1, 14.0, 1, 8.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_5, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_6, 0, 0.0, 1, 57.0, 1);
 #endif
     TEST_DIFFERENCE(case_precision_7, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_8, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_9, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_10, 0, 0.0, 1, 59.0, 1);
-#endif
     TEST_DIFFERENCE(case_precision_11, 0, 0.0, 1, 59.0, 1);
+#endif
     TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
-    TEST_DIFFERENCE(case_precision_13, 1, BG_IF_RESCALED(12.00002, 12.0), 0, 0.0, 1);
+    TEST_DIFFERENCE(case_precision_13, 1, BG_IF_KRAMER(12.00002, 12.0), 0, 0.0, 1);
     TEST_DIFFERENCE(case_precision_14, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_15, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_16, 0, 0.0, 1, 59.0, 1);
 #endif
     TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
-    TEST_DIFFERENCE(case_precision_19, 0, 0.0, 1, 59.0, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_DIFFERENCE(case_precision_19, 1, 0.0, 1, 59.0, 2);
 #endif
     TEST_DIFFERENCE(case_precision_20, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_21, 1, 14.0, 1, 7.99999, 1);
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_22, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
     TEST_DIFFERENCE(case_precision_23, 0, 0.0, 1, 59.0, 1);
 #endif
     TEST_DIFFERENCE(case_precision_24, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_25, 1, 14.0, 1, 7.99999, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_26, 0, 0.0, 1, 59.0, 1);
 #endif
 
@@ -345,17 +345,17 @@ void test_all()
             settings);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         ut_settings settings;
-        settings.percentage = 0.01;
+        settings.percentage = 0.1;
         settings.test_validity = false;
 
         // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
         // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
         TEST_DIFFERENCE_WITH(geos_1,
-            -1, BG_IF_KRAMER(0.29171, 0.189697476),
-            -1, BG_IF_KRAMER(0.00076855, 0.000018266),
+            -1, BG_IF_KRAMER(0.29171, 0.20705),
+            -1, BG_IF_KRAMER(0.00076855, 0.00060440758),
             -1);
     }
 #endif
@@ -486,7 +486,7 @@ void test_all()
     {
         ut_settings settings;
         settings.test_validity = BG_IF_RESCALED(true, false);
-#if !defined(BOOST_GEOMETRY_USE_RESCALING) && defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) && defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
         const int expected_count = 1; // Wrong, considers all consecutive polygons as one
 #else
         const int expected_count = 6;
@@ -645,7 +645,8 @@ void test_specific()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double> >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 

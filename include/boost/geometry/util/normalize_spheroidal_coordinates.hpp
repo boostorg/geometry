@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
+// Copyright (c) 2015-2019, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -376,25 +376,6 @@ template <typename Units, typename CoordinateType>
 inline void normalize_azimuth(CoordinateType& angle)
 {
     normalize_longitude<Units, CoordinateType>(angle);
-}
-
-/*!
-\brief The exact difference of two angles reduced to
-       (&minus;180&deg;, 180&deg;].
-*/
-template<typename T>
-inline T difference_angle(T x, T y, T& e)
-{
-    T t, d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
-
-    normalize_azimuth<degree, T>(d);
-
-    // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and
-    // abs(t) <= eps (eps = 2^-45 for doubles).  The only case where the
-    // addition of t takes the result outside the range (-180,180] is d = 180
-    // and t > 0.  The case, d = -180 + eps, t = -eps, can't happen, since
-    // sum_error would have returned the exact result in such a case (i.e., given t = 0).
-    return math::sum_error(d == 180 && t > 0 ? -180 : d, t, e);
 }
 
 /*!

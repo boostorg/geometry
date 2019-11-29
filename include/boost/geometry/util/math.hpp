@@ -832,7 +832,7 @@ inline void sin_cos_degrees(T const& x,
 \brief Round off a given angle
 */
 template<typename T>
-inline T round_angle(T x) {
+inline T round_angle(T const& x) {
     static const T z = 1/T(16);
 
     if (x == 0)
@@ -853,7 +853,7 @@ inline T round_angle(T x) {
 \brief The error-free sum of two numbers.
 */
 template<typename T>
-inline T sum_error(T u, T v, T& t)
+inline T sum_error(T const& u, T const& v, T& t)
 {
     volatile T s = u + v;
     volatile T up = s - v;
@@ -872,7 +872,7 @@ inline T sum_error(T u, T v, T& t)
 // TODO: adl1995 - Merge these functions with formulas/area_formulas.hpp
 // i.e. place them in one file.
 template <typename NT, typename IteratorType>
-inline NT horner_evaluate(NT x,
+inline NT horner_evaluate(NT const& x,
                           IteratorType begin,
                           IteratorType end)
 {
@@ -892,7 +892,7 @@ inline NT horner_evaluate(NT x,
 template<typename IteratorType, typename CT>
 inline CT polyval(IteratorType first,
                   IteratorType last,
-                  const CT eps)
+                  CT const& eps)
 {
     int N = std::distance(first, last) - 1;
     int index = 0;
