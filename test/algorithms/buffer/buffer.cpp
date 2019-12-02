@@ -57,9 +57,14 @@ void test_all()
 
 int test_main(int, char* [])
 {
+    BoostGeometryWriteTestConfiguration();
+
+    test_all<bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+#endif
 
 #ifdef HAVE_TTMATH
     test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();

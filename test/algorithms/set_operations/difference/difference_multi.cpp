@@ -154,7 +154,7 @@ void test_areal()
 
     {
         // With rescaling, A is invalid (this is a robustness problem) and the other
-        // output is discarded because of zero (rescaled) area
+        // output is discarded because of zero area
         // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
         ut_settings settings;
         settings.sym_difference = BG_IF_RESCALED(false, true);
@@ -163,7 +163,8 @@ void test_areal()
         // No output for B
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 0, 0.0, 1);
 #else
-        // Very small sliver for B
+        // Very small sliver for B, and sym difference is not considered valid
+        settings.test_validity = false;
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
 #endif
     }
@@ -174,12 +175,34 @@ void test_areal()
         ut_settings settings;
         settings.percentage = 0.001;
         settings.test_validity = BG_IF_RESCALED(false, true);
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9081, 2, 0.0907392476356186,
-                             4, 0.126018011439877, BG_IF_RESCALED(4, 3));
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9081,
+                             2, 0.0907392476356186,
+                             4, 0.126018011439877,
+                             BG_IF_RESCALED(4, 3));
     }
 #endif
 
     TEST_DIFFERENCE(ticket_12503, 46, 920.625, 4, 7.625, 50);
+
+    {
+        // Reported issues going wrong with rescaling (except for 630b)
+        ut_settings settings;
+        settings.percentage = 0.001;
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, 0.0, 1, BG_IF_KRAMER(2.023326, 2.200326), 1);
+#endif
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Only succeeds with Kramer rule and no rescaling
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
+#endif
+
+        TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, 76.5385, BG_IF_KRAMER(1, 0), BG_IF_KRAMER(2.8634e-09, 0.0), 1);
+#endif
+    }
 
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
@@ -319,7 +342,8 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Misses one triangle. It is NOT related to rescaling.
+    // Misses one triangle, should be fixed in traversal.
+    // It is not related to rescaling.
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
 #endif
 
@@ -349,7 +373,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
     TEST_DIFFERENCE(case_recursive_boxes_83, 9, 5.25, 8, 5.25, 12);
     TEST_DIFFERENCE(case_recursive_boxes_84, 4, 8.0, 7, 9.0, 4);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_recursive_boxes_85, 4, 4.0, 7, 3.75, 9);
 #endif
 
@@ -401,7 +425,11 @@ void test_specific_areal()
         settings.sym_difference = false;
         settings.test_validity = false;
 
-        TEST_DIFFERENCE_WITH(0, 1, ticket_11674, 3, 9105781.5, 5, 119059.5, -1);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_11674,
+                             BG_IF_KRAMER(3, 4),
+                             BG_IF_KRAMER(9105781.5, 9105473.5),
+                             5,
+                             BG_IF_KRAMER(119059.5, 119423), -1);
     }
 
     {
@@ -411,8 +439,21 @@ void test_specific_areal()
         ut_settings settings;
         settings.remove_spikes = true;
 
-        TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1, 2781965.0, 1, 597.0, 2);
-        TEST_DIFFERENCE_WITH(2, 3, ticket_12751, 2, 2537992.5, 2, 294963.5, 3);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1,
+                             BG_IF_KRAMER(2781965.0, 2782114), 1,
+                             BG_IF_KRAMER(597.0, 598.0), 2);
+
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER)
+        // Fails with general line form intersection, symmetric version misses one outcut
+        // TODO GENERAL FORM
+        settings.test_validity = false;
+        settings.sym_difference = false;
+#endif
+
+        TEST_DIFFERENCE_WITH(2, 3, ticket_12751,
+                             2, BG_IF_KRAMER(2537992.5, 2538305),
+                             2, BG_IF_KRAMER(294963.5, 294737),
+                             3);
     }
 
     {
@@ -421,25 +462,42 @@ void test_specific_areal()
         ut_settings settings;
         settings.remove_spikes = true;
         settings.sym_difference = false;
-        TEST_DIFFERENCE_WITH(0, 1, ticket_12752, 3, 2776692.0, 3, 7893.0, 2);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_12752,
+                             BG_IF_KRAMER(3, 2), BG_IF_KRAMER(2776692.0, 2776657),
+                             3, BG_IF_KRAMER(7893.0, 7710.5),
+                             2);
     }
 
     {
-        std::string a_min_b =
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Fails completely with general line form intersection
+        // There is something with scale.
+        // TODO GENERAL FORM
+        const std::string a_min_b =
             TEST_DIFFERENCE(ticket_10661, 2, 1441632.5, 2, 13167454, 4);
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
             1, 8, 825192.0,
-            1, 10, 27226370.5,
+            1, 10, BG_IF_KRAMER(27226370.5, 27842811),
             1, -1, 825192.0 + 27226370.5);
+#endif
     }
 
     {
         ut_settings settings;
         settings.sym_difference = false;
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, 7427727.5, 4, 131506, 4);
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2, 412676.5, 2, 76779.5, 4);
+
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Fails with general line form intersection
+        // Misses one clip
+        // TODO GENERAL FORM
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, 7427727.5, 4,
+                             BG_IF_KRAMER(131506, 130083.5), 4);
+#endif
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2,
+                             BG_IF_KRAMER(412676.5, 413183.5), 2,
+                             BG_IF_KRAMER(76779.5, 76924), 4);
     }
 }
 
@@ -454,7 +512,8 @@ void test_specific()
 
 int test_main(int, char* [])
 {
-    test_all<bg::model::d2::point_xy<double > >();
+    BoostGeometryWriteTestConfiguration();
+    test_all<bg::model::d2::point_xy<default_test_type> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
 

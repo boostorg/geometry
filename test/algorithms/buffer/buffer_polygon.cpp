@@ -374,9 +374,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("snake4", snake, join_miter, end_flat, 64.44, 0.4);
     test_one<polygon_type, polygon_type>("snake5", snake, join_miter, end_flat, 72, 0.5);
     test_one<polygon_type, polygon_type>("snake6", snake, join_miter, end_flat, 75.44, 0.6);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<polygon_type, polygon_type>("snake16", snake, join_miter, end_flat, 114.24, 1.6);
-#endif
 
     test_one<polygon_type, polygon_type>("funnelgate2", funnelgate, join_miter, end_flat, 120.982, 2.0);
     test_one<polygon_type, polygon_type>("funnelgate3", funnelgate, join_miter, end_flat, 13.0*13.0, 3.0);
@@ -830,16 +828,22 @@ void test_mixed()
 
 int test_main(int, char* [])
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> dpoint;
+    BoostGeometryWriteTestConfiguration();
+
+    typedef bg::model::point<default_test_type, 2, bg::cs::cartesian> dpoint;
 
     test_all<true, dpoint>();
-    test_all<false, dpoint>();
-
-    typedef bg::model::point<float, 2, bg::cs::cartesian> fpoint;
-    test_deflate_special_cases<true, fpoint>();
     test_deflate_special_cases<true, dpoint>();
 
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    test_all<false, dpoint>();
+    test_deflate_special_cases<false, dpoint>();
+#endif
+
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    typedef bg::model::point<float, 2, bg::cs::cartesian> fpoint;
+    test_deflate_special_cases<true, fpoint>();
 
     test_mixed<dpoint, dpoint, false, false, true, true>();
     test_mixed<dpoint, dpoint, false, true, true, true>();
