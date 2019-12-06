@@ -1208,6 +1208,73 @@ struct intersection_insert
 {};
 
 
+template
+<
+    typename PointLike1, typename PointLike2, typename TupledOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename TagIn1, typename TagIn2
+>
+struct intersection_insert
+    <
+        PointLike1, PointLike2, TupledOut, OverlayType,
+        Reverse1, Reverse2,
+        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+        pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+    >
+{
+    static const bool is_point_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
+        >::value;
+
+    BOOST_MPL_ASSERT_MSG
+        (
+            is_point_found, POINTLIKE_AND_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
+            , (types<PointLike1, PointLike2, TupledOut>)
+        );
+
+    // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
+    // iterators in OutputIterators tuple/pair.
+    template
+    <
+        typename RobustPolicy, typename OutputIterators, typename Strategy
+    >
+    static inline OutputIterators apply(PointLike1 const& pointlike1,
+                                        PointLike2 const& pointlike2,
+                                        RobustPolicy const& robust_policy,
+                                        OutputIterators oits,
+                                        Strategy const& strategy)
+    {
+        namespace bgt = boost::geometry::tuples;
+
+        static const bool out_point_index = bgt::find_index_if
+            <
+                TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
+            >::value;
+
+        typedef typename bgt::element
+            <
+                out_point_index, TupledOut
+            >::type out_point_type;
+
+        typedef typename bgt::element
+            <
+                out_point_index, OutputIterators
+            >::type out_iter_type;
+
+        bgt::get<out_point_index>(oits) = intersection_insert
+            <
+                PointLike1, PointLike2, out_point_type, OverlayType
+            >::apply(pointlike1, pointlike2, robust_policy,
+                     bgt::get<out_point_index>(oits),
+                     strategy);
+
+        return oits;
+    }
+};
+
+
 // dispatch for difference/intersection of pointlike-linear geometries
 template
 <
