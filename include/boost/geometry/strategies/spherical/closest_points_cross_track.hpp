@@ -14,7 +14,6 @@
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
 #include <boost/geometry/strategies/closest_points.hpp>
-#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 
 #include <boost/geometry/formulas/spherical.hpp>
@@ -410,7 +409,7 @@ struct get_comparable
             closest_points::comparable::cross_track<CalculationType, Strategy>
         >
 {
-    typedef typename closest_points::comparable::geographic_cross_track
+    typedef typename closest_points::comparable::cross_track
                      <
                         CalculationType,
                         Strategy

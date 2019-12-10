@@ -52,8 +52,6 @@ public :
                 > type;
     };
 
-    typedef typename Strategy::radius_type radius_type;
-
     template <typename Point1, typename Point2>
     typename closest_point_result<Point1, Point2>::type
     apply(Point1 const& p1, Point2 const& p2) const

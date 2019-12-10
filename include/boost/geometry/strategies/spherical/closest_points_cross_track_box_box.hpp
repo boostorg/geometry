@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_POINT_BOX_HPP
-#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_POINT_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_BOX_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_BOX_BOX_HPP
 
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
@@ -45,62 +45,67 @@ template
     typename CalculationType = void,
     typename Strategy = distance::haversine<double, CalculationType>
 >
-class cross_track_point_box
+class cross_track_box_box
 {
 public:
+    // point-point strategy getters
+    struct closest_points_pp_strategy
+    {
+        typedef spherical<CalculationType, Strategy> type;
+    };
+
     // point-segment strategy getters
     struct closest_points_ps_strategy
     {
-        typedef cross_track<CalculationType, Strategy>
-        type;
+        typedef cross_track<CalculationType, Strategy> type;
     };
 
-    template <typename Point, typename Box>
+    template <typename Box1, typename Box2>
     struct calculation_type
         : promote_floating_point
           <
               typename select_calculation_type
                   <
-                      Point,
-                      typename point_type<Box>::type,
+                      typename point_type<Box1>::type,
+                      typename point_type<Box2>::type,
                       CalculationType
                   >::type
           >
     {};
 
-    template <typename Point, typename Box>
+    template <typename Box1, typename Box2>
     struct closest_point_result
     {
         typedef geometry::detail::closest_points::result
         <
-            typename calculation_type<Point, Box>::type
+            typename calculation_type<Box1, Box2>::type
         > type;
     };
 
     //constructors
 
-    inline cross_track_point_box()
+    inline cross_track_box_box()
     {}
 
-    explicit inline cross_track_point_box(typename Strategy::radius_type const& r)
+    explicit inline cross_track_box_box(typename Strategy::radius_type const& r)
         : m_strategy(r)
     {}
 
-    inline cross_track_point_box(Strategy const& s)
+    inline cross_track_box_box(Strategy const& s)
         : m_strategy(s)
     {}
 
-    template <typename Point, typename Box>
-    typename closest_point_result<Point, Box>::type
-    apply(Point const& point, Box const& box) const
+    template <typename Box1, typename Box2>
+    typename closest_point_result<Box1, Box2>::type
+    apply(Box1 const& box1, Box2 const& box2) const
     {
-        return distance::details::cross_track_point_box_generic
+        return distance::details::cross_track_box_box_generic
                <
-                    typename closest_point_result<Point, Box>::type
-               >::apply(point,
-                        box,
-                        //typename closest_points_ps_strategy::type(m_strategy)
-                        closest_points::cross_track<CalculationType, Strategy>(m_strategy));
+                    typename closest_point_result<Box1, Box2>::type
+               >::apply(box1,
+                        box2,
+                        typename closest_points_pp_strategy::type(),
+                        typename closest_points_ps_strategy::type(m_strategy));
     }
 
 private :
@@ -110,28 +115,14 @@ private :
 
 namespace services {
 
-template <typename Point, typename Box>
+template <typename Box1, typename Box2>
 struct default_strategy
     <
-        point_tag, box_tag, Point, Box,
+        box_tag, box_tag, Box1, Box2,
         spherical_equatorial_tag, spherical_equatorial_tag
     >
 {
-    typedef closest_points::cross_track_point_box<> type;
-};
-
-template <typename Box, typename Point>
-struct default_strategy
-    <
-        box_tag, point_tag, Box, Point,
-        spherical_equatorial_tag, spherical_equatorial_tag
-    >
-{
-    typedef typename default_strategy
-        <
-            point_tag, box_tag, Point, Box,
-            spherical_equatorial_tag, spherical_equatorial_tag
-        >::type type;
+    typedef closest_points::cross_track_box_box<> type;
 };
 
 }} // namespace closest_points::services
@@ -141,22 +132,22 @@ namespace distance { namespace services {
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 template <typename CalculationType, typename Strategy>
-struct tag<closest_points::cross_track_point_box<CalculationType, Strategy> >
+struct tag<closest_points::cross_track_box_box<CalculationType, Strategy> >
 {
-    typedef strategy_tag_distance_point_box type;
+    typedef strategy_tag_distance_box_box type;
 };
 
 //return types
 
 template <typename CalculationType, typename P, typename PS>
-struct return_type<closest_points::cross_track_point_box<CalculationType>, P, PS>
-        : closest_points::cross_track_point_box<CalculationType>
+struct return_type<closest_points::cross_track_box_box<CalculationType>, P, PS>
+        : closest_points::cross_track_box_box<CalculationType>
                         ::template closest_point_result<P, PS>
 {};
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct return_type<closest_points::cross_track_point_box<CalculationType, Strategy>, P, PS>
-        : closest_points::cross_track_point_box<CalculationType, Strategy>
+struct return_type<closest_points::cross_track_box_box<CalculationType, Strategy>, P, PS>
+        : closest_points::cross_track_box_box<CalculationType, Strategy>
                         ::template closest_point_result<P, PS>
 {};
 
@@ -164,14 +155,14 @@ struct return_type<closest_points::cross_track_point_box<CalculationType, Strate
 template <typename CalculationType, typename Strategy>
 struct comparable_type
        <
-            closest_points::cross_track_point_box
+            closest_points::cross_track_box_box
             <
                 CalculationType,
                 Strategy
             >
        >
 {
-    typedef closest_points::cross_track_point_box
+    typedef closest_points::cross_track_box_box
             <
                 CalculationType, Strategy
             > type;
@@ -181,7 +172,7 @@ struct comparable_type
 template <typename CalculationType, typename Strategy>
 struct get_comparable
        <
-            closest_points::cross_track_point_box
+            closest_points::cross_track_box_box
             <
                 CalculationType,
                 Strategy
@@ -189,12 +180,12 @@ struct get_comparable
        >
 {
 public:
-    static inline closest_points::cross_track_point_box
+    static inline closest_points::cross_track_box_box
     <
         CalculationType,
         Strategy
     >
-    apply(closest_points::cross_track_point_box
+    apply(closest_points::cross_track_box_box
           <
               CalculationType,
               Strategy
@@ -209,22 +200,22 @@ template
 <
     typename CalculationType,
     typename Strategy,
-    typename P,
-    typename Box
+    typename Box1,
+    typename Box2
 >
 struct result_from_distance
        <
-            closest_points::cross_track_point_box
+            closest_points::cross_track_box_box
             <
                 CalculationType,
                 Strategy
             >,
-            P,
-            Box
+            Box1,
+            Box2
         >
 {
 private:
-    typedef closest_points::cross_track_point_box
+    typedef closest_points::cross_track_box_box
     <
         CalculationType,
         Strategy
@@ -232,8 +223,8 @@ private:
 
     typedef typename this_strategy::template calculation_type
                      <
-                        P,
-                        Box
+                        Box1,
+                        Box2
                      >::type calculation_type;
 
 public:
@@ -243,7 +234,9 @@ public:
     {
         result_from_distance
             <
-                Strategy, P, typename point_type<Box>::type
+                Strategy,
+                typename point_type<Box1>::type,
+                typename point_type<Box2>::type
             >::apply(strategy, distance);
     }
 };
@@ -257,4 +250,4 @@ public:
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_POINT_BOX_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_SPHERICAL_CLOSEST_POINTS_CROSS_TRACK_BOX_BOX_HPP

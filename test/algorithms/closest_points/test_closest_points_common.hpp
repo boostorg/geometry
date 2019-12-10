@@ -38,6 +38,9 @@ typedef bg::strategy::closest_points::cross_track
 // pt-box
 typedef bg::strategy::closest_points::cross_track_point_box
                       <double> spherical_pb;
+// box-box
+typedef bg::strategy::closest_points::cross_track_box_box
+                      <double> spherical_bb;
 
 //===========================================================================
 
