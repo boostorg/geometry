@@ -612,7 +612,7 @@ struct buffer_inserter<ring_tag, RingInput, RingOutput>
                 collection, distance,
                 side_strategy, join_strategy, end_strategy, point_strategy,
                 robust_policy, strategy);
-        collection.finish_ring(code);
+        collection.finish_ring(code, ring, false, false);
         return code;
     }
 };
@@ -810,7 +810,7 @@ private:
                     join_strategy, end_strategy, point_strategy,
                     robust_policy, strategy);
 
-            collection.finish_ring(code, is_interior);
+            collection.finish_ring(code, *it, is_interior, false);
         }
     }
 
@@ -874,7 +874,7 @@ public:
                     join_strategy, end_strategy, point_strategy,
                     robust_policy, strategy);
 
-            collection.finish_ring(code, false,
+            collection.finish_ring(code, exterior_ring(polygon), false,
                     geometry::num_interior_rings(polygon) > 0u);
         }
 
@@ -947,9 +947,10 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     <
         typename geometry::ring_type<GeometryOutput>::type,
         IntersectionStrategy,
+        DistanceStrategy,
         RobustPolicy
     > collection_type;
-    collection_type collection(intersection_strategy, robust_policy);
+    collection_type collection(intersection_strategy, distance_strategy, robust_policy);
     collection_type const& const_collection = collection;
 
     bool const areal = boost::is_same
@@ -972,11 +973,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             end_strategy, point_strategy,
             robust_policy, intersection_strategy.get_side_strategy());
 
-    collection.get_turns(distance_strategy);
+    collection.get_turns();
     collection.classify_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
-        collection.check_remaining_points(distance_strategy);
+        collection.check_remaining_points();
     }
 
     // Visit the piece collection. This does nothing (by default), but
