@@ -35,6 +35,7 @@ void test_closest_points_segment_segment(Strategy const& strategy)
 
     tester::apply("SEGMENT(0 2,2 0)",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -56,6 +57,7 @@ void test_closest_points_segment_linestring(Strategy const& strategy)
 
     tester::apply("SEGMENT(0 2,2 0)",
                   "LINESTRING(-1 0,0 1,1 0,-1 -2)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -77,6 +79,7 @@ void test_closest_points_linestring_linestring(Strategy const& strategy)
 
     tester::apply("LINESTRING(0 2,2 0,3 0,4 0,5 0)",
                   "LINESTRING(-1 0,0 1,1 0,-1 -2)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -99,6 +102,7 @@ void test_closest_points_segment_multi_linestring(Strategy const& strategy)
 
     tester::apply("SEGMENT(0 2,2 0)",
                   "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -121,6 +125,7 @@ void test_closest_points_linestring_multi_linestring(Strategy const& strategy)
 
     tester::apply("LINESTRING(0 2,2 0,2 -1)",
                   "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -143,6 +148,7 @@ void test_closest_points_multi_linestring_multi_linestring(Strategy const& strat
 
     tester::apply("MULTILINESTRING((0 2,2 0,2 -1)(0 2,-1 2))",
                   "MULTILINESTRING((-1 0,0 1,1 0,-1 -2)(0 4,4 0,5 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -168,6 +174,17 @@ void test_all_l_l(Strategy cp_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_linear_linear )
 {
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
+    double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
+
+    test_all_l_l<sph_point>(spherical_ps());
+    test_all_l_l<sph_point>(spherical_ps(radius));
+
     typedef bg::model::point
             <
                 double, 2,

@@ -507,7 +507,8 @@ public :
                                             T3 const& lon) const
     {
         boost::ignore_unused(lon);
-        return m_strategy.radius() * math::abs(lat1 - lat2);
+        //return m_strategy.radius() * math::abs(lat1 - lat2);
+        return math::hav(lat1 - lat2);
     }
 
     inline typename Strategy::radius_type radius() const

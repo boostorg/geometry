@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
                 bg::cs::spherical_equatorial<bg::degree>
             > sph_point;
 
-    auto radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
+    double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 
     test_all_pl_ar<sph_point>(spherical_ps(), spherical_pb());
     test_all_pl_ar<sph_point>(spherical_ps(radius), spherical_pb(radius));

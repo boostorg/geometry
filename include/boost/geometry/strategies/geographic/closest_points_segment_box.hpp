@@ -371,7 +371,7 @@ private :
     typedef typename closest_points::geographic_segment_box
         <
             FormulaPolicy, Spheroid, CalculationType
-        >::template point_segment_distance_closest_point<PS, PB>::result_type return_type;
+        >::template closest_point_result<PS, PB>::type return_type;
 public :
     template <typename T>
     static inline return_type

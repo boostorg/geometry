@@ -37,6 +37,7 @@ void test_closest_points_segment_polygon_or_ring(Strategy const& strategy)
 
     tester::apply("SEGMENT(2 0,0 2)",
                   "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
@@ -44,11 +45,13 @@ void test_closest_points_segment_polygon_or_ring(Strategy const& strategy)
 
     tester2::apply("SEGMENT(2 0,0 2)",
                    "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 
     tester2::apply("SEGMENT(2 0,0 2)",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 }
@@ -72,6 +75,7 @@ void test_closest_points_segment_multi_polygon(Strategy const& strategy)
     tester::apply("SEGMENT(2 0,0 2)",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -93,11 +97,13 @@ void test_closest_points_segment_box(Strategy const& strategy)
 
     tester::apply("SEGMENT(2 0,0 2)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(0.922834 1.07763,10 10)",
                   "SEGMENT(0.983761 1.0167,10 10)",
                   strategy);
 
     tester::apply("SEGMENT(5 0,5 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(5 15,10 15.0547)",
                   "SEGMENT(5 15,10 15.055)",
                   strategy);
 
@@ -108,6 +114,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
 
     tester::apply("SEGMENT(0 5,20 5)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(10 5.07673,10 10)",
                   "SEGMENT(10 5.07725,10 10)",
                   strategy);
 
@@ -118,11 +125,13 @@ void test_closest_points_segment_box(Strategy const& strategy)
 
     tester::apply("SEGMENT(0 0, 0 10)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(0 10,10 10.1511)",
                   "SEGMENT(0 10,10 10.1521)",
                   strategy);
 
     tester::apply("SEGMENT(0 5, 125 5)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(20.2581 7.98472,20 10)",
                   "SEGMENT(20.2533 8.02139,20 10)",
                   strategy);
 
@@ -141,6 +150,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   strategy);
     tester::apply("SEGMENT(0 25, 22 25)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(20.3808 25.1117,20 20)",
                   "SEGMENT(20.3787 25.1124,20 20)",
                   strategy);
 
@@ -262,10 +272,12 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   strategy);
     tester::apply("SEGMENT(17 5, 0 10)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(9.20532 7.38795,10 10)",
                   "SEGMENT(9.21495 7.38567,10 10)",
                   strategy);
     tester::apply("SEGMENT(17 5, 25 9)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(21.4147 7.23283,20 10)",
                   "SEGMENT(21.3999 7.22557,20 10)",
                   strategy);
 }
@@ -289,6 +301,7 @@ void test_closest_points_linestring_polygon_or_ring(Strategy const& strategy)
 
     tester::apply("LINESTRING(2 0,0 2)",
                   "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
@@ -296,11 +309,13 @@ void test_closest_points_linestring_polygon_or_ring(Strategy const& strategy)
 
     tester2::apply("LINESTRING(2 0,0 2)",
                    "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 
     tester2::apply("LINESTRING(2 0,0 2)",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 }
@@ -326,6 +341,7 @@ void test_closest_points_linestring_multi_polygon(Strategy const& strategy)
     tester::apply("LINESTRING(2 0,0 2)",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -348,6 +364,7 @@ void test_closest_points_linestring_box(Strategy const& strategy)
 
     tester::apply("LINESTRING(2 0,0 2,0 0,-1 -1)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(0.922834 1.07763,10 10)",
                   "SEGMENT(0.983761 1.0167,10 10)",
                   strategy);
 }
@@ -374,6 +391,7 @@ void test_closest_points_multi_linestring_polygon_or_ring(Strategy
 
     tester::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
                   "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
@@ -381,11 +399,13 @@ void test_closest_points_multi_linestring_polygon_or_ring(Strategy
 
     tester2::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
                    "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 
     tester2::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 }
@@ -414,6 +434,7 @@ void test_closest_points_multi_linestring_multi_polygon(Strategy const& strategy
     tester::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                   ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 }
@@ -452,21 +473,32 @@ void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_segment_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_segment_box<Point>(sb_strategy);
+    test_closest_points_segment_box<Point>(sb_strategy);
 
     test_closest_points_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_linestring_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_linestring_box<Point>(sb_strategy);
+    test_closest_points_linestring_box<Point>(sb_strategy);
 
     test_closest_points_multi_linestring_polygon_or_ring<Point>(cp_strategy);
     test_closest_points_multi_linestring_multi_polygon<Point>(cp_strategy);
-    //test_closest_points_multi_linestring_box<Point>(sb_strategy);
+    test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(cp_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )
 {
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::spherical_equatorial<bg::degree>
+            > sph_point;
+
+    double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
+
+    test_all_l_ar<sph_point>(spherical_ps(), spherical_sb());
+    test_all_l_ar<sph_point>(spherical_ps(radius), spherical_sb(radius));
+
     typedef bg::model::point
             <
                 double, 2,

@@ -47,6 +47,8 @@ struct mirror
 #include <boost/geometry/strategies/spherical/closest_points.hpp>
 #include <boost/geometry/strategies/spherical/closest_points_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
 
 
 namespace boost { namespace geometry
@@ -106,6 +108,50 @@ struct swap
         res.swap();
     }
 };
+
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap
+       <
+            strategy::closest_points::cross_track_box_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap
+       <
+            strategy::closest_points::spherical_segment_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+
 
 // geographic
 
@@ -202,16 +248,40 @@ struct swap<strategy::closest_points::geographic_segment_box<
 
 template
 <
+      typename CalculationType,
+      typename Strategy
+>
+struct mirror
+       <
+            strategy::closest_points::spherical_segment_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.mirror();
+    }
+};
+
+template
+<
     typename FormulaPolicy,
     typename Spheroid,
     typename CalculationType
 >
-struct mirror<strategy::closest_points::geographic_segment_box
-                                        <
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType>
-                                        >
+struct mirror
+       <
+            strategy::closest_points::geographic_segment_box
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >
+       >
 {
     template <typename Result>
     static inline void apply(Result& res)

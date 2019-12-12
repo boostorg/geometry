@@ -42,6 +42,10 @@ typedef bg::strategy::closest_points::cross_track_point_box
 typedef bg::strategy::closest_points::cross_track_box_box
                       <double> spherical_bb;
 
+// box-box
+typedef bg::strategy::closest_points::spherical_segment_box
+                      <double> spherical_sb;
+
 //===========================================================================
 
 // geographic strategies
@@ -304,6 +308,23 @@ struct test_geometry
                                                strategy,
                                                swap_geometries,
                                                default_strategy);
+    }
+
+    template <typename Strategy>
+    inline static void apply(std::string const& wkt1,
+                             std::string const& wkt2,
+                             std::string const& expected_resulting_segment,
+                             Strategy const& strategy,
+                             bool swap_geometries = true,
+                             bool default_strategy = false)
+    {
+        apply(wkt1,
+              wkt2,
+              expected_resulting_segment,
+              expected_resulting_segment,
+              strategy,
+              swap_geometries,
+              default_strategy);
     }
 };
 
