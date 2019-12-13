@@ -53,6 +53,7 @@
 #include <boost/geometry/strategies/cartesian/buffer_point_circle.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_point_square.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_side_straight.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
