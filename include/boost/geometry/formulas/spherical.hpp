@@ -556,6 +556,30 @@ inline result_direct<CT> spherical_direct(CT const& lon1,
                 XTD = 2 * R * asin( sqrt(CXTD) )
 */
 
+
+/* Closest point to segment using cartesian geometry
+ *
+        typedef model::point<CT, 3, cs::cartesian> point3d_t;
+
+        point3d_t vp1 = formula::sph_to_cart3d<point3d_t>(sp1);
+        point3d_t vp2 = formula::sph_to_cart3d<point3d_t>(sp2);
+        point3d_t vp = formula::sph_to_cart3d<point3d_t>(p);
+
+        point3d_t G = cross_product(vp1, vp2);
+        point3d_t F = cross_product(G, vp);
+        //consider cases for G e.g.
+        set<0>(G, get<0>(G)*(-1));
+        set<1>(G, get<1>(G)*(-1));
+        set<2>(G, get<2>(G)*(-1));
+        point3d_t X = cross_product(G, F);
+        geometry::detail::vec_normalize(X);
+        Point result_p = formula::cart3d_to_sph<Point>(X);
+
+        closest_point_result.lon1 = get_as_radian<0>(p);
+        closest_point_result.lat1 = get_as_radian<1>(p);
+        closest_point_result.lon2 = get_as_radian<0>(result_p);
+        closest_point_result.lat2 = get_as_radian<1>(result_p);
+*/
 template <
     typename CalculationType,
     bool EnableClosestPoint = false
