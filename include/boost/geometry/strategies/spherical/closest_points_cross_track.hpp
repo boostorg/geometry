@@ -171,10 +171,10 @@ public :
                   (lon1, lat1, ATD, a12, srs::sphere<CT>(distance_strategy.radius()));
 */
         Strategy distance_strategy = Strategy(m_strategy);
-        typedef geometry::formula::spherical_point_segment_distance<CT>
-                spherical_point_segment_distance;
-        typename spherical_point_segment_distance::result_type result
-                = spherical_point_segment_distance()
+        typedef geometry::formula::comparable_spherical_point_segment_distance<CT, true>
+                spherical_ps_distance;
+        typename spherical_ps_distance::result_type result
+                = spherical_ps_distance()
                   .apply(p,
                          sp1,
                          sp2,
@@ -186,19 +186,7 @@ public :
         closest_point_result.lon2 = result.lon2;
         closest_point_result.lat2 = result.lat2;
         closest_point_result.distance = result.distance;
-/*
-        std::cout << std::setprecision(10)
-                  << get_as_radian<0>(p) * math::r2d<CT>() << ","
-                  << get_as_radian<1>(p) * math::r2d<CT>() << " ("
-                  << get_as_radian<0>(sp1) * math::r2d<CT>() << ","
-                  << get_as_radian<1>(sp1) * math::r2d<CT>() << ")--("
-                  << get_as_radian<0>(sp2) * math::r2d<CT>() << ","
-                  << get_as_radian<1>(sp2) * math::r2d<CT>() << ") "
-                  << res.lon2 * math::r2d<CT>() << ","
-                  << res.lat2 * math::r2d<CT>() << ": "
-                  << XTD
-                  << std::endl;
-*/
+
         return closest_point_result;
     }
 
