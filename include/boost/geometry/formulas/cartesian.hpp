@@ -126,8 +126,8 @@ public :
         add_point(projected, v);
 
         result.distance = comparable_distance_strategy.apply(p, projected);
-        result.x2 = get<0>(p2);
-        result.y2 = get<1>(p2);
+        result.x2 = get<0>(projected);
+        result.y2 = get<1>(projected);
         return result;
     }
 };

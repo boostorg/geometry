@@ -35,12 +35,14 @@ void test_closest_points_point_segment(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
     //default strategy
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy, true, true);
@@ -64,7 +66,6 @@ void test_closest_points_point_segment_diff_spheroid(Strategy const& strategy)
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
                   "SEGMENT(1 1,0.31099 0.67425)",
-                  "SEGMENT(1 1,0.31099 0.67425)",
                   strategy);
 }
 
@@ -85,6 +86,7 @@ void test_closest_points_point_linestring(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -108,6 +110,7 @@ void test_closest_points_point_multi_linestring(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -130,6 +133,7 @@ void test_closest_points_multi_point_segment(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((2 0),(1 1),(1 2))",
                   "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -153,6 +157,7 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((2 0),(1 1),(3 0))",
                   "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -177,6 +182,7 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
 
     tester::apply("MULTIPOINT((5 0),(1 1),(6 0))",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
@@ -202,6 +208,14 @@ void test_all_pl_l(Strategy cp_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
+    typedef bg::model::point
+            <
+                double, 2,
+                bg::cs::cartesian
+            > car_point;
+
+    test_all_pl_l<car_point>(cartesian_ps());
+
     typedef bg::model::point
             <
                 double, 2,

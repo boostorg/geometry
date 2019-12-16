@@ -113,8 +113,7 @@ public :
         typedef geometry::formula::comparable_spherical_point_segment_distance<CT, true>
                 spherical_ps_distance;
         typename spherical_ps_distance::result_type result
-                = spherical_ps_distance()
-                  .apply(p, sp1, sp2,
+                = spherical_ps_distance::apply(p, sp1, sp2,
                          distance::services::get_comparable<Strategy>
                                  ::apply(distance_strategy));
 

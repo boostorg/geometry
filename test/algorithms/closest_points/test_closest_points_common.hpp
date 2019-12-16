@@ -31,8 +31,7 @@ namespace bg = boost::geometry;
 typedef bg::strategy::closest_points::cartesian<double> cartesian_pp;
 
 // pt-seg
-//typedef bg::strategy::closest_points::
-//                      <double> cartesian_ps;
+typedef bg::strategy::closest_points::projected_point<double> cartesian_ps;
 
 // pt-box
 //typedef bg::strategy::closest_points::
