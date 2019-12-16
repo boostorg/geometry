@@ -161,7 +161,6 @@ public :
         subtract_point(w, projected);
 
         Strategy strategy;
-        boost::ignore_unused(strategy);
 
         calculation_type const zero = calculation_type();
         calculation_type const c1 = dot_product(w, v);

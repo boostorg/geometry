@@ -195,7 +195,6 @@ public :
         subtract_point(w, projected);
 
         Strategy strategy;
-        boost::ignore_unused(strategy);
 
         typename result_type<Point, PointOfSegment>::type result;
 
