@@ -33,6 +33,8 @@
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 
+#include <boost/geometry/formulas/cartesian.hpp>
+
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
@@ -128,59 +130,8 @@ public :
 
         typedef typename calculation_type<Point, PointOfSegment>::type calculation_type;
 
-        // A projected point of points in Integer coordinates must be able to be
-        // represented in FP.
-        typedef model::point
-            <
-                calculation_type,
-                dimension<PointOfSegment>::value,
-                typename coordinate_system<PointOfSegment>::type
-            > fp_point_type;
-
-        // For convenience
-        typedef fp_point_type fp_vector_type;
-
-        /*
-            Algorithm [p: (px,py), p1: (x1,y1), p2: (x2,y2)]
-            VECTOR v(x2 - x1, y2 - y1)
-            VECTOR w(px - x1, py - y1)
-            c1 = w . v
-            c2 = v . v
-            b = c1 / c2
-            RETURN POINT(x1 + b * vx, y1 + b * vy)
-        */
-
-        // v is multiplied below with a (possibly) FP-value, so should be in FP
-        // For consistency we define w also in FP
-        fp_vector_type v, w, projected;
-
-        geometry::convert(p2, v);
-        geometry::convert(p, w);
-        geometry::convert(p1, projected);
-        subtract_point(v, projected);
-        subtract_point(w, projected);
-
-        Strategy strategy;
-
-        calculation_type const zero = calculation_type();
-        calculation_type const c1 = dot_product(w, v);
-        if (c1 <= zero)
-        {
-            return strategy.apply(p, p1);
-        }
-        calculation_type const c2 = dot_product(v, v);
-        if (c2 <= c1)
-        {
-            return strategy.apply(p, p2);
-        }
-
-        // See above, c1 > 0 AND c2 > c1 so: c2 != 0
-        calculation_type const b = c1 / c2;
-
-        multiply_value(v, b);
-        add_point(projected, v);
-
-        return strategy.apply(p, projected);
+        return formula::comparable_cartesian_point_segment_distance<calculation_type>
+                      ::apply(p, p1, p2, Strategy()).distance;
     }
 
     template <typename ResultType>
