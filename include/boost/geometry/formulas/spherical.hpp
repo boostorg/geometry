@@ -607,11 +607,11 @@ public :
     };
 
     template <typename Point, typename PointOfSegment, typename Strategy>
-    inline result_type
+    static inline result_type
     apply(Point const& p,
           PointOfSegment const& sp1,
           PointOfSegment const& sp2,
-          Strategy const& comparable_distance_strategy) const
+          Strategy const& comparable_distance_strategy)
     {
         result_type res;
         if (EnableClosestPoint)

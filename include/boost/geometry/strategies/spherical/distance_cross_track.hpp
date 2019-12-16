@@ -134,10 +134,10 @@ public :
         Strategy distance_strategy = Strategy(m_strategy);
         typedef geometry::formula::comparable_spherical_point_segment_distance
                 <return_type, false> spherical_ps_distance;
-        typename spherical_ps_distance::result_type res = spherical_ps_distance()
-                  .apply(p, sp1, sp2,
-                         distance::services::get_comparable<Strategy>
-                                 ::apply(distance_strategy));
+        typename spherical_ps_distance::result_type res = spherical_ps_distance
+                    ::apply(p, sp1, sp2,
+                            distance::services::get_comparable<Strategy>
+                            ::apply(distance_strategy));
         return res.distance;
     }
 
