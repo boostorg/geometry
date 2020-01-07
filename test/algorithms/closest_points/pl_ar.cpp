@@ -266,32 +266,12 @@ void test_all_pl_ar(PSStrategy ps_strategy, PBStrategy pb_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
-    typedef bg::model::point
-            <
-                double, 2,
-                bg::cs::cartesian
-            > car_point;
-
     test_all_pl_ar<car_point>(cartesian_ps(), cartesian_ps());
-
-
-    typedef bg::model::point
-            <
-                double, 2,
-                bg::cs::spherical_equatorial<bg::degree>
-            > sph_point;
 
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 
     test_all_pl_ar<sph_point>(spherical_ps(), spherical_pb());
     test_all_pl_ar<sph_point>(spherical_ps(radius), spherical_pb(radius));
-
-
-    typedef bg::model::point
-            <
-                double, 2,
-                bg::cs::geographic<bg::degree>
-            > geo_point;
 
     test_all_pl_ar<geo_point>(andoyer_ps(), andoyer_pb());
     test_all_pl_ar<geo_point>(thomas_ps(), thomas_pb());

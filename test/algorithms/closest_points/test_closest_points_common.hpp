@@ -24,6 +24,23 @@
 namespace bg = boost::geometry;
 
 //===========================================================================
+// point types
+
+typedef bg::model::point<double, 2, bg::cs::cartesian> car_point;
+
+typedef bg::model::point
+        <
+            double, 2,
+            bg::cs::spherical_equatorial<bg::degree>
+        > sph_point;
+
+typedef bg::model::point
+        <
+            double, 2,
+            bg::cs::geographic<bg::degree>
+        > geo_point;
+
+//===========================================================================
 
 // cartesian strategies
 

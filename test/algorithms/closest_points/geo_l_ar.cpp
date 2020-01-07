@@ -488,22 +488,10 @@ void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )
 {
-    typedef bg::model::point
-            <
-                double, 2,
-                bg::cs::spherical_equatorial<bg::degree>
-            > sph_point;
-
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 
     test_all_l_ar<sph_point>(spherical_ps(), spherical_sb());
     test_all_l_ar<sph_point>(spherical_ps(radius), spherical_sb(radius));
-
-    typedef bg::model::point
-            <
-                double, 2,
-                bg::cs::geographic<bg::degree>
-            > geo_point;
 
     test_all_l_ar<geo_point>(andoyer_ps(), andoyer_sb());
     test_all_l_ar<geo_point>(thomas_ps(), thomas_sb());

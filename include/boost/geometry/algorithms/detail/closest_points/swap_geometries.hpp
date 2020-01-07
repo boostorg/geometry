@@ -223,25 +223,6 @@ struct swap<strategy::closest_points::comparable::geographic_cross_track<
     }
 };
 
-
-template
-<
-    typename FormulaPolicy,
-    typename Spheroid,
-    typename CalculationType
->
-struct swap<strategy::closest_points::geographic<
-                                            FormulaPolicy,
-                                            Spheroid,
-                                            CalculationType> >
-{
-    template <typename Result>
-    static inline void apply(Result& res)
-    {
-        res.swap();
-    }
-};
-
 template
 <
     typename FormulaPolicy,
@@ -277,6 +258,9 @@ struct swap<strategy::closest_points::geographic_segment_box<
         res.swap();
     }
 };
+
+
+// mirror geometries
 
 template
 <
