@@ -469,21 +469,21 @@ void test_closest_points_multi_linestring_box(Strategy const& strategy)
 //===========================================================================
 
 template <typename Point, typename PSStrategy, typename PBStrategy>
-void test_all_l_ar(PSStrategy cp_strategy, PBStrategy sb_strategy)
+void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
 {
-    test_closest_points_segment_polygon_or_ring<Point>(cp_strategy);
-    test_closest_points_segment_multi_polygon<Point>(cp_strategy);
+    test_closest_points_segment_polygon_or_ring<Point>(ps_strategy);
+    test_closest_points_segment_multi_polygon<Point>(ps_strategy);
     test_closest_points_segment_box<Point>(sb_strategy);
 
-    test_closest_points_linestring_polygon_or_ring<Point>(cp_strategy);
-    test_closest_points_linestring_multi_polygon<Point>(cp_strategy);
+    test_closest_points_linestring_polygon_or_ring<Point>(ps_strategy);
+    test_closest_points_linestring_multi_polygon<Point>(ps_strategy);
     test_closest_points_linestring_box<Point>(sb_strategy);
 
-    test_closest_points_multi_linestring_polygon_or_ring<Point>(cp_strategy);
-    test_closest_points_multi_linestring_multi_polygon<Point>(cp_strategy);
+    test_closest_points_multi_linestring_polygon_or_ring<Point>(ps_strategy);
+    test_closest_points_multi_linestring_multi_polygon<Point>(ps_strategy);
     test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
-    test_more_empty_input_pointlike_areal<Point>(cp_strategy);
+    test_more_empty_input_pointlike_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )

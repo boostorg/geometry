@@ -55,7 +55,7 @@ void test_closest_points_point_multi_point(Strategy const& strategy)
     typedef test_geometry<Point, MultiPoint, Segment> tester;
 
     tester::apply("POINT(0 0)",
-                  "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
                   strategy);
 }
@@ -76,7 +76,7 @@ void test_closest_points_multi_point_multi_point(Strategy const& strategy)
     typedef test_geometry<MultiPoint, MultiPoint, Segment> tester;
 
     tester::apply("MULTIPOINT((-1 -1),(0 0))",
-                  "MULTIPOINT((1 1),(1 0),(0 1),(2 1))",
+                  "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
                   strategy);
 }
@@ -89,8 +89,8 @@ template <typename Point, typename Strategy>
 void test_all_pl_pl(Strategy pp_strategy)
 {
     test_closest_points_point_point<Point>(pp_strategy);
-    //test_closest_points_point_multi_point<Point>(pp_strategy);
-    //test_closest_points_multi_point_multi_point<Point>(pp_strategy);
+    test_closest_points_point_multi_point<Point>(pp_strategy);
+    test_closest_points_multi_point_multi_point<Point>(pp_strategy);
 
     test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
 }

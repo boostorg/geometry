@@ -193,17 +193,17 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
 //===========================================================================
 
 template <typename Point, typename Strategy>
-void test_all_pl_l(Strategy cp_strategy)
+void test_all_pl_l(Strategy ps_strategy)
 {
-    test_closest_points_point_segment<Point>(cp_strategy);
-    test_closest_points_point_linestring<Point>(cp_strategy);
-    test_closest_points_point_multi_linestring<Point>(cp_strategy);
+    test_closest_points_point_segment<Point>(ps_strategy);
+    test_closest_points_point_linestring<Point>(ps_strategy);
+    test_closest_points_point_multi_linestring<Point>(ps_strategy);
 
-    test_closest_points_multi_point_segment<Point>(cp_strategy);
-    test_closest_points_multi_point_linestring<Point>(cp_strategy);
-    test_closest_points_multi_point_multi_linestring<Point>(cp_strategy);
+    test_closest_points_multi_point_segment<Point>(ps_strategy);
+    test_closest_points_multi_point_linestring<Point>(ps_strategy);
+    test_closest_points_multi_point_multi_linestring<Point>(ps_strategy);
 
-    test_more_empty_input_pointlike_linear<Point>(cp_strategy);
+    test_more_empty_input_pointlike_linear<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )

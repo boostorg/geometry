@@ -252,19 +252,19 @@ template
         typename BBStrategy,
         typename SBStrategy
 >
-void test_all_ar_ar(PSStrategy cp_strategy,
+void test_all_ar_ar(PSStrategy ps_strategy,
                     BBStrategy bb_strategy,
                     SBStrategy sb_strategy)
 {
-    test_closest_points_polygon_or_ring_polygon_or_ring<Point>(cp_strategy);
-    test_closest_points_polygon_multi_polygon<Point>(cp_strategy);
-    test_closest_points_multi_polygon_multi_polygon<Point>(cp_strategy);
+    test_closest_points_polygon_or_ring_polygon_or_ring<Point>(ps_strategy);
+    test_closest_points_polygon_multi_polygon<Point>(ps_strategy);
+    test_closest_points_multi_polygon_multi_polygon<Point>(ps_strategy);
 
     test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
     test_closest_points_box_multi_polygon<Point>(sb_strategy);
     test_closest_points_box_box<Point>(bb_strategy);
 
-    test_more_empty_input_areal_areal<Point>(cp_strategy);
+    test_more_empty_input_areal_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )

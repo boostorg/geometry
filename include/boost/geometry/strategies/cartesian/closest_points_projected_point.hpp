@@ -17,6 +17,8 @@
 
 #include <boost/geometry/strategies/closest_points.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
+#include <boost/geometry/strategies/cartesian/intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -33,6 +35,28 @@ template
 class projected_point
 {
 public :
+
+    typedef within::cartesian_point_point equals_point_point_strategy_type;
+
+    typedef intersection::cartesian_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
+    typedef within::cartesian_winding
+        <
+            void, void, CalculationType
+        > point_in_geometry_strategy_type;
+
+    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
+    {
+        return point_in_geometry_strategy_type();
+    }
 
     // Integer coordinates can still result in FP distances.
     // There is a division, which must be represented in FP.

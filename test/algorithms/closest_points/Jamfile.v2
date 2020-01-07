@@ -13,7 +13,7 @@ test-suite boost-geometry-algorithms-closest_points
     [ run geo_ar_ar.cpp       : : : : algorithms_closest_points_geo_ar_ar ]
     [ run geo_l_ar.cpp        : : : : algorithms_closest_points_geo_l_ar ]
     [ run geo_l_l.cpp         : : : : algorithms_closest_points_geo_l_l ]
-    [ run geo_pl_ar.cpp       : : : : algorithms_closest_points_geo_pl_ar ]
+    [ run pl_ar.cpp       : : : : algorithms_closest_points_pl_ar ]
     [ run pl_l.cpp        : : : : algorithms_closest_points_pl_l ]
     [ run pl_pl.cpp       : : : : algorithms_closest_points_pl_pl ]
     ;
