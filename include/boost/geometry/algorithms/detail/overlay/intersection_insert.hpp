@@ -1230,12 +1230,12 @@ struct intersection_insert
 
     BOOST_MPL_ASSERT_MSG
         (
-            is_point_found, POINTLIKE_AND_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
+            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
             , (types<PointLike1, PointLike2, TupledOut>)
         );
 
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
-    // iterators in OutputIterators tuple/pair.
+    // of iterators in OutputIterators tuple/pair.
     template
     <
         typename RobustPolicy, typename OutputIterators, typename Strategy
@@ -1319,6 +1319,8 @@ struct intersection_insert
 {};
 
 
+// This specialization is needed because intersection() reverses the arguments
+// for MultiPoint/Linestring combination.
 template
 <
     typename Linestring, typename MultiPoint, typename PointOut,
@@ -1343,6 +1345,61 @@ struct intersection_insert
             <
                 MultiPoint, Linestring, PointOut, overlay_intersection,
                 multi_point_tag, linear_tag
+            >::apply(multipoint, linestring, robust_policy, out, strategy);
+    }
+};
+
+
+template
+<
+    typename PointLike, typename Linear, typename TupledOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename TagIn1, typename TagIn2
+>
+struct intersection_insert
+    <
+        PointLike, Linear, TupledOut, OverlayType,
+        Reverse1, Reverse2,
+        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+        pointlike_tag, linear_tag, detail::intersection::tupled_output_tag
+    >
+    // Reuse the implementation for PointLike/PointLike.
+    : intersection_insert
+        <
+            PointLike, Linear, TupledOut, OverlayType,
+            Reverse1, Reverse2,
+            TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+            pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+        >
+{};
+
+
+// This specialization is needed because intersection() reverses the arguments
+// for MultiPoint/Linestring combination.
+template
+<
+    typename Linestring, typename MultiPoint, typename TupledOut,
+    bool Reverse1, bool Reverse2
+>
+struct intersection_insert
+    <
+        Linestring, MultiPoint, TupledOut, overlay_intersection,
+        Reverse1, Reverse2,
+        linestring_tag, multi_point_tag, detail::intersection::tupled_output_tag,
+        linear_tag, pointlike_tag, detail::intersection::tupled_output_tag
+    >
+{
+    template <typename RobustPolicy, typename OutputIterators, typename Strategy>
+    static inline OutputIterators apply(Linestring const& linestring,
+                                        MultiPoint const& multipoint,
+                                        RobustPolicy const& robust_policy,
+                                        OutputIterators out,
+                                        Strategy const& strategy)
+    {
+        return intersection_insert
+            <
+                MultiPoint, Linestring, TupledOut, overlay_intersection
             >::apply(multipoint, linestring, robust_policy, out, strategy);
     }
 };
