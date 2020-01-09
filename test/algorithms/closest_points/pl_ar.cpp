@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019, 2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -95,12 +95,14 @@ void test_closest_points_point_box(Strategy const& strategy)
 
     tester::apply("POINT(5 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(5 15,10 15)",
                   "SEGMENT(5 15,10 15.055045985544346)",
                   "SEGMENT(5 15,10 15.055045985544346)",
                   strategy);
 
     tester::apply("POINT(25 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(25 15,20 15)",
                   "SEGMENT(25 15,20 15.055045985544346)",
                   "SEGMENT(25 15,20 15.055045985544346)",
                   strategy);
@@ -126,6 +128,7 @@ void test_closest_points_point_box(Strategy const& strategy)
     //inside
     tester::apply("POINT(15 15)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
                   "SEGMENT(0 0,0 0)",
                   "SEGMENT(0 0,0 0)",
                   strategy);
@@ -255,18 +258,18 @@ void test_all_pl_ar(PSStrategy ps_strategy, PBStrategy pb_strategy)
 {
     test_closest_points_point_polygon_or_ring<Point>(ps_strategy);
     test_closest_points_point_multi_polygon<Point>(ps_strategy);
-    //test_closest_points_point_box<Point>(pb_strategy);
+    test_closest_points_point_box<Point>(pb_strategy);
 
     test_closest_points_multi_point_polygon_or_ring<Point>(ps_strategy);
     test_closest_points_multi_point_multi_polygon<Point>(ps_strategy);
-    //test_closest_points_multi_point_box<Point>(pb_strategy);
+    test_closest_points_multi_point_box<Point>(pb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
-    test_all_pl_ar<car_point>(cartesian_ps(), cartesian_ps());
+    test_all_pl_ar<car_point>(cartesian_ps(), cartesian_pb());
 
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 

@@ -51,6 +51,7 @@ struct mirror
 #include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
 
 #include <boost/geometry/strategies/cartesian/closest_points.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/closest_points_projected_point.hpp>
 
 namespace boost { namespace geometry
@@ -88,6 +89,21 @@ struct swap<strategy::closest_points::projected_point<CalculationType, Strategy>
         res.swap();
     }
 };
+
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap<strategy::closest_points::cartesian_point_box<CalculationType, Strategy> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
 
 //spherical
 
@@ -186,6 +202,25 @@ struct swap
 
 
 // geographic
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct swap<strategy::closest_points::geographic<
+                                            FormulaPolicy,
+                                            Spheroid,
+                                            CalculationType> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
 
 template
 <
