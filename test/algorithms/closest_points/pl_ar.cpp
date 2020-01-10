@@ -78,18 +78,15 @@ void test_closest_points_point_box(Strategy const& strategy)
     tester::apply("POINT(5 25)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(5 25,10 20)",
-                  "SEGMENT(5 25,10 20)",
                   strategy);
 
     tester::apply("POINT(15 25)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 25,15 20)",
-                  "SEGMENT(15 25,15 20)",
                   strategy);
 
     tester::apply("POINT(25 25)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(25 25,20 20)",
                   "SEGMENT(25 25,20 20)",
                   strategy);
 
@@ -97,31 +94,26 @@ void test_closest_points_point_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(5 15,10 15)",
                   "SEGMENT(5 15,10 15.055045985544346)",
-                  "SEGMENT(5 15,10 15.055045985544346)",
                   strategy);
 
     tester::apply("POINT(25 15)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(25 15,20 15)",
                   "SEGMENT(25 15,20 15.055045985544346)",
-                  "SEGMENT(25 15,20 15.055045985544346)",
                   strategy);
 
     tester::apply("POINT(5 5)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(5 5,10 10)",
                   "SEGMENT(5 5,10 10)",
                   strategy);
 
     tester::apply("POINT(15 5)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 5,15 10)",
-                  "SEGMENT(15 5,15 10)",
                   strategy);
 
     tester::apply("POINT(25 5)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(25 5,20 10)",
                   "SEGMENT(25 5,20 10)",
                   strategy);
 
@@ -129,7 +121,6 @@ void test_closest_points_point_box(Strategy const& strategy)
     tester::apply("POINT(15 15)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 15,15 15)",
-                  "SEGMENT(0 0,0 0)",
                   "SEGMENT(0 0,0 0)",
                   strategy);
 }
@@ -244,7 +235,6 @@ void test_closest_points_multi_point_box(Strategy const& strategy)
 
     tester::apply("MULTIPOINT(5 25,0 0,0 20)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(5 25,10 20)",
                   "SEGMENT(5 25,10 20)",
                   strategy);
 }

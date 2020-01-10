@@ -369,17 +369,17 @@ struct test_geometry
     template <typename Strategy>
     inline static void apply(std::string const& wkt1,
                              std::string const& wkt2,
-                             std::string const& expected_resulting_segment_sph,
-                             std::string const& expected_resulting_segment_geo,
+                             std::string const& expected_resulting_segment_car,
+                             std::string const& expected_resulting_segment_sph_geo,
                              Strategy const& strategy,
                              bool swap_geometries = true,
                              bool default_strategy = false)
     {
         apply(wkt1,
               wkt2,
-              expected_resulting_segment_sph,
-              expected_resulting_segment_sph,
-              expected_resulting_segment_geo,
+              expected_resulting_segment_car,
+              expected_resulting_segment_sph_geo,
+              expected_resulting_segment_sph_geo,
               strategy,
               swap_geometries,
               default_strategy);

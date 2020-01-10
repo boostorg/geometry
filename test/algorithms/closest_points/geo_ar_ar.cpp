@@ -268,7 +268,7 @@ void test_all_ar_ar(PSStrategy ps_strategy,
 }
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )
-{
+{/*
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 
     test_all_ar_ar<sph_point>(spherical_ps(), spherical_bb(), spherical_sb());
@@ -279,5 +279,6 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
     test_all_ar_ar<geo_point>(andoyer_ps(), andoyer_bb(), andoyer_sb());
     test_all_ar_ar<geo_point>(thomas_ps(), thomas_bb(), thomas_sb());
     test_all_ar_ar<geo_point>(vincenty_ps(), vincenty_bb(), vincenty_sb());
+*/
 }
 
