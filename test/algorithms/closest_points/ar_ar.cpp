@@ -224,6 +224,7 @@ void test_closest_points_box_box(Strategy const& strategy)
 
     tester::apply("BOX(15 30,40 40)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(15 30,15 20)",
                   "SEGMENT(20 30,20 20)",
                   strategy, false);
 
@@ -234,6 +235,7 @@ void test_closest_points_box_box(Strategy const& strategy)
 
     tester::apply("BOX(10 10,20 20)",
                   "BOX(5 30,15 40)",
+                  "SEGMENT(10 20,10 30)",
                   "SEGMENT(15 20,15 30)",
                   strategy, false);
 
@@ -269,14 +271,14 @@ void test_all_ar_ar(PSStrategy ps_strategy,
 
     //test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
     //test_closest_points_box_multi_polygon<Point>(sb_strategy);
-    //test_closest_points_box_box<Point>(bb_strategy);
+    test_closest_points_box_box<Point>(bb_strategy);
 
     test_more_empty_input_areal_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )
 {
-    test_all_ar_ar<car_point>(cartesian_ps(), cartesian_ps(), cartesian_ps());
+    test_all_ar_ar<car_point>(cartesian_ps(), cartesian_bb(), cartesian_ps());
 
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 

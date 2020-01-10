@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_BOX_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_BOX_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_BOX_BOX_HPP
 
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
@@ -32,47 +32,82 @@ namespace strategy { namespace closest_points
 namespace detail
 {
 
-template <size_t I>
-struct compute_pythagoras_point_box
+template <typename CT>
+struct result_type
 {
-    template <typename Point, typename Box, typename T>
-    static inline void apply(Point const& point, Box const& box, T& result)
+    result_type()
+        : distance(0)
+        , x1(0)
+        , y1(0)
+        , x2(0)
+        , y2(0)
+    {}
+
+    struct CoordinateType
+    {
+        typedef CT type;
+    };
+
+    CT distance;
+    CT x1;
+    CT y1;
+    CT x2;
+    CT y2;
+};
+
+template <size_t I>
+struct compute_pythagoras_box_box
+{
+    template <typename Box1, typename Box2, typename T>
+    static inline void apply(Box1 const& box1, Box2 const& box2, T& result)
     {
         typedef typename T::CoordinateType::type CT;
-        CT const p_coord = boost::numeric_cast<CT>(geometry::get<I-1>(point));
-        CT const b_min_coord =
-            boost::numeric_cast<CT>(geometry::get<min_corner, I-1>(box));
-        CT const b_max_coord =
-            boost::numeric_cast<CT>(geometry::get<max_corner, I-1>(box));
+        CT const b1_min_coord =
+            boost::numeric_cast<CT>(geometry::get<min_corner, I-1>(box1));
+        CT const b1_max_coord =
+            boost::numeric_cast<CT>(geometry::get<max_corner, I-1>(box1));
 
-        CT closest_point_coordinate = CT(0);
+        CT const b2_min_coord =
+            boost::numeric_cast<CT>(geometry::get<min_corner, I-1>(box2));
+        CT const b2_max_coord =
+            boost::numeric_cast<CT>(geometry::get<max_corner, I-1>(box2));
 
-        if ( p_coord < b_min_coord )
+        CT closest_point1_coordinate = CT(0);
+        CT closest_point2_coordinate = CT(0);
+
+        if ( b1_max_coord < b2_min_coord )
         {
-            CT diff = b_min_coord - p_coord;
+            CT diff = b2_min_coord - b1_max_coord;
             result.distance += diff * diff;
-            closest_point_coordinate = b_min_coord;
+            closest_point1_coordinate = b1_max_coord;
+            closest_point2_coordinate = b2_min_coord;
         }
-        else if ( p_coord > b_max_coord )
+        else if ( b1_min_coord > b2_max_coord )
         {
-            CT diff = p_coord - b_max_coord;
+            CT diff = b1_min_coord - b2_max_coord;
             result.distance += diff * diff;
-            closest_point_coordinate = b_max_coord;
+            closest_point1_coordinate = b1_min_coord;
+            closest_point2_coordinate = b2_max_coord;
         }
         else
         {
-            closest_point_coordinate = p_coord;
+            CT max_min_coord = (std::max)(b1_min_coord, b2_min_coord);
+            closest_point1_coordinate = max_min_coord;
+            closest_point2_coordinate = max_min_coord;
         }
 
-        result.x2 = I==1 ? closest_point_coordinate : result.x2;
-        result.y2 = I==2 ? closest_point_coordinate : result.y2;
+        result.x1 = I==1 ? closest_point1_coordinate : result.x1;
+        result.y1 = I==2 ? closest_point1_coordinate : result.y1;
 
-        compute_pythagoras_point_box<I-1>::apply(point, box, result);
+        result.x2 = I==1 ? closest_point2_coordinate : result.x2;
+        result.y2 = I==2 ? closest_point2_coordinate : result.y2;
+
+        compute_pythagoras_box_box<I-1>::apply(box1, box2, result);
     }
 };
 
 template <>
-struct compute_pythagoras_point_box<0>
+struct compute_pythagoras_box_box<0>
 {
     template <typename Point, typename Box, typename T>
     static inline void apply(Point const&, Box const&, T&)
@@ -89,7 +124,7 @@ template
     typename CalculationType = void,
     typename Strategy = distance::pythagoras<CalculationType>
 >
-class cartesian_point_box
+class cartesian_box_box
 {
 public :
 
@@ -120,25 +155,25 @@ public :
     \param point point
     \param box box
     */
-    template <typename Point, typename Box>
-    static inline typename closest_point_result<Point, Box>::type
-    apply(Point const& point, Box const& box)
+    template <typename Box1, typename Box2>
+    static inline typename closest_point_result<Box1, Box2>::type
+    apply(Box1 const& point, Box2 const& box)
     {
-        assert_dimension_equal<Point, Box>();
+        assert_dimension_equal<Box1, Box2>();
 
         //typename calculation_type<Point, Box>::type result(0);
-        detail::result_type<typename calculation_type<Point, Box>::type> result;
+        detail::result_type<typename calculation_type<Box1, Box2>::type> result;
 
-        detail::compute_pythagoras_point_box
+        detail::compute_pythagoras_box_box
             <
-                dimension<Point>::value
+                dimension<Box1>::value
             >::apply(point, box, result);
 
-        typename closest_point_result<Point, Box>::type
+        typename closest_point_result<Box1, Box2>::type
                  closest_point_result;
 
-        closest_point_result.lon1 = get_as_radian<0>(point);
-        closest_point_result.lat1 = get_as_radian<1>(point);
+        closest_point_result.lon1 = result.x1;
+        closest_point_result.lat1 = result.y1;
         closest_point_result.lon2 = result.x2;
         closest_point_result.lat2 = result.y2;
         closest_point_result.distance = result.distance;
@@ -152,29 +187,14 @@ public :
 namespace services
 {
 
-template <typename Point, typename PointOfBox>
+template <typename PointOfBox1, typename PointOfBox2>
 struct default_strategy
     <
-        point_tag, box_tag, Point, PointOfBox,
+        box_tag, box_tag, PointOfBox1, PointOfBox2,
         cartesian_tag, cartesian_tag
     >
 {
-    typedef cartesian_point_box<> type;
-};
-
-
-template <typename PointOfBox, typename Point>
-struct default_strategy
-    <
-        box_tag, point_tag, PointOfBox, Point,
-        cartesian_tag, cartesian_tag
-    >
-{
-    typedef typename default_strategy
-        <
-            point_tag, box_tag, Point, PointOfBox,
-            cartesian_tag, cartesian_tag
-        >::type type;
+    typedef cartesian_box_box<> type;
 };
 
 } // namespace services
@@ -189,26 +209,27 @@ namespace services
 {
 
 template <typename CalculationType, typename Strategy>
-struct tag<closest_points::cartesian_point_box<CalculationType, Strategy> >
+struct tag<closest_points::cartesian_box_box<CalculationType, Strategy> >
 {
-    typedef strategy_tag_distance_point_box type;
+    typedef strategy_tag_distance_box_box type;
 };
 
 
-template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct return_type<closest_points::cartesian_point_box<CalculationType, Strategy>, P, PS>
-    : closest_points::cartesian_point_box<CalculationType, Strategy>
-                    ::template closest_point_result<P, PS>
+template <typename CalculationType, typename Strategy, typename Box1, typename Box2>
+struct return_type<closest_points::cartesian_box_box<CalculationType, Strategy>,
+                   Box1, Box2>
+    : closest_points::cartesian_box_box<CalculationType, Strategy>
+                    ::template closest_point_result<Box1, Box2>
 {};
 
 
 
 template <typename CalculationType, typename Strategy>
-struct comparable_type<closest_points::cartesian_point_box<CalculationType, Strategy> >
+struct comparable_type<closest_points::cartesian_box_box<CalculationType, Strategy> >
 {
     // Define a projected_point strategy with its underlying point-point-strategy
     // being comparable
-    typedef closest_points::cartesian_point_box
+    typedef closest_points::cartesian_box_box
         <
             CalculationType,
             typename comparable_type<Strategy>::type
@@ -217,14 +238,14 @@ struct comparable_type<closest_points::cartesian_point_box<CalculationType, Stra
 
 
 template <typename CalculationType, typename Strategy>
-struct get_comparable<closest_points::cartesian_point_box<CalculationType, Strategy> >
+struct get_comparable<closest_points::cartesian_box_box<CalculationType, Strategy> >
 {
     typedef typename comparable_type
         <
-            closest_points::cartesian_point_box<CalculationType, Strategy>
+            closest_points::cartesian_box_box<CalculationType, Strategy>
         >::type comparable_type;
 public :
-    static inline comparable_type apply(closest_points::cartesian_point_box
+    static inline comparable_type apply(closest_points::cartesian_box_box
                                         <
                                             CalculationType,
                                             Strategy
@@ -236,7 +257,7 @@ public :
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct result_from_distance<closest_points::cartesian_point_box
+struct result_from_distance<closest_points::cartesian_box_box
                                             <
                                                 CalculationType,
                                                 Strategy
@@ -244,7 +265,7 @@ struct result_from_distance<closest_points::cartesian_point_box
                             P, PS>
 {
 private :
-    typedef typename return_type<closest_points::cartesian_point_box
+    typedef typename return_type<closest_points::cartesian_box_box
                                                  <
                                                     CalculationType,
                                                     Strategy
@@ -252,7 +273,7 @@ private :
                                  P, PS>::type return_type;
 public :
     template <typename T>
-    static inline return_type apply(closest_points::cartesian_point_box
+    static inline return_type apply(closest_points::cartesian_box_box
                                                     <
                                                         CalculationType,
                                                         Strategy
@@ -270,4 +291,4 @@ public :
 }} // namespace strategy::distance
 
 }} // namespace boost::geometry
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_BOX_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_BOX_BOX_HPP
