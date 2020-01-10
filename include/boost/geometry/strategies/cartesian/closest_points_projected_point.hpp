@@ -110,6 +110,13 @@ public :
         return closest_point_result;
     }
 
+    template <typename ResultType>
+    ResultType
+    apply(ResultType comparable_result) const
+    {
+        return comparable_result;
+    }
+
     template <typename CT>
     inline CT vertical_or_meridian(CT const& lat1,
                                    CT const& lat2,
