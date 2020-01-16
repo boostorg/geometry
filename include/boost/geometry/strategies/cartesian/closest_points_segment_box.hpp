@@ -1,17 +1,16 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2019 Oracle and/or its affiliates.
+// Copyright (c) 2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_SEGMENT_BOX_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_SEGMENT_BOX_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
 
-#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
@@ -23,13 +22,13 @@ namespace boost { namespace geometry
 {
 
 
-namespace strategy { namespace distance
+namespace strategy { namespace closest_points
 {
 
 template
 <
     typename CalculationType = void,
-    typename Strategy = pythagoras<CalculationType>
+    typename Strategy = distance::pythagoras<CalculationType>
 >
 struct cartesian_segment_box
 {
@@ -71,7 +70,7 @@ struct cartesian_segment_box
 
     struct distance_pb_strategy
     {
-        typedef pythagoras_point_box<CalculationType> type;
+        typedef distance::pythagoras_point_box<CalculationType> type;
     };
 
     inline typename distance_pb_strategy::type get_distance_pb_strategy() const
@@ -93,16 +92,25 @@ struct cartesian_segment_box
         return equals_point_point_strategy_type();
     }
 
+    template <typename P1, typename P2>
+    struct closest_point_result
+    {
+        typedef geometry::detail::closest_points::result
+                <
+                    typename calculation_type<P1, P2>::type
+                > type;
+    };
+
     template <typename LessEqual, typename ReturnType,
               typename SegmentPoint, typename BoxPoint>
-    inline ReturnType segment_below_of_box(SegmentPoint const& p0,
-                                   SegmentPoint const& p1,
-                                   BoxPoint const&,
-                                   BoxPoint const&,
-                                   BoxPoint const&,
-                                   BoxPoint const& bottom_right) const
+    inline typename closest_point_result<SegmentPoint, BoxPoint>::type
+    segment_below_of_box(SegmentPoint const& p0,
+                         SegmentPoint const& p1,
+                         BoxPoint const&,
+                         BoxPoint const&,
+                         BoxPoint const&,
+                         BoxPoint const& bottom_right) const
     {
-
 
         return geometry::detail::distance::segment_to_box_2D
             <
@@ -132,67 +140,7 @@ struct cartesian_segment_box
 namespace services
 {
 
-template <typename CalculationType, typename Strategy>
-struct tag<cartesian_segment_box<CalculationType, Strategy> >
-{
-    typedef strategy_tag_distance_segment_box type;
-};
-
-template <typename CalculationType, typename Strategy, typename PS, typename PB>
-struct return_type<cartesian_segment_box<CalculationType, Strategy>, PS, PB>
-    : cartesian_segment_box<CalculationType, Strategy>::template calculation_type<PS, PB>
-{};
-
-template <typename CalculationType, typename Strategy>
-struct comparable_type<cartesian_segment_box<CalculationType, Strategy> >
-{
-    // Define a cartesian_segment_box strategy with its underlying point-point
-    // strategy being comparable
-    typedef cartesian_segment_box
-        <
-            CalculationType,
-            typename comparable_type<Strategy>::type
-        > type;
-};
-
-
-template <typename CalculationType, typename Strategy>
-struct get_comparable<cartesian_segment_box<CalculationType, Strategy> >
-{
-    typedef typename comparable_type
-        <
-            cartesian_segment_box<CalculationType, Strategy>
-        >::type comparable_type;
-public :
-    static inline comparable_type apply(cartesian_segment_box<CalculationType, Strategy> const& )
-    {
-        return comparable_type();
-    }
-};
-
-template <typename CalculationType, typename Strategy, typename PS, typename PB>
-struct result_from_distance<cartesian_segment_box<CalculationType, Strategy>, PS, PB>
-{
-private :
-    typedef typename return_type<
-                                    cartesian_segment_box
-                                    <
-                                        CalculationType,
-                                        Strategy
-                                    >,
-                                    PS,
-                                    PB
-                                 >::type return_type;
-public :
-    template <typename T>
-    static inline return_type apply(cartesian_segment_box<CalculationType,
-                                                          Strategy> const& ,
-                                    T const& value)
-    {
-        Strategy s;
-        return result_from_distance<Strategy, PS, PB>::apply(s, value);
-    }
-};
+// default strategies
 
 template <typename Segment, typename Box>
 struct default_strategy
@@ -218,10 +166,93 @@ struct default_strategy
         >::type type;
 };
 
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+} // namespace closest_points
+
+namespace distance {
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+namespace services
+{
+
+template <typename CalculationType, typename Strategy>
+struct tag<closest_points::cartesian_segment_box<CalculationType, Strategy> >
+{
+    typedef strategy_tag_distance_segment_box type;
+};
+
+template <typename CalculationType, typename Strategy, typename PS, typename PB>
+struct return_type<closest_points::cartesian_segment_box<CalculationType, Strategy>, PS, PB>
+    : closest_points::cartesian_segment_box<CalculationType, Strategy>
+        ::template closest_point_result<PS, PB>
+{};
+
+template <typename CalculationType, typename Strategy>
+struct comparable_type<closest_points::cartesian_segment_box<CalculationType, Strategy> >
+{
+    // Define a cartesian_segment_box strategy with its underlying point-point
+    // strategy being comparable
+    typedef closest_points::cartesian_segment_box
+        <
+            CalculationType,
+            typename comparable_type<Strategy>::type
+        > type;
+};
+
+
+template <typename CalculationType, typename Strategy>
+struct get_comparable<closest_points::cartesian_segment_box<CalculationType, Strategy> >
+{
+    typedef typename comparable_type
+        <
+            closest_points::cartesian_segment_box<CalculationType, Strategy>
+        >::type comparable_type;
+public :
+    static inline comparable_type
+    apply(closest_points::cartesian_segment_box<CalculationType, Strategy> const& )
+    {
+        return comparable_type();
+    }
+};
+
+template <typename CalculationType, typename Strategy, typename PS, typename PB>
+struct result_from_distance
+       <
+            closest_points::cartesian_segment_box
+            <
+                CalculationType,
+                Strategy
+            >,
+            PS,
+            PB
+       >
+{
+private :
+    typedef typename return_type<
+                                    closest_points::cartesian_segment_box
+                                    <
+                                        CalculationType,
+                                        Strategy
+                                    >,
+                                    PS,
+                                    PB
+                                 >::type return_type;
+public :
+    template <typename T>
+    static inline return_type
+    apply(closest_points::cartesian_segment_box<CalculationType, Strategy> const& ,
+          T const& value)
+    {
+        return value;
+    }
+};
+
 }
 #endif
 
 }} // namespace strategy::distance
 
 }} // namespace boost::geometry
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISTANCE_SEGMENT_BOX_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP

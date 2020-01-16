@@ -19,6 +19,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include "test_distance_geo_common.hpp"

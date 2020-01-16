@@ -101,8 +101,8 @@ public :
                          distance::services::get_comparable<Strategy>
                                  ::apply(Strategy()));
 
-        closest_point_result.lon1 = get_as_radian<0>(p);
-        closest_point_result.lat1 = get_as_radian<1>(p);
+        closest_point_result.lon1 = get<0>(p);
+        closest_point_result.lat1 = get<1>(p);
         closest_point_result.lon2 = result.x2;
         closest_point_result.lat2 = result.y2;
         closest_point_result.distance = result.distance;
@@ -118,12 +118,18 @@ public :
     }
 
     template <typename CT>
-    inline CT vertical_or_meridian(CT const& lat1,
-                                   CT const& lat2,
-                                   CT const& lon) const
+    geometry::detail::closest_points::result<CT>
+    vertical_or_meridian(CT const& lat1, CT const& lat2, CT const& lon) const
     {
-        boost::ignore_unused(lon);
-        return math::abs(lat1 - lat2);
+        geometry::detail::closest_points::result<CT> res;
+
+        res.distance = math::abs(lat1 - lat2);
+        res.lon1 = lon;
+        res.lat1 = lat1;
+        res.lon2 = lon;
+        res.lat2 = lat2;
+
+        return res;
     }
 };
 

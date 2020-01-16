@@ -318,12 +318,43 @@ public:
                     Strategy
                 >::apply(*it_min, *sit_min, strategy);
         }
+
+        bool is_cartesian = boost::is_same
+                <
+                    typename cs_tag<Geometry>::type,
+                    cartesian_tag
+                >::type::value;
+
+
+        bool is_polygon = boost::is_same
+                <
+                    typename tag<Geometry>::type,
+                    polygon_tag
+                >::type::value;
+
         bool is_ring = boost::is_same
                 <
                     typename tag<Geometry>::type,
                     ring_tag
                 >::type::value;
 
+
+        bool is_mpolygon = boost::is_same
+                <
+                    typename tag<Geometry>::type,
+                    multi_polygon_tag
+                >::type::value;
+
+        bool is_box = boost::is_same
+                <
+                    typename tag<SegmentOrBox>::type,
+                    box_tag
+                >::type::value;
+
+        if ((is_polygon || is_mpolygon) && is_cartesian && is_box)
+        {
+            dispatch::swap<Strategy>::apply(res);
+        }
         if (is_ring)
         {
             dispatch::swap<Strategy>::apply(res);

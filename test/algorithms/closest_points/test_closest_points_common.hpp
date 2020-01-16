@@ -56,9 +56,8 @@ typedef bg::strategy::closest_points::cartesian_point_box<double> cartesian_pb;
 // box-box
 typedef bg::strategy::closest_points::cartesian_box_box<double> cartesian_bb;
 
-// box-box
-//typedef bg::strategy::closest_points::
-//                      <double> cartesian_sb;
+// seg-box
+typedef bg::strategy::closest_points::cartesian_segment_box<double> cartesian_sb;
 
 //===========================================================================
 

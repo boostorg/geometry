@@ -162,9 +162,9 @@ struct generic_segment_box
                         BoxPoint,
                         SegmentBoxStrategy
                     >::template call_above_of_box
-                    <
-                    typename LessEqual::other
-                    >(p1, p0, p_max, bottom_right, sb_strategy);
+                                <
+                                    typename LessEqual::other
+                                >(p1, p0, p_max, bottom_right, sb_strategy);
         }
         return result;
     }

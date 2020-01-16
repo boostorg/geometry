@@ -13,7 +13,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>

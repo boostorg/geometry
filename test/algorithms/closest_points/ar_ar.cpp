@@ -155,6 +155,7 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
 
     tester::apply("BOX(10 10,20 20)",
                   "POLYGON((0 0,2 0,0 2,0 0))",
+                  "SEGMENT(10 10,1 1)",
                   "SEGMENT(10 10,0.922834 1.07763)",
                   "SEGMENT(10 10,0.983761 1.0167)",
                   strategy);
@@ -163,9 +164,10 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
 
     tester2::apply("BOX(10 10,20 20)",
                    "POLYGON((0 0,2 0,0 2,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(10 10,1 1)",
                    "SEGMENT(10 10,0.922834 1.07763)",
                    "SEGMENT(10 10,0.983761 1.0167)",
-                  strategy);
+                   strategy);
 }
 
 //===========================================================================
@@ -190,6 +192,7 @@ void test_closest_points_box_multi_polygon(Strategy const& strategy)
     tester::apply("BOX(10 10,20 20)",
                   "MULTIPOLYGON(((0 0,2 0,0 2,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(10 10,1 1)",
                   "SEGMENT(10 10,0.922834 1.07763)",
                   "SEGMENT(10 10,0.983761 1.0167)",
                   strategy);
@@ -269,8 +272,8 @@ void test_all_ar_ar(PSStrategy ps_strategy,
     test_closest_points_polygon_multi_polygon<Point>(ps_strategy);
     test_closest_points_multi_polygon_multi_polygon<Point>(ps_strategy);
 
-    //test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
-    //test_closest_points_box_multi_polygon<Point>(sb_strategy);
+    test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
+    test_closest_points_box_multi_polygon<Point>(sb_strategy);
     test_closest_points_box_box<Point>(bb_strategy);
 
     test_more_empty_input_areal_areal<Point>(ps_strategy);

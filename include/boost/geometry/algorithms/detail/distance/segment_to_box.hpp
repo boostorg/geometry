@@ -34,8 +34,9 @@
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-#include <boost/geometry/algorithms/detail/distance/interface.hpp>
+//#include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+//#include <boost/geometry/algorithms/detail/closest_points/swap_geometries.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -444,10 +445,13 @@ private:
             // then compute the vertical (i.e. meridian for spherical) distance
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
-                ReturnType diff = sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
-                                    geometry::get_as_radian<1>(p_max),
-                                    geometry::get_as_radian<1>(top_left),
-                                    geometry::get_as_radian<0>(p0));
+                ReturnType diff =
+                    sb_strategy.get_distance_ps_strategy().vertical_or_meridian
+                    (
+                        geometry::get_as_radian<1>(p_max),
+                        geometry::get_as_radian<1>(top_left),
+                        geometry::get_as_radian<0>(p0)
+                    );
 
                 return strategy::distance::services::result_from_distance
                     <
@@ -724,7 +728,12 @@ public:
                                    BoxPoint const& bottom_right,
                                    SBStrategy const& sb_strategy)
     {
-        BOOST_GEOMETRY_ASSERT( (geometry::less<SegmentPoint, -1, typename SBStrategy::cs_tag>()(p0, p1))
+        BOOST_GEOMETRY_ASSERT( (geometry::less
+                                <
+                                    SegmentPoint,
+                                    -1,
+                                    typename SBStrategy::cs_tag
+                                >()(p0, p1))
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1) );
 
