@@ -331,6 +331,27 @@ public:
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap
+       <
+            strategy::closest_points::geographic_cross_track_point_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 

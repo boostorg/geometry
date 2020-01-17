@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_CLOSEST_POINTS_HPP
 
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/detail/closest_points/swap_geometries.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/default_strategies.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>

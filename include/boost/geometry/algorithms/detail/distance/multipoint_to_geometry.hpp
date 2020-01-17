@@ -61,7 +61,7 @@ struct multipoint_to_multipoint
                          boost::end(multipoint2),
                          multipoint1,
                          strategy);
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
             return res;
         }
 
@@ -110,7 +110,7 @@ struct multipoint_to_linear
 
         if (!is_multi)
         {
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
         }
         return res;
     }
@@ -227,7 +227,7 @@ public:
 
             if (!is_ring && !is_multi_polygon)
             {
-                dispatch::swap<Strategy>::apply(res);
+                strategy::distance::services::swap<Strategy>::apply(res);
             }
             return res;
         }

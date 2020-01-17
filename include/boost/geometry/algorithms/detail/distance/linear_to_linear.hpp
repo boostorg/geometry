@@ -79,7 +79,7 @@ struct linear_to_linear
                          geometry::segments_end(linear2),
                          linear1,
                          strategy);
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
             return res;
 
         }

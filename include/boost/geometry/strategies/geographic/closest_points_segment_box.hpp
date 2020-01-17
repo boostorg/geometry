@@ -384,6 +384,51 @@ public :
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap
+       <
+            strategy::closest_points::geographic_segment_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+template
+<
+    typename FormulaPolicy,
+    typename Spheroid,
+    typename CalculationType
+>
+struct mirror
+       <
+            strategy::closest_points::geographic_segment_box
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.mirror();
+    }
+};
+
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 

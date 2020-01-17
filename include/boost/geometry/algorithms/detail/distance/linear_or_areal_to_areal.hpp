@@ -72,7 +72,7 @@ struct linear_to_areal
 
         if (!is_ring && !is_multi_polygon && is_multi_linestring)
         {
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
         }
         return res;
     }

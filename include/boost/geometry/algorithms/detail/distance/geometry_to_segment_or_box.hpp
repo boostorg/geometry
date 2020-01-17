@@ -353,11 +353,11 @@ public:
 
         if ((is_polygon || is_mpolygon) && is_cartesian && is_box)
         {
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
         }
         if (is_ring)
         {
-            dispatch::swap<Strategy>::apply(res);
+            strategy::distance::services::swap<Strategy>::apply(res);
         }
         return res;
     }
@@ -420,7 +420,7 @@ public:
                                            >::apply(strategy),
                                        cd_min);
 
-        dispatch::swap<Strategy>::apply(cd_min);
+        strategy::distance::services::swap<Strategy>::apply(cd_min);
 
         return
             is_comparable<Strategy>::value

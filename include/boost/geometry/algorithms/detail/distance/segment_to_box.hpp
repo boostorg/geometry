@@ -36,7 +36,6 @@
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 //#include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
-//#include <boost/geometry/algorithms/detail/closest_points/swap_geometries.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -390,7 +389,7 @@ private:
                         }
                         ReturnType res = cast_to_result<ReturnType>::apply
                                          (ps_strategy.apply(top_right, p0, p1));
-                        dispatch::swap<SBStrategy>::apply(res);
+                        strategy::distance::services::swap<SBStrategy>::apply(res);
                         return res;
                     }
                     return cast_to_result<ReturnType>::apply
@@ -400,7 +399,7 @@ private:
                 // corner of the box and the segment
                 ReturnType res = cast_to_result<ReturnType>
                                   ::apply(ps_strategy.apply(top_right, p0, p1));
-                dispatch::swap<SBStrategy>::apply(res);
+                strategy::distance::services::swap<SBStrategy>::apply(res);
                 return res;
             }
             else
@@ -409,7 +408,7 @@ private:
                 // corner of the box and the segment
                ReturnType res = cast_to_result<ReturnType>
                                ::apply(ps_strategy.apply(bottom_right, p0, p1));
-               dispatch::swap<SBStrategy>::apply(res);
+               strategy::distance::services::swap<SBStrategy>::apply(res);
                return res;
             }
         }
@@ -465,7 +464,7 @@ private:
             ReturnType res = cast_to_result<ReturnType>
                     ::apply(sb_strategy.get_distance_ps_strategy()
                     .apply(top_left, p0, p1));
-            dispatch::swap<SBStrategy>::apply(res);
+            strategy::distance::services::swap<SBStrategy>::apply(res);
             return res;
         }
     };
@@ -589,14 +588,14 @@ private:
             {
                 result = cast_to_result<ReturnType>
                          ::apply(ps_strategy.apply(corner1, p0, p1));
-                dispatch::swap<SBStrategy>::apply(result);
+                strategy::distance::services::swap<SBStrategy>::apply(result);
                 return true;
             }
             if (side_strategy.apply(p0, p1, corner2) * sign > 0)
             {
                 result = cast_to_result<ReturnType>
                          ::apply(ps_strategy.apply(corner2, p0, p1));
-                dispatch::swap<SBStrategy>::apply(result);
+                strategy::distance::services::swap<SBStrategy>::apply(result);
                 return true;
             }
             return false;
@@ -882,7 +881,7 @@ public:
         }
         if (mirror)
         {
-            dispatch::mirror<SBStrategy>::apply(result);
+            strategy::distance::services::mirror<SBStrategy>::apply(result);
             return result;
         }
         return result;

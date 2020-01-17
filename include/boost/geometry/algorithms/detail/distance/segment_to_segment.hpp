@@ -108,7 +108,7 @@ public:
 
         if (imin < 2)
         {
-            dispatch::swap<Strategy>::apply(d[imin]);
+            strategy::distance::services::swap<Strategy>::apply(d[imin]);
         }
         return strategy.apply(d[imin]);
     }

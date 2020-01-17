@@ -148,6 +148,20 @@ public :
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap<strategy::closest_points::cartesian<CalculationType, Strategy> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
 }}} // namespace strategy::distance::services
 
 }} // namespace boost::geometry

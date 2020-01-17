@@ -65,7 +65,25 @@ template <typename Strategy> struct get_comparable
 template <typename Strategy, typename P1, typename P2>
 struct result_from_distance {};
 
+template <typename StrategyType>
+struct swap
+{
+    template <typename T>
+    static inline T apply(T& t)
+    {
+        return t;
+    }
+};
 
+template <typename StrategyType>
+struct mirror
+{
+    template <typename T>
+    static inline T apply(T& t)
+    {
+        return t;
+    }
+};
 
 
 // Default strategy

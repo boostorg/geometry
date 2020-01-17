@@ -151,7 +151,7 @@ struct generic_segment_box
                         SegmentBoxStrategy::distance_ps_strategy::type()
                                             .apply(bottom_left, p0, p1));
 
-            dispatch::swap<SegmentBoxStrategy>::apply(result);
+            strategy::distance::services::swap<SegmentBoxStrategy>::apply(result);
         }
         else
         {

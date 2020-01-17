@@ -311,6 +311,41 @@ public :
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct swap<strategy::closest_points::spherical_segment_box<CalculationType, Strategy> >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.swap();
+    }
+};
+
+template
+<
+      typename CalculationType,
+      typename Strategy
+>
+struct mirror
+       <
+            strategy::closest_points::spherical_segment_box
+            <
+                CalculationType,
+                Strategy
+            >
+       >
+{
+    template <typename Result>
+    static inline void apply(Result& res)
+    {
+        res.mirror();
+    }
+};
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
