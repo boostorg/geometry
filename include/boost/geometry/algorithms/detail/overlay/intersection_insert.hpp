@@ -46,8 +46,9 @@
 
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
-#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_areal.hpp>
 #include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -1401,6 +1402,135 @@ struct intersection_insert
             <
                 MultiPoint, Linestring, TupledOut, overlay_intersection
             >::apply(multipoint, linestring, robust_policy, out, strategy);
+    }
+};
+
+
+// dispatch for difference/intersection of pointlike-areal geometries
+template
+<
+    typename Point, typename Areal, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename ArealTag
+>
+struct intersection_insert
+    <
+        Point, Areal, PointOut, OverlayType,
+        Reverse1, Reverse2,
+        point_tag, ArealTag, point_tag,
+        pointlike_tag, areal_tag, pointlike_tag
+    > : detail_dispatch::overlay::pointlike_areal_point
+        <
+            Point, Areal, PointOut, OverlayType,
+            point_tag, ArealTag
+        >
+{};
+
+template
+<
+    typename MultiPoint, typename Areal, typename PointOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename ArealTag
+>
+struct intersection_insert
+    <
+        MultiPoint, Areal, PointOut, OverlayType,
+        Reverse1, Reverse2,
+        multi_point_tag, ArealTag, point_tag,
+        pointlike_tag, areal_tag, pointlike_tag
+    > : detail_dispatch::overlay::pointlike_areal_point
+        <
+            MultiPoint, Areal, PointOut, OverlayType,
+            multi_point_tag, ArealTag
+        >
+{};
+
+// This specialization is needed because intersection() reverses the arguments
+// for MultiPoint/Ring and MultiPoint/Polygon combinations.
+template
+<
+    typename Areal, typename MultiPoint, typename PointOut,
+    bool Reverse1, bool Reverse2,
+    typename ArealTag
+>
+struct intersection_insert
+    <
+        Areal, MultiPoint, PointOut, overlay_intersection,
+        Reverse1, Reverse2,
+        ArealTag, multi_point_tag, point_tag,
+        areal_tag, pointlike_tag, pointlike_tag
+    >
+{
+    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
+    static inline OutputIterator apply(Areal const& areal,
+                                       MultiPoint const& multipoint,
+                                       RobustPolicy const& robust_policy,
+                                       OutputIterator out,
+                                       Strategy const& strategy)
+    {
+        return detail_dispatch::overlay::pointlike_areal_point
+            <
+                MultiPoint, Areal, PointOut, overlay_intersection,
+                multi_point_tag, ArealTag
+            >::apply(multipoint, areal, robust_policy, out, strategy);
+    }
+};
+
+
+template
+<
+    typename PointLike, typename Areal, typename TupledOut,
+    overlay_type OverlayType,
+    bool Reverse1, bool Reverse2,
+    typename TagIn1, typename TagIn2
+>
+struct intersection_insert
+    <
+        PointLike, Areal, TupledOut, OverlayType,
+        Reverse1, Reverse2,
+        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+        pointlike_tag, areal_tag, detail::intersection::tupled_output_tag
+    >
+    // Reuse the implementation for PointLike/PointLike.
+    : intersection_insert
+        <
+            PointLike, Areal, TupledOut, OverlayType,
+            Reverse1, Reverse2,
+            TagIn1, TagIn2, detail::intersection::tupled_output_tag,
+            pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+        >
+{};
+
+
+// This specialization is needed because intersection() reverses the arguments
+// for MultiPoint/Ring and MultiPoint/Polygon combinations.
+template
+<
+    typename Areal, typename MultiPoint, typename TupledOut,
+    bool Reverse1, bool Reverse2,
+    typename TagIn1
+>
+struct intersection_insert
+    <
+        Areal, MultiPoint, TupledOut, overlay_intersection,
+        Reverse1, Reverse2,
+        TagIn1, multi_point_tag, detail::intersection::tupled_output_tag,
+        areal_tag, pointlike_tag, detail::intersection::tupled_output_tag
+    >
+{
+    template <typename RobustPolicy, typename OutputIterators, typename Strategy>
+    static inline OutputIterators apply(Areal const& areal,
+                                        MultiPoint const& multipoint,
+                                        RobustPolicy const& robust_policy,
+                                        OutputIterators out,
+                                        Strategy const& strategy)
+    {
+        return intersection_insert
+            <
+                MultiPoint, Areal, TupledOut, overlay_intersection
+            >::apply(multipoint, areal, robust_policy, out, strategy);
     }
 };
 
