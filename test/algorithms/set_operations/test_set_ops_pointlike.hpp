@@ -1,11 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_SET_OPS_POINTLIKE_HPP
 #define BOOST_GEOMETRY_TEST_SET_OPS_POINTLIKE_HPP
@@ -183,7 +184,7 @@ struct geometry_info<Point, bg::point_tag>
 {
     static std::size_t const topological_dimension = 0;
 
-    static inline char const* name() { return "P"; }
+    static inline char const* name() { return "Pt"; }
 };
 
 template <typename MultiPoint>
@@ -191,7 +192,7 @@ struct geometry_info<MultiPoint, bg::multi_point_tag>
 {
     static std::size_t const topological_dimension = 0;
 
-    static inline char const* name() { return "MP"; }
+    static inline char const* name() { return "MPt"; }
 };
 
 template <typename Linestring>
@@ -218,7 +219,29 @@ struct geometry_info<Segment, bg::segment_tag>
     static inline char const* name() { return "S"; }
 };
 
+template <typename Ring>
+struct geometry_info<Ring, bg::ring_tag>
+{
+    static std::size_t const topological_dimension = 2;
 
+    static inline char const* name() { return "R"; }
+};
+
+template <typename Polygon>
+struct geometry_info<Polygon, bg::polygon_tag>
+{
+    static std::size_t const topological_dimension = 2;
+
+    static inline char const* name() { return "Po"; }
+};
+
+template <typename MultiPolygon>
+struct geometry_info<MultiPolygon, bg::multi_polygon_tag>
+{
+    static std::size_t const topological_dimension = 2;
+
+    static inline char const* name() { return "MPo"; }
+};
 
 //==================================================================
 //==================================================================
