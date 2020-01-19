@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019, 2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -13,7 +13,7 @@
 #ifndef BOOST_GEOMETRY_UTIL_TUPLES_HPP
 #define BOOST_GEOMETRY_UTIL_TUPLES_HPP
 
-#include <boost/config.hpp>
+#include <boost/geometry/core/config.hpp>
 
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/not.hpp>
@@ -23,11 +23,11 @@
 
 #include <utility>
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 #include <tuple>
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 namespace boost { namespace geometry { namespace tuples {
 
@@ -136,7 +136,7 @@ get(std::pair<F, S> const& p)
     return get_pair<I, std::pair<F, S> >::apply(p);
 }
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 template <int I, typename ...Ts>
 struct element<I, std::tuple<Ts...> >
@@ -162,7 +162,7 @@ get(std::tuple<Ts...> const& tup)
     return std::get<I>(tup);
 }
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 
 // find_index_if
@@ -300,18 +300,18 @@ struct push_back
 template <typename F, typename S, typename T>
 struct push_back<std::pair<F, S>, T>
 {
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
     typedef std::tuple<F, S, T> type;
 #else
     typedef boost::tuple<F, S, T> type;
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
     static type apply(std::pair<F, S> const& p, T const& t)
     {
         return type(p.first, p.second, t);
     }
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 #if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
 
     static type apply(std::pair<F, S> && p, T const& t)
@@ -325,11 +325,11 @@ struct push_back<std::pair<F, S>, T>
     }
 
 #endif
-#endif
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 };
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 // NOTE: In C++14 std::integer_sequence and std::make_integer_sequence could be used
 
@@ -386,7 +386,7 @@ struct push_back<std::tuple<Ts...>, T>
         >
 {};
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 
 }}} // namespace boost::geometry::tuples

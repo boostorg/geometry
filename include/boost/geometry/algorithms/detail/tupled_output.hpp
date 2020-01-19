@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -9,6 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TUPLED_OUTPUT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TUPLED_OUTPUT_HPP
 
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -196,14 +197,14 @@ struct is_tupled<std::pair<F, S> >
     : boost::integral_constant<bool, true>
 {};
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 template <typename ...Ts>
 struct is_tupled<std::tuple<Ts...> >
     : boost::integral_constant<bool, true>
 {};
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 
 
@@ -329,7 +330,7 @@ struct tupled_range_values<std::pair<F, S> >
         > type;
 };
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 template <typename ...Ts>
 struct tupled_range_values<std::tuple<Ts...> >
@@ -337,7 +338,7 @@ struct tupled_range_values<std::tuple<Ts...> >
     typedef std::tuple<typename boost::range_value<Ts>::type...> type;
 };
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 
 // util defining a type and creating a tuple holding back-insert-iterators to
@@ -396,7 +397,7 @@ struct tupled_back_inserters<std::pair<F, S> >
     }
 };
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
+#ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 // NOTE: In C++14 std::integer_sequence and std::make_integer_sequence could be used
 
@@ -423,7 +424,7 @@ struct tupled_back_inserters<std::tuple<Ts...> >
         >
 {};
 
-#endif // C++11
+#endif // BOOST_GEOMETRY_CXX11_TUPLE
 
 
 template
