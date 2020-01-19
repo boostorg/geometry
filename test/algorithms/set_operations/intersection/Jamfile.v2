@@ -22,7 +22,8 @@ test-suite boost-geometry-algorithms-intersection
     [ run intersection_linear_linear.cpp      : : : : algorithms_intersection_linear_linear ]
     [ run intersection_multi.cpp              : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
                                                     : algorithms_intersection_multi ]
-	[ run intersection_pl_a.cpp              : : : : algorithms_intersection_pl_a ]
+    [ run intersection_pl_a.cpp               : : : : algorithms_intersection_pl_a ]
     [ run intersection_pl_l.cpp               : : : : algorithms_intersection_pl_l ]
     [ run intersection_pl_pl.cpp              : : : : algorithms_intersection_pl_pl ]
+    [ run intersection_tupled.cpp             : : : : algorithms_intersection_tupled ]
     ;
