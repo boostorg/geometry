@@ -492,7 +492,7 @@ public :
             {
                 debug_traverse(*it, *iit, "-> Isolated point");
 
-                action::isolated_point
+                action::template isolated_point
                     <
                         typename pointlike::type
                     >(it->point, pointlike::get(out));
@@ -522,7 +522,7 @@ public :
         else if (FollowIsolatedPoints
               && current_piece_size == 1)
         {
-            action::isolated_point
+            action::template isolated_point
                 <
                     typename pointlike::type
                 >(range::front(current_piece), pointlike::get(out));
