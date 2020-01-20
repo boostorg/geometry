@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015, 2017, 2019.
-// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2017, 2019, 2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -156,8 +156,9 @@ struct intersection_linestring_linestring_point
 template
 <
     bool ReverseAreal,
-    typename LineStringOut,
-    overlay_type OverlayType
+    typename GeometryOut,
+    overlay_type OverlayType,
+    bool FollowIsolatedPoints
 >
 struct intersection_of_linestring_with_areal
 {
@@ -190,112 +191,6 @@ struct intersection_of_linestring_with_areal
                   << std::endl;
     }
 #endif
-
-#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-
-    class is_crossing_turn
-    {
-        // return true is the operation is intersection or blocked
-        template <std::size_t Index, typename Turn>
-        static inline bool has_op_i_or_b(Turn const& t)
-        {
-            return
-                t.operations[Index].operation == overlay::operation_intersection
-                ||
-                t.operations[Index].operation == overlay::operation_blocked;
-        }
-
-        template <typename Turn>
-        static inline bool has_method_crosses(Turn const& t)
-        {
-            return t.method == overlay::method_crosses;
-        }
-
-        template <typename Turn>
-        static inline bool is_cc(Turn const& t)
-        {
-            return
-                (t.method == overlay::method_touch_interior
-                 ||
-                 t.method == overlay::method_equal
-                 ||
-                 t.method == overlay::method_collinear)
-                &&
-                t.operations[0].operation == t.operations[1].operation
-                &&
-                t.operations[0].operation == overlay::operation_continue
-                ;
-        }
-
-        template <typename Turn>
-        static inline bool has_i_or_b_ops(Turn const& t)
-        {
-            return
-                (t.method == overlay::method_touch
-                 ||
-                 t.method == overlay::method_touch_interior
-                 ||
-                 t.method == overlay::method_collinear)
-                &&
-                t.operations[1].operation != t.operations[0].operation
-                &&
-                (has_op_i_or_b<0>(t) || has_op_i_or_b<1>(t));
-        }
-
-    public:
-        template <typename Turn>
-        static inline bool apply(Turn const& t)
-        {
-            bool const is_crossing
-                = has_method_crosses(t) || is_cc(t) || has_i_or_b_ops(t);
-#if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
-            debug_turn(t, ! is_crossing);
-#endif
-            return is_crossing;
-        }
-    };
-
-    struct is_non_crossing_turn
-    {
-        template <typename Turn>
-        static inline bool apply(Turn const& t)
-        {
-            return ! is_crossing_turn::apply(t);
-        }
-    };
-
-    template <typename Turns>
-    static inline bool no_crossing_turns_or_empty(Turns const& turns)
-    {
-        return detail::check_iterator_range
-            <
-                is_non_crossing_turn,
-                true // allow an empty turns range
-            >::apply(boost::begin(turns), boost::end(turns));
-    }
-
-    template <typename Turns>
-    static inline int inside_or_outside_turn(Turns const& turns)
-    {
-        using namespace overlay;
-        for (typename Turns::const_iterator it = turns.begin();
-                it != turns.end(); ++it)
-        {
-            operation_type op0 = it->operations[0].operation;
-            operation_type op1 = it->operations[1].operation;
-            if (op0 == operation_intersection && op1 == operation_intersection)
-            {
-                return 1; // inside
-            }
-            else if (op0 == operation_union && op1 == operation_union)
-            {
-                return -1; // outside
-            }
-        }
-        return 0;
-    }
-
-#else // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
 
     template <typename Linestring, typename Areal, typename Strategy, typename Turns>
     static inline bool simple_turns_analysis(Linestring const& linestring,
@@ -378,8 +273,6 @@ struct intersection_of_linestring_with_areal
         return true;
     }
 
-#endif // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-
     template
     <
         typename LineString, typename Areal,
@@ -405,26 +298,29 @@ struct intersection_of_linestring_with_areal
 
         typedef detail::overlay::follow
                 <
-                    LineStringOut,
+                    GeometryOut,
                     LineString,
                     Areal,
                     OverlayType,
-                    false // do not remove spikes for linear geometries
+                    false, // do not remove spikes for linear geometries
+                    FollowIsolatedPoints
                 > follower;
 
-        typedef typename point_type<LineStringOut>::type point_type;
+        typedef typename geometry::detail::output_geometry_access
+            <
+                GeometryOut, linestring_tag, linestring_tag
+            > linear;
+
+        typedef typename point_type
+            <
+                typename linear::type
+            >::type point_type;
 
         typedef geometry::segment_ratio
             <
                 typename coordinate_type<point_type>::type
             > ratio_type;
 
-#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-        typedef detail::overlay::traversal_turn_info
-            <
-                point_type, ratio_type
-            > turn_info;
-#else
         typedef detail::overlay::turn_info
             <
                 point_type,
@@ -435,47 +331,11 @@ struct intersection_of_linestring_with_areal
                         ratio_type
                     >
             > turn_info;
-#endif
+
         std::deque<turn_info> turns;
 
         detail::get_turns::no_interrupt_policy policy;
 
-#ifdef BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-
-        geometry::get_turns
-            <
-                false,
-                (OverlayType == overlay_intersection ? ReverseAreal : !ReverseAreal),
-                detail::overlay::assign_null_policy
-            >(linestring, areal, strategy, robust_policy, turns, policy);
-
-        if (no_crossing_turns_or_empty(turns))
-        {
-            // No intersection points, it is either
-            // inside (interior + borders)
-            // or outside (exterior + borders)
-
-            // analyse the turns
-            int inside_value = inside_or_outside_turn(turns);            
-            if (inside_value == 0)
-            {
-                // if needed analyse points of a linestring
-                // NOTE: range_in_geometry checks points of a linestring
-                // until a point inside/outside areal is found
-                inside_value = overlay::range_in_geometry(linestring, areal, strategy);
-            }
-            // add linestring to the output if conditions are met
-            if (inside_value != 0 && follower::included(inside_value))
-            {
-                LineStringOut copy;
-                geometry::convert(linestring, copy);
-                *out++ = copy;
-            }
-            return out;
-        }
-
-#else // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-        
         typedef detail::overlay::get_turn_info_linear_areal
             <
                 detail::overlay::assign_null_policy
@@ -505,16 +365,14 @@ struct intersection_of_linestring_with_areal
             // add linestring to the output if conditions are met
             if (follower::included(inside_value))
             {
-                LineStringOut copy;
+                typename linear::type copy;
                 geometry::convert(linestring, copy);
-                *out++ = copy;
+                *linear::get(out)++ = copy;
             }
 
             return out;
         }
         
-#endif // BOOST_GEOMETRY_SETOPS_LA_OLD_BEHAVIOR
-
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
         int index = 0;
         for(typename std::deque<turn_info>::const_iterator
@@ -683,6 +541,45 @@ template <typename GeometryOut>
 struct tag<GeometryOut, true>
 {
     typedef tupled_output_tag type;
+};
+
+
+template <typename Geometry1, typename Geometry2, typename TupledOut>
+struct expect_output_pl
+{
+    static const bool is_point_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
+        >::value;
+    static const bool is_linestring_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
+        >::value;
+    static const bool is_output_correct = is_point_found && is_linestring_found;
+
+    // NOTE: This is not fully correct because points can be the result only in
+    // case of intersection but intersection_insert is called also by difference.
+    // So this requirement could be relaxed in the future.
+    BOOST_MPL_ASSERT_MSG
+        (
+            is_output_correct, POINTLIKE_AND_LINEAR_GEOMETRIES_EXPECTED_IN_TUPLED_OUTPUT
+            , (types<Geometry1, Geometry2, TupledOut>)
+        );
+};
+
+template <typename Geometry1, typename Geometry2, typename TupledOut>
+struct expect_output_p
+{
+    static const bool is_point_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
+        >::value;
+
+    BOOST_MPL_ASSERT_MSG
+        (
+            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
+            , (types<Geometry1, Geometry2, TupledOut>)
+        );
 };
 
 
@@ -862,7 +759,8 @@ struct intersection_insert
             <
                 ReversePolygon,
                 GeometryOut,
-                OverlayType
+                OverlayType,
+                false
             >
 {};
 
@@ -886,7 +784,8 @@ struct intersection_insert
             <
                 ReverseRing,
                 GeometryOut,
-                OverlayType
+                OverlayType,
+                false
             >
 {};
 
@@ -1091,26 +990,8 @@ struct intersection_insert
         TagIn1, TagIn2, detail::intersection::tupled_output_tag,
         linear_tag, linear_tag, detail::intersection::tupled_output_tag
     >
+    : detail::intersection::expect_output_pl<Linear1, Linear2, TupledOut>
 {
-    static const bool is_point_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
-        >::value;
-    static const bool is_linestring_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
-        >::value;
-    static const bool is_output_correct = is_point_found && is_linestring_found;
-
-    // NOTE: This is not fully correct because points can be the result only in
-    // case of intersection but intersection_insert is called also by difference.
-    // So this requirement could be relaxed in the future.
-    BOOST_MPL_ASSERT_MSG
-        (
-            is_output_correct, POINTLIKE_AND_LINEAR_GEOMETRIES_EXPECTED_IN_TUPLED_OUTPUT
-            , (types<Linear1, Linear2, TupledOut>)
-        );
-
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
     // iterators in OutputIterators tuple/pair.
     template
@@ -1223,18 +1104,8 @@ struct intersection_insert
         TagIn1, TagIn2, detail::intersection::tupled_output_tag,
         pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
     >
+    : detail::intersection::expect_output_p<PointLike1, PointLike2, TupledOut>
 {
-    static const bool is_point_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
-        >::value;
-
-    BOOST_MPL_ASSERT_MSG
-        (
-            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
-            , (types<PointLike1, PointLike2, TupledOut>)
-        );
-
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
     // of iterators in OutputIterators tuple/pair.
     template
@@ -1533,6 +1404,55 @@ struct intersection_insert
             >::apply(multipoint, areal, robust_policy, out, strategy);
     }
 };
+
+
+template
+<
+    typename Linestring, typename Polygon,
+    typename TupledOut,
+    overlay_type OverlayType,
+    bool ReverseLinestring, bool ReversePolygon
+>
+struct intersection_insert
+    <
+        Linestring, Polygon,
+        TupledOut,
+        OverlayType,
+        ReverseLinestring, ReversePolygon,
+        linestring_tag, polygon_tag, detail::intersection::tupled_output_tag,
+        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                ReversePolygon,
+                TupledOut,
+                OverlayType,
+                true
+            >
+{};
+
+template
+<
+    typename Linestring, typename Ring,
+    typename TupledOut,
+    overlay_type OverlayType,
+    bool ReverseLinestring, bool ReverseRing
+>
+struct intersection_insert
+    <
+        Linestring, Ring,
+        TupledOut,
+        OverlayType,
+        ReverseLinestring, ReverseRing,
+        linestring_tag, ring_tag, detail::intersection::tupled_output_tag,
+        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+    > : detail::intersection::intersection_of_linestring_with_areal
+            <
+                ReverseRing,
+                TupledOut,
+                OverlayType,
+                true
+            >
+{};
 
 
 } // namespace dispatch

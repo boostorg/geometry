@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -192,6 +192,7 @@ protected:
     <
         typename TurnIterator,
         typename TurnOperationIterator,
+        typename LinestringOut,
         typename SegmentIdentifier,
         typename OutputIterator,
         typename SideStrategy
@@ -202,7 +203,7 @@ protected:
                  bool& entered,
                  std::size_t& enter_count,
                  Linestring const& linestring,
-                 GeometryOut& current_piece,
+                 LinestringOut& current_piece,
                  SegmentIdentifier& current_segment_id,
                  OutputIterator oit,
                  SideStrategy const& strategy)
@@ -217,7 +218,7 @@ protected:
             entered = true;
             if ( enter_count == 0 )
             {
-                action::enter(linear::get(current_piece),
+                action::enter(current_piece,
                               linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
@@ -234,7 +235,7 @@ protected:
             if ( enter_count == 0 )
             {
                 entered = false;
-                action::leave(linear::get(current_piece),
+                action::leave(current_piece,
                               linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
@@ -265,6 +266,7 @@ protected:
     template
     <
         typename SegmentIdentifier,
+        typename LinestringOut,
         typename OutputIterator,
         typename SideStrategy
     >
@@ -272,7 +274,7 @@ protected:
     process_end(bool entered,
                 Linestring const& linestring,
                 SegmentIdentifier const& current_segment_id,
-                GeometryOut& current_piece,
+                LinestringOut& current_piece,
                 OutputIterator oit,
                 SideStrategy const& strategy)
     {
@@ -289,13 +291,13 @@ protected:
                          static_cast<signed_size_type>(boost::size(linestring) - 1),
                          strategy,
                          robust_policy,
-                         linear::get(current_piece));
+                         current_piece);
         }
 
         // Output the last one, if applicable
-        if (::boost::size(linear::get(current_piece)) > 1)
+        if (::boost::size(current_piece) > 1)
         {
-            *linear::get(oit)++ = linear::get(current_piece);
+            *linear::get(oit)++ = current_piece;
         }
 
         return oit;
@@ -312,7 +314,7 @@ public:
         // Iterate through all intersection points (they are
         // ordered along the each line)
 
-        GeometryOut current_piece;
+        typename linear::type current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
 
         bool entered = false;
