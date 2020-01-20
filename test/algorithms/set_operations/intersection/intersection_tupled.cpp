@@ -217,12 +217,47 @@ inline void test_ll()
 }
 
 template <typename Tup>
+inline void test_la()
+{
+    test_one<Ls, R, Tup>(
+        "LINESTRING(0 2, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9, 4 5, 3 3, 2 5, 2 9, 0 5)",
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0))",
+        "MULTIPOINT(0 2, 5 2, 5 5, 0 5)",
+        "MULTILINESTRING((0 0, 5 0),(4 5, 3 3, 2 5))");
+
+    test_one<Ls, Po, Tup>(
+        "LINESTRING(1 4, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9, 4 5, 3 3, 2 5, 2 9, 0 5)",
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "MULTIPOINT(5 2, 5 5, 0 5)",
+        "MULTILINESTRING((1 4, 0 3.4)(0 0, 5 0),(4 5, 3.5 4),(2.5 4, 2 5))");
+
+    test_one<MLs, R, Tup>(
+        "MULTILINESTRING((0 2, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9), (4 9, 4 5, 3 3, 2 5, 2 9, 0 5))",
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0))",
+        "MULTIPOINT(0 2, 5 2, 5 5, 0 5)",
+        "MULTILINESTRING((0 0, 5 0),(4 5, 3 3, 2 5))");
+
+    test_one<MLs, Po, Tup>(
+        "MULTILINESTRING((1 4, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9), (4 9, 4 5, 3 3, 2 5, 2 9, 0 5))",
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "MULTIPOINT(5 2, 5 5, 0 5)",
+        "MULTILINESTRING((1 4, 0 3.4)(0 0, 5 0),(4 5, 3.5 4),(2.5 4, 2 5))");
+
+    test_one<MLs, MPo, Tup>(
+        "MULTILINESTRING((1 4, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9), (4 9, 4 5, 4 4, 2 2, 2 5, 1 9, 0 5))",
+        "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0)),((0 0, 1 2, 2 2, 2 1, 0 0)))",
+        "MULTIPOINT(5 2, 5 5, 2 2, 0 5)",
+        "MULTILINESTRING((1 4, 0 3.4)(0 0, 5 0),(4 5, 4 4),(2 4, 2 5))");
+}
+
+template <typename Tup>
 inline void test_pair()
 {
     test_pp<Tup>();
     test_pl<Tup>();
     test_pa<Tup>();
     test_ll<Tup>();
+    test_la<Tup>();
 }
 
 template <typename Tup>
@@ -232,7 +267,7 @@ inline void test_tuple()
     test_pl<Tup>();
     test_pa<Tup>();
     test_ll<Tup>();
-    //test_la<Tup>();
+    test_la<Tup>();
     //test_aa<Tup>();
 }
 
