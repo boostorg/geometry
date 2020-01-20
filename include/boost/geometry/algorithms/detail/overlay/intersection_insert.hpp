@@ -1125,19 +1125,14 @@ struct intersection_insert
                 TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
             >::value;
 
-        typedef typename bgt::element
-            <
-                out_point_index, TupledOut
-            >::type out_point_type;
-
-        typedef typename bgt::element
-            <
-                out_point_index, OutputIterators
-            >::type out_iter_type;
-
         bgt::get<out_point_index>(oits) = intersection_insert
             <
-                PointLike1, PointLike2, out_point_type, OverlayType
+                PointLike1, PointLike2,
+                typename bgt::element
+                    <
+                        out_point_index, TupledOut
+                    >::type,
+                OverlayType
             >::apply(pointlike1, pointlike2, robust_policy,
                      bgt::get<out_point_index>(oits),
                      strategy);
