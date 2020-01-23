@@ -36,56 +36,62 @@ typedef bg::model::multi_polygon<Po> MPo;
 #endif
 
 template <typename G>
-inline void check(G const& g, std::string const& expected)
+inline void check(std::string const& wkt1,
+                  std::string const& wkt2,
+                  G const& g,
+                  std::string const& expected)
 {
-    if (expected.empty())
+    G expect;
+    bg::read_wkt(expected, expect);
+    bg::correct(expect);
+    if (! boost::empty(g) || ! boost::empty(expect))
     {
         BOOST_CHECK_MESSAGE(
-            boost::empty(g),
-            bg::wkt(g) << " expected to be empty"
-        );
-    }
-    else
-    {
-        G expect;
-        bg::read_wkt(expected, expect);
-        bg::correct(expect);
-        BOOST_CHECK_MESSAGE(
+            // Commented out becasue the output in reversed case may be slightly different
+            //   e.g. different number of duplicated points in MultiPoint
+            //boost::size(g) == boost::size(expect) &&
             bg::equals(g, expect),
-            bg::wkt(g) << " different than expected: " << expected
+            wkt1 << " x " << wkt2 << " -> " << bg::wkt(g)
+                 << " different than expected: " << expected
         );
     }
 }
 
-inline void check(boost::tuple<MPt, MLs, MPo> const& tup,
+inline void check(std::string const& wkt1,
+                  std::string const& wkt2,
+                  boost::tuple<MPt, MLs, MPo> const& tup,
                   std::string const& out_p_str,
                   std::string const& out_l_str,
                   std::string const& out_a_str)
 {
-    check(boost::get<0>(tup), out_p_str);
-    check(boost::get<1>(tup), out_l_str);
-    check(boost::get<2>(tup), out_a_str);
+    check(wkt1, wkt2, boost::get<0>(tup), out_p_str);
+    check(wkt1, wkt2, boost::get<1>(tup), out_l_str);
+    check(wkt1, wkt2, boost::get<2>(tup), out_a_str);
 }
 
-inline void check(std::pair<MPt, MLs> const& pair,
+inline void check(std::string const& wkt1,
+                  std::string const& wkt2,
+                  std::pair<MPt, MLs> const& pair,
                   std::string const& out_p_str,
                   std::string const& out_l_str,
                   std::string const& )
 {
-    check(pair.first, out_p_str);
-    check(pair.second, out_l_str);
+    check(wkt1, wkt2, pair.first, out_p_str);
+    check(wkt1, wkt2, pair.second, out_l_str);
 }
 
 #ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
-inline void check(std::tuple<MPt, MLs, MPo> const& tup,
+inline void check(std::string const& wkt1,
+                  std::string const& wkt2,
+                  std::tuple<MPt, MLs, MPo> const& tup,
                   std::string const& out_p_str,
                   std::string const& out_l_str,
                   std::string const& out_a_str)
 {
-    check(std::get<0>(tup), out_p_str);
-    check(std::get<1>(tup), out_l_str);
-    check(std::get<2>(tup), out_a_str);
+    check(wkt1, wkt2, std::get<0>(tup), out_p_str);
+    check(wkt1, wkt2, std::get<1>(tup), out_l_str);
+    check(wkt1, wkt2, std::get<2>(tup), out_a_str);
 }
 
 #endif
@@ -93,9 +99,9 @@ inline void check(std::tuple<MPt, MLs, MPo> const& tup,
 template <typename In1, typename In2, typename Tup>
 inline void test_one(std::string const& in1_str,
                      std::string const& in2_str,
-                     std::string const& out_p_str = "",
-                     std::string const& out_l_str = "",
-                     std::string const& out_a_str = "")
+                     std::string const& out_p_str = "MULTIPOINT()",
+                     std::string const& out_l_str = "MULTILINESTRING()",
+                     std::string const& out_a_str = "MULTIPOLYGON()")
 {
     In1 in1;
     bg::read_wkt(in1_str, in1);
@@ -108,12 +114,12 @@ inline void test_one(std::string const& in1_str,
     {
         Tup result;
         bg::intersection(in1, in2, result);
-        check(result, out_p_str, out_l_str, out_a_str);
+        check(in1_str, in2_str, result, out_p_str, out_l_str, out_a_str);
     }
     {
         Tup result;
         bg::intersection(in2, in1, result);
-        check(result, out_p_str, out_l_str, out_a_str);
+        check(in1_str, in2_str, result, out_p_str, out_l_str, out_a_str);
     }
 }
 
@@ -189,9 +195,9 @@ inline void test_pa()
         "MULTIPOINT(0 0, 4 4, 5 5)");
 
     test_one<MPt, MPo, Tup>(
-        "MULTIPOINT(0 0, 1 1, 2 2, 3 3, 4 4, 5 5, 6 6)",
+        "MULTIPOINT(0 0, 0 0, 1 1, 2 2, 3 3, 4 4, 5 5, 6 6)",
         "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0)),((0 0, 1 2, 2 2, 2 1, 0 0)))",
-        "MULTIPOINT(0 0, 1 1, 2 2, 4 4, 5 5)");
+        "MULTIPOINT(0 0, 0 0, 1 1, 2 2, 4 4, 5 5)"); // one (0 0) could be filtered out
 }
 
 template <typename Tup>
@@ -212,8 +218,22 @@ inline void test_ll()
     test_one<MLs, MLs, Tup>(
         "MULTILINESTRING((0 0, 1 0, 2 1),(2 1, 3 0))",
         "MULTILINESTRING((0 0, 1 0, 3 0),(2 1, 2 2))",
-        "MULTIPOINT(3 0, 2 1)",
+        "MULTIPOINT(3 0, 2 1, 2 1)", // (2 1) could be filtered out
         "MULTILINESTRING((0 0, 1 0))");
+
+
+    test_one<Ls, Ls, Tup>(
+        "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)",
+        "LINESTRING(0 0, 0 1, 6 1, 5 2, 5 5, 5 6, 4 5, 4 7, 7 7, 7 0, 0 0)",
+        "MULTIPOINT(4 5, 5 1, 0 0)", // (0 0) could be filtered out
+        "MULTILINESTRING((0 0, 0 1), (5 5, 5 2), (5 0, 0 0))");
+
+    test_one<MLs, MLs, Tup>(
+        "MULTILINESTRING((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "MULTILINESTRING((0 0, 1 4, 5 4, 5 1, 4 1, 0 0),(0 0, 2 1, 2 2, 1 2, 0 0))",
+        // all (0 0) could be filtered out
+        "MULTIPOINT(0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0)",
+        "MULTILINESTRING((5 4,5 1),(0 0,4 1),(4 4,1 4,0 0))");
 }
 
 template <typename Tup>
@@ -248,6 +268,67 @@ inline void test_la()
         "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0)),((0 0, 1 2, 2 2, 2 1, 0 0)))",
         "MULTIPOINT(5 2, 5 5, 2 2, 0 5)",
         "MULTILINESTRING((1 4, 0 3.4)(0 0, 5 0),(4 5, 4 4),(2 4, 2 5))");
+
+
+    test_one<Ls, R, Tup>(
+        "LINESTRING(0 0, 0 5, 5 5, 5 0, 0 0)",
+        "POLYGON((0 0, 0 1, 6 1, 5 2, 5 5, 5 6, 4 5, 4 7, 7 7, 7 0, 0 0))",
+        "MULTIPOINT(4 5)",
+        "MULTILINESTRING((0 0, 0 1), (5 5, 5 2), (5 1, 5 0, 0 0))");
+
+    test_one<MLs, Po, Tup>(
+        "MULTILINESTRING((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "POLYGON((0 0, 1 4, 5 4, 5 1, 4 1, 0 0),(0 0, 2 1, 2 2, 1 2, 0 0))",
+        "MULTIPOINT(0 0)", // (0 0) could be filtered out
+        "MULTILINESTRING((5 4, 5 1),(0 0, 4 1, 4 4, 1 4, 0 0))");
+}
+
+template <typename Tup>
+inline void test_aa()
+{
+    test_one<R, R, Tup>(
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0))",
+        "POLYGON((0 0, 0 1, 6 1, 5 2, 5 5, 5 6, 4 5, 4 7, 7 7, 7 0, 0 0))",
+        "MULTIPOINT(4 5)",
+        "MULTILINESTRING((5 2, 5 5))",
+        "MULTIPOLYGON(((0 0, 0 1, 5 1, 5 0, 0 0)))");
+
+    test_one<R, MPo, Tup>(
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0))",
+        "MULTIPOLYGON(((0 0, 0 1, 6 1, 6 0, 0 0)),"
+                     "((6 1, 5 2, 5 5, 5 6, 4 5, 4 7, 7 7, 7 1, 6 1)))",
+        "MULTIPOINT(4 5)",
+        "MULTILINESTRING((5 2, 5 5))",
+        "MULTIPOLYGON(((0 0, 0 1, 5 1, 5 0, 0 0)))");
+
+    test_one<Po, Po, Tup>(
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "POLYGON((0 0, 1 4, 5 4, 5 1, 4 1, 0 0),(0 0, 2 1, 2 2, 1 2, 0 0))",
+        // all (0 0) could be filtered out
+        "MULTIPOINT(0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0)",
+        "MULTILINESTRING((0 0, 1 4, 4 4),(0 0, 4 1))",
+        "MULTIPOLYGON(((4 1, 4 4, 5 4, 5 1, 4 1)))");
+
+    test_one<Po, MPo, Tup>(
+        "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0))",
+        "MULTIPOLYGON(((0 0, 1 4, 5 4, 5 1, 4 1, 0 0),(0 0, 2 1, 2 2, 1 2, 0 0)),"
+                     "((5 0, 5 1, 6 1, 6 4, 5 4, 3 6, 2 5, 2 7, 7 7, 7 0 5 0)))",
+        // all (0 0) and (5 0) could be filtered out
+        "MULTIPOINT(2 5, 5 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0)",
+        "MULTILINESTRING((0 0, 1 4, 4 4),(0 0, 4 1),(5 1, 5 0))",
+        "MULTIPOLYGON(((4 1, 4 4, 5 4, 5 1, 4 1)),((5 4, 4 5, 5 5, 5 4)))");
+
+    test_one<MPo, MPo, Tup>(
+        "MULTIPOLYGON(((0 0, 0 5, 5 5, 5 0, 0 0),(0 0, 4 1, 4 4, 1 4, 0 0)),"
+                     "((2 6, 2 8, 8 8, 8 5, 7 5, 7 6, 2 6)))",
+        "MULTIPOLYGON(((0 0, 1 4, 5 4, 5 1, 4 1, 0 0),(0 0, 2 1, 2 2, 1 2, 0 0)),"
+                     "((5 0, 5 1, 6 1, 6 4, 5 4, 3 6, 2 5, 2 7, 7 7, 7 0 5 0)))",
+        // all (0 0) and (5 0) could be filtered out
+        "MULTIPOINT(2 5, 5 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0)",
+        "MULTILINESTRING((0 0, 1 4, 4 4),(0 0, 4 1),(5 1, 5 0),(7 5, 7 6))",
+        "MULTIPOLYGON(((4 1, 4 4, 5 4, 5 1, 4 1)),"
+                     "((5 4, 4 5, 5 5, 5 4)),"
+                     "((2 6, 2 7, 7 7, 7 6, 2 6)))");
 }
 
 template <typename Tup>
@@ -268,7 +349,7 @@ inline void test_tuple()
     test_pa<Tup>();
     test_ll<Tup>();
     test_la<Tup>();
-    //test_aa<Tup>();
+    test_aa<Tup>();
 }
 
 int test_main(int, char* [])
