@@ -110,10 +110,6 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
             >::type areal_out_type;
         typedef typename geometry::tuples::element
             <
-                linear::index, TupledOut
-            >::type linear_out_type;
-        typedef typename geometry::tuples::element
-            <
                 pointlike::index, TupledOut
             >::type pointlike_out_type;
 
