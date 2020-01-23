@@ -545,29 +545,6 @@ struct tag<GeometryOut, true>
 
 
 template <typename Geometry1, typename Geometry2, typename TupledOut>
-struct expect_output_pl
-{
-    static const bool is_point_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
-        >::value;
-    static const bool is_linestring_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
-        >::value;
-    static const bool is_output_correct = is_point_found && is_linestring_found;
-
-    // NOTE: This is not fully correct because points can be the result only in
-    // case of intersection but intersection_insert is called also by difference.
-    // So this requirement could be relaxed in the future.
-    BOOST_MPL_ASSERT_MSG
-        (
-            is_output_correct, POINTLIKE_AND_LINEAR_GEOMETRIES_EXPECTED_IN_TUPLED_OUTPUT
-            , (types<Geometry1, Geometry2, TupledOut>)
-        );
-};
-
-template <typename Geometry1, typename Geometry2, typename TupledOut>
 struct expect_output_p
 {
     static const bool is_point_found = geometry::tuples::exists_if
@@ -577,9 +554,41 @@ struct expect_output_p
 
     BOOST_MPL_ASSERT_MSG
         (
-            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT
-            , (types<Geometry1, Geometry2, TupledOut>)
+            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
+            (types<Geometry1, Geometry2, TupledOut>)
         );
+};
+
+template <typename Geometry1, typename Geometry2, typename TupledOut>
+struct expect_output_pl
+    : expect_output_p<Geometry1, Geometry2, TupledOut>
+{
+    static const bool is_linestring_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
+        >::value;
+
+    BOOST_MPL_ASSERT_MSG
+        (
+            is_linestring_found, LINEAR_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
+            (types<Geometry1, Geometry2, TupledOut>)
+        );
+};
+
+template <typename Geometry1, typename Geometry2, typename TupledOut>
+struct expect_output_pla
+    : expect_output_pl<Geometry1, Geometry2, TupledOut>
+{
+    static const bool is_polygon_found = geometry::tuples::exists_if
+        <
+            TupledOut, geometry::detail::is_tag_same_as_pred<polygon_tag>::template pred
+        >::value;
+
+    BOOST_MPL_ASSERT_MSG
+    (
+        is_polygon_found, AREAL_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
+        (types<Geometry1, Geometry2, TupledOut>)
+    );
 };
 
 
@@ -990,6 +999,9 @@ struct intersection_insert
         TagIn1, TagIn2, detail::intersection::tupled_output_tag,
         linear_tag, linear_tag, detail::intersection::tupled_output_tag
     >
+    // NOTE: This is not fully correct because points can be the result only in
+    // case of intersection but intersection_insert is called also by difference.
+    // So this requirement could be relaxed in the future.
     : detail::intersection::expect_output_pl<Linear1, Linear2, TupledOut>
 {
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
