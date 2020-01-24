@@ -31,10 +31,9 @@
 #include <boost/geometry/index/detail/rtree/node/variant_dynamic.hpp>
 #include <boost/geometry/index/detail/rtree/node/variant_static.hpp>
 
-#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
-
 #include <boost/geometry/algorithms/expand.hpp>
 
+#include <boost/geometry/index/detail/rtree/visitors/destroy.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/is_leaf.hpp>
 
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
@@ -102,41 +101,47 @@ inline Box values_box(FwdIter first, FwdIter last, Translator const& tr,
 }
 
 // destroys subtree if the element is internal node's element
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename MembersHolder>
 struct destroy_element
 {
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
 
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
-    typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
-
-    inline static void apply(typename internal_node::elements_type::value_type & element, Allocators & allocators)
+    inline static void apply(typename internal_node::elements_type::value_type & element,
+                             allocators_type & allocators)
     {
-         subtree_destroyer dummy(element.second, allocators);
+         detail::rtree::visitors::destroy<MembersHolder>::apply(element.second, allocators);
+
          element.second = 0;
     }
 
-    inline static void apply(typename leaf::elements_type::value_type &, Allocators &) {}
+    inline static void apply(typename leaf::elements_type::value_type &,
+                             allocators_type &)
+    {}
 };
 
 // destroys stored subtrees if internal node's elements are passed
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename MembersHolder>
 struct destroy_elements
 {
+    typedef typename MembersHolder::value_type value_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
+
     template <typename Range>
-    inline static void apply(Range & elements, Allocators & allocators)
+    inline static void apply(Range & elements, allocators_type & allocators)
     {
         apply(boost::begin(elements), boost::end(elements), allocators);
     }
 
     template <typename It>
-    inline static void apply(It first, It last, Allocators & allocators)
+    inline static void apply(It first, It last, allocators_type & allocators)
     {
         typedef boost::mpl::bool_<
             boost::is_same<
-                Value, typename std::iterator_traits<It>::value_type
+                value_type, typename std::iterator_traits<It>::value_type
             >::value
         > is_range_of_values;
 
@@ -145,37 +150,38 @@ struct destroy_elements
 
 private:
     template <typename It>
-    inline static void apply_dispatch(It first, It last, Allocators & allocators,
+    inline static void apply_dispatch(It first, It last, allocators_type & allocators,
                                       boost::mpl::bool_<false> const& /*is_range_of_values*/)
     {
-        typedef rtree::subtree_destroyer<Value, Options, Translator, Box, Allocators> subtree_destroyer;
-
         for ( ; first != last ; ++first )
         {
-            subtree_destroyer dummy(first->second, allocators);
+            detail::rtree::visitors::destroy<MembersHolder>::apply(first->second, allocators);
+
             first->second = 0;
         }
     }
 
     template <typename It>
-    inline static void apply_dispatch(It /*first*/, It /*last*/, Allocators & /*allocators*/,
+    inline static void apply_dispatch(It /*first*/, It /*last*/, allocators_type & /*allocators*/,
                                       boost::mpl::bool_<true> const& /*is_range_of_values*/)
     {}
 };
 
 // clears node, deletes all subtrees stored in node
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+/*
+template <typename MembersHolder>
 struct clear_node
 {
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::node node;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
-    inline static void apply(node & node, Allocators & allocators)
+    inline static void apply(node & node, allocators_type & allocators)
     {
-        rtree::visitors::is_leaf<Value, Options, Box, Allocators> ilv;
+        rtree::visitors::is_leaf<MembersHolder> ilv;
         rtree::apply_visitor(ilv, node);
         if ( ilv.result )
         {
@@ -187,17 +193,18 @@ struct clear_node
         }
     }
 
-    inline static void apply(internal_node & internal_node, Allocators & allocators)
+    inline static void apply(internal_node & internal_node, allocators_type & allocators)
     {
-        destroy_elements<Value, Options, Translator, Box, Allocators>::apply(rtree::elements(internal_node), allocators);
+        destroy_elements<MembersHolder>::apply(rtree::elements(internal_node), allocators);
         rtree::elements(internal_node).clear();
     }
 
-    inline static void apply(leaf & leaf, Allocators &)
+    inline static void apply(leaf & leaf, allocators_type &)
     {
         rtree::elements(leaf).clear();
     }
 };
+*/
 
 template <typename Container, typename Iterator>
 void move_from_back(Container & container, Iterator it)

@@ -190,51 +190,119 @@ public:
 
 private:
 
-    typedef detail::translator<IndexableGetter, EqualTo> translator_type;
-
     typedef bounds_type box_type;
-    typedef typename detail::rtree::options_type<Parameters>::type options_type;
-    typedef typename options_type::node_tag node_tag;
-    typedef detail::rtree::allocators
-        <
-            allocator_type,
-            value_type,
-            typename options_type::parameters_type,
-            box_type,
-            node_tag
-        > allocators_type;
 
-    typedef typename detail::rtree::node
-        <
-            value_type,
-            typename options_type::parameters_type,
-            box_type,
-            allocators_type,
-            node_tag
-        >::type node;
-    typedef typename detail::rtree::internal_node
-        <
-            value_type,
-            typename options_type::parameters_type,
-            box_type,
-            allocators_type,
-            node_tag
-        >::type internal_node;
-    typedef typename detail::rtree::leaf
-        <
-            value_type,
-            typename options_type::parameters_type,
-            box_type,
-            allocators_type,
-            node_tag
-        >::type leaf;
+    struct members_holder
+        : public detail::translator<IndexableGetter, EqualTo>
+        , public Parameters
+        , public detail::rtree::allocators
+            <
+                Allocator,
+                Value,
+                Parameters,
+                bounds_type,
+                typename detail::rtree::options_type<Parameters>::type::node_tag
+            >
+    {
+        typedef Value value_type;
+        typedef typename rtree::bounds_type bounds_type;
+        typedef Parameters parameters_type;
+        //typedef IndexableGetter indexable_getter;
+        //typedef EqualTo value_equal;
+        //typedef Allocator allocator_type;
 
-    typedef typename allocators_type::node_pointer node_pointer;
-    typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
-    typedef detail::rtree::subtree_destroyer
-        <
-            value_type, options_type, translator_type, box_type, allocators_type
-        > subtree_destroyer;
+        typedef bounds_type box_type;
+        typedef detail::translator<IndexableGetter, EqualTo> translator_type;
+        typedef typename detail::rtree::options_type<Parameters>::type options_type;
+        typedef typename options_type::node_tag node_tag;
+        typedef detail::rtree::allocators
+            <
+                Allocator, Value, Parameters, bounds_type, node_tag
+            > allocators_type;
+
+        typedef typename detail::rtree::node
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type node;
+        typedef typename detail::rtree::internal_node
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type internal_node;
+        typedef typename detail::rtree::leaf
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag
+            >::type leaf;
+
+        // TODO: only one visitor type is needed
+        typedef typename detail::rtree::visitor
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag, false
+            >::type visitor;
+        typedef typename detail::rtree::visitor
+            <
+                value_type, parameters_type, bounds_type, allocators_type, node_tag, true
+            >::type visitor_const;
+
+        typedef typename allocators_type::node_pointer node_pointer;
+
+        typedef ::boost::container::allocator_traits<Allocator> allocator_traits_type;
+        typedef typename allocators_type::size_type size_type;
+
+    private:
+        members_holder(members_holder const&);
+        members_holder & operator=(members_holder const&);
+
+    public:
+        template <typename IndGet, typename ValEq, typename Alloc>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
+                       Parameters const& parameters,
+                       BOOST_FWD_REF(Alloc) alloc)
+            : translator_type(ind_get, val_eq)
+            , Parameters(parameters)
+            , allocators_type(boost::forward<Alloc>(alloc))
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
+
+        template <typename IndGet, typename ValEq>
+        members_holder(IndGet const& ind_get,
+                       ValEq const& val_eq,
+                       Parameters const& parameters)
+            : translator_type(ind_get, val_eq)
+            , Parameters(parameters)
+            , allocators_type()
+            , values_count(0)
+            , leafs_level(0)
+            , root(0)
+        {}
+
+        translator_type const& translator() const { return *this; }
+
+        IndexableGetter const& indexable_getter() const { return *this; }
+        IndexableGetter & indexable_getter() { return *this; }
+        EqualTo const& equal_to() const { return *this; }
+        EqualTo & equal_to() { return *this; }
+        Parameters const& parameters() const { return *this; }
+        Parameters & parameters() { return *this; }
+        allocators_type const& allocators() const { return *this; }
+        allocators_type & allocators() { return *this; }
+
+        size_type values_count;
+        size_type leafs_level;
+        node_pointer root;
+    };
+
+    typedef typename members_holder::translator_type translator_type;    
+    typedef typename members_holder::options_type options_type;
+    typedef typename members_holder::allocators_type allocators_type;
+    typedef typename members_holder::node node;
+    typedef typename members_holder::internal_node internal_node;
+    typedef typename members_holder::leaf leaf;
+
+    typedef typename members_holder::node_pointer node_pointer;
+    typedef typename members_holder::allocator_traits_type allocator_traits_type;
 
     friend class detail::rtree::utilities::view<rtree>;
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
@@ -330,10 +398,11 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        typedef detail::rtree::pack<members_holder> pack;
         size_type vc = 0, ll = 0;
         m_members.root = pack::apply(first, last, vc, ll,
-                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+                                     m_members.parameters(), m_members.translator(),
+                                     m_members.allocators());
         m_members.values_count = vc;
         m_members.leafs_level = ll;
     }
@@ -362,10 +431,11 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        typedef detail::rtree::pack<value_type, options_type, translator_type, box_type, allocators_type> pack;
+        typedef detail::rtree::pack<members_holder> pack;
         size_type vc = 0, ll = 0;
         m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
-                                     m_members.parameters(), m_members.translator(), m_members.allocators());
+                                     m_members.parameters(), m_members.translator(),
+                                     m_members.allocators());
         m_members.values_count = vc;
         m_members.leafs_level = ll;
     }
@@ -1023,9 +1093,9 @@ private:
     template <typename Predicates>
     typename boost::mpl::if_c<
         detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
         detail::rtree::iterators::distance_query_iterator<
-            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+            members_holder, Predicates,
             detail::predicates_find_distance<Predicates>::value
         >
     >::type
@@ -1036,9 +1106,9 @@ private:
 
         typedef typename boost::mpl::if_c<
             detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
             detail::rtree::iterators::distance_query_iterator<
-                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+                members_holder, Predicates,
                 detail::predicates_find_distance<Predicates>::value
             >
         >::type iterator_type;
@@ -1084,9 +1154,9 @@ private:
     template <typename Predicates>
     typename boost::mpl::if_c<
         detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+        detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
         detail::rtree::iterators::distance_query_iterator<
-            value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+            members_holder, Predicates,
             detail::predicates_find_distance<Predicates>::value
         >
     >::type
@@ -1097,9 +1167,9 @@ private:
 
         typedef typename boost::mpl::if_c<
             detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<value_type, options_type, translator_type, box_type, allocators_type, Predicates>,
+            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
             detail::rtree::iterators::distance_query_iterator<
-                value_type, options_type, translator_type, box_type, allocators_type, Predicates,
+                members_holder, Predicates,
                 detail::predicates_find_distance<Predicates>::value
             >
         >::type iterator_type;
@@ -1305,7 +1375,7 @@ public:
         {
             detail::rtree::visitors::children_box
                 <
-                    value_type, options_type, translator_type, box_type, allocators_type
+                    members_holder
                 > box_v(result, m_members.parameters(), m_members.translator());
             detail::rtree::apply_visitor(box_v, *m_members.root);
         }
@@ -1468,12 +1538,9 @@ private:
         // CONSIDER: alternative - ignore invalid indexable or throw an exception
         BOOST_GEOMETRY_INDEX_ASSERT(detail::is_valid(m_members.translator()(value)), "Indexable is invalid");
 
-        detail::rtree::visitors::insert<
-            value_type,
-            value_type, options_type, translator_type, box_type, allocators_type,
-            typename options_type::insert_tag
-        > insert_v(m_members.root, m_members.leafs_level, value,
-                   m_members.parameters(), m_members.translator(), m_members.allocators());
+        detail::rtree::visitors::insert<value_type, members_holder>
+            insert_v(m_members.root, m_members.leafs_level, value,
+                     m_members.parameters(), m_members.translator(), m_members.allocators());
 
         detail::rtree::apply_visitor(insert_v, *m_members.root);
 
@@ -1499,10 +1566,9 @@ private:
         // TODO: awulkiew - assert for correct value (indexable) ?
         BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
 
-        detail::rtree::visitors::remove<
-            value_type, options_type, translator_type, box_type, allocators_type
-        > remove_v(m_members.root, m_members.leafs_level, value,
-                   m_members.parameters(), m_members.translator(), m_members.allocators());
+        detail::rtree::visitors::remove<members_holder>
+            remove_v(m_members.root, m_members.leafs_level, value,
+                     m_members.parameters(), m_members.translator(), m_members.allocators());
 
         detail::rtree::apply_visitor(remove_v, *m_members.root);
 
@@ -1547,9 +1613,8 @@ private:
     {
         if ( t.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
-                del_v(t.m_members.root, t.m_members.allocators());
-            detail::rtree::apply_visitor(del_v, *t.m_members.root);
+            detail::rtree::visitors::destroy<members_holder>
+                ::apply(t.m_members.root, t.m_members.allocators());
 
             t.m_members.root = 0;
         }
@@ -1570,8 +1635,7 @@ private:
     */
     inline void raw_copy(rtree const& src, rtree & dst, bool copy_tr_and_params) const
     {
-        detail::rtree::visitors::copy<value_type, options_type, translator_type, box_type, allocators_type>
-            copy_v(dst.m_members.allocators());
+        detail::rtree::visitors::copy<members_holder> copy_v(dst.m_members.allocators());
 
         if ( src.m_members.root )
             detail::rtree::apply_visitor(copy_v, *src.m_members.root);                      // MAY THROW (V, E: alloc, copy, N: alloc)
@@ -1586,9 +1650,9 @@ private:
         // TODO use subtree_destroyer
         if ( dst.m_members.root )
         {
-            detail::rtree::visitors::destroy<value_type, options_type, translator_type, box_type, allocators_type>
-                del_v(dst.m_members.root, dst.m_members.allocators());
-            detail::rtree::apply_visitor(del_v, *dst.m_members.root);
+            detail::rtree::visitors::destroy<members_holder>
+                ::apply(dst.m_members.root, dst.m_members.allocators());
+
             dst.m_members.root = 0;
         }
 
@@ -1680,10 +1744,8 @@ private:
     template <typename Predicates, typename OutIter>
     size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_distance_predicate*/) const
     {
-        detail::rtree::visitors::spatial_query
-            <
-                value_type, options_type, translator_type, box_type, allocators_type, Predicates, OutIter
-            >find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
+        detail::rtree::visitors::spatial_query<members_holder, Predicates, OutIter>
+            find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
 
         detail::rtree::apply_visitor(find_v, *m_members.root);
 
@@ -1703,11 +1765,7 @@ private:
 
         static const unsigned distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
         detail::rtree::visitors::distance_query<
-            value_type,
-            options_type,
-            translator_type,
-            box_type,
-            allocators_type,
+            members_holder,
             Predicates,
             distance_predicate_index,
             OutIter
@@ -1732,68 +1790,13 @@ private:
         detail::rtree::visitors::count
             <
                 ValueOrIndexable,
-                value_type,
-                options_type,
-                translator_type,
-                box_type,
-                allocators_type
+                members_holder
             > count_v(vori, m_members.parameters(), m_members.translator());
 
         detail::rtree::apply_visitor(count_v, *m_members.root);
 
         return count_v.found_count;
     }
-
-    struct members_holder
-        : public translator_type
-        , public Parameters
-        , public allocators_type
-    {
-    private:
-        members_holder(members_holder const&);
-        members_holder & operator=(members_holder const&);
-
-    public:
-        template <typename IndGet, typename ValEq, typename Alloc>
-        members_holder(IndGet const& ind_get,
-                       ValEq const& val_eq,
-                       Parameters const& parameters,
-                       BOOST_FWD_REF(Alloc) alloc)
-            : translator_type(ind_get, val_eq)
-            , Parameters(parameters)
-            , allocators_type(boost::forward<Alloc>(alloc))
-            , values_count(0)
-            , leafs_level(0)
-            , root(0)
-        {}
-
-        template <typename IndGet, typename ValEq>
-        members_holder(IndGet const& ind_get,
-                       ValEq const& val_eq,
-                       Parameters const& parameters)
-            : translator_type(ind_get, val_eq)
-            , Parameters(parameters)
-            , allocators_type()
-            , values_count(0)
-            , leafs_level(0)
-            , root(0)
-        {}
-
-        translator_type const& translator() const { return *this; }
-
-        IndexableGetter const& indexable_getter() const { return *this; }
-        IndexableGetter & indexable_getter() { return *this; }
-        EqualTo const& equal_to() const { return *this; }
-        EqualTo & equal_to() { return *this; }
-        Parameters const& parameters() const { return *this; }
-        Parameters & parameters() { return *this; }
-        allocators_type const& allocators() const { return *this; }
-        allocators_type & allocators() { return *this; }
-
-        size_type values_count;
-        size_type leafs_level;
-        node_pointer root;
-    };
 
     members_holder m_members;
 };
