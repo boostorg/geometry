@@ -60,6 +60,9 @@ int main()
 Output:
 [pre
 Covered: Yes
+
+[$img/algorithms/covered_by.png]
+
 Covered: No
 Covered: Yes
 ]

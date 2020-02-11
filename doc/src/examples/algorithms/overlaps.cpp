@@ -52,6 +52,9 @@ int main()
 Output:
 [pre
 Overlaps: Yes
+
+[$img/algorithms/overlaps.png]
+
 Overlaps: No
 ]
 */

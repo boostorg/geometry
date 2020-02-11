@@ -53,6 +53,9 @@ Output:
 [pre
 Disjoint: Yes
 Disjoint: No
+
+[$img/algorithms/disjoint.png]
+
 ]
 */
 //]

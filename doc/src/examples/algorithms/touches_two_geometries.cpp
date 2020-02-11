@@ -52,6 +52,9 @@ int main()
 Output:
 [pre
 Touches: Yes
+
+[$img/algorithms/touches_two_geometries.png]
+
 Touches: No
 ]
 */

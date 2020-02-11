@@ -34,7 +34,7 @@ int main()
 
     // Edge case: linestring just touches the polygon but doesn't crosses it.
     bg::model::linestring<bg::model::d2::point_xy<double> > line2;
-    bg::read_wkt("LINESTRING(1 1,2 2,3 3)", line2);
+    bg::read_wkt("LINESTRING(1 1,1 2,1 3)", line2);
     check_crosses = bg::crosses(poly, line2);
     if (check_crosses) {
          std::cout << "Crosses: Yes" << std::endl;
@@ -54,6 +54,9 @@ Output:
 [pre
 Crosses: Yes
 Crosses: No
+
+[$img/algorithms/crosses.png]
+
 ]
 */
 //]
