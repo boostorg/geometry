@@ -134,41 +134,144 @@ struct closest_points
     }
 };
 
-/*
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct closest_points<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
+struct closest_points<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2 >
 {
     template <typename Segment, typename Strategy>
-    struct visitor: boost::static_visitor<void>
+    struct visitor: static_visitor<void>
     {
-        Segment& m_shortest_seg;
+        Geometry2 const& m_geometry2;
+        Segment& m_shortest_segment;
         Strategy const& m_strategy;
-        visitor(Segment const& shortest_seg, Strategy const& strategy)
-            : m_shortest_seg(shortest_seg)
-            , m_strategy(strategy)
+
+        visitor(Geometry2 const& geometry2,
+                Segment& shortest_seg,
+                Strategy const& strategy)
+            :  m_geometry2(geometry2)
+            ,  m_shortest_segment(shortest_seg)
+            ,  m_strategy(strategy)
         {}
-        template <typename Geometry>
-        void operator()(Geometry const& geometry, Geometry& out) const
+
+        template <typename Geometry1>
+        void operator()(Geometry1 const& geometry1) const
         {
-            closest_points<Geometry>::apply(geometry1, geometry2,
-                                            m_shortest_seg, m_strategy);
+            closest_points
+                <
+                    Geometry1,
+                    Geometry2
+                >::apply(geometry1, m_geometry2, m_shortest_segment, m_strategy);
         }
     };
+
     template <typename Segment, typename Strategy>
     static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
+          Geometry2 const& geometry2,
+          Segment& shortest_seg,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(
+                    visitor<Segment, Strategy>(geometry2,
+                                               shortest_seg,
+                                               strategy),
+                    geometry1);
+    }
+};
+
+
+template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct closest_points<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+{
+    template <typename Segment, typename Strategy>
+    struct visitor: static_visitor<void>
+    {
+        Geometry1 const& m_geometry1;
+        Segment& m_shortest_segment;
+        Strategy const& m_strategy;
+
+        visitor(Geometry1 const& geometry1,
+                Segment& shortest_seg,
+                Strategy const& strategy)
+            :  m_geometry1(geometry1)
+            ,  m_shortest_segment(shortest_seg)
+            ,  m_strategy(strategy)
+        {}
+
+        template <typename Geometry2>
+        void operator()(Geometry2 const& geometry2) const
+        {
+            closest_points
+                <
+                    Geometry1,
+                    Geometry2
+                >::apply(m_geometry1, geometry2, m_shortest_segment, m_strategy);
+        }
+    };
+
+    template <typename Segment, typename Strategy>
+    static inline void
+    apply(Geometry1 const& geometry1,
           boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2,
           Segment& shortest_seg,
           Strategy const& strategy)
     {
-        boost::apply_visitor(
-            visitor<Segment, Strategy>(shortest_seg, strategy),
-            geometry1,
-            geometry2
-        );
+        return boost::apply_visitor(
+                    visitor<Segment, Strategy>(geometry1,
+                                               shortest_seg,
+                                               strategy),
+                    geometry2);
     }
 };
-*/
+
+
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T1),
+    BOOST_VARIANT_ENUM_PARAMS(typename T2)
+>
+struct closest_points
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
+    >
+{
+    template <typename Segment, typename Strategy>
+    struct visitor: static_visitor<void>
+    {
+        Segment& m_shortest_segment;
+        Strategy const& m_strategy;
+
+        visitor(Segment& shortest_seg, Strategy const& strategy)
+            :  m_shortest_segment(shortest_seg)
+            ,  m_strategy(strategy)
+        {}
+
+        template <typename Geometry1, typename Geometry2>
+        void operator()(Geometry1 const& geometry1,
+                        Geometry2 const& geometry2) const
+        {
+            closest_points
+                <
+                    Geometry1,
+                    Geometry2
+                >::apply(geometry1, geometry2, m_shortest_segment, m_strategy);
+        }
+    };
+
+    template <typename Segment, typename Strategy>
+    static inline void
+    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
+          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
+          Segment& shortest_seg,
+          Strategy const& strategy)
+    {
+        return boost::apply_visitor(
+                    visitor<Segment, Strategy>(shortest_seg, strategy),
+                    geometry1, geometry2);
+    }
+};
+
 
 } // namespace resolve_variant
 

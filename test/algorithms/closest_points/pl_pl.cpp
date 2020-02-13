@@ -81,6 +81,39 @@ void test_closest_points_multi_point_multi_point(Strategy const& strategy)
                   strategy);
 }
 
+
+template <typename Point, typename Strategy>
+void test_variant(Strategy const& strategy)
+{
+    typedef Point point_type;
+    typedef bg::model::segment<point_type> segment_type;
+    typedef bg::model::multi_point<point_type> mp_type;
+    typedef boost::variant<point_type, mp_type> variant_type;
+
+    point_type point1;
+    bg::read_wkt("POINT(1 3)", point1);
+
+    point_type point2;
+    bg::read_wkt("POINT(2 3)", point2);
+
+    mp_type mpoint;
+    bg::read_wkt("MULTIPOINT((1 1),(2 0),(0 1),(2 1))", mpoint);
+
+    variant_type v1, v2;
+
+    v1 = point1;
+    v2 = point2;
+    segment_type res;
+    bg::read_wkt("SEGMENT(1 3,2 3)", res);
+    compute_result(v1, v2, res, strategy, false);
+
+    v1 = point1;
+    v2 = mpoint;
+    bg::read_wkt("SEGMENT(1 3,1 1)", res);
+    compute_result(v1, v2, res, strategy, false);
+
+}
+
 //===========================================================================
 //===========================================================================
 //===========================================================================
@@ -91,6 +124,8 @@ void test_all_pl_pl(Strategy pp_strategy)
     test_closest_points_point_point<Point>(pp_strategy);
     test_closest_points_point_multi_point<Point>(pp_strategy);
     test_closest_points_multi_point_multi_point<Point>(pp_strategy);
+
+    test_variant<Point>(pp_strategy);
 
     test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
 }
