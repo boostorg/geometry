@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2020-2021 Digvijay Janartha, Hamirpur, India.
+// Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
