@@ -275,25 +275,24 @@ struct closest_points
 
 } // namespace resolve_variant
 
-
 /*!
-\brief Closest points
+\brief Calculate the closest points between two geometries \brief_strategy
 \ingroup closest_points
-\tparam Geometry \tparam_geometry
-\tparam Segment A segment type
-\tparam Strategy A type fulfilling a ClosestPointsStrategy concept
-\param geometry1 Input geometry1
-\param geometry2 Input geometry2
-\param shortest_seg Output segment
-\param strategy ClosestPoints strategy
+\details
+\details The free function closest_points calculates the distance between two geometries \brief_strategy. \details_strategy_reasons
+
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Segment Any type fulfilling a Segment Concept
+\tparam Strategy \tparam_strategy{Closest Points}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param shortest_seg Output segment containing the closest points
+\param strategy \param_strategy{closest_points}
+\note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
+    it may also be a point-segment strategy.
+
 \qbk{distinguish,with strategy}
-\qbk{[include reference/algorithms/closest_points.qbk]}
-\qbk{
-[heading Available Strategies]
-[heading Example]
-[closest_points]
-[closest_points_output]
-}
 */
 template <typename Geometry1, typename Geometry2, typename Segment, typename Strategy>
 inline void closest_points(Geometry1 const& geometry1,
@@ -318,13 +317,16 @@ inline void closest_points(Geometry1 const& geometry1,
 
 
 /*!
-\brief Closest points
+\brief Compute the closest points between two geometries.
 \ingroup closest_points
-\tparam Geometry \tparam_geometry
-\tparam Segment A segment type
-\param geometry1 Input geometry1
-\param geometry2 Input geometry2
-\param shortest_seg Output segment
+\details The free function closest_points calculates the closest points between two geometries. \details_default_strategy
+
+\tparam Geometry1 \tparam_geometry
+\tparam Geometry2 \tparam_geometry
+\tparam Segment Any type fulfilling a Segment Concept
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param shortest_seg Output segment containing the closest points
 \qbk{[include reference/algorithms/closest_points.qbk]}
 \qbk{
 [heading Example]

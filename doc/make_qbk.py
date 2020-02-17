@@ -96,8 +96,8 @@ def cs_to_quickbook(section):
 call_doxygen()
 
 algorithms = ["append", "assign", "make", "clear"
-    , "area", "buffer", "centroid", "convert", "correct", "covered_by"
-    , "convex_hull", "crosses", "densify", "difference"
+    , "area", "buffer", "centroid", "closest_points", "convert", "correct"
+    , "covered_by", "convex_hull", "crosses", "densify", "difference"
     , "discrete_frechet_distance", "discrete_hausdorff_distance", "disjoint"
     , "distance", "envelope", "equals", "expand", "for_each", "is_empty"
     , "is_simple", "is_valid", "intersection", "intersects", "length"

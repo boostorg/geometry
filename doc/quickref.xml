@@ -10,8 +10,8 @@
   Copyright (c) 2009-2015 Bruno Lalande, Paris, France.
   Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2014, 2015, 2017, 2018.
-  Modifications copyright (c) 2014-2018, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2014, 2015, 2017, 2018, 2020.
+  Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -376,6 +376,10 @@
     <bridgehead renderas="sect3">Clear</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.clear">clear</link></member>
+    </simplelist>
+    <bridgehead renderas="sect3">Closest Points</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.closest_points">closest_points</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Convert</bridgehead>
     <simplelist type="vert" columns="1">
