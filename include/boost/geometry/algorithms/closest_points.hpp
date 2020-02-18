@@ -293,7 +293,18 @@ struct closest_points
     it may also be a point-segment strategy.
 
 \qbk{distinguish,with strategy}
+
+\qbk{
+
+[heading Example]
+[closest_points_strategy]
+[closest_points_strategy_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.distance distance]
+}
 */
+
 template <typename Geometry1, typename Geometry2, typename Segment, typename Strategy>
 inline void closest_points(Geometry1 const& geometry1,
                            Geometry2 const& geometry2,

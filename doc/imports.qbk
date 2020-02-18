@@ -27,6 +27,7 @@
 [import src/examples/algorithms/buffer_with_strategies.cpp]
 [import src/examples/algorithms/clear.cpp]
 [import src/examples/algorithms/closest_points.cpp]
+[import src/examples/algorithms/closest_points_strategy.cpp]
 [import src/examples/algorithms/centroid.cpp]
 [import src/examples/algorithms/comparable_distance.cpp]
 [import src/examples/algorithms/convert.cpp]

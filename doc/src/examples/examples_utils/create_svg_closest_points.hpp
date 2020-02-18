@@ -1,7 +1,7 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2018, Oracle and/or its affiliates
+// Copyright (c) 2020, Oracle and/or its affiliates
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
