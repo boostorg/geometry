@@ -327,13 +327,18 @@ inline void closest_points(Geometry1 const& geometry1,
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param shortest_seg Output segment containing the closest points
-\qbk{[include reference/algorithms/closest_points.qbk]}
+
 \qbk{
+
 [heading Example]
 [closest_points]
 [closest_points_output]
+
+[heading See also]
+\* [link geometry.reference.algorithms.distance distance]
 }
 */
+
 template <typename Geometry1, typename Geometry2, typename Segment>
 inline void closest_points(Geometry1 const& geometry1,
                            Geometry2 const& geometry2,
