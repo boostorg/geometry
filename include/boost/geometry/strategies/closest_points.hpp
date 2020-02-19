@@ -24,18 +24,6 @@ namespace strategy { namespace closest_points
 namespace services
 {
 
-template <typename Strategy> struct tag {};
-
-template <typename Strategy, typename P1, typename P2>
-struct return_type
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY, (types<Strategy, P1, P2>)
-        );
-};
-
-
 template
 <
     typename GeometryTag1,
