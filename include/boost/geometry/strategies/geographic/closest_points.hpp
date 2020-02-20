@@ -263,6 +263,23 @@ struct swap<strategy::closest_points::geographic<CalculationType, Strategy> >
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct result_init
+<
+    strategy::closest_points::geographic<CalculationType, Strategy>
+>
+{
+    template <typename T, typename Point>
+    static inline void apply(T& result, Point const& point)
+    {
+        result.init(point);
+    }
+};
+
 }}} // namespace strategy::distance::services
 
 }} // namespace boost::geometry

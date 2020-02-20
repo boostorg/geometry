@@ -118,7 +118,10 @@ public :
             else
             {
                 BOOST_GEOMETRY_ASSERT(plat >= lat_min && plat <= lat_max);
-                return ReturnType();
+                ReturnType res;
+                strategy::distance::services::result_init<Strategy>
+                        ::apply(res, point);
+                return res;
             }
         }
 

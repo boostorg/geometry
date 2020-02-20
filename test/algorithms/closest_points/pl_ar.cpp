@@ -33,6 +33,7 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
     typedef bg::model::segment<Point> Segment;
     typedef bg::model::ring<Point> Ring;
     typedef bg::model::polygon<Point> Polygon;
+
     typedef test_geometry<Point, Ring, Segment> tester;
 
     tester::apply("POINT(1 1)",
@@ -40,6 +41,11 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
                   "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy);
+
+    tester::apply("POINT(0.4 0.4)",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.4 0.4,0.4 0.4)",
                   strategy);
 
     typedef test_geometry<Point, Polygon, Segment> tester2;
@@ -56,6 +62,18 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(1 1,0.5 0.5)",
                    "SEGMENT(1 1,0.499962 0.500095)",
                    "SEGMENT(1 1,0.503314 0.496737)",
+                   strategy);
+
+    tester2::apply("POINT(1 1)",
+                   "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(1 1,0.5 0.5)",
+                   "SEGMENT(1 1,0.499962 0.500095)",
+                   "SEGMENT(1 1,0.503314 0.496737)",
+                   strategy);
+
+    tester2::apply("POINT(0.01 0.01)",
+                   "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(0.01 0.01,0.01 0.01)",
                    strategy);
 }
 
@@ -121,7 +139,6 @@ void test_closest_points_point_box(Strategy const& strategy)
     tester::apply("POINT(15 15)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 15,15 15)",
-                  "SEGMENT(0 0,0 0)",
                   strategy);
 }
 
@@ -148,6 +165,12 @@ void test_closest_points_point_multi_polygon(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    tester::apply("POINT(0.01 0.01)",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.01 0.01,0.01 0.01)",
+                  strategy);
 }
 
 //===========================================================================
@@ -173,6 +196,11 @@ void test_closest_points_multi_point_polygon_or_ring(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    //tester::apply("MULTIPOINT((0.01 0.01),(1 1))",
+    //              "POLYGON((0 0,1 0,0 1,0 0))",
+    //              "SEGMENT(0.01 0.01,0.01 0.01)",
+    //              strategy);
 
     typedef test_geometry<MultiPoint, Polygon, Segment> tester2;
 

@@ -69,19 +69,26 @@ template <typename StrategyType>
 struct swap
 {
     template <typename T>
-    static inline T apply(T& t)
-    {
-        return t;
-    }
+    static inline void apply(T&)
+    {}
 };
 
 template <typename StrategyType>
 struct mirror
 {
     template <typename T>
-    static inline T apply(T& t)
+    static inline T apply(T&)
+    {}
+};
+
+template <typename StrategyType>
+struct result_init
+{
+    template <typename T, typename Point>
+    static inline void apply(T& result, Point const& point)
     {
-        return t;
+        boost::ignore_unused(point);
+        result = 0;
     }
 };
 

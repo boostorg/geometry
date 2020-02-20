@@ -39,6 +39,12 @@ void test_closest_points_point_segment(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    tester::apply("POINT(0 1)",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(0 1,0 1)",
+                  strategy);
+
     //default strategy
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
@@ -67,6 +73,11 @@ void test_closest_points_point_segment_diff_spheroid(Strategy const& strategy)
                   "SEGMENT(0 1,1 0)",
                   "SEGMENT(1 1,0.31099 0.67425)",
                   strategy);
+
+    tester::apply("POINT(0 1)",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(0 1,0 1)",
+                  strategy);
 }
 
 //===========================================================================
@@ -89,6 +100,11 @@ void test_closest_points_point_linestring(Strategy const& strategy)
                   "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy);
+
+    tester::apply("POINT(3 2)",
+                  "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(3 2,3 2)",
                   strategy);
 }
 
@@ -114,6 +130,11 @@ void test_closest_points_point_multi_linestring(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    tester::apply("POINT(1 3)",
+                  "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 3,1 3)",
+                  strategy);
 }
 
 //===========================================================================
@@ -136,6 +157,11 @@ void test_closest_points_multi_point_segment(Strategy const& strategy)
                   "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy);
+
+    tester::apply("MULTIPOINT((0 1),(1 1),(1 2))",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(0 1,0 1)",
                   strategy);
 }
 
@@ -161,6 +187,11 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    tester::apply("MULTIPOINT((3 2),(1 1),(3 0))",
+                  "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(3 2,3 2)",
+                  strategy);
 }
 
 //===========================================================================
@@ -185,6 +216,11 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
                   "SEGMENT(1 1,0.5 0.5)",
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy);
+
+    tester::apply("MULTIPOINT((5 0),(1 3),(6 0))",
+                  "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 3,1 3)",
                   strategy);
 }
 

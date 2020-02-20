@@ -433,6 +433,16 @@ public :
 
         result_type result;
 
+        // if the query points coincide with one of segments' endpoints
+        if ((lo1 == lo3 && la1 == la3) || (lo2 == lo3 && la2 == la3))
+        {
+            result.lon1 = lo3;
+            result.lat1 = la3;
+            result.lon2 = lo3;
+            result.lat2 = la3;
+            return result;
+        }
+
         // Constants
         //CT const f = geometry::formula::flattening<CT>(spheroid);
         CT const pi = math::pi<CT>();

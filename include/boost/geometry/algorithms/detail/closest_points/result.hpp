@@ -77,6 +77,16 @@ public :
         lat1 *= -1;
         lat2 *= -1;
     }
+
+    template <typename Point>
+    void init(Point const& point)
+    {
+        distance = 0;
+        lon1 = get_as_radian<0>(point);
+        lat1 = get_as_radian<1>(point);
+        lon2 = lon1;
+        lat2 = lat1;
+    }
 };
 
 }}

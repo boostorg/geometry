@@ -253,12 +253,32 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct swap<strategy::closest_points::cross_track_point_box<CalculationType, Strategy> >
+struct swap
+<
+    strategy::closest_points::cross_track_point_box<CalculationType, Strategy>
+>
 {
     template <typename Result>
     static inline void apply(Result& res)
     {
         res.swap();
+    }
+};
+
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct result_init
+<
+    strategy::closest_points::cross_track_point_box<CalculationType, Strategy>
+>
+{
+    template <typename T, typename Point>
+    static inline void apply(T& result, Point const& point)
+    {
+        result.init(point);
     }
 };
 

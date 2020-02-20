@@ -255,6 +255,23 @@ struct swap<strategy::closest_points::cross_track_box_box<CalculationType, Strat
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct result_init
+<
+    strategy::closest_points::cross_track_box_box<CalculationType, Strategy>
+>
+{
+    template <typename T, typename Point>
+    static inline void apply(T& result, Point const& point)
+    {
+        result.init(point);
+    }
+};
+
 } // namespace services
 #endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 

@@ -37,6 +37,11 @@ void test_closest_points_point_point(Strategy const& strategy)
                   "POINT(0 0)",
                   "SEGMENT(1 1,0 0)",
                   strategy);
+
+    tester::apply("POINT(1 1)",
+                  "POINT(1 1)",
+                  "SEGMENT(1 1,1 1)",
+                  strategy);
 }
 
 //===========================================================================
@@ -58,6 +63,11 @@ void test_closest_points_point_multi_point(Strategy const& strategy)
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
                   strategy);
+
+    tester::apply("POINT(2 0)",
+                  "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
+                  "SEGMENT(2 0,2 0)",
+                  strategy);
 }
 
 //===========================================================================
@@ -78,6 +88,11 @@ void test_closest_points_multi_point_multi_point(Strategy const& strategy)
     tester::apply("MULTIPOINT((-1 -1),(0 0))",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
+                  strategy);
+
+    tester::apply("MULTIPOINT((1 1),(0 0))",
+                  "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
+                  "SEGMENT(1 1,1 1)",
                   strategy);
 }
 
