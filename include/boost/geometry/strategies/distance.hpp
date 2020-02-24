@@ -77,7 +77,7 @@ template <typename StrategyType>
 struct mirror
 {
     template <typename T>
-    static inline T apply(T&)
+    static inline void apply(T&)
     {}
 };
 

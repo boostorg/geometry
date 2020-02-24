@@ -198,12 +198,14 @@ public:
         
         predicate_type predicate(areal, strategy.get_point_in_geometry_strategy());
 
-        if (check_iterator_range
+        int check = check_iterator_range_with_index
                 <
-                    predicate_type, false
+                    predicate_type
                 >::apply(boost::begin(multipoint),
                          boost::end(multipoint),
-                         predicate))
+                         predicate);
+
+        if (check < 0)
         {
             return_type res= detail::distance::point_or_segment_range_to_geometry_rtree
                 <
@@ -231,7 +233,10 @@ public:
             }
             return res;
         }
-        return return_type();
+        return_type res;
+        strategy::distance::services::result_init<Strategy>
+                ::apply(res, multipoint[check]);
+        return res;
     }
 
     static inline return_type apply(Areal const& areal,
