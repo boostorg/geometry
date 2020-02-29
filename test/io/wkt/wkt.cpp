@@ -48,6 +48,15 @@ void check_wkt(G const& geometry, std::string const& expected)
 }
 
 template <typename G>
+void check_to_wkt(G const& geometry, std::string const& expected)
+{
+    std::string out_string;
+    out_string = bg::to_wkt(geometry);
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string),
+                      boost::to_upper_copy(expected));
+}
+
+template <typename G>
 void test_wkt(std::string const& wkt, std::string const& expected,
               std::size_t n, double len = 0, double ar = 0, double peri = 0)
 {
@@ -75,6 +84,8 @@ void test_wkt(std::string const& wkt, std::string const& expected,
 
     check_wkt(geometry, expected);
     check_wkt(boost::variant<G>(geometry), expected);
+    check_to_wkt(geometry, expected);
+    check_to_wkt(boost::variant<G>(geometry), expected);
 }
 
 template <typename G>
@@ -94,6 +105,11 @@ void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
     out << bg::wkt(geometry);
 
     BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()), boost::to_upper_copy(expected));
+
+    std::string out_string;
+    out_string = bg::to_wkt(geometry);
+
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string), boost::to_upper_copy(expected));
 }
 
 
