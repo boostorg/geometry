@@ -87,6 +87,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.models.model_point">point</link></member>
      <member><link linkend="geometry.reference.models.model_d2_point_xy">point_xy</link></member>
+     <member><link linkend="geometry.reference.models.model_d3_point_xyz">point_xyz</link></member>
      <member><link linkend="geometry.reference.models.model_multi_point">multi_point</link></member>
       </simplelist>
     </entry>
