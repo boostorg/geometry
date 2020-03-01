@@ -715,6 +715,8 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.io.wkt.read_wkt">read_wkt</link></member>
      <member><link linkend="geometry.reference.io.wkt.wkt">wkt</link></member>
+     <member><link linkend="geometry.reference.io.wkt.to_wkt">to_wkt</link></member>
+     <member><link linkend="geometry.reference.io.wkt.from_wkt">from_wkt</link></member>
     </simplelist>
    </entry>
    <entry valign="top">
