@@ -907,6 +907,24 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
     dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
 }
 
+/*!
+\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry) and returns it
+\ingroup wkt
+\tparam Geometry \tparam_geometry
+\param wkt string containing \ref WKT
+\param geometry \param_geometry output geometry
+\ingroup wkt
+\qbk{[include reference/io/from_wkt.qbk]}
+*/
+template <typename Geometry>
+inline Geometry from_wkt(std::string const& wkt)
+{
+    Geometry geometry;
+    geometry::concepts::check<Geometry>();
+    dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
+    return geometry;
+}
+
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_IO_WKT_READ_HPP
