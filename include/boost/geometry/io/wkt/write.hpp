@@ -4,6 +4,7 @@
 // Copyright (c) 2008-2017 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2020 Baidyanath Kundu, Haldia, India.
 
 // This file was modified by Oracle on 2015-2020.
 // Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
@@ -69,34 +70,38 @@ template <typename Output>
 struct output_formatter
 {
     template <typename T>
-    static void add(Output & out, T const& v)
+    static void append(Output& out, T const& v)
     {
         out << v;
     }
 };
 
-template <>
-struct output_formatter<std::string>
+template <typename CharT, typename Traits, typename Allocator>
+struct output_formatter<std::basic_string<CharT, Traits, Allocator>>
 {
     template <typename T>
-    static void add(std::string & out, T const& val)
+    static void append(std::basic_string<CharT, Traits, Allocator>& out, T const& val)
     {
-        std::stringstream ss;
+        std::basic_stringstream<CharT, Traits, Allocator> ss;
         ss << val;
         out += ss.str();
     }
 
-    static void add(std::string & out, char c)
+    static void append(std::basic_string<CharT, Traits, Allocator>& out, CharT c)
     {
         out += c;
     }
 
-    static void add(std::string & out, const char * s)
+    static void append(std::basic_string<CharT, Traits, Allocator>& out, const CharT* s)
     {
         out += s;
     }
 
-    static void add(std::string & out, std::string const& str)
+    template <typename AppendCharT, typename AppendTraits, typename AppendAllocator>
+    static void append(
+        std::basic_string<CharT, Traits, Allocator>& out, 
+        std::basic_string<AppendCharT, AppendTraits, AppendAllocator> const& str
+        )
     {
         out += str;
     }
@@ -110,9 +115,9 @@ struct stream_coordinate
     {
         if (I > 0)
         {
-            output_formatter<Output>::add(out, ' ');
+            output_formatter<Output>::append(out, ' ');
         }
-        output_formatter<Output>::add(out, get<I>(p));
+        output_formatter<Output>::append(out, get<I>(p));
         stream_coordinate<P, I + 1, Count>::apply(out, p);
     }
 };
@@ -160,10 +165,10 @@ struct wkt_point
     template <typename Output>
     static inline void apply(Output& out, Point const& p, bool)
     {
-        output_formatter<Output>::add(out, Policy::apply());
-        output_formatter<Output>::add(out, "(");
+        output_formatter<Output>::append(out, Policy::apply());
+        output_formatter<Output>::append(out, "(");
         stream_coordinate<Point, 0, dimension<Point>::type::value>::apply(out, p);
-        output_formatter<Output>::add(out, ")");;
+        output_formatter<Output>::append(out, ")");;
     }
 };
 
@@ -182,6 +187,12 @@ struct wkt_range
 {
     template <typename Output>
     static inline void apply(Output& out,
+            rings = interior_rings(poly);
+        for (typename detail::interior_iterator<Polygon const>::type
+                it = boost::begin(rings); it != boost::end(rings); ++it)
+        {
+            output_formatter<Output>::append(out, ",");
+            wkt_sequence<ring>::apply(out, *it, force_closure);
                 Range const& range, bool force_closure = ForceClosurePossible)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_type;
@@ -193,7 +204,7 @@ struct wkt_range
 
         bool first = true;
 
-        output_formatter<Output>::add(out, PrefixPolicy::apply());
+        output_formatter<Output>::append(out, PrefixPolicy::apply());
 
         // TODO: check EMPTY here
 
@@ -203,7 +214,7 @@ struct wkt_range
         {
             if(!first)
             {
-                output_formatter<Output>::add(out, ",");
+                output_formatter<Output>::append(out, ",");
             }
             stream_type::apply(out, *it);
             first = false;
@@ -215,11 +226,11 @@ struct wkt_range
             && boost::size(range) > 1
             && wkt_range::disjoint(*begin, *(end - 1)))
         {
-            output_formatter<Output>::add(out, ",");
+            output_formatter<Output>::append(out, ",");
             stream_type::apply(out, *begin);
         }
 
-        output_formatter<Output>::add(out, SuffixPolicy::apply());
+        output_formatter<Output>::append(out, SuffixPolicy::apply());
     }
 
 
@@ -262,9 +273,9 @@ struct wkt_poly
     {
         typedef typename ring_type<Polygon const>::type ring;
 
-        output_formatter<Output>::add(out, PrefixPolicy::apply());
+        output_formatter<Output>::append(out, PrefixPolicy::apply());
         // TODO: check EMPTY here
-        output_formatter<Output>::add(out, "(");
+        output_formatter<Output>::append(out, "(");
         wkt_sequence<ring>::apply(out, exterior_ring(poly), force_closure);
 
         typename interior_return_type<Polygon const>::type
@@ -272,10 +283,10 @@ struct wkt_poly
         for (typename detail::interior_iterator<Polygon const>::type
                 it = boost::begin(rings); it != boost::end(rings); ++it)
         {
-            output_formatter<Output>::add(out, ",");
+            output_formatter<Output>::append(out, ",");
             wkt_sequence<ring>::apply(out, *it, force_closure);
         }
-        output_formatter<Output>::add(out, ")");
+        output_formatter<Output>::append(out, ")");
     }
 
 };
@@ -287,9 +298,9 @@ struct wkt_multi
     static inline void apply(Output& out,
                 Multi const& geometry, bool force_closure)
     {
-        output_formatter<Output>::add(out, PrefixPolicy::apply());
+        output_formatter<Output>::append(out, PrefixPolicy::apply());
         // TODO: check EMPTY here
-        output_formatter<Output>::add(out, "(");
+        output_formatter<Output>::append(out, "(");
 
         for (typename boost::range_iterator<Multi const>::type
                     it = boost::begin(geometry);
@@ -298,12 +309,12 @@ struct wkt_multi
         {
             if (it != boost::begin(geometry))
             {
-                output_formatter<Output>::add(out, ",");
+                output_formatter<Output>::append(out, ",");
             }
             StreamPolicy::apply(out, *it, force_closure);
         }
 
-        output_formatter<Output>::add(out, ")");
+        output_formatter<Output>::append(out, ")");
     }
 };
 
@@ -343,9 +354,9 @@ struct wkt_box
         {
             RingType ring;
             geometry::convert(box, ring);
-            output_formatter<Output>::add(out, "POLYGON(");
+            output_formatter<Output>::append(out, "POLYGON(");
             wkt_sequence<RingType, false>::apply(out, ring);
-            output_formatter<Output>::add(out, ")");
+            output_formatter<Output>::append(out, ")");
         }
 
 };
@@ -369,7 +380,7 @@ struct wkt_segment
 
         // In Boost.Geometry a segment is represented
         // in WKT-format like (for 2D): LINESTRING(x y,x y)
-        output_formatter<Output>::add(out, "LINESTRING");
+        output_formatter<Output>::append(out, "LINESTRING");
         wkt_sequence<sequence, false>::apply(out, points);
     }
 
@@ -603,7 +614,7 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \ingroup wkt
-\qbk{[include reference/io/wkt.qbk]}
+\qbk{[include reference/io/to_wkt.qbk]}
 */
 template <typename Geometry>
 inline std::string to_wkt(Geometry const& geometry)
