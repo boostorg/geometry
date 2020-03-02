@@ -187,12 +187,6 @@ struct wkt_range
 {
     template <typename Output>
     static inline void apply(Output& out,
-            rings = interior_rings(poly);
-        for (typename detail::interior_iterator<Polygon const>::type
-                it = boost::begin(rings); it != boost::end(rings); ++it)
-        {
-            output_formatter<Output>::append(out, ",");
-            wkt_sequence<ring>::apply(out, *it, force_closure);
                 Range const& range, bool force_closure = ForceClosurePossible)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_type;
@@ -621,7 +615,7 @@ inline std::string to_wkt(Geometry const& geometry)
 {
     concepts::check<Geometry const>();
     std::string out;
-    dispatch::devarianted_wkt<Geometry>::apply(out, geometry, !(boost::is_same<typename tag<Geometry>::type, ring_tag>::value));
+    dispatch::devarianted_wkt<Geometry>::apply(out, geometry, ! (boost::is_same<typename tag<Geometry>::type, ring_tag>::value));
     return out;
 }
 
