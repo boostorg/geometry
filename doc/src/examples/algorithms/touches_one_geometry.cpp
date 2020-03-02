@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[touches
+//[touches_one_geometry
 //` Checks if a geometry has at least one touching point (self-tangency)
 
 #include <iostream>
@@ -45,7 +45,7 @@ int main()
 //]
 
 
-//[touches_output
+//[touches_one_geometry_output
 /*`
 Output:
 [pre

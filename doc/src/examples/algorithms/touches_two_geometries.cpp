@@ -7,7 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[touches
+//[touches_two_geometries
 //` Checks if two geometries have at least one touching point (tangent - non overlapping)
 
 #include <iostream>
@@ -20,7 +20,7 @@ namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 
 int main()
 {
-    // Checks if the two geometries overlaps or not. 
+    // Checks if the two geometries touch
     bg::model::polygon<bg::model::d2::point_xy<double> > poly1;
     bg::read_wkt("POLYGON((0 0,0 4,4 4,4 0,0 0))", poly1);
     bg::model::polygon<bg::model::d2::point_xy<double> > poly2;
@@ -47,7 +47,7 @@ int main()
 //]
 
 
-//[touches_output
+//[touches_two_geometries_output
 /*`
 Output:
 [pre
