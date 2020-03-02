@@ -57,7 +57,7 @@ void check_to_wkt(G const& geometry, std::string const& expected)
 }
 
 template <typename G>
-void test_wkt(std::string const& wkt, std::string const& expected,
+void test_wkt_read_write(std::string const& wkt, std::string const& expected,
               std::size_t n, double len = 0, double ar = 0, double peri = 0)
 {
     G geometry;
@@ -84,8 +84,44 @@ void test_wkt(std::string const& wkt, std::string const& expected,
 
     check_wkt(geometry, expected);
     check_wkt(boost::variant<G>(geometry), expected);
+}
+
+template <typename G>
+void test_wkt_to_from(std::string const& wkt, std::string const& expected,
+              std::size_t n, double len = 0, double ar = 0, double peri = 0)
+{
+    G geometry;
+
+    geometry = bg::from_wkt<G>(wkt);
+
+    /*
+    std::cout << "n=" << bg::num_points(geometry)
+        << " dim=" << bg::topological_dimension<G>::value
+        << " length=" << bg::length(geometry)
+        << " area=" << bg::area(geometry)
+        << " perimeter=" << bg::perimeter(geometry)
+        << std::endl << "\t\tgeometry=" << dsv(geometry)
+        << std::endl;
+    */
+
+    BOOST_CHECK_EQUAL(bg::num_points(geometry), n);
+    if (n > 0)
+    {
+        BOOST_CHECK_CLOSE(double(bg::length(geometry)), len, 0.0001);
+        BOOST_CHECK_CLOSE(double(bg::area(geometry)), ar, 0.0001);
+        BOOST_CHECK_CLOSE(double(bg::perimeter(geometry)), peri, 0.0001);
+    }
+
     check_to_wkt(geometry, expected);
     check_to_wkt(boost::variant<G>(geometry), expected);
+}
+
+template <typename G>
+void test_wkt(std::string const& wkt, std::string const& expected,
+              std::size_t n, double len = 0, double ar = 0, double peri = 0)
+{
+    test_wkt_read_write<G>(wkt, expected, n, len, ar, peri);
+    test_wkt_to_from<G>(wkt, expected, n, len, ar, peri);
 }
 
 template <typename G>
@@ -96,7 +132,7 @@ void test_wkt(std::string const& wkt,
 }
 
 template <typename G>
-void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
+void test_relaxed_wkt_read_write(std::string const& wkt, std::string const& expected)
 {
     std::string e;
     G geometry;
@@ -105,24 +141,74 @@ void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
     out << bg::wkt(geometry);
 
     BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()), boost::to_upper_copy(expected));
-
-    std::string out_string;
-    out_string = bg::to_wkt(geometry);
-
-    BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string), boost::to_upper_copy(expected));
 }
 
+template <typename G>
+void test_relaxed_wkt_to_from(std::string const& wkt, std::string const& expected)
+{
+    std::string e;
+    G geometry;
+    geometry = bg::from_wkt<G>(wkt);
+    std::string out;
+    out = bg::to_wkt(geometry);
 
-
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out), boost::to_upper_copy(expected));
+}
 
 template <typename G>
-void test_wrong_wkt(std::string const& wkt, std::string const& start)
+void test_relaxed_wkt(std::string const& wkt, std::string const& expected)
+{
+    test_relaxed_wkt_read_write<G>(wkt, expected);
+    test_relaxed_wkt_to_from<G>(wkt, expected);
+}
+
+template <typename G>
+void test_wrong_wkt_read_write(std::string const& wkt, std::string const& start)
 {
     std::string e("no exception");
     G geometry;
     try
     {
-        bg::read_wkt(wkt, geometry);
+        bg::read_wkt<G>(wkt, geometry);
+    }
+    catch(bg::read_wkt_exception const& ex)
+    {
+        e = ex.what();
+        boost::to_lower(e);
+    }
+    catch(...)
+    {
+        e = "other exception";
+    }
+
+    bool check = true;
+
+#if defined(HAVE_TTMATH)
+    // For ttmath we skip bad lexical casts
+    typedef typename bg::coordinate_type<G>::type ct;
+
+    if (boost::is_same<ct, ttmath_big>::type::value
+        && boost::starts_with(start, "bad lexical cast"))
+    {
+        check = false;
+    }
+#endif
+
+    if (check)
+    {
+        BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
+                    << start << " Got:" << e << " with WKT: " << wkt);
+    }
+}
+
+template <typename G>
+void test_wrong_wkt_to_from(std::string const& wkt, std::string const& start)
+{
+    std::string e("no exception");
+    G geometry;
+    try
+    {
+        geometry = bg::from_wkt<G>(wkt);
     }
     catch(bg::read_wkt_exception const& ex)
     {
@@ -136,6 +222,13 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
 
     BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
                     << start << " Got:" << e << " with WKT: " << wkt);
+}
+
+template <typename G>
+void test_wrong_wkt(std::string const& wkt, std::string const& start)
+{
+    test_wrong_wkt_read_write<G>(wkt, start);
+    test_wrong_wkt_to_from<G>(wkt, start);
 }
 
 template <typename G>
