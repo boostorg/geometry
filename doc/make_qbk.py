@@ -190,6 +190,7 @@ for i in views:
     
 
 model_to_quickbook2("d2_1_1point__xy", "point_xy")
+model_to_quickbook2("d3_1_1point__xyz", "point_xyz")
 
 group_to_quickbook("arithmetic")
 group_to_quickbook("dsv")

@@ -110,6 +110,7 @@
 [import src/examples/geometries/multi_point.cpp]
 [import src/examples/geometries/multi_polygon.cpp]
 [import src/examples/geometries/point_xy.cpp]
+[import src/examples/geometries/point_xyz.cpp]
 [import src/examples/geometries/point.cpp]
 [import src/examples/geometries/polygon.cpp]
 [import src/examples/geometries/ring.cpp]
