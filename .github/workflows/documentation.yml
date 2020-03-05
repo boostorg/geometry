@@ -59,6 +59,7 @@ jobs:
     - name: Run tools/boostdep/depinst/depinst.py
       run: |
         cd $BOOST_ROOT
+        python tools/boostdep/depinst/depinst.py ../tools/quickbook
         python tools/boostdep/depinst/depinst.py --include benchmark --include example --include examples --include tools $BOOST_SELF
 
     - name: Bootstrap boostorg/boost
