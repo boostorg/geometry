@@ -76,23 +76,23 @@ struct output_formatter
     }
 };
 
-template <typename CharT, typename Traits, typename Allocator>
-struct output_formatter<std::basic_string<CharT, Traits, Allocator> >
+template <>
+struct output_formatter<std::string>
 {
     template <typename T>
-    static void append(std::basic_string<CharT, Traits, Allocator>& out, T const& val)
+    static void append(std::string& out, T const& val)
     {
-        std::basic_stringstream<CharT, Traits> ss;
+        std::stringstream ss;
         ss << val;
         out += ss.str();
     }
 
-    static void append(std::basic_string<CharT, Traits, Allocator>& out, CharT c)
+    static void append(std::string& out, char c)
     {
         out += c;
     }
 
-    static void append(std::basic_string<CharT, Traits, Allocator>& out, CharT const* s)
+    static void append(std::string& out, char const* s)
     {
         out += s;
     }
