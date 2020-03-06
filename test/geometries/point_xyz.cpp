@@ -35,6 +35,9 @@ void check_point_xyz(P& to_check, T x, T y, T z)
     BOOST_CHECK_EQUAL(bg::get<0>(to_check), x);
     BOOST_CHECK_EQUAL(bg::get<1>(to_check), y);
     BOOST_CHECK_EQUAL(bg::get<2>(to_check), z);
+    BOOST_CHECK_EQUAL(to_check.x(), x);
+    BOOST_CHECK_EQUAL(to_check.y(), y);
+    BOOST_CHECK_EQUAL(to_check.z(), z);
 }
 
 template <typename T>
