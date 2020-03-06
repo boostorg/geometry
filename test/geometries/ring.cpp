@@ -10,6 +10,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+
 #include <iostream>
 
 #include <geometry_test_common.hpp>
@@ -70,14 +71,29 @@ void check_ring(R& to_check, P p1, P p2, P p3, P p4)
 }
 
 template <typename P>
-void test_construction()
+void test_default_constructor()
 {
     bg::model::ring<P> r1(create_ring<P>());
     check_ring(r1, P(2, 2), P(2, 0), P(0, 0), P(0, 2));
 }
 
 template <typename P>
-void test_compilation()
+void test_copy_constructor()
+{
+    bg::model::ring<P> r1 = create_ring<P>();
+    check_ring(r1, P(2, 2), P(2, 0), P(0, 0), P(0, 2));
+}
+
+template <typename P>
+void test_copy_assignment()
+{
+    bg::model::ring<P> r1(create_ring<P>()), r2;
+    r2 = r1;
+    check_ring(r2, P(2, 2), P(2, 0), P(0, 0), P(0, 2));
+}
+
+template <typename P>
+void test_concept()
 {   
     typedef bg::model::ring<P> R;
 
@@ -92,8 +108,10 @@ void test_compilation()
 template <typename P>
 void test_all()
 {   
-    test_construction<P>();
-    test_compilation<P>();
+    test_default_constructor<P>();
+    test_copy_constructor<P>();
+    test_copy_assignment<P>();
+    test_concept<P>();
 }
 
 template <typename P>

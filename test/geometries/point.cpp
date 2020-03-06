@@ -14,8 +14,8 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/algorithms/make.hpp>
+#include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/point.hpp>
 
 #include <test_common/test_point.hpp>
@@ -39,9 +39,16 @@ void check_point(P& to_check, T x, T y, T z)
 }
 
 template <typename T>
-void test_construction()
+void test_default_constructor()
 {
     bg::model::point<T, 3, bg::cs::cartesian> p(create_point<T>());
+    check_point(p, 1, 2, 3);
+}
+
+template <typename T>
+void test_copy_constructor()
+{
+    bg::model::point<T, 3, bg::cs::cartesian> p = create_point<T>();
     check_point(p, 1, 2, 3);
 }
 
@@ -56,11 +63,8 @@ void test_assignment()
 }
 
 template <typename T>
-void test_all()
+void test_concept()
 {
-    test_construction<T>();
-    test_assignment<T>();
-
     typedef bg::model::point<T, 3, bg::cs::cartesian> P;
 
     // Compilation tests, all things should compile.
@@ -69,6 +73,15 @@ void test_all()
 
     typedef typename bg::coordinate_type<P>::type T1;
     boost::ignore_unused<T1>();
+}
+
+template <typename T>
+void test_all()
+{
+    test_default_constructor<T>();
+    test_copy_constructor<T>();
+    test_assignment<T>();
+    test_concept<T>();
 }
 
 int test_main(int, char* [])

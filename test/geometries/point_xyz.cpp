@@ -14,9 +14,9 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
-
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xyz.hpp>
+
 #include <test_common/test_point.hpp>
 
 
@@ -35,15 +35,19 @@ void check_point_xyz(P& to_check, T x, T y, T z)
     BOOST_CHECK_EQUAL(bg::get<0>(to_check), x);
     BOOST_CHECK_EQUAL(bg::get<1>(to_check), y);
     BOOST_CHECK_EQUAL(bg::get<2>(to_check), z);
-    BOOST_CHECK_EQUAL(to_check.x(), x);
-    BOOST_CHECK_EQUAL(to_check.y(), y);
-    BOOST_CHECK_EQUAL(to_check.z(), z);
 }
 
 template <typename T>
-void test_construction()
+void test_default_constructor()
 {
     bg::model::d3::point_xyz<T> p(create_point_xyz<T>());
+    check_point_xyz(p, 1, 2, 3);
+}
+
+template <typename T>
+void test_copy_constructor()
+{
+    bg::model::d3::point_xyz<T> p = create_point_xyz<T>();
     check_point_xyz(p, 1, 2, 3);
 }
 
@@ -60,7 +64,8 @@ void test_assignment()
 template <typename T>
 void test_all()
 {
-    test_construction<T>();
+    test_default_constructor<T>();
+    test_copy_constructor<T>();
     test_assignment<T>();
 }
 

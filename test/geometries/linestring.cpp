@@ -50,14 +50,29 @@ void check_linestring(L& to_check, T x, T y, T z)
 }
 
 template <typename P>
-void test_construction()
+void test_default_constructor()
 {
     bg::model::linestring<P> l1(create_linestring<P>());
     check_linestring(l1, 1, 2, 3);
 }
 
 template <typename P>
-void test_compilation()
+void test_copy_constructor()
+{
+    bg::model::linestring<P> l1 = create_linestring<P>();
+    check_linestring(l1, 1, 2, 3);
+}
+
+template <typename P>
+void test_copy_assignment()
+{
+    bg::model::linestring<P> l1(create_linestring<P>()), l2;
+    l2 = l1;
+    check_linestring(l2, 1, 2, 3);
+}
+
+template <typename P>
+void test_concept()
 {   
     typedef bg::model::linestring<P> L;
 
@@ -72,8 +87,10 @@ void test_compilation()
 template <typename P>
 void test_all()
 {   
-    test_construction<P>();
-    test_compilation<P>();
+    test_default_constructor<P>();
+    test_copy_constructor<P>();
+    test_copy_assignment<P>();
+    test_concept<P>();
 }
 
 template <typename P>

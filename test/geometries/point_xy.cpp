@@ -14,9 +14,9 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/make.hpp>
-
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+
 #include <test_common/test_point.hpp>
 
 
@@ -38,7 +38,14 @@ void check_point_xy(P& to_check, T x, T y)
 }
 
 template <typename T>
-void test_construction()
+void test_default_constructor()
+{
+    bg::model::d2::point_xy<T> p(create_point_xy<T>());
+    check_point_xy(p, 1, 2);
+}
+
+template <typename T>
+void test_copy_constructor()
 {
     bg::model::d2::point_xy<T> p(create_point_xy<T>());
     check_point_xy(p, 1, 2);
@@ -56,7 +63,8 @@ void test_assignment()
 template <typename T>
 void test_all()
 {
-    test_construction<T>();
+    test_default_constructor<T>();
+    test_copy_constructor<T>();
     test_assignment<T>();
 }
 

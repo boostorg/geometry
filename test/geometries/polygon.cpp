@@ -52,20 +52,42 @@ bg::model::polygon<P> create_polygon()
 template <typename PL, typename P>
 void check_polygon(PL& to_check, P p1, P p2, P p3)
 {   
-    std::ostringstream out;
-    out << bg::dsv(to_check);
-    BOOST_CHECK_EQUAL(out.str(), "(((1, 2), (2, 0), (0, 0), (1, 2)))");
+    PL cur;
+    bg::append(cur, p1);
+    bg::append(cur, p2);
+    bg::append(cur, p3);
+    bg::append(cur, p1);
+
+    std::ostringstream out1, out2;
+    out1 << bg::dsv(to_check);
+    out2 << bg::dsv(cur);
+    BOOST_CHECK_EQUAL(out1.str(), out2.str());
 }
 
 template <typename P>
-void test_construction()
+void test_default_constructor()
 {
     bg::model::polygon<P> pl1(create_polygon<P>());
     check_polygon(pl1, P(1, 2), P(2, 0), P(0, 0));
 }
 
 template <typename P>
-void test_compilation()
+void test_copy_constructor()
+{
+    bg::model::polygon<P> pl1 = create_polygon<P>();
+    check_polygon(pl1, P(1, 2), P(2, 0), P(0, 0));
+}
+
+template <typename P>
+void test_copy_assignment()
+{
+    bg::model::polygon<P> pl1(create_polygon<P>()), pl2;
+    pl2 = pl1;
+    check_polygon(pl2, P(1, 2), P(2, 0), P(0, 0));
+}
+
+template <typename P>
+void test_concept()
 {   
     typedef bg::model::polygon<P> PL;
 
@@ -80,8 +102,10 @@ void test_compilation()
 template <typename P>
 void test_all()
 {   
-    test_construction<P>();
-    test_compilation<P>();
+    test_default_constructor<P>();
+    test_copy_constructor<P>();
+    test_copy_assignment<P>();
+    test_concept<P>();
 }
 
 template <typename P>
@@ -91,13 +115,13 @@ void test_custom_polygon(bg::model::ring<P> IL)
     bg::model::polygon<P> pl1(RIL);
     std::ostringstream out;
     out << bg::dsv(pl1);
-    BOOST_CHECK_EQUAL(out.str(), "(((2, 2), (2, 0), (0, 0), (0, 2), (2, 2)))");
+    BOOST_CHECK_EQUAL(out.str(), "(((3, 3), (3, 0), (0, 0), (0, 3), (3, 3)))");
 }
 
 template <typename P>
 void test_custom()
 {   
-    std::initializer_list<P> IL = {P(2, 2), P(2, 0), P(0, 0), P(0, 2), P(2, 2)};
+    std::initializer_list<P> IL = {P(3, 3), P(3, 0), P(0, 0), P(0, 3), P(3, 3)};
     bg::model::ring<P> r1(IL);
     test_custom_polygon<P>(r1);
 }
