@@ -106,6 +106,33 @@ struct output_formatter<std::string>
     }
 };
 
+template <>
+struct output_formatter<std::ostream>
+{
+    template <typename T>
+    static void append(std::ostream& out, T const& val, int significant_digits = -1)
+    {
+        if(std::numeric_limits<T>::is_specialized)
+        {
+            if(significant_digits==-1)
+                out.precision(std::numeric_limits<T>::digits10);
+            else
+                out.precision(significant_digits);
+        }
+        out << val;
+    }
+
+    static void append(std::ostream& out, char c, int = -1)
+    {
+        out << c;
+    }
+
+    static void append(std::ostream& out, char const* s, int = -1)
+    {
+        out << s;
+    }
+};
+
 template <typename P, int I, int Count>
 struct stream_coordinate
 {
