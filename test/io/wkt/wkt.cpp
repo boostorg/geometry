@@ -28,6 +28,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
@@ -48,10 +49,30 @@ void check_wkt(G const& geometry, std::string const& expected)
 }
 
 template <typename G>
+void check_precise_wkt(G const& geometry, std::string const& expected,
+            int significant_digits)
+{
+    std::ostringstream out;
+    out << bg::wkt(geometry, significant_digits);
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out.str()),
+                      boost::to_upper_copy(expected));
+}
+
+template <typename G>
 void check_to_wkt(G const& geometry, std::string const& expected)
 {
     std::string out_string;
     out_string = bg::to_wkt(geometry);
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string),
+                      boost::to_upper_copy(expected));
+}
+
+template <typename G>
+void check_precise_to_wkt(G const& geometry, std::string const& expected,
+            int significant_digits)
+{
+    std::string out_string;
+    out_string = bg::to_wkt(geometry, significant_digits);
     BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string),
                       boost::to_upper_copy(expected));
 }
@@ -302,6 +323,8 @@ void test_all()
     test_wkt<bg::model::polygon<P> >("POLYGON((),(),())", 0);
     // which all make no valid geometries, but they can exist.
 
+
+
     // These WKT's are incomplete or abnormal but they are considered OK
     test_relaxed_wkt<P>("POINT(1)", "POINT(1 0)");
     test_relaxed_wkt<P>("POINT()", "POINT(0 0)");
@@ -354,6 +377,24 @@ int test_main(int, char* [])
 {
     test_all<double>();
     test_all<int>();
+
+    typedef boost::geometry::model::d2::point_xy<double> point_type;
+    point_type point = boost::geometry::make<point_type>(1.2345, 6.7890);
+    boost::geometry::model::polygon<point_type> polygon;
+    boost::geometry::append(boost::geometry::exterior_ring(polygon), boost::geometry::make<point_type>(0.00000, 0.00000));
+    boost::geometry::append(boost::geometry::exterior_ring(polygon), boost::geometry::make<point_type>(0.00000, 4.00001));
+    boost::geometry::append(boost::geometry::exterior_ring(polygon), boost::geometry::make<point_type>(4.00001, 4.00001));
+    boost::geometry::append(boost::geometry::exterior_ring(polygon), boost::geometry::make<point_type>(4.00001, 0.00000));
+    boost::geometry::append(boost::geometry::exterior_ring(polygon), boost::geometry::make<point_type>(0.00000, 0.00000));
+    check_precise_wkt(point,"POINT(1.23 6.79)",3);
+    check_precise_wkt(polygon,"POLYGON((0 0,0 4,4 4,4 0,0 0))",3);
+    check_precise_to_wkt(point,"POINT(1.23 6.79)",3);
+    check_precise_to_wkt(polygon,"POLYGON((0 0,0 4,4 4,4 0,0 0))",3);
+
+
+#if defined(HAVE_TTMATH)
+    test_all<ttmath_big>();
+#endif
 
     return 0;
 }
