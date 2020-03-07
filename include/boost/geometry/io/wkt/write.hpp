@@ -596,7 +596,7 @@ private:
 \brief Main WKT-streaming function
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\param 
+\param significant_digits Specifies the no of significant digits to use in the output wkt
 \ingroup wkt
 \qbk{[include reference/io/wkt.qbk]}
 */
@@ -613,6 +613,7 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry, int significant_d
 \brief Main WKT-string formulating function
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
+\param significant_digits Specifies the no of significant digits to use in the output wkt
 \ingroup wkt
 \qbk{[include reference/io/to_wkt.qbk]}
 */

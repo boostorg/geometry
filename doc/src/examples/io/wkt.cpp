@@ -32,6 +32,17 @@ int main()
     std::cout << boost::geometry::wkt(point) << std::endl;
     std::cout << boost::geometry::wkt(polygon) << std::endl;
 
+    point_type point_frac = geom::make<point_type>(3.141592654, 27.18281828);
+    geom::model::polygon<point_type> polygon_frac;
+    geom::append(geom::exterior_ring(polygon_frac), geom::make<point_type>(0.00000, 0.00000));
+    geom::append(geom::exterior_ring(polygon_frac), geom::make<point_type>(0.00000, 4.00001));
+    geom::append(geom::exterior_ring(polygon_frac), geom::make<point_type>(4.00001, 4.00001));
+    geom::append(geom::exterior_ring(polygon_frac), geom::make<point_type>(4.00001, 0.00000));
+    geom::append(geom::exterior_ring(polygon_frac), geom::make<point_type>(0.00000, 0.00000));
+
+    std::cout << boost::geometry::wkt(point_frac, 3) << std::endl;
+    std::cout << boost::geometry::wkt(polygon_frac, 3) << std::endl;
+
     return 0;
 }
 
@@ -42,7 +53,9 @@ int main()
 /*`
 Output:
 [pre
-POINT(3 6)
+POINT(3 2)
+POLYGON((0 0,0 4,4 4,4 0,0 0))
+POINT(3.14 2.72)
 POLYGON((0 0,0 4,4 4,4 0,0 0))
 ]
 

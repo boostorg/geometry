@@ -912,7 +912,6 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
 \ingroup wkt
 \tparam Geometry \tparam_geometry
 \param wkt string containing \ref WKT
-\param geometry \param_geometry output geometry
 \ingroup wkt
 \qbk{[include reference/io/from_wkt.qbk]}
 */
