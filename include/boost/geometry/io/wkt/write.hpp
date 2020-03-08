@@ -83,10 +83,11 @@ struct output_formatter<std::string>
     template <typename T>
     static void append(std::string& out, T const& val, int significant_digits = -1)
     {
+        BOOST_STATIC_ASSERT((boost::is_arithmetic<T>::value));
         std::stringstream ss;
         if(std::numeric_limits<T>::is_specialized)
         {
-            if(significant_digits==-1)
+            if(significant_digits < 0)
                 ss.precision(std::numeric_limits<T>::digits10);
             else
                 ss.precision(significant_digits);
@@ -112,9 +113,10 @@ struct output_formatter<std::ostream>
     template <typename T>
     static void append(std::ostream& out, T const& val, int significant_digits = -1)
     {
+        BOOST_STATIC_ASSERT((boost::is_arithmetic<T>::value));
         if(std::numeric_limits<T>::is_specialized)
         {
-            if(significant_digits==-1)
+            if(significant_digits < 0)
                 out.precision(std::numeric_limits<T>::digits10);
             else
                 out.precision(significant_digits);
