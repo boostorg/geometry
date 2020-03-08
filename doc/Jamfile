@@ -31,7 +31,7 @@ explicit make_qbk ;
 
 boostbook geometry 
     : geometry.qbk
-    : <dependency>Jamfile.v2
+    : <dependency>Jamfile
         <dependency>quickref.xml
 #        <dependency>generated/point.qbk
         <xsl:param>chunk.section.depth=4
