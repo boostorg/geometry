@@ -3,9 +3,6 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
-
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -55,7 +52,7 @@ void test_copy_constructor()
 }
 
 template <typename T>
-void test_assignment()
+void test_copy_assignment()
 {
     bg::model::d3::point_xyz<T> p(create_point_xyz<T>());
     bg::set<0>(p, 4);
@@ -69,7 +66,7 @@ void test_all()
 {
     test_default_constructor<T>();
     test_copy_constructor<T>();
-    test_assignment<T>();
+    test_copy_assignment<T>();
 }
 
 int test_main(int, char* [])
