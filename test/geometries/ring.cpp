@@ -3,13 +3,9 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
-// Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
-// (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
-
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
 
 #include <iostream>
 
@@ -130,14 +126,24 @@ void test_custom()
     test_custom_ring<P>(IL);
 }
 
+template <typename CS>
+void test_cs()
+{
+    test_all<bg::model::point<int, 2, CS> >();
+    test_all<bg::model::point<float, 2, CS> >();
+    test_all<bg::model::point<double, 2, CS> >();
+
+    test_custom<bg::model::point<double, 2, CS> >();
+}
+
 
 int test_main(int, char* [])
 {   
-    test_all<bg::model::point<int, 2, bg::cs::cartesian> >();
-    test_all<bg::model::point<float, 2, bg::cs::cartesian> >();
-    test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
+    test_cs<bg::cs::cartesian>();
+    test_cs<bg::cs::spherical<bg::degree> >();
+    test_cs<bg::cs::spherical_equatorial<bg::degree> >();
+    test_cs<bg::cs::geographic<bg::degree> >();
 
-    test_custom<bg::model::point<double, 2, bg::cs::cartesian> >();
     test_custom<bg::model::d2::point_xy<double> >();
 
     return 0;
