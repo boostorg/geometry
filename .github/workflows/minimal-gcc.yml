@@ -7,7 +7,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 ##############################################################################
-name: "gcc test//minimal"
+name: gcc-test-minimal
 
 on: [push, pull_request]
 
