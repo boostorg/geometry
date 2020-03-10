@@ -27,6 +27,9 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::multi_point<P> create_multi_point()
@@ -102,8 +105,10 @@ void test_custom_multi_point(std::initializer_list<P> IL)
 template <typename P>
 void test_custom()
 {   
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     std::initializer_list<P> IL = {P(0, 0), P(1, 2), P(2, 0)};
     test_custom_multi_point<P>(IL);
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>

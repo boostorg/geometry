@@ -27,6 +27,9 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::ring<P> create_ring()
@@ -122,8 +125,10 @@ void test_custom_ring(bg::model::ring<P> IL)
 template <typename P>
 void test_custom()
 {   
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     std::initializer_list<P> IL = {P(3, 3), P(3, 0), P(0, 0), P(0, 3), P(3, 3)};
     test_custom_ring<P>(IL);
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>

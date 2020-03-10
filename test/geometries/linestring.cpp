@@ -27,6 +27,10 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+
 
 template <typename P>
 bg::model::linestring<P> create_linestring()
@@ -102,8 +106,10 @@ void test_custom_linestring(std::initializer_list<P> IL)
 template <typename P>
 void test_custom()
 {   
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     std::initializer_list<P> IL = {P(1, 2), P(2, 3), P(3, 4)};
     test_custom_linestring<P>(IL);
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>

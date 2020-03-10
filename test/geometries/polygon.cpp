@@ -27,6 +27,9 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#include <initializer_list>
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::polygon<P> create_polygon()
@@ -108,11 +111,13 @@ void test_all()
 template <typename P>
 void test_custom_polygon(bg::model::ring<P> IL)
 {   
+#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     std::initializer_list<bg::model::ring<P> > RIL = {IL};
     bg::model::polygon<P> pl1(RIL);
     std::ostringstream out;
     out << bg::dsv(pl1);
     BOOST_CHECK_EQUAL(out.str(), "(((3, 3), (3, 0), (0, 0), (0, 3), (3, 3)))");
+#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename P>
