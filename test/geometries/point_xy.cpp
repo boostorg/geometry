@@ -12,53 +12,49 @@
 
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/point_xyz.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <test_common/test_point.hpp>
 
 
 template <typename T>
-bg::model::d3::point_xyz<T> create_point_xyz()
+bg::model::d2::point_xy<T> create_point_xy()
 {
     T t1 = 1;
     T t2 = 2;
-    T t3 = 3;
-    return bg::model::d3::point_xyz<T>(t1, t2, t3);
+    return bg::model::d2::point_xy<T>(t1, t2);
 }
 
 template <typename P, typename T>
-void check_point_xyz(P& to_check, T x, T y, T z)
+void check_point_xy(P& to_check, T x, T y)
 {
     BOOST_CHECK_EQUAL(bg::get<0>(to_check), x);
     BOOST_CHECK_EQUAL(bg::get<1>(to_check), y);
-    BOOST_CHECK_EQUAL(bg::get<2>(to_check), z);
     BOOST_CHECK_EQUAL(to_check.x(), x);
     BOOST_CHECK_EQUAL(to_check.y(), y);
-    BOOST_CHECK_EQUAL(to_check.z(), z);
 }
 
 template <typename T>
 void test_default_constructor()
 {
-    bg::model::d3::point_xyz<T> p(create_point_xyz<T>());
-    check_point_xyz(p, 1, 2, 3);
+    bg::model::d2::point_xy<T> p(create_point_xy<T>());
+    check_point_xy(p, 1, 2);
 }
 
 template <typename T>
 void test_copy_constructor()
 {
-    bg::model::d3::point_xyz<T> p = create_point_xyz<T>();
-    check_point_xyz(p, 1, 2, 3);
+    bg::model::d2::point_xy<T> p(create_point_xy<T>());
+    check_point_xy(p, 1, 2);
 }
 
 template <typename T>
 void test_copy_assignment()
 {
-    bg::model::d3::point_xyz<T> p(create_point_xyz<T>());
+    bg::model::d2::point_xy<T> p(create_point_xy<T>());
     bg::set<0>(p, 4);
     bg::set<1>(p, 5);
-    bg::set<2>(p, 6);
-    check_point_xyz(p, 4, 5, 6);
+    check_point_xy(p, 4, 5);
 }
 
 template <typename T>
