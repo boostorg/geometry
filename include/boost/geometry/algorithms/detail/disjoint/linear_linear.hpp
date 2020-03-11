@@ -40,6 +40,7 @@
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 
 
 namespace boost { namespace geometry
@@ -51,16 +52,18 @@ namespace detail { namespace disjoint
 {
 
 template <typename Segment1, typename Segment2>
-struct disjoint_segment
+struct disjoint_segment_with_info
 {
+    typedef typename point_type<Segment1>::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
     template <typename Strategy>
-    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
-                             Strategy const& strategy)
+    static inline intersection_return_type
+    apply(Segment1 const& segment1,
+          Segment2 const& segment2,
+          Strategy const& strategy)
     {
-        typedef typename point_type<Segment1>::type point_type;
-
-        typedef segment_intersection_points<point_type> intersection_return_type;
-
         typedef policies::relate::segments_intersection_points
             <
                 intersection_return_type
@@ -68,10 +71,19 @@ struct disjoint_segment
 
         detail::segment_as_subrange<Segment1> sub_range1(segment1);
         detail::segment_as_subrange<Segment2> sub_range2(segment2);
-        intersection_return_type is = strategy.apply(sub_range1, sub_range2,
-                                                     intersection_policy());
+        return strategy.apply(sub_range1, sub_range2, intersection_policy());
+    }
+};
 
-        return is.count == 0;
+template <typename Segment1, typename Segment2>
+struct disjoint_segment
+{
+    template <typename Strategy>
+    static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
+                             Strategy const& strategy)
+    {
+        return disjoint_segment_with_info<Segment1, Segment2>
+               ::apply(segment1, segment2, strategy).count == 0;
     }
 };
 
@@ -154,6 +166,11 @@ struct disjoint<Linear1, Linear2, 2, linear_tag, linear_tag, false>
 template <typename Segment1, typename Segment2>
 struct disjoint<Segment1, Segment2, 2, segment_tag, segment_tag, false>
     : detail::disjoint::disjoint_segment<Segment1, Segment2>
+{};
+
+template <typename Segment1, typename Segment2>
+struct disjoint_with_info<Segment1, Segment2, 2, segment_tag, segment_tag, false>
+    : detail::disjoint::disjoint_segment_with_info<Segment1, Segment2>
 {};
 
 

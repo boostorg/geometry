@@ -22,6 +22,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/disjoint/interface_with_info.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -35,6 +36,7 @@
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 
@@ -182,9 +184,18 @@ private:
     template <typename SegOrBox>
     struct intersects<SegOrBox, segment_tag>
     {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
+        typedef typename point_type<SegOrBox>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        static inline intersection_return_type
+        apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
         {
-            return geometry::intersects(g1, g2, s.get_relate_segment_segment_strategy());
+            return geometry::detail::disjoint::disjoint_with_info
+                       <Geometry, SegOrBox>::apply(
+                        g1, g2, s.get_relate_segment_segment_strategy());
+            //return res.count != 0;
+            //return geometry::intersects(g1, g2, s.get_relate_segment_segment_strategy());
         }
     };
 
@@ -214,11 +225,15 @@ public:
 
         typedef assign_new_min_iterator<SegmentOrBox> assign_new_value;
 
+        auto res_int = intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy);
 
         if (check_intersection
-            && intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy))
+            && res_int.count > 0)
         {
-            return return_type();
+            return_type result;
+            strategy::distance::services::result_init<Strategy>
+                    ::apply(result, res_int.intersections[0]);
+            return result;
         }
 
         comparable_strategy cstrategy =

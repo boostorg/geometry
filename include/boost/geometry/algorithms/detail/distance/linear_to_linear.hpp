@@ -24,7 +24,6 @@
 
 #include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
-
 namespace boost { namespace geometry
 {
 

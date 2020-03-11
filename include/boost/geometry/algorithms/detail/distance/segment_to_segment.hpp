@@ -72,10 +72,20 @@ public:
     apply(Segment1 const& segment1, Segment2 const& segment2,
           Strategy const& strategy)
     {
-        if (geometry::intersects(segment1, segment2,
-                                 strategy.get_relate_segment_segment_strategy()))
+        typedef typename geometry::detail::disjoint
+                         ::disjoint_segment_with_info<Segment1, Segment2>
+                ds_info;
+
+        typename ds_info::intersection_return_type disjoint_result =
+                 ds_info::apply(segment1, segment2,
+                                strategy.get_relate_segment_segment_strategy());
+
+        if (disjoint_result.count > 0)
         {
-            return return_type();
+            return_type res;
+            strategy::distance::services::result_init<Strategy>
+                    ::apply(res, disjoint_result.intersections[0]);
+            return res;
         }
 
         typename point_type<Segment1>::type p[2];

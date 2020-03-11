@@ -93,6 +93,39 @@ struct check_iterator_range_with_index
 };
 
 
+// As check_iterator_range but the index of the element that
+// satisfies the predicate is returned otherwise -1 is returned
+template <typename Geometry, typename Construction>
+struct check_iterator_range_with_info
+{
+    typedef typename point_type<Geometry>::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
+    // version where we can pass a predicate object
+    template <typename InputIterator>
+    static inline intersection_return_type
+    apply(InputIterator first,
+          InputIterator beyond,
+          Construction const& construction)
+    {
+        // in case predicate's apply method is static, MSVC will
+        // complain that predicate is not used
+        boost::ignore_unused(construction);
+
+        for (InputIterator it = first; it != beyond; ++it)
+        {
+            auto res = construction.apply(*it);
+            if (res.count != 0)
+            {
+                return res;
+            }
+        }
+
+        return intersection_return_type();
+    }
+};
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 

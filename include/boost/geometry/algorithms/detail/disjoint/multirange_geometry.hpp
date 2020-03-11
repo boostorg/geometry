@@ -25,6 +25,32 @@ namespace boost { namespace geometry
 namespace detail { namespace disjoint
 {
 
+template <typename Geometry, typename Strategy, typename Construction>
+class disjoint_geometry_to_query_geometry
+{
+public:
+    disjoint_geometry_to_query_geometry(Geometry const& geometry,
+                                        Strategy const& strategy)
+        : m_geometry(geometry)
+        , m_strategy(strategy)
+    {}
+
+    typedef typename point_type<Geometry>::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
+    template <typename QueryGeometry>
+    inline intersection_return_type
+    apply(QueryGeometry const& query_geometry) const
+    {
+        return Construction::apply(query_geometry, m_geometry, m_strategy);
+    }
+
+private:
+    Geometry const& m_geometry;
+    Strategy const& m_strategy;
+};
+
 
 template <typename Geometry, typename Strategy, typename BinaryPredicate>
 class unary_disjoint_geometry_to_query_geometry
@@ -47,31 +73,66 @@ private:
     Strategy const& m_strategy;
 };
 
-
 template<typename MultiRange, typename ConstantSizeGeometry>
-struct multirange_constant_size_geometry
+struct multirange_constant_size_geometry_with_info
 {
+
+    typedef typename point_type<ConstantSizeGeometry>::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
     template <typename Strategy>
-    static inline bool apply(MultiRange const& multirange,
-                             ConstantSizeGeometry const& constant_size_geometry,
-                             Strategy const& strategy)
+    static inline intersection_return_type
+    apply(MultiRange const& multirange,
+          ConstantSizeGeometry const& constant_size_geometry,
+          Strategy const& strategy)
     {
-        typedef unary_disjoint_geometry_to_query_geometry
+        typedef disjoint_geometry_to_query_geometry
             <
                 ConstantSizeGeometry,
                 Strategy,
-                dispatch::disjoint
+                dispatch::disjoint_with_info
                     <
                         typename boost::range_value<MultiRange>::type,
                         ConstantSizeGeometry
                     >
             > unary_predicate_type;
 
-        return detail::check_iterator_range
+        intersection_return_type res = detail::check_iterator_range_with_info
             <
-                unary_predicate_type
+                ConstantSizeGeometry, unary_predicate_type
             >::apply(boost::begin(multirange), boost::end(multirange),
                      unary_predicate_type(constant_size_geometry, strategy));
+        return res;
+    }
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(ConstantSizeGeometry const& constant_size_geometry,
+          MultiRange const& multirange,
+          Strategy const& strategy)
+    {
+        return apply(multirange, constant_size_geometry, strategy);
+    }
+};
+
+
+template<typename MultiRange, typename ConstantSizeGeometry>
+struct multirange_constant_size_geometry
+{
+
+    template <typename Strategy>
+    static inline bool
+    apply(MultiRange const& multirange,
+          ConstantSizeGeometry const& constant_size_geometry,
+          Strategy const& strategy)
+    {
+        auto res = multirange_constant_size_geometry_with_info
+                   <
+                        MultiRange,
+                        ConstantSizeGeometry
+                    >::apply(multirange, constant_size_geometry, strategy);
+        return res.count != 0;
     }
 
     template <typename Strategy>
@@ -82,7 +143,6 @@ struct multirange_constant_size_geometry
         return apply(multirange, constant_size_geometry, strategy);
     }
 };
-
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
