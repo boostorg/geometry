@@ -149,35 +149,95 @@ struct disjoint_segment_areal
 
 
 template <typename Segment, typename Polygon>
-class disjoint_segment_areal<Segment, Polygon, polygon_tag>
+class disjoint_segment_areal_with_info<Segment, Polygon, polygon_tag>
 {
+    typedef typename point_type<Segment>::type p_type;
+
+    typedef segment_intersection_points<p_type> intersection_return_type;
+
 private:
     template <typename InteriorRings, typename Strategy>
     static inline
-    bool check_interior_rings(InteriorRings const& interior_rings,
-                              Segment const& segment,
-                              Strategy const& strategy)
+    intersection_return_type
+    check_interior_rings(InteriorRings const& interior_rings,
+                         Segment const& segment,
+                         Strategy const& strategy)
     {
         typedef typename boost::range_value<InteriorRings>::type ring_type;
 
-        typedef unary_disjoint_geometry_to_query_geometry
+        typedef disjoint_geometry_to_query_geometry
             <
                 Segment,
                 Strategy,
-                disjoint_range_segment_or_box
+                disjoint_range_segment_or_box_with_info
                     <
                         ring_type, closure<ring_type>::value, Segment
                     >
             > unary_predicate_type;
-                
-        return check_iterator_range
+
+        intersection_return_type res = detail::check_iterator_range_with_info
             <
-                unary_predicate_type
+                Segment, unary_predicate_type
             >::apply(boost::begin(interior_rings),
                      boost::end(interior_rings),
                      unary_predicate_type(segment, strategy));
+
+        return res;
     }
 
+
+public:
+    template <typename IntersectionStrategy>
+    static inline intersection_return_type
+    apply(Segment const& segment,
+          Polygon const& polygon,
+          IntersectionStrategy const& strategy)
+    {
+        typedef typename geometry::ring_type<Polygon>::type ring;
+
+        intersection_return_type res = disjoint_range_segment_or_box_with_info
+        <
+            ring, closure<Polygon>::value, Segment
+        >::apply(geometry::exterior_ring(polygon), segment, strategy);
+
+        if ( res.count != 0 )
+        {
+            return res;
+        }
+
+
+        res = check_interior_rings(geometry::interior_rings(polygon),
+                                   segment,
+                                   strategy);
+
+        if ( res.count != 0 )
+        {
+            return res;
+        }
+
+        typename point_type<Segment>::type p;
+        detail::assign_point_from_index<0>(segment, p);
+
+        if (geometry::covered_by(p, polygon,
+                    strategy.template get_point_in_geometry_strategy<Segment, Polygon>()))
+        {
+            intersection_return_type res;
+            res.count = 1;
+            res.intersections[0] = p;
+            return res;
+        }
+
+        intersection_return_type res_empty;
+        res_empty.count = 0;
+        return res_empty;
+
+    }
+};
+
+
+template <typename Segment, typename Polygon>
+class disjoint_segment_areal<Segment, Polygon, polygon_tag>
+{
 
 public:
     template <typename IntersectionStrategy>
@@ -185,26 +245,8 @@ public:
                              Polygon const& polygon,
                              IntersectionStrategy const& strategy)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring;
-
-        if ( !disjoint_range_segment_or_box
-                 <
-                     ring, closure<Polygon>::value, Segment
-                 >::apply(geometry::exterior_ring(polygon), segment, strategy) )
-        {
-            return false;
-        }
-
-        if ( !check_interior_rings(geometry::interior_rings(polygon), segment, strategy) )
-        {
-            return false;
-        }
-
-        typename point_type<Segment>::type p;
-        detail::assign_point_from_index<0>(segment, p);
-
-        return !geometry::covered_by(p, polygon,
-                    strategy.template get_point_in_geometry_strategy<Segment, Polygon>());
+        return disjoint_segment_areal_with_info<Segment, Polygon>
+                ::apply(segment, polygon, strategy).count == 0;
     }
 };
 
@@ -227,7 +269,6 @@ struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 template <typename Segment, typename Ring>
 struct disjoint_segment_areal_with_info<Segment, Ring, ring_tag>
 {
-
     typedef typename point_type<Ring>::type p_type;
 
     typedef segment_intersection_points<p_type> intersection_return_type;

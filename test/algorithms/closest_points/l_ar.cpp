@@ -57,7 +57,7 @@ void test_closest_points_segment_polygon_or_ring(Strategy const& strategy)
                   strategy);
 
     typedef test_geometry<Segment, Polygon, Segment> tester2;
-/*
+
     tester2::apply("SEGMENT(2 0,0 2)",
                    "POLYGON((0 0,1 0,0 1,0 0))",
                    "SEGMENT(1.5 0.5,1 0)",
@@ -71,7 +71,42 @@ void test_closest_points_segment_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(0.50019 1.50021,0 1)",
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
-                   */
+
+    //geometries intersect
+    //intersect boundary of ring
+    tester2::apply("SEGMENT(1 1,0.1 0.1)",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.5 0.5,0.5 0.5)",
+                  "SEGMENT(0.500004 0.500053,0.500004 0.500053)",
+                  strategy);
+
+    //intersect interior of ring
+    tester2::apply("SEGMENT(0.2 0.2,0.1 0.1)",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(0.2 0.2,0.2 0.2)",
+                  strategy);
+
+    //intersect boundary of interior ring
+    tester2::apply("SEGMENT(0.9 0.9,0.1 0.1)",
+                  "POLYGON((-1 -1,2 0,0 2,-1 -1)(0 0,0 1,1 0,0 0))",
+                   "SEGMENT(0.5 0.5,0.5 0.5)",
+                   "SEGMENT(0.500004 0.500053,0.500004 0.500053)",
+                  strategy);
+
+    //intersect boundary of exterior ring
+    tester2::apply("SEGMENT(0.9 0.9,2 2)",
+                   "POLYGON((-1 -1,2 0,0 2,-1 -1)(0 0,0 1,1 0,0 0))",
+                   "SEGMENT(1 1,1 1)",
+                   "SEGMENT(1.0002 1.00026,1.0002 1.00026)",
+                  strategy);
+
+    //intersect interior
+    tester2::apply("SEGMENT(0 -0.5,1 -0.5)",
+                   "POLYGON((-1 -1,0 2,2 0,-1 -1)(0 0,1 0,0 1,0 0))",
+                   "SEGMENT(0.5 -0.5,0.5 -0.5)",
+                   "SEGMENT(0.500575 -0.500019,0.500575 -0.500019)",
+                  strategy);
+
 }
 
 //===========================================================================
