@@ -92,7 +92,7 @@ struct cross_product<3>
 \return the cross product vector
 
 
-\qbk{[include reference/arithmetic/cross_product.qbk]}
+
 \qbk{[heading Examples]}
 \qbk{[cross_product] [cross_product_output]}
 
