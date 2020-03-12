@@ -252,6 +252,25 @@ public:
 
 
 template <typename Segment, typename MultiPolygon>
+struct disjoint_segment_areal_with_info<Segment, MultiPolygon, multi_polygon_tag>
+{
+    typedef typename point_type<Segment>::type p_type;
+
+    typedef segment_intersection_points<p_type> intersection_return_type;
+
+    template <typename IntersectionStrategy>
+    static inline intersection_return_type
+    apply(Segment const& segment, MultiPolygon const& multipolygon,
+          IntersectionStrategy const& strategy)
+    {
+        return multirange_constant_size_geometry_with_info
+            <
+                MultiPolygon, Segment
+            >::apply(multipolygon, segment, strategy);
+    }
+};
+
+template <typename Segment, typename MultiPolygon>
 struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 {
     template <typename IntersectionStrategy>

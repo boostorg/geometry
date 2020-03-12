@@ -132,6 +132,15 @@ void test_closest_points_segment_multi_polygon(Strategy const& strategy)
                   "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
+
+    //geometries intersect
+    //intersect boundary of ring
+    tester::apply("SEGMENT(1 1,0.1 0.1)",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.5 0.5,0.5 0.5)",
+                  "SEGMENT(0.500004 0.500053,0.500004 0.500053)",
+                  strategy);
 }
 
 //===========================================================================
@@ -556,19 +565,19 @@ template <typename Point, typename PSStrategy, typename PBStrategy>
 void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(ps_strategy);
-/*    test_closest_points_segment_multi_polygon<Point>(ps_strategy);
-    test_closest_points_segment_box<Point>(sb_strategy);
+    test_closest_points_segment_multi_polygon<Point>(ps_strategy);
+    //test_closest_points_segment_box<Point>(sb_strategy);
 
-    test_closest_points_linestring_polygon_or_ring<Point>(ps_strategy);
-    test_closest_points_linestring_multi_polygon<Point>(ps_strategy);
-    test_closest_points_linestring_box<Point>(sb_strategy);
+    //test_closest_points_linestring_polygon_or_ring<Point>(ps_strategy);
+    //test_closest_points_linestring_multi_polygon<Point>(ps_strategy);
+    //test_closest_points_linestring_box<Point>(sb_strategy);
 
-    test_closest_points_multi_linestring_polygon_or_ring<Point>(ps_strategy);
-    test_closest_points_multi_linestring_multi_polygon<Point>(ps_strategy);
-    test_closest_points_multi_linestring_box<Point>(sb_strategy);
+    //test_closest_points_multi_linestring_polygon_or_ring<Point>(ps_strategy);
+    //test_closest_points_multi_linestring_multi_polygon<Point>(ps_strategy);
+    //test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
-    test_more_empty_input_pointlike_areal<Point>(ps_strategy);
-    */
+    //test_more_empty_input_pointlike_areal<Point>(ps_strategy);
+
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )
