@@ -90,6 +90,12 @@ struct cross_product<3>
 \param p1 first vector
 \param p2 second vector
 \return the cross product vector
+
+
+\qbk{[include reference/arithmetic/cross_product.qbk]}
+\qbk{[heading Examples]}
+\qbk{[cross_product] [cross_product_output]}
+
  */
 template <typename ResultP, typename P1, typename P2>
 inline ResultP cross_product(P1 const& p1, P2 const& p2)
