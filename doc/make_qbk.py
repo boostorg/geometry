@@ -106,6 +106,8 @@ algorithms = ["append", "assign", "make", "clear"
     , "relation", "reverse","simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
+arithmetic = ["cross_product"]
+
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
     
