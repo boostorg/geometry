@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[cross_product
-// Calculate the cross product of two points
+//` Calculate the cross product of two points
 
 
 #include <iostream>
@@ -47,7 +47,7 @@ int main()
 //]
 
 //[cross_product_output
-/*
+/*`
 Output:
 [pre
 Cross Product 1: 27
