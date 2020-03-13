@@ -247,7 +247,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
     //degenerate
     tester::apply("SEGMENT(9 19, 11 21)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(0 0,0 0)",
+                  "SEGMENT(9 19,9 19)",
                   "SEGMENT(9.99514 20.0043,10 20)",
                   strategy);
     //left-bottom corner
@@ -256,12 +256,6 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(9.90244 9.87805,10 10)",
                   "SEGMENT(9.90395 9.88218,10 10)",
-                  strategy);
-    //degenerate
-    //zero distance, closest points not defined
-    tester::apply("SEGMENT(9 11, 11 9)",
-                  "BOX(10 10,20 20)",
-                  "SEGMENT(0 0,0 0)",
                   strategy);
     //right-top corner
     //generic
@@ -273,7 +267,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
     //degenerate
     tester::apply("SEGMENT(19 21, 21 19)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(0 0,0 0)",
+                  "SEGMENT(19 21,19 21)",
                   "SEGMENT(20.0049 20.0043,20 20)",
                   strategy);
     //right-bottom corner
@@ -283,12 +277,6 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(20.12 9.84,20 10)",
                   "SEGMENT(20.1197 9.84293,20 10)",
                   strategy);
-    //degenerate
-    tester::apply("SEGMENT(19 9, 21 11)",
-                  "BOX(10 10,20 20)",
-                  "SEGMENT(0 0,0 0)",
-                  strategy);
-
     //Segment and box on different hemispheres (for non-cartesian)
     tester::apply("SEGMENT(10 20, 15 30)",
                   "BOX(10 -20,20 -10)",
@@ -363,6 +351,12 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(21.4 7.2,20 10)",
                   "SEGMENT(21.4147 7.23283,20 10)",
                   "SEGMENT(21.3999 7.22557,20 10)",
+                  strategy);
+
+    //intersection
+    tester::apply("SEGMENT(15 15,15 25)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
                   strategy);
 }
 
@@ -566,7 +560,7 @@ void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
 {
     test_closest_points_segment_polygon_or_ring<Point>(ps_strategy);
     test_closest_points_segment_multi_polygon<Point>(ps_strategy);
-    //test_closest_points_segment_box<Point>(sb_strategy);
+    test_closest_points_segment_box<Point>(sb_strategy);
 
     //test_closest_points_linestring_polygon_or_ring<Point>(ps_strategy);
     //test_closest_points_linestring_multi_polygon<Point>(ps_strategy);
