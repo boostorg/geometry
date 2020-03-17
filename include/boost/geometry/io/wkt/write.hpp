@@ -85,13 +85,10 @@ struct output_formatter<std::string>
     {
         BOOST_STATIC_ASSERT((boost::is_arithmetic<T>::value));
         std::stringstream ss;
-        if(std::numeric_limits<T>::is_specialized)
-        {
-            if(significant_digits < 0)
-                ss.precision(std::numeric_limits<T>::digits10);
-            else
+        if(significant_digits >= 0)
                 ss.precision(significant_digits);
-        }
+        else if(std::numeric_limits<T>::is_specialized)
+            ss.precision(std::numeric_limits<T>::digits10);
         ss << val;
         out += ss.str();
     }
