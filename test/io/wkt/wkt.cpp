@@ -85,7 +85,7 @@ void test_wkt_read_write(std::string const& wkt, std::string const& expected,
 
     bg::read_wkt(wkt, geometry);
 
-    /*
+    #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "n=" << bg::num_points(geometry)
         << " dim=" << bg::topological_dimension<G>::value
         << " length=" << bg::length(geometry)
@@ -93,7 +93,7 @@ void test_wkt_read_write(std::string const& wkt, std::string const& expected,
         << " perimeter=" << bg::perimeter(geometry)
         << std::endl << "\t\tgeometry=" << dsv(geometry)
         << std::endl;
-    */
+    #endif
 
     BOOST_CHECK_EQUAL(bg::num_points(geometry), n);
     if (n > 0)
@@ -115,7 +115,7 @@ void test_wkt_to_from(std::string const& wkt, std::string const& expected,
 
     geometry = bg::from_wkt<G>(wkt);
 
-    /*
+    #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "n=" << bg::num_points(geometry)
         << " dim=" << bg::topological_dimension<G>::value
         << " length=" << bg::length(geometry)
@@ -123,7 +123,7 @@ void test_wkt_to_from(std::string const& wkt, std::string const& expected,
         << " perimeter=" << bg::perimeter(geometry)
         << std::endl << "\t\tgeometry=" << dsv(geometry)
         << std::endl;
-    */
+    #endif
 
     BOOST_CHECK_EQUAL(bg::num_points(geometry), n);
     if (n > 0)
