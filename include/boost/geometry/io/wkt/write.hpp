@@ -85,10 +85,14 @@ struct output_formatter<std::string>
     {
         BOOST_STATIC_ASSERT((boost::is_arithmetic<T>::value));
         std::stringstream ss;
-        if(significant_digits >= 0)
+        if (significant_digits >= 0)
+        {
             ss.precision(significant_digits);
-        else if(std::numeric_limits<T>::is_specialized)
+        }
+        else if (std::numeric_limits<T>::is_specialized)
+        {
             ss.precision(std::numeric_limits<T>::digits10);
+        }
         ss << val;
         out += ss.str();
     }
@@ -203,7 +207,7 @@ struct wkt_range
         iterator_type end = boost::end(range);
         for (iterator_type it = begin; it != end; ++it)
         {
-            if(!first)
+            if (!first)
             {
                 output_formatter<Output>::append(out, ",");
             }
