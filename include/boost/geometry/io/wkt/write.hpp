@@ -613,7 +613,16 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 \qbk{[include reference/io/to_wkt.qbk]}
 */
 template <typename Geometry>
-inline std::string to_wkt(Geometry const& geometry, int significant_digits = -1)
+inline std::string to_wkt(Geometry const& geometry)
+{
+    concepts::check<Geometry const>();
+    std::string out;
+    dispatch::devarianted_wkt<Geometry>::apply(out, geometry, -1, ! (boost::is_same<typename tag<Geometry>::type, ring_tag>::value));
+    return out;
+}
+
+template <typename Geometry>
+inline std::string to_wkt(Geometry const& geometry, int significant_digits)
 {
     concepts::check<Geometry const>();
     std::string out;
