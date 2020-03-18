@@ -568,10 +568,8 @@ public:
 
     // Boost.Geometry, by default, closes polygons explictly, but not rings
     // NOTE: this might change in the future!
-    inline wkt_manipulator(Geometry const& g, int significant_digits = -1,
-                           bool force_closure = ! is_ring)
+    inline wkt_manipulator(Geometry const& g, bool force_closure = ! is_ring)
         : m_geometry(g)
-        , m_significant_digits(significant_digits)
         , m_force_closure(force_closure)
     {}
 
@@ -580,14 +578,13 @@ public:
             std::basic_ostream<Char, Traits>& out,
             wkt_manipulator const& m)
     {
-        dispatch::devarianted_wkt<Geometry>::apply(out, m.m_geometry, m.m_significant_digits, m.m_force_closure);
+        dispatch::devarianted_wkt<Geometry>::apply(out, m.m_geometry, -1, m.m_force_closure);
         out.flush();
         return out;
     }
 
 private:
     Geometry const& m_geometry;
-    int m_significant_digits;
     bool m_force_closure;
 };
 /*!
@@ -599,11 +596,11 @@ private:
 \qbk{[include reference/io/wkt.qbk]}
 */
 template <typename Geometry>
-inline wkt_manipulator<Geometry> wkt(Geometry const& geometry, int significant_digits = -1)
+inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 {
     concepts::check<Geometry const>();
 
-    return wkt_manipulator<Geometry>(geometry, significant_digits);
+    return wkt_manipulator<Geometry>(geometry);
 }
 
 
