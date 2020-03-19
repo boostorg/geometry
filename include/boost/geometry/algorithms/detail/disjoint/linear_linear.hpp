@@ -98,6 +98,67 @@ struct assign_disjoint_policy
 
 
 template <typename Geometry1, typename Geometry2>
+struct disjoint_linear_with_info
+{
+    typedef typename point_type<Geometry1>::type p_type;
+
+    typedef segment_intersection_points<p_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Geometry1 const& geometry1,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        typedef typename geometry::point_type<Geometry1>::type point_type;
+        typedef geometry::segment_ratio
+            <
+                typename coordinate_type<point_type>::type
+            > ratio_type;
+        typedef overlay::turn_info
+            <
+                point_type,
+                ratio_type,
+                typename detail::get_turns::turn_operation_type
+                        <
+                            Geometry1, Geometry2, ratio_type
+                        >::type
+            > turn_info_type;
+
+        std::deque<turn_info_type> turns;
+
+        // Specify two policies:
+        // 1) Stop at any intersection
+        // 2) In assignment, include also degenerate points (which are normally skipped)
+        disjoint_interrupt_policy interrupt_policy;
+        dispatch::get_turns
+            <
+                typename geometry::tag<Geometry1>::type,
+                typename geometry::tag<Geometry2>::type,
+                Geometry1,
+                Geometry2,
+                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false
+                overlay::do_reverse<geometry::point_order<Geometry2>::value>::value, // should be false
+                detail::get_turns::get_turn_info_type
+                    <
+                        Geometry1, Geometry2, assign_disjoint_policy
+                    >
+            >::apply(0, geometry1, 1, geometry2,
+                     strategy, detail::no_rescale_policy(), turns, interrupt_policy);
+
+        if (interrupt_policy.has_intersections)
+        {
+            intersection_return_type res;
+            res.count = 1;
+            res.intersections[0] = turns[0].point;
+            return res;
+        }
+        return intersection_return_type();
+    }
+};
+
+
+template <typename Geometry1, typename Geometry2>
 struct disjoint_linear
 {
     template <typename Strategy>

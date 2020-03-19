@@ -19,6 +19,8 @@
 
 #include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
 
+#include <boost/geometry/algorithms/detail/disjoint/interface_with_info.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -41,10 +43,21 @@ struct linear_to_areal
                                     Areal const& areal,
                                     Strategy const& strategy)
     {
-        if ( geometry::intersects(linear, areal,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        typedef typename point_type<Linear>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res = geometry::detail::disjoint
+                       ::disjoint_with_info<Linear,Areal>
+                       ::apply(linear, areal,
+                               strategy.get_relate_segment_segment_strategy());
+
+        if ( dis_res.count > 0 )
         {
-            return return_type();
+            return_type result;
+            strategy::distance::services::result_init<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
         }
 
         return_type res = linear_to_linear

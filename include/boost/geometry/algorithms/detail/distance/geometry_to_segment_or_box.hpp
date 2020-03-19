@@ -225,10 +225,14 @@ public:
 
         typedef assign_new_min_iterator<SegmentOrBox> assign_new_value;
 
-        auto res_int = intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy);
+        typedef typename point_type<SegmentOrBox>::type point_type;
 
-        if (check_intersection
-            && res_int.count > 0)
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type res_int = intersects<SegmentOrBox>
+                                   ::apply(geometry, segment_or_box, strategy);
+
+        if (check_intersection && res_int.count > 0)
         {
             return_type result;
             strategy::distance::services::result_init<Strategy>

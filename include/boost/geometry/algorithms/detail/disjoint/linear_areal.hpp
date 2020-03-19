@@ -66,11 +66,25 @@ struct disjoint_no_intersections_policy
     /*!
     \tparam Strategy point_in_geometry strategy
     */
+    typedef typename point_type<Geometry1>::type point1_type;
+
     template <typename Strategy>
-    static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+    static inline bool apply(Geometry1 const& g1,
+                             Geometry2 const& g2,
+                             Strategy const& strategy)
     {
-        typedef typename point_type<Geometry1>::type point1_type;
         point1_type p;
+        geometry::point_on_border(p, g1);
+
+        return !geometry::covered_by(p, g2, strategy);
+    }
+
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const& g1,
+                             Geometry2 const& g2,
+                             Strategy const& strategy,
+                             point1_type& p)
+    {
         geometry::point_on_border(p, g1);
 
         return !geometry::covered_by(p, g2, strategy);
@@ -98,6 +112,44 @@ struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
             }
         }
         return true;
+    }
+};
+
+template<typename Geometry1, typename Geometry2,
+         typename NoIntersectionsPolicy
+                    = disjoint_no_intersections_policy
+                      <Geometry1, Geometry2> >
+struct disjoint_linear_areal_with_info
+{
+    typedef typename point_type<Geometry1>::type p_type;
+
+    typedef segment_intersection_points<p_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
+    {
+        intersection_return_type res =
+        disjoint_linear_with_info<Geometry1, Geometry2>::apply(g1, g2, strategy);
+
+        if ( res.count != 0 )
+        {
+            return res;
+        }
+
+        p_type p;
+        if (!NoIntersectionsPolicy
+                ::apply(g1, g2,
+                        strategy.template get_point_in_geometry_strategy
+                        <Geometry1, Geometry2>(),
+                        p))
+        {
+            res.count = 1;
+            res.intersections[0] = p;
+            return res;
+        }
+
+        return intersection_return_type();
     }
 };
 
@@ -393,6 +445,31 @@ struct disjoint<Segment, Areal, 2, segment_tag, areal_tag, false>
 {};
 
 //disjoint with info
+
+template <typename Linear, typename Areal>
+struct disjoint_with_info<Linear, Areal, 2, linear_tag, areal_tag, false>
+    : public detail::disjoint::disjoint_linear_areal_with_info<Linear, Areal>
+{};
+
+
+template <typename Areal, typename Linear>
+struct disjoint_with_info<Areal, Linear, 2, areal_tag, linear_tag, false>
+{
+    typedef typename point_type<Areal>::type p_type;
+
+    typedef segment_intersection_points<p_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Areal const& areal, Linear const& linear,
+          Strategy const& strategy)
+    {
+        return detail::disjoint::disjoint_linear_areal_with_info
+            <
+                Linear, Areal
+            >::apply(linear, areal, strategy);
+    }
+};
 
 template <typename Areal, typename Segment>
 struct disjoint_with_info<Areal, Segment, 2, areal_tag, segment_tag, false>
