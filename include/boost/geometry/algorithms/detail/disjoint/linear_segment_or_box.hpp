@@ -142,9 +142,9 @@ struct disjoint_range_segment_or_box_with_info
             {
                 range_segment rng_segment(*it0, *it1);
                 auto res = dispatch::disjoint_with_info
-                                         <
-                                             range_segment, SegmentOrBox
-                                         >::apply(rng_segment, segment_or_box, strategy);
+                           <
+                                range_segment, SegmentOrBox
+                           >::apply(rng_segment, segment_or_box, strategy);
                 if ( res.count != 0 )
                 {
                     return res;
@@ -250,6 +250,11 @@ struct disjoint_with_info<Linear, Segment, 2, linear_tag, segment_tag, false>
 template <typename Linear, typename Box, std::size_t DimensionCount>
 struct disjoint<Linear, Box, DimensionCount, linear_tag, box_tag, false>
     : detail::disjoint::disjoint_linear_segment_or_box<Linear, Box>
+{};
+
+template <typename Linear, typename Box, std::size_t DimensionCount>
+struct disjoint_with_info<Linear, Box, DimensionCount, linear_tag, box_tag, false>
+    : detail::disjoint::disjoint_linear_segment_or_box_with_info<Linear, Box>
 {};
 
 

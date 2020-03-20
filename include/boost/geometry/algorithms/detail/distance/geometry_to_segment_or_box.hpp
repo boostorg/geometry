@@ -175,9 +175,17 @@ private:
     >
     struct intersects
     {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const&)
+        typedef typename point_type<SegOrBox>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        static inline intersection_return_type
+        apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
         {
-            return geometry::intersects(g1, g2);
+            return geometry::detail::disjoint::disjoint_with_info
+                       <Geometry, SegOrBox>::apply(
+                          g1, g2, s.get_relate_segment_segment_strategy());
+            //return geometry::intersects(g1, g2);
         }
     };
 
