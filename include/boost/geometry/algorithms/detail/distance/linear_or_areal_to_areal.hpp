@@ -113,10 +113,21 @@ struct areal_to_areal
                                     Areal2 const& areal2,
                                     Strategy const& strategy)
     {
-        if ( geometry::intersects(areal1, areal2,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        typedef typename point_type<Areal1>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res = geometry::detail::disjoint
+                       ::disjoint_with_info<Areal1,Areal2>
+                       ::apply(areal1, areal2,
+                               strategy.get_relate_segment_segment_strategy());
+
+        if ( dis_res.count > 0 )
         {
-            return return_type();
+            return_type result;
+            strategy::distance::services::result_init<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
         }
 
         return linear_to_linear

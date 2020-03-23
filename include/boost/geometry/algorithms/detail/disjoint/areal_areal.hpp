@@ -93,7 +93,54 @@ inline bool rings_containing(FirstGeometry const& geometry1,
     return checker.not_disjoint;
 }
 
+template <typename Geometry1, typename Geometry2>
+struct areal_areal_with_info
+{
+    typedef typename point_type<Geometry1>::type p_type;
+    typedef segment_intersection_points<p_type> intersection_return_type;
 
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Geometry1 const& geometry1,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        intersection_return_type res_dis
+                = disjoint_linear_with_info<Geometry1, Geometry2>
+                       ::apply(geometry1, geometry2, strategy);
+
+        if ( res_dis.count > 0 )
+        {
+            return res_dis;
+        }
+
+        // If there is no intersection of segments, they might located
+        // inside each other
+
+        // We check that using a point on the border (external boundary),
+        // and see if that is contained in the other geometry. And vice versa.
+
+        if ( rings_containing(geometry1, geometry2,
+                              strategy.template get_point_in_geometry_strategy
+                                       <Geometry2, Geometry1>()) )
+        {
+             res_dis.count = 1;
+             res_dis.intersections[0] = *points_begin(geometry2);
+             return res_dis;
+        }
+        if ( rings_containing(geometry2, geometry1,
+                              strategy.template get_point_in_geometry_strategy
+                                       <Geometry1, Geometry2>()) )
+        {
+            res_dis.count = 1;
+            res_dis.intersections[0] = *points_begin(geometry1);
+            return res_dis;
+        }
+
+        return intersection_return_type();
+        //return true;
+    }
+};
 
 template <typename Geometry1, typename Geometry2>
 struct areal_areal
@@ -106,7 +153,8 @@ struct areal_areal
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        if ( ! disjoint_linear<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy) )
+        if ( ! disjoint_linear<Geometry1, Geometry2>
+               ::apply(geometry1, geometry2, strategy) )
         {
             return false;
         }
@@ -118,9 +166,11 @@ struct areal_areal
         // and see if that is contained in the other geometry. And vice versa.
 
         if ( rings_containing(geometry1, geometry2,
-                              strategy.template get_point_in_geometry_strategy<Geometry2, Geometry1>())
+                              strategy.template get_point_in_geometry_strategy
+                                       <Geometry2, Geometry1>())
           || rings_containing(geometry2, geometry1,
-                              strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>()) )
+                              strategy.template get_point_in_geometry_strategy
+                                       <Geometry1, Geometry2>()) )
         {
             return false;
         }
@@ -194,6 +244,11 @@ namespace dispatch
 template <typename Areal1, typename Areal2>
 struct disjoint<Areal1, Areal2, 2, areal_tag, areal_tag, false>
     : detail::disjoint::areal_areal<Areal1, Areal2>
+{};
+
+template <typename Areal1, typename Areal2>
+struct disjoint_with_info<Areal1, Areal2, 2, areal_tag, areal_tag, false>
+    : detail::disjoint::areal_areal_with_info<Areal1, Areal2>
 {};
 
 
