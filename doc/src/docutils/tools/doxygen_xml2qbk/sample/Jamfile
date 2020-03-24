@@ -17,7 +17,7 @@ import quickbook ;
 
 boostbook fruit 
 	: fruit.qbk
-	: <dependency>Jamfile.v2	  
+	: <dependency>Jamfile	  
 		<dependency>generated/apple.qbk
 		<dependency>generated/rose.qbk
 		<dependency>generated/grouped.qbk

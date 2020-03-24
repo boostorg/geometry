@@ -97,24 +97,6 @@ class karney_inverse
 
 public:
     typedef result_inverse<CT> result_type;
-    static CT constexpr c0 = 0;
-    static CT constexpr c0_001 = 0.001;
-    static CT constexpr c0_01 = 0.01;
-    static CT constexpr c0_1 = 0.1;
-    static CT constexpr c0_5 = 0.5;
-    static CT constexpr c1 = 1;
-    static CT constexpr c2 = 2;
-    static CT constexpr c3 = 3;
-    static CT constexpr c4 = 4;
-    static CT constexpr c6 = 6;
-    static CT constexpr c8 = 8;
-    static CT constexpr c10 = 10;
-    static CT constexpr c16 = 16;
-    static CT constexpr c20 = 20;
-    static CT constexpr c90 = 90;
-    static CT constexpr c180 = 180;
-    static CT constexpr c200 = 200;
-    static CT constexpr c1000 = 1000;
 
     template <typename T1, typename T2, typename Spheroid>
     static inline result_type apply(T1 const& lo1,
@@ -123,6 +105,21 @@ public:
                                     T2 const& la2,
                                     Spheroid const& spheroid)
     {
+        static CT const c0 = 0;
+        static CT const c0_001 = 0.001;
+        static CT const c0_1 = 0.1;
+        static CT const c1 = 1;
+        static CT const c2 = 2;
+        static CT const c3 = 3;
+        static CT const c8 = 8;
+        static CT const c16 = 16;
+        static CT const c90 = 90;
+        static CT const c180 = 180;
+        static CT const c200 = 200;
+        static CT const pi = math::pi<CT>();
+        static CT const d2r = math::d2r<CT>();
+        static CT const r2d = math::r2d<CT>();
+
         result_type result;
 
         CT lat1 = la1;
@@ -145,7 +142,7 @@ public:
         CT const tol_bisection = tol0 * tol2;
 
         CT const etol2 = c0_1 * tol2 /
-            sqrt((std::max)(CT(0.001), std::abs(f)) * (std::min)(CT(1), CT(1) - f / CT(2)) / c2);
+            sqrt((std::max)(c0_001, std::abs(f)) * (std::min)(c1, c1 - f / c2) / c2);
 
         CT tiny = std::sqrt((std::numeric_limits<CT>::min)());
 
@@ -164,7 +161,7 @@ public:
         lon12_error = (c180 - lon12) - lon12_sign * lon12_error;
 
         // Convert to radians.
-        CT lam12 = lon12 * math::d2r<CT>();
+        CT lam12 = lon12 * d2r;
         CT sin_lam12;
         CT cos_lam12;
 
@@ -268,8 +265,8 @@ public:
             CT sin_sigma2 = sin_beta2;
             CT cos_sigma2 = cos_alpha2 * cos_beta2;
 
-            CT sigma12 = std::atan2((std::max)(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
-                                                      cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
+            CT sigma12 = std::atan2((std::max)(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+                                                   cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
             CT dummy;
             meridian_length(n, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
@@ -401,7 +398,7 @@ public:
                         CT nsin_alpha1 = sin_alpha1 * cos_diff_alpha1 +
                             cos_alpha1 * sin_diff_alpha1;
 
-                        if (nsin_alpha1 > c0 && std::abs(diff_alpha1) < math::pi<CT>())
+                        if (nsin_alpha1 > c0 && std::abs(diff_alpha1) < pi)
                         {
                             cos_alpha1 = cos_alpha1 * cos_diff_alpha1 - sin_alpha1 * sin_diff_alpha1;
                             sin_alpha1 = nsin_alpha1;
@@ -468,12 +465,12 @@ public:
         {
             if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
             {
-                result.azimuth = atan2(sin_alpha1, cos_alpha1) * math::r2d<CT>();
+                result.azimuth = atan2(sin_alpha1, cos_alpha1) * r2d;
             }
 
             if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
             {
-                result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2) * math::r2d<CT>();
+                result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2) * r2d;
             }
         }
 
@@ -486,14 +483,16 @@ public:
     }
 
     template <typename CoeffsC1>
-    static inline void meridian_length(CT epsilon, CT ep2, CT sigma12,
-                                       CT sin_sigma1, CT cos_sigma1, CT dn1,
-                                       CT sin_sigma2, CT cos_sigma2, CT dn2,
-                                       CT cos_beta1, CT cos_beta2,
+    static inline void meridian_length(CT const& epsilon, CT const& ep2, CT const& sigma12,
+                                       CT const& sin_sigma1, CT const& cos_sigma1, CT const& dn1,
+                                       CT const& sin_sigma2, CT const& cos_sigma2, CT const& dn2,
+                                       CT const& cos_beta1, CT const& cos_beta2,
                                        CT& s12x, CT& m12x, CT& m0,
                                        CT& M12, CT& M21,
-                                       CoeffsC1 coeffs_C1)
+                                       CoeffsC1 const& coeffs_C1)
     {
+        static CT const c1 = 1;
+
         CT A12x = 0, J12 = 0;
         CT expansion_A1, expansion_A2;
 
@@ -578,14 +577,24 @@ public:
      cos_alpha2 and function value is sig12.
     */
     template <typename CoeffsC1>
-    static inline CT newton_start(CT sin_beta1, CT cos_beta1, CT dn1,
-                                  CT sin_beta2, CT cos_beta2, CT dn2,
-                                  CT lam12, CT sin_lam12, CT cos_lam12,
+    static inline CT newton_start(CT const& sin_beta1, CT const& cos_beta1, CT const& dn1,
+                                  CT const& sin_beta2, CT const& cos_beta2, CT dn2,
+                                  CT const& lam12, CT const& sin_lam12, CT const& cos_lam12,
                                   CT& sin_alpha1, CT& cos_alpha1,
                                   CT& sin_alpha2, CT& cos_alpha2,
-                                  CT& dnm, CoeffsC1 coeffs_C1, CT ep2,
-                                  CT tol1, CT tol2, CT etol2, CT n, CT f)
+                                  CT& dnm, CoeffsC1 const& coeffs_C1, CT const& ep2,
+                                  CT const& tol1, CT const& tol2, CT const& etol2, CT const& n, CT const& f)
     {
+        static CT const c0 = 0;
+        static CT const c0_01 = 0.01;
+        static CT const c0_1 = 0.1;
+        static CT const c0_5 = 0.5;
+        static CT const c1 = 1;
+        static CT const c2 = 2;
+        static CT const c6 = 6;
+        static CT const c1000 = 1000;
+        static CT const pi = math::pi<CT>();
+
         CT const one_minus_f = c1 - f;
         CT const x_thresh = c1000 * tol2;
 
@@ -646,7 +655,7 @@ public:
         // Skip astroid calculation if too eccentric.
         else if (std::abs(n) > c0_1 ||
                  cos_sigma12 >= c0 ||
-                 sin_sigma12 >= c6 * std::abs(n) * math::pi<CT>() *
+                 sin_sigma12 >= c6 * std::abs(n) * pi *
                  math::sqr(cos_beta1))
         {
             // Nothing to do, zeroth order spherical approximation will do.
@@ -670,7 +679,7 @@ public:
 
                 CT const A3 = math::horner_evaluate(eps, coeffs_A3.begin(), coeffs_A3.end());
 
-                lambda_scale = f * cos_beta1 * A3 * math::pi<CT>();
+                lambda_scale = f * cos_beta1 * A3 * pi;
                 beta_scale = lambda_scale * cos_beta1;
 
                 x = lam12x / lambda_scale;
@@ -682,15 +691,16 @@ public:
                 CT beta12a = atan2(sin_beta12a, cos_beta12a);
 
                 CT m12b, m0, dummy;
-                meridian_length(n, ep2, math::pi<CT>() + beta12a,
+                meridian_length(n, ep2, pi + beta12a,
                                 sin_beta1, -cos_beta1, dn1,
                                 sin_beta2, cos_beta2, dn2,
                                 cos_beta1, cos_beta2, dummy,
                                 m12b, m0, dummy, dummy, coeffs_C1);
 
-                x = -c1 + m12b / (cos_beta1 * cos_beta2 * m0 * math::pi<CT>());
-                beta_scale = x < -c0_01 ? sin_beta12a / x :
-                    -f * math::sqr(cos_beta1) * math::pi<CT>();
+                x = -c1 + m12b / (cos_beta1 * cos_beta2 * m0 * pi);
+                beta_scale = x < -c0_01
+                           ? sin_beta12a / x
+                           : -f * math::sqr(cos_beta1) * pi;
                 lambda_scale = beta_scale / cos_beta1;
 
                 y = lam12x / lambda_scale;
@@ -701,7 +711,7 @@ public:
                 // Strip near cut.
                 if (f >= c0)
                 {
-                    sin_alpha1 = (std::min)(CT(1), -CT(x));
+                    sin_alpha1 = (std::min)(c1, -CT(x));
                     cos_alpha1 = - math::sqrt(c1 - math::sqr(sin_alpha1));
                 }
                 else
@@ -713,7 +723,7 @@ public:
             else
             {
                 // Solve the astroid problem.
-                CT k = astroid(x, y);
+                CT k = astroid(CT(x), y);
 
                 CT omega12a = lambda_scale * (f >= c0 ? -x * k /
                     (c1 + k) : -y * (c1 + k) / k);
@@ -750,8 +760,15 @@ public:
      Geodesics on an ellipsoid of revolution, Charles F.F Karney,
      https://arxiv.org/abs/1102.1215
     */
-    static inline CT astroid(CT x, CT y)
+    static inline CT astroid(CT const& x, CT const& y)
     {
+        static CT const c0 = 0;
+        static CT const c1 = 1;
+        static CT const c2 = 2;
+        static CT const c3 = 3;
+        static CT const c4 = 4;
+        static CT const c6 = 6;
+
         CT k;
 
         CT p = math::sqr(x);
@@ -815,19 +832,23 @@ public:
     }
 
     template <typename CoeffsC1>
-    static inline CT lambda12(CT sin_beta1, CT cos_beta1, CT dn1,
-                              CT sin_beta2, CT cos_beta2, CT dn2,
-                              CT sin_alpha1, CT cos_alpha1,
-                              CT sin_lam120, CT cos_lam120,
+    static inline CT lambda12(CT const& sin_beta1, CT const& cos_beta1, CT const& dn1,
+                              CT const& sin_beta2, CT const& cos_beta2, CT const& dn2,
+                              CT const& sin_alpha1, CT cos_alpha1,
+                              CT const& sin_lam120, CT const& cos_lam120,
                               CT& sin_alpha2, CT& cos_alpha2,
                               CT& sigma12,
                               CT& sin_sigma1, CT& cos_sigma1,
                               CT& sin_sigma2, CT& cos_sigma2,
                               CT& eps, CT& diff_omega12,
                               bool diffp, CT& diff_lam12,
-                              CT f, CT n, CT ep2, CT tiny,
-                              CoeffsC1 coeffs_C1)
+                              CT const& f, CT const& n, CT const& ep2, CT const& tiny,
+                              CoeffsC1 const& coeffs_C1)
     {
+        static CT const c0 = 0;
+        static CT const c1 = 1;
+        static CT const c2 = 2;
+
         CT const one_minus_f = c1 - f;
 
         if (sin_beta1 == c0 && cos_alpha1 == c0)
@@ -878,11 +899,11 @@ public:
 
 
         // sig12 = sig2 - sig1, limit to [0, pi].
-        sigma12 = atan2((std::max)(CT(0), cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
+        sigma12 = atan2((std::max)(c0, cos_sigma1 * sin_sigma2 - sin_sigma1 * cos_sigma2),
                                           cos_sigma1 * cos_sigma2 + sin_sigma1 * sin_sigma2);
 
         // omg12 = omg2 - omg1, limit to [0, pi].
-        sin_omega12 = (std::max)(CT(0), cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
+        sin_omega12 = (std::max)(c0, cos_omega1 * sin_omega2 - sin_omega1 * cos_omega2);
         cos_omega12 = cos_omega1 * cos_omega2 + sin_omega1 * sin_omega2;
 
         // eta = omg12 - lam120.

@@ -19,22 +19,25 @@ namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates, typename OutIter>
+template <typename MembersHolder, typename Predicates, typename OutIter>
 struct spatial_query
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public MembersHolder::visitor_const
 {
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::translator_type translator_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
+
     typedef typename index::detail::strategy_type<parameters_type>::type strategy_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::node node;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
-    typedef typename Allocators::size_type size_type;
+    typedef typename allocators_type::size_type size_type;
 
     static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
 
-    inline spatial_query(parameters_type const& par, Translator const& t, Predicates const& p, OutIter out_it)
+    inline spatial_query(parameters_type const& par, translator_type const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0), strategy(index::detail::get_strategy(par))
     {}
 
@@ -82,7 +85,7 @@ struct spatial_query
         }
     }
 
-    Translator const& tr;
+    translator_type const& tr;
 
     Predicates pred;
 
@@ -92,21 +95,25 @@ struct spatial_query
     strategy_type strategy;
 };
 
-template <typename Value, typename Options, typename Translator, typename Box, typename Allocators, typename Predicates>
+template <typename MembersHolder, typename Predicates>
 class spatial_query_incremental
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public MembersHolder::visitor_const
 {
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::value_type value_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::translator_type translator_type;
+    typedef typename MembersHolder::allocators_type allocators_type;
+
     typedef typename index::detail::strategy_type<parameters_type>::type strategy_type;
 
 public:
-    typedef typename rtree::node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::node node;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
-    typedef typename Allocators::size_type size_type;
-    typedef typename Allocators::const_reference const_reference;
-    typedef typename Allocators::node_pointer node_pointer;
+    typedef typename allocators_type::size_type size_type;
+    typedef typename allocators_type::const_reference const_reference;
+    typedef typename allocators_type::node_pointer node_pointer;
 
     typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
@@ -122,7 +129,7 @@ public:
 //        , m_strategy()
     {}
 
-    inline spatial_query_incremental(parameters_type const& params, Translator const& t, Predicates const& p)
+    inline spatial_query_incremental(parameters_type const& params, translator_type const& t, Predicates const& p)
         : m_translator(::boost::addressof(t))
         , m_pred(p)
         , m_values(NULL)
@@ -172,7 +179,7 @@ public:
                 if ( m_current != m_values->end() )
                 {
                     // return if next value is found
-                    Value const& v = *m_current;
+                    value_type const& v = *m_current;
                     if (index::detail::predicates_check
                             <
                                index::detail::value_tag, 0, predicates_len
@@ -230,7 +237,7 @@ public:
 
 private:
 
-    const Translator * m_translator;
+    const translator_type * m_translator;
 
     Predicates m_pred;
 

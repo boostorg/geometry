@@ -312,6 +312,7 @@
 
 [include generated/point.qbk]
 [include generated/point_xy.qbk]
+[include generated/point_xyz.qbk]
 [include generated/linestring.qbk]
 [include generated/polygon.qbk]
 [include generated/multi_point.qbk]

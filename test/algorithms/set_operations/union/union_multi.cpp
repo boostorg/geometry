@@ -426,6 +426,11 @@ void test_areal()
     TEST_UNION(issue_630_c, 1, 0, -1, 1.670367);
 #endif
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // With rescaling the small polygon is added on top of the outer polygon
+    TEST_UNION(issue_643, 1, 0, -1, 80.0);
+#endif
+
 #if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
     // Two polygons, should ideally be merged
     TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);

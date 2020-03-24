@@ -14,6 +14,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/algorithms/detail/make/make.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <cmath>

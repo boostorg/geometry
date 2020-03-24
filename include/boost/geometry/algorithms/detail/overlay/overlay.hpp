@@ -137,12 +137,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             ++op_it)
         {
             turn_operation_type const& op = *op_it;
-            ring_identifier const ring_id
-                (
-                    op.seg_id.source_index,
-                    op.seg_id.multi_index,
-                    op.seg_id.ring_index
-                );
+            ring_identifier const ring_id = ring_id_by_seg_id(op.seg_id);
 
             if (! is_self_turn<OverlayType>(turn)
                 && (
