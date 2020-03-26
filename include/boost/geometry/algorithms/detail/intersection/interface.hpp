@@ -20,6 +20,7 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
+#include <boost/geometry/algorithms/detail/tupled_output.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -50,14 +51,18 @@ struct intersection
             GeometryOut& geometry_out,
             Strategy const& strategy)
     {
-        typedef typename boost::range_value<GeometryOut>::type OneOut;
+        typedef typename geometry::detail::output_geometry_value
+            <
+                GeometryOut
+            >::type SingleOut;
 
         intersection_insert
             <
-                Geometry1, Geometry2, OneOut,
+                Geometry1, Geometry2, SingleOut,
                 overlay_intersection
             >::apply(geometry1, geometry2, robust_policy,
-                     range::back_inserter(geometry_out), strategy);
+                     geometry::detail::output_geometry_back_inserter(geometry_out),
+                     strategy);
 
         return true;
     }
