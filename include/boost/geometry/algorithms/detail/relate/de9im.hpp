@@ -25,8 +25,7 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 
-// TEMP - move this header to geometry/detail
-#include <boost/geometry/index/detail/tuples.hpp>
+#include <boost/geometry/util/tuples.hpp>
 
 namespace boost { namespace geometry
 {
@@ -202,7 +201,7 @@ operator||(mask const& m1, mask const& m2)
 
 template <typename Tail>
 inline
-typename index::detail::tuples::push_back
+typename geometry::tuples::push_back
     <
         boost::tuples::cons<mask, Tail>,
         mask
@@ -211,7 +210,7 @@ operator||(boost::tuples::cons<mask, Tail> const& t, mask const& m)
 {
     namespace bt = boost::tuples;
 
-    return index::detail::tuples::push_back
+    return geometry::tuples::push_back
             <
                 bt::cons<mask, Tail>,
                 mask

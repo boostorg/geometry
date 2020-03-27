@@ -125,12 +125,12 @@ inline const pj_datums_type<T>* pj_datum_find_datum(srs::dpar::parameters<T> con
 template
 <
     typename Params,
-    typename Param = typename srs::spar::detail::tuples_find_if
+    typename Param = typename geometry::tuples::find_if
         <
             Params,
             srs::spar::detail::is_param_tr<srs::spar::detail::datum_traits>::pred
         >::type,
-    bool IsFound = srs::spar::detail::tuples_is_found<Param>::value
+    bool IsFound = geometry::tuples::is_found<Param>::value
 >
 struct pj_datum_find_datum_static
 {
@@ -214,7 +214,7 @@ inline bool pj_datum_find_nadgrids(srs::dpar::parameters<T> const& params,
 template
 <
     typename Params,
-    int I = srs::spar::detail::tuples_find_index_if
+    int I = geometry::tuples::find_index_if
         <
             Params,
             srs::spar::detail::is_param<srs::spar::nadgrids>::pred
@@ -309,7 +309,7 @@ inline bool pj_datum_find_towgs84(srs::dpar::parameters<T> const& params,
 template
 <
     typename Params,
-    int I = srs::spar::detail::tuples_find_index_if
+    int I = geometry::tuples::find_index_if
         <
             Params,
             srs::spar::detail::is_param_t<srs::spar::towgs84>::pred

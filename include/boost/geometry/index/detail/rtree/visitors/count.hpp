@@ -49,19 +49,21 @@ struct count_helper<Value, Value>
     }
 };
 
-template <typename ValueOrIndexable, typename Value, typename Options, typename Translator, typename Box, typename Allocators>
+template <typename ValueOrIndexable, typename MembersHolder>
 struct count
-    : public rtree::visitor<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag, true>::type
+    : public MembersHolder::visitor_const
 {
-    typedef typename Options::parameters_type parameters_type;
+    typedef typename MembersHolder::value_type value_type;
+    typedef typename MembersHolder::parameters_type parameters_type;
+    typedef typename MembersHolder::translator_type translator_type;
 
-    typedef typename rtree::node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type node;
-    typedef typename rtree::internal_node<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type internal_node;
-    typedef typename rtree::leaf<Value, parameters_type, Box, Allocators, typename Options::node_tag>::type leaf;
+    typedef typename MembersHolder::node node;
+    typedef typename MembersHolder::internal_node internal_node;
+    typedef typename MembersHolder::leaf leaf;
 
-    typedef count_helper<ValueOrIndexable, Value> count_help;
+    typedef count_helper<ValueOrIndexable, value_type> count_help;
 
-    inline count(ValueOrIndexable const& vori, parameters_type const& parameters, Translator const& t)
+    inline count(ValueOrIndexable const& vori, parameters_type const& parameters, translator_type const& t)
         : value_or_indexable(vori), m_parameters(parameters), tr(t), found_count(0)
     {}
 
@@ -103,8 +105,8 @@ struct count
 
     ValueOrIndexable const& value_or_indexable;
     parameters_type const& m_parameters;
-    Translator const& tr;
-    typename Allocators::size_type found_count;
+    translator_type const& tr;
+    typename MembersHolder::size_type found_count;
 };
 
 }}} // namespace detail::rtree::visitors

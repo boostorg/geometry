@@ -18,7 +18,6 @@
 #include <boost/range/algorithm/reverse.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/core/tags.hpp>

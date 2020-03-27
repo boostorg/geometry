@@ -35,12 +35,6 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-// Generic function (is this used somewhere else too?)
-inline ring_identifier ring_id_by_seg_id(segment_identifier const& seg_id)
-{
-    return ring_identifier(seg_id.source_index, seg_id.multi_index, seg_id.ring_index);
-}
-
 template
 <
     bool Reverse1,

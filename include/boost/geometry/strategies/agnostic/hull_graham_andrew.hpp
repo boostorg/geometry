@@ -33,7 +33,6 @@
 #include <boost/geometry/strategies/convex_hull.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/views/detail/range_type.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
 
 
 namespace boost { namespace geometry

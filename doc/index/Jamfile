@@ -15,7 +15,7 @@ boostbook geometry_index-doc
     :
 	index.qbk
 	:
-    <dependency>Jamfile.v2
+    <dependency>Jamfile
     <dependency>generated/rtree.qbk
 	
     <format>html

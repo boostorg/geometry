@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -161,7 +161,7 @@ inline bool pj_ell_init_ellps(srs::dpar::parameters<T> const& params, T &a, T &b
 template
 <
     typename Params,
-    int I = srs::spar::detail::tuples_find_index_if
+    int I = geometry::tuples::find_index_if
         <
             Params,
             srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
@@ -363,35 +363,35 @@ struct static_srs_tag_check_nonexpanded
 {
     typedef typename boost::mpl::if_c
         <
-            srs::spar::detail::tuples_exists_if
+            geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param_t<srs::spar::r>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::r_au>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::r_v>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::r_a>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::r_g>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::r_h>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param_t<srs::spar::r_lat_a>::pred
                 >::value
-         || srs::spar::detail::tuples_exists_if
+         || geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param_t<srs::spar::r_lat_g>::pred
                 >::value,
@@ -400,23 +400,23 @@ struct static_srs_tag_check_nonexpanded
             // b, es, e, f, rf parameters then he wants to define spheroid, not sphere
             typename boost::mpl::if_c
                 <
-                    srs::spar::detail::tuples_exists_if
+                    geometry::tuples::exists_if
                         <
                             Params, srs::spar::detail::is_param_t<srs::spar::b>::pred
                         >::value
-                 || srs::spar::detail::tuples_exists_if
+                 || geometry::tuples::exists_if
                         <
                             Params, srs::spar::detail::is_param_t<srs::spar::es>::pred
                         >::value
-                 || srs::spar::detail::tuples_exists_if
+                 || geometry::tuples::exists_if
                         <
                             Params, srs::spar::detail::is_param_t<srs::spar::e>::pred
                         >::value
-                 || srs::spar::detail::tuples_exists_if
+                 || geometry::tuples::exists_if
                         <
                             Params, srs::spar::detail::is_param_t<srs::spar::rf>::pred
                         >::value
-                 || srs::spar::detail::tuples_exists_if
+                 || geometry::tuples::exists_if
                         <
                             Params, srs::spar::detail::is_param_t<srs::spar::f>::pred
                         >::value,
@@ -433,7 +433,7 @@ struct static_srs_tag_check_ellps
         <
             typename srs::spar::detail::ellps_traits
                 <
-                    typename srs::spar::detail::tuples_find_if
+                    typename geometry::tuples::find_if
                         <
                             Params,
                             srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
@@ -451,7 +451,7 @@ struct static_srs_tag_check_datum
                 <
                     typename srs::spar::detail::datum_traits
                         <
-                            typename srs::spar::detail::tuples_find_if
+                            typename geometry::tuples::find_if
                                 <
                                     Params,
                                     srs::spar::detail::is_param_tr<srs::spar::detail::datum_traits>::pred
@@ -506,7 +506,7 @@ struct static_srs_tag<Params, void, void, void>
     // so use default or generate error
     typedef typename boost::mpl::if_c
         <
-            srs::spar::detail::tuples_exists_if
+            geometry::tuples::exists_if
                 <
                     Params, srs::spar::detail::is_param<srs::spar::no_defs>::pred
                 >::value,

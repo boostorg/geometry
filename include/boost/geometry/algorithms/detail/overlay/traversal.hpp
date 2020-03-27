@@ -148,12 +148,7 @@ public :
                     || op.visited.started()
                     || op.visited.finished() )
                 {
-                   ring_identifier const ring_id
-                        (
-                            op.seg_id.source_index,
-                            op.seg_id.multi_index,
-                            op.seg_id.ring_index
-                        );
+                   ring_identifier const ring_id = ring_id_by_seg_id(op.seg_id);
                    turn_info_map[ring_id].has_traversed_turn = true;
 
                    if (op.operation == operation_continue)
@@ -162,11 +157,7 @@ public :
                        // as traversed too
                        turn_operation_type& other_op = turn.operations[1 - i];
                        ring_identifier const other_ring_id
-                            (
-                                other_op.seg_id.source_index,
-                                other_op.seg_id.multi_index,
-                                other_op.seg_id.ring_index
-                            );
+                               = ring_id_by_seg_id(other_op.seg_id);
                        turn_info_map[other_ring_id].has_traversed_turn = true;
                    }
                 }

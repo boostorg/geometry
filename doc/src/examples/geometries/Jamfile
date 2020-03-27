@@ -17,6 +17,7 @@ exe box : box.cpp ;
 exe linestring : linestring.cpp ;
 exe point : point.cpp ;
 exe point_xy : point_xy.cpp ;
+exe point_xyz : point_xyz.cpp ;
 exe polygon : polygon.cpp ;
 exe multi_linestring : multi_linestring.cpp ;
 exe multi_point : multi_point.cpp ;
