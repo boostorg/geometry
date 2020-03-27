@@ -20,6 +20,15 @@
 #ifndef BOOST_GEOMETRY_GEOMETRY_HPP
 #define BOOST_GEOMETRY_GEOMETRY_HPP
 
+#include <boost/config.hpp>
+#include <boost/config/pragma_message.hpp>
+#if defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_NO_CXX11_HDR_MEMORY)
+#if !defined(BOOST_GEOMETRY_DISABLE_DEPRECATED_03_WARNING)
+BOOST_PRAGMA_MESSAGE("CAUTION: Boost.Geometry in Boost 1.73 deprecates support for the C++03 and will require C++14 from Boost 1.75 onwards.")
+BOOST_PRAGMA_MESSAGE("CAUTION: Define BOOST_GEOMETRY_DISABLE_DEPRECATED_03_WARNING to suppress this message.")
+#endif
+#endif
+
 // Shortcut to include all header files
 
 #include <boost/geometry/core/closure.hpp>
