@@ -106,6 +106,8 @@ algorithms = ["append", "assign", "make", "clear"
     , "relation", "reverse","simplify", "sym_difference", "touches"
     , "transform", "union", "unique", "within"]
 
+arithmetic = ["cross_product"]
+
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
     
@@ -190,6 +192,7 @@ for i in views:
     
 
 model_to_quickbook2("d2_1_1point__xy", "point_xy")
+model_to_quickbook2("d3_1_1point__xyz", "point_xyz")
 
 group_to_quickbook("arithmetic")
 group_to_quickbook("dsv")

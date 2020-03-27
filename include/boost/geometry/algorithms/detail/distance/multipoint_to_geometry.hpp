@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2014, 2019, 2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -143,12 +143,13 @@ public:
                                     Areal const& areal,
                                     Strategy const& strategy)
     {
-        typedef not_covered_by_areal
-            <
-                typename Strategy::point_in_geometry_strategy_type
-            > predicate_type;
+        typedef typename Strategy::point_in_geometry_strategy_type pg_strategy_type;
+
+        typedef not_covered_by_areal<pg_strategy_type> predicate_type;
         
-        predicate_type predicate(areal, strategy.get_point_in_geometry_strategy());
+        // predicate holds references so the strategy has to be created here
+        pg_strategy_type pg_strategy = strategy.get_point_in_geometry_strategy();
+        predicate_type predicate(areal, pg_strategy);
 
         if (check_iterator_range
                 <

@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019.
+// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -134,9 +134,9 @@ inline bool pj_param_exists(Params const& params, Name const& name)
 template <typename Param, BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX>
 inline bool pj_param_exists(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& )
 {
-    return srs::spar::detail::tuples_is_found
+    return geometry::tuples::is_found
         <
-            typename srs::spar::detail::tuples_find_if
+            typename geometry::tuples::find_if
                 <
                     srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>,
                     srs::spar::detail::is_param<Param>::template pred
@@ -147,9 +147,9 @@ inline bool pj_param_exists(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DET
 template <template <typename> class Param, BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX>
 inline bool pj_param_exists(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& )
 {
-    return srs::spar::detail::tuples_is_found
+    return geometry::tuples::is_found
         <
-            typename srs::spar::detail::tuples_find_if
+            typename geometry::tuples::find_if
                 <
                     srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>,
                     srs::spar::detail::is_param_t<Param>::template pred
@@ -281,7 +281,7 @@ template
 <
     typename Params,
     template <typename> class IsSamePred,
-    int I = srs::spar::detail::tuples_find_index_if<Params, IsSamePred>::value,
+    int I = geometry::tuples::find_index_if<Params, IsSamePred>::value,
     int N = boost::tuples::length<Params>::value
 >
 struct _pj_param_x_static

@@ -162,17 +162,9 @@ struct buffer_turn_info
     std::size_t turn_index; // TODO: this might go if partition can operate on non-const input
 
     RobustPoint robust_point;
-#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
-    // Will (most probably) be removed later
-    RobustPoint mapped_robust_point; // alas... we still need to adapt our points, offsetting them 1 integer to be co-located with neighbours
-#endif
-
 
     inline RobustPoint const& get_robust_point() const
     {
-#if defined(BOOST_GEOMETRY_BUFFER_ENLARGED_CLUSTERS)
-        return mapped_robust_point;
-#endif
         return robust_point;
     }
 
@@ -183,32 +175,21 @@ struct buffer_turn_info
     std::size_t count_within;
 
     bool within_original;
-    std::size_t count_on_original_boundary;
     signed_size_type count_in_original; // increased by +1 for in ext.ring, -1 for int.ring
 
     std::size_t count_on_offsetted;
     std::size_t count_on_helper;
     std::size_t count_within_near_offsetted;
 
-    bool remove_on_multi;
-
-    // Obsolete:
-    std::size_t count_on_occupied;
-    std::size_t count_on_multi;
-
     inline buffer_turn_info()
         : turn_index(0)
         , location(location_ok)
         , count_within(0)
         , within_original(false)
-        , count_on_original_boundary(0)
         , count_in_original(0)
         , count_on_offsetted(0)
         , count_on_helper(0)
         , count_within_near_offsetted(0)
-        , remove_on_multi(false)
-        , count_on_occupied(0)
-        , count_on_multi(0)
     {}
 };
 

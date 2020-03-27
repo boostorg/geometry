@@ -212,9 +212,13 @@ public:
     {}
 
     template <typename Turn, typename Original>
-    inline bool apply(Turn const& turn, Original const& original, bool first = true)
+    inline bool apply(Turn const& turn, Original const& original)
     {
-        boost::ignore_unused(first);
+        if (boost::empty(original.m_ring))
+        {
+            // Skip empty rings
+            return true;
+        }
 
         if (turn.location != location_ok || turn.within_original)
         {
