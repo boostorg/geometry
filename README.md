@@ -1,5 +1,7 @@
 # ![Boost.Geometry](doc/other/logo/logo_bkg.png)
 
+> **CAUTION**: Boost.Geometry in Boost 1.73 deprecates support for the C++03 and will require C++14 from Boost 1.75 onwards (see issue [#590](https://github.com/boostorg/geometry/issues/590)).
+
 Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), defines concepts, primitives and algorithms for solving geometry problems.
 
 [![Licence](https://img.shields.io/badge/license-boost-4480cc.png)](http://www.boost.org/LICENSE_1_0.txt)
