@@ -12,11 +12,12 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_RANDOM_UNIFORM_POINT_DISTRIBUTION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_RANDOM_UNIFORM_POINT_DISTRIBUTION_HPP
 
-#include <boost/geometry/extensions/random/strategies/agnostic/uniform_envelope_rejection.hpp>
-#include <boost/geometry/extensions/random/strategies/agnostic/uniform_linear.hpp>
-#include <boost/geometry/extensions/random/strategies/agnostic/uniform_point_distribution_discrete.hpp>
-#include <boost/geometry/extensions/random/strategies/cartesian/uniform_point_distribution_box.hpp>
-#include <boost/geometry/extensions/random/strategies/spherical/uniform_inverse_transform_sampling.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_linear.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_envelope_rejection.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_box.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_point_discrete.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_convex_polygon.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_convex_hull_rejection.hpp>
 
 namespace boost { namespace geometry { namespace random
 {
@@ -25,12 +26,12 @@ template
 <
     typename DomainGeometry,
     typename Point = typename geometry::point_type<DomainGeometry>::type,
-    typename Strategy =
-        typename strategy::uniform_point_distribution::services::default_strategy
+    typename Policy =
+        typename policy::uniform_point_distribution::services::default_policy
             <
                 Point,
                 DomainGeometry
-            >
+            >::type
 >
 class uniform_point_distribution
 {
@@ -49,42 +50,46 @@ public:
     private:
         DomainGeometry m_domain;
     };
+    uniform_point_distribution(DomainGeometry const& domain,
+                               Policy const& policy)
+        : m_policy(policy),
+          m_param(domain) {}
     uniform_point_distribution(DomainGeometry const& domain)
-        : m_strategy(domain),
+        : m_policy(domain),
           m_param(domain) {}
     uniform_point_distribution()
-        : m_strategy(DomainGeometry()),
+        : m_policy(DomainGeometry()),
           m_param(DomainGeometry()) {}
     uniform_point_distribution(param_type const& param)
-        : m_strategy(param.domain()),
+        : m_policy(param.domain()),
           m_param(param) {}
-    void reset() { m_strategy.reset(); }
+    void reset() { m_policy.reset(); }
     param_type param() const { return m_param; }
     void param(param_type const& p)
     {
         m_param = p;
-        m_strategy = Strategy(p.domain());
+        m_policy = Policy(p.domain());
     }
     bool operator==(uniform_point_distribution const& rhs) const
     {
-        return m_strategy.equals(m_param.domain(),
-                                 rhs.domain(),
-                                 rhs.m_strategy);
+        return m_policy.equals(m_param.domain(),
+                               rhs.domain(),
+                               rhs.m_policy);
     }
     domain_type const& domain() const { return m_param.domain(); }
     template< typename Generator >
     result_type operator()(Generator& g)
     {
-        return m_strategy.apply(g, m_param.domain());
+        return m_policy.apply(g, m_param.domain());
     }
     template< typename Generator >
     result_type operator()(Generator& g, param_type const& p)
     {
-        Strategy strat(p.domain());
-        return strat.apply(g, p.domain());
+        Policy pol(p.domain());
+        return pol.apply(g, p.domain());
     }
 private:
-    Strategy m_strategy;
+    Policy m_policy;
     param_type m_param;
 };
 
@@ -107,14 +112,14 @@ template
     typename Traits,
     typename Point,
     typename DomainGeometry,
-    typename Strategy
+    typename Policy
 >
 inline std::basic_ostream<Char, Traits>& operator<<
     (
         std::basic_ostream<Char, Traits> &os,
         boost::geometry::random::uniform_point_distribution
             <
-                DomainGeometry, Point, Strategy
+                DomainGeometry, Point, Policy
             > const& dist
     )
 {
@@ -128,14 +133,14 @@ template
     typename Traits,
     typename Point,
     typename DomainGeometry,
-    typename Strategy
+    typename Policy
 >
 inline std::basic_istream<Char, Traits>& operator>>
     (
         std::basic_istream<Char, Traits> &is,
         boost::geometry::random::uniform_point_distribution
             <
-                DomainGeometry, Point, Strategy
+                DomainGeometry, Point, Policy
             > & dist
     )
 {
@@ -145,7 +150,7 @@ inline std::basic_istream<Char, Traits>& operator>>
     namespace bg = boost::geometry;
     typedef typename bg::random::uniform_point_distribution
         <
-            DomainGeometry, Point, Strategy
+            DomainGeometry, Point, Policy
         >::param_type param_type;
     bg::read_wkt<DomainGeometry>(line, g);
     dist.param( param_type(g) );

@@ -18,58 +18,36 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
 
-#include <boost/geometry/extensions/random/strategies/uniform_point_distribution.hpp>
+#include <boost/geometry/extensions/random/strategies/uniform_point_distribution_box.hpp>
 
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace uniform_point_distribution {
+namespace strategy { namespace uniform_point_distribution
+{
 
 namespace detail
 {
 
-template
-<
-    typename Point,
-    typename Box,
-    typename Generator,
-    bool isIntegral =
-        boost::is_integral<typename coordinate_type<Point>::type>::type::value
->
-struct interval_sample {};
-
-template<typename Point, typename Box, typename Generator>
-struct interval_sample<Point, Box, Generator, true>
+template<typename Point, typename Box, std::size_t Dim, typename CalculationType>
+struct interval_product
 {
-    Box const& b;
-    Generator& gen;
-    inline interval_sample(Box const& b, Generator& gen):b(b),gen(gen) {}
-    template <typename PointDst, std::size_t Index>
-    inline void apply(PointDst& point_dst) const
-    {
-        std::uniform_int_distribution<typename coordinate_type<Point>::type>
-            dist(get<min_corner,Index>(b),get<max_corner,Index>(b));
-        set<Index>(point_dst,dist(gen));
-    }
-};
-
-template<typename Point, typename Box, typename Generator>
-struct interval_sample<Point, Box, Generator, false>
-{
-    Box const& b;
-    Generator& gen;
-    inline interval_sample(Box const& b, Generator& gen):b(b),gen(gen) {}
+    Box const& m_b;
+    std::array<CalculationType, Dim> const& m_fractions;
+    inline interval_product(Box const& b, std::array<CalculationType, Dim> const& f) : 
+        m_b(b), m_fractions(f) {}
 
     template <typename PointDst, std::size_t Index>
     inline void apply(PointDst& point_dst) const
     {
-        std::uniform_real_distribution<typename coordinate_type<Point>::type>
-            dist(get<min_corner,Index>(b),get<max_corner,Index>(b));
-        set<Index>(point_dst,dist(gen));
+        set<Index>(point_dst, 
+                   get<min_corner, Index>(m_b) + 
+                         m_fractions[Index]
+                       * (get<max_corner, Index>(m_b) - get<min_corner, Index>(m_b)) );
     }
 };
 
-}
+} // namespace detail
 
 template
 <
@@ -77,24 +55,16 @@ template
     typename DomainGeometry,
     int Dim
 >
-struct interval_product_distribution
+struct cartesian_box
 {
-    interval_product_distribution(DomainGeometry const& d) {}
-    bool equals(DomainGeometry const& l_domain,
-                DomainGeometry const& r_domain,
-                interval_product_distribution const& r_strategy) const
-    {
-        return boost::geometry::equals(l_domain.domain(), r_domain.domain());
-    }
-    template<typename Generator>
-    Point apply(Generator& g, DomainGeometry const& d)
+    template<typename CalculationType>
+    static Point apply(DomainGeometry const& d, std::array<CalculationType, Dim> const& f)
     {
         Point r;
         for_each_coordinate(r,
-        	detail::interval_sample<Point, DomainGeometry, Generator>(d, g));
+            detail::interval_product<Point, DomainGeometry, Dim, CalculationType>(d, f));
         return r;
     }
-    void reset(DomainGeometry const&) {};
 };
 
 namespace services {
@@ -105,17 +75,15 @@ template
     typename DomainGeometry,
     int Dim
 >
-struct default_strategy
+struct default_box_strategy
 <
     Point,
     DomainGeometry,
-    box_tag,
-    single_tag, //There are no MultiBoxes right now
     Dim,
     cartesian_tag
-> : public interval_product_distribution<Point, DomainGeometry, Dim> {
-    typedef interval_product_distribution<Point, DomainGeometry, Dim> base;
-    using base::base;
+>
+{
+    typedef cartesian_box<Point, DomainGeometry, Dim> type;
 };
 
 } // namespace services

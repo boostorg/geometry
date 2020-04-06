@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2019 Tinko Bartels, Berlin, Germany.
+// Copyright (c) 2020 Tinko Bartels, Berlin, Germany.
 
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
@@ -9,8 +9,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_RANDOM_STRATEGIES_AGNOSTIC_UNIFORM_POINT_DISTRIBUTION_DISCRETE_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_RANDOM_STRATEGIES_AGNOSTIC_UNIFORM_POINT_DISTRIBUTION_DISCRETE_HPP
+#ifndef BOOST_GEOMETRY_EXTENSIONS_RANDOM_POLICIES_UNIFORM_POINT_DISCRETE_HPP
+#define BOOST_GEOMETRY_EXTENSIONS_RANDOM_POLICIES_UNIFORM_POINT_DISCRETE_HPP
 
 #include <random>
 #include <iterator>
@@ -18,25 +18,25 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 
-#include <boost/geometry/extensions/random/strategies/uniform_point_distribution.hpp>
+#include <boost/geometry/extensions/random/policies/uniform_default_policy.hpp>
 
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace uniform_point_distribution {
+namespace policy { namespace uniform_point_distribution {
 
 template
 <
     typename Point,
     typename DomainGeometry
 >
-struct single_point_distribution
+struct single_point
 {
-    single_point_distribution(DomainGeometry const& d) {}
-    template<typename Strategy>
+    single_point(DomainGeometry const& d) {}
+    template<typename Policy>
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
-                Strategy const& r_strategy) const
+                Policy const&) const
     {
         return boost::geometry::equals(l_domain.domain(), r_domain.domain());
     }
@@ -55,12 +55,12 @@ template
     typename Point,
     typename DomainGeometry
 >
-struct multi_point_distribution
+struct multi_point
 {
-    multi_point_distribution(DomainGeometry const& p) {}
+    multi_point(DomainGeometry const& p) {}
     bool equals(DomainGeometry const& l_domain,
                 DomainGeometry const& r_domain,
-                multi_point_distribution const& r_strategy) const
+                multi_point const&) const
     {
         if(boost::size(l_domain) != boost::size(r_domain)) return false;
         for (std::size_t i = 0; i < boost::size(l_domain); ++i)
@@ -93,7 +93,7 @@ template
     int Dim,
     typename CsTag
 >
-struct default_strategy
+struct default_policy
 <
     Point,
     DomainGeometry,
@@ -101,9 +101,9 @@ struct default_strategy
     single_tag,
     Dim,
     CsTag
-> : public single_point_distribution<Point, DomainGeometry> {
-    typedef single_point_distribution<Point, DomainGeometry> base;
-    using base::base;
+>
+{
+    typedef single_point<Point, DomainGeometry> type;
 };
 
 template
@@ -113,7 +113,7 @@ template
     int Dim,
     typename CsTag
 >
-struct default_strategy
+struct default_policy
 <
     Point,
     DomainGeometry,
@@ -121,15 +121,15 @@ struct default_strategy
     multi_tag,
     Dim,
     CsTag
-> : public multi_point_distribution<Point, DomainGeometry> {
-    typedef multi_point_distribution<Point, DomainGeometry> base;
-    using base::base;
+>
+{
+    typedef multi_point<Point, DomainGeometry> type;
 };
 
 } // namespace services
 
-}} // namespace strategy::uniform_point_distribution
+}} // namespace policy::uniform_point_distribution
 
 }} // namespace boost::geometry
 
-#endif //  BOOST_GEOMETRY_EXTENSIONS_RANDOM_STRATEGIES_AGNOSTIC_UNIFORM_POINT_DISTRIBUTION_DISCRETE_HPP
+#endif //  BOOST_GEOMETRY_EXTENSIONS_RANDOM_POLICIES_UNIFORM_POINT_DISCRETE_HPP
