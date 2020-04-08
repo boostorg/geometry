@@ -108,9 +108,8 @@ private :
         namespace bgdb = boost::geometry::detail::buffer;
         typedef typename boost::range_value<Turns const>::type turn_type;
         typedef typename turn_type::point_type point_type;
-        typedef typename turn_type::robust_point_type robust_point_type;
 
-        std::map<robust_point_type, int, bg::less<robust_point_type> > offsets;
+        std::map<point_type, int, bg::less<point_type> > offsets;
 
         for (typename boost::range_iterator<Turns const>::type it =
             boost::begin(turns); it != boost::end(turns); ++it)
@@ -123,20 +122,11 @@ private :
             bool is_good = true;
             char color = 'g';
             std::string fill = "fill:rgb(0,255,0);";
-            switch(it->location)
+            if (! it->is_turn_traversable)
             {
-                case bgdb::inside_buffer :
-                    fill = "fill:rgb(255,0,0);";
-                    color = 'r';
-                    is_good = false;
-                    break;
-                case bgdb::location_discard :
-                    fill = "fill:rgb(0,0,255);";
-                    color = 'b';
-                    is_good = false;
-                    break;
-                default:
-                    ; // to avoid "enumeration value not handled" warning
+                fill = "fill:rgb(255,0,0);";
+                color = 'r';
+                is_good = false;
             }
             if (it->blocked())
             {
@@ -176,17 +166,15 @@ private :
                     << ":" << bg::operation_char(it->operations[0].operation)
                     << "/" << bg::operation_char(it->operations[1].operation);
                 out << " "
-                    << (it->count_within_near_offsetted > 0 ? "n" : "")
-                    << (it->count_within > 0 ? "w" : "")
-                    << (it->count_on_helper > 0 ? "h" : "")
+                    << (it->is_turn_traversable ? "" : "w")
                     ;
 
-                offsets[it->get_robust_point()] += 10;
-                int offset = offsets[it->get_robust_point()];
+                offsets[it->point] += 10;
+                int offset = offsets[it->point];
 
                 m_mapper.text(it->point, out.str(), "fill:rgb(0,0,0);font-family='Arial';font-size:9px;", 5, offset);
 
-                offsets[it->get_robust_point()] += 25;
+                offsets[it->point] += 25;
             }
         }
     }
@@ -198,6 +186,7 @@ private :
     {
         typedef typename boost::range_value<Pieces const>::type piece_type;
         typedef typename boost::range_value<OffsettedRings const>::type ring_type;
+        typedef typename bg::point_type<ring_type>::type point_type;
 
         for(typename boost::range_iterator<Pieces const>::type it = boost::begin(pieces);
             it != boost::end(pieces);
@@ -210,28 +199,16 @@ private :
                 continue;
             }
 
-            ring_type corner;
-
-
             ring_type const& ring = offsetted_rings[seg_id.multi_index];
 
-            std::copy(boost::begin(ring) + seg_id.segment_index,
-                    boost::begin(ring) + piece.last_segment_index,
-                    std::back_inserter(corner));
-            std::copy(boost::begin(piece.helper_points),
-                    boost::end(piece.helper_points),
-                    std::back_inserter(corner));
-
-            if (corner.empty())
-            {
-                continue;
-            }
 #if 0 // Does not compile (SVG is not enabled by default)
             if (m_zoom && bg::disjoint(corner, m_alternate_box))
             {
                 continue;
             }
 #endif
+
+            bg::model::ring<point_type> const& corner = piece.m_piece_border.get_full_ring();
 
             if (m_zoom && do_pieces)
             {
@@ -251,7 +228,7 @@ private :
                     std::cerr << "Error for piece " << piece.index << std::endl;
                 }
             }
-            else if (do_pieces)
+            else if (do_pieces && ! corner.empty())
             {
                 std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
                 m_mapper.map(corner,
@@ -263,7 +240,6 @@ private :
             if (do_indices)
             {
                 // Label starting piece_index / segment_index
-                typedef typename bg::point_type<ring_type>::type point_type;
 
                 std::ostringstream out;
                 out << piece.index
@@ -271,8 +247,12 @@ private :
                     << (piece.is_flat_end ? " FE" : "")
                     << " (" << piece_type_char(piece.type) << ") "
                     << piece.first_seg_id.segment_index
-                    << ".." << piece.last_segment_index - 1;
-                point_type label_point = bg::return_centroid<point_type>(corner);
+                    << ".." << piece.beyond_last_segment_index - 1
+                       ;
+                point_type label_point
+                        = corner.empty()
+                        ? piece.m_label_point
+                        : bg::return_centroid<point_type>(corner);
 
                 if ((piece.type == bg::strategy::buffer::buffered_concave
                      || piece.type == bg::strategy::buffer::buffered_flat_end)

@@ -304,7 +304,7 @@ struct buffer_range
 
             if (first && mark_flat)
             {
-                collection.mark_flat_start();
+                collection.mark_flat_start(*prev);
             }
 
             penultimate_point = *prev;
@@ -323,7 +323,7 @@ struct buffer_range
 
         if (mark_flat)
         {
-            collection.mark_flat_end();
+            collection.mark_flat_end(ultimate_point);
         }
 
         return result;
@@ -974,11 +974,12 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
             robust_policy, intersection_strategy.get_side_strategy());
 
     collection.get_turns();
-    collection.classify_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
     {
-        collection.check_remaining_points();
+        collection.check_turn_in_original();
     }
+
+    collection.verify_turns();
 
     // Visit the piece collection. This does nothing (by default), but
     // optionally a debugging tool can be attached (e.g. console or svg),
@@ -992,6 +993,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     // phase 1: turns (after enrichment/clustering)
     visit_pieces_policy.apply(const_collection, 1);
+
+    if (BOOST_GEOMETRY_CONDITION(areal))
+    {
+        collection.deflate_check_turns();
+    }
 
     collection.traverse();
 

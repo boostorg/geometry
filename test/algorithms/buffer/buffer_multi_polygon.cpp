@@ -262,6 +262,15 @@ static std::string const rt_u9
 static std::string const rt_u10
     = "MULTIPOLYGON(((7 5,8 6,8 5,7 5)),((4 5,5 6,5 5,5 4,4 4,4 5)),((9 5,10 5,10 4,9 4,8 4,9 5)),((1 2,1 1,0 1,1 2)),((6 6,6 7,7 7,7 6,6 6)),((3 6,3 7,4 6,3 6)),((8 6,8 7,9 6,8 6)),((1 3,1 4,2 3,1 3)),((9 9,10 8,9 8,9 7,8 7,8 8,9 9)),((9 2,10 3,10 2,9 2)),((2 5,2 6,3 6,2 5)),((1 9,1 10,2 10,2 9,1 9)),((4 6,4 7,5 7,5 6,4 6)),((6 0,6 1,7 1,7 0,6 0)),((0 9,0 10,1 10,0 9)),((3.5 5.5,4 6,4 5,3 5,3 6,3.5 5.5)),((9 3,9 4,10 3,9 3)),((9 9,10 10,10 9,9 9)),((1 6,2 7,2 6,1 6)),((4 2,4 3,5 2,4 2)),((5 10,4 9,4 10,5 10)),((0 3,1 2,0 2,0 3)),((5 8,4 8,5 9,6 10,6 9,7 9,7 8,6 8,5 7,5 8)),((6 2,5 2,5 3,5.5 2.5,6 3,6 4,7 4,8 4,8 3,7 3,7 2,6 2)),((4 0,3 0,3 1,2.5 0.5,3 0,2 0,2 1,2 2,3 3,3 2,4 2,4 1,5 0,4 0)),((3 5,4 4,3 4,2 4,3 5)),((0 6,0 7,1 7,1 6,1 5,0 5,0 6)),((2 8,3 8,3 7,2 7,1 7,1 8,2 8)),((9 1,9 0,8 0,8 1,8 2,9 1)),((7 10,8 10,8 9,7 9,7 10)))";
 
+static std::string const rt_u10_c
+    = "MULTIPOLYGON(((7 5,8 6,8 5,7 5)),"
+        "((6 6,6 7,7 7,7 6,6 6)),"
+        "((8 6,8 7,9 6,8 6)),"
+        "((9 9,10 8,9 8,9 7,8 7,8 8,9 9)),"
+        "((9 9,10 10,10 9,9 9)),"
+        "((5 8,4 8,5 9,6 10,6 9,7 9,7 8,6 8,5 7,5 8)),"
+        "((7 10,8 10,8 9,7 9,7 10)))";
+
 // Fixed by blocking IP's instead of discarding them
 static std::string const rt_u11
     = "MULTIPOLYGON(((7 3,8 4,8 3,7 3)),((4 8,5 9,5 8,4 8)),((7 1,8 2,8 1,7 1)),((7 2,8 3,8 2,7 2)),((0 1,0 2,1 2,0 1)),((8 1,9 2,9 1,8 1)),((6 9,6 8,5 8,6 9)),((7 9,7 10,8 10,7 9)),((0 7,1 8,1 7,0 7)),((6 4,6 5,7 5,7 4,6 4)),((7 4,8 5,8 4,7 4)),((4 2,4 3,5 3,5 2,4 2)),((5 5,5 6,6 6,6 5,5 5)),((5 9,6 10,6 9,5 9)),((4 8,4 7,3 7,3 8,4 8)),((5 5,6 4,5 4,4 4,4 5,5 5)),((4.5 0.5,5 0,4 0,4 1,5 2,6 2,6 3,7 4,7 3,7 2,7 1,6 1,6 0,5 0,5 1,4.5 0.5)),((4 6,3 5,3 6,4 7,5 7,5 6,4 6)),((2 3,1 3,0 3,1 4,1 5,1 6,2 6,2 5,2 4,2 3)),((3 4,4 4,3 3,2 3,3 4)),((3 9,4 9,3 8,2 8,2 9,3 9)),((1 9,1 8,0 8,0 9,1 10,2 9,1 9)),((3 7,3 6,2 6,2 7,3 7)),((8 6,8 7,9 7,9 6,9 5,8 5,8 6)),((9 1,10 2,10 1,10 0,9 0,9 1)),((8 8,8 7,7 7,7 8,8 8)),((6 8,7 9,7 8,6 7,6 8)),((10 9,10 8,10 7,9 7,9 8,9 9,9 10,10 10,10 9)))";
@@ -461,6 +470,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_t2", rt_t, join_miter, end_flat, 0.1679, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u1", rt_u1, join_round, end_flat, 33.2032, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u1_rough", rt_u1, join_round32, end_flat, 33.1470, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u2", rt_u2, join_round, end_flat, 138.8001, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u3", rt_u3, join_round, end_flat, 133.4526, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
@@ -477,6 +487,8 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0); // PG: 144.085786772487
 #endif
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51); // PG: 0.167380307629637
+    test_one<multi_polygon_type, polygon_type>("rt_u10_c_51", rt_u10_c, join_miter, end_flat, 0.066952, -0.51);
+
 
     // TODO: now one small triangle missing due to clusters/uu turns
     test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50, ut_settings::ignore_validity()); // PG: 0.214466094067263
