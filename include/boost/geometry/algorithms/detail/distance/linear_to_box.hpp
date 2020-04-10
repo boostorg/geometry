@@ -59,9 +59,22 @@ struct linear_to_box
                                     Box const& box,
                                     Strategy const& strategy)
     {
-        if ( geometry::intersects(linear, box) )
+        typedef typename point_type<Linear>::type point_type;
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res = geometry::detail::disjoint
+                       ::disjoint_with_info<Linear,Box>
+                       ::apply(linear, box,
+                               strategy);//.get_relate_segment_segment_strategy());
+
+        //if ( geometry::intersects(linear, box) )
+        if ( dis_res.count > 0 )
         {
-            return return_type(0);
+            return_type result;
+            strategy::distance::services::result_init<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
+            //return return_type(0);
         }
 
         return apply(box,

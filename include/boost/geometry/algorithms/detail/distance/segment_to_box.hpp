@@ -659,8 +659,11 @@ private:
 
         // in all other cases the box and segment intersect, so return 0 for
         // distance and p0 for closest_points
-        strategy::distance::services::result_init<SBStrategy>
-                ::apply(result, p0);
+
+        strategy::distance::services::closest_points_seg_box<SBStrategy>
+                ::apply(p0, p1,
+                        top_left, top_right, bottom_left, bottom_right,
+                        sb_strategy, result);
         return result;
     }
 
@@ -717,6 +720,10 @@ private:
             return result;
         }
 
+        strategy::distance::services::closest_points_seg_box<SBStrategy>
+                ::apply(p0, p1,
+                        top_left, top_right, bottom_left, bottom_right,
+                        sb_strategy, result);
         // in all other cases the box and segment intersect, so return 0
         return result;
     }

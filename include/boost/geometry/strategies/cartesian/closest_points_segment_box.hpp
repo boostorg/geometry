@@ -280,6 +280,85 @@ struct result_init
     }
 };
 
+template
+<
+    typename CalculationType,
+    typename Strategy
+>
+struct closest_points_seg_box
+<
+    strategy::closest_points::cartesian_segment_box<CalculationType, Strategy>
+>
+{
+    template
+    <
+        typename T,
+        typename SegmentPoint,
+        typename BoxPoint,
+        typename DistancePointSegmentStrategy
+    >
+    static inline void apply(SegmentPoint const& p0,
+                             SegmentPoint const& p1,
+                             BoxPoint const& top_left,
+                             BoxPoint const& top_right,
+                             BoxPoint const& bottom_left,
+                             BoxPoint const& bottom_right,
+                             DistancePointSegmentStrategy const& ps_strategy,
+                             T & result)
+    {
+        typedef geometry::model::segment<SegmentPoint> segment;
+        typedef geometry::model::box<BoxPoint> box;
+
+        //TODO pass strategy
+        box b(bottom_left, top_right);
+        if (geometry::covered_by(p0, b))
+        {
+            result.init(p0);
+            return;
+        }
+        if (geometry::covered_by(p1, b))
+        {
+            result.init(p1);
+            return;
+        }
+
+        segment s{p0,p1}, sout;
+        {
+            geometry::closest_points(top_left, s, sout);
+            if (geometry::covered_by(sout.second, b))
+            {
+                result.init(sout.second);
+                return;
+            }
+        }
+        {
+            geometry::closest_points(top_right, s, sout);
+            if (geometry::covered_by(sout.second, b))
+            {
+                result.init(sout.second);
+                return;
+            }
+        }
+        {
+            geometry::closest_points(bottom_left, s, sout);
+            if (geometry::covered_by(sout.second, b))
+            {
+                result.init(sout.second);
+                return;
+            }
+        }
+        {
+            geometry::closest_points(bottom_right, s, sout);
+            if (geometry::covered_by(sout.second, b))
+            {
+                result.init(sout.second);
+                return;
+            }
+        }
+    }
+};
+
+
 }
 #endif
 

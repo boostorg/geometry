@@ -33,6 +33,7 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
@@ -251,6 +252,29 @@ struct disjoint_segment_box
     }
 };
 
+template <typename Segment, typename Box>
+struct disjoint_segment_box_with_info
+{
+    typedef typename point_type<Segment>::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Segment const& segment,
+          Box const& box,
+          Strategy const& strategy)
+    {
+        assert_dimension_equal<Segment, Box>();
+
+        boost::ignore_unused(segment);
+        boost::ignore_unused(box);
+        boost::ignore_unused(strategy);
+        //TODO: this is never used in intersections
+        return intersection_return_type();
+    }
+};
+
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
 
@@ -263,6 +287,11 @@ namespace dispatch
 template <typename Segment, typename Box, std::size_t DimensionCount>
 struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, false>
         : detail::disjoint::disjoint_segment_box
+{};
+
+template <typename Segment, typename Box, std::size_t DimensionCount>
+struct disjoint_with_info<Segment, Box, DimensionCount, segment_tag, box_tag, false>
+        : detail::disjoint::disjoint_segment_box_with_info<Segment, Box>
 {};
 
 

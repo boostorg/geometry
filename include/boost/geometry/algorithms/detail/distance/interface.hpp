@@ -39,7 +39,7 @@
 #include <boost/geometry/strategies/geographic/closest_points.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
 #include <boost/geometry/strategies/geographic/closest_points_cross_track_point_box.hpp>
-#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
+//#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>

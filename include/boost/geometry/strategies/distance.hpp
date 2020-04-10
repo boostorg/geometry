@@ -92,6 +92,29 @@ struct result_init
     }
 };
 
+template <typename StrategyType>
+struct closest_points_seg_box
+{
+    template
+    <
+        typename T,
+        typename SegmentPoint,
+        typename BoxPoint,
+        typename DistancePointSegmentStrategy
+    >
+    static inline void apply(SegmentPoint const& p0,
+                             SegmentPoint const& p1,
+                             BoxPoint const& top_left,
+                             BoxPoint const& top_right,
+                             BoxPoint const& bottom_left,
+                             BoxPoint const& bottom_right,
+                             DistancePointSegmentStrategy const& ps_strategy,
+                             T & result)
+    {
+        result = 0;
+    }
+};
+
 
 // Default strategy
 

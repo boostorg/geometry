@@ -214,7 +214,10 @@ struct disjoint_linear_segment_or_box_with_info
 
 
 template <typename Linestring, typename SegmentOrBox>
-struct disjoint_linear_segment_or_box_with_info<Linestring, SegmentOrBox, linestring_tag>
+struct disjoint_linear_segment_or_box_with_info
+    <
+        Linestring, SegmentOrBox, linestring_tag
+    >
     : disjoint_range_segment_or_box_with_info<Linestring, closed, SegmentOrBox>
 {};
 

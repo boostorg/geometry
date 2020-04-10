@@ -244,10 +244,10 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(9.88 20.16,10 20)",
                   "SEGMENT(9.8677 20.1571,10 20)",
                   strategy);
-    //degenerate
+    //degenerate for cartesian
     tester::apply("SEGMENT(9 19, 11 21)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(9 19,9 19)",
+                  "SEGMENT(10 20,10 20)",
                   "SEGMENT(9.99514 20.0043,10 20)",
                   strategy);
     //left-bottom corner
@@ -264,12 +264,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(20.12 20.16,20 20)",
                   "SEGMENT(20.1323 20.1571,20 20)",
                   strategy);
-    //degenerate
-//    tester::apply("SEGMENT(19 21, 21 19)",
-//                  "BOX(10 10,20 20)",
-//                  "SEGMENT(19 21,19 21)",
-//                  "SEGMENT(20.0049 20.0043,20 20)",
-//                  strategy);
+
     //right-bottom corner
     //generic
     tester::apply("SEGMENT(19 9, 21 10.5)",
@@ -358,6 +353,22 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
+
+    //intersection by crossing box
+    tester::apply("SEGMENT(15 21, 21 15)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(18 18,18 18)",
+                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
+                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  strategy);
+
+    tester::apply("SEGMENT(15 21, 16 5)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
+                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
+                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  strategy);
+
 }
 
 //===========================================================================
@@ -529,6 +540,24 @@ void test_closest_points_linestring_box(Strategy const& strategy)
     tester::apply("LINESTRING(15 15,15 25,20 25)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15 15,15 15)",
+                  strategy);
+    tester::apply("LINESTRING(15 21,21 15,22 25)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(18 18,18 18)",
+                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
+                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  strategy);
+    tester::apply("LINESTRING(15 21,16 5,25 5)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
+                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
+                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  strategy);
+    tester::apply("LINESTRING(15 21,16 5,17 15)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
+                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
+                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
                   strategy);
 }
 
@@ -715,6 +744,29 @@ void test_closest_points_multi_linestring_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(0 5,10 10)",
                   strategy);
+
+    //intersection
+    tester::apply("MULTILINESTRING((2 0,0 2,0 0,-1 -1)(-1 0,-1 2,0 5))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(0 5,10 10)",
+                  strategy);
+    tester::apply("MULTILINESTRING((15 15,15 25,20 25)(5 5,5 10))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
+                  strategy);
+    tester::apply("MULTILINESTRING((15 21,21 15,22 25)(5 5,5 10))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(18 18,18 18)",
+                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
+                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  strategy);
+    tester::apply("MULTILINESTRING((15 21,16 5,25 5)(5 5,5 10))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
+                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
+                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  strategy);
+
 }
 
 //===========================================================================
@@ -730,13 +782,13 @@ void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
 
     test_closest_points_linestring_polygon_or_ring<Point>(ps_strategy);
     test_closest_points_linestring_multi_polygon<Point>(ps_strategy);
-    //test_closest_points_linestring_box<Point>(sb_strategy);
+    test_closest_points_linestring_box<Point>(sb_strategy);
 
     test_closest_points_multi_linestring_polygon_or_ring<Point>(ps_strategy);
     test_closest_points_multi_linestring_multi_polygon<Point>(ps_strategy);
-    //test_closest_points_multi_linestring_box<Point>(sb_strategy);
+    test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
-    //test_more_empty_input_pointlike_areal<Point>(ps_strategy);
+    test_more_empty_input_pointlike_areal<Point>(ps_strategy);
 
 }
 
