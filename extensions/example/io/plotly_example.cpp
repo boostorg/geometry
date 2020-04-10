@@ -17,14 +17,15 @@ int main()
 {
     typedef boost::geometry::model::d3::point_xyz<double> point_t;
     
-    point_t a, b;
-    boost::geometry::assign_values(a, 1, 1, 1);
-    boost::geometry::assign_values(b, 0, 0, 0);
+    boost::geometry::model::linestring<point_t> a;
+
+    boost::geometry::append(a, point_t(0, 0, 0));
+    boost::geometry::append(a, point_t(0, 1, 2));
+    boost::geometry::append(a, point_t(1, 2, 3));
 
     std::ofstream json("my_plot.json");
     boost::geometry::json_plotter plotter(json);
-    plotter.plot(a);
-    plotter.plot(b);
+    plotter.plot(a, "rgb(5, 200, 64)");
 
     return 0;
 }
