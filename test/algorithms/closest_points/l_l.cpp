@@ -12,8 +12,6 @@
 #define BOOST_TEST_MODULE test_closest_points_geographic_linear_linear
 #endif
 
-#define BOOST_GEOMETRY_TEST_DEBUG
-
 #include "test_closest_points_common.hpp"
 #include "test_empty_geometry.hpp"
 

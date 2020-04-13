@@ -36,6 +36,7 @@
 #include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 //#include <boost/geometry/algorithms/closest_points.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
