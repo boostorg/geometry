@@ -539,6 +539,7 @@ void test_closest_points_linestring_box(Strategy const& strategy)
     //intersection
     tester::apply("LINESTRING(15 15,15 25,20 25)",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
     tester::apply("LINESTRING(15 21,21 15,22 25)",
@@ -752,6 +753,7 @@ void test_closest_points_multi_linestring_box(Strategy const& strategy)
                   strategy);
     tester::apply("MULTILINESTRING((15 15,15 25,20 25)(5 5,5 10))",
                   "BOX(10 10,20 20)",
+                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
     tester::apply("MULTILINESTRING((15 21,21 15,22 25)(5 5,5 10))",

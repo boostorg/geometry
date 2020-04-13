@@ -22,6 +22,7 @@
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
@@ -30,7 +31,6 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,6 +39,61 @@ namespace boost { namespace geometry
 namespace strategy { namespace closest_points
 {
 
+class cross_track_box_box_generic
+{
+public:
+
+    template <typename Point, typename Box, typename Result>
+    static bool covered_by_box_with_info(Point const& box_corner,
+                                         Box const& other_box,
+                                         Result& result)
+    {
+        if (geometry::covered_by(box_corner, other_box))
+        {
+            result.lon1 = get_as_radian<0>(box_corner);
+            result.lat1 = get_as_radian<1>(box_corner);
+            result.lon2 = result.lon1;
+            result.lat2 = result.lat1;
+            result.distance = 0;
+            return true;
+        }
+        return false;
+    }
+
+    template <typename Box1, typename Box2, typename Result>
+    static bool box_box_overlap(Box1 const& box1,
+                                Box2 const& box2,
+                                Result& result)
+    {
+        //check first if boxes overlap
+        typedef boost::array<typename point_type<Box1>::type, 4> array;
+
+        array bp1;
+        geometry::detail::assign_box_corners_oriented<true>(box1, bp1);
+
+        for (typename array::const_iterator ait = bp1.begin();
+             ait != bp1.end(); ait++)
+        {
+            if (covered_by_box_with_info(*ait, box2, result))
+            {
+                return true;
+            }
+        }
+
+        array bp2;
+        geometry::detail::assign_box_corners_oriented<true>(box2, bp2);
+
+        for (typename array::const_iterator ait = bp2.begin();
+             ait != bp2.end(); ait++)
+        {
+            if (covered_by_box_with_info(*ait, box1, result))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+};
 
 template
 <
@@ -78,7 +133,7 @@ public:
     {
         typedef geometry::detail::closest_points::result
         <
-            typename calculation_type<Box1, Box2>::type
+        typename calculation_type<Box1, Box2>::type
         > type;
     };
 
@@ -99,6 +154,12 @@ public:
     typename closest_point_result<Box1, Box2>::type
     apply(Box1 const& box1, Box2 const& box2) const
     {
+        typename closest_point_result<Box1, Box2>::type result;
+        if (cross_track_box_box_generic::box_box_overlap(box1, box2, result))
+        {
+            return result;
+        }
+
         return distance::details::cross_track_box_box_generic
                <
                     typename closest_point_result<Box1, Box2>::type

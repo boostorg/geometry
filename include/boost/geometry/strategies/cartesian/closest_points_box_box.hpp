@@ -157,7 +157,7 @@ public :
     */
     template <typename Box1, typename Box2>
     static inline typename closest_point_result<Box1, Box2>::type
-    apply(Box1 const& point, Box2 const& box)
+    apply(Box1 const& box1, Box2 const& box2)
     {
         assert_dimension_equal<Box1, Box2>();
 
@@ -167,7 +167,7 @@ public :
         detail::compute_pythagoras_box_box
             <
                 dimension<Box1>::value
-            >::apply(point, box, result);
+            >::apply(box1, box2, result);
 
         typename closest_point_result<Box1, Box2>::type
                  closest_point_result;

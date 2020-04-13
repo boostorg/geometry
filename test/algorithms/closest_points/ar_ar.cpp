@@ -361,6 +361,21 @@ void test_closest_points_box_box(Strategy const& strategy)
                   "BOX(0 30,5 40)",
                   "SEGMENT(10 20,5 30)",
                   strategy);
+
+    //intersect
+    tester::apply("BOX(10 10,20 20)",
+                  "BOX(15 15,30 30)",
+                  "SEGMENT(15 15,15 15)",
+                  "SEGMENT(20 20,20 20)",
+                  strategy, false);
+    tester::apply("BOX(15 15,30 30)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
+                  strategy, false);
+    tester::apply("BOX(10 10,30 30)",
+                  "BOX(15 15,20 20)",
+                  "SEGMENT(15 15,15 15)",
+                  strategy);
 }
 
 //===========================================================================
@@ -384,9 +399,9 @@ void test_all_ar_ar(PSStrategy ps_strategy,
 
     test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
     test_closest_points_box_multi_polygon<Point>(sb_strategy);
-    //test_closest_points_box_box<Point>(bb_strategy);
+    test_closest_points_box_box<Point>(bb_strategy);
 
-    //test_more_empty_input_areal_areal<Point>(ps_strategy);
+    test_more_empty_input_areal_areal<Point>(ps_strategy);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )
