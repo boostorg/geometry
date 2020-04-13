@@ -50,7 +50,7 @@ private:
     {
         BOOST_GEOMETRY_ASSERT( first != last );
 
-        Distance const zero = Distance();
+        Distance const zero = Distance(0);
 
         // start with first distance
         it_min = first;
