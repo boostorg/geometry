@@ -121,6 +121,30 @@ struct geographic_segment_box
         return equals_point_point_strategy_type();
     }
 
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::geographic_winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy() const
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type(m_spheroid);
+    }
+
     //constructor
 
     explicit geographic_segment_box(Spheroid const& spheroid = Spheroid())

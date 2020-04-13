@@ -92,6 +92,28 @@ struct cartesian_segment_box
         return equals_point_point_strategy_type();
     }
 
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::cartesian_winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type();
+    }
+
     template <typename P1, typename P2>
     struct closest_point_result
     {

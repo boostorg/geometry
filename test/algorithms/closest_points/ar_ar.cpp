@@ -234,6 +234,20 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
                   "SEGMENT(10 10,0.983761 1.0167)",
                   strategy);
 
+    //intersect
+    // it is possible to get different (but valid) results for different
+    // CSs
+    tester::apply("BOX(10 10,20 20)",
+                  "POLYGON((15 15,15 25,25 30,15 15))",
+                  "SEGMENT(15 20,15 20)",
+                  "SEGMENT(15 15,15 15)",
+                  strategy);
+
+    tester::apply("BOX(10 10,20 20)",
+                  "POLYGON((0 0,30 0,40 15,30 30,0 30,0 0))",
+                  "SEGMENT(20 20,20 20)",
+                  strategy);
+
     typedef test_geometry<Box, Polygon, Segment> tester2;
 
     tester2::apply("BOX(10 10,20 20)",
@@ -242,6 +256,19 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(10 10,0.922834 1.07763)",
                    "SEGMENT(10 10,0.983761 1.0167)",
                    strategy);
+
+    //intersect
+    tester2::apply("BOX(10 10,20 20)",
+                   "POLYGON((15 15,15 25,25 30,15 15))",
+                   "SEGMENT(15 20,15 20)",
+                   "SEGMENT(15 15,15 15)",
+                   strategy);
+
+    tester2::apply("BOX(10 10,20 20)",
+                   "POLYGON((0 0,30 0,40 15,30 30,0 30,0 0))",
+                   "SEGMENT(20 20,20 20)",
+                   strategy);
+
 }
 
 //===========================================================================
@@ -270,6 +297,15 @@ void test_closest_points_box_multi_polygon(Strategy const& strategy)
                   "SEGMENT(10 10,0.922834 1.07763)",
                   "SEGMENT(10 10,0.983761 1.0167)",
                   strategy);
+
+    //intersects
+    tester::apply("BOX(10 10,20 20)",
+                  "MULTIPOLYGON(((15 15,15 25,25 30,15 15)),\
+                                ((0 0,0 1,1 1,1 0,0 0)))",
+                  "SEGMENT(15 20,15 20)",
+                  "SEGMENT(15 15,15 15)",
+                  strategy);
+
 }
 
 //===========================================================================
@@ -346,8 +382,8 @@ void test_all_ar_ar(PSStrategy ps_strategy,
     test_closest_points_polygon_multi_polygon<Point>(ps_strategy);
     test_closest_points_multi_polygon_multi_polygon<Point>(ps_strategy);
 
-    //test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
-    //test_closest_points_box_multi_polygon<Point>(sb_strategy);
+    test_closest_points_box_polygon_or_ring<Point>(sb_strategy);
+    test_closest_points_box_multi_polygon<Point>(sb_strategy);
     //test_closest_points_box_box<Point>(bb_strategy);
 
     //test_more_empty_input_areal_areal<Point>(ps_strategy);
@@ -355,7 +391,7 @@ void test_all_ar_ar(PSStrategy ps_strategy,
 
 BOOST_AUTO_TEST_CASE( test_all_areal_areal )
 {
-    test_all_ar_ar<car_point>(cartesian_ps(), cartesian_bb(), cartesian_ps());
+    test_all_ar_ar<car_point>(cartesian_ps(), cartesian_bb(), cartesian_sb());
 
     double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
 
@@ -367,5 +403,6 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
     test_all_ar_ar<geo_point>(andoyer_ps(), andoyer_bb(), andoyer_sb());
     test_all_ar_ar<geo_point>(thomas_ps(), thomas_bb(), thomas_sb());
     test_all_ar_ar<geo_point>(vincenty_ps(), vincenty_bb(), vincenty_sb());
+
 }
 

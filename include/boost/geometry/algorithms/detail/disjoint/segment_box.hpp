@@ -35,6 +35,7 @@
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+//#include <boost/geometry/algorithms/closest_points.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
@@ -45,6 +46,11 @@
 
 namespace boost { namespace geometry
 {
+
+template <typename Geometry1, typename Geometry2, typename Segment>
+inline void closest_points(Geometry1 const& geometry1,
+                           Geometry2 const& geometry2,
+                           Segment& shortest_seg);
 
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -255,7 +261,7 @@ struct disjoint_segment_box
 template <typename Segment, typename Box>
 struct disjoint_segment_box_with_info
 {
-    typedef typename point_type<Segment>::type point_type;
+    typedef typename point_type<Box>::type point_type;
 
     typedef segment_intersection_points<point_type> intersection_return_type;
 
@@ -267,11 +273,63 @@ struct disjoint_segment_box_with_info
     {
         assert_dimension_equal<Segment, Box>();
 
-        boost::ignore_unused(segment);
-        boost::ignore_unused(box);
-        boost::ignore_unused(strategy);
-        //TODO: this is never used in intersections
-        return intersection_return_type();
+        typedef typename geometry::point_type<Segment>::type segment_point;
+        typedef typename geometry::point_type<Box>::type box_point;
+
+        segment_point p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
+
+        box_point top_left, top_right, bottom_left, bottom_right;
+        detail::assign_box_corners(box, bottom_left, bottom_right,
+                                   top_left, top_right);
+
+        intersection_return_type result;
+
+        // TODO: use strategy
+        geometry::model::segment<box_point> seg{p[0],p[1]};
+        {
+            //TODO: do not construct new segment
+            geometry::model::segment<box_point> sout;
+            geometry::closest_points(top_left, seg, sout);
+            if (geometry::covered_by(sout.second, box))
+            {
+                result.count = 1;
+                result.intersections[0] = sout.second;
+                return result;
+            }
+        }{
+            //TODO: do not construct new segment
+            geometry::model::segment<box_point> sout;
+            geometry::closest_points(top_right, seg, sout);
+            if (geometry::covered_by(sout.second, box))
+            {
+                result.count = 1;
+                result.intersections[0] = sout.second;
+                return result;
+            }
+        }{
+            //TODO: do not construct new segment
+            geometry::model::segment<box_point> sout;
+            geometry::closest_points(bottom_left, seg, sout);
+            if (geometry::covered_by(sout.second, box))
+            {
+                result.count = 1;
+                result.intersections[0] = sout.second;
+                return result;
+            }
+        }{
+            //TODO: do not construct new segment
+            geometry::model::segment<box_point> sout;
+            geometry::closest_points(bottom_right, seg, sout);
+            if (geometry::covered_by(sout.second, box))
+            {
+                result.count = 1;
+                result.intersections[0] = sout.second;
+                return result;
+            }
+        }
+        return result;
     }
 };
 

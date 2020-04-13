@@ -789,7 +789,6 @@ void test_all_l_ar(PSStrategy ps_strategy, PBStrategy sb_strategy)
     test_closest_points_multi_linestring_box<Point>(sb_strategy);
 
     test_more_empty_input_pointlike_areal<Point>(ps_strategy);
-
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_areal )

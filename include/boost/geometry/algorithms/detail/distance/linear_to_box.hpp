@@ -127,7 +127,6 @@ struct distance
         >
 {};
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 

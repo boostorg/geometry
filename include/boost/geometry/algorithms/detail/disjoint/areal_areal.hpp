@@ -179,6 +179,67 @@ struct areal_areal
     }
 };
 
+template <typename Areal, typename Box>
+struct areal_box_with_info
+{
+    typedef typename point_type<Areal>::type point_type;
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Areal const& areal,
+          Box const& box,
+          Strategy const& strategy)
+    {
+        intersection_return_type res =
+                for_each_segment(geometry::segments_begin(areal),
+                                 geometry::segments_end(areal),
+                                 box, strategy);
+                                 //strategy.get_disjoint_segment_box_strategy());
+        if ( res.count != 0 )
+        {
+            return res;
+        }
+
+        // If there is no intersection of any segment and box,
+        // the box might be located inside areal geometry
+
+        if ( point_on_border_covered_by(box, areal,
+                strategy.template get_point_in_geometry_strategy<Box, Areal>()) )
+        {
+            res.count = 1;
+            res.intersections[0] = box.max_corner();
+            return res;
+        }
+
+        return intersection_return_type();
+    }
+
+private:
+    template <typename SegIter, typename Strategy>
+    static inline intersection_return_type
+    for_each_segment(SegIter first,
+                     SegIter last,
+                     Box const& box,
+                     Strategy const& strategy)
+    {
+        for ( ; first != last ; ++first)
+        {
+            typedef typename std::iterator_traits<SegIter>::value_type Segment;
+
+            auto seg = *first;
+            intersection_return_type res
+                    = disjoint_segment_box_with_info<Segment,Box>
+                                ::apply(seg, box, strategy);
+            if (res.count != 0)
+            {
+                return res;
+            }
+        }
+        return intersection_return_type();
+    }
+};
+
 
 template <typename Areal, typename Box>
 struct areal_box
@@ -255,6 +316,11 @@ struct disjoint_with_info<Areal1, Areal2, 2, areal_tag, areal_tag, false>
 template <typename Areal, typename Box>
 struct disjoint<Areal, Box, 2, areal_tag, box_tag, false>
     : detail::disjoint::areal_box<Areal, Box>
+{};
+
+template <typename Areal, typename Box>
+struct disjoint_with_info<Areal, Box, 2, areal_tag, box_tag, false>
+    : detail::disjoint::areal_box_with_info<Areal, Box>
 {};
 
 

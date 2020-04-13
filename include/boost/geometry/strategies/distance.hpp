@@ -111,7 +111,7 @@ struct closest_points_seg_box
                              DistancePointSegmentStrategy const& ps_strategy,
                              T & result)
     {
-        result = 0;
+        result = T();
     }
 };
 

@@ -49,7 +49,7 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
-#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/point_segment_distance.hpp>
 
 
 namespace boost { namespace geometry

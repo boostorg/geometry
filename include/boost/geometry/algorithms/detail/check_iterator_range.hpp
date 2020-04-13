@@ -11,7 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 
 #include <boost/core/ignore_unused.hpp>
-
+#include <boost/geometry/strategies/intersection_result.hpp>
 
 namespace boost { namespace geometry
 {
@@ -100,7 +100,8 @@ struct check_iterator_range_with_info
 {
     typedef typename point_type<Geometry>::type point_type;
 
-    typedef segment_intersection_points<point_type> intersection_return_type;
+    typedef geometry::segment_intersection_points<point_type>
+    intersection_return_type;
 
     // version where we can pass a predicate object
     template <typename InputIterator>
