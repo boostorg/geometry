@@ -234,7 +234,7 @@ public:
             return res;
         }
         return_type res;
-        strategy::distance::services::result_init<Strategy>
+        strategy::distance::services::result_set_unique_point<Strategy>
                 ::apply(res, multipoint[check]);
         return res;
     }

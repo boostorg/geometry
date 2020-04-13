@@ -71,7 +71,7 @@ struct linear_to_box
         if ( dis_res.count > 0 )
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, dis_res.intersections[0]);
             return result;
             //return return_type(0);

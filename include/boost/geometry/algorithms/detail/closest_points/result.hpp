@@ -79,7 +79,7 @@ public :
     }
 
     template <typename Point>
-    void init(Point const& point)
+    void set_unique_point(Point const& point)
     {
         distance = 0;
         lon1 = get_as_radian<0>(point);

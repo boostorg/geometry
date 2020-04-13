@@ -55,7 +55,7 @@ struct linear_to_areal
         if ( dis_res.count > 0 )
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, dis_res.intersections[0]);
             return result;
         }
@@ -125,7 +125,7 @@ struct areal_to_areal
         if ( dis_res.count > 0 )
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, dis_res.intersections[0]);
             return result;
         }

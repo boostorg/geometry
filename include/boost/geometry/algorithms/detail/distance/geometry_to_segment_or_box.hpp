@@ -243,7 +243,7 @@ public:
         if (check_intersection && res_int.count > 0)
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, res_int.intersections[0]);
             return result;
         }

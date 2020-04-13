@@ -82,7 +82,7 @@ struct mirror
 };
 
 template <typename StrategyType>
-struct result_init
+struct result_set_unique_point
 {
     template <typename T, typename Point>
     static inline void apply(T& result, Point const& point)

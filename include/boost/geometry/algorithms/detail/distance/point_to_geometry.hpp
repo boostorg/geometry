@@ -167,7 +167,7 @@ struct point_to_ring
                                           strategy.get_point_in_geometry_strategy()))
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, point);
             return result;
         }
@@ -222,7 +222,7 @@ private:
                 }
             }
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, point);
             return result;
         }
@@ -349,7 +349,7 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
                                               strategy.get_point_in_geometry_strategy()))
         {
             return_type result;
-            strategy::distance::services::result_init<Strategy>
+            strategy::distance::services::result_set_unique_point<Strategy>
                     ::apply(result, point);
             return result;
         }

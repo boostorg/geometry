@@ -373,7 +373,7 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct result_init
+struct result_set_unique_point
 <
     strategy::closest_points::spherical_segment_box<CalculationType, Strategy>
 >
@@ -381,7 +381,7 @@ struct result_init
     template <typename T, typename Point>
     static inline void apply(T& result, Point const& point)
     {
-        result.init(point);
+        result.set_unique_point(point);
     }
 };
 
@@ -418,12 +418,12 @@ struct closest_points_seg_box
         box b(bottom_left, top_right);
         if (geometry::covered_by(p0, b))
         {
-            result.init(p0);
+            result.set_unique_point(p0);
             return;
         }
         if (geometry::covered_by(p1, b))
         {
-            result.init(p1);
+            result.set_unique_point(p1);
             return;
         }
 
@@ -432,7 +432,7 @@ struct closest_points_seg_box
             geometry::closest_points(top_left, s, sout);
             if (geometry::covered_by(sout.second, b))
             {
-                result.init(sout.second);
+                result.set_unique_point(sout.second);
                 return;
             }
         }
@@ -440,7 +440,7 @@ struct closest_points_seg_box
             geometry::closest_points(top_right, s, sout);
             if (geometry::covered_by(sout.second, b))
             {
-                result.init(sout.second);
+                result.set_unique_point(sout.second);
                 return;
             }
         }
@@ -448,7 +448,7 @@ struct closest_points_seg_box
             geometry::closest_points(bottom_left, s, sout);
             if (geometry::covered_by(sout.second, b))
             {
-                result.init(sout.second);
+                result.set_unique_point(sout.second);
                 return;
             }
         }
@@ -456,7 +456,7 @@ struct closest_points_seg_box
             geometry::closest_points(bottom_right, s, sout);
             if (geometry::covered_by(sout.second, b))
             {
-                result.init(sout.second);
+                result.set_unique_point(sout.second);
                 return;
             }
         }

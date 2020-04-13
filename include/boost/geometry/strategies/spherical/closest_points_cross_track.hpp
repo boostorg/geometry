@@ -414,7 +414,7 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct result_init
+struct result_set_unique_point
 <
     strategy::closest_points::cross_track<CalculationType, Strategy>
 >
@@ -422,7 +422,7 @@ struct result_init
     template <typename T, typename Point>
     static inline void apply(T& result, Point const& point)
     {
-        result.init(point);
+        result.set_unique_point(point);
     }
 };
 
@@ -431,7 +431,7 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct result_init
+struct result_set_unique_point
 <
     strategy::closest_points::comparable::cross_track<CalculationType, Strategy>
 >
@@ -439,7 +439,7 @@ struct result_init
     template <typename T, typename Point>
     static inline void apply(T& result, Point const& point)
     {
-        result.init(point);
+        result.set_unique_point(point);
     }
 };
 

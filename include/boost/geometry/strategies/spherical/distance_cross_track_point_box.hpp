@@ -119,7 +119,7 @@ public :
             {
                 BOOST_GEOMETRY_ASSERT(plat >= lat_min && plat <= lat_max);
                 ReturnType res;
-                strategy::distance::services::result_init<Strategy>
+                strategy::distance::services::result_set_unique_point<Strategy>
                         ::apply(res, point);
                 return res;
             }
