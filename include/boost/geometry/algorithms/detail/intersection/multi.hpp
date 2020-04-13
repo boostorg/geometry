@@ -432,8 +432,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReverseMultiLinestring, ReverseRing,
-        multi_linestring_tag, ring_tag, detail::intersection::tupled_output_tag,
-        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+        multi_linestring_tag, ring_tag, detail::tupled_output_tag,
+        linear_tag, areal_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
                 ReverseRing,
@@ -441,7 +441,19 @@ struct intersection_insert
                 OverlayType,
                 true
             >
-      , detail::intersection::expect_output_pl<MultiLinestring, Ring, TupledOut>
+      , detail::expect_output
+            <
+                MultiLinestring, Ring, TupledOut,
+                // NOTE: points can be the result only in case of intersection.
+                // TODO: union should require L and A
+                typename boost::mpl::if_c
+                    <
+                        (OverlayType == overlay_intersection),
+                        point_tag,
+                        void
+                    >::type,
+                linestring_tag
+            >
 {};
 
 
@@ -458,8 +470,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReverseMultiLinestring, ReversePolygon,
-        multi_linestring_tag, polygon_tag, detail::intersection::tupled_output_tag,
-        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+        multi_linestring_tag, polygon_tag, detail::tupled_output_tag,
+        linear_tag, areal_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
                 ReversePolygon,
@@ -467,7 +479,19 @@ struct intersection_insert
                 OverlayType,
                 true
             >
-    , detail::intersection::expect_output_pl<MultiLinestring, Polygon, TupledOut>
+      , detail::expect_output
+            <
+                MultiLinestring, Polygon, TupledOut,
+                // NOTE: points can be the result only in case of intersection.
+                // TODO: union should require L and A
+                typename boost::mpl::if_c
+                    <
+                        (OverlayType == overlay_intersection),
+                        point_tag,
+                        void
+                    >::type,
+                linestring_tag
+            >
 {};
 
 template
@@ -483,8 +507,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReversePolygon, ReverseMultiLinestring,
-        polygon_tag, multi_linestring_tag, detail::intersection::tupled_output_tag,
-        areal_tag, linear_tag, detail::intersection::tupled_output_tag
+        polygon_tag, multi_linestring_tag, detail::tupled_output_tag,
+        areal_tag, linear_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_areal_with_multi_linestring
             <
                 ReversePolygon,
@@ -492,7 +516,22 @@ struct intersection_insert
                 OverlayType,
                 true
             >
-    , detail::intersection::expect_output_pl<Polygon, MultiLinestring, TupledOut>
+      , detail::expect_output
+            <
+                Polygon, MultiLinestring, TupledOut,
+                // NOTE: points can be the result only in case of intersection.
+                // TODO: union should require L and A
+                // TODO: in general the result of difference should depend on the first argument
+                //       but this specialization calls L/A in reality so the first argument is linear.
+                //       So expect only L for difference?
+                typename boost::mpl::if_c
+                    <
+                        (OverlayType == overlay_intersection),
+                        point_tag,
+                        void
+                    >::type,
+                linestring_tag
+            >
 {};
 
 template
@@ -508,8 +547,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReverseMultiLinestring, ReverseMultiPolygon,
-        multi_linestring_tag, multi_polygon_tag, detail::intersection::tupled_output_tag,
-        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+        multi_linestring_tag, multi_polygon_tag, detail::tupled_output_tag,
+        linear_tag, areal_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_multi_linestring_with_areal
             <
                 ReverseMultiPolygon,
@@ -517,7 +556,19 @@ struct intersection_insert
                 OverlayType,
                 true
             >
-    , detail::intersection::expect_output_pl<MultiLinestring, MultiPolygon, TupledOut>
+      , detail::expect_output
+            <
+                MultiLinestring, MultiPolygon, TupledOut,
+                // NOTE: points can be the result only in case of intersection.
+                // TODO: union should require L and A
+                typename boost::mpl::if_c
+                    <
+                        (OverlayType == overlay_intersection),
+                        point_tag,
+                        void
+                    >::type,
+                linestring_tag
+            >
 {};
 
 

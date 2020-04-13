@@ -525,73 +525,6 @@ struct intersection_areal_linear_point
 };
 
 
-struct tupled_output_tag {};
-
-
-template
-<
-    typename GeometryOut,
-    bool IsTupled = geometry::detail::is_tupled_range_values<GeometryOut>::value
->
-struct tag
-    : geometry::tag<GeometryOut>
-{};
-
-template <typename GeometryOut>
-struct tag<GeometryOut, true>
-{
-    typedef tupled_output_tag type;
-};
-
-
-template <typename Geometry1, typename Geometry2, typename TupledOut>
-struct expect_output_p
-{
-    static const bool is_point_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<point_tag>::template pred
-        >::value;
-
-    BOOST_MPL_ASSERT_MSG
-        (
-            is_point_found, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-            (types<Geometry1, Geometry2, TupledOut>)
-        );
-};
-
-template <typename Geometry1, typename Geometry2, typename TupledOut>
-struct expect_output_pl
-    : expect_output_p<Geometry1, Geometry2, TupledOut>
-{
-    static const bool is_linestring_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<linestring_tag>::template pred
-        >::value;
-
-    BOOST_MPL_ASSERT_MSG
-        (
-            is_linestring_found, LINEAR_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-            (types<Geometry1, Geometry2, TupledOut>)
-        );
-};
-
-template <typename Geometry1, typename Geometry2, typename TupledOut>
-struct expect_output_pla
-    : expect_output_pl<Geometry1, Geometry2, TupledOut>
-{
-    static const bool is_polygon_found = geometry::tuples::exists_if
-        <
-            TupledOut, geometry::detail::is_tag_same_as_pred<polygon_tag>::template pred
-        >::value;
-
-    BOOST_MPL_ASSERT_MSG
-    (
-        is_polygon_found, AREAL_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-        (types<Geometry1, Geometry2, TupledOut>)
-    );
-};
-
-
 }} // namespace detail::intersection
 #endif // DOXYGEN_NO_DETAIL
 
@@ -614,7 +547,7 @@ template
     // tag dispatching:
     typename TagIn1 = typename geometry::tag<Geometry1>::type,
     typename TagIn2 = typename geometry::tag<Geometry2>::type,
-    typename TagOut = typename detail::intersection::tag<GeometryOut>::type,
+    typename TagOut = typename detail::setop_insert_output_tag<GeometryOut>::type,
     // metafunction finetuning helpers:
     typename CastedTagIn1 = typename geometry::tag_cast<TagIn1, areal_tag, linear_tag, pointlike_tag>::type,
     typename CastedTagIn2 = typename geometry::tag_cast<TagIn2, areal_tag, linear_tag, pointlike_tag>::type,
@@ -996,13 +929,21 @@ struct intersection_insert
     <
         Linear1, Linear2, TupledOut, OverlayType,
         Reverse1, Reverse2,
-        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-        linear_tag, linear_tag, detail::intersection::tupled_output_tag
+        TagIn1, TagIn2, detail::tupled_output_tag,
+        linear_tag, linear_tag, detail::tupled_output_tag
     >
-    // NOTE: This is not fully correct because points can be the result only in
-    // case of intersection but intersection_insert is called also by difference.
-    // So this requirement could be relaxed in the future.
-    : detail::intersection::expect_output_pl<Linear1, Linear2, TupledOut>
+    : detail::expect_output
+        <
+            Linear1, Linear2, TupledOut,
+            // NOTE: points can be the result only in case of intersection.
+            typename boost::mpl::if_c
+                <
+                    (OverlayType == overlay_intersection),
+                    point_tag,
+                    void
+                >::type,
+            linestring_tag
+        >
 {
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
     // iterators in OutputIterators tuple/pair.
@@ -1113,10 +1054,10 @@ struct intersection_insert
     <
         PointLike1, PointLike2, TupledOut, OverlayType,
         Reverse1, Reverse2,
-        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-        pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+        TagIn1, TagIn2, detail::tupled_output_tag,
+        pointlike_tag, pointlike_tag, detail::tupled_output_tag
     >
-    : detail::intersection::expect_output_p<PointLike1, PointLike2, TupledOut>
+    : detail::expect_output<PointLike1, PointLike2, TupledOut, point_tag>
 {
     // NOTE: The order of geometries in TupledOut tuple/pair must correspond to the order
     // of iterators in OutputIterators tuple/pair.
@@ -1240,16 +1181,16 @@ struct intersection_insert
     <
         PointLike, Linear, TupledOut, OverlayType,
         Reverse1, Reverse2,
-        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-        pointlike_tag, linear_tag, detail::intersection::tupled_output_tag
+        TagIn1, TagIn2, detail::tupled_output_tag,
+        pointlike_tag, linear_tag, detail::tupled_output_tag
     >
     // Reuse the implementation for PointLike/PointLike.
     : intersection_insert
         <
             PointLike, Linear, TupledOut, OverlayType,
             Reverse1, Reverse2,
-            TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-            pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+            TagIn1, TagIn2, detail::tupled_output_tag,
+            pointlike_tag, pointlike_tag, detail::tupled_output_tag
         >
 {};
 
@@ -1265,8 +1206,8 @@ struct intersection_insert
     <
         Linestring, MultiPoint, TupledOut, overlay_intersection,
         Reverse1, Reverse2,
-        linestring_tag, multi_point_tag, detail::intersection::tupled_output_tag,
-        linear_tag, pointlike_tag, detail::intersection::tupled_output_tag
+        linestring_tag, multi_point_tag, detail::tupled_output_tag,
+        linear_tag, pointlike_tag, detail::tupled_output_tag
     >
 {
     template <typename RobustPolicy, typename OutputIterators, typename Strategy>
@@ -1368,16 +1309,16 @@ struct intersection_insert
     <
         PointLike, Areal, TupledOut, OverlayType,
         Reverse1, Reverse2,
-        TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-        pointlike_tag, areal_tag, detail::intersection::tupled_output_tag
+        TagIn1, TagIn2, detail::tupled_output_tag,
+        pointlike_tag, areal_tag, detail::tupled_output_tag
     >
     // Reuse the implementation for PointLike/PointLike.
     : intersection_insert
         <
             PointLike, Areal, TupledOut, OverlayType,
             Reverse1, Reverse2,
-            TagIn1, TagIn2, detail::intersection::tupled_output_tag,
-            pointlike_tag, pointlike_tag, detail::intersection::tupled_output_tag
+            TagIn1, TagIn2, detail::tupled_output_tag,
+            pointlike_tag, pointlike_tag, detail::tupled_output_tag
         >
 {};
 
@@ -1394,8 +1335,8 @@ struct intersection_insert
     <
         Areal, MultiPoint, TupledOut, overlay_intersection,
         Reverse1, Reverse2,
-        TagIn1, multi_point_tag, detail::intersection::tupled_output_tag,
-        areal_tag, pointlike_tag, detail::intersection::tupled_output_tag
+        TagIn1, multi_point_tag, detail::tupled_output_tag,
+        areal_tag, pointlike_tag, detail::tupled_output_tag
     >
 {
     template <typename RobustPolicy, typename OutputIterators, typename Strategy>
@@ -1426,8 +1367,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReverseLinestring, ReversePolygon,
-        linestring_tag, polygon_tag, detail::intersection::tupled_output_tag,
-        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+        linestring_tag, polygon_tag, detail::tupled_output_tag,
+        linear_tag, areal_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_linestring_with_areal
             <
                 ReversePolygon,
@@ -1450,8 +1391,8 @@ struct intersection_insert
         TupledOut,
         OverlayType,
         ReverseLinestring, ReverseRing,
-        linestring_tag, ring_tag, detail::intersection::tupled_output_tag,
-        linear_tag, areal_tag, detail::intersection::tupled_output_tag
+        linestring_tag, ring_tag, detail::tupled_output_tag,
+        linear_tag, areal_tag, detail::tupled_output_tag
     > : detail::intersection::intersection_of_linestring_with_areal
             <
                 ReverseRing,
