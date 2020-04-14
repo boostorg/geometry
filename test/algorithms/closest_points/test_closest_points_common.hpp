@@ -177,6 +177,8 @@ void compute_result(Geometry1 const& geometry1,
                     bool const& default_strategy)
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << "CS: " << typeid(typename bg::cs_tag<Geometry1>::type).name()
+              << std::endl;
     std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
               << std::endl;
 #endif

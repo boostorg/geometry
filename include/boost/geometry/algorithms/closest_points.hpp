@@ -53,7 +53,6 @@ struct closest_points
         Segment& shortest_seg,
         Strategy const& strategy)
     {
-
         typename strategy::distance::services::return_type
         <
             Strategy,

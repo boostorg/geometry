@@ -12,6 +12,8 @@
 #define BOOST_TEST_MODULE test_closest_points_geographic_linear_areal
 #endif
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include "test_closest_points_common.hpp"
 #include "test_empty_geometry.hpp"
 
@@ -355,17 +357,30 @@ void test_closest_points_segment_box(Strategy const& strategy)
     //intersection by crossing box
     tester::apply("SEGMENT(15 21, 21 15)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(18 18,18 18)",
-                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
+                  "SEGMENT(20 16,20 16)",
+                  "SEGMENT(20 16.0403,20 16.0403)",
                   "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
                   strategy);
 
     tester::apply("SEGMENT(15 21, 16 5)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
-                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
+                  "SEGMENT(15.6875 10,15.6875 10)",
+                  "SEGMENT(15.7003 10,15.7003 10)",
                   "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
                   strategy);
+
+    tester::apply("SEGMENT(0 0,100 3)",
+                  "BOX(0 1,100 2)",
+                  "SEGMENT(33.3333 1,33.3333 1)",
+                  "SEGMENT(19.1476 1,19.1476 1)",
+                  strategy);
+
+    tester::apply("SEGMENT(0 0,3 70)",
+                  "BOX(1 0,2 70)",
+                  "SEGMENT(2 46.6667,2 46.6667)",
+                  "SEGMENT(2 61.3735,2 61.3735)",
+                  strategy);
+
 
 }
 
@@ -803,4 +818,5 @@ BOOST_AUTO_TEST_CASE( test_all_linear_areal )
     test_all_l_ar<geo_point>(andoyer_ps(), andoyer_sb());
     test_all_l_ar<geo_point>(thomas_ps(), thomas_sb());
     test_all_l_ar<geo_point>(vincenty_ps(), vincenty_sb());
+
 }

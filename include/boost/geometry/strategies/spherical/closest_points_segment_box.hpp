@@ -144,6 +144,17 @@ struct spherical_segment_box
         return strategy_type();
     }
 
+    typedef intersection::spherical_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type
+    get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
     // methods
 
     template
@@ -388,11 +399,11 @@ struct result_set_unique_point
 template
 <
     typename CalculationType,
-    typename Strategy
+    typename SBStrategy
 >
 struct closest_points_seg_box
 <
-    strategy::closest_points::spherical_segment_box<CalculationType, Strategy>
+    strategy::closest_points::spherical_segment_box<CalculationType, SBStrategy>
 >
 {
     template
@@ -400,7 +411,7 @@ struct closest_points_seg_box
         typename T,
         typename SegmentPoint,
         typename BoxPoint,
-        typename DistancePointSegmentStrategy
+        typename Strategy
     >
     static inline void apply(SegmentPoint const& p0,
                              SegmentPoint const& p1,
@@ -408,12 +419,13 @@ struct closest_points_seg_box
                              BoxPoint const& top_right,
                              BoxPoint const& bottom_left,
                              BoxPoint const& bottom_right,
-                             DistancePointSegmentStrategy const& ps_strategy,
+                             Strategy const& strategy,
                              T & result)
     {
         typedef geometry::model::segment<SegmentPoint> segment;
         typedef geometry::model::box<BoxPoint> box;
 
+        // test if endpoints of segment covered by box
         //TODO pass strategy
         box b(bottom_left, top_right);
         if (geometry::covered_by(p0, b))
@@ -427,40 +439,97 @@ struct closest_points_seg_box
             return;
         }
 
-        segment s{p0,p1}, sout;
+        //check segment intersection with box meridians
+        segment s{p0,p1};
         {
-            geometry::closest_points(top_left, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{bottom_left, top_left};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
         {
-            geometry::closest_points(top_right, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{bottom_right, top_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
-            }
-        }
-        {
-            geometry::closest_points(bottom_left, s, sout);
-            if (geometry::covered_by(sout.second, b))
-            {
-                result.set_unique_point(sout.second);
-                return;
-            }
-        }
-        {
-            geometry::closest_points(bottom_right, s, sout);
-            if (geometry::covered_by(sout.second, b))
-            {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
 
+        // treat the other (parallel) edges of box differently
+        // since they are not segments
+
+        typedef typename coordinate_type<SegmentPoint>::type CT;
+
+        CT const lon1 = get_as_radian<0>(p0);
+        CT const lat1 = get_as_radian<1>(p0);
+        CT const lon2 = get_as_radian<0>(p1);
+        CT const lat2 = get_as_radian<1>(p1);
+        CT const lat3 = get_as_radian<1>(bottom_left);
+        CT const pi = math::pi<CT>();
+        CT const sin_lat1 = sin(lat1);
+        CT const sin_lat2 = sin(lat2);
+        CT const sin_lat3 = sin(lat3);
+        CT const cos_lat1 = cos(lat1);
+        CT const cos_lat2 = cos(lat2);
+        CT const cos_lat3 = cos(lat3);
+
+        CT const l12 = lon1 - lon2;
+        CT const sin_l12 = sin(l12);
+        CT const cos_l12 = cos(l12);
+
+        CT const A = sin_lat1 * cos_lat2 * cos_lat3 * sin_l12;
+        CT const B = sin_lat1 * cos_lat2 * cos_lat3 * cos_l12
+                - cos_lat1 * sin_lat2 * cos_lat3;
+        CT const C = cos_lat1 * cos_lat2 * sin_lat3 * sin_l12;
+        CT const lon = atan2(B,A);
+        CT const powA2 = pow(A,2);
+        CT const powB2 = pow(B,2);
+        CT const sqrt_powA2_powB2 = sqrt(powA2 + powB2);
+        if (std::abs(C) > sqrt_powA2_powB2)
+        {
+            //TODO: assertion here?
+            //"no crossing"
+        }
+        else
+        {
+            CT const dlon = acos( C / sqrt_powA2_powB2);
+            CT const sum = lon1+lon+pi;
+            CT const two_pi = 2 * pi;
+            CT const lon3_1 = std::fmod(sum+dlon, two_pi) - pi;
+
+            CT const lon_left = get_as_radian<0>(bottom_left);
+            CT const lon_right = get_as_radian<0>(bottom_right);
+
+            SegmentPoint p;
+            set_from_radian<1>(p, lat3);
+            if ( lon_left < lon3_1 && lon3_1 < lon_right )
+            {
+                set_from_radian<0>(p, lon3_1);
+                result.set_unique_point(p);
+                return;
+            }
+
+            CT const lon3_2 = std::fmod(sum-dlon, two_pi) - pi;
+
+            if ( lon_left < lon3_2 && lon3_2 < lon_right )
+            {
+                set_from_radian<0>(p, lon3_2);
+                result.set_unique_point(p);
+            }
+        }
     }
 };
 

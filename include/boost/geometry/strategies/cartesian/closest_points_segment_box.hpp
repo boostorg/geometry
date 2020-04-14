@@ -114,6 +114,17 @@ struct cartesian_segment_box
         return strategy_type();
     }
 
+    typedef intersection::cartesian_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type
+    get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
     template <typename P1, typename P2>
     struct closest_point_result
     {
@@ -305,11 +316,11 @@ struct result_set_unique_point
 template
 <
     typename CalculationType,
-    typename Strategy
+    typename SBStrategy
 >
 struct closest_points_seg_box
 <
-    strategy::closest_points::cartesian_segment_box<CalculationType, Strategy>
+    strategy::closest_points::cartesian_segment_box<CalculationType, SBStrategy>
 >
 {
     template
@@ -317,7 +328,7 @@ struct closest_points_seg_box
         typename T,
         typename SegmentPoint,
         typename BoxPoint,
-        typename DistancePointSegmentStrategy
+        typename Strategy
     >
     static inline void apply(SegmentPoint const& p0,
                              SegmentPoint const& p1,
@@ -325,7 +336,7 @@ struct closest_points_seg_box
                              BoxPoint const& top_right,
                              BoxPoint const& bottom_left,
                              BoxPoint const& bottom_right,
-                             DistancePointSegmentStrategy const& ps_strategy,
+                             Strategy const& strategy,
                              T & result)
     {
         typedef geometry::model::segment<SegmentPoint> segment;
@@ -344,37 +355,57 @@ struct closest_points_seg_box
             return;
         }
 
-        segment s{p0,p1}, sout;
+        segment s{p0,p1};
         {
-            geometry::closest_points(top_left, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{top_left, top_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
         {
-            geometry::closest_points(top_right, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{top_left, bottom_left};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
         {
-            geometry::closest_points(bottom_left, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{bottom_left, bottom_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
         {
-            geometry::closest_points(bottom_right, s, sout);
-            if (geometry::covered_by(sout.second, b))
+            segment sb{top_right, bottom_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
             {
-                result.set_unique_point(sout.second);
-                return;
+                result.set_unique_point(res.intersections[0]);
             }
         }
     }
