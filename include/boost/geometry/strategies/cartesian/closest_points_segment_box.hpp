@@ -357,19 +357,6 @@ struct closest_points_seg_box
 
         segment s{p0,p1};
         {
-            segment sb{top_left, top_right};
-            auto res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-            }
-        }
-        {
             segment sb{top_left, bottom_left};
             auto res =
             geometry::detail::disjoint::disjoint_segment_with_info
@@ -380,19 +367,7 @@ struct closest_points_seg_box
             if (res.count > 0)
             {
                 result.set_unique_point(res.intersections[0]);
-            }
-        }
-        {
-            segment sb{bottom_left, bottom_right};
-            auto res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
+                return;
             }
         }
         {
@@ -406,6 +381,35 @@ struct closest_points_seg_box
             if (res.count > 0)
             {
                 result.set_unique_point(res.intersections[0]);
+                return;
+            }
+        }
+        {
+            segment sb{bottom_left, bottom_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
+            {
+                result.set_unique_point(res.intersections[0]);
+                return;
+            }
+        }
+        {
+            segment sb{top_left, top_right};
+            auto res =
+            geometry::detail::disjoint::disjoint_segment_with_info
+            <
+                segment,
+                segment
+            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
+            if (res.count > 0)
+            {
+                result.set_unique_point(res.intersections[0]);
+                return;
             }
         }
     }

@@ -359,29 +359,102 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(20 16,20 16)",
                   "SEGMENT(20 16.0403,20 16.0403)",
-                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  "SEGMENT(20 16.0405,20 16.0405)",
                   strategy);
 
     tester::apply("SEGMENT(15 21, 16 5)",
                   "BOX(10 10,20 20)",
                   "SEGMENT(15.6875 10,15.6875 10)",
                   "SEGMENT(15.7003 10,15.7003 10)",
-                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  strategy);
+
+    tester::apply("SEGMENT(16 5,15 21)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.6875 10,15.6875 10)",
+                  "SEGMENT(15.7003 10,15.7003 10)",
+                  strategy);
+
+    tester::apply("SEGMENT(16 21,15 6)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.2667 10,15.2667 10)",
+                  "SEGMENT(15.2554 10,15.2554 10)",
+                  strategy);
+
+    tester::apply("SEGMENT(15 6,16 21)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.2667 10,15.2667 10)",
+                  "SEGMENT(15.2554 10,15.2554 10)",
+                  strategy);
+
+    tester::apply("SEGMENT(15 5, 16 21)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15.3125 10,15.3125 10)",
+                  "SEGMENT(15.2997 10,15.2997 10)",
+                  "SEGMENT(15.2996 10,15.2996 10)",
                   strategy);
 
     tester::apply("SEGMENT(0 0,100 3)",
                   "BOX(0 1,100 2)",
                   "SEGMENT(33.3333 1,33.3333 1)",
                   "SEGMENT(19.1476 1,19.1476 1)",
+                  "SEGMENT(19.0629 1,19.0629 1)",
                   strategy);
 
     tester::apply("SEGMENT(0 0,3 70)",
                   "BOX(1 0,2 70)",
-                  "SEGMENT(2 46.6667,2 46.6667)",
-                  "SEGMENT(2 61.3735,2 61.3735)",
+                  "SEGMENT(1 23.3333,1 23.3333)",
+                  "SEGMENT(1 42.4958,1 42.4958)",
+                  "SEGMENT(1 42.5308,1 42.5308)",
                   strategy);
 
+    tester::apply("SEGMENT(0 1,100 1)",
+                  "BOX(80 1.1,100 1.2)",
+                  "SEGMENT(100 1,100 1.1)",
+                  "SEGMENT(95.0021 1.1,95.0021 1.1)",
+                  "SEGMENT(80 1.18863,80 1.18863)",
+                  strategy);
 
+    tester::apply("SEGMENT(0 1,100 1)",
+                  "BOX(0 1.1,100 1.2)",
+                  "SEGMENT(100 1,100 1.1)",
+                  "SEGMENT(4.99795 1.1,4.99795 1.1)",
+                  "SEGMENT(4.9493 1.1,4.9493 1.1)",
+                  strategy);
+
+    tester::apply("SEGMENT(0 1,100 1)",
+                  "BOX(0 1.1,100 1.2)",
+                  "SEGMENT(100 1,100 1.1)",
+                  "SEGMENT(4.99795 1.1,4.99795 1.1)",
+                  "SEGMENT(4.9493 1.1,4.9493 1.1)",
+                  strategy);
+
+    //Case A: box intersects without containing the vertex
+    tester::apply("SEGMENT(0 5,120 5)",
+                  "BOX(0 6,120 7)",
+                  "SEGMENT(120 5,120 6)",
+                  "SEGMENT(6.91815 6,6.91815 6)",
+                  "SEGMENT(6.83635 6,6.83635 6)",
+                  strategy);
+    tester::apply("SEGMENT(0 -5,120 -5)",
+                  "BOX(0 -6,120 -7)",
+                  "SEGMENT(0 -5,0 -7)",
+                  "SEGMENT(14.5649 -7,14.5649 -7)",
+                  "SEGMENT(14.3791 -7,14.3791 -7)",
+                  strategy);
+
+    //Case B: box intersects and contains the vertex
+    tester::apply("SEGMENT(0 5,120 5)",
+                  "BOX(0 9,120 10)",
+                  "SEGMENT(120 5,120 9)",
+                  "SEGMENT(34.8464 9,34.8464 9)",
+                  "SEGMENT(34.2138 9,34.2138 9)",
+                  strategy);
+    tester::apply("SEGMENT(0 -5,120 -5)",
+                  "BOX(0 -10,120 -9)",
+                  "SEGMENT(0 -5,0 -9)",
+                  "SEGMENT(34.8464 -9,34.8464 -9)",
+                  "SEGMENT(34.2138 -9,34.2138 -9)",
+                  strategy);
 }
 
 //===========================================================================
@@ -572,6 +645,13 @@ void test_closest_points_linestring_box(Strategy const& strategy)
                   "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
                   "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
                   "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  strategy);
+
+    tester::apply("LINESTRING(0 0,100 3,100 4)",
+                  "BOX(0 1,100 2)",
+                  "SEGMENT(33.3333 1,33.3333 1)",
+                  "SEGMENT(19.1476 1,19.1476 1)",
+                  "SEGMENT(19.0629 1,19.0629 1)",
                   strategy);
 }
 

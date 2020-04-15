@@ -13,6 +13,8 @@
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
+#include <boost/geometry/formulas/spherical.hpp>
+
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
@@ -452,6 +454,7 @@ struct closest_points_seg_box
             if (res.count > 0)
             {
                 result.set_unique_point(res.intersections[0]);
+                return;
             }
         }
         {
@@ -465,11 +468,12 @@ struct closest_points_seg_box
             if (res.count > 0)
             {
                 result.set_unique_point(res.intersections[0]);
+                return;
             }
         }
 
         // treat the other (parallel) edges of box differently
-        // since they are not segments
+        // since they are not (geodesic) segments
 
         typedef typename coordinate_type<SegmentPoint>::type CT;
 
@@ -478,57 +482,41 @@ struct closest_points_seg_box
         CT const lon2 = get_as_radian<0>(p1);
         CT const lat2 = get_as_radian<1>(p1);
         CT const lat3 = get_as_radian<1>(bottom_left);
-        CT const pi = math::pi<CT>();
-        CT const sin_lat1 = sin(lat1);
-        CT const sin_lat2 = sin(lat2);
-        CT const sin_lat3 = sin(lat3);
-        CT const cos_lat1 = cos(lat1);
-        CT const cos_lat2 = cos(lat2);
-        CT const cos_lat3 = cos(lat3);
+        CT lon_left = get_as_radian<0>(bottom_left);
+        CT lon_right = get_as_radian<0>(bottom_right);
+        CT lon3_1;
+        CT lon3_2;
+        formula::crossing_parallel(lon1, lat1, lon2, lat2, lat3, lon3_1, lon3_2);
 
-        CT const l12 = lon1 - lon2;
-        CT const sin_l12 = sin(l12);
-        CT const cos_l12 = cos(l12);
+        SegmentPoint p;
+        set_from_radian<1>(p, lat3);
 
-        CT const A = sin_lat1 * cos_lat2 * cos_lat3 * sin_l12;
-        CT const B = sin_lat1 * cos_lat2 * cos_lat3 * cos_l12
-                - cos_lat1 * sin_lat2 * cos_lat3;
-        CT const C = cos_lat1 * cos_lat2 * sin_lat3 * sin_l12;
-        CT const lon = atan2(B,A);
-        CT const powA2 = pow(A,2);
-        CT const powB2 = pow(B,2);
-        CT const sqrt_powA2_powB2 = sqrt(powA2 + powB2);
-        if (std::abs(C) > sqrt_powA2_powB2)
+#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
+        std::cout << lon_left * math::r2d<CT>() << " , "
+                  << lon_right * math::r2d<CT>() << " , "
+                  << lon3_1 * math::r2d<CT>() << " , "
+                  << lon3_2 * math::r2d<CT>() << std::endl;
+#endif
+        math::normalize_longitude<radian>(lon_left);
+        math::normalize_longitude<radian>(lon_right);
+        math::normalize_longitude<radian>(lon3_1);
+        math::normalize_longitude<radian>(lon3_2);
+#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
+        std::cout << lon_left * math::r2d<CT>() << " , "
+                  << lon_right * math::r2d<CT>() << " , "
+                  << lon3_1 * math::r2d<CT>() << " , "
+                  << lon3_2 * math::r2d<CT>() << std::endl;
+#endif
+        if ( lon_left < lon3_1 && lon3_1 < lon_right )
         {
-            //TODO: assertion here?
-            //"no crossing"
+            set_from_radian<0>(p, lon3_1);
+            result.set_unique_point(p);
+            return ;
         }
-        else
+        if ( lon_left < lon3_2 && lon3_2 < lon_right )
         {
-            CT const dlon = acos( C / sqrt_powA2_powB2);
-            CT const sum = lon1+lon+pi;
-            CT const two_pi = 2 * pi;
-            CT const lon3_1 = std::fmod(sum+dlon, two_pi) - pi;
-
-            CT const lon_left = get_as_radian<0>(bottom_left);
-            CT const lon_right = get_as_radian<0>(bottom_right);
-
-            SegmentPoint p;
-            set_from_radian<1>(p, lat3);
-            if ( lon_left < lon3_1 && lon3_1 < lon_right )
-            {
-                set_from_radian<0>(p, lon3_1);
-                result.set_unique_point(p);
-                return;
-            }
-
-            CT const lon3_2 = std::fmod(sum-dlon, two_pi) - pi;
-
-            if ( lon_left < lon3_2 && lon3_2 < lon_right )
-            {
-                set_from_radian<0>(p, lon3_2);
-                result.set_unique_point(p);
-            }
+            set_from_radian<0>(p, lon3_2);
+            result.set_unique_point(p);
         }
     }
 };

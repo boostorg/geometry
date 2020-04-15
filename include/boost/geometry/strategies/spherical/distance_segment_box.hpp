@@ -46,7 +46,7 @@ struct generic_segment_box
     static inline ReturnType segment_below_of_box(
             SegmentPoint const& p0,
             SegmentPoint const& p1,
-            BoxPoint const&,
+            BoxPoint const& top_left,
             BoxPoint const& top_right,
             BoxPoint const& bottom_left,
             BoxPoint const& bottom_right,
@@ -100,7 +100,11 @@ struct generic_segment_box
 
         if (disjoint_result == disjoint_info_type::intersect) //intersect
         {
-            return ReturnType();
+            strategy::distance::services::closest_points_seg_box<SegmentBoxStrategy>
+                    ::apply(p0, p1,
+                            top_left, top_right, bottom_left, bottom_right,
+                            sb_strategy, result);
+            return result;
         }
         // disjoint but vertex not computed
         if (disjoint_result == disjoint_info_type::disjoint_no_vertex)
