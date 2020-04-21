@@ -93,6 +93,13 @@ struct cartesian_segment_box
         return equals_point_point_strategy_type();
     }
 
+    static inline closest_points::cartesian_segment_box<CalculationType, Strategy>
+    get_closest_points_segment_box_strategy()
+    {
+        return closest_points::cartesian_segment_box<CalculationType, Strategy>();
+    }
+
+
     template <typename LessEqual, typename ReturnType,
               typename SegmentPoint, typename BoxPoint>
     inline ReturnType segment_below_of_box(SegmentPoint const& p0,

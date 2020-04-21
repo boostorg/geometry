@@ -142,6 +142,17 @@ struct geographic_segment_box
         return strategy_type();
     }
 
+    typedef closest_points::geographic_segment_box
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        > closest_points_segment_box_strategy_type;
+
+    inline closest_points_segment_box_strategy_type
+    get_closest_points_segment_box_strategy() const
+    {
+        return closest_points_segment_box_strategy_type(m_spheroid);
+    }
+
     //constructor
 
     explicit geographic_segment_box(Spheroid const& spheroid = Spheroid())

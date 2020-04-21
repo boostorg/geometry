@@ -126,6 +126,12 @@ struct cartesian_segment_box
         return relate_segment_segment_strategy_type();
     }
 
+    static inline cartesian_segment_box<CalculationType, Strategy>
+    get_closest_points_segment_box_strategy()
+    {
+        return cartesian_segment_box<CalculationType, Strategy>();
+    }
+
     template <typename P1, typename P2>
     struct closest_point_result
     {

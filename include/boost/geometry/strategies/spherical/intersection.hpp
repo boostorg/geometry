@@ -58,6 +58,12 @@
 namespace boost { namespace geometry
 {
 
+namespace strategy { namespace closest_points
+{
+template <typename CalculationType, typename Strategy>
+struct spherical_segment_box;
+}}
+
 namespace strategy { namespace intersection
 {
 
@@ -197,6 +203,18 @@ struct ecef_segments
     static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
     {
         return disjoint_segment_box_strategy_type();
+    }
+
+    typedef closest_points::spherical_segment_box
+    <
+        CalculationType,
+        distance::haversine<double, CalculationType>
+    >   closest_points_spherical_segment_box;
+
+    static inline closest_points_spherical_segment_box
+    get_closest_points_segment_box_strategy()
+    {
+        return closest_points_spherical_segment_box();
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;

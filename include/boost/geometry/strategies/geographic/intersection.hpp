@@ -57,6 +57,12 @@
 namespace boost { namespace geometry
 {
 
+namespace strategy { namespace closest_points
+{
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
+struct geographic_segment_box;
+}}
+
 namespace strategy { namespace intersection
 {
 
@@ -192,6 +198,17 @@ struct geographic_segments
     inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy() const
     {
         return disjoint_segment_box_strategy_type(m_spheroid);
+    }
+
+    typedef closest_points::geographic_segment_box
+        <
+            FormulaPolicy, Spheroid, CalculationType
+        > closest_points_segment_box_strategy_type;
+
+    inline closest_points_segment_box_strategy_type
+    get_closest_points_segment_box_strategy() const
+    {
+        return closest_points_segment_box_strategy_type(m_spheroid);
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;

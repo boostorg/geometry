@@ -311,8 +311,8 @@ inline void closest_points(Geometry1 const& geometry1,
                            Segment& shortest_seg,
                            Strategy const& strategy)
 {
-    concepts::check<Geometry1>();
-    concepts::check<Geometry2>();
+    concepts::check<Geometry1 const>();
+    concepts::check<Geometry2 const>();
 
     geometry::clear(shortest_seg);
 

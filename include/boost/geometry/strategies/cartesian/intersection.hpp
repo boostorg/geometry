@@ -53,6 +53,7 @@
 #include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 
+
 #if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
 #  include <boost/geometry/io/wkt/write.hpp>
 #endif
@@ -61,6 +62,11 @@
 namespace boost { namespace geometry
 {
 
+namespace strategy { namespace closest_points
+{
+template <typename CalculationType, typename Strategy>
+struct cartesian_segment_box;
+}}
 
 namespace strategy { namespace intersection
 {
@@ -178,6 +184,18 @@ struct cartesian_segments
     static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
     {
         return disjoint_segment_box_strategy_type();
+    }
+
+    typedef closest_points::cartesian_segment_box
+    <
+        CalculationType,
+        distance::pythagoras<CalculationType>
+    >   closest_points_cartesian_segment_box;
+
+    static inline closest_points_cartesian_segment_box
+    get_closest_points_segment_box_strategy()
+    {
+        return closest_points_cartesian_segment_box();
     }
 
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;

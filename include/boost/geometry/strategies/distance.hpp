@@ -88,7 +88,7 @@ struct result_set_unique_point
     static inline void apply(T& result, Point const& point)
     {
         boost::ignore_unused(point);
-        result = 0;
+        result = T();
     }
 };
 

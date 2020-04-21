@@ -86,6 +86,12 @@ struct spherical_segment_box
         return typename distance_pb_strategy::type();
     }
 
+    static inline spherical_segment_box<CalculationType, Strategy>
+    get_closest_points_segment_box_strategy()
+    {
+        return spherical_segment_box<CalculationType, Strategy>();
+    }
+
     template <typename SegmentPoint, typename BoxPoint>
     struct closest_point_result
     {

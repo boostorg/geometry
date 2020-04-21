@@ -271,6 +271,12 @@ struct spherical_segment_box
         return equals_point_point_strategy_type();
     }
 
+    static inline closest_points::spherical_segment_box<CalculationType, Strategy>
+    get_closest_points_segment_box_strategy()
+    {
+        return closest_points::spherical_segment_box<CalculationType, Strategy>();
+    }
+
     template <typename Geometry1, typename Geometry2>
     struct point_in_geometry_strategy
     {
