@@ -120,6 +120,8 @@ struct multirange_constant_size_geometry_with_info
 template<typename MultiRange, typename ConstantSizeGeometry>
 struct multirange_constant_size_geometry
 {
+    typedef typename point_type<ConstantSizeGeometry>::type point_type;
+    typedef segment_intersection_points<point_type> intersection_return_type;
 
     template <typename Strategy>
     static inline bool
@@ -127,11 +129,12 @@ struct multirange_constant_size_geometry
           ConstantSizeGeometry const& constant_size_geometry,
           Strategy const& strategy)
     {
-        auto res = multirange_constant_size_geometry_with_info
-                   <
-                        MultiRange,
-                        ConstantSizeGeometry
-                    >::apply(multirange, constant_size_geometry, strategy);
+        intersection_return_type res =
+                multirange_constant_size_geometry_with_info
+                <
+                    MultiRange,
+                    ConstantSizeGeometry
+                >::apply(multirange, constant_size_geometry, strategy);
         return res.count != 0;
     }
 

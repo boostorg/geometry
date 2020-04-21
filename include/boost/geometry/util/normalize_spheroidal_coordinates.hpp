@@ -385,8 +385,12 @@ inline void normalize_azimuth(CoordinateType& angle)
 template<typename T>
 inline T difference_angle(T x, T y, T& e)
 {
-    T t, d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
-
+    T t;
+#ifdef BOOST_GEOMETRY_CXX11_STD_REMAINDER
+    T d = math::sum_error(std::remainder(-x, T(360)), std::remainder(y, T(360)), t);
+#else
+    T d = math::sum_error(math::mod(-x, T(360)), math::mod(y, T(360)), t);
+#endif
     normalize_azimuth<degree, T>(d);
 
     // Here y - x = d + t (mod 360), exactly, where d is in (-180,180] and

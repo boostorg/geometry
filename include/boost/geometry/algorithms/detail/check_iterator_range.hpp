@@ -116,7 +116,7 @@ struct check_iterator_range_with_info
 
         for (InputIterator it = first; it != beyond; ++it)
         {
-            auto res = construction.apply(*it);
+            intersection_return_type res = construction.apply(*it);
             if (res.count != 0)
             {
                 return res;

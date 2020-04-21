@@ -141,17 +141,18 @@ struct disjoint_range_segment_or_box_with_info
             for ( ; it1 != last ; ++it0, ++it1 )
             {
                 range_segment rng_segment(*it0, *it1);
-                auto res = dispatch::disjoint_with_info
-                           <
-                                range_segment, SegmentOrBox
-                           >::apply(rng_segment, segment_or_box,
+                intersection_return_type res =
+                        dispatch::disjoint_with_info
+                        <
+                            range_segment, SegmentOrBox
+                        >::apply(rng_segment, segment_or_box,
                                     strategy);
                 if ( res.count != 0 )
                 {
                     return res;
                 }
             }
-            //return true;
+
             intersection_return_type res;
             res.count = 0;
             return res;

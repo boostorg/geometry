@@ -330,6 +330,7 @@ struct closest_points_seg_box
     strategy::closest_points::cartesian_segment_box<CalculationType, SBStrategy>
 >
 {
+
     template
     <
         typename T,
@@ -348,6 +349,7 @@ struct closest_points_seg_box
     {
         typedef geometry::model::segment<SegmentPoint> segment;
         typedef geometry::model::box<BoxPoint> box;
+        typedef segment_intersection_points<SegmentPoint> intersection_return_type;
 
         //TODO pass strategy
         box b(bottom_left, top_right);
@@ -362,10 +364,10 @@ struct closest_points_seg_box
             return;
         }
 
-        segment s{p0,p1};
+        segment s = segment(p0, p1);
         {
-            segment sb{top_left, bottom_left};
-            auto res =
+            segment sb = segment(top_left, bottom_left);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,
@@ -378,8 +380,8 @@ struct closest_points_seg_box
             }
         }
         {
-            segment sb{top_right, bottom_right};
-            auto res =
+            segment sb = segment(top_right, bottom_right);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,
@@ -392,8 +394,8 @@ struct closest_points_seg_box
             }
         }
         {
-            segment sb{bottom_left, bottom_right};
-            auto res =
+            segment sb = segment(bottom_left, bottom_right);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,
@@ -406,8 +408,8 @@ struct closest_points_seg_box
             }
         }
         {
-            segment sb{top_left, top_right};
-            auto res =
+            segment sb = segment(top_left, top_right);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,

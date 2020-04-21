@@ -530,6 +530,7 @@ struct closest_points_seg_box
     {
         typedef geometry::model::segment<SegmentPoint> segment;
         typedef geometry::model::box<BoxPoint> box;
+        typedef segment_intersection_points<SegmentPoint> intersection_return_type;
 
         //TODO pass strategy
         box b(bottom_left, top_right);
@@ -545,10 +546,10 @@ struct closest_points_seg_box
         }
 
         //check segment intersection with box meridians
-        segment s{p0,p1};
+        segment s = segment(p0,p1);
         {
-            segment sb{bottom_left, top_left};
-            auto res =
+            segment sb = segment(bottom_left, top_left);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,
@@ -561,8 +562,8 @@ struct closest_points_seg_box
             }
         }
         {
-            segment sb{bottom_right, top_right};
-            auto res =
+            segment sb = segment(bottom_right, top_right);
+            intersection_return_type res =
             geometry::detail::disjoint::disjoint_segment_with_info
             <
                 segment,

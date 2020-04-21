@@ -227,7 +227,7 @@ private:
         {
             typedef typename std::iterator_traits<SegIter>::value_type Segment;
 
-            auto seg = *first;
+            Segment seg = *first;
             intersection_return_type res
                     = disjoint_segment_box_with_info<Segment,Box>
                                 ::apply(seg, box, strategy);

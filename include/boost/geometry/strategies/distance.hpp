@@ -102,13 +102,13 @@ struct closest_points_seg_box
         typename BoxPoint,
         typename DistancePointSegmentStrategy
     >
-    static inline void apply(SegmentPoint const& p0,
-                             SegmentPoint const& p1,
-                             BoxPoint const& top_left,
-                             BoxPoint const& top_right,
-                             BoxPoint const& bottom_left,
-                             BoxPoint const& bottom_right,
-                             DistancePointSegmentStrategy const& ps_strategy,
+    static inline void apply(SegmentPoint const&,
+                             SegmentPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             DistancePointSegmentStrategy const&,
                              T & result)
     {
         result = T();
