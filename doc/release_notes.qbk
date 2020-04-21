@@ -38,6 +38,10 @@
 * [@https://github.com/boostorg/geometry/pull/668 668] Andoyer inverse formula fixed for close points.
 * [@https://github.com/boostorg/geometry/pull/687 687] Fixed dangling reference in distance algorithm.
 
+[*Deprecation]
+
+* [@https://github.com/boostorg/geometry/issues/590 590] Support for C++03 has been deprecated and Geometry will require C++14 from Boost 1.75 onwards.
+
 [/=================]
 [heading Boost 1.72]
 [/=================]
