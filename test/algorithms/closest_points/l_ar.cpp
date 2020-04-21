@@ -625,26 +625,23 @@ void test_closest_points_linestring_box(Strategy const& strategy)
     //intersection
     tester::apply("LINESTRING(15 15,15 25,20 25)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
     tester::apply("LINESTRING(15 21,21 15,22 25)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(18 18,18 18)",
-                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
-                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  "SEGMENT(20 16,20 16)",
+                  "SEGMENT(20 16.0403,20 16.0403)",
+                  "SEGMENT(20 16.0405,20 16.0405)",
                   strategy);
     tester::apply("LINESTRING(15 21,16 5,25 5)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
-                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
-                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  "SEGMENT(15.6875 10,15.6875 10)",
+                  "SEGMENT(15.7003 10,15.7003 10)",
                   strategy);
     tester::apply("LINESTRING(15 21,16 5,17 15)",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
-                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
-                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  "SEGMENT(15.6875 10,15.6875 10)",
+                  "SEGMENT(15.7003 10,15.7003 10)",
                   strategy);
 
     tester::apply("LINESTRING(0 0,100 3,100 4)",
@@ -846,20 +843,24 @@ void test_closest_points_multi_linestring_box(Strategy const& strategy)
                   strategy);
     tester::apply("MULTILINESTRING((15 15,15 25,20 25)(5 5,5 10))",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
     tester::apply("MULTILINESTRING((15 21,21 15,22 25)(5 5,5 10))",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(18 18,18 18)",
-                  "SEGMENT(17.9207 18.1536,17.9207 18.1536)",
-                  "SEGMENT(17.9326 18.1419,17.9326 18.1419)",
+                  "SEGMENT(20 16,20 16)",
+                  "SEGMENT(20 16.0403,20 16.0403)",
+                  "SEGMENT(20 16.0405,20 16.0405)",
                   strategy);
     tester::apply("MULTILINESTRING((15 21,16 5,25 5)(5 5,5 10))",
                   "BOX(10 10,20 20)",
-                  "SEGMENT(15.0817 19.6926,15.0817 19.6926)",
-                  "SEGMENT(15.0819 19.7782,15.0819 19.7782)",
-                  "SEGMENT(15.0821 19.7751,15.0821 19.7751)",
+                  "SEGMENT(15.6875 10,15.6875 10)",
+                  "SEGMENT(15.7003 10,15.7003 10)",
+                  strategy);
+    tester::apply("MULTILINESTRING((0 0,100 3,100 4)(0 0,10 0))",
+                  "BOX(0 1,100 2)",
+                  "SEGMENT(33.3333 1,33.3333 1)",
+                  "SEGMENT(19.1476 1,19.1476 1)",
+                  "SEGMENT(19.0629 1,19.0629 1)",
                   strategy);
 
 }

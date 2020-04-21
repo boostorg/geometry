@@ -12,6 +12,8 @@
 #ifndef BOOST_GEOMETRY_TEST_DISTANCE_COMMON_HPP
 #define BOOST_GEOMETRY_TEST_DISTANCE_COMMON_HPP
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include <iostream>
 #include <string>
 

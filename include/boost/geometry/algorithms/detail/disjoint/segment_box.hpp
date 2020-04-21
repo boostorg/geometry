@@ -287,6 +287,23 @@ struct disjoint_segment_box_with_info
 
         intersection_return_type result;
 
+        geometry::model::segment<box_point> seg{p[0],p[1]};
+
+        //TODO: do not construct new segment
+        //TODO: pass strategy
+        geometry::model::segment<box_point> sout;
+        geometry::closest_points(box, seg, sout);
+
+        if (geometry::distance(sout.first, sout.second) == 0)
+        {
+            result.count = 1;
+            result.intersections[0] = sout.second;
+            return result;
+        }
+
+        return result;
+
+/*
         // TODO: use strategy
         geometry::model::segment<box_point> seg{p[0],p[1]};
         {
@@ -330,7 +347,9 @@ struct disjoint_segment_box_with_info
                 return result;
             }
         }
+
         return result;
+        */
     }
 };
 

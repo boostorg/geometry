@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
 
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>

@@ -233,11 +233,8 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
                   strategy);
 
     //intersect
-    // it is possible to get different (but valid) results for different
-    // CSs
     tester::apply("BOX(10 10,20 20)",
                   "POLYGON((15 15,15 25,25 30,15 15))",
-                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
 
@@ -258,7 +255,6 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
     //intersect
     tester2::apply("BOX(10 10,20 20)",
                    "POLYGON((15 15,15 25,25 30,15 15))",
-                   "SEGMENT(15 20,15 20)",
                    "SEGMENT(15 15,15 15)",
                    strategy);
 
@@ -267,6 +263,12 @@ void test_closest_points_box_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(20 20,20 20)",
                    strategy);
 
+    tester::apply("BOX(0 1,100 2)",
+                  "POLYGON((0 0,100 3,110 0,0 0))",
+                  "SEGMENT(33.3333 1,33.3333 1)",
+                  "SEGMENT(19.1476 1,19.1476 1)",
+                  "SEGMENT(19.0629 1,19.0629 1)",
+                  strategy);
 }
 
 //===========================================================================
@@ -300,10 +302,16 @@ void test_closest_points_box_multi_polygon(Strategy const& strategy)
     tester::apply("BOX(10 10,20 20)",
                   "MULTIPOLYGON(((15 15,15 25,25 30,15 15)),\
                                 ((0 0,0 1,1 1,1 0,0 0)))",
-                  "SEGMENT(15 20,15 20)",
                   "SEGMENT(15 15,15 15)",
                   strategy);
 
+    tester::apply("BOX(0 1,100 2)",
+                  "MULTIPOLYGON(((0 0,100 3,110 0,0 0)),\
+                                ((0 3,3 3,3 4,0 3)))",
+                  "SEGMENT(33.3333 1,33.3333 1)",
+                  "SEGMENT(19.1476 1,19.1476 1)",
+                  "SEGMENT(19.0629 1,19.0629 1)",
+                  strategy);
 }
 
 //===========================================================================

@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_TEST_CLOSEST_POINTS_COMMON_HPP
 #define BOOST_GEOMETRY_TEST_CLOSEST_POINTS_COMMON_HPP
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -177,13 +179,13 @@ void compute_result(Geometry1 const& geometry1,
                     bool const& default_strategy)
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << "CS: " << typeid(typename bg::cs_tag<Geometry1>::type).name()
-              << std::endl;
+    //std::cout << "CS: " << typeid(typename bg::cs_tag<Geometry1>::type).name()
+    //          << std::endl;
     std::cout << bg::wkt(geometry1) << " --- " << bg::wkt(geometry2)
               << std::endl;
 #endif
     Segment resulting_segment;
-    if(default_strategy)
+    if (default_strategy)
     {
         bg::closest_points(geometry1, geometry2, resulting_segment);
     }

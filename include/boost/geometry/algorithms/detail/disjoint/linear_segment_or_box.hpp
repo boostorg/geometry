@@ -144,7 +144,8 @@ struct disjoint_range_segment_or_box_with_info
                 auto res = dispatch::disjoint_with_info
                            <
                                 range_segment, SegmentOrBox
-                           >::apply(rng_segment, segment_or_box, strategy);
+                           >::apply(rng_segment, segment_or_box,
+                                    strategy);
                 if ( res.count != 0 )
                 {
                     return res;
