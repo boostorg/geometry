@@ -123,16 +123,11 @@ struct buffered_piece_collection
 {
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
-    typedef typename geometry::robust_point_type
-    <
-        point_type,
-        RobustPolicy
-    >::type robust_point_type;
 
     // Robust ring/polygon type, always clockwise
-    typedef geometry::model::ring<robust_point_type> robust_ring_type;
+    typedef geometry::model::ring<point_type> clockwise_ring_type;
 
-    typedef geometry::model::box<point_type> normal_box_type;
+    typedef geometry::model::box<point_type> box_type;
 
     typedef typename IntersectionStrategy::side_strategy_type side_strategy_type;
     typedef typename IntersectionStrategy::envelope_strategy_type envelope_strategy_type;
@@ -150,32 +145,21 @@ struct buffered_piece_collection
 
     typedef typename IntersectionStrategy::template point_in_geometry_strategy
         <
-            robust_point_type,
-            robust_ring_type
+            point_type,
+            clockwise_ring_type
         >::type point_in_geometry_strategy_type;
 
-    typedef typename geometry::rescale_policy_type
-        <
-            typename geometry::point_type<Ring>::type,
-            typename IntersectionStrategy::cs_tag
-        >::type rescale_policy_type;
-
-    typedef geometry::segment_ratio
-    <
-        typename geometry::coordinate_type<robust_point_type>::type
-    > ratio_type;
 
     typedef buffer_turn_info
     <
         point_type,
-        robust_point_type,
-        ratio_type
+        typename segment_ratio_type<point_type, RobustPolicy>::type
     > buffer_turn_info_type;
 
     typedef buffer_turn_operation
     <
         point_type,
-        ratio_type
+        typename segment_ratio_type<point_type, RobustPolicy>::type
     > buffer_turn_operation_type;
 
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
@@ -237,8 +221,7 @@ struct buffered_piece_collection
 
     struct original_ring
     {
-        typedef geometry::model::box<robust_point_type> robust_box_type;
-        typedef geometry::sections<robust_box_type, 1> sections_type;
+        typedef geometry::sections<box_type, 1> sections_type;
 
         // Creates an empty instance
         inline original_ring()
@@ -246,7 +229,7 @@ struct buffered_piece_collection
             , m_has_interiors(false)
         {}
 
-        inline original_ring(robust_ring_type const& ring,
+        inline original_ring(clockwise_ring_type const& ring,
                 bool is_interior, bool has_interiors,
                 envelope_strategy_type const& envelope_strategy,
                 expand_strategy_type const& expand_strategy)
@@ -266,8 +249,8 @@ struct buffered_piece_collection
                     envelope_strategy, expand_strategy);
         }
 
-        robust_ring_type m_ring;
-        robust_box_type m_box;
+        clockwise_ring_type m_ring;
+        box_type m_box;
         sections_type m_sections;
 
         bool m_is_interior;
@@ -293,7 +276,7 @@ struct buffered_piece_collection
 
     // Specificly for offsetted rings around points
     // but also for large joins with many points
-    typedef geometry::sections<normal_box_type, 2> sections_type;
+    typedef geometry::sections<box_type, 2> sections_type;
     sections_type monotonic_sections;
 
     // Define the clusters, mapping cluster_id -> turns
@@ -329,8 +312,7 @@ struct buffered_piece_collection
         , m_envelope_strategy(intersection_strategy.get_envelope_strategy())
         , m_expand_strategy(intersection_strategy.get_expand_strategy())
         , m_point_in_geometry_strategy(intersection_strategy
-            .template get_point_in_geometry_strategy<robust_point_type,
-                        robust_ring_type>())
+            .template get_point_in_geometry_strategy<point_type, clockwise_ring_type>())
         , m_robust_policy(robust_policy)
     {}
 
@@ -496,7 +478,7 @@ struct buffered_piece_collection
 
         geometry::partition
             <
-                normal_box_type,
+                box_type,
                 include_turn_policy,
                 detail::partition::include_all_policy
             >::apply(m_turns, original_rings, visitor,
@@ -533,9 +515,6 @@ struct buffered_piece_collection
             boost::begin(m_turns); it != boost::end(m_turns); ++it, ++index)
         {
             buffer_turn_info_type& turn = *it;
-
-            // Calculate rescaled turn points
-            geometry::recalculate(turn.robust_point, turn.point, m_robust_policy);
 
             // Update member used
             turn.turn_index = index;
@@ -612,7 +591,7 @@ struct buffered_piece_collection
                                                    m_envelope_strategy);
             geometry::partition
                 <
-                    normal_box_type
+                    box_type
                 >::apply(monotonic_sections, visitor,
                          get_section_box_type(),
                          overlaps_section_box_type());
@@ -639,7 +618,7 @@ struct buffered_piece_collection
 
             geometry::partition
                 <
-                    normal_box_type
+                    box_type
                 >::apply(m_turns, m_pieces, visitor,
                          turn_get_box(), turn_ovelaps_box_type(),
                          piece_get_box(), piece_ovelaps_box_type());
@@ -771,7 +750,7 @@ struct buffered_piece_collection
             // For rescaling, it is recalculated. Without rescaling, it
             // is just assigning (note that this Ring type is the
             // GeometryOut type, which might differ from the input ring type)
-            geometry::model::ring<robust_point_type> adapted_ring;
+            clockwise_ring_type clockwise_ring;
 
             typedef detail::normalized_view<InputRing const> view_type;
             view_type const view(input_ring);
@@ -779,13 +758,11 @@ struct buffered_piece_collection
             for (typename boost::range_iterator<view_type const>::type it =
                 boost::begin(view); it != boost::end(view); ++it)
             {
-                robust_point_type adapted_point;
-                geometry::recalculate(adapted_point, *it, m_robust_policy);
-                adapted_ring.push_back(adapted_point);
+                clockwise_ring.push_back(*it);
             }
 
             original_rings.back()
-                = original_ring(adapted_ring,
+                = original_ring(clockwise_ring,
                     is_interior, has_interiors,
                     m_envelope_strategy, m_expand_strategy);
         }
@@ -1085,9 +1062,6 @@ struct buffered_piece_collection
     {
         typedef typename IntersectionStrategy::disjoint_point_box_strategy_type d_pb_strategy_type;
 
-        robust_point_type any_point;
-        geometry::recalculate(any_point, point, m_robust_policy);
-
         signed_size_type count_in_original = 0;
 
         // Check of the robust point of this outputted ring is in
@@ -1104,7 +1078,7 @@ struct buffered_piece_collection
             {
                 continue;
             }
-            if (detail::disjoint::disjoint_point_box(any_point,
+            if (detail::disjoint::disjoint_point_box(point,
                                                      original.m_box,
                                                      d_pb_strategy_type()))
             {
@@ -1112,7 +1086,7 @@ struct buffered_piece_collection
             }
 
             int const geometry_code
-                = detail::within::point_in_geometry(any_point,
+                = detail::within::point_in_geometry(point,
                     original.m_ring, m_point_in_geometry_strategy);
 
             if (geometry_code == -1)

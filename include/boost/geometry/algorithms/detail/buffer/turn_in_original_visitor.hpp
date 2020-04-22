@@ -35,7 +35,12 @@ struct original_get_box
     template <typename Box, typename Original>
     static inline void apply(Box& total, Original const& original)
     {
-        geometry::expand(total, original.m_box);
+        typedef typename strategy::expand::services::default_strategy
+            <
+                box_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+
+        geometry::expand(total, original.m_box, expand_strategy_type());
     }
 };
 
@@ -72,7 +77,7 @@ struct turn_in_original_ovelaps_box
         }
 
         return ! geometry::detail::disjoint::disjoint_point_box(
-                    turn.robust_point, box, DisjointPointBoxStrategy());
+                    turn.point, box, DisjointPointBoxStrategy());
     }
 };
 
@@ -226,13 +231,13 @@ public:
             return true;
         }
 
-        if (geometry::disjoint(turn.robust_point, original.m_box))
+        if (geometry::disjoint(turn.point, original.m_box))
         {
             // Skip all disjoint
             return true;
         }
 
-        int const code = point_in_original(turn.robust_point, original, m_point_in_geometry_strategy);
+        int const code = point_in_original(turn.point, original, m_point_in_geometry_strategy);
 
         if (code == -1)
         {
