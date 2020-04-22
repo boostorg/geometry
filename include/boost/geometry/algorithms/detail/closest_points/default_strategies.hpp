@@ -100,24 +100,44 @@ struct default_strategy<Box1, Box2, box_tag, box_tag, false>
           >
 {};
 
-template <typename Linear, typename Box>
-struct default_strategy<Linear, Box, segment_tag, box_tag, false>
+template <typename PolygonalOrLinear, typename Box>
+struct default_strategy_polygonal_or_linear
     : strategy::closest_points::services::default_strategy
-          <
-              segment_tag, box_tag,
-              typename point_type<Linear>::type,
-              typename point_type<Box>::type
-          >
+        <
+            segment_tag, box_tag,
+            typename point_type<PolygonalOrLinear>::type,
+            typename point_type<Box>::type
+        >
 {};
 
 template <typename Linear, typename Box>
-struct default_strategy<Linear, Box, linear_tag, box_tag, false>
-    : strategy::closest_points::services::default_strategy
-          <
-              segment_tag, box_tag,
-              typename point_type<Linear>::type,
-              typename point_type<Box>::type
-          >
+struct default_strategy<Linear, Box, segment_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Linear, Box>
+{};
+
+template <typename Linear, typename Box>
+struct default_strategy<Linear, Box, linestring_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Linear, Box>
+{};
+
+template <typename Linear, typename Box>
+struct default_strategy<Linear, Box, multi_linestring_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Linear, Box>
+{};
+
+template <typename Polygonal, typename Box>
+struct default_strategy<Polygonal, Box, polygon_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Polygonal, Box>
+{};
+
+template <typename Polygonal, typename Box>
+struct default_strategy<Polygonal, Box, ring_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Polygonal, Box>
+{};
+
+template <typename Polygonal, typename Box>
+struct default_strategy<Polygonal, Box, multi_polygon_tag, box_tag, false>
+    : default_strategy_polygonal_or_linear<Polygonal, Box>
 {};
 
 
