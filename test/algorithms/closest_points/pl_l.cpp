@@ -104,6 +104,12 @@ void test_closest_points_point_linestring(Strategy const& strategy)
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
                   "SEGMENT(3 2,3 2)",
                   strategy);
+
+    //default strategy
+    tester::apply("POINT(3 2)",
+                  "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(3 2,3 2)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -133,6 +139,12 @@ void test_closest_points_point_multi_linestring(Strategy const& strategy)
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
                   "SEGMENT(1 3,1 3)",
                   strategy);
+
+    //default strategy
+    tester::apply("POINT(1 3)",
+                  "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 3,1 3)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -161,6 +173,12 @@ void test_closest_points_multi_point_segment(Strategy const& strategy)
                   "SEGMENT(0 1,1 0)",
                   "SEGMENT(0 1,0 1)",
                   strategy);
+
+    //default strategy
+    tester::apply("MULTIPOINT((0 1),(1 1),(1 2))",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(0 1,0 1)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -190,6 +208,12 @@ void test_closest_points_multi_point_linestring(Strategy const& strategy)
                   "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
                   "SEGMENT(3 2,3 2)",
                   strategy);
+
+    //default strategy
+    tester::apply("MULTIPOINT((3 2),(1 1),(3 0))",
+                  "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
+                  "SEGMENT(3 2,3 2)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -220,6 +244,12 @@ void test_closest_points_multi_point_multi_linestring(Strategy const& strategy)
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
                   "SEGMENT(1 3,1 3)",
                   strategy);
+
+    //default strategy
+    tester::apply("MULTIPOINT((5 0),(1 3),(6 0))",
+                  "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
+                  "SEGMENT(1 3,1 3)",
+                  strategy, true, true);
 }
 
 

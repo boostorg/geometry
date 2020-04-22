@@ -55,6 +55,14 @@ void test_closest_points_point_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(1 1,0.503314 0.496737)",
                    strategy);
 
+    //default strategy
+    tester2::apply("POINT(1 1)",
+                   "POLYGON((0 0,1 0,0 1,0 0))",
+                   "SEGMENT(1 1,0.5 0.5)",
+                   "SEGMENT(1 1,0.499962 0.500095)",
+                   "SEGMENT(1 1,0.503314 0.496737)",
+                   strategy, true, true);
+
     tester2::apply("POINT(1 1)",
                    "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
                    "SEGMENT(1 1,0.5 0.5)",
@@ -133,6 +141,12 @@ void test_closest_points_point_box(Strategy const& strategy)
                   "SEGMENT(25 5,20 10)",
                   strategy);
 
+    //default strategy
+    tester::apply("POINT(25 5)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(25 5,20 10)",
+                  strategy, true, true);
+
     //inside
     tester::apply("POINT(15 15)",
                   "BOX(10 10,20 20)",
@@ -164,6 +178,14 @@ void test_closest_points_point_multi_polygon(Strategy const& strategy)
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
 
+    tester::apply("POINT(1 1)",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1 1,0.5 0.5)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
+                  "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy, true, true);
+
     tester::apply("POINT(0.01 0.01)",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
@@ -194,6 +216,13 @@ void test_closest_points_multi_point_polygon_or_ring(Strategy const& strategy)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategy);
+
+    tester::apply("MULTIPOINT((2 1),(1 1))",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(1 1,0.5 0.5)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
+                  "SEGMENT(1 1,0.503314 0.496737)",
+                  strategy, true, true);
 
     tester::apply("MULTIPOINT((1 1),(0.01 0.01))",
                   "POLYGON((0 0,1 0,0 1,0 0))",
@@ -247,6 +276,12 @@ void test_closest_points_multi_point_multi_polygon(Strategy const& strategy)
                                 ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
                   "SEGMENT(0.01 0.01,0.01 0.01)",
                   strategy);
+
+    tester::apply("MULTIPOINT((2 1),(0.01 0.01))",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(0.01 0.01,0.01 0.01)",
+                  strategy, true, true);
 }
 
 //===========================================================================
@@ -269,6 +304,11 @@ void test_closest_points_multi_point_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(5 25,10 20)",
                   strategy);
+
+    tester::apply("MULTIPOINT(5 25,0 0,0 20)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(5 25,10 20)",
+                  strategy, true, true);
 
     tester::apply("MULTIPOINT(5 25,0 0,15 15)",
                   "BOX(10 10,20 20)",

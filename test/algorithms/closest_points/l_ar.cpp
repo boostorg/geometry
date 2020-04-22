@@ -72,6 +72,13 @@ void test_closest_points_segment_polygon_or_ring(Strategy const& strategy)
                    "SEGMENT(1.496909 0.503379,1 0)",
                    strategy);
 
+    tester2::apply("SEGMENT(2 0,0 2)",
+                   "POLYGON((0 0,1 0,0 1,0 0)(0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4))",
+                   "SEGMENT(1.5 0.5,1 0)",
+                   "SEGMENT(0.50019 1.50021,0 1)",
+                   "SEGMENT(1.496909 0.503379,1 0)",
+                   strategy, true, true);
+
     //geometries intersect
     //intersect boundary of ring
     tester2::apply("SEGMENT(1 1,0.1 0.1)",
@@ -132,6 +139,14 @@ void test_closest_points_segment_multi_polygon(Strategy const& strategy)
                   "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
+
+    tester::apply("SEGMENT(2 0,0 2)",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1.5 0.5,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy, true, true);
 
     //geometries intersect
     //intersect boundary of ring
@@ -348,6 +363,13 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(21.3999 7.22557,20 10)",
                   strategy);
 
+    tester::apply("SEGMENT(17 5, 25 9)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(21.4 7.2,20 10)",
+                  "SEGMENT(21.4147 7.23283,20 10)",
+                  "SEGMENT(21.3999 7.22557,20 10)",
+                  strategy, true, true);
+
     //intersection
     tester::apply("SEGMENT(15 15,15 25)",
                   "BOX(10 10,20 20)",
@@ -481,6 +503,13 @@ void test_closest_points_linestring_polygon_or_ring(Strategy const& strategy)
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
+    tester::apply("LINESTRING(2 0,0 2)",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(1.5 0.5,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy, true, true);
+
     //geometries intersect
     //intersect boundary of ring
     tester::apply("LINESTRING(1 1,0.1 0.1,0.2 0.1)",
@@ -573,6 +602,14 @@ void test_closest_points_linestring_multi_polygon(Strategy const& strategy)
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
+    tester::apply("LINESTRING(2 0,0 2)",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                                ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1.5 0.5,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy, true, true);
+
     //geometries intersect
     //intersect boundary of ring
     tester::apply("LINESTRING(1 1,0.1 0.1,0.1 0.2)",
@@ -621,6 +658,13 @@ void test_closest_points_linestring_box(Strategy const& strategy)
                   "SEGMENT(0.922834 1.07763,10 10)",
                   "SEGMENT(0.983761 1.0167,10 10)",
                   strategy);
+
+    tester::apply("LINESTRING(2 0,0 2,0 0,-1 -1)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(1 1,10 10)",
+                  "SEGMENT(0.922834 1.07763,10 10)",
+                  "SEGMENT(0.983761 1.0167,10 10)",
+                  strategy, true, true);
 
     //intersection
     tester::apply("LINESTRING(15 15,15 25,20 25)",
@@ -678,6 +722,13 @@ void test_closest_points_multi_linestring_polygon_or_ring(Strategy
                   "SEGMENT(0.50019 1.50021,0 1)",
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
+
+    tester::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
+                  "POLYGON((0 0,1 0,0 1,0 0))",
+                  "SEGMENT(1.5 0.5,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy, true, true);
 
     //geometries intersect
     //intersect boundary of ring
@@ -773,6 +824,14 @@ void test_closest_points_multi_linestring_multi_polygon(Strategy const& strategy
                   "SEGMENT(1.496909 0.503379,1 0)",
                   strategy);
 
+    tester::apply("MULTILINESTRING((2 0,0 2)(0 3,3 0))",
+                  "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
+                  ((0.4 0.4,0.4 0.1,0.1 0.4,0.4 0.4)))",
+                  "SEGMENT(1.5 0.5,1 0)",
+                  "SEGMENT(0.50019 1.50021,0 1)",
+                  "SEGMENT(1.496909 0.503379,1 0)",
+                  strategy, true, true);
+
     //geometries intersect
     //intersect boundary of ring
     tester::apply("MULTILINESTRING((1 1,2 2,3 4)(1 1,0.1 0.1,0.1 0.2))",
@@ -835,6 +894,11 @@ void test_closest_points_multi_linestring_box(Strategy const& strategy)
                   "BOX(10 10,20 20)",
                   "SEGMENT(0 5,10 10)",
                   strategy);
+
+    tester::apply("MULTILINESTRING((2 0,0 2,0 0,-1 -1)(-1 0,-1 2,0 5))",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(0 5,10 10)",
+                  strategy, true, true);
 
     //intersection
     tester::apply("MULTILINESTRING((2 0,0 2,0 0,-1 -1)(-1 0,-1 2,0 5))",
