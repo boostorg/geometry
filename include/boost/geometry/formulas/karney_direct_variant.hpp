@@ -38,6 +38,8 @@ namespace se = series_expansion;
 - Charles F.F Karney, Algorithms for geodesics, 2011
 https://arxiv.org/pdf/1109.4448.pdf
 */
+
+// Assumption: lon1 < lon2 && lat1 < lat2 ==> 0 < azimuth12 < pi/2
 template <
     typename CT,
     size_t SeriesOrder = 8
