@@ -184,6 +184,26 @@ void test_areal()
 
     TEST_DIFFERENCE(ticket_12503, 46, 920.625, 4, 7.625, 50);
 
+    {
+        // Reported issues going wrong with rescaling (except for 630b)
+        ut_settings settings;
+        settings.percentage = 0.001;
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, 0.0, 1, BG_IF_KRAMER(2.023326, 2.200326), 1);
+#endif
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+
+#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Only succeeds with Kramer rule and no rescaling
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
+#endif
+
+        TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, 76.5385, BG_IF_KRAMER(1, 0), BG_IF_KRAMER(2.8634e-09, 0.0), 1);
+#endif
+    }
+
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],

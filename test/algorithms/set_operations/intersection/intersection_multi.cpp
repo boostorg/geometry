@@ -374,8 +374,13 @@ void test_areal()
 #endif
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Two cases produce either too large, or no output if Kramer rule is used
-    TEST_INTERSECTION(issue_630_b, 1, -1, 0.1714);
+    TEST_INTERSECTION(issue_630_b, 1, -1, BG_IF_KRAMER(0.1714, 0.1713911));
     TEST_INTERSECTION(issue_630_c, 1, -1, 0.1770);
+#endif
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Result is missing with rescaling
+    TEST_INTERSECTION(issue_643, 1, -1, 3.4615);
 #endif
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",

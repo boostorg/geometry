@@ -48,3 +48,4 @@ alias ext_algebra : [ generate_self_contained_headers extensions/algebra ] ;
 alias ext_algorithms : [ generate_self_contained_headers extensions/algorithms ] ;
 alias ext_index : [ generate_self_contained_headers extensions/index ] ;
 alias ext_gis : [ generate_self_contained_headers extensions/gis ] ;
+alias ext_triangulation : [ generate_self_contained_headers extensions/triangulation ] ;

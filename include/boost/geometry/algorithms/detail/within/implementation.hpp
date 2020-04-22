@@ -38,8 +38,6 @@
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
 
 #include <boost/geometry/algorithms/detail/within/multi_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>

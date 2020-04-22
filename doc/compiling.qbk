@@ -15,6 +15,8 @@
 [def __msvc__ MSVC]
 [def __stlport__ [@http://sourceforge.net/projects/stlport STLport]]
 
+[caution Boost.Geometry in Boost 1.73 deprecates support for the C++03 and will require C++14 from Boost 1.75 onwards]
+
 __boost_geometry__ is a headers-only library. Users only need to include the 
 library headers in their programs in order to be able to access definitions 
 and algorithms provided by the __boost_geometry__ library. No linking against 
@@ -83,7 +85,7 @@ compilers:
   
 __boost_geometry__ uses __boost_bb__, a text-based system for developing and 
 testing software, to configure, build and execute unit tests and example 
-programs. The build configuration is provided as a collection of `Jamfile.v2` 
+programs. The build configuration is provided as a collection of `Jamfile` 
 files.
 
 For gcc, flag [^-Wno-long-long] can be used to surpress some warnings 

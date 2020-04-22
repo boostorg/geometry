@@ -13,7 +13,11 @@
 #define BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_DETAIL_PRECISE_MATH_HPP
 
 #include<numeric>
+#include<cmath>
+#include<limits>
 #include<array>
+
+#include <boost/geometry/core/access.hpp>
 
 // The following code is based on "Adaptive Precision Floating-Point Arithmetic
 // and Fast Robust Geometric Predicates" by Richard Shewchuk,

@@ -217,7 +217,11 @@ struct covered_by<
 \note The default strategy is used for covered_by detection
 
 \qbk{[include reference/algorithms/covered_by.qbk]}
-
+\qbk{
+[heading Examples]
+[covered_by]
+[covered_by_output]
+}
  */
 template<typename Geometry1, typename Geometry2>
 inline bool covered_by(Geometry1 const& geometry1, Geometry2 const& geometry2)

@@ -26,8 +26,9 @@
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
 #include <boost/geometry/index/detail/rtree/utilities/are_boxes_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_counts_ok.hpp>
+#include <boost/geometry/index/detail/rtree/utilities/are_levels_ok.hpp>
 
 //#include <boost/geometry/geometries/ring.hpp>
 //#include <boost/geometry/geometries/polygon.hpp>

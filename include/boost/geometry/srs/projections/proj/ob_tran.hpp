@@ -136,13 +136,13 @@ namespace projections
 
                 /* get name of projection to be translated */
                 typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> params_type;
-                typedef typename srs::spar::detail::tuples_find_if
+                typedef typename geometry::tuples::find_if
                     <
                         params_type,
                         srs::spar::detail::is_param_t<srs::spar::o_proj>::pred
                     >::type o_proj_type;
 
-                static const bool is_found = srs::spar::detail::tuples_is_found<o_proj_type>::value;
+                static const bool is_found = geometry::tuples::is_found<o_proj_type>::value;
                 BOOST_MPL_ASSERT_MSG((is_found), NO_ROTATION_PROJ, (params_type));
 
                 typedef typename o_proj_type::type proj_type;
