@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2017, 2018 Oracle and/or its affiliates.
+// Copyright (c) 2017, 2018, 2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -42,7 +42,8 @@ void test_distance_segment_polygon(Strategy_pp const& strategy_pp,
     std::string const polygon = "POLYGON((10 10,0 20,15 30,20 15,15 10,10 10))";
 
     tester::apply("s-p-1", "SEGMENT(0 0, 0 10)", polygon,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("s-p-2", "SEGMENT(9 0, 10 9)", polygon,
@@ -72,7 +73,8 @@ void test_distance_linestring_polygon(Strategy_pp const& strategy_pp,
     std::string const polygon = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
     tester::apply("l-p-1", "LINESTRING(0 0,0 10)", polygon,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("l-p-2", "LINESTRING(9 0,10 9,11 8,15 8,20 9)", polygon,
@@ -98,13 +100,18 @@ void test_distance_multi_linestring_polygon(Strategy_pp const& strategy_pp,
     typedef bg::model::linestring<Point> linestring_type;
     typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
     typedef bg::model::polygon<Point> polygon_type;
-    typedef test_distance_of_geometries<multi_linestring_type, polygon_type> tester;
+    typedef test_distance_of_geometries
+            <
+                multi_linestring_type,
+                polygon_type
+            > tester;
 
     std::string const polygon = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
     tester::apply("ml-p-1", "MULTILINESTRING((0 0,0 10)\
                              (0 0,1 0,2 0,3 0,4 0,10 0,15 0,20 0))", polygon,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("ml-p-2", "MULTILINESTRING((9 0,10 9,11 8,15 8,20 9)\
@@ -141,7 +148,8 @@ void test_distance_segment_multi_polygon(Strategy_pp const& strategy_pp,
                                   ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
     tester::apply("s-mp-1", "SEGMENT(0 0, 0 10)", mp,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("s-mp-2", "SEGMENT(9 0, 10 9)", mp,
@@ -167,13 +175,18 @@ void test_distance_linestring_multi_polygon(Strategy_pp const& strategy_pp,
     typedef bg::model::linestring<Point> linestring_type;
     typedef bg::model::polygon<Point> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
-    typedef test_distance_of_geometries<linestring_type, multi_polygon_type> tester;
+    typedef test_distance_of_geometries
+            <
+                linestring_type,
+                multi_polygon_type
+            > tester;
 
     std::string const mp = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
                                     ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
     tester::apply("l-mp-1", "LINESTRING(0 0, 0 10)", mp,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("l-mp-2", "LINESTRING(9 0,10 9,11 8,15 8,20 9)", mp,
@@ -201,13 +214,18 @@ void test_distance_multi_linestring_multi_polygon(Strategy_pp const& strategy_pp
     typedef bg::model::multi_linestring<linestring_type> multi_linestring_type;
     typedef bg::model::polygon<Point> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
-    typedef test_distance_of_geometries<multi_linestring_type, multi_polygon_type> tester;
+    typedef test_distance_of_geometries
+            <
+                multi_linestring_type,
+                multi_polygon_type
+            > tester;
 
     std::string const mp = "MULTIPOLYGON(((20 20, 20 30, 30 40, 20 20)),\
                                    ((10 10,0 20, 15 30, 20 15, 15 10, 10 10)))";
 
     tester::apply("ml-mp-1", "MULTILINESTRING((0 0, 0 10)(0 0, 10 0))", mp,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 
     tester::apply("ml-mp-2", "MULTILINESTRING((9 0,10 9,11 8,15 8,20 9)\
@@ -241,7 +259,8 @@ void test_distance_segment_ring(Strategy_ps const& strategy_ps)
     std::string const ring = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
     tester::apply("s-r-1", "SEGMENT(0 0, 0 10)", ring,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 }
 
@@ -260,7 +279,8 @@ void test_distance_linestring_ring(Strategy_ps const& strategy_ps)
     std::string const ring = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
     tester::apply("l-r-1", "LINESTRING(0 0, 0 10)", ring,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 }
 
@@ -280,13 +300,20 @@ void test_distance_multi_linestring_ring(Strategy_ps const& strategy_ps)
     std::string const ring = "POLYGON((10 10,0 20, 15 30, 20 15, 15 10, 10 10))";
 
     tester::apply("ml-r-1", "MULTILINESTRING((0 0, 0 10)(0 0, 10 0))", ring,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(0 20, 10 10)",
+                                     strategy_ps),
                   strategy_ps, true, false, false);
 }
 
 //======================================================================
 
-template <typename Point, typename Strategy_pp, typename Strategy_ps, typename Strategy_sb>
+template
+<
+        typename Point,
+        typename Strategy_pp,
+        typename Strategy_ps,
+        typename Strategy_sb
+>
 void test_distance_segment_box(Strategy_pp const& strategy_pp,
                                Strategy_ps const& strategy_ps,
                                Strategy_sb const& strategy_sb)
@@ -303,163 +330,211 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
     std::string const box_north = "BOX(10 10,20 20)";
 
     tester::apply("sb1-1a", "SEGMENT(0 0, 0 20)", box_north,
-                  pp_distance<Point>("POINT(0 20)", "POINT(10 20)", strategy_pp),
+                  pp_distance<Point>("POINT(0 20)", "POINT(10 20)",
+                                     strategy_pp),
                   strategy_sb);
     //segment with slope
     tester::apply("sb1-1b", "SEGMENT(10 5, 20 6)", box_north,
-                  pp_distance<Point>("POINT(20 6)", "POINT(20 10)", strategy_pp),
+                  pp_distance<Point>("POINT(20 6)", "POINT(20 10)",
+                                     strategy_pp),
                   strategy_sb);
     tester::apply("sb1-2", "SEGMENT(0 0, 0 10)", box_north,
-                  ps_distance<Point>("POINT(0 10)", "SEGMENT(10 10,10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(0 10)", "SEGMENT(10 10,10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("sb1-3", "SEGMENT(0 0, 0 15)", box_north,
-                  ps_distance<Point>("POINT(0 15)", "SEGMENT(10 10,10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(0 15)", "SEGMENT(10 10,10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("sb1-4", "SEGMENT(0 0, 0 25)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 0,0 25)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 0,0 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("sb1-5", "SEGMENT(0 10, 0 25)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 0,0 25)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 0,0 25)",
+                                     strategy_ps),
                   strategy_sb);
 
     tester::apply("sb2-2", "SEGMENT(0 5, 15 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,15 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,15 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("sb2-3a", "SEGMENT(0 5, 20 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,20 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,20 5)",
+                                     strategy_ps),
                   strategy_sb);
 
     // Test segments below box
     tester::apply("test_b1", "SEGMENT(0 5, 9 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 9 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 9 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b2", "SEGMENT(0 5, 10 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 10 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 10 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b3", "SEGMENT(0 5, 11 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 11 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 11 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b4", "SEGMENT(0 5, 20 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,20 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5,20 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b5", "SEGMENT(0 5, 22 5)", box_north,
-                  ps_distance<Point>("POINT(11 10)", "SEGMENT(0 5,22 5)", strategy_ps),
+                  ps_distance<Point>("POINT(11 10)", "SEGMENT(0 5,22 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b6", "SEGMENT(10 5, 20 5)", box_north,
-                  ps_distance<Point>("POINT(15 10)", "SEGMENT(10 5,20 5)", strategy_ps),
+                  ps_distance<Point>("POINT(15 10)", "SEGMENT(10 5,20 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b7", "SEGMENT(10 5, 22 5)", box_north,
-                  ps_distance<Point>("POINT(16 10)", "SEGMENT(10 5,22 5)", strategy_ps),
+                  ps_distance<Point>("POINT(16 10)", "SEGMENT(10 5,22 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b8", "SEGMENT(12 5, 22 5)", box_north,
-                  ps_distance<Point>("POINT(17 10)", "SEGMENT(12 5,22 5)", strategy_ps),
+                  ps_distance<Point>("POINT(17 10)", "SEGMENT(12 5,22 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b9", "SEGMENT(18 5, 22 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(18 5,22 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(18 5,22 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b10", "SEGMENT(18 5, 24 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(18 5,24 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(18 5,24 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b11", "SEGMENT(20 5, 24 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(20 5,24 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(20 5,24 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b12", "SEGMENT(22 5, 24 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(22 5,24 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(22 5,24 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_b13", "SEGMENT(0 5, 125 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(0 5, 125 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(0 5, 125 5)",
+                                     strategy_ps),
                   strategy_sb);
 
     // Test segments above box
     tester::apply("test_a1", "SEGMENT(0 25, 9 25)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 25, 9 25)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 25, 9 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a2", "SEGMENT(0 25, 10 25)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 25, 10 25)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(0 25, 10 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a3", "SEGMENT(0 25, 11 25)", box_north,
-                  ps_distance<Point>("POINT(11 20)", "SEGMENT(0 25, 11 25)", strategy_ps),
+                  ps_distance<Point>("POINT(11 20)", "SEGMENT(0 25, 11 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a4", "SEGMENT(0 25, 20 25)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(0 25, 20 25)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(0 25, 20 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a5", "SEGMENT(0 25, 22 25)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(0 25, 22 25)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(0 25, 22 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a6", "SEGMENT(10 25, 20 25)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(10 25, 20 25)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(10 25, 20 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a7", "SEGMENT(10 25, 22 25)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(10 25, 22 25)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(10 25, 22 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a8", "SEGMENT(12 25, 22 25)", box_north,
-                  ps_distance<Point>("POINT(12 20)", "SEGMENT(12 25, 22 25)", strategy_ps),
+                  ps_distance<Point>("POINT(12 20)", "SEGMENT(12 25, 22 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a9", "SEGMENT(18 25, 22 25)", box_north,
-                  ps_distance<Point>("POINT(18 20)", "SEGMENT(18 25, 22 25)", strategy_ps),
+                  ps_distance<Point>("POINT(18 20)", "SEGMENT(18 25, 22 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a10", "SEGMENT(18 25, 24 25)", box_north,
-                  ps_distance<Point>("POINT(18 20)", "SEGMENT(18 25, 24 25)", strategy_ps),
+                  ps_distance<Point>("POINT(18 20)", "SEGMENT(18 25, 24 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a11", "SEGMENT(20 25, 24 25)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(20 25, 24 25)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(20 25, 24 25)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_a12", "SEGMENT(22 25, 24 25)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(22 25, 24 25)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(22 25, 24 25)",
+                                     strategy_ps),
                   strategy_sb);
 
     // Segments left-right of box
     tester::apply("test_l1", "SEGMENT(0 5, 9 5)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 9 5)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(0 5, 9 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_l2", "SEGMENT(0 10, 9 10)", box_north,
-                  ps_distance<Point>("POINT(9 10)", "SEGMENT(10 10, 10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(9 10)", "SEGMENT(10 10, 10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_l3", "SEGMENT(0 10, 9 15)", box_north,
-                  ps_distance<Point>("POINT(9 15)", "SEGMENT(10 10, 10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(9 15)", "SEGMENT(10 10, 10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_l4", "SEGMENT(0 10, 0 15)", box_north,
-                  ps_distance<Point>("POINT(0 15)", "SEGMENT(10 10, 10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(0 15)", "SEGMENT(10 10, 10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_l5", "SEGMENT(1 10, 0 15)", box_north,
-                  ps_distance<Point>("POINT(1 10)", "SEGMENT(10 10, 10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(1 10)", "SEGMENT(10 10, 10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_l6", "SEGMENT(0 20, 9 21)", box_north,
-                  ps_distance<Point>("POINT(9 21)", "SEGMENT(10 10, 10 20)", strategy_ps),
+                  ps_distance<Point>("POINT(9 21)", "SEGMENT(10 10, 10 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r1", "SEGMENT(21 5, 29 5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(21 5, 29 5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(21 5, 29 5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r2", "SEGMENT(21 10, 29 10)", box_north,
-                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)", strategy_ps),
+                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r3", "SEGMENT(21 10, 29 15)", box_north,
-                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)", strategy_ps),
+                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r4", "SEGMENT(21 10, 21 15)", box_north,
-                  ps_distance<Point>("POINT(21 15)", "SEGMENT(20 10, 20 20)", strategy_ps),
+                  ps_distance<Point>("POINT(21 15)", "SEGMENT(20 10, 20 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r5", "SEGMENT(21 10, 22 15)", box_north,
-                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)", strategy_ps),
+                  ps_distance<Point>("POINT(21 10)", "SEGMENT(20 10, 20 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_r6", "SEGMENT(29 20, 21 21)", box_north,
-                  ps_distance<Point>("POINT(21 21)", "SEGMENT(20 10, 20 20)", strategy_ps),
+                  ps_distance<Point>("POINT(21 21)", "SEGMENT(20 10, 20 20)",
+                                     strategy_ps),
                   strategy_sb);
 
     //Segments on corners of box
     //left-top corner
     //generic
     tester::apply("test_c1", "SEGMENT(9 19.5, 11 21)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(9 19.5, 11 21)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(9 19.5, 11 21)",
+                                     strategy_ps),
                   strategy_sb);
     //degenerate
     tester::apply("test_c2", "SEGMENT(9 19, 11 21)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(9 19, 11 21)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(9 19, 11 21)",
+                                     strategy_ps),
                   strategy_sb);
     //left-bottom corner
     //generic
     tester::apply("test_c3", "SEGMENT(8.5 11, 11 9)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(8.5 11, 11 9)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(8.5 11, 11 9)",
+                                     strategy_ps),
                   strategy_sb);
     //degenerate
     tester::apply("test_c4", "SEGMENT(9 11, 11 9)", box_north,
@@ -468,16 +543,19 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
     //right-top corner
     //generic
     tester::apply("test_c5", "SEGMENT(19 21, 21 19.5)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(19 21, 21 19.5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(19 21, 21 19.5)",
+                                     strategy_ps),
                   strategy_sb);
     //degenerate
     tester::apply("test_c6", "SEGMENT(19 21, 21 19)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(19 21, 21 19)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(19 21, 21 19)",
+                                     strategy_ps),
                   strategy_sb);
     //right-bottom corner
     //generic
     tester::apply("test_c7", "SEGMENT(19 9, 21 10.5)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(19 9, 21 10.5)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(19 9, 21 10.5)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_c7", "SEGMENT(19 9, 21 11)", box_north,
                   0,
@@ -487,7 +565,8 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
     std::string const box_south = "BOX(10 -20,20 -10)";
 
     tester::apply("test_ns1", "SEGMENT(10 20, 15 30)", box_south,
-                  ps_distance<Point>("POINT(10 -10)", "SEGMENT(10 20, 15 30)", strategy_ps),
+                  ps_distance<Point>("POINT(10 -10)", "SEGMENT(10 20, 15 30)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("test_ns2", "SEGMENT(0 10, 12 10)", box_south,
                   pp_distance<Point>("POINT(12 10)", "POINT(12 -10)", strategy_pp),
@@ -523,28 +602,40 @@ void test_distance_segment_box(Strategy_pp const& strategy_pp,
                   pp_distance<Point>("POINT(10 7)", "POINT(10 10)", strategy_pp),
                   strategy_sb);
     tester::apply("test_cr5", "SEGMENT(-5 5, 10 5)", box_crossing_mer,
-                  ps_distance<Point>("POINT(2.5 10)", "SEGMENT(-5 5, 10 5)", strategy_ps),
+                  ps_distance<Point>("POINT(2.5 10)", "SEGMENT(-5 5, 10 5)",
+                                     strategy_ps),
                   strategy_sb);
 
 
     //Geometries in south hemisphere
     tester::apply("test_south1", "SEGMENT(10 -30, 15 -30)", box_south,
-                  ps_distance<Point>("POINT(10 -20)", "SEGMENT(10 -30, 15 -30)", strategy_ps),
+                  ps_distance<Point>("POINT(10 -20)", "SEGMENT(10 -30, 15 -30)",
+                                     strategy_ps),
                   strategy_sb);
 
     //Segments in boxes corner
     tester::apply("corner1", "SEGMENT(17 21, 25 20)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(17 21, 25 20)", strategy_ps),
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(17 21, 25 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("corner2", "SEGMENT(17 21, 0 20)", box_north,
-                  ps_distance<Point>("POINT(10 20)", "SEGMENT(17 21, 0 20)", strategy_ps),
+                  ps_distance<Point>("POINT(10 20)", "SEGMENT(17 21, 0 20)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("corner3", "SEGMENT(17 5, 0 10)", box_north,
-                  ps_distance<Point>("POINT(10 10)", "SEGMENT(17 5, 0 10)", strategy_ps),
+                  ps_distance<Point>("POINT(10 10)", "SEGMENT(17 5, 0 10)",
+                                     strategy_ps),
                   strategy_sb);
     tester::apply("corner4", "SEGMENT(17 5, 25 9)", box_north,
-                  ps_distance<Point>("POINT(20 10)", "SEGMENT(17 5, 25 9)", strategy_ps),
+                  ps_distance<Point>("POINT(20 10)", "SEGMENT(17 5, 25 9)",
+                                     strategy_ps),
                   strategy_sb);
+
+    //intersection case
+    tester::apply("seg_intersect",
+                  "SEGMENT(0 0,100 3)",
+                  "BOX(0 1,100 2)",
+                  0, strategy_sb);
 }
 
 template <typename Point, typename Strategy_ps, typename Strategy_sb>
@@ -562,14 +653,23 @@ void test_distance_linestring_box(Strategy_ps const& strategy_ps,
 
     std::string const box_north = "BOX(10 10,20 20)";
 
-    tester::apply("sl1", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(15 21, 25 19.9)", strategy_ps),
+    tester::apply("sl1", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)",
+                  box_north,
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(15 21, 25 19.9)",
+                                     strategy_ps),
                   strategy_sb, true, false, false);
 
-    tester::apply("sl2", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 15 15)", box_north,
+    tester::apply("sl2", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 15 15)",
+                  box_north,
                   0, strategy_sb, true, false, false);
 
-    tester::apply("sl3", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 2 20)", box_north,
+    tester::apply("sl3", "LINESTRING(0 20, 15 21, 25 19.9, 21 5, 15 5, 2 20)",
+                  box_north,
+                  0, strategy_sb, true, false, false);
+
+    tester::apply("s_intersect",
+                  "LINESTRING(0 0,100 3)",
+                  "BOX(0 1,100 2)",
                   0, strategy_sb, true, false, false);
 }
 
@@ -590,9 +690,16 @@ void test_distance_multi_linestring_box(Strategy_ps const& strategy_ps,
 
     std::string const box_north = "BOX(10 10,20 20)";
 
-    tester::apply("sl1", "MULTILINESTRING((0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)(25 20, 22 4, 0 0))", box_north,
-                  ps_distance<Point>("POINT(20 20)", "SEGMENT(15 21, 25 19.9)", strategy_ps),
+    tester::apply("sl1", "MULTILINESTRING((0 20, 15 21, 25 19.9, 21 5, 15 5, 0 10)\
+                                          (25 20, 22 4, 0 0))", box_north,
+                  ps_distance<Point>("POINT(20 20)", "SEGMENT(15 21, 25 19.9)",
+                                     strategy_ps),
                   strategy_sb, true, false, false);
+
+    tester::apply("ml_intersect",
+                  "MULTILINESTRING((0 0,100 3)(25 20, 22 4, 0 0))",
+                  "BOX(0 1,100 2)",
+                  0, strategy_sb, true, false, false);
 }
 
 //===========================================================================

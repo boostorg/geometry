@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2017, 2018 Oracle and/or its affiliates.
+// Copyright (c) 2017, 2018, 2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -341,6 +341,18 @@ void test_distance_polygon_box(Strategy_pp const& strategy_pp,
                   sb_distance<Point>("SEGMENT(11 2,12 3)",
                                      "BOX(10 10,20 20)", strategy_sb),
                   strategy_sb, true, false, false);
+
+    tester::apply("pb_intersect",
+                  "POLYGON((0 0,100 3,110 0,0 0))",
+                  "BOX(0 1,100 2)",
+                  0,
+                  strategy_sb, true, false, false);
+
+    tester::apply("pb_intersect",
+                  "POLYGON((0 0,100 -3,110 0,0 0))",
+                  "BOX(100 -2,0 -1,)",
+                  0,
+                  strategy_sb, true, false, false);
 }
 
 template
@@ -385,6 +397,13 @@ void test_distance_multi_polygon_box(Strategy_pp const& strategy_pp,
 
     tester::apply("mpb4", multi_polygon, "BOX(17 0,20 14)",
                   0, strategy_sb, true, false, false);
+
+    tester::apply("mpb_intersect",
+                  "MULTIPOLYGON(((0 0,100 3,110 0,0 0)),\
+                                ((10 10,0 20,15 30,20 15,15 10,10 10)))",
+                  "BOX(0 1,100 2)",
+                  0,
+                  strategy_sb, true, false, false);
 }
 
 
@@ -924,7 +943,8 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
                 bg::cs::spherical_equatorial<bg::degree>
             > sph_point;
 
-    test_all_ar_ar<sph_point>(spherical_pp(), spherical_ps(), spherical_bb(), spherical_sb());
+    test_all_ar_ar<sph_point>(spherical_pp(), spherical_ps(), spherical_bb(),
+                              spherical_sb());
 
     typedef bg::model::point
             <
@@ -932,9 +952,12 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
                 bg::cs::geographic<bg::degree>
             > geo_point;
 
-    test_all_ar_ar<geo_point>(vincenty_pp(), vincenty_ps(), vincenty_bb(), vincenty_sb());
-    test_all_ar_ar<geo_point>(thomas_pp(), thomas_ps(), thomas_bb(), thomas_sb());
-    test_all_ar_ar<geo_point>(andoyer_pp(), andoyer_ps(), andoyer_bb(), andoyer_sb());
+    test_all_ar_ar<geo_point>(vincenty_pp(), vincenty_ps(), vincenty_bb(),
+                              vincenty_sb());
+    test_all_ar_ar<geo_point>(thomas_pp(), thomas_ps(), thomas_bb(),
+                              thomas_sb());
+    test_all_ar_ar<geo_point>(andoyer_pp(), andoyer_ps(), andoyer_bb(),
+                              andoyer_sb());
 
     // test with different spheroid
     stype spheroid(6372000, 6370000);
