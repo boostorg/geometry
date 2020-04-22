@@ -131,7 +131,6 @@ struct buffered_piece_collection
 
     // Robust ring/polygon type, always clockwise
     typedef geometry::model::ring<robust_point_type> robust_ring_type;
-    typedef geometry::model::box<robust_point_type> robust_box_type;
 
     typedef geometry::model::box<point_type> normal_box_type;
 
@@ -144,19 +143,10 @@ struct buffered_piece_collection
             point_type
         >::type area_strategy_type;
 
-    typedef typename IntersectionStrategy::template area_strategy
-        <
-            robust_point_type
-        >::type robust_area_strategy_type;
-
     typedef typename area_strategy_type::template result_type
         <
             point_type
         >::type area_result_type;
-    typedef typename robust_area_strategy_type::template result_type
-        <
-            robust_point_type
-        >::type robust_area_result_type;
 
     typedef typename IntersectionStrategy::template point_in_geometry_strategy
         <
@@ -191,15 +181,6 @@ struct buffered_piece_collection
     typedef std::vector<buffer_turn_info_type> turn_vector_type;
 
     typedef piece_border<Ring, point_type> piece_border_type;
-
-    struct robust_turn
-    {
-        std::size_t turn_index;
-        int operation_index;
-        robust_point_type point;
-        segment_identifier seg_id;
-        ratio_type fraction;
-    };
 
     struct piece
     {
@@ -256,6 +237,7 @@ struct buffered_piece_collection
 
     struct original_ring
     {
+        typedef geometry::model::box<robust_point_type> robust_box_type;
         typedef geometry::sections<robust_box_type, 1> sections_type;
 
         // Creates an empty instance
@@ -311,7 +293,7 @@ struct buffered_piece_collection
 
     // Specificly for offsetted rings around points
     // but also for large joins with many points
-    typedef geometry::sections<robust_box_type, 2> sections_type;
+    typedef geometry::sections<normal_box_type, 2> sections_type;
     sections_type monotonic_sections;
 
     // Define the clusters, mapping cluster_id -> turns
@@ -630,7 +612,7 @@ struct buffered_piece_collection
                                                    m_envelope_strategy);
             geometry::partition
                 <
-                    robust_box_type
+                    normal_box_type
                 >::apply(monotonic_sections, visitor,
                          get_section_box_type(),
                          overlaps_section_box_type());
