@@ -206,10 +206,11 @@ private :
                                                       spheroid).distance
                       << std::endl;
 #endif
-            if (inverse_distance_type::apply(lon3, lat3,
-                                             pl_lon, pl_lat, spheroid).distance
-                < inverse_distance_type::apply(lon3, lat3,
-                                               pr_lon, pr_lat, spheroid).distance)
+            CT const dist_l = inverse_distance_type::apply
+                               (lon3, lat3, pl_lon, pl_lat, spheroid).distance;
+            CT const dist_r = inverse_distance_type::apply
+                               (lon3, lat3, pr_lon, pr_lat, spheroid).distance;
+            if (dist_l < dist_r)
             {
                 s14 -= inverse_distance_type::apply(res14.lon2, res14.lat2,
                                                     pl_lon, pl_lat,
@@ -534,14 +535,9 @@ public :
                     apply(lon2, lat2,
                           lon2, half_pi * sign_non_zero,
                           lon3, lat3, spheroid);
-            if (res13.distance < res23.distance)
-            {
-                return res13;
-            }
-            else
-            {
-                return res23;
-            }
+
+            return (res13.distance) < (res23.distance) ? res13 : res23;
+
         }
 
         geometry::formula::result_inverse<CT> res12 =
