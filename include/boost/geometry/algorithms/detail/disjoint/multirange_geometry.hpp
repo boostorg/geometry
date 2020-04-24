@@ -135,7 +135,7 @@ struct multirange_constant_size_geometry
                     MultiRange,
                     ConstantSizeGeometry
                 >::apply(multirange, constant_size_geometry, strategy);
-        return res.count != 0;
+        return res.count == 0;
     }
 
     template <typename Strategy>

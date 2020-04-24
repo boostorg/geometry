@@ -79,6 +79,12 @@ struct cartesian_segment_box
         return typename distance_pb_strategy::type();
     }
 
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()

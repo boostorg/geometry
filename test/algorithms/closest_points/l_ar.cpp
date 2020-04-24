@@ -370,6 +370,11 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(21.3999 7.22557,20 10)",
                   strategy, true, true);
 
+    tester::apply("SEGMENT(50 50,50 50)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(50 50,20 20)",
+                  strategy);
+
     //intersection
     tester::apply("SEGMENT(15 15,15 25)",
                   "BOX(10 10,20 20)",
@@ -476,6 +481,11 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(0 -5,0 -9)",
                   "SEGMENT(34.8464 -9,34.8464 -9)",
                   "SEGMENT(34.2138 -9,34.2138 -9)",
+                  strategy);
+
+    tester::apply("SEGMENT(15 15,15 15)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
                   strategy);
 }
 
@@ -666,6 +676,11 @@ void test_closest_points_linestring_box(Strategy const& strategy)
                   "SEGMENT(0.983761 1.0167,10 10)",
                   strategy, true, true);
 
+    tester::apply("LINESTRING(50 50)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(50 50,20 20)",
+                  strategy);
+
     //intersection
     tester::apply("LINESTRING(15 15,15 25,20 25)",
                   "BOX(10 10,20 20)",
@@ -693,6 +708,11 @@ void test_closest_points_linestring_box(Strategy const& strategy)
                   "SEGMENT(33.3333 1,33.3333 1)",
                   "SEGMENT(19.1476 1,19.1476 1)",
                   "SEGMENT(19.0629 1,19.0629 1)",
+                  strategy);
+
+    tester::apply("LINESTRING(15 15)",
+                  "BOX(10 10,20 20)",
+                  "SEGMENT(15 15,15 15)",
                   strategy);
 }
 

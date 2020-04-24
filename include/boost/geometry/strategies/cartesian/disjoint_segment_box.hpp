@@ -35,11 +35,21 @@
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 
 
-namespace boost { namespace geometry { namespace strategy { namespace disjoint
+namespace boost { namespace geometry
+{
+
+namespace strategy { namespace closest_points
+{
+template <typename CalculationType, typename Strategy>
+struct cartesian_segment_box;
+}}
+
+namespace strategy { namespace disjoint
 {
 
 namespace detail
@@ -245,6 +255,11 @@ struct disjoint_segment_box_impl
 // It seems to be more appropriate to implement the opposite of it
 // e.g. intersection::segment_box because in disjoint() algorithm
 // other strategies that are used are intersection and covered_by strategies.
+template
+<
+    typename CalculationType = void,
+    typename Strategy = distance::pythagoras<CalculationType>
+>
 struct segment_box
 {
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
@@ -252,6 +267,12 @@ struct segment_box
     static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
     {
         return disjoint_point_box_strategy_type();
+    }
+
+    static inline closest_points::cartesian_segment_box<CalculationType, Strategy>
+    get_closest_points_segment_box_strategy()
+    {
+        return closest_points::cartesian_segment_box<CalculationType, Strategy>();
     }
 
     template <typename Segment, typename Box>
@@ -287,13 +308,13 @@ namespace services
 template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2, cartesian_tag, cartesian_tag>
 {
-    typedef disjoint::segment_box type;
+    typedef disjoint::segment_box<> type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1, cartesian_tag, cartesian_tag>
 {
-    typedef disjoint::segment_box type;
+    typedef disjoint::segment_box<> type;
 };
 
 

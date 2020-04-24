@@ -86,6 +86,12 @@ struct spherical_segment_box
         return typename distance_pb_strategy::type();
     }
 
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     static inline spherical_segment_box<CalculationType, Strategy>
     get_closest_points_segment_box_strategy()
     {

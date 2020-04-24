@@ -71,12 +71,18 @@ struct cartesian_segment_box
 
     struct distance_pb_strategy
     {
-        typedef distance::pythagoras_point_box<CalculationType> type;
+        typedef cartesian_point_box<CalculationType, Strategy> type;
     };
 
     inline typename distance_pb_strategy::type get_distance_pb_strategy() const
     {
         return typename distance_pb_strategy::type();
+    }
+
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
     }
 
     typedef side::side_by_triangle<CalculationType> side_strategy_type;

@@ -19,7 +19,7 @@
 #include <boost/geometry/core/reverse_dispatch.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-
+#include <boost/geometry/strategies/intersection_result.hpp>
 
 namespace boost { namespace geometry
 {

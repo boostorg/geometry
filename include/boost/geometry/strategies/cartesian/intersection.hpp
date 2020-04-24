@@ -179,9 +179,14 @@ struct cartesian_segments
         return disjoint_box_box_strategy_type();
     }
 
-    typedef disjoint::segment_box disjoint_segment_box_strategy_type;
+    typedef disjoint::segment_box
+    <
+        CalculationType,
+        distance::pythagoras<CalculationType>
+    > disjoint_segment_box_strategy_type;
 
-    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
+    static inline disjoint_segment_box_strategy_type
+    get_disjoint_segment_box_strategy()
     {
         return disjoint_segment_box_strategy_type();
     }
@@ -199,6 +204,11 @@ struct cartesian_segments
     }
 
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef covered_by::cartesian_point_box covered_by_point_box_strategy_type;
     typedef within::cartesian_point_box within_point_box_strategy_type;
     typedef envelope::cartesian_box envelope_box_strategy_type;

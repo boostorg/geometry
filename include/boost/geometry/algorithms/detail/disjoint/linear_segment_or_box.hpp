@@ -123,13 +123,20 @@ struct disjoint_range_segment_or_box_with_info
         }
         else if ( count == 1 )
         {
-            /*disjoint_point_segment_or_box
+            if (! disjoint_point_segment_or_box
                 <
                     SegmentOrBox
                 >::apply(geometry::range::front<view_type const>(view),
                          segment_or_box,
                          strategy))
-            */
+            {
+                intersection_return_type res;
+                res.count = 1;
+                res.intersections[0] = geometry::range::front<view_type const>(view);
+                return res;
+            }
+
+
             return intersection_return_type();
         }
         else

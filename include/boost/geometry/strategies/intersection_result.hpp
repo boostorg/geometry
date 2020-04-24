@@ -15,6 +15,8 @@
 
 #include <cstddef>
 
+#include <boost/geometry/core/coordinate_type.hpp>
+
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 

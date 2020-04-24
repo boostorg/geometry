@@ -28,6 +28,7 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 
 namespace boost { namespace geometry
@@ -66,6 +67,27 @@ struct disjoint<Point, Box, DimensionCount, point_tag, box_tag, false>
     {
         // ! covered_by(point, box)
         return ! Strategy::apply(point, box);
+    }
+};
+
+
+template <typename Point, typename Box, std::size_t DimensionCount>
+struct disjoint_with_info<Point, Box, DimensionCount, point_tag, box_tag, false>
+{
+    typedef segment_intersection_points<Point> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Point const& point, Box const& box, Strategy const& )
+    {
+        intersection_return_type res;
+        if (Strategy::apply(point, box))
+        {
+            res.count = 1;
+            res.intersections[0] = point;
+            return res;
+        }
+        return res;
     }
 };
 

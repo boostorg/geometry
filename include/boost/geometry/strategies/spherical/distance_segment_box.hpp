@@ -257,6 +257,12 @@ struct spherical_segment_box
 
     // TODO: why is the Radius not propagated above?
 
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()

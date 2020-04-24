@@ -40,9 +40,26 @@
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
-#include <boost/geometry/strategies/spherical/ssf.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
+#include <boost/geometry/strategies/intersection_strategies.hpp> // for backward compatibility
 #include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/closest_points.hpp>
+
+#include <boost/geometry/strategies/cartesian/closest_points_box_box.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_point_box.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_projected_point.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_segment_box.hpp>
+#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+
+#include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/ssf.hpp>
 
 
 namespace boost { namespace geometry

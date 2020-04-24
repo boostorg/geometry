@@ -101,6 +101,12 @@ struct geographic_segment_box
         return typename distance_pb_strategy::type(m_spheroid);
     }
 
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef side::geographic
             <
                 FormulaPolicy,

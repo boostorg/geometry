@@ -658,7 +658,7 @@ private:
         }
 
         // in all other cases the box and segment intersect, so return 0 for
-        // distance and p0 for closest_points
+        // distance and intersection point for closest_points
 
         strategy::distance::services::closest_points_seg_box<SBStrategy>
                 ::apply(p0, p1,
@@ -810,11 +810,11 @@ private:
     typedef typename strategy::distance::services::comparable_type
         <
             SBStrategy
-        >::type ps_comparable_strategy;
+        >::type sb_comparable_strategy;
 
     typedef typename strategy::distance::services::return_type
         <
-            ps_comparable_strategy, segment_point, box_point
+            sb_comparable_strategy, segment_point, box_point
         >::type comparable_return_type;
 public:
     typedef typename strategy::distance::services::return_type
@@ -837,7 +837,7 @@ public:
                 <
                     boost::is_same
                         <
-                            ps_comparable_strategy,
+                            sb_comparable_strategy,
                             SBStrategy
                         >,
                     typename strategy::distance::services::comparable_type
@@ -852,7 +852,7 @@ public:
                     segment_point,
                     Box,
                     point_box_strategy_type
-                >::apply(p[0], box, point_box_strategy_type());
+                 >::apply(p[0], box, point_box_strategy_type());
         }
 
         box_point top_left, top_right, bottom_left, bottom_right;
