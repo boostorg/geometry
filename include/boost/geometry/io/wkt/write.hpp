@@ -24,7 +24,6 @@
 
 #include <ostream>
 #include <string>
-#include <limits> 
 
 #include <boost/array.hpp>
 #include <boost/range/begin.hpp>
@@ -67,67 +66,22 @@ namespace boost { namespace geometry
 namespace detail { namespace wkt
 {
 
-template <typename Output>
-struct output_formatter
-{
-    template <typename T>
-    static void append(Output& out, T const& v, int = -1)
-    {
-        out << v;
-    }
-};
-
-template <>
-struct output_formatter<std::string>
-{
-    template <typename T>
-    static void append(std::string& out, T const& val, int significant_digits = -1)
-    {
-        BOOST_STATIC_ASSERT((boost::is_arithmetic<T>::value));
-        std::stringstream ss;
-        if (significant_digits >= 0)
-        {
-            ss.precision(significant_digits);
-        }
-        else if (std::numeric_limits<T>::is_specialized)
-        {
-            ss.precision(std::numeric_limits<T>::digits10);
-        }
-        ss << val;
-        out += ss.str();
-    }
-
-    static void append(std::string& out, char c, int = -1)
-    {
-        out += c;
-    }
-
-    static void append(std::string& out, char const* s, int = -1)
-    {
-        out += s;
-    }
-};
-
 template <typename P, int I, int Count>
 struct stream_coordinate
 {
-    template <typename Output>
-    static inline void apply(Output& out, P const& p, int significant_digits)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os, P const& p)
     {
-        if (I > 0)
-        {
-            output_formatter<Output>::append(out, ' ');
-        }
-        output_formatter<Output>::append(out, get<I>(p), significant_digits);
-        stream_coordinate<P, I + 1, Count>::apply(out, p, significant_digits);
+        os << (I > 0 ? " " : "") << get<I>(p);
+        stream_coordinate<P, I + 1, Count>::apply(os, p);
     }
 };
 
 template <typename P, int Count>
 struct stream_coordinate<P, Count, Count>
 {
-    template <typename Output>
-    static inline void apply(Output&, P const&, int significant_digits)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>&, P const&)
     {}
 };
 
@@ -163,13 +117,12 @@ struct double_closing_parenthesis
 template <typename Point, typename Policy>
 struct wkt_point
 {
-    template <typename Output>
-    static inline void apply(Output& out, Point const& p, int significant_digits, bool)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os, Point const& p, bool)
     {
-        output_formatter<Output>::append(out, Policy::apply());
-        output_formatter<Output>::append(out, "(");
-        stream_coordinate<Point, 0, dimension<Point>::type::value>::apply(out, p, significant_digits);
-        output_formatter<Output>::append(out, ")");;
+        os << Policy::apply() << "(";
+        stream_coordinate<Point, 0, dimension<Point>::type::value>::apply(os, p);
+        os << ")";
     }
 };
 
@@ -186,9 +139,9 @@ template
 >
 struct wkt_range
 {
-    template <typename Output>
-    static inline void apply(Output& out, Range const& range,
-                int significant_digits, bool force_closure = ForceClosurePossible)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Range const& range, bool force_closure = ForceClosurePossible)
     {
         typedef typename boost::range_iterator<Range const>::type iterator_type;
 
@@ -199,7 +152,7 @@ struct wkt_range
 
         bool first = true;
 
-        output_formatter<Output>::append(out, PrefixPolicy::apply());
+        os << PrefixPolicy::apply();
 
         // TODO: check EMPTY here
 
@@ -207,11 +160,8 @@ struct wkt_range
         iterator_type end = boost::end(range);
         for (iterator_type it = begin; it != end; ++it)
         {
-            if (!first)
-            {
-                output_formatter<Output>::append(out, ",");
-            }
-            stream_type::apply(out, *it, significant_digits);
+            os << (first ? "" : ",");
+            stream_type::apply(os, *it);
             first = false;
         }
 
@@ -221,11 +171,11 @@ struct wkt_range
             && boost::size(range) > 1
             && wkt_range::disjoint(*begin, *(end - 1)))
         {
-            output_formatter<Output>::append(out, ",");
-            stream_type::apply(out, *begin, significant_digits);
+            os << ",";
+            stream_type::apply(os, *begin);
         }
 
-        output_formatter<Output>::append(out, SuffixPolicy::apply());
+        os << SuffixPolicy::apply();
     }
 
 
@@ -262,26 +212,26 @@ struct wkt_sequence
 template <typename Polygon, typename PrefixPolicy>
 struct wkt_poly
 {
-    template <typename Output>
-    static inline void apply(Output& out, Polygon const& poly,
-                int significant_digits, bool force_closure)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Polygon const& poly, bool force_closure)
     {
         typedef typename ring_type<Polygon const>::type ring;
 
-        output_formatter<Output>::append(out, PrefixPolicy::apply());
+        os << PrefixPolicy::apply();
         // TODO: check EMPTY here
-        output_formatter<Output>::append(out, "(");
-        wkt_sequence<ring>::apply(out, exterior_ring(poly), significant_digits, force_closure);
+        os << "(";
+        wkt_sequence<ring>::apply(os, exterior_ring(poly), force_closure);
 
         typename interior_return_type<Polygon const>::type
             rings = interior_rings(poly);
         for (typename detail::interior_iterator<Polygon const>::type
                 it = boost::begin(rings); it != boost::end(rings); ++it)
         {
-            output_formatter<Output>::append(out, ",");
-            wkt_sequence<ring>::apply(out, *it, significant_digits, force_closure);
+            os << ",";
+            wkt_sequence<ring>::apply(os, *it, force_closure);
         }
-        output_formatter<Output>::append(out, ")");
+        os << ")";
     }
 
 };
@@ -289,13 +239,13 @@ struct wkt_poly
 template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
 struct wkt_multi
 {
-    template <typename Output>
-    static inline void apply(Output& out, Multi const& geometry,
-                int significant_digits, bool force_closure)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Multi const& geometry, bool force_closure)
     {
-        output_formatter<Output>::append(out, PrefixPolicy::apply());
+        os << PrefixPolicy::apply();
         // TODO: check EMPTY here
-        output_formatter<Output>::append(out, "(");
+        os << "(";
 
         for (typename boost::range_iterator<Multi const>::type
                     it = boost::begin(geometry);
@@ -304,12 +254,12 @@ struct wkt_multi
         {
             if (it != boost::begin(geometry))
             {
-                output_formatter<Output>::append(out, ",");
+                os << ",";
             }
-            StreamPolicy::apply(out, *it, significant_digits, force_closure);
+            StreamPolicy::apply(os, *it, force_closure);
         }
 
-        output_formatter<Output>::append(out, ")");
+        os << ")";
     }
 };
 
@@ -318,20 +268,20 @@ struct wkt_box
 {
     typedef typename point_type<Box>::type point_type;
 
-    template <typename Output>
-    static inline void apply(Output& os, Box const& box,
-                int significant_digits, bool force_closure)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Box const& box, bool force_closure)
     {
         // Convert to a clockwire ring, then stream.
         // Never close it based on last point (box might be empty and
         // that should result in POLYGON((0 0,0 0,0 0,0 0, ...)) )
         if (force_closure)
         {
-            do_apply<model::ring<point_type, true, true> >(os, box, significant_digits);
+            do_apply<model::ring<point_type, true, true> >(os, box);
         }
         else
         {
-            do_apply<model::ring<point_type, true, false> >(os, box, significant_digits);
+            do_apply<model::ring<point_type, true, false> >(os, box);
         }
     }
 
@@ -343,15 +293,15 @@ struct wkt_box
             //assert_dimension<B, 2>();
         }
 
-        template <typename RingType, typename Output>
-        static inline void do_apply(Output& out,
-                    Box const& box, int significant_digits)
+        template <typename RingType, typename Char, typename Traits>
+        static inline void do_apply(std::basic_ostream<Char, Traits>& os,
+                    Box const& box)
         {
             RingType ring;
             geometry::convert(box, ring);
-            output_formatter<Output>::append(out, "POLYGON(");
-            wkt_sequence<RingType, false>::apply(out, ring, significant_digits);
-            output_formatter<Output>::append(out, ")");
+            os << "POLYGON(";
+            wkt_sequence<RingType, false>::apply(os, ring);
+            os << ")";
         }
 
 };
@@ -362,9 +312,9 @@ struct wkt_segment
 {
     typedef typename point_type<Segment>::type point_type;
 
-    template <typename Output>
-    static inline void apply(Output& out, Segment const& segment, 
-                int significant_digits, bool)
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                Segment const& segment, bool)
     {
         // Convert to two points, then stream
         typedef boost::array<point_type, 2> sequence;
@@ -375,8 +325,8 @@ struct wkt_segment
 
         // In Boost.Geometry a segment is represented
         // in WKT-format like (for 2D): LINESTRING(x y,x y)
-        output_formatter<Output>::append(out, "LINESTRING");
-        wkt_sequence<sequence, false>::apply(out, points, significant_digits);
+        os << "LINESTRING";
+        wkt_sequence<sequence, false>::apply(os, points);
     }
 
     private:
@@ -506,45 +456,42 @@ struct wkt<Multi, multi_polygon_tag>
 template <typename Geometry>
 struct devarianted_wkt
 {
-    template <typename Output>
-    static inline void apply(Output& out, Geometry const& geometry,
-                             int significant_digits, bool force_closure)
+    template <typename OutputStream>
+    static inline void apply(OutputStream& os, Geometry const& geometry,
+                             bool force_closure)
     {
-        wkt<Geometry>::apply(out, geometry, significant_digits, force_closure);
+        wkt<Geometry>::apply(os, geometry, force_closure);
     }
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct devarianted_wkt<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
-    template <typename Output>
+    template <typename OutputStream>
     struct visitor: static_visitor<void>
     {
-        Output& m_out;
-        int m_significant_digits;
+        OutputStream& m_os;
         bool m_force_closure;
 
-        visitor(Output& out, int significant_digits, bool force_closure)
-            : m_out(out)
-            , m_significant_digits(significant_digits)
+        visitor(OutputStream& os, bool force_closure)
+            : m_os(os)
             , m_force_closure(force_closure)
         {}
 
         template <typename Geometry>
         inline void operator()(Geometry const& geometry) const
         {
-            devarianted_wkt<Geometry>::apply(m_out, geometry, m_significant_digits, m_force_closure);
+            devarianted_wkt<Geometry>::apply(m_os, geometry, m_force_closure);
         }
     };
 
-    template <typename Output>
+    template <typename OutputStream>
     static inline void apply(
-        Output& out,
+        OutputStream& os,
         variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-        int significant_digits,
         bool force_closure)
     {
-        boost::apply_visitor(visitor<Output>(out, significant_digits, force_closure), geometry);
+        boost::apply_visitor(visitor<OutputStream>(os, force_closure), geometry);
     }
 };
 
@@ -572,30 +519,31 @@ public:
 
     // Boost.Geometry, by default, closes polygons explictly, but not rings
     // NOTE: this might change in the future!
-    inline wkt_manipulator(Geometry const& g, bool force_closure = ! is_ring)
+    inline wkt_manipulator(Geometry const& g,
+                           bool force_closure = ! is_ring)
         : m_geometry(g)
         , m_force_closure(force_closure)
     {}
 
     template <typename Char, typename Traits>
     inline friend std::basic_ostream<Char, Traits>& operator<<(
-            std::basic_ostream<Char, Traits>& out,
+            std::basic_ostream<Char, Traits>& os,
             wkt_manipulator const& m)
     {
-        dispatch::devarianted_wkt<Geometry>::apply(out, m.m_geometry, -1, m.m_force_closure);
-        out.flush();
-        return out;
+        dispatch::devarianted_wkt<Geometry>::apply(os, m.m_geometry, m.m_force_closure);
+        os.flush();
+        return os;
     }
 
 private:
     Geometry const& m_geometry;
     bool m_force_closure;
 };
+
 /*!
 \brief Main WKT-streaming function
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\param significant_digits Specifies the no of significant digits to use in the output wkt
 \ingroup wkt
 \qbk{[include reference/io/wkt.qbk]}
 */
@@ -607,9 +555,8 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
     return wkt_manipulator<Geometry>(geometry);
 }
 
-
 /*!
-\brief Main WKT-string formulating function
+\brief WKT-string formulating function
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
 \param significant_digits Specifies the no of significant digits to use in the output wkt
@@ -619,19 +566,18 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 template <typename Geometry>
 inline std::string to_wkt(Geometry const& geometry)
 {
-    concepts::check<Geometry const>();
-    std::string out;
-    dispatch::devarianted_wkt<Geometry>::apply(out, geometry, -1, ! (boost::is_same<typename tag<Geometry>::type, ring_tag>::value));
-    return out;
+    std::stringstream ss;
+    ss << boost::geometry::wkt(geometry);
+    return ss.str();
 }
 
 template <typename Geometry>
 inline std::string to_wkt(Geometry const& geometry, int significant_digits)
 {
-    concepts::check<Geometry const>();
-    std::string out;
-    dispatch::devarianted_wkt<Geometry>::apply(out, geometry, significant_digits, ! (boost::is_same<typename tag<Geometry>::type, ring_tag>::value));
-    return out;
+    std::stringstream ss;
+    ss.precision(significant_digits);
+    ss << boost::geometry::wkt(geometry);
+    return ss.str();
 }
 
 #if defined(_MSC_VER)
