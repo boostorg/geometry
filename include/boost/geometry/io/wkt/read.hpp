@@ -903,6 +903,12 @@ struct read_wkt<segment_tag, Segment>
 \tparam Geometry \tparam_geometry
 \param wkt string containing \ref WKT
 \param geometry \param_geometry output geometry
+
+Note that the wkt string is interpreted strictly according to the
+[standard](https://www.ogc.org/standards/sfa); notably, only spaces are
+allowed as whitespace, newline and tab characters will result in an
+error.
+
 \ingroup wkt
 \qbk{[include reference/io/read_wkt.qbk]}
 */
