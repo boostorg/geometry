@@ -82,6 +82,12 @@ struct read_wkt_exception : public geometry::exception
             source += "'";
         }
         complete = message + source + " in '" + wkt.substr(0, 100) + "'";
+        // add extra diagnostic message if the problematic token included
+        // common invalid whitespace characters to help users
+        if (it->find_first_of("\t\r\n") != std::string::npos)
+        {
+			complete += "\n(note: newline and tab characters are not allowed in WKT)";
+		}
     }
 
     read_wkt_exception(std::string const& msg, std::string const& wkt)
