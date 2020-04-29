@@ -61,7 +61,7 @@ public:
     {
         inline counter()
             : m_count(0)
-            , m_min_distance((std::numeric_limits<CalculationType>::max)())
+            , m_min_distance(0)
             , m_close_to_offset(false)
         {}
 
@@ -171,7 +171,8 @@ public:
 
         if (place_on_ring == place_on_ring_offsetted
             && is_on_right_side
-            && -dm.measure < the_state.m_min_distance)
+            && (! the_state.m_close_to_offset
+                || -dm.measure < the_state.m_min_distance))
         {
             // This part of the ring was the offsetted part,
             // keep track of the distance WITHIN the ring

@@ -20,7 +20,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -202,9 +201,15 @@ struct piece_get_box
     template <typename Box, typename Piece>
     static inline void apply(Box& total, Piece const& piece)
     {
+        typedef typename strategy::expand::services::default_strategy
+            <
+                box_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+
         if (piece.m_piece_border.m_has_envelope)
         {
-            geometry::expand(total, piece.m_piece_border.m_envelope);
+            geometry::expand(total, piece.m_piece_border.m_envelope,
+                             expand_strategy_type());
         }
     }
 };
@@ -239,7 +244,11 @@ struct turn_get_box
     template <typename Box, typename Turn>
     static inline void apply(Box& total, Turn const& turn)
     {
-        geometry::expand(total, turn.point);
+        typedef typename strategy::expand::services::default_strategy
+            <
+                point_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+        geometry::expand(total, turn.point, expand_strategy_type());
     }
 };
 

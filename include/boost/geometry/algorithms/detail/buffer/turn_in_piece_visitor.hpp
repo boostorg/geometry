@@ -1,6 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+
+// This file was modified by Oracle on 2016, 2018.
+// Modifications copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,7 +18,7 @@
 #include <boost/geometry/core/config.hpp>
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
@@ -170,7 +175,7 @@ public:
             // unit tests of hard cases start to fail (5 in multi_polygon)
             // But it is acknowlegded that such a threshold depends on the
             // scale of the input.
-            if (state.m_min_distance > 1.0e-5)
+            if (state.m_min_distance > 1.0e-5 || ! state.m_close_to_offset)
             {
                 Turn& mutable_turn = m_turns[turn.turn_index];
                 mutable_turn.is_turn_traversable = false;

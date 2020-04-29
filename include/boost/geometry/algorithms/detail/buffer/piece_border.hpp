@@ -9,9 +9,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP
 
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/array.hpp>
+#include <boost/core/addressof.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -142,18 +143,11 @@ struct piece_border
     {
     }
 
-    //! Returns true if there is a ring, the ring has one or more points,
-    //! and the original has one or two points
-    bool valid() const
-    {
-        return m_ring != NULL && m_begin < m_end && m_original_size > 0;
-    }
-
     // Only used for debugging (SVG)
     Ring get_full_ring() const
     {
         Ring result;
-        if (! valid())
+        if (ring_or_original_empty())
         {
             return result;
         }
@@ -175,9 +169,9 @@ struct piece_border
         if (m_has_envelope)
         {
             // Take roundings into account, enlarge box
-            detail::buffer::buffer_box(m_envelope, 1.0e-3, m_envelope);
+            geometry::detail::expand_by_epsilon(m_envelope);
         }
-        if (valid() && is_point_buffer)
+        if (! ring_or_original_empty() && is_point_buffer)
         {
             // Determine min/max radius
             calculate_radii(center, m_ring->begin() + m_begin, m_ring->begin() + m_end);
@@ -187,7 +181,7 @@ struct piece_border
     template <typename SideStrategy>
     void get_properties_of_offsetted_ring_part(SideStrategy const& strategy)
     {
-        if (valid())
+        if (! ring_or_original_empty())
         {
             m_is_convex = is_convex(strategy);
             check_monotonicity(m_ring->begin() + m_begin, m_ring->begin() + m_end);
@@ -200,7 +194,7 @@ struct piece_border
         BOOST_GEOMETRY_ASSERT(begin < boost::size(ring));
         BOOST_GEOMETRY_ASSERT(end <= boost::size(ring));
 
-        m_ring = &ring;
+        m_ring = boost::addressof(ring);
         m_begin = begin;
         m_end = end;
     }
@@ -215,7 +209,7 @@ struct piece_border
     bool calculate_envelope(Box& envelope) const
     {
         geometry::assign_inverse(envelope);
-        if (! valid())
+        if (ring_or_original_empty())
         {
             return false;
         }
@@ -231,7 +225,7 @@ struct piece_border
                         bool one_sided, bool is_linear_end_point,
                         State& state) const
     {
-        if (! valid())
+        if (ring_or_original_empty())
         {
             return false;
         }
@@ -283,6 +277,12 @@ struct piece_border
         }
 
         return true;
+    }
+
+    //! Returns true if empty (no ring, or no points, or no original)
+    bool ring_or_original_empty() const
+    {
+        return m_ring == NULL || m_begin >= m_end || m_original_size == 0;
     }
 
 private :
@@ -341,7 +341,7 @@ private :
 
         typedef typename geometry::coordinate_type<Point>::type coordinate_type;
         typedef geometry::detail::distance_measure<coordinate_type> dm_type;
-        dm_type const dm = geometry::detail::get_distance_measure<cartesian_tag>(point, p1, p2);
+        dm_type const dm = geometry::detail::get_distance_measure(point, p1, p2);
         if (m_is_convex && dm.measure > 0)
         {
             // The point is left of this segment of a convex piece
@@ -356,16 +356,21 @@ private :
     template <typename It, typename Box>
     void expand_envelope(Box& envelope, It begin, It end) const
     {
+        typedef typename strategy::expand::services::default_strategy
+            <
+                point_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+
         for (It it = begin; it != end; ++it)
         {
-            geometry::expand(envelope, *it);
+            geometry::expand(envelope, *it, expand_strategy_type());
         }
     }
 
     template <typename SideStrategy>
     bool is_convex(SideStrategy const& strategy) const
     {
-        if (! valid())
+        if (ring_or_original_empty())
         {
             // Convexity is undetermined, and for this case it does not matter,
             // because it is only used for optimization in point_on_piece,

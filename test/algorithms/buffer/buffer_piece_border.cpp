@@ -111,7 +111,7 @@ void test_rectangle_properties()
     typedef bg::detail::buffer::piece_border<ring_type, Point> border_type;
 
     border_type empty;
-    BOOST_CHECK_MESSAGE(empty.valid() == false, "piece should be invalid");
+    BOOST_CHECK_MESSAGE(empty.ring_or_original_empty(), "piece should be empty");
 
     ring_type offsetted, original;
     border_type border = setup_piece_border<border_type>(offsetted, original,
@@ -126,8 +126,8 @@ void test_rectangle_properties()
                         "expected: " << expected
                         << " detected: " << outline_wkt);
 
-    BOOST_CHECK_MESSAGE(border.valid() == true,
-                        "piece should be valid");
+    BOOST_CHECK_MESSAGE(! border.ring_or_original_empty(),
+                        "piece should not be empty");
 
     // Check border-properties functionality (envelope, radius)
     double const area = bg::area(border.m_envelope);
