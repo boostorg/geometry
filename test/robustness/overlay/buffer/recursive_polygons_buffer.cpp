@@ -95,6 +95,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         result = false;
     }
 
+    // Verify if all points are IN the buffer
     if (result)
     {
         typedef typename boost::range_value<MultiPolygon const>::type polygon_type;
@@ -111,10 +112,11 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
 
     if (result)
     {
-        std::string message;
-        if (! bg::is_valid(buffer, message))
+        bg::validity_failure_type failure;
+        if (! bg::is_valid(buffer, failure)
+            && failure != bg::failure_intersecting_interiors)
         {
-            std::cout << "Buffer is not valid: " << message << std::endl;
+            std::cout << "Buffer is not valid: " << bg::validity_failure_type_message(failure) << std::endl;
             result = false;
         }
     }

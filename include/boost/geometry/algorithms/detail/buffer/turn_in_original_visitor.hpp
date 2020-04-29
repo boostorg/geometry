@@ -55,7 +55,7 @@ struct include_turn_policy
     template <typename Turn>
     static inline bool apply(Turn const& turn)
     {
-        return turn.location == location_ok;
+        return turn.is_turn_traversable;
     }
 };
 
@@ -65,7 +65,7 @@ struct turn_in_original_ovelaps_box
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)
     {
-        if (turn.location != location_ok || turn.within_original)
+        if (! turn.is_turn_traversable || turn.within_original)
         {
             // Skip all points already processed
             return false;
@@ -220,7 +220,7 @@ public:
             return true;
         }
 
-        if (turn.location != location_ok || turn.within_original)
+        if (! turn.is_turn_traversable || turn.within_original)
         {
             // Skip all points already processed
             return true;
@@ -244,7 +244,7 @@ public:
         if (code == 0)
         {
             // On border of original: always discard
-            mutable_turn.location = location_discard;
+            mutable_turn.is_turn_traversable = false;
         }
 
         // Point is inside an original ring

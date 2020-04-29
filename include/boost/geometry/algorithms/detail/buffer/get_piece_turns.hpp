@@ -253,8 +253,6 @@ class piece_turn_visitor
             the_model.operations[1].piece_index = piece2.index;
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
-            geometry::recalculate(the_model.rob_pi, *prev1, m_robust_policy);
-            geometry::recalculate(the_model.rob_pj, *it1, m_robust_policy);
 
             unique_sub_range_from_piece<ring_type> unique_sub_range1(ring1, prev1, it1);
 
@@ -264,14 +262,7 @@ class piece_turn_visitor
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
                 unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
-                geometry::recalculate(the_model.rob_qi, *prev2, m_robust_policy);
-                geometry::recalculate(the_model.rob_qj, *it2, m_robust_policy);
 
-                // TODO: internally get_turn_info calculates robust points.
-                // But they are already calculated.
-                // We should be able to use them.
-                // this means passing them to this visitor,
-                // and iterating in sync with them...
                 typedef detail::overlay::get_turn_info
                     <
                         detail::overlay::assign_null_policy
