@@ -261,14 +261,21 @@ inline int scale_expansion_zeroelim(
     return i_h;
 }
 
+template<typename RealNumber>
+struct vec2d
+{
+    RealNumber x;
+    RealNumber y;
+};
+
 template
 <
     typename RealNumber,
     std::size_t Robustness
 >
-inline RealNumber orient2dtail(std::array<RealNumber, 2> const& p1,
-                               std::array<RealNumber, 2> const& p2,
-                               std::array<RealNumber, 2> const& p3,
+inline RealNumber orient2dtail(vec2d<RealNumber> const& p1,
+                               vec2d<RealNumber> const& p2,
+                               vec2d<RealNumber> const& p3,
                                std::array<RealNumber, 2>& t1,
                                std::array<RealNumber, 2>& t2,
                                std::array<RealNumber, 2>& t3,
@@ -292,10 +299,10 @@ inline RealNumber orient2dtail(std::array<RealNumber, 2> const& p1,
     {
         return det; //B estimate
     }
-    t1[1] = two_diff_tail(p1[0], p3[0], t1[0]);
-    t2[1] = two_diff_tail(p2[1], p3[1], t2[0]);
-    t3[1] = two_diff_tail(p1[1], p3[1], t3[0]);
-    t4[1] = two_diff_tail(p2[0], p3[0], t4[0]);
+    t1[1] = two_diff_tail(p1.x, p3.x, t1[0]);
+    t2[1] = two_diff_tail(p2.y, p3.y, t2[0]);
+    t3[1] = two_diff_tail(p1.y, p3.y, t3[0]);
+    t4[1] = two_diff_tail(p2.x, p3.x, t4[0]);
 
     if ((t1[1] == 0) && (t3[1] == 0) && (t2[1] == 0) && (t4[1] == 0))
     {
@@ -346,19 +353,19 @@ template
     typename RealNumber,
     std::size_t Robustness = 3
 >
-inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
-                           std::array<RealNumber, 2> const& p2,
-                           std::array<RealNumber, 2> const& p3)
+inline RealNumber orient2d(vec2d<RealNumber> const& p1,
+                           vec2d<RealNumber> const& p2,
+                           vec2d<RealNumber> const& p3)
 {
     if(Robustness == 0)
     {
-        return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p1[1] - p3[1]) * (p2[0] - p3[0]);
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
     }
     std::array<RealNumber, 2> t1, t2, t3, t4;
-    t1[0] = p1[0] - p3[0];
-    t2[0] = p2[1] - p3[1];
-    t3[0] = p1[1] - p3[1];
-    t4[0] = p2[0] - p3[0];
+    t1[0] = p1.x - p3.x;
+    t2[0] = p2.y - p3.y;
+    t3[0] = p1.y - p3.y;
+    t4[0] = p2.x - p3.x;
     std::array<RealNumber, 2> t5_01, t6_01;
     t5_01[0] = t1[0] * t2[0];
     t6_01[0] = t3[0] * t4[0];
