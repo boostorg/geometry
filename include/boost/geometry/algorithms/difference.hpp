@@ -75,7 +75,7 @@ template
 >
 struct call_intersection_insert_tupled_base
 {
-    typedef typename geometry::detail::casted_tag_to_single_tag
+    typedef typename geometry::detail::single_tag_from_base_tag
         <
             typename geometry::tag_cast
                 <

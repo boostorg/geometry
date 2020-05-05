@@ -667,22 +667,22 @@ struct expect_output<Geometry1, Geometry2, TupledOut, Tag1, void, void>
 
 
 template <typename CastedTag>
-struct casted_tag_to_single_tag;
+struct single_tag_from_base_tag;
 
 template <>
-struct casted_tag_to_single_tag<pointlike_tag>
+struct single_tag_from_base_tag<pointlike_tag>
 {
     typedef point_tag type;
 };
 
 template <>
-struct casted_tag_to_single_tag<linear_tag>
+struct single_tag_from_base_tag<linear_tag>
 {
     typedef linestring_tag type;
 };
 
 template <>
-struct casted_tag_to_single_tag<areal_tag>
+struct single_tag_from_base_tag<areal_tag>
 {
     typedef polygon_tag type;
 };
