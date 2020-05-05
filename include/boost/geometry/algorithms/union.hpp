@@ -161,7 +161,7 @@ struct union_insert
         false
     >
 {
-    typedef typename geometry::detail::casted_tag_to_single_tag
+    typedef typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn
         >::type single_tag;
@@ -278,7 +278,7 @@ struct union_insert
         false
     >
 {
-    typedef typename geometry::detail::casted_tag_to_single_tag
+    typedef typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn1
         >::type single_tag1;
@@ -288,7 +288,7 @@ struct union_insert
             Geometry1, Geometry2, SingleTupledOut, single_tag1
         > expect_check1;
 
-    typedef typename geometry::detail::casted_tag_to_single_tag
+    typedef typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn2
         >::type single_tag2;
@@ -347,7 +347,6 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
 {
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
-    //concepts::check<GeometryOut>();
     geometry::detail::output_geometry_concept_check<GeometryOut>::apply();
 
     typename strategy::intersection::services::default_strategy

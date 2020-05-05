@@ -397,14 +397,14 @@ struct sym_difference_insert
     : detail::expect_output
         <
             Geometry1, Geometry2, GeometryOut,
-            typename detail::casted_tag_to_single_tag<TagIn1>::type,
-            typename detail::casted_tag_to_single_tag<TagIn2>::type
+            typename detail::single_tag_from_base_tag<TagIn1>::type,
+            typename detail::single_tag_from_base_tag<TagIn2>::type
         >
     , detail::sym_difference::sym_difference_different_inputs_tupled_output
         <
             GeometryOut,
-            typename detail::casted_tag_to_single_tag<TagIn1>::type,
-            typename detail::casted_tag_to_single_tag<TagIn2>::type
+            typename detail::single_tag_from_base_tag<TagIn1>::type,
+            typename detail::single_tag_from_base_tag<TagIn2>::type
         >
 {};
 
