@@ -139,8 +139,8 @@ struct buffer_turn_operation
     {}
 };
 
-// Version for buffer including type of location, is_opposite, and helper variables
-template <typename Point, typename RobustPoint, typename SegmentRatio>
+// Version of turn_info for buffer with its turn index and other helper variables
+template <typename Point, typename SegmentRatio>
 struct buffer_turn_info
     : public detail::overlay::turn_info
         <
@@ -152,9 +152,6 @@ struct buffer_turn_info
     typedef Point point_type;
 
     std::size_t turn_index;
-
-    // Still necessary for turn-in-original calculations
-    RobustPoint robust_point;
 
     // Information if turn can be used. It is not traversable if it is within
     // another piece, or within the original (depending on deflation),
