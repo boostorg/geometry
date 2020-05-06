@@ -157,9 +157,8 @@ private :
                     << "/" << it->operations[1].enriched.get_next_turn_index()
                     //<< " frac " << it->operations[0].fraction
 
-    //                If you want to see (robust)point coordinates (e.g. to find duplicates)
+    //                If you want to see point coordinates (e.g. to find duplicates)
                     << std::endl << std::setprecision(16) << bg::wkt(it->point)
-                    << std::endl  << bg::wkt(it->robust_point)
 
                     << std::endl;
                 out << " " << bg::method_char(it->method)

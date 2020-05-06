@@ -76,19 +76,6 @@ side_value(model::infinite_line<Type> const& line, Point const& p)
     return side_value(line, geometry::get<0>(p), geometry::get<1>(p));
 }
 
-// Returns true for two lines which are supposed to be (close to) collinear
-// (which is not checked) and have a similar direction
-// (in practice up to 45 degrees, TO BE VERIFIED)
-// true: -----------------> p -----------------> q
-// false: -----------------> p <----------------- q
-template <typename Type>
-inline
-bool similar_direction(const model::infinite_line<Type>& p,
-                       const model::infinite_line<Type>& q)
-{
-    return p.a * q.a >= 0 && p.b * q.b >= 0;
-}
-
 template <typename Type>
 inline bool is_degenerate(const model::infinite_line<Type>& line)
 {
