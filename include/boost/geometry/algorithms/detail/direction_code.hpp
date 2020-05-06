@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2015-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2015, 2017, 2019.
 // Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
@@ -54,21 +54,29 @@ struct direction_code_impl<cartesian_tag>
 
         typedef model::infinite_line<calc_t> line_type;
 
-        // point b is often equal to the specified point, check that first
-        line_type const q = detail::make::make_infinite_line<calc_t>(segment_b, point);
-        if (arithmetic::is_degenerate(q))
+        // Situation and construction of perpendicular line
+        //
+        //     P1     a--------------->b   P2
+        //                             |
+        //                             |
+        //                             v
+        //
+        // P1 is located right of the (directional) perpendicular line
+        // and therefore gets a negative side_value, and returns -1.
+        // P2 is to the left of the perpendicular line and returns 1.
+        // If the specified point is located on top of b, it returns 0.
+
+        line_type const line
+            = detail::make::make_perpendicular_line<calc_t>(segment_a,
+                segment_b, segment_b);
+
+        if (arithmetic::is_degenerate(line))
         {
             return 0;
         }
 
-        line_type const p = detail::make::make_infinite_line<calc_t>(segment_a, segment_b);
-        if (arithmetic::is_degenerate(p))
-        {
-            return 0;
-        }
-
-        // p extends a-b if direction is similar
-        return arithmetic::similar_direction(p, q) ? 1 : -1;
+        calc_t const sv = arithmetic::side_value(line, point);
+        return sv == 0 ? 0 : sv > 0 ? 1 : -1;
     }
 };
 
