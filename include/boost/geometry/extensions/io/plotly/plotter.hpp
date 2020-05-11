@@ -59,48 +59,80 @@ private:
 namespace detail { namespace plotly
 {
 
-template <typename P, int D>
+template <typename P, int D, typename T>
 struct stream_coordinate
 {
     static inline void apply(std::vector<std::string>& ss, P const& p, bool first)
     {
-        stream_coordinate<P, D-1>::apply(ss, p, first);
+        stream_coordinate<P, D-1, T>::apply(ss, p, first);
     }
 };
 
-template <typename P>
-struct stream_coordinate<P,3>
+template <typename P, typename T>
+struct stream_coordinate<P,3,T>
 {
     static inline void apply(std::vector<std::string>& ss, P const& p, bool first)
     {
-        ss[2] += (first ? "\"z\": [\"" : ", \"") + boost::lexical_cast<std::string>(get<2>(p)) + "\"";
-        stream_coordinate<P, 2>::apply(ss, p, first);
+        ss[2] += (first ? T::d3() : ", \"") + boost::lexical_cast<std::string>(get<2>(p)) + "\"";
+        stream_coordinate<P, 2, T>::apply(ss, p, first);
     }
 };
 
-template <typename P>
-struct stream_coordinate<P,2>
+template <typename P, typename T>
+struct stream_coordinate<P,2,T>
 {
     static inline void apply(std::vector<std::string>& ss, P const& p, bool first)
     {
-        ss[1] += (first ? "\"y\": [\"" : ", \"") + boost::lexical_cast<std::string>(get<1>(p)) + "\"";
-        stream_coordinate<P, 1>::apply(ss, p, first);
+        ss[1] += (first ? T::d2() : ", \"") + boost::lexical_cast<std::string>(get<1>(p)) + "\"";
+        stream_coordinate<P, 1, T>::apply(ss, p, first);
     }
 };
 
-template <typename P>
-struct stream_coordinate<P,1>
+template <typename P, typename T>
+struct stream_coordinate<P,1,T>
 {
     static inline void apply(std::vector<std::string>& ss, P const& p, bool first)
     {
-        ss[0] += (first ? "\"x\": [\"" : ", \"") + boost::lexical_cast<std::string>(get<0>(p)) + "\"";
+        ss[0] += (first ? T::d1() : ", \"") + boost::lexical_cast<std::string>(get<0>(p)) + "\"";
     }
+};
+
+
+struct type_cartesian_2
+{
+    static inline const char* plot_type() { return "scatter"; }
+    static inline const char* fill_type() { return "tozerox"; }
+    static inline const char* d1() { return "\"x\": [\""; }
+    static inline const char* d2() { return "\"y\": [\""; }
+};
+
+
+struct type_cartesian_3
+{
+    static inline const char* plot_type() { return "scatter3d"; }
+    static inline const char* fill_type() { return "tozerox"; }
+    static inline const char* d1() { return "\"x\": [\""; }
+    static inline const char* d2() { return "\"y\": [\""; }
+    static inline const char* d3() { return "\"z\": [\""; }
+};
+
+struct type_geographic
+{
+    static inline const char* plot_type() { return "scattermapbox"; }
+    static inline const char* fill_type() { return "toself"; }
+    static inline const char* d1() { return "\"lat\": [\""; }
+    static inline const char* d2() { return "\"lon\": [\""; }
 };
 
 /*!
 \brief Stream points as plotly style json
 */
-template <typename Point, int Dimension>
+template 
+<
+    typename Point, 
+    int Dimension,
+    typename PlotType
+>
 struct plotly_point
 {
     template <typename Char, typename Traits>
@@ -108,11 +140,11 @@ struct plotly_point
         Point const& p, boost::geometry::plotly_color& c)
     {
         os << "{ \"mode\": \"lines\", \"type\": \"" 
-           << (( Dimension > 2 ) ? "scatter3d" : "scatter" )
+           << PlotType::plot_type()
            << "\"";
 
         std::vector<std::string> ss(Dimension);
-        stream_coordinate<Point, Dimension>::apply(ss, p, true);
+        stream_coordinate<Point, Dimension, PlotType>::apply(ss, p, true);
 
         for(std::vector<std::string>::iterator it=ss.begin();
             it!=ss.end(); it++)
@@ -124,7 +156,12 @@ struct plotly_point
     }
 };
 
-template <typename Segment, int Dimension>
+template 
+<
+    typename Segment, 
+    int Dimension,
+    typename PlotType
+>
 struct plotly_segment
 {
     typedef typename point_type<Segment>::type point_type;
@@ -134,7 +171,7 @@ struct plotly_segment
         Segment const& segment, boost::geometry::plotly_color& c)
     {        
         os << "{ \"mode\": \"lines\", \"type\": \"" 
-           << (( Dimension > 2 ) ? "scatter3d" : "scatter" )
+           << PlotType::plot_type()
            << "\"";
 
         typedef boost::array<point_type, 2> sequence;
@@ -144,8 +181,8 @@ struct plotly_segment
         geometry::detail::assign_point_from_index<1>(segment, points[1]);
 
         std::vector<std::string> ss(Dimension);
-        stream_coordinate<point_type, Dimension>::apply(ss, points[0], true);
-        stream_coordinate<point_type, Dimension>::apply(ss, points[1], false);
+        stream_coordinate<point_type, Dimension, PlotType>::apply(ss, points[0], true);
+        stream_coordinate<point_type, Dimension, PlotType>::apply(ss, points[1], false);
 
         for(std::vector<std::string>::iterator it=ss.begin();
             it!=ss.end(); it++)
@@ -158,7 +195,12 @@ struct plotly_segment
     }
 };
 
-template <typename Range, int Dimension>
+template 
+<
+    typename Range, 
+    int Dimension,
+    typename PlotType
+>
 struct plotly_range
 {
     template <typename Char, typename Traits>
@@ -170,7 +212,7 @@ struct plotly_range
         bool first = true;
 
         os << "{ \"mode\": \"lines\", \"type\": \"" 
-           << (( Dimension > 2 ) ? "scatter3d" : "scatter" )
+           << PlotType::plot_type()
            << "\"";
 
         std::vector<std::string> ss(Dimension);
@@ -179,7 +221,7 @@ struct plotly_range
             it != boost::end(range);
             ++it, first = false)
         {
-            stream_coordinate<point_type, Dimension>::apply(ss, *it, first);
+            stream_coordinate<point_type, Dimension, PlotType>::apply(ss, *it, first);
         }
 
         for(std::vector<std::string>::iterator it=ss.begin();
@@ -194,7 +236,12 @@ private:
     typedef typename boost::range_value<Range>::type point_type;
 };
 
-template <typename Polygon, int Dimension>
+template 
+<
+    typename Polygon, 
+    int Dimension,
+    typename PlotType
+>
 struct plotly_poly
 {
     template <typename Char, typename Traits>
@@ -208,7 +255,7 @@ struct plotly_poly
         
         bool first = true;
         os << "{ \"mode\": \"lines\", \"type\": \"" 
-           << (( Dimension > 2 ) ? "scatter3d" : "scatter" )
+           << PlotType::plot_type()
            << "\"";
 
         std::vector<std::string> ss(Dimension);
@@ -218,7 +265,7 @@ struct plotly_poly
             it != boost::end(ring);
             ++it, first = false)
         {
-            stream_coordinate<point_type, Dimension>::apply(ss, *it, first);
+            stream_coordinate<point_type, Dimension, PlotType>::apply(ss, *it, first);
         }
         
         for(std::vector<std::string>::iterator it=ss.begin();
@@ -228,7 +275,7 @@ struct plotly_poly
         }
 
         os << ", \"line\": {\"dash\": \"solid\", \"color\": \"" << c.rgb() << "\", \"width\": 2}"
-           << ", \"fill\": \"tozerox\", \"fillcolor\": \"" << c.rgba(0.5) << "\", \"showlegend\": false}";
+           << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << c.rgba(0.5) << "\", \"showlegend\": false}";
         
         // Inner rings:
         boost::geometry::plotly_color w(255,255,255);
@@ -253,7 +300,7 @@ struct plotly_poly
                     it = boost::begin(*rit); it != boost::end(*rit);
                 ++it, first = false)
             {
-                stream_coordinate<point_type, Dimension>::apply(ss, *it, first);
+                stream_coordinate<point_type, Dimension, PlotType>::apply(ss, *it, first);
             }
 
             for(std::vector<std::string>::iterator it=ss.begin();
@@ -263,7 +310,7 @@ struct plotly_poly
             }
 
             os << ", \"line\": {\"dash\": \"solid\", \"color\": \"" << c.rgb() << "\", \"width\": 2}"
-               << ", \"fill\": \"tozerox\", \"fillcolor\": \"" << w.rgba(0.5) << "\", \"showlegend\": false}";
+               << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << w.rgba(0.5) << "\", \"showlegend\": false}";
         }
     }
 };
@@ -297,6 +344,36 @@ struct plotly_multi
 namespace dispatch
 {
 
+template
+<
+    typename Geometry,
+    typename Tag = typename cs_tag<Geometry>::type,
+    int Dimension = dimension<Geometry>::value
+>
+struct plotly_type
+{
+    BOOST_MPL_ASSERT_MSG
+        (
+            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_CS_TAG_OR_DIMENSION
+            , (Geometry)
+        );
+};
+
+template <typename Geometry>
+struct plotly_type<Geometry, cartesian_tag, 2>
+    : detail::plotly::type_cartesian_2
+{};
+
+template <typename Geometry>
+struct plotly_type<Geometry, cartesian_tag, 3>
+    : detail::plotly::type_cartesian_2
+{};
+
+template <typename Geometry, int Dimension>
+struct plotly_type<Geometry, geographic_tag, Dimension>
+    : detail::plotly::type_geographic
+{};
+
 template 
 <
     typename Geometry, 
@@ -312,19 +389,45 @@ struct plotly_plot
 };
 
 template <typename Point>
-struct plotly_plot<Point, point_tag> : detail::plotly::plotly_point<Point, dimension<Point>::value> {};
+struct plotly_plot<Point, point_tag> 
+    : detail::plotly::plotly_point
+        <
+            Point, 
+            dimension<Point>::value,
+            plotly_type<Point>
+        > 
+{};
 
 template <typename Segment>
-struct plotly_plot<Segment, segment_tag> : detail::plotly::plotly_segment<Segment, dimension<Segment>::value> {};
+struct plotly_plot<Segment, segment_tag> 
+    : detail::plotly::plotly_segment
+        <
+            Segment, 
+            dimension<Segment>::value,
+            plotly_type<Segment>
+        > 
+{};
 
 template <typename Linestring>
 struct plotly_plot<Linestring, linestring_tag>
-    : detail::plotly::plotly_range<Linestring,  dimension<Linestring>::value> {};
+    : detail::plotly::plotly_range
+        <
+            Linestring,  
+            dimension<Linestring>::value,
+            plotly_type<Linestring>
+        > 
+{};
 
 
 template <typename Polygon>
 struct plotly_plot<Polygon, polygon_tag>
-    : detail::plotly::plotly_poly<Polygon,  dimension<Polygon>::value> {};
+    : detail::plotly::plotly_poly
+        <
+            Polygon,  
+            dimension<Polygon>::value,
+            plotly_type<Polygon>
+        > 
+{};
 
 template <typename MultiPoint>
 struct plotly_plot<MultiPoint, multi_point_tag>
@@ -334,7 +437,8 @@ struct plotly_plot<MultiPoint, multi_point_tag>
             detail::plotly::plotly_point
                 <
                     typename boost::range_value<MultiPoint>::type,
-                    dimension<MultiPoint>::value
+                    dimension<MultiPoint>::value,
+                    plotly_type<MultiPoint>
                 >
         >
 {};
@@ -347,7 +451,8 @@ struct plotly_plot<MultiLinestring, multi_linestring_tag>
             detail::plotly::plotly_range
                 <
                     typename boost::range_value<MultiLinestring>::type,
-                    dimension<MultiLinestring>::value
+                    dimension<MultiLinestring>::value,
+                    plotly_type<MultiLinestring>
                 >
 
         >
