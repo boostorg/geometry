@@ -17,7 +17,7 @@ namespace bg = boost::geometry;
 
 int main()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
+    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree>> point_t;
     typedef bg::model::polygon<point_t> polygon_t;
 
     polygon_t poly1;
