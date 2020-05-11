@@ -275,7 +275,7 @@ struct plotly_poly
         }
 
         os << ", \"line\": {\"dash\": \"solid\", \"color\": \"" << c.rgb() << "\", \"width\": 2}"
-           << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << c.rgba(0.5) << "\", \"showlegend\": false}";
+           << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << c.rgba(0.3) << "\", \"showlegend\": false}";
         
         // Inner rings:
         boost::geometry::plotly_color w(255,255,255);
@@ -287,7 +287,7 @@ struct plotly_poly
 
             first = true;
             os << ", { \"mode\": \"lines\", \"type\": \"" 
-                << (( Dimension > 2 ) ? "scatter3d" : "scatter" )
+                << PlotType::plot_type()
                 << "\"";
 
             for(std::vector<std::string>::iterator it=ss.begin();
@@ -310,7 +310,7 @@ struct plotly_poly
             }
 
             os << ", \"line\": {\"dash\": \"solid\", \"color\": \"" << c.rgb() << "\", \"width\": 2}"
-               << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << w.rgba(0.5) << "\", \"showlegend\": false}";
+               << ", \"fill\": \""<<  PlotType::fill_type() <<"\", \"fillcolor\": \"" << w.rgba(0.2) << "\", \"showlegend\": false}";
         }
     }
 };
