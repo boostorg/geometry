@@ -35,7 +35,6 @@ test-suite boost-geometry-strategies
     [ run segment_intersection_collinear.cpp : : : : strategies_segment_intersection_collinear ]
     [ run segment_intersection_geo.cpp       : : : : strategies_segment_intersection_geo ]
     [ run segment_intersection_sph.cpp       : : : : strategies_segment_intersection_sph ]
-#    [ run side_of_intersection.cpp           : : : : strategies_side_of_intersection ]
     [ run spherical_side.cpp                 : : : : strategies_spherical_side ]
     [ run thomas.cpp                         : : : : strategies_thomas ]
     [ run transform_cs.cpp                   : : : : strategies_transform_cs ]
