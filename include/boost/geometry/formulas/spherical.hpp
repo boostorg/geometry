@@ -784,7 +784,7 @@ public :
 };
 
 template <typename CT>
-void crossing_parallel(CT const& lon1,
+bool crossing_parallel(CT const& lon1,
                        CT const& lat1,
                        CT const& lon2,
                        CT const& lat2,
@@ -815,8 +815,7 @@ void crossing_parallel(CT const& lon1,
 
     if (std::abs(C) > sqrt_powA2_powB2)
     {
-        //TODO: assertion here?
-        //"no crossing"
+        return false;
     }
     else
     {
@@ -825,6 +824,7 @@ void crossing_parallel(CT const& lon1,
         CT const two_pi = 2 * pi;
         lon3_1 = std::fmod(sum+dlon, two_pi) - pi;
         lon3_2 = std::fmod(sum-dlon, two_pi) - pi;
+        return true;
     }
 }
 

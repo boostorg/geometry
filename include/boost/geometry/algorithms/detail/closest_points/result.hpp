@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
 
-#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/point_segment_distance.hpp>
 
 namespace boost { namespace geometry
 {

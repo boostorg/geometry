@@ -1,15 +1,2375 @@
-<!--
-Copyright 2010 Barend Gehrels.
-Distributed under the Boost Software License, Version 1.0. (See accompanying
-file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
--->
-
-<html>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!-- This file was created with the aha Ansi HTML Adapter. https://github.com/theZiz/aha -->
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="refresh" content="0; URL=doc/html/index.html">
+<meta http-equiv="Content-Type" content="application/xml+xhtml; charset=UTF-8" />
+<title>stdin</title>
 </head>
 <body>
-Automatic redirection failed, please go to
-<a href="doc/html/index.html">doc/html/index.html</a>
+<pre>
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/closest_points/result.hpp b/include/boost/geometry/algorithms/detail/closest_points/result.hpp</span>
+<span style="font-weight:bold;">index b2a7bf983..a4e7ae2c4 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/closest_points/result.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/closest_points/result.hpp</span>
+<span style="color:teal;">@@ -10,7 +10,7 @@</span>
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
+
+<span style="color:red;">#include</span><span style="color:green;">//#include</span> &lt;boost/geometry/formulas/point_segment_distance.hpp&gt;
+
+namespace boost { namespace geometry
+{
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp b/include/boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp</span>
+<span style="font-weight:bold;">index 5b0cd0c22..8c634469b 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/disjoint/linear_segment_or_box.hpp</span>
+<span style="color:teal;">@@ -136,7 +136,6 @@</span> struct disjoint_range_segment_or_box_with_info
+                return res;
+            }
+
+
+            return intersection_return_type();
+        }
+        else
+<span style="color:teal;">@@ -176,13 +175,66 @@</span> template
+&gt;
+struct disjoint_range_segment_or_box
+{
+    <span style="color:green;">typedef typename closeable_view&lt;Range const, Closure&gt;::type view_type;</span>
+<span style="color:green;">    typedef typename ::boost::range_value&lt;view_type&gt;::type point_type;</span>
+
+    template &lt;typename Strategy&gt;
+    static inline bool apply(Range const&amp; range,
+                             SegmentOrBox const&amp; segment_or_box,
+                             Strategy const&amp; strategy)
+    {
+        <span style="color:red;">return</span><span style="color:green;">//return</span> disjoint_range_segment_or_box_with_info&lt;Range, Closure, SegmentOrBox&gt;
+        <span style="color:green;">//</span>        ::apply(range, segment_or_box, strategy).count == 0;
+
+        <span style="color:green;">typedef typename ::boost::range_iterator</span>
+<span style="color:green;">            &lt;</span>
+<span style="color:green;">                view_type const</span>
+<span style="color:green;">            &gt;::type const_iterator;</span>
+
+<span style="color:green;">        typedef typename ::boost::range_size&lt;view_type&gt;::type size_type;</span>
+
+<span style="color:green;">        typedef typename geometry::model::referring_segment</span>
+<span style="color:green;">            &lt;</span>
+<span style="color:green;">                point_type const</span>
+<span style="color:green;">            &gt; range_segment;</span>
+
+<span style="color:green;">        view_type view(range);</span>
+
+<span style="color:green;">        const size_type count = ::boost::size(view);</span>
+
+<span style="color:green;">        if ( count == 0 )</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return true;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        else if ( count == 1 )</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return disjoint_point_segment_or_box</span>
+<span style="color:green;">                            &lt;</span>
+<span style="color:green;">                                SegmentOrBox</span>
+<span style="color:green;">                            &gt;::apply(geometry::range::front&lt;view_type const&gt;(view),</span>
+<span style="color:green;">                                     segment_or_box,</span>
+<span style="color:green;">                                     strategy);</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        else</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            const_iterator it0 = ::boost::begin(view);</span>
+<span style="color:green;">            const_iterator it1 = ::boost::begin(view) + 1;</span>
+<span style="color:green;">            const_iterator last = ::boost::end(view);</span>
+
+<span style="color:green;">            for ( ; it1 != last ; ++it0, ++it1 )</span>
+<span style="color:green;">            {</span>
+<span style="color:green;">                range_segment rng_segment(*it0, *it1);</span>
+<span style="color:green;">                if (! dispatch::disjoint</span>
+<span style="color:green;">                        &lt;</span>
+<span style="color:green;">                            range_segment, SegmentOrBox</span>
+<span style="color:green;">                        &gt;::apply(rng_segment, segment_or_box,</span>
+<span style="color:green;">                                    strategy))</span>
+<span style="color:green;">                {</span>
+<span style="color:green;">                    return false;</span>
+<span style="color:green;">                }</span>
+<span style="color:green;">            }</span>
+<span style="color:green;">            return true;</span>
+<span style="color:green;">        }</span>
+    }
+};
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/disjoint/multirange_geometry.hpp b/include/boost/geometry/algorithms/detail/disjoint/multirange_geometry.hpp</span>
+<span style="font-weight:bold;">index 451a96e30..fbd76836a 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/disjoint/multirange_geometry.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/disjoint/multirange_geometry.hpp</span>
+<span style="color:teal;">@@ -129,13 +129,21 @@</span> struct multirange_constant_size_geometry
+          ConstantSizeGeometry const&amp; constant_size_geometry,
+          Strategy const&amp; strategy)
+    {
+        <span style="color:red;">intersection_return_type res =</span>
+<span style="color:red;">                multirange_constant_size_geometry_with_info</span><span style="color:green;">typedef unary_disjoint_geometry_to_query_geometry</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">                ConstantSizeGeometry,</span>
+<span style="color:green;">                Strategy,</span>
+<span style="color:green;">                dispatch::disjoint</span>
+                &lt;
+                    <span style="color:red;">MultiRange,</span><span style="color:green;">typename boost::range_value&lt;MultiRange&gt;::type,</span>
+                    ConstantSizeGeometry
+                <span style="color:red;">&gt;::apply(multirange, constant_size_geometry, strategy);</span><span style="color:green;">&gt;</span>
+<span style="color:green;">         &gt; unary_predicate_type;</span>
+         return <span style="color:red;">res.count == 0;</span><span style="color:green;">detail::check_iterator_range</span>
+<span style="color:green;">                &lt;</span>
+<span style="color:green;">                     unary_predicate_type</span>
+<span style="color:green;">                &gt;::apply(boost::begin(multirange), boost::end(multirange),</span>
+<span style="color:green;">                         unary_predicate_type(constant_size_geometry, strategy));</span>
+    }
+
+    template &lt;typename Strategy&gt;
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/disjoint/point_box.hpp b/include/boost/geometry/algorithms/detail/disjoint/point_box.hpp</span>
+<span style="font-weight:bold;">index 5df161efd..befb65c7d 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/disjoint/point_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/disjoint/point_box.hpp</span>
+<span style="color:teal;">@@ -66,7 +66,7 @@</span> struct disjoint&lt;Point, Box, DimensionCount, point_tag, box_tag, false&gt;
+    static inline bool apply(Point const&amp; point, Box const&amp; box, Strategy const&amp; )
+    {
+        // ! covered_by(point, box)
+        return ! <span style="color:red;">Strategy::apply(point,</span><span style="color:green;">Strategy().apply(point,</span> box);
+    }
+};
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/disjoint/segment_box.hpp b/include/boost/geometry/algorithms/detail/disjoint/segment_box.hpp</span>
+<span style="font-weight:bold;">index 0e82eec29..bf2e827c1 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/disjoint/segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/disjoint/segment_box.hpp</span>
+<span style="color:teal;">@@ -30,10 +30,10 @@</span>
+#include &lt;boost/geometry/algorithms/detail/assign_indexed_point.hpp&gt;
+#include &lt;boost/geometry/algorithms/detail/disjoint/point_box.hpp&gt;
+#include &lt;boost/geometry/algorithms/detail/disjoint/box_box.hpp&gt;
+<span style="color:green;">//#include &lt;boost/geometry/algorithms/detail/disjoint/linear_linear.hpp&gt;</span>
+#include &lt;boost/geometry/algorithms/detail/envelope/segment.hpp&gt;
+#include &lt;boost/geometry/algorithms/detail/normalize.hpp&gt;
+#include &lt;boost/geometry/algorithms/dispatch/disjoint.hpp&gt;
+<span style="color:red;">#include &lt;boost/geometry/algorithms/dispatch/disjoint_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/algorithms/envelope.hpp&gt;
+//#include &lt;boost/geometry/algorithms/closest_points.hpp&gt;
+#include &lt;boost/geometry/algorithms/covered_by.hpp&gt;
+<span style="color:teal;">@@ -48,19 +48,6 @@</span>
+namespace boost { namespace geometry
+{
+
+<span style="color:red;">template</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    typename Geometry1,</span>
+<span style="color:red;">    typename Geometry2,</span>
+<span style="color:red;">    typename Segment,</span>
+<span style="color:red;">    typename Strategy</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">inline void closest_points(Geometry1 const&amp; geometry1,</span>
+<span style="color:red;">                           Geometry2 const&amp; geometry2,</span>
+<span style="color:red;">                           Segment&amp; shortest_seg,</span>
+<span style="color:red;">                           Strategy const&amp; strategy);</span>
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace disjoint
+{
+<span style="color:teal;">@@ -266,10 +253,93 @@</span> struct disjoint_segment_box
+    }
+};
+
+
+<span style="color:green;">struct disjoint_segment_box_with_info_compute</span>
+<span style="color:green;">{</span>
+<span style="color:green;">    template &lt;typename Segment, typename Box, typename Strategy, typename Result&gt;</span>
+<span style="color:green;">    static inline void apply(Segment const&amp; segment,</span>
+<span style="color:green;">                             Box const&amp; box,</span>
+<span style="color:green;">                             Strategy const&amp; strategy,</span>
+<span style="color:green;">                             Result&amp; result)</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        assert_dimension_equal&lt;Segment, Box&gt;();</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Segment&gt;::type segment_point;</span>
+
+<span style="color:green;">        segment_point p[2];</span>
+<span style="color:green;">        detail::assign_point_from_index&lt;0&gt;(segment, p[0]);</span>
+<span style="color:green;">        detail::assign_point_from_index&lt;1&gt;(segment, p[1]);</span>
+
+<span style="color:green;">        if (geometry::covered_by(p[0], box,</span>
+<span style="color:green;">                                 strategy.get_disjoint_point_box_strategy()))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            result.count = 1;</span>
+<span style="color:green;">            result.intersections[0] = p[0];</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if (geometry::covered_by(p[1], box,</span>
+<span style="color:green;">                                 strategy.get_disjoint_point_box_strategy()))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            result.count = 1;</span>
+<span style="color:green;">            result.intersections[0] = p[1];</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Box&gt;::type box_point;</span>
+<span style="color:green;">        box_point top_left, top_right, bottom_left, bottom_right;</span>
+<span style="color:green;">        detail::assign_box_corners(box, bottom_left, bottom_right,</span>
+<span style="color:green;">                                   top_left, top_right);</span>
+
+<span style="color:green;">        // check segment intersection with box meridians</span>
+<span style="color:green;">        // which are (geodesic) segments on all coordinate systems</span>
+<span style="color:green;">        geometry::model::segment&lt;segment_point&gt; s</span>
+<span style="color:green;">                = geometry::model::segment&lt;segment_point&gt;(p[0], p[1]);</span>
+<span style="color:green;">        strategy.get_disjoint_segment_box_with_info_strategy()</span>
+<span style="color:green;">                .apply(s, bottom_left, top_left,</span>
+<span style="color:green;">                       strategy.get_relate_segment_segment_strategy(),</span>
+<span style="color:green;">                       result);</span>
+<span style="color:green;">        if (result.count &gt; 0)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        strategy.get_disjoint_segment_box_with_info_strategy()</span>
+<span style="color:green;">                .apply(s, bottom_right, top_right,</span>
+<span style="color:green;">                       strategy.get_relate_segment_segment_strategy(),</span>
+<span style="color:green;">                       result);</span>
+<span style="color:green;">        if (result.count &gt; 0)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        // CS-related check</span>
+<span style="color:green;">        strategy.get_disjoint_segment_box_with_info_strategy()</span>
+<span style="color:green;">                .apply(segment,</span>
+<span style="color:green;">                       box,</span>
+<span style="color:green;">                       strategy.get_relate_segment_segment_strategy(),</span>
+<span style="color:green;">                       result);</span>
+<span style="color:green;">    }</span>
+<span style="color:green;">};</span>
+
+template &lt;typename Segment, typename Box&gt;
+struct disjoint_segment_box_with_info
+{
+    typedef typename <span style="color:green;">geometry::select_most_precise</span>
+<span style="color:green;">                    &lt;</span>
+<span style="color:green;">                        typename coordinate_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">                        typename coordinate_type&lt;Box&gt;::type</span>
+<span style="color:green;">                    &gt;::type most_precise_type;</span>
+
+<span style="color:green;">    typedef typename boost::mpl::if_c</span>
+<span style="color:green;">            &lt;</span>
+<span style="color:green;">                boost::is_same</span>
+<span style="color:green;">                &lt;</span>
+<span style="color:green;">                    most_precise_type,</span>
+<span style="color:green;">                    typename coordinate_type&lt;Segment&gt;::type</span>
+<span style="color:green;">                &gt;::value,</span>
+<span style="color:green;">                typename point_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">                typename</span> point_type&lt;Box&gt;::type
+            <span style="color:green;">&gt;::type</span> point_type;
+
+    typedef segment_intersection_points&lt;point_type&gt; intersection_return_type;
+
+<span style="color:teal;">@@ -279,28 +349,14 @@</span> struct disjoint_segment_box_with_info
+          Box const&amp; box,
+          Strategy const&amp; strategy)
+    {
+<span style="color:red;">        assert_dimension_equal&lt;Segment, Box&gt;();</span>
+
+<span style="color:red;">        typedef typename geometry::point_type&lt;Segment&gt;::type segment_point;</span>
+
+        intersection_return_type result;
+        <span style="color:red;">geometry::model::segment&lt;segment_point&gt; sout;</span>
+<span style="color:red;">        geometry::closest_points</span>
+<span style="color:red;">                 (box, segment, sout,</span>
+<span style="color:red;">                  strategy.get_closest_points_segment_box_strategy());</span>
+
+<span style="color:red;">        if (geometry::distance(sout.first, sout.second) == 0)</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.count = 1;</span>
+<span style="color:red;">            result.intersections[0] = sout.second;</span>
+<span style="color:red;">            return result;</span>
+<span style="color:red;">        }</span><span style="color:green;">disjoint_segment_box_with_info_compute::apply(segment, box,</span>
+<span style="color:green;">                                                      strategy, result);</span>
+        return result;
+    }
+};
+
+
+}} // namespace detail::disjoint
+#endif // DOXYGEN_NO_DETAIL
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/distance/linear_to_box.hpp b/include/boost/geometry/algorithms/detail/distance/linear_to_box.hpp</span>
+<span style="font-weight:bold;">index ebb0cdc10..7af4b0fd9 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/distance/linear_to_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/distance/linear_to_box.hpp</span>
+<span style="color:teal;">@@ -59,6 +59,8 @@</span> struct linear_to_box
+                                    Box const&amp; box,
+                                    Strategy const&amp; strategy)
+    {
+
+        <span style="color:green;">// TODO: disjoint test only needed for areal to box</span>
+        typedef typename point_type&lt;Linear&gt;::type point_type;
+        typedef segment_intersection_points&lt;point_type&gt; intersection_return_type;
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/algorithms/detail/distance/segment_to_box.hpp b/include/boost/geometry/algorithms/detail/distance/segment_to_box.hpp</span>
+<span style="font-weight:bold;">index bb6fa72fe..b1fd18b61 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/algorithms/detail/distance/segment_to_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/algorithms/detail/distance/segment_to_box.hpp</span>
+<span style="color:teal;">@@ -657,13 +657,7 @@</span> private:
+            return result;
+        }
+
+        // in all other cases the box and segment intersect, so return 0<span style="color:red;">for</span>
+<span style="color:red;">        // distance and intersection point for closest_points</span>
+
+<span style="color:red;">        strategy::distance::services::closest_points_seg_box&lt;SBStrategy&gt;</span>
+<span style="color:red;">                ::apply(p0, p1,</span>
+<span style="color:red;">                        top_left, top_right, bottom_left, bottom_right,</span>
+<span style="color:red;">                        sb_strategy, result);</span>
+        return result;
+    }
+
+<span style="color:teal;">@@ -720,10 +714,6 @@</span> private:
+            return result;
+        }
+
+<span style="color:red;">        strategy::distance::services::closest_points_seg_box&lt;SBStrategy&gt;</span>
+<span style="color:red;">                ::apply(p0, p1,</span>
+<span style="color:red;">                        top_left, top_right, bottom_left, bottom_right,</span>
+<span style="color:red;">                        sb_strategy, result);</span>
+        // in all other cases the box and segment intersect, so return 0
+        return result;
+    }
+<span style="color:teal;">@@ -929,6 +919,38 @@</span> struct distance
+    {
+        assert_dimension_equal&lt;Segment, Box&gt;();
+
+        <span style="color:green;">typedef typename geometry::select_most_precise</span>
+<span style="color:green;">                        &lt;</span>
+<span style="color:green;">                            typename coordinate_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">                            typename coordinate_type&lt;Box&gt;::type</span>
+<span style="color:green;">                        &gt;::type most_precise_type;</span>
+
+<span style="color:green;">        typedef typename boost::mpl::if_c</span>
+<span style="color:green;">                &lt;</span>
+<span style="color:green;">                    boost::is_same</span>
+<span style="color:green;">                    &lt;</span>
+<span style="color:green;">                        most_precise_type,</span>
+<span style="color:green;">                        typename coordinate_type&lt;Segment&gt;::type</span>
+<span style="color:green;">                    &gt;::value,</span>
+<span style="color:green;">                    typename point_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">                    typename point_type&lt;Box&gt;::type</span>
+<span style="color:green;">                &gt;::type point_type;</span>
+
+<span style="color:green;">        typedef segment_intersection_points&lt;point_type&gt; intersection_return_type;</span>
+
+<span style="color:green;">        intersection_return_type dis_res =</span>
+<span style="color:green;">        geometry::detail::disjoint::disjoint_segment_box_with_info&lt;Segment, Box&gt;</span>
+<span style="color:green;">                       ::apply(segment, box,</span>
+<span style="color:green;">                               strategy.get_relate_segment_segment_strategy());</span>
+
+<span style="color:green;">        if ( dis_res.count &gt; 0 )</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return_type result;</span>
+<span style="color:green;">            strategy::distance::services::result_set_unique_point&lt;Strategy&gt;</span>
+<span style="color:green;">                    ::apply(result, dis_res.intersections[0]);</span>
+<span style="color:green;">            return result;</span>
+<span style="color:green;">        }</span>
+
+        return detail::distance::segment_to_box
+            &lt;
+                Segment,
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/formulas/karney_direct_variant.hpp b/include/boost/geometry/formulas/karney_direct_variant.hpp</span>
+<span style="font-weight:bold;">index 4fc3aa29c..a6aed9aec 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/formulas/karney_direct_variant.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/formulas/karney_direct_variant.hpp</span>
+<span style="color:teal;">@@ -118,8 +118,11 @@</span> public:
+        if (cos_alpha0 != 0)
+        {
+            sin_sigma2 = sin_beta2 / cos_alpha0;
+            <span style="color:red;">cos_sigma2</span><span style="color:green;">CT const cos_minus_sin</span> = <span style="color:red;">math::sqrt(cos_beta2</span><span style="color:green;">cos_beta2</span> * cos_beta2
+                                   - sin_alpha2 * <span style="color:red;">sin_alpha2)</span><span style="color:green;">sin_alpha2;</span>
+<span style="color:green;">            cos_sigma2 = cos_minus_sin &lt; 0 ? 0</span>
+<span style="color:green;">                                           : math::sqrt(cos_minus_sin)</span>
+                                             / cos_alpha0;
+        }
+        else
+        {
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/formulas/spherical.hpp b/include/boost/geometry/formulas/spherical.hpp</span>
+<span style="font-weight:bold;">index 9e382fd78..6b6893c0e 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/formulas/spherical.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/formulas/spherical.hpp</span>
+<span style="color:teal;">@@ -784,7 +784,7 @@</span> public :
+};
+
+template &lt;typename CT&gt;
+<span style="color:red;">void</span><span style="color:green;">bool</span> crossing_parallel(CT const&amp; lon1,
+                       CT const&amp; lat1,
+                       CT const&amp; lon2,
+                       CT const&amp; lat2,
+<span style="color:teal;">@@ -815,8 +815,7 @@</span> void crossing_parallel(CT const&amp; lon1,
+
+    if (std::abs(C) &gt; sqrt_powA2_powB2)
+    {
+        <span style="color:red;">//TODO: assertion here?</span>
+<span style="color:red;">        //&quot;no crossing&quot;</span><span style="color:green;">return false;</span>
+    }
+    else
+    {
+<span style="color:teal;">@@ -825,6 +824,7 @@</span> void crossing_parallel(CT const&amp; lon1,
+        CT const two_pi = 2 * pi;
+        lon3_1 = std::fmod(sum+dlon, two_pi) - pi;
+        lon3_2 = std::fmod(sum-dlon, two_pi) - pi;
+        <span style="color:green;">return true;</span>
+    }
+}
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/closest_points_box_box.hpp b/include/boost/geometry/strategies/cartesian/closest_points_box_box.hpp</span>
+<span style="font-weight:bold;">index eb66dee01..e61297d1c 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/closest_points_box_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/closest_points_box_box.hpp</span>
+<span style="color:teal;">@@ -19,7 +19,6 @@</span>
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/point_in_point.hpp&gt;
+<span style="color:red;">#include &lt;boost/geometry/strategies/cartesian/intersection.hpp&gt;</span>
+
+
+namespace boost { namespace geometry
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/closest_points_point_box.hpp b/include/boost/geometry/strategies/cartesian/closest_points_point_box.hpp</span>
+<span style="font-weight:bold;">index 97fc4ecbb..c57503dc9 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/closest_points_point_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/closest_points_point_box.hpp</span>
+<span style="color:teal;">@@ -19,7 +19,6 @@</span>
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/point_in_point.hpp&gt;
+<span style="color:red;">#include &lt;boost/geometry/strategies/cartesian/intersection.hpp&gt;</span>
+
+
+namespace boost { namespace geometry
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/closest_points_segment_box.hpp b/include/boost/geometry/strategies/cartesian/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">index 13e4d1157..7d3af8618 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/closest_points_segment_box.hpp</span>
+<span style="color:teal;">@@ -10,9 +10,8 @@</span>
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
+
+#include <span style="color:red;">&lt;boost/geometry/algorithms/detail/distance/segment_to_box.hpp&gt;</span><span style="color:green;">&lt;boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp&gt;</span>
+#include <span style="color:red;">&lt;boost/geometry/algorithms/detail/disjoint/linear_linear.hpp&gt;</span><span style="color:green;">&lt;boost/geometry/strategies/cartesian/distance_segment_box.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/cartesian/distance_projected_point.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp&gt;
+<span style="color:teal;">@@ -85,6 +84,14 @@</span> struct cartesian_segment_box
+        return disjoint_point_box_strategy_type();
+    }
+
+    <span style="color:green;">typedef disjoint::cartesian_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+<span style="color:green;">    static inline disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return disjoint_segment_box_with_info_strategy_type();</span>
+<span style="color:green;">    }</span>
+
+    typedef side::side_by_triangle&lt;CalculationType&gt; side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+<span style="color:teal;">@@ -112,7 +119,7 @@</span> struct cartesian_segment_box
+
+    template &lt;typename Geometry1, typename Geometry2&gt;
+    static inline typename point_in_geometry_strategy&lt;Geometry1, Geometry2&gt;::type
+    get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            &lt;
+<span style="color:teal;">@@ -132,12 +139,6 @@</span> struct cartesian_segment_box
+        return relate_segment_segment_strategy_type();
+    }
+
+<span style="color:red;">    static inline cartesian_segment_box&lt;CalculationType, Strategy&gt;</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        return cartesian_segment_box&lt;CalculationType, Strategy&gt;();</span>
+<span style="color:red;">    }</span>
+
+    template &lt;typename P1, typename P2&gt;
+    struct closest_point_result
+    {
+<span style="color:teal;">@@ -157,7 +158,6 @@</span> struct cartesian_segment_box
+                         BoxPoint const&amp;,
+                         BoxPoint const&amp; bottom_right) const
+    {
+
+        return geometry::detail::distance::segment_to_box_2D
+            &lt;
+                ReturnType,
+<span style="color:teal;">@@ -168,6 +168,7 @@</span> struct cartesian_segment_box
+                &lt;
+                    typename LessEqual::other
+                &gt;(p1, p0, bottom_right, *this);
+
+    }
+
+    template &lt;typename SPoint, typename BPoint&gt;
+<span style="color:teal;">@@ -326,111 +327,6 @@</span> struct result_set_unique_point
+    }
+};
+
+<span style="color:red;">template</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    typename CalculationType,</span>
+<span style="color:red;">    typename SBStrategy</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">struct closest_points_seg_box</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    strategy::closest_points::cartesian_segment_box&lt;CalculationType, SBStrategy&gt;</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">{</span>
+
+<span style="color:red;">    template</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        typename T,</span>
+<span style="color:red;">        typename SegmentPoint,</span>
+<span style="color:red;">        typename BoxPoint,</span>
+<span style="color:red;">        typename Strategy</span>
+<span style="color:red;">    &gt;</span>
+<span style="color:red;">    static inline void apply(SegmentPoint const&amp; p0,</span>
+<span style="color:red;">                             SegmentPoint const&amp; p1,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_right,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_right,</span>
+<span style="color:red;">                             Strategy const&amp; strategy,</span>
+<span style="color:red;">                             T &amp; result)</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        typedef geometry::model::segment&lt;SegmentPoint&gt; segment;</span>
+<span style="color:red;">        typedef geometry::model::box&lt;BoxPoint&gt; box;</span>
+<span style="color:red;">        typedef segment_intersection_points&lt;SegmentPoint&gt; intersection_return_type;</span>
+
+<span style="color:red;">        //TODO pass strategy</span>
+<span style="color:red;">        box b(bottom_left, top_right);</span>
+<span style="color:red;">        if (geometry::covered_by(p0, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p0);</span>
+<span style="color:red;">            return;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        if (geometry::covered_by(p1, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p1);</span>
+<span style="color:red;">            return;</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        segment s = segment(p0, p1);</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(top_left, bottom_left);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(top_right, bottom_right);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(bottom_left, bottom_right);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(top_left, top_right);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">    }</span>
+<span style="color:red;">};</span>
+
+
+}
+#endif
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/disjoint_segment_box.hpp b/include/boost/geometry/strategies/cartesian/disjoint_segment_box.hpp</span>
+<span style="font-weight:bold;">index f5d361a7a..50d87b605 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/disjoint_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/disjoint_segment_box.hpp</span>
+<span style="color:teal;">@@ -35,20 +35,23 @@</span>
+
+#include &lt;boost/geometry/algorithms/detail/assign_indexed_point.hpp&gt;
+
+<span style="color:green;">#include &lt;boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/point_in_box.hpp&gt;
+#include &lt;boost/geometry/strategies/disjoint.hpp&gt;
+<span style="color:green;">#include &lt;boost/geometry/strategies/intersection.hpp&gt;</span>
+
+
+
+namespace boost { namespace geometry
+{
+<span style="color:green;">/*</span>
+namespace strategy { namespace <span style="color:red;">closest_points</span><span style="color:green;">intersection</span>
+{
+template &lt;typename <span style="color:red;">CalculationType, typename Strategy&gt;</span><span style="color:green;">CalculationType&gt;</span>
+struct <span style="color:red;">cartesian_segment_box;</span><span style="color:green;">cartesian_segments;</span>
+}}
+<span style="color:green;">*/</span>
+namespace strategy { namespace disjoint
+{
+
+<span style="color:teal;">@@ -268,11 +271,24 @@</span> struct segment_box
+    {
+        return disjoint_point_box_strategy_type();
+    }
+<span style="color:green;">/*</span>
+<span style="color:green;">    typedef intersection::cartesian_segments</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            CalculationType</span>
+<span style="color:green;">        &gt; relate_segment_segment_strategy_type;</span>
+
+    static inline <span style="color:red;">closest_points::cartesian_segment_box&lt;CalculationType, Strategy&gt;</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">relate_segment_segment_strategy_type</span>
+<span style="color:green;">    get_relate_segment_segment_strategy()</span>
+    {
+        return <span style="color:red;">closest_points::cartesian_segment_box&lt;CalculationType, Strategy&gt;();</span><span style="color:green;">relate_segment_segment_strategy_type();</span>
+<span style="color:green;">    }</span>
+<span style="color:green;">*/</span>
+<span style="color:green;">    typedef disjoint::cartesian_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+<span style="color:green;">    static inline disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+    template &lt;typename Segment, typename Box&gt;
+<span style="color:teal;">@@ -299,6 +315,7 @@</span> struct segment_box
+};
+
+
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp b/include/boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">index f7b494c38..13c7346e0 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp</span>
+<span style="color:teal;">@@ -1,4 +1,110 @@</span>
+<span style="color:red;">#ifndef DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:red;">#define DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">// Boost.Geometry</span>
+
+<span style="color:green;">// Copyright (c) 2020, Oracle and/or its affiliates.</span>
+
+<span style="color:green;">// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle</span>
+
+<span style="color:green;">// Licensed under the Boost Software License version 1.0.</span>
+<span style="color:green;">// http://www.boost.org/users/license.html</span>
+
+<span style="color:green;">#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:green;">#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+
+<span style="color:green;">#include &lt;boost/geometry/core/assert.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_dimension.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_type.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/algorithms/detail/assign_box_corners.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/geometries/segment.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/strategies/intersection.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/strategies/intersection_result.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/util/select_calculation_type.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/policies/relate/intersection_points.hpp&gt;</span>
+
+<span style="color:green;">namespace boost { namespace geometry</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">namespace strategy { namespace disjoint</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">struct cartesian_segment_box_with_info</span>
+<span style="color:green;">{</span>
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename BoxPoint,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline void static apply(Segment const&amp; segment,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point1,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point2,</span>
+<span style="color:green;">                             Strategy const&amp; strategy,</span>
+<span style="color:green;">                             T&amp; result)</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        typedef typename geometry::select_most_precise</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            typename coordinate_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">            typename coordinate_type&lt;BoxPoint&gt;::type</span>
+<span style="color:green;">        &gt;::type most_precise_type;</span>
+
+<span style="color:green;">        typedef typename boost::mpl::if_c</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            boost::is_same</span>
+<span style="color:green;">            &lt;</span>
+<span style="color:green;">                most_precise_type,</span>
+<span style="color:green;">                typename coordinate_type&lt;Segment&gt;::type</span>
+<span style="color:green;">            &gt;::value,</span>
+<span style="color:green;">            typename point_type&lt;Segment&gt;::type,</span>
+<span style="color:green;">            BoxPoint</span>
+<span style="color:green;">        &gt;::type point_type;</span>
+
+<span style="color:green;">        typedef segment_intersection_points&lt;point_type&gt; intersection_return_type;</span>
+<span style="color:green;">        typedef policies::relate::segments_intersection_points</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            intersection_return_type</span>
+<span style="color:green;">        &gt; intersection_policy;</span>
+
+<span style="color:green;">        typedef geometry::model::segment&lt;BoxPoint&gt; BoxSegment;</span>
+<span style="color:green;">        BoxSegment box_segment = BoxSegment(box_point1, box_point2);</span>
+
+<span style="color:green;">        geometry::detail::segment_as_subrange&lt;Segment&gt; sub_range1(segment);</span>
+<span style="color:green;">        geometry::detail::segment_as_subrange&lt;BoxSegment&gt; sub_range2(box_segment);</span>
+<span style="color:green;">        result = strategy.apply(sub_range1, sub_range2, intersection_policy());</span>
+<span style="color:green;">    }</span>
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename Box,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline void apply(Segment const&amp; segment,</span>
+<span style="color:green;">                      Box const&amp; box,</span>
+<span style="color:green;">                      Strategy const&amp; strategy,</span>
+<span style="color:green;">                      T&amp; result) const</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        typedef typename geometry::point_type&lt;Box&gt;::type box_point;</span>
+<span style="color:green;">        box_point top_left, top_right, bottom_left, bottom_right;</span>
+<span style="color:green;">        geometry::detail::assign_box_corners(box,</span>
+<span style="color:green;">                                             bottom_left, bottom_right,</span>
+<span style="color:green;">                                             top_left, top_right);</span>
+
+<span style="color:green;">        apply(segment, bottom_left, bottom_right, strategy, result);</span>
+<span style="color:green;">        if (result.count == 0)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            apply(segment, top_left, top_right, strategy, result);</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">    }</span>
+<span style="color:green;">};</span>
+
+
+<span style="color:green;">}} // namespace strategy::disjoint</span>
+
+
+<span style="color:green;">}} // namespace boost::geometry</span>
+
+#endif // <span style="color:red;">DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">BOOST_GEOMETRY_STRATEGIES_CARTESIAN_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/distance_segment_box.hpp b/include/boost/geometry/strategies/cartesian/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">index 13eb2e3b1..78753117d 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/distance_segment_box.hpp</span>
+<span style="color:teal;">@@ -85,6 +85,17 @@</span> struct cartesian_segment_box
+        return disjoint_point_box_strategy_type();
+    }
+
+    <span style="color:green;">typedef intersection::cartesian_segments</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            CalculationType</span>
+<span style="color:green;">        &gt; relate_segment_segment_strategy_type;</span>
+
+<span style="color:green;">    static inline relate_segment_segment_strategy_type</span>
+<span style="color:green;">    get_relate_segment_segment_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return relate_segment_segment_strategy_type();</span>
+<span style="color:green;">    }</span>
+
+    typedef side::side_by_triangle&lt;CalculationType&gt; side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+<span style="color:teal;">@@ -121,13 +132,14 @@</span> struct cartesian_segment_box
+        return strategy_type();
+    }
+
+    <span style="color:green;">typedef disjoint::cartesian_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+    static inline <span style="color:red;">closest_points::cartesian_segment_box&lt;CalculationType, Strategy&gt;</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+    {
+        return <span style="color:red;">closest_points::cartesian_segment_box&lt;CalculationType, Strategy&gt;();</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+
+    template &lt;typename LessEqual, typename ReturnType,
+              typename SegmentPoint, typename BoxPoint&gt;
+    inline ReturnType segment_below_of_box(SegmentPoint const&amp; p0,
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/intersection.hpp b/include/boost/geometry/strategies/cartesian/intersection.hpp</span>
+<span style="font-weight:bold;">index f44de6c95..3789a9f6d 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/intersection.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/intersection.hpp</span>
+<span style="color:teal;">@@ -36,6 +36,7 @@</span>
+#include &lt;boost/geometry/strategies/cartesian/area.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/disjoint_box_box.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/disjoint_segment_box.hpp&gt;
+<span style="color:green;">#include &lt;boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/cartesian/distance_pythagoras.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/envelope.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/expand_box.hpp&gt;
+<span style="color:teal;">@@ -62,12 +63,6 @@</span>
+namespace boost { namespace geometry
+{
+
+<span style="color:red;">namespace strategy { namespace closest_points</span>
+<span style="color:red;">{</span>
+<span style="color:red;">template &lt;typename CalculationType, typename Strategy&gt;</span>
+<span style="color:red;">struct cartesian_segment_box;</span>
+<span style="color:red;">}}</span>
+
+namespace strategy { namespace intersection
+{
+
+<span style="color:teal;">@@ -83,6 +78,12 @@</span> struct cartesian_segments
+{
+    typedef cartesian_tag cs_tag;
+
+    <span style="color:green;">static inline cartesian_segments&lt;CalculationType&gt;</span>
+<span style="color:green;">    get_relate_segment_segment_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return cartesian_segments&lt;CalculationType&gt;();</span>
+<span style="color:green;">    }</span>
+
+    typedef side::side_by_triangle&lt;CalculationType&gt; side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+<span style="color:teal;">@@ -103,7 +104,7 @@</span> struct cartesian_segments
+
+    template &lt;typename Geometry1, typename Geometry2&gt;
+    static inline typename point_in_geometry_strategy&lt;Geometry1, Geometry2&gt;::type
+    get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            &lt;
+<span style="color:teal;">@@ -191,20 +192,17 @@</span> struct cartesian_segments
+        return disjoint_segment_box_strategy_type();
+    }
+
+    typedef <span style="color:red;">closest_points::cartesian_segment_box</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        CalculationType,</span>
+<span style="color:red;">        distance::pythagoras&lt;CalculationType&gt;</span>
+<span style="color:red;">    &gt;   closest_points_cartesian_segment_box;</span><span style="color:green;">disjoint::cartesian_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+    static inline <span style="color:red;">closest_points_cartesian_segment_box</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+    {
+        return <span style="color:red;">closest_points_cartesian_segment_box();</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/cartesian/point_in_box.hpp b/include/boost/geometry/strategies/cartesian/point_in_box.hpp</span>
+<span style="font-weight:bold;">index 468e167c6..3108f40a5 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/cartesian/point_in_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/cartesian/point_in_box.hpp</span>
+<span style="color:teal;">@@ -292,6 +292,17 @@</span> struct spherical_point_box
+namespace services
+{
+
+<span style="color:green;">template &lt;typename Point, typename Box&gt;</span>
+<span style="color:green;">struct default_strategy</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">        Point, Box,</span>
+<span style="color:green;">        point_tag, box_tag,</span>
+<span style="color:green;">        pointlike_tag, areal_tag,</span>
+<span style="color:green;">        cs_undefined_tag, cs_undefined_tag</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">{</span>
+<span style="color:green;">    typedef covered_by::cartesian_point_box type;</span>
+<span style="color:green;">};</span>
+
+template &lt;typename Point, typename Box&gt;
+struct default_strategy
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/geographic/closest_points.hpp b/include/boost/geometry/strategies/geographic/closest_points.hpp</span>
+<span style="font-weight:bold;">index ec8a1a5b4..ea6e69556 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/geographic/closest_points.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/geographic/closest_points.hpp</span>
+<span style="color:teal;">@@ -14,7 +14,7 @@</span>
+#include &lt;boost/geometry/algorithms/detail/closest_points/result.hpp&gt;
+
+#include &lt;boost/geometry/strategies/closest_points.hpp&gt;
+<span style="color:red;">#include</span><span style="color:green;">//#include</span> &lt;boost/geometry/formulas/point_segment_distance.hpp&gt;
+
+namespace boost { namespace geometry
+{
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/geographic/closest_points_segment_box.hpp b/include/boost/geometry/strategies/geographic/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">index a8287eb58..75eda5c0b 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/geographic/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/geographic/closest_points_segment_box.hpp</span>
+<span style="color:teal;">@@ -20,6 +20,7 @@</span>
+
+#include &lt;boost/geometry/strategies/distance.hpp&gt;
+#include &lt;boost/geometry/strategies/geographic/azimuth.hpp&gt;
+<span style="color:green;">#include &lt;boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/geographic/distance_cross_track.hpp&gt;
+#include &lt;boost/geometry/strategies/geographic/parameters.hpp&gt;
+#include &lt;boost/geometry/strategies/geographic/side.hpp&gt;
+<span style="color:teal;">@@ -144,7 +145,7 @@</span> struct geographic_segment_box
+
+    template &lt;typename Geometry1, typename Geometry2&gt;
+    inline typename point_in_geometry_strategy&lt;Geometry1, Geometry2&gt;::type
+    get_point_in_geometry_strategy() const
+    {
+        typedef typename point_in_geometry_strategy
+            &lt;
+<span style="color:teal;">@@ -167,15 +168,15 @@</span> struct geographic_segment_box
+        return relate_segment_segment_strategy_type(m_spheroid);
+    }
+
+    typedef <span style="color:red;">geographic_segment_box</span><span style="color:green;">disjoint::geographic_segment_box_with_info</span>
+    &lt;
+        FormulaPolicy, Spheroid, CalculationType
+    &gt; <span style="color:red;">closest_points_segment_box_strategy_type;</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type;</span>
+
+    inline <span style="color:red;">closest_points_segment_box_strategy_type</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span> const
+    {
+        return <span style="color:red;">closest_points_segment_box_strategy_type(m_spheroid);</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type(m_spheroid);</span>
+    }
+
+    Spheroid get_spheroid() const
+<span style="color:teal;">@@ -508,199 +509,6 @@</span> struct result_set_unique_point
+    }
+};
+
+<span style="color:red;">template</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    typename CalculationType,</span>
+<span style="color:red;">    typename SBStrategy</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">struct closest_points_seg_box</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    strategy::closest_points::geographic_segment_box&lt;CalculationType, SBStrategy&gt;</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">{</span>
+<span style="color:red;">    template</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        typename T,</span>
+<span style="color:red;">        typename SegmentPoint,</span>
+<span style="color:red;">        typename BoxPoint,</span>
+<span style="color:red;">        typename Strategy</span>
+<span style="color:red;">    &gt;</span>
+<span style="color:red;">    static inline bool apply_part(SegmentPoint const&amp; p0,</span>
+<span style="color:red;">                                  SegmentPoint const&amp; p1,</span>
+<span style="color:red;">                                  BoxPoint const&amp; top_left,</span>
+<span style="color:red;">                                  BoxPoint const&amp; top_right,</span>
+<span style="color:red;">                                  BoxPoint const&amp; bottom_left,</span>
+<span style="color:red;">                                  BoxPoint const&amp; bottom_right,</span>
+<span style="color:red;">                                  Strategy const&amp; strategy,</span>
+<span style="color:red;">                                  T &amp; result)</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        typedef geometry::model::segment&lt;SegmentPoint&gt; segment;</span>
+<span style="color:red;">        typedef geometry::model::box&lt;BoxPoint&gt; box;</span>
+<span style="color:red;">        typedef segment_intersection_points&lt;SegmentPoint&gt; intersection_return_type;</span>
+
+<span style="color:red;">        //TODO pass strategy</span>
+<span style="color:red;">        box b(bottom_left, top_right);</span>
+<span style="color:red;">        if (geometry::covered_by(p0, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p0);</span>
+<span style="color:red;">            return true;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        if (geometry::covered_by(p1, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p1);</span>
+<span style="color:red;">            return true;</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        //check segment intersection with box meridians</span>
+<span style="color:red;">        segment s = segment(p0,p1);</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(bottom_left, top_left);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return true;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(bottom_right, top_right);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return true;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        // treat the other (parallel) edges of box differently</span>
+<span style="color:red;">        // since they are not (geodesic) segments</span>
+<span style="color:red;">        typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:red;">        CT lon1 = get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:red;">        CT lat1 = get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:red;">        CT lon2 = get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:red;">        CT lat2 = get_as_radian&lt;1&gt;(p1);</span>
+<span style="color:red;">        CT lat3 = get_as_radian&lt;1&gt;(bottom_left);</span>
+
+<span style="color:red;">        // ensure that az1 \in [0, pi/2]</span>
+<span style="color:red;">        if (lon1 &gt; lon2)</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            std::swap(lon1, lon2);</span>
+<span style="color:red;">            std::swap(lat1, lat2);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        if (lat1 &gt; lat2)</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            lat1 *= -1;</span>
+<span style="color:red;">            lat2 *= -1;</span>
+<span style="color:red;">            lat3 *= -1;</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        CT az1;</span>
+<span style="color:red;">        azimuth::geographic&lt;&gt;().apply(lon1, lat1, lon2, lat2, az1);</span>
+
+<span style="color:red;">        CT lon3 = formula::karney_direct_variant&lt;CT&gt;</span>
+<span style="color:red;">                ::apply(lon1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:red;">                        lat1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:red;">                        lat3 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:red;">                        az1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:red;">                        strategy.get_spheroid());</span>
+
+<span style="color:red;">        CT lon_left = get_as_radian&lt;0&gt;(bottom_left);</span>
+<span style="color:red;">        CT lon_right = get_as_radian&lt;0&gt;(bottom_right);</span>
+
+<span style="color:red;">#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX</span>
+<span style="color:red;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3 &lt;&lt; std::endl;</span>
+<span style="color:red;">#endif</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon_left);</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon_right);</span>
+<span style="color:red;">        math::normalize_longitude&lt;degree&gt;(lon3);</span>
+<span style="color:red;">#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX</span>
+<span style="color:red;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3 &lt;&lt; std::endl;</span>
+<span style="color:red;">#endif</span>
+<span style="color:red;">        if ( lon_left * math::r2d&lt;CT&gt;() &lt; lon3</span>
+<span style="color:red;">             &amp;&amp; lon3 &lt; lon_right * math::r2d&lt;CT&gt;() )</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            SegmentPoint p;</span>
+<span style="color:red;">            set&lt;0&gt;(p, lon3);</span>
+<span style="color:red;">            set_from_radian&lt;1&gt;(p, get_as_radian&lt;1&gt;(bottom_left));</span>
+<span style="color:red;">            result.set_unique_point(p);</span>
+<span style="color:red;">            return true;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        return false;</span>
+<span style="color:red;">    }</span>
+
+<span style="color:red;">    template</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        typename T,</span>
+<span style="color:red;">        typename SegmentPoint,</span>
+<span style="color:red;">        typename BoxPoint,</span>
+<span style="color:red;">        typename Strategy</span>
+<span style="color:red;">    &gt;</span>
+<span style="color:red;">    static inline void apply(SegmentPoint const&amp; p0,</span>
+<span style="color:red;">                             SegmentPoint const&amp; p1,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_right,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_right,</span>
+<span style="color:red;">                             Strategy const&amp; strategy,</span>
+<span style="color:red;">                             T &amp; result)</span>
+<span style="color:red;">    {</span>
+
+
+<span style="color:red;">        if (apply_part(p0, p1,</span>
+<span style="color:red;">                       top_left, top_right,</span>
+<span style="color:red;">                       bottom_left, bottom_right,</span>
+<span style="color:red;">                       strategy, result))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            return;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        else</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:red;">            CT az1;</span>
+<span style="color:red;">            CT lon1 = get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:red;">            CT lat1 = get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:red;">            CT lon2 = get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:red;">            CT lat2 = get_as_radian&lt;1&gt;(p1);</span>
+
+<span style="color:red;">            azimuth::geographic&lt;&gt;().apply(lon1, lat1, lon2, lat2, az1);</span>
+<span style="color:red;">            CT vertex_lat = geometry::formula::vertex_latitude&lt;CT, geographic_tag&gt;</span>
+<span style="color:red;">                                    ::apply(lon1,</span>
+<span style="color:red;">                                            az1,</span>
+<span style="color:red;">                                            strategy.get_spheroid());</span>
+
+<span style="color:red;">            CT vertex_lon = geometry::formula::vertex_longitude&lt;CT, geographic_tag&gt;</span>
+<span style="color:red;">                                    ::apply(lon1, lat1, lon2, lat2,</span>
+<span style="color:red;">                                            vertex_lat,</span>
+<span style="color:red;">                                            az1,</span>
+<span style="color:red;">                                            azimuth::geographic&lt;&gt;());</span>
+<span style="color:red;">            SegmentPoint vertex;</span>
+<span style="color:red;">            set_from_radian&lt;0&gt;(vertex, vertex_lon);</span>
+<span style="color:red;">            set_from_radian&lt;1&gt;(vertex, vertex_lat);</span>
+
+<span style="color:red;">            apply_part(vertex, p1,</span>
+<span style="color:red;">                       top_left, top_right,</span>
+<span style="color:red;">                       bottom_left, bottom_right,</span>
+<span style="color:red;">                       strategy, result);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">    }</span>
+<span style="color:red;">};</span>
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp b/include/boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">index f7b494c38..124393587 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp</span>
+<span style="color:teal;">@@ -1,4 +1,259 @@</span>
+<span style="color:red;">#ifndef DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:red;">#define DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">// Boost.Geometry</span>
+
+<span style="color:green;">// Copyright (c) 2020, Oracle and/or its affiliates.</span>
+
+<span style="color:green;">// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle</span>
+
+<span style="color:green;">// Licensed under the Boost Software License version 1.0.</span>
+<span style="color:green;">// http://www.boost.org/users/license.html</span>
+
+<span style="color:green;">#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:green;">#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+
+<span style="color:green;">#include &lt;boost/geometry/core/assert.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_dimension.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_type.hpp&gt;</span>
+
+<span style="color:green;">#include &lt;boost/geometry/formulas/karney_direct_variant.hpp&gt;</span>
+
+<span style="color:green;">namespace boost { namespace geometry</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">namespace strategy { namespace disjoint</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">template</span>
+<span style="color:green;">&lt;</span>
+<span style="color:green;">    typename FormulaPolicy = strategy::andoyer,</span>
+<span style="color:green;">    typename Spheroid = srs::spheroid&lt;double&gt;,</span>
+<span style="color:green;">    typename CalculationType = void</span>
+<span style="color:green;">&gt;</span>
+<span style="color:green;">struct geographic_segment_box_with_info</span>
+<span style="color:green;">{</span>
+<span style="color:green;">    typedef Spheroid model_type;</span>
+
+<span style="color:green;">    inline geographic_segment_box_with_info()</span>
+<span style="color:green;">        : m_spheroid()</span>
+<span style="color:green;">    {}</span>
+
+<span style="color:green;">    explicit inline geographic_segment_box_with_info(Spheroid const&amp; spheroid)</span>
+<span style="color:green;">        : m_spheroid(spheroid)</span>
+<span style="color:green;">    {}</span>
+
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename BoxPoint,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline void static apply(Segment const&amp; segment,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point1,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point2,</span>
+<span style="color:green;">                             Strategy const&amp; strategy,</span>
+<span style="color:green;">                             T&amp; result)</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        cartesian_segment_box_with_info::apply(segment, box_point1,</span>
+<span style="color:green;">                                               box_point2, strategy, result);</span>
+<span style="color:green;">    }</span>
+
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename T,</span>
+<span style="color:green;">            typename SegmentPoint,</span>
+<span style="color:green;">            typename BoxPoint</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline bool apply_impl(SegmentPoint const&amp; p0,</span>
+<span style="color:green;">                           SegmentPoint const&amp; p1,</span>
+<span style="color:green;">                           BoxPoint const&amp; bottom_left,</span>
+<span style="color:green;">                           BoxPoint const&amp; bottom_right,</span>
+<span style="color:green;">                           T &amp; result) const</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        // treat the other (parallel) edges of box differently</span>
+<span style="color:green;">        // since they are not (geodesic) segments</span>
+<span style="color:green;">        typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:green;">        CT lon1 = get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:green;">        CT lat1 = get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:green;">        CT lon2 = get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:green;">        CT lat2 = get_as_radian&lt;1&gt;(p1);</span>
+<span style="color:green;">        CT lat3 = get_as_radian&lt;1&gt;(bottom_left);</span>
+
+<span style="color:green;">        // ensure that az1 \in [0, pi/2]</span>
+<span style="color:green;">        if (lon1 &gt; lon2)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            std::swap(lon1, lon2);</span>
+<span style="color:green;">            std::swap(lat1, lat2);</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if (lat1 &gt; lat2)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            lat1 *= -1;</span>
+<span style="color:green;">            lat2 *= -1;</span>
+<span style="color:green;">            lat3 *= -1;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        CT az1;</span>
+<span style="color:green;">        azimuth::geographic&lt;&gt;().apply(lon1, lat1, lon2, lat2, az1);</span>
+
+<span style="color:green;">        CT lon3 = formula::karney_direct_variant&lt;CT&gt;</span>
+<span style="color:green;">                ::apply(lon1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:green;">                        lat1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:green;">                        lat3 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:green;">                        az1 * math::r2d&lt;CT&gt;(),</span>
+<span style="color:green;">                        m_spheroid);</span>
+
+<span style="color:green;">        CT lon_left = get_as_radian&lt;0&gt;(bottom_left);</span>
+<span style="color:green;">        CT lon_right = get_as_radian&lt;0&gt;(bottom_right);</span>
+
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3 &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_left);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_right);</span>
+<span style="color:green;">        math::normalize_longitude&lt;degree&gt;(lon3);</span>
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon2 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3 &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        if (lon2 &lt; lon1)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            swap(lon1, lon2);</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if (( lon_left * math::r2d&lt;CT&gt;() &lt; lon3</span>
+<span style="color:green;">             &amp;&amp; lon3 &lt; lon_right * math::r2d&lt;CT&gt;() ) &amp;&amp;</span>
+<span style="color:green;">            ( lon1 * math::r2d&lt;CT&gt;() &lt; lon3</span>
+<span style="color:green;">             &amp;&amp; lon3 &lt; lon2 * math::r2d&lt;CT&gt;() ))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            SegmentPoint p;</span>
+<span style="color:green;">            set&lt;0&gt;(p, lon3);</span>
+<span style="color:green;">            set_from_radian&lt;1&gt;(p, get_as_radian&lt;1&gt;(bottom_left));</span>
+<span style="color:green;">            result.count = 1;</span>
+<span style="color:green;">            result.intersections[0] = p;</span>
+<span style="color:green;">            return true;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        return false;</span>
+<span style="color:green;">    }</span>
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename BoxPoint,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">            &gt;</span>
+<span style="color:green;">    inline bool apply(Segment const&amp; segment,</span>
+<span style="color:green;">                      BoxPoint const&amp; box_point_left,</span>
+<span style="color:green;">                      BoxPoint const&amp; box_point_right,</span>
+<span style="color:green;">                      T&amp; result) const</span>
+<span style="color:green;">    {</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Segment&gt;::type SegmentPoint;</span>
+<span style="color:green;">        SegmentPoint p[2];</span>
+<span style="color:green;">        geometry::detail::assign_point_from_index&lt;0&gt;(segment, p[0]);</span>
+<span style="color:green;">        geometry::detail::assign_point_from_index&lt;1&gt;(segment, p[1]);</span>
+
+<span style="color:green;">        typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:green;">        CT az1;</span>
+<span style="color:green;">        CT lon1 = get_as_radian&lt;0&gt;(p[0]);</span>
+<span style="color:green;">        CT lat1 = get_as_radian&lt;1&gt;(p[0]);</span>
+<span style="color:green;">        CT lon2 = get_as_radian&lt;0&gt;(p[1]);</span>
+<span style="color:green;">        CT lat2 = get_as_radian&lt;1&gt;(p[1]);</span>
+
+<span style="color:green;">        if (lon2 &lt; lon1)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            swap(lon1, lon2);</span>
+<span style="color:green;">            swap(lat1, lat2);</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        azimuth::geographic&lt;&gt;().apply(lon1, lat1, lon2, lat2, az1);</span>
+<span style="color:green;">        CT vertex_lat = geometry::formula::vertex_latitude&lt;CT, geographic_tag&gt;</span>
+<span style="color:green;">                ::apply(lat1,</span>
+<span style="color:green;">                        az1,</span>
+<span style="color:green;">                        m_spheroid);</span>
+
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; &quot;vertex=&quot; &lt;&lt; vertex_lat * math::r2d&lt;CT&gt;() &lt;&lt; &quot; &lt; &quot;</span>
+<span style="color:green;">                  &lt;&lt; get_as_radian&lt;1&gt;(box_point_left) * math::r2d&lt;CT&gt;() &lt;&lt; &quot; ? &quot;</span>
+<span style="color:green;">                  &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+
+<span style="color:green;">        if (std::abs(vertex_lat) &lt; std::abs(get_as_radian&lt;1&gt;(box_point_left)))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return false;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        if (apply_impl(p[0], p[1],</span>
+<span style="color:green;">                       box_point_left, box_point_right,</span>
+<span style="color:green;">                       result))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return true;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        else</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            CT vertex_lon = geometry::formula::vertex_longitude&lt;CT, geographic_tag&gt;</span>
+<span style="color:green;">                    ::apply(lon1, lat1, lon2, lat2,</span>
+<span style="color:green;">                            vertex_lat,</span>
+<span style="color:green;">                            az1,</span>
+<span style="color:green;">                            azimuth::geographic&lt;&gt;());</span>
+
+<span style="color:green;">            if (vertex_lon &lt; lon1 || vertex_lon &gt; lon2)</span>
+<span style="color:green;">            {</span>
+<span style="color:green;">                return false;</span>
+<span style="color:green;">            }</span>
+
+<span style="color:green;">            SegmentPoint vertex;</span>
+<span style="color:green;">            set_from_radian&lt;0&gt;(vertex, vertex_lon);</span>
+<span style="color:green;">            set_from_radian&lt;1&gt;(vertex, vertex_lat);</span>
+
+<span style="color:green;">            if (apply_impl(vertex, p[1],</span>
+<span style="color:green;">                       box_point_left, box_point_right,</span>
+<span style="color:green;">                       result))</span>
+<span style="color:green;">            {</span>
+<span style="color:green;">                return true;</span>
+<span style="color:green;">            }</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        return false;</span>
+<span style="color:green;">    }</span>
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename Box,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">            &gt;</span>
+<span style="color:green;">    inline void apply(Segment const&amp; segment,</span>
+<span style="color:green;">                      Box const&amp; box,</span>
+<span style="color:green;">                      Strategy const&amp;,</span>
+<span style="color:green;">                      T&amp; result) const</span>
+<span style="color:green;">    {</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Box&gt;::type box_point;</span>
+<span style="color:green;">        box_point top_left, top_right, bottom_left, bottom_right;</span>
+<span style="color:green;">        geometry::detail::assign_box_corners(box,</span>
+<span style="color:green;">                                             bottom_left, bottom_right,</span>
+<span style="color:green;">                                             top_left, top_right);</span>
+<span style="color:green;">        if (apply(segment, bottom_left, bottom_right, result))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        apply(segment, top_left, top_right, result);</span>
+<span style="color:green;">    }</span>
+
+<span style="color:green;">private:</span>
+<span style="color:green;">    Spheroid m_spheroid;</span>
+<span style="color:green;">};</span>
+
+
+<span style="color:green;">}} // namespace strategy::disjoint</span>
+
+<span style="color:green;">}} // namespace boost::geometry</span>
+
+#endif // <span style="color:red;">DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/geographic/distance_segment_box.hpp b/include/boost/geometry/strategies/geographic/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">index 3bd24ad12..a933b8f63 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/geographic/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/geographic/distance_segment_box.hpp</span>
+<span style="color:teal;">@@ -107,6 +107,19 @@</span> struct geographic_segment_box
+        return disjoint_point_box_strategy_type();
+    }
+
+    <span style="color:green;">typedef intersection::geographic_segments</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            FormulaPolicy,</span>
+<span style="color:green;">            strategy::default_order&lt;FormulaPolicy&gt;::value,</span>
+<span style="color:green;">            Spheroid,</span>
+<span style="color:green;">            CalculationType</span>
+<span style="color:green;">        &gt; relate_segment_segment_strategy_type;</span>
+
+<span style="color:green;">    inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy() const</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return relate_segment_segment_strategy_type(m_spheroid);</span>
+<span style="color:green;">    }</span>
+
+    typedef side::geographic
+            &lt;
+                FormulaPolicy,
+<span style="color:teal;">@@ -148,15 +161,15 @@</span> struct geographic_segment_box
+        return strategy_type();
+    }
+
+    typedef <span style="color:red;">closest_points::geographic_segment_box</span><span style="color:green;">disjoint::geographic_segment_box_with_info</span>
+    &lt;
+        FormulaPolicy, Spheroid, CalculationType
+    &gt; <span style="color:red;">closest_points_segment_box_strategy_type;</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type;</span>
+
+    inline <span style="color:red;">closest_points_segment_box_strategy_type</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span> const
+    {
+        return <span style="color:red;">closest_points_segment_box_strategy_type(m_spheroid);</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type(m_spheroid);</span>
+    }
+
+    //constructor
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/geographic/intersection.hpp b/include/boost/geometry/strategies/geographic/intersection.hpp</span>
+<span style="font-weight:bold;">index 3827d0415..fb8279a45 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/geographic/intersection.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/geographic/intersection.hpp</span>
+<span style="color:teal;">@@ -37,6 +37,7 @@</span>
+#include &lt;boost/geometry/srs/spheroid.hpp&gt;
+
+#include &lt;boost/geometry/strategies/geographic/area.hpp&gt;
+<span style="color:green;">#include &lt;boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/geographic/disjoint_segment_box.hpp&gt;
+#include &lt;boost/geometry/strategies/geographic/distance.hpp&gt;
+#include &lt;boost/geometry/strategies/geographic/envelope.hpp&gt;
+<span style="color:teal;">@@ -57,12 +58,6 @@</span>
+namespace boost { namespace geometry
+{
+
+<span style="color:red;">namespace strategy { namespace closest_points</span>
+<span style="color:red;">{</span>
+<span style="color:red;">template &lt;typename FormulaPolicy, typename Spheroid, typename CalculationType&gt;</span>
+<span style="color:red;">struct geographic_segment_box;</span>
+<span style="color:red;">}}</span>
+
+namespace strategy { namespace intersection
+{
+
+<span style="color:teal;">@@ -82,6 +77,12 @@</span> struct geographic_segments
+{
+    typedef geographic_tag cs_tag;
+
+    <span style="color:green;">inline geographic_segments&lt;FormulaPolicy, Order, Spheroid, CalculationType&gt;</span>
+<span style="color:green;">    get_relate_segment_segment_strategy() const</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return geographic_segments&lt;FormulaPolicy, Order, Spheroid, CalculationType&gt;(m_spheroid);</span>
+<span style="color:green;">    }</span>
+
+    typedef side::geographic
+        &lt;
+            FormulaPolicy, Spheroid, CalculationType
+<span style="color:teal;">@@ -195,29 +196,39 @@</span> struct geographic_segments
+            FormulaPolicy, Spheroid, CalculationType
+        &gt; disjoint_segment_box_strategy_type;
+
+    inline disjoint_segment_box_strategy_type
+    get_disjoint_segment_box_strategy() const
+    {
+        return disjoint_segment_box_strategy_type(m_spheroid);
+    }
+
+    typedef <span style="color:red;">closest_points::geographic_segment_box</span><span style="color:green;">disjoint::geographic_segment_box_with_info</span>
+    &lt;
+        FormulaPolicy, Spheroid, CalculationType
+    &gt; <span style="color:red;">closest_points_segment_box_strategy_type;</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type;</span>
+
+    inline <span style="color:red;">closest_points_segment_box_strategy_type</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span> const
+    {
+        return <span style="color:red;">closest_points_segment_box_strategy_type(m_spheroid);</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type(m_spheroid);</span>
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+
+    <span style="color:green;">static inline disjoint_point_box_strategy_type</span>
+<span style="color:green;">    get_disjoint_point_box_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return disjoint_point_box_strategy_type();</span>
+<span style="color:green;">    }</span>
+
+    typedef within::spherical_point_box within_point_box_strategy_type;
+    typedef envelope::spherical_box envelope_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
+
+    enum intersection_point_flag { ipi_inters = 0,
+                                   ipi_at_a1, ipi_at_a2,
+                                   ipi_at_b1, ipi_at_b2 };
+
+    template &lt;typename CoordinateType, typename SegmentRatio&gt;
+    struct segment_intersection_info
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/closest_points.hpp b/include/boost/geometry/strategies/spherical/closest_points.hpp</span>
+<span style="font-weight:bold;">index c5f2d40f7..2ac8866c9 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/closest_points.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/closest_points.hpp</span>
+<span style="color:teal;">@@ -13,7 +13,7 @@</span>
+
+#include &lt;boost/geometry/strategies/closest_points.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/distance_haversine.hpp&gt;
+<span style="color:red;">#include</span><span style="color:green;">//#include</span> &lt;boost/geometry/formulas/point_segment_distance.hpp&gt;
+
+namespace boost { namespace geometry
+{
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/closest_points_segment_box.hpp b/include/boost/geometry/strategies/spherical/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">index df3ee4386..2bb61e5b1 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/closest_points_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/closest_points_segment_box.hpp</span>
+<span style="color:teal;">@@ -18,7 +18,8 @@</span>
+#include &lt;boost/geometry/strategies/distance.hpp&gt;
+#include &lt;boost/geometry/strategies/normalize.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/disjoint_box_box.hpp&gt;
+#include <span style="color:red;">&lt;boost/geometry/strategies/spherical/distance_segment_box.hpp&gt;</span><span style="color:green;">&lt;boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/strategies/spherical/distance_generic_segment_box.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/spherical/point_in_point.hpp&gt;
+
+#include &lt;boost/geometry/util/promote_floating_point.hpp&gt;
+<span style="color:teal;">@@ -92,10 +93,12 @@</span> struct spherical_segment_box
+        return disjoint_point_box_strategy_type();
+    }
+
+    <span style="color:green;">typedef disjoint::spherical_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+    static inline <span style="color:red;">spherical_segment_box&lt;CalculationType, Strategy&gt;</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+    {
+        return <span style="color:red;">spherical_segment_box&lt;CalculationType, Strategy&gt;();</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+    template &lt;typename SegmentPoint, typename BoxPoint&gt;
+<span style="color:teal;">@@ -149,7 +152,7 @@</span> struct spherical_segment_box
+
+    template &lt;typename Geometry1, typename Geometry2&gt;
+    static inline typename point_in_geometry_strategy&lt;Geometry1, Geometry2&gt;::type
+    get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            &lt;
+<span style="color:teal;">@@ -410,130 +413,6 @@</span> struct result_set_unique_point
+    }
+};
+
+<span style="color:red;">template</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    typename CalculationType,</span>
+<span style="color:red;">    typename SBStrategy</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">struct closest_points_seg_box</span>
+<span style="color:red;">&lt;</span>
+<span style="color:red;">    strategy::closest_points::spherical_segment_box&lt;CalculationType, SBStrategy&gt;</span>
+<span style="color:red;">&gt;</span>
+<span style="color:red;">{</span>
+<span style="color:red;">    template</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        typename T,</span>
+<span style="color:red;">        typename SegmentPoint,</span>
+<span style="color:red;">        typename BoxPoint,</span>
+<span style="color:red;">        typename Strategy</span>
+<span style="color:red;">    &gt;</span>
+<span style="color:red;">    static inline void apply(SegmentPoint const&amp; p0,</span>
+<span style="color:red;">                             SegmentPoint const&amp; p1,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; top_right,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_left,</span>
+<span style="color:red;">                             BoxPoint const&amp; bottom_right,</span>
+<span style="color:red;">                             Strategy const&amp; strategy,</span>
+<span style="color:red;">                             T &amp; result)</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        typedef geometry::model::segment&lt;SegmentPoint&gt; segment;</span>
+<span style="color:red;">        typedef geometry::model::box&lt;BoxPoint&gt; box;</span>
+<span style="color:red;">        typedef segment_intersection_points&lt;SegmentPoint&gt; intersection_return_type;</span>
+
+<span style="color:red;">        // test if endpoints of segment covered by box</span>
+<span style="color:red;">        //TODO pass strategy</span>
+<span style="color:red;">        box b(bottom_left, top_right);</span>
+<span style="color:red;">        if (geometry::covered_by(p0, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p0);</span>
+<span style="color:red;">            return;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        if (geometry::covered_by(p1, b))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result.set_unique_point(p1);</span>
+<span style="color:red;">            return;</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        //check segment intersection with box meridians</span>
+<span style="color:red;">        segment s = segment(p0, p1);</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(bottom_left, top_left);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            segment sb = segment(bottom_right, top_right);</span>
+<span style="color:red;">            intersection_return_type res =</span>
+<span style="color:red;">            geometry::detail::disjoint::disjoint_segment_with_info</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                segment,</span>
+<span style="color:red;">                segment</span>
+<span style="color:red;">            &gt;::apply(s, sb, strategy.get_relate_segment_segment_strategy());</span>
+<span style="color:red;">            if (res.count &gt; 0)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                result.set_unique_point(res.intersections[0]);</span>
+<span style="color:red;">                return;</span>
+<span style="color:red;">            }</span>
+<span style="color:red;">        }</span>
+
+<span style="color:red;">        // treat the other (parallel) edges of box differently</span>
+<span style="color:red;">        // since they are not (geodesic) segments</span>
+
+<span style="color:red;">        typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:red;">        CT const lon1 = get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:red;">        CT const lat1 = get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:red;">        CT const lon2 = get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:red;">        CT const lat2 = get_as_radian&lt;1&gt;(p1);</span>
+<span style="color:red;">        CT const lat3 = get_as_radian&lt;1&gt;(bottom_left);</span>
+<span style="color:red;">        CT lon_left = get_as_radian&lt;0&gt;(bottom_left);</span>
+<span style="color:red;">        CT lon_right = get_as_radian&lt;0&gt;(bottom_right);</span>
+<span style="color:red;">        CT lon3_1;</span>
+<span style="color:red;">        CT lon3_2;</span>
+<span style="color:red;">        formula::crossing_parallel(lon1, lat1, lon2, lat2, lat3, lon3_1, lon3_2);</span>
+
+<span style="color:red;">        SegmentPoint p;</span>
+<span style="color:red;">        set_from_radian&lt;1&gt;(p, lat3);</span>
+
+<span style="color:red;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:red;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:red;">#endif</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon_left);</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon_right);</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon3_1);</span>
+<span style="color:red;">        math::normalize_longitude&lt;radian&gt;(lon3_2);</span>
+<span style="color:red;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:red;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:red;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:red;">#endif</span>
+<span style="color:red;">        if ( lon_left &lt; lon3_1 &amp;&amp; lon3_1 &lt; lon_right )</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            set_from_radian&lt;0&gt;(p, lon3_1);</span>
+<span style="color:red;">            result.set_unique_point(p);</span>
+<span style="color:red;">            return ;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        if ( lon_left &lt; lon3_2 &amp;&amp; lon3_2 &lt; lon_right )</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            set_from_radian&lt;0&gt;(p, lon3_2);</span>
+<span style="color:red;">            result.set_unique_point(p);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">    }</span>
+<span style="color:red;">};</span>
+
+} // namespace services
+#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/disjoint_segment_box.hpp b/include/boost/geometry/strategies/spherical/disjoint_segment_box.hpp</span>
+<span style="font-weight:bold;">index 29b6bdaf5..3955c50dc 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/disjoint_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/disjoint_segment_box.hpp</span>
+<span style="color:teal;">@@ -72,6 +72,73 @@</span> struct segment_box_spherical
+};
+
+
+<span style="color:green;">struct segment_box_spherical_with_info</span>
+<span style="color:green;">{</span>
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">        typename T,</span>
+<span style="color:green;">        typename SegmentPoint,</span>
+<span style="color:green;">        typename BoxPoint,</span>
+<span style="color:green;">        typename Strategy</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    static inline void apply(SegmentPoint const&amp; p0,</span>
+<span style="color:green;">                             SegmentPoint const&amp; p1,</span>
+<span style="color:green;">                             BoxPoint const&amp; top_left,</span>
+<span style="color:green;">                             BoxPoint const&amp; top_right,</span>
+<span style="color:green;">                             BoxPoint const&amp; bottom_left,</span>
+<span style="color:green;">                             BoxPoint const&amp; bottom_right,</span>
+<span style="color:green;">                             Strategy const&amp; strategy,</span>
+<span style="color:green;">                             T &amp; result)</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        // treat the other (parallel) edges of box differently</span>
+<span style="color:green;">        // since they are not (geodesic) segments</span>
+
+<span style="color:green;">        typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:green;">        CT const lon1 = get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:green;">        CT const lat1 = get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:green;">        CT const lon2 = get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:green;">        CT const lat2 = get_as_radian&lt;1&gt;(p1);</span>
+<span style="color:green;">        CT const lat3 = get_as_radian&lt;1&gt;(bottom_left);</span>
+<span style="color:green;">        CT lon_left = get_as_radian&lt;0&gt;(bottom_left);</span>
+<span style="color:green;">        CT lon_right = get_as_radian&lt;0&gt;(bottom_right);</span>
+<span style="color:green;">        CT lon3_1;</span>
+<span style="color:green;">        CT lon3_2;</span>
+<span style="color:green;">        formula::crossing_parallel(lon1, lat1, lon2, lat2, lat3, lon3_1, lon3_2);</span>
+
+<span style="color:green;">        SegmentPoint p;</span>
+<span style="color:green;">        set_from_radian&lt;1&gt;(p, lat3);</span>
+
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_left);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_right);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon3_1);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon3_2);</span>
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        if ( lon_left &lt; lon3_1 &amp;&amp; lon3_1 &lt; lon_right )</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            set_from_radian&lt;0&gt;(p, lon3_1);</span>
+<span style="color:green;">            result.set_unique_point(p);</span>
+<span style="color:green;">            return ;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if ( lon_left &lt; lon3_2 &amp;&amp; lon3_2 &lt; lon_right )</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            set_from_radian&lt;0&gt;(p, lon3_2);</span>
+<span style="color:green;">            result.set_unique_point(p);</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">    }</span>
+<span style="color:green;">};</span>
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp b/include/boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">index f7b494c38..49a2d3ac6 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp</span>
+<span style="color:teal;">@@ -1,4 +1,148 @@</span>
+<span style="color:red;">#ifndef DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:red;">#define DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">// Boost.Geometry</span>
+
+<span style="color:green;">// Copyright (c) 2020, Oracle and/or its affiliates.</span>
+
+<span style="color:green;">// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle</span>
+
+<span style="color:green;">// Licensed under the Boost Software License version 1.0.</span>
+<span style="color:green;">// http://www.boost.org/users/license.html</span>
+
+<span style="color:green;">#ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="color:green;">#define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+
+<span style="color:green;">#include &lt;boost/geometry/core/assert.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_dimension.hpp&gt;</span>
+<span style="color:green;">#include &lt;boost/geometry/core/coordinate_type.hpp&gt;</span>
+
+<span style="color:green;">#define BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+
+<span style="color:green;">namespace boost { namespace geometry</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">namespace strategy { namespace disjoint</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">struct spherical_segment_box_with_info</span>
+<span style="color:green;">{</span>
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename BoxPoint,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline void static apply(Segment const&amp; segment,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point1,</span>
+<span style="color:green;">                             BoxPoint const&amp; box_point2,</span>
+<span style="color:green;">                             Strategy const&amp; strategy,</span>
+<span style="color:green;">                             T&amp; result)</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        cartesian_segment_box_with_info::apply(segment, box_point1,</span>
+<span style="color:green;">                                               box_point2, strategy, result);</span>
+<span style="color:green;">    }</span>
+
+<span style="color:green;">    template</span>
+<span style="color:green;">    &lt;</span>
+<span style="color:green;">            typename Segment,</span>
+<span style="color:green;">            typename Box,</span>
+<span style="color:green;">            typename Strategy,</span>
+<span style="color:green;">            typename T</span>
+<span style="color:green;">    &gt;</span>
+<span style="color:green;">    inline void apply(Segment const&amp; segment,</span>
+<span style="color:green;">                      Box const&amp; box,</span>
+<span style="color:green;">                      Strategy const&amp;,</span>
+<span style="color:green;">                      T&amp; result) const</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        // treat the other (parallel) edges of box differently</span>
+<span style="color:green;">        // since they are not (geodesic) segments</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Box&gt;::type box_point;</span>
+<span style="color:green;">        box_point top_left, top_right, bottom_left, bottom_right;</span>
+<span style="color:green;">        geometry::detail::assign_box_corners(box,</span>
+<span style="color:green;">                                             bottom_left, bottom_right,</span>
+<span style="color:green;">                                             top_left, top_right);</span>
+
+<span style="color:green;">        typedef typename geometry::point_type&lt;Segment&gt;::type SegmentPoint;</span>
+<span style="color:green;">        SegmentPoint p[2];</span>
+<span style="color:green;">        geometry::detail::assign_point_from_index&lt;0&gt;(segment, p[0]);</span>
+<span style="color:green;">        geometry::detail::assign_point_from_index&lt;1&gt;(segment, p[1]);</span>
+
+<span style="color:green;">        typedef typename coordinate_type&lt;Segment&gt;::type CT;</span>
+
+<span style="color:green;">        CT lon1 = get_as_radian&lt;0&gt;(p[0]);</span>
+<span style="color:green;">        CT const lat1 = get_as_radian&lt;1&gt;(p[0]);</span>
+<span style="color:green;">        CT lon2 = get_as_radian&lt;0&gt;(p[1]);</span>
+<span style="color:green;">        CT const lat2 = get_as_radian&lt;1&gt;(p[1]);</span>
+
+<span style="color:green;">        CT lat3 = get_as_radian&lt;1&gt;(bottom_left);</span>
+
+<span style="color:green;">        CT lon3_1;</span>
+<span style="color:green;">        CT lon3_2;</span>
+
+<span style="color:green;">        if (! formula::crossing_parallel(lon1, lat1,</span>
+<span style="color:green;">                                         lon2, lat2,</span>
+<span style="color:green;">                                         lat3, lon3_1, lon3_2))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            lat3 = get_as_radian&lt;1&gt;(top_left);</span>
+<span style="color:green;">            if (! formula::crossing_parallel(lon1, lat1,</span>
+<span style="color:green;">                                             lon2, lat2,</span>
+<span style="color:green;">                                             lat3, lon3_1, lon3_2))</span>
+<span style="color:green;">            {</span>
+<span style="color:green;">                return;</span>
+<span style="color:green;">            }</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">        SegmentPoint p_result;</span>
+<span style="color:green;">        set_from_radian&lt;1&gt;(p_result, lat3);</span>
+<span style="color:green;">        CT lon_left = get_as_radian&lt;0&gt;(bottom_left);</span>
+<span style="color:green;">        CT lon_right = get_as_radian&lt;0&gt;(bottom_right);</span>
+
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon1);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon2);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_left);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon_right);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon3_1);</span>
+<span style="color:green;">        math::normalize_longitude&lt;radian&gt;(lon3_2);</span>
+<span style="color:green;">#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX</span>
+<span style="color:green;">        std::cout &lt;&lt; lon_left * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon_right * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_1 * math::r2d&lt;CT&gt;() &lt;&lt; &quot; , &quot;</span>
+<span style="color:green;">                  &lt;&lt; lon3_2 * math::r2d&lt;CT&gt;() &lt;&lt; std::endl;</span>
+<span style="color:green;">#endif</span>
+<span style="color:green;">        if (lon2 &lt; lon1)</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            swap(lon1, lon2);</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if (( lon_left &lt; lon3_1 &amp;&amp; lon3_1 &lt; lon_right ) &amp;&amp;</span>
+<span style="color:green;">                ( lon1 &lt; lon3_1 &amp;&amp; lon3_1 &lt; lon2 ))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            set_from_radian&lt;0&gt;(p_result, lon3_1);</span>
+<span style="color:green;">            result.count = 1;</span>
+<span style="color:green;">            result.intersections[0] = p_result;</span>
+<span style="color:green;">            return;</span>
+<span style="color:green;">        }</span>
+<span style="color:green;">        if (( lon_left &lt; lon3_2 &amp;&amp; lon3_2 &lt; lon_right ) &amp;&amp;</span>
+<span style="color:green;">                ( lon1 &lt; lon3_2 &amp;&amp; lon3_2 &lt; lon2 ))</span>
+<span style="color:green;">        {</span>
+<span style="color:green;">            set_from_radian&lt;0&gt;(p_result, lon3_2);</span>
+<span style="color:green;">            result.count = 1;</span>
+<span style="color:green;">            result.intersections[0] = p_result;</span>
+<span style="color:green;">        }</span>
+
+<span style="color:green;">    }</span>
+<span style="color:green;">};</span>
+
+
+<span style="color:green;">}} // namespace strategy::disjoint</span>
+
+
+<span style="color:green;">}} // namespace boost::geometry</span>
+
+#endif // <span style="color:red;">DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span><span style="color:green;">BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISJOINT_SEGMENT_BOX_WITH_INFO_HPP</span>
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/distance_segment_box.hpp b/include/boost/geometry/strategies/spherical/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">index c68975d4f..d6879bb8e 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/distance_segment_box.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/distance_segment_box.hpp</span>
+<span style="color:teal;">@@ -16,6 +16,7 @@</span>
+#include &lt;boost/geometry/strategies/distance.hpp&gt;
+#include &lt;boost/geometry/strategies/normalize.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/disjoint_box_box.hpp&gt;
+<span style="color:green;">#include &lt;boost/geometry/strategies/spherical/distance_generic_segment_box.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/spherical/distance_cross_track.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/point_in_point.hpp&gt;
+#include &lt;boost/geometry/strategies/cartesian/point_in_box.hpp&gt; // spherical
+<span style="color:teal;">@@ -28,178 +29,6 @@</span> namespace boost { namespace geometry
+namespace strategy { namespace distance
+{
+
+<span style="color:red;">struct generic_segment_box</span>
+<span style="color:red;">{</span>
+<span style="color:red;">    template</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">            typename LessEqual,</span>
+<span style="color:red;">            typename ReturnType,</span>
+<span style="color:red;">            typename SegmentPoint,</span>
+<span style="color:red;">            typename BoxPoint,</span>
+<span style="color:red;">            typename SegmentBoxStrategy,</span>
+<span style="color:red;">            typename AzimuthStrategy,</span>
+<span style="color:red;">            typename EnvelopeSegmentStrategy,</span>
+<span style="color:red;">            typename NormalizePointStrategy,</span>
+<span style="color:red;">            typename DisjointPointBoxStrategy,</span>
+<span style="color:red;">            typename DisjointBoxBoxStrategy</span>
+<span style="color:red;">    &gt;</span>
+<span style="color:red;">    static inline ReturnType segment_below_of_box(</span>
+<span style="color:red;">            SegmentPoint const&amp; p0,</span>
+<span style="color:red;">            SegmentPoint const&amp; p1,</span>
+<span style="color:red;">            BoxPoint const&amp; top_left,</span>
+<span style="color:red;">            BoxPoint const&amp; top_right,</span>
+<span style="color:red;">            BoxPoint const&amp; bottom_left,</span>
+<span style="color:red;">            BoxPoint const&amp; bottom_right,</span>
+<span style="color:red;">            SegmentBoxStrategy const&amp; sb_strategy,</span>
+<span style="color:red;">            AzimuthStrategy const&amp; az_strategy,</span>
+<span style="color:red;">            EnvelopeSegmentStrategy const&amp; es_strategy,</span>
+<span style="color:red;">            NormalizePointStrategy const&amp; np_strategy,</span>
+<span style="color:red;">            DisjointPointBoxStrategy const&amp; dpb_strategy,</span>
+<span style="color:red;">            DisjointBoxBoxStrategy const&amp; dbb_strategy)</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        ReturnType result;</span>
+<span style="color:red;">        typename LessEqual::other less_equal;</span>
+<span style="color:red;">        typedef geometry::model::segment&lt;SegmentPoint&gt; segment_type;</span>
+<span style="color:red;">        // if cs_tag is spherical_tag check segment's cs_tag with spherical_equatorial_tag as default</span>
+<span style="color:red;">        typedef typename boost::mpl::if_c</span>
+<span style="color:red;">            &lt;</span>
+<span style="color:red;">                boost::is_same&lt;typename SegmentBoxStrategy::cs_tag, spherical_tag&gt;::value,</span>
+<span style="color:red;">                typename boost::mpl::if_c</span>
+<span style="color:red;">                    &lt;</span>
+<span style="color:red;">                        boost::is_same</span>
+<span style="color:red;">                            &lt;</span>
+<span style="color:red;">                                typename geometry::cs_tag&lt;segment_type&gt;::type,</span>
+<span style="color:red;">                                spherical_polar_tag</span>
+<span style="color:red;">                            &gt;::value,</span>
+<span style="color:red;">                        spherical_polar_tag, spherical_equatorial_tag</span>
+<span style="color:red;">                    &gt;::type,</span>
+<span style="color:red;">                typename SegmentBoxStrategy::cs_tag</span>
+<span style="color:red;">            &gt;::type cs_tag;</span>
+<span style="color:red;">        typedef geometry::detail::disjoint::</span>
+<span style="color:red;">                disjoint_segment_box_sphere_or_spheroid&lt;cs_tag&gt;</span>
+<span style="color:red;">                disjoint_sb;</span>
+<span style="color:red;">        typedef typename disjoint_sb::disjoint_info disjoint_info_type;</span>
+
+<span style="color:red;">        segment_type seg(p0, p1);</span>
+
+<span style="color:red;">        geometry::model::box&lt;BoxPoint&gt; input_box;</span>
+<span style="color:red;">        geometry::set_from_radian&lt;geometry::min_corner, 0&gt;</span>
+<span style="color:red;">                (input_box, geometry::get_as_radian&lt;0&gt;(bottom_left));</span>
+<span style="color:red;">        geometry::set_from_radian&lt;geometry::min_corner, 1&gt;</span>
+<span style="color:red;">                (input_box, geometry::get_as_radian&lt;1&gt;(bottom_left));</span>
+<span style="color:red;">        geometry::set_from_radian&lt;geometry::max_corner, 0&gt;</span>
+<span style="color:red;">                (input_box, geometry::get_as_radian&lt;0&gt;(top_right));</span>
+<span style="color:red;">        geometry::set_from_radian&lt;geometry::max_corner, 1&gt;</span>
+<span style="color:red;">                (input_box, geometry::get_as_radian&lt;1&gt;(top_right));</span>
+
+<span style="color:red;">        SegmentPoint p_max;</span>
+
+<span style="color:red;">        disjoint_info_type disjoint_result = disjoint_sb::</span>
+<span style="color:red;">                apply(seg, input_box, p_max,</span>
+<span style="color:red;">                      az_strategy, np_strategy, dpb_strategy, dbb_strategy);</span>
+
+<span style="color:red;">        if (disjoint_result == disjoint_info_type::intersect) //intersect</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            strategy::distance::services::closest_points_seg_box&lt;SegmentBoxStrategy&gt;</span>
+<span style="color:red;">                    ::apply(p0, p1,</span>
+<span style="color:red;">                            top_left, top_right, bottom_left, bottom_right,</span>
+<span style="color:red;">                            sb_strategy, result);</span>
+<span style="color:red;">            return result;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        // disjoint but vertex not computed</span>
+<span style="color:red;">        if (disjoint_result == disjoint_info_type::disjoint_no_vertex)</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            typedef typename coordinate_type&lt;SegmentPoint&gt;::type CT;</span>
+
+<span style="color:red;">            geometry::model::box&lt;SegmentPoint&gt; mbr;</span>
+<span style="color:red;">            geometry::envelope(seg, mbr, es_strategy);</span>
+
+<span style="color:red;">            CT lon1 = geometry::get_as_radian&lt;0&gt;(p0);</span>
+<span style="color:red;">            CT lat1 = geometry::get_as_radian&lt;1&gt;(p0);</span>
+<span style="color:red;">            CT lon2 = geometry::get_as_radian&lt;0&gt;(p1);</span>
+<span style="color:red;">            CT lat2 = geometry::get_as_radian&lt;1&gt;(p1);</span>
+
+<span style="color:red;">            if (lon1 &gt; lon2)</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                std::swap(lon1, lon2);</span>
+<span style="color:red;">                std::swap(lat1, lat2);</span>
+<span style="color:red;">            }</span>
+
+<span style="color:red;">            CT vertex_lat;</span>
+<span style="color:red;">            CT lat_sum = lat1 + lat2;</span>
+<span style="color:red;">            if (lat_sum &gt; CT(0))</span>
+<span style="color:red;">            {</span>
+<span style="color:red;">                vertex_lat = geometry::get_as_radian&lt;geometry::max_corner, 1&gt;(mbr);</span>
+<span style="color:red;">            } else {</span>
+<span style="color:red;">                vertex_lat = geometry::get_as_radian&lt;geometry::min_corner, 1&gt;(mbr);</span>
+<span style="color:red;">            }</span>
+
+<span style="color:red;">            CT alp1;</span>
+<span style="color:red;">            az_strategy.apply(lon1, lat1, lon2, lat2, alp1);</span>
+<span style="color:red;">            CT vertex_lon = geometry::formula::vertex_longitude</span>
+<span style="color:red;">                    &lt;</span>
+<span style="color:red;">                    CT,</span>
+<span style="color:red;">                    cs_tag</span>
+<span style="color:red;">                    &gt;::apply(lon1, lat1, lon2, lat2,</span>
+<span style="color:red;">                             vertex_lat, alp1, az_strategy);</span>
+
+<span style="color:red;">            geometry::set_from_radian&lt;0&gt;(p_max, vertex_lon);</span>
+<span style="color:red;">            geometry::set_from_radian&lt;1&gt;(p_max, vertex_lat);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        //otherwise disjoint and vertex computed inside disjoint</span>
+
+<span style="color:red;">        if (less_equal(geometry::get_as_radian&lt;0&gt;(bottom_left),</span>
+<span style="color:red;">                       geometry::get_as_radian&lt;0&gt;(p_max)))</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result = boost::numeric_cast&lt;ReturnType&gt;(typename</span>
+<span style="color:red;">                        SegmentBoxStrategy::distance_ps_strategy::type()</span>
+<span style="color:red;">                                            .apply(bottom_left, p0, p1));</span>
+
+<span style="color:red;">            strategy::distance::services::swap&lt;SegmentBoxStrategy&gt;::apply(result);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        else</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            result = geometry::detail::distance::segment_to_box_2D</span>
+<span style="color:red;">                    &lt;</span>
+<span style="color:red;">                        ReturnType,</span>
+<span style="color:red;">                        SegmentPoint,</span>
+<span style="color:red;">                        BoxPoint,</span>
+<span style="color:red;">                        SegmentBoxStrategy</span>
+<span style="color:red;">                    &gt;::template call_above_of_box</span>
+<span style="color:red;">                                &lt;</span>
+<span style="color:red;">                                    typename LessEqual::other</span>
+<span style="color:red;">                                &gt;(p1, p0, p_max, bottom_right, sb_strategy);</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        return result;</span>
+<span style="color:red;">    }</span>
+
+<span style="color:red;">    template &lt;typename SPoint, typename BPoint&gt;</span>
+<span style="color:red;">    static bool mirror(SPoint&amp; p0,</span>
+<span style="color:red;">                       SPoint&amp; p1,</span>
+<span style="color:red;">                       BPoint&amp; bottom_left,</span>
+<span style="color:red;">                       BPoint&amp; bottom_right,</span>
+<span style="color:red;">                       BPoint&amp; top_left,</span>
+<span style="color:red;">                       BPoint&amp; top_right)</span>
+<span style="color:red;">    {</span>
+<span style="color:red;">        //if segment's vertex is the southest point then mirror geometries</span>
+<span style="color:red;">        if (geometry::get&lt;1&gt;(p0) + geometry::get&lt;1&gt;(p1) &lt; 0)</span>
+<span style="color:red;">        {</span>
+<span style="color:red;">            BPoint bl = bottom_left;</span>
+<span style="color:red;">            BPoint br = bottom_right;</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(p0, geometry::get&lt;1&gt;(p0) * -1);</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(p1, geometry::get&lt;1&gt;(p1) * -1);</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(bottom_left, geometry::get&lt;1&gt;(top_left) * -1);</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(top_left, geometry::get&lt;1&gt;(bl) * -1);</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(bottom_right, geometry::get&lt;1&gt;(top_right) * -1);</span>
+<span style="color:red;">            geometry::set&lt;1&gt;(top_right, geometry::get&lt;1&gt;(br) * -1);</span>
+<span style="color:red;">            return true;</span>
+<span style="color:red;">        }</span>
+<span style="color:red;">        return false;</span>
+<span style="color:red;">    }</span>
+<span style="color:red;">};</span>
+
+<span style="color:red;">//===========================================================================</span>
+
+template
+&lt;
+    typename CalculationType = void,
+<span style="color:teal;">@@ -263,6 +92,17 @@</span> struct spherical_segment_box
+        return disjoint_point_box_strategy_type();
+    }
+
+    <span style="color:green;">typedef intersection::spherical_segments</span>
+<span style="color:green;">        &lt;</span>
+<span style="color:green;">            CalculationType</span>
+<span style="color:green;">        &gt; relate_segment_segment_strategy_type;</span>
+
+<span style="color:green;">    static inline relate_segment_segment_strategy_type</span>
+<span style="color:green;">    get_relate_segment_segment_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return relate_segment_segment_strategy_type();</span>
+<span style="color:green;">    }</span>
+
+    typedef side::spherical_side_formula&lt;CalculationType&gt; side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+<span style="color:teal;">@@ -277,10 +117,12 @@</span> struct spherical_segment_box
+        return equals_point_point_strategy_type();
+    }
+
+    <span style="color:green;">typedef disjoint::spherical_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+    static inline <span style="color:red;">closest_points::spherical_segment_box&lt;CalculationType, Strategy&gt;</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+    {
+        return <span style="color:red;">closest_points::spherical_segment_box&lt;CalculationType, Strategy&gt;();</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+    template &lt;typename Geometry1, typename Geometry2&gt;
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/spherical/intersection.hpp b/include/boost/geometry/strategies/spherical/intersection.hpp</span>
+<span style="font-weight:bold;">index 4b58fd831..b5aa376f5 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/spherical/intersection.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/spherical/intersection.hpp</span>
+<span style="color:teal;">@@ -35,14 +35,17 @@</span>
+
+#include &lt;boost/geometry/policies/robustness/segment_ratio.hpp&gt;
+
+<span style="color:green;">//#include &lt;boost/geometry/strategies/strategies.hpp&gt;</span>
+
+#include &lt;boost/geometry/strategies/covered_by.hpp&gt;
+#include &lt;boost/geometry/strategies/intersection.hpp&gt;
+#include &lt;boost/geometry/strategies/intersection_result.hpp&gt;
+#include &lt;boost/geometry/strategies/side.hpp&gt;
+#include &lt;boost/geometry/strategies/side_info.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/area.hpp&gt;
+<span style="color:green;">//#include &lt;boost/geometry/strategies/spherical/closest_points_segment_box.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/spherical/disjoint_box_box.hpp&gt;
+#include <span style="color:red;">&lt;boost/geometry/strategies/spherical/disjoint_segment_box.hpp&gt;</span><span style="color:green;">&lt;boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp&gt;</span>
+#include &lt;boost/geometry/strategies/spherical/distance_haversine.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/envelope.hpp&gt;
+#include &lt;boost/geometry/strategies/spherical/expand_box.hpp&gt;
+<span style="color:teal;">@@ -58,12 +61,6 @@</span>
+namespace boost { namespace geometry
+{
+
+<span style="color:red;">namespace strategy { namespace closest_points</span>
+<span style="color:red;">{</span>
+<span style="color:red;">template &lt;typename CalculationType, typename Strategy&gt;</span>
+<span style="color:red;">struct spherical_segment_box;</span>
+<span style="color:red;">}}</span>
+
+namespace strategy { namespace intersection
+{
+
+<span style="color:teal;">@@ -98,6 +95,12 @@</span> struct ecef_segments
+{
+    typedef spherical_tag cs_tag;
+
+    <span style="color:green;">static inline ecef_segments&lt;CalcPolicy, CalculationType&gt;</span>
+<span style="color:green;">    get_relate_segment_segment_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return ecef_segments&lt;CalcPolicy, CalculationType&gt;();</span>
+<span style="color:green;">    }</span>
+
+    typedef side::spherical_side_formula&lt;CalculationType&gt; side_strategy_type;
+
+    static inline side_strategy_type get_side_strategy()
+<span style="color:teal;">@@ -205,25 +208,30 @@</span> struct ecef_segments
+        return disjoint_segment_box_strategy_type();
+    }
+
+    typedef <span style="color:red;">closest_points::spherical_segment_box</span>
+<span style="color:red;">    &lt;</span>
+<span style="color:red;">        CalculationType,</span>
+<span style="color:red;">        distance::haversine&lt;double, CalculationType&gt;</span>
+<span style="color:red;">    &gt;   closest_points_spherical_segment_box;</span><span style="color:green;">disjoint::spherical_segment_box_with_info</span>
+<span style="color:green;">            disjoint_segment_box_with_info_strategy_type;</span>
+    static inline <span style="color:red;">closest_points_spherical_segment_box</span>
+<span style="color:red;">    get_closest_points_segment_box_strategy()</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type</span>
+<span style="color:green;">    get_disjoint_segment_box_with_info_strategy()</span>
+    {
+        return <span style="color:red;">closest_points_spherical_segment_box();</span><span style="color:green;">disjoint_segment_box_with_info_strategy_type();</span>
+    }
+
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+
+    <span style="color:green;">static inline disjoint_point_box_strategy_type</span>
+<span style="color:green;">    get_disjoint_point_box_strategy()</span>
+<span style="color:green;">    {</span>
+<span style="color:green;">        return disjoint_point_box_strategy_type();</span>
+<span style="color:green;">    }</span>
+
+    typedef within::spherical_point_box within_point_box_strategy_type;
+    typedef envelope::spherical_box envelope_box_strategy_type;
+    typedef expand::spherical_box expand_box_strategy_type;
+
+    enum intersection_point_flag { ipi_inters = 0,
+                                   ipi_at_a1, ipi_at_a2,
+                                   ipi_at_b1, ipi_at_b2 };
+
+    // segment_intersection_info cannot outlive relate_ecef_segments
+    template &lt;typename CoordinateType, typename SegmentRatio, typename Vector3d&gt;
+<span style="font-weight:bold;">diff --git a/include/boost/geometry/strategies/strategies.hpp b/include/boost/geometry/strategies/strategies.hpp</span>
+<span style="font-weight:bold;">index 9b4ca83af..dc3afd818 100644</span>
+<span style="font-weight:bold;">--- a/include/boost/geometry/strategies/strategies.hpp</span>
+<span style="font-weight:bold;">+++ b/include/boost/geometry/strategies/strategies.hpp</span>
+<span style="color:teal;">@@ -36,7 +36,7 @@</span>
+#include &lt;boost/geometry/strategies/distance.hpp&gt;
+#include &lt;boost/geometry/strategies/envelope.hpp&gt;
+#include &lt;boost/geometry/strategies/intersection.hpp&gt;
+<span style="color:red;">#include</span><span style="color:green;">//#include</span> &lt;boost/geometry/strategies/intersection_strategies.hpp&gt; // for backward compatibility
+#include &lt;boost/geometry/strategies/relate.hpp&gt;
+#include &lt;boost/geometry/strategies/side.hpp&gt;
+#include &lt;boost/geometry/strategies/transform.hpp&gt;
+<span style="font-weight:bold;">diff --git a/index.html b/index.html</span>
+<span style="font-weight:bold;">index c6ae1a06b..6d949cebd 100644</span>
+<span style="font-weight:bold;">--- a/index.html</span>
+<span style="font-weight:bold;">+++ b/index.html</span>
+<span style="color:teal;">@@ -1,15 +0,0 @@</span>
+<span style="color:red;">&lt;!--</span>
+<span style="color:red;">Copyright 2010 Barend Gehrels.</span>
+<span style="color:red;">Distributed under the Boost Software License, Version 1.0. (See accompanying</span>
+<span style="color:red;">file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)</span>
+<span style="color:red;">--&gt;</span>
+
+<span style="color:red;">&lt;html&gt;</span>
+<span style="color:red;">&lt;head&gt;</span>
+<span style="color:red;">    &lt;meta http-equiv=&quot;refresh&quot; content=&quot;0; URL=doc/html/index.html&quot;&gt;</span>
+<span style="color:red;">&lt;/head&gt;</span>
+<span style="color:red;">&lt;body&gt;</span>
+<span style="color:red;">Automatic redirection failed, please go to</span>
+<span style="color:red;">&lt;a href=&quot;doc/html/index.html&quot;&gt;doc/html/index.html&lt;/a&gt;</span>
+<span style="color:red;">&lt;/body&gt;</span>
+<span style="color:red;">&lt;/html&gt;</span>
+<span style="font-weight:bold;">diff --git a/test/algorithms/closest_points/l_ar.cpp b/test/algorithms/closest_points/l_ar.cpp</span>
+<span style="font-weight:bold;">index c0ea8ae53..2816c053b 100644</span>
+<span style="font-weight:bold;">--- a/test/algorithms/closest_points/l_ar.cpp</span>
+<span style="font-weight:bold;">+++ b/test/algorithms/closest_points/l_ar.cpp</span>
+<span style="color:teal;">@@ -438,7 +438,7 @@</span> void test_closest_points_segment_box(Strategy const&amp; strategy)
+                  &quot;BOX(80 1.1,100 1.2)&quot;,
+                  &quot;SEGMENT(100 1,100 1.1)&quot;,
+                  &quot;SEGMENT(95.0021 1.1,95.0021 1.1)&quot;,
+                  <span style="color:red;">&quot;SEGMENT(80 1.18863,80 1.18863)&quot;,</span><span style="color:green;">&quot;SEGMENT(95.0509 1.1,95.0509 1.1)&quot;,</span>
+                  strategy);
+
+    tester::apply(&quot;SEGMENT(0 1,100 1)&quot;,
+<span style="color:teal;">@@ -463,10 +463,10 @@</span> void test_closest_points_segment_box(Strategy const&amp; strategy)
+                  &quot;SEGMENT(6.83635 6,6.83635 6)&quot;,
+                  strategy);
+    tester::apply(&quot;SEGMENT(0 -5,120 -5)&quot;,
+                  &quot;BOX(0 <span style="color:red;">-6,120 -7)&quot;,</span><span style="color:green;">-7,120 -6)&quot;,</span>
+                  &quot;SEGMENT(0 -5,0 <span style="color:green;">-6)&quot;,</span>
+<span style="color:green;">                  &quot;SEGMENT(105.435 -7,105.435</span> -7)&quot;,
+                  <span style="color:red;">&quot;SEGMENT(14.5649 -7,14.5649 -7)&quot;,</span>
+<span style="color:red;">                  &quot;SEGMENT(14.3791 -7,14.3791</span><span style="color:green;">&quot;SEGMENT(105.719 -7,105.719</span> -7)&quot;,
+                  strategy);
+
+    //Case B: box intersects and contains the vertex
+<span style="color:teal;">@@ -479,8 +479,8 @@</span> void test_closest_points_segment_box(Strategy const&amp; strategy)
+    tester::apply(&quot;SEGMENT(0 -5,120 -5)&quot;,
+                  &quot;BOX(0 -10,120 -9)&quot;,
+                  &quot;SEGMENT(0 -5,0 -9)&quot;,
+                  <span style="color:red;">&quot;SEGMENT(34.8464 -9,34.8464</span><span style="color:green;">&quot;SEGMENT(85.1536 -9,85.1536</span> -9)&quot;,
+                  <span style="color:red;">&quot;SEGMENT(34.2138 -9,34.2138</span><span style="color:green;">&quot;SEGMENT(85.7839 -9,85.7839</span> -9)&quot;,
+                  strategy);
+
+    tester::apply(&quot;SEGMENT(15 15,15 15)&quot;,
+<span style="font-weight:bold;">diff --git a/test/algorithms/distance/distance_se_geo_ar_ar.cpp b/test/algorithms/distance/distance_se_geo_ar_ar.cpp</span>
+<span style="font-weight:bold;">index 9c0afaf45..f03eced3b 100644</span>
+<span style="font-weight:bold;">--- a/test/algorithms/distance/distance_se_geo_ar_ar.cpp</span>
+<span style="font-weight:bold;">+++ b/test/algorithms/distance/distance_se_geo_ar_ar.cpp</span>
+<span style="color:teal;">@@ -11,6 +11,7 @@</span>
+#ifndef BOOST_TEST_MODULE
+#define BOOST_TEST_MODULE test_distance_geographic_areal_areal
+#endif
+<span style="color:green;">#define BOOST_GEOMETRY_TEST_DEBUG</span>
+
+#include &lt;boost/range.hpp&gt;
+#include &lt;boost/type_traits/is_same.hpp&gt;
+<span style="color:teal;">@@ -348,9 +349,9 @@</span> void test_distance_polygon_box(Strategy_pp const&amp; strategy_pp,
+                  0,
+                  strategy_sb, true, false, false);
+
+    <span style="color:red;">tester::apply(&quot;pb_intersect&quot;,</span><span style="color:green;">tester::apply(&quot;pb_intersect_south&quot;,</span>
+                  &quot;POLYGON((0 0,100 -3,110 0,0 0))&quot;,
+                  <span style="color:red;">&quot;BOX(100 -2,0</span><span style="color:green;">&quot;BOX(0 -2,100</span> -1,)&quot;,
+                  0,
+                  strategy_sb, true, false, false);
+}
+</pre>
 </body>
 </html>

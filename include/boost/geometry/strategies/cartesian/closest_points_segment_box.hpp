@@ -10,9 +10,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_SEGMENT_BOX_HPP
 
-#include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
-
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp>
+#include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
@@ -85,6 +84,14 @@ struct cartesian_segment_box
         return disjoint_point_box_strategy_type();
     }
 
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
+    {
+        return disjoint_segment_box_with_info_strategy_type();
+    }
+
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()
@@ -112,7 +119,7 @@ struct cartesian_segment_box
 
     template <typename Geometry1, typename Geometry2>
     static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+    get_point_in_geometry_strategy()
     {
         typedef typename point_in_geometry_strategy
             <
@@ -130,12 +137,6 @@ struct cartesian_segment_box
     get_relate_segment_segment_strategy()
     {
         return relate_segment_segment_strategy_type();
-    }
-
-    static inline cartesian_segment_box<CalculationType, Strategy>
-    get_closest_points_segment_box_strategy()
-    {
-        return cartesian_segment_box<CalculationType, Strategy>();
     }
 
     template <typename P1, typename P2>
@@ -157,7 +158,6 @@ struct cartesian_segment_box
                          BoxPoint const&,
                          BoxPoint const& bottom_right) const
     {
-
         return geometry::detail::distance::segment_to_box_2D
             <
                 ReturnType,
@@ -168,6 +168,7 @@ struct cartesian_segment_box
                 <
                     typename LessEqual::other
                 >(p1, p0, bottom_right, *this);
+
     }
 
     template <typename SPoint, typename BPoint>
@@ -325,111 +326,6 @@ struct result_set_unique_point
         result.set_unique_point(point);
     }
 };
-
-template
-<
-    typename CalculationType,
-    typename SBStrategy
->
-struct closest_points_seg_box
-<
-    strategy::closest_points::cartesian_segment_box<CalculationType, SBStrategy>
->
-{
-
-    template
-    <
-        typename T,
-        typename SegmentPoint,
-        typename BoxPoint,
-        typename Strategy
-    >
-    static inline void apply(SegmentPoint const& p0,
-                             SegmentPoint const& p1,
-                             BoxPoint const& top_left,
-                             BoxPoint const& top_right,
-                             BoxPoint const& bottom_left,
-                             BoxPoint const& bottom_right,
-                             Strategy const& strategy,
-                             T & result)
-    {
-        typedef geometry::model::segment<SegmentPoint> segment;
-        typedef geometry::model::box<BoxPoint> box;
-        typedef segment_intersection_points<SegmentPoint> intersection_return_type;
-
-        //TODO pass strategy
-        box b(bottom_left, top_right);
-        if (geometry::covered_by(p0, b))
-        {
-            result.set_unique_point(p0);
-            return;
-        }
-        if (geometry::covered_by(p1, b))
-        {
-            result.set_unique_point(p1);
-            return;
-        }
-
-        segment s = segment(p0, p1);
-        {
-            segment sb = segment(top_left, bottom_left);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-        {
-            segment sb = segment(top_right, bottom_right);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-        {
-            segment sb = segment(bottom_left, bottom_right);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-        {
-            segment sb = segment(top_left, top_right);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-    }
-};
-
 
 }
 #endif

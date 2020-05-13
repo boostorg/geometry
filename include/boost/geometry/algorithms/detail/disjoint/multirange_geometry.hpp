@@ -129,13 +129,21 @@ struct multirange_constant_size_geometry
           ConstantSizeGeometry const& constant_size_geometry,
           Strategy const& strategy)
     {
-        intersection_return_type res =
-                multirange_constant_size_geometry_with_info
+        typedef unary_disjoint_geometry_to_query_geometry
+        <
+                ConstantSizeGeometry,
+                Strategy,
+                dispatch::disjoint
                 <
-                    MultiRange,
+                    typename boost::range_value<MultiRange>::type,
                     ConstantSizeGeometry
-                >::apply(multirange, constant_size_geometry, strategy);
-        return res.count == 0;
+                >
+         > unary_predicate_type;
+         return detail::check_iterator_range
+                <
+                     unary_predicate_type
+                >::apply(boost::begin(multirange), boost::end(multirange),
+                         unary_predicate_type(constant_size_geometry, strategy));
     }
 
     template <typename Strategy>

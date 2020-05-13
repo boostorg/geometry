@@ -107,6 +107,19 @@ struct geographic_segment_box
         return disjoint_point_box_strategy_type();
     }
 
+    typedef intersection::geographic_segments
+        <
+            FormulaPolicy,
+            strategy::default_order<FormulaPolicy>::value,
+            Spheroid,
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy() const
+    {
+        return relate_segment_segment_strategy_type(m_spheroid);
+    }
+
     typedef side::geographic
             <
                 FormulaPolicy,
@@ -148,15 +161,15 @@ struct geographic_segment_box
         return strategy_type();
     }
 
-    typedef closest_points::geographic_segment_box
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        > closest_points_segment_box_strategy_type;
+    typedef disjoint::geographic_segment_box_with_info
+    <
+        FormulaPolicy, Spheroid, CalculationType
+    > disjoint_segment_box_with_info_strategy_type;
 
-    inline closest_points_segment_box_strategy_type
-    get_closest_points_segment_box_strategy() const
+    inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy() const
     {
-        return closest_points_segment_box_strategy_type(m_spheroid);
+        return disjoint_segment_box_with_info_strategy_type(m_spheroid);
     }
 
     //constructor

@@ -20,6 +20,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
+#include <boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
@@ -144,7 +145,7 @@ struct geographic_segment_box
 
     template <typename Geometry1, typename Geometry2>
     inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy() const
+    get_point_in_geometry_strategy() const
     {
         typedef typename point_in_geometry_strategy
             <
@@ -167,15 +168,15 @@ struct geographic_segment_box
         return relate_segment_segment_strategy_type(m_spheroid);
     }
 
-    typedef geographic_segment_box
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        > closest_points_segment_box_strategy_type;
+    typedef disjoint::geographic_segment_box_with_info
+    <
+        FormulaPolicy, Spheroid, CalculationType
+    > disjoint_segment_box_with_info_strategy_type;
 
-    inline closest_points_segment_box_strategy_type
-    get_closest_points_segment_box_strategy() const
+    inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy() const
     {
-        return closest_points_segment_box_strategy_type(m_spheroid);
+        return disjoint_segment_box_with_info_strategy_type(m_spheroid);
     }
 
     Spheroid get_spheroid() const
@@ -505,199 +506,6 @@ struct result_set_unique_point
     static inline void apply(T& result, Point const& point)
     {
         result.set_unique_point(point);
-    }
-};
-
-template
-<
-    typename CalculationType,
-    typename SBStrategy
->
-struct closest_points_seg_box
-<
-    strategy::closest_points::geographic_segment_box<CalculationType, SBStrategy>
->
-{
-    template
-    <
-        typename T,
-        typename SegmentPoint,
-        typename BoxPoint,
-        typename Strategy
-    >
-    static inline bool apply_part(SegmentPoint const& p0,
-                                  SegmentPoint const& p1,
-                                  BoxPoint const& top_left,
-                                  BoxPoint const& top_right,
-                                  BoxPoint const& bottom_left,
-                                  BoxPoint const& bottom_right,
-                                  Strategy const& strategy,
-                                  T & result)
-    {
-        typedef geometry::model::segment<SegmentPoint> segment;
-        typedef geometry::model::box<BoxPoint> box;
-        typedef segment_intersection_points<SegmentPoint> intersection_return_type;
-
-        //TODO pass strategy
-        box b(bottom_left, top_right);
-        if (geometry::covered_by(p0, b))
-        {
-            result.set_unique_point(p0);
-            return true;
-        }
-        if (geometry::covered_by(p1, b))
-        {
-            result.set_unique_point(p1);
-            return true;
-        }
-
-        //check segment intersection with box meridians
-        segment s = segment(p0,p1);
-        {
-            segment sb = segment(bottom_left, top_left);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return true;
-            }
-        }
-        {
-            segment sb = segment(bottom_right, top_right);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return true;
-            }
-        }
-
-        // treat the other (parallel) edges of box differently
-        // since they are not (geodesic) segments
-        typedef typename coordinate_type<SegmentPoint>::type CT;
-
-        CT lon1 = get_as_radian<0>(p0);
-        CT lat1 = get_as_radian<1>(p0);
-        CT lon2 = get_as_radian<0>(p1);
-        CT lat2 = get_as_radian<1>(p1);
-        CT lat3 = get_as_radian<1>(bottom_left);
-
-        // ensure that az1 \in [0, pi/2]
-        if (lon1 > lon2)
-        {
-            std::swap(lon1, lon2);
-            std::swap(lat1, lat2);
-        }
-        if (lat1 > lat2)
-        {
-            lat1 *= -1;
-            lat2 *= -1;
-            lat3 *= -1;
-        }
-
-        CT az1;
-        azimuth::geographic<>().apply(lon1, lat1, lon2, lat2, az1);
-
-        CT lon3 = formula::karney_direct_variant<CT>
-                ::apply(lon1 * math::r2d<CT>(),
-                        lat1 * math::r2d<CT>(),
-                        lat3 * math::r2d<CT>(),
-                        az1 * math::r2d<CT>(),
-                        strategy.get_spheroid());
-
-        CT lon_left = get_as_radian<0>(bottom_left);
-        CT lon_right = get_as_radian<0>(bottom_right);
-
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3 << std::endl;
-#endif
-        math::normalize_longitude<radian>(lon_left);
-        math::normalize_longitude<radian>(lon_right);
-        math::normalize_longitude<degree>(lon3);
-#ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3 << std::endl;
-#endif
-        if ( lon_left * math::r2d<CT>() < lon3
-             && lon3 < lon_right * math::r2d<CT>() )
-        {
-            SegmentPoint p;
-            set<0>(p, lon3);
-            set_from_radian<1>(p, get_as_radian<1>(bottom_left));
-            result.set_unique_point(p);
-            return true;
-        }
-        return false;
-    }
-
-    template
-    <
-        typename T,
-        typename SegmentPoint,
-        typename BoxPoint,
-        typename Strategy
-    >
-    static inline void apply(SegmentPoint const& p0,
-                             SegmentPoint const& p1,
-                             BoxPoint const& top_left,
-                             BoxPoint const& top_right,
-                             BoxPoint const& bottom_left,
-                             BoxPoint const& bottom_right,
-                             Strategy const& strategy,
-                             T & result)
-    {
-
-
-        if (apply_part(p0, p1,
-                       top_left, top_right,
-                       bottom_left, bottom_right,
-                       strategy, result))
-        {
-            return;
-        }
-        else
-        {
-            typedef typename coordinate_type<SegmentPoint>::type CT;
-
-            CT az1;
-            CT lon1 = get_as_radian<0>(p0);
-            CT lat1 = get_as_radian<1>(p0);
-            CT lon2 = get_as_radian<0>(p1);
-            CT lat2 = get_as_radian<1>(p1);
-
-            azimuth::geographic<>().apply(lon1, lat1, lon2, lat2, az1);
-            CT vertex_lat = geometry::formula::vertex_latitude<CT, geographic_tag>
-                                    ::apply(lon1,
-                                            az1,
-                                            strategy.get_spheroid());
-
-            CT vertex_lon = geometry::formula::vertex_longitude<CT, geographic_tag>
-                                    ::apply(lon1, lat1, lon2, lat2,
-                                            vertex_lat,
-                                            az1,
-                                            azimuth::geographic<>());
-            SegmentPoint vertex;
-            set_from_radian<0>(vertex, vertex_lon);
-            set_from_radian<1>(vertex, vertex_lat);
-
-            apply_part(vertex, p1,
-                       top_left, top_right,
-                       bottom_left, bottom_right,
-                       strategy, result);
-        }
     }
 };
 

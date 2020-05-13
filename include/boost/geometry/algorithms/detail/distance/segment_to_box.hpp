@@ -657,13 +657,7 @@ private:
             return result;
         }
 
-        // in all other cases the box and segment intersect, so return 0 for
-        // distance and intersection point for closest_points
-
-        strategy::distance::services::closest_points_seg_box<SBStrategy>
-                ::apply(p0, p1,
-                        top_left, top_right, bottom_left, bottom_right,
-                        sb_strategy, result);
+        // in all other cases the box and segment intersect, so return 0
         return result;
     }
 
@@ -720,10 +714,6 @@ private:
             return result;
         }
 
-        strategy::distance::services::closest_points_seg_box<SBStrategy>
-                ::apply(p0, p1,
-                        top_left, top_right, bottom_left, bottom_right,
-                        sb_strategy, result);
         // in all other cases the box and segment intersect, so return 0
         return result;
     }
@@ -928,6 +918,38 @@ struct distance
                                     Strategy const& strategy)
     {
         assert_dimension_equal<Segment, Box>();
+
+        typedef typename geometry::select_most_precise
+                        <
+                            typename coordinate_type<Segment>::type,
+                            typename coordinate_type<Box>::type
+                        >::type most_precise_type;
+
+        typedef typename boost::mpl::if_c
+                <
+                    boost::is_same
+                    <
+                        most_precise_type,
+                        typename coordinate_type<Segment>::type
+                    >::value,
+                    typename point_type<Segment>::type,
+                    typename point_type<Box>::type
+                >::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res =
+        geometry::detail::disjoint::disjoint_segment_box_with_info<Segment, Box>
+                       ::apply(segment, box,
+                               strategy.get_relate_segment_segment_strategy());
+
+        if ( dis_res.count > 0 )
+        {
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
+        }
 
         return detail::distance::segment_to_box
             <

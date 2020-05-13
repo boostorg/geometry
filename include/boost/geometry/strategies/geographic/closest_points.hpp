@@ -14,7 +14,7 @@
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
 #include <boost/geometry/strategies/closest_points.hpp>
-#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/point_segment_distance.hpp>
 
 namespace boost { namespace geometry
 {

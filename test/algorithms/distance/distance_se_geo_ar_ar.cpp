@@ -11,6 +11,7 @@
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_distance_geographic_areal_areal
 #endif
+#define BOOST_GEOMETRY_TEST_DEBUG
 
 #include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -348,9 +349,9 @@ void test_distance_polygon_box(Strategy_pp const& strategy_pp,
                   0,
                   strategy_sb, true, false, false);
 
-    tester::apply("pb_intersect",
+    tester::apply("pb_intersect_south",
                   "POLYGON((0 0,100 -3,110 0,0 0))",
-                  "BOX(100 -2,0 -1,)",
+                  "BOX(0 -2,100 -1,)",
                   0,
                   strategy_sb, true, false, false);
 }

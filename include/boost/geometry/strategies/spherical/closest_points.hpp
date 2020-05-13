@@ -13,7 +13,7 @@
 
 #include <boost/geometry/strategies/closest_points.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/point_segment_distance.hpp>
 
 namespace boost { namespace geometry
 {

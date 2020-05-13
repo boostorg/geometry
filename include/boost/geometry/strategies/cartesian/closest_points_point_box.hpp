@@ -19,7 +19,6 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
-#include <boost/geometry/strategies/cartesian/intersection.hpp>
 
 
 namespace boost { namespace geometry

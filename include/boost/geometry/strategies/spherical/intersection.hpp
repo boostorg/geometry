@@ -35,14 +35,17 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
+//#include <boost/geometry/strategies/strategies.hpp>
+
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/area.hpp>
+//#include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
-#include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/envelope.hpp>
 #include <boost/geometry/strategies/spherical/expand_box.hpp>
@@ -57,12 +60,6 @@
 
 namespace boost { namespace geometry
 {
-
-namespace strategy { namespace closest_points
-{
-template <typename CalculationType, typename Strategy>
-struct spherical_segment_box;
-}}
 
 namespace strategy { namespace intersection
 {
@@ -97,6 +94,12 @@ template
 struct ecef_segments
 {
     typedef spherical_tag cs_tag;
+
+    static inline ecef_segments<CalcPolicy, CalculationType>
+    get_relate_segment_segment_strategy()
+    {
+        return ecef_segments<CalcPolicy, CalculationType>();
+    }
 
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
@@ -205,25 +208,30 @@ struct ecef_segments
         return disjoint_segment_box_strategy_type();
     }
 
-    typedef closest_points::spherical_segment_box
-    <
-        CalculationType,
-        distance::haversine<double, CalculationType>
-    >   closest_points_spherical_segment_box;
-
-    static inline closest_points_spherical_segment_box
-    get_closest_points_segment_box_strategy()
+    typedef disjoint::spherical_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
     {
-        return closest_points_spherical_segment_box();
+        return disjoint_segment_box_with_info_strategy_type();
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
     typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef within::spherical_point_box within_point_box_strategy_type;
     typedef envelope::spherical_box envelope_box_strategy_type;
     typedef expand::spherical_box expand_box_strategy_type;
 
-    enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
+    enum intersection_point_flag { ipi_inters = 0,
+                                   ipi_at_a1, ipi_at_a2,
+                                   ipi_at_b1, ipi_at_b2 };
 
     // segment_intersection_info cannot outlive relate_ecef_segments
     template <typename CoordinateType, typename SegmentRatio, typename Vector3d>

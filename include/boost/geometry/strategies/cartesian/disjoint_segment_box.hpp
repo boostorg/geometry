@@ -35,20 +35,23 @@
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
+
 
 
 namespace boost { namespace geometry
 {
-
-namespace strategy { namespace closest_points
+/*
+namespace strategy { namespace intersection
 {
-template <typename CalculationType, typename Strategy>
-struct cartesian_segment_box;
+template <typename CalculationType>
+struct cartesian_segments;
 }}
-
+*/
 namespace strategy { namespace disjoint
 {
 
@@ -268,11 +271,24 @@ struct segment_box
     {
         return disjoint_point_box_strategy_type();
     }
+/*
+    typedef intersection::cartesian_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
 
-    static inline closest_points::cartesian_segment_box<CalculationType, Strategy>
-    get_closest_points_segment_box_strategy()
+    static inline relate_segment_segment_strategy_type
+    get_relate_segment_segment_strategy()
     {
-        return closest_points::cartesian_segment_box<CalculationType, Strategy>();
+        return relate_segment_segment_strategy_type();
+    }
+*/
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
+    {
+        return disjoint_segment_box_with_info_strategy_type();
     }
 
     template <typename Segment, typename Box>
@@ -297,6 +313,7 @@ struct segment_box
             >::apply(p0, p1, box);
     }
 };
+
 
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

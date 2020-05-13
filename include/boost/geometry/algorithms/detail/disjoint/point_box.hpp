@@ -66,7 +66,7 @@ struct disjoint<Point, Box, DimensionCount, point_tag, box_tag, false>
     static inline bool apply(Point const& point, Box const& box, Strategy const& )
     {
         // ! covered_by(point, box)
-        return ! Strategy::apply(point, box);
+        return ! Strategy().apply(point, box);
     }
 };
 

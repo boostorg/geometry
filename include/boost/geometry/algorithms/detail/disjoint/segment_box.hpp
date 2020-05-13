@@ -33,9 +33,7 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
-//#include <boost/geometry/algorithms/closest_points.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
@@ -47,19 +45,6 @@
 
 namespace boost { namespace geometry
 {
-
-template
-<
-    typename Geometry1,
-    typename Geometry2,
-    typename Segment,
-    typename Strategy
->
-inline void closest_points(Geometry1 const& geometry1,
-                           Geometry2 const& geometry2,
-                           Segment& shortest_seg,
-                           Strategy const& strategy);
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
@@ -266,10 +251,93 @@ struct disjoint_segment_box
     }
 };
 
+
+struct disjoint_segment_box_with_info_compute
+{
+    template <typename Segment, typename Box, typename Strategy, typename Result>
+    static inline void apply(Segment const& segment,
+                             Box const& box,
+                             Strategy const& strategy,
+                             Result& result)
+    {
+        assert_dimension_equal<Segment, Box>();
+
+        typedef typename geometry::point_type<Segment>::type segment_point;
+
+        segment_point p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
+
+        if (geometry::covered_by(p[0], box,
+                                 strategy.get_disjoint_point_box_strategy()))
+        {
+            result.count = 1;
+            result.intersections[0] = p[0];
+            return;
+        }
+        if (geometry::covered_by(p[1], box,
+                                 strategy.get_disjoint_point_box_strategy()))
+        {
+            result.count = 1;
+            result.intersections[0] = p[1];
+            return;
+        }
+
+        typedef typename geometry::point_type<Box>::type box_point;
+        box_point top_left, top_right, bottom_left, bottom_right;
+        detail::assign_box_corners(box, bottom_left, bottom_right,
+                                   top_left, top_right);
+
+        // check segment intersection with box meridians
+        // which are (geodesic) segments on all coordinate systems
+        geometry::model::segment<segment_point> s
+                = geometry::model::segment<segment_point>(p[0], p[1]);
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(s, bottom_left, top_left,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+        if (result.count > 0)
+        {
+            return;
+        }
+
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(s, bottom_right, top_right,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+        if (result.count > 0)
+        {
+            return;
+        }
+
+        // CS-related check
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(segment,
+                       box,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+    }
+};
+
 template <typename Segment, typename Box>
 struct disjoint_segment_box_with_info
 {
-    typedef typename point_type<Box>::type point_type;
+    typedef typename geometry::select_most_precise
+                    <
+                        typename coordinate_type<Segment>::type,
+                        typename coordinate_type<Box>::type
+                    >::type most_precise_type;
+
+    typedef typename boost::mpl::if_c
+            <
+                boost::is_same
+                <
+                    most_precise_type,
+                    typename coordinate_type<Segment>::type
+                >::value,
+                typename point_type<Segment>::type,
+                typename point_type<Box>::type
+            >::type point_type;
 
     typedef segment_intersection_points<point_type> intersection_return_type;
 
@@ -279,27 +347,13 @@ struct disjoint_segment_box_with_info
           Box const& box,
           Strategy const& strategy)
     {
-        assert_dimension_equal<Segment, Box>();
-
-        typedef typename geometry::point_type<Segment>::type segment_point;
-
         intersection_return_type result;
-
-        geometry::model::segment<segment_point> sout;
-        geometry::closest_points
-                 (box, segment, sout,
-                  strategy.get_closest_points_segment_box_strategy());
-
-        if (geometry::distance(sout.first, sout.second) == 0)
-        {
-            result.count = 1;
-            result.intersections[0] = sout.second;
-            return result;
-        }
-
+        disjoint_segment_box_with_info_compute::apply(segment, box,
+                                                      strategy, result);
         return result;
     }
 };
+
 
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL

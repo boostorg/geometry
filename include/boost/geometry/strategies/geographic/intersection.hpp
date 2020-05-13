@@ -37,6 +37,7 @@
 #include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategies/geographic/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/envelope.hpp>
@@ -57,12 +58,6 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace closest_points
-{
-template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
-struct geographic_segment_box;
-}}
-
 namespace strategy { namespace intersection
 {
 
@@ -81,6 +76,12 @@ template
 struct geographic_segments
 {
     typedef geographic_tag cs_tag;
+
+    inline geographic_segments<FormulaPolicy, Order, Spheroid, CalculationType>
+    get_relate_segment_segment_strategy() const
+    {
+        return geographic_segments<FormulaPolicy, Order, Spheroid, CalculationType>(m_spheroid);
+    }
 
     typedef side::geographic
         <
@@ -195,29 +196,39 @@ struct geographic_segments
             FormulaPolicy, Spheroid, CalculationType
         > disjoint_segment_box_strategy_type;
 
-    inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy() const
+    inline disjoint_segment_box_strategy_type
+    get_disjoint_segment_box_strategy() const
     {
         return disjoint_segment_box_strategy_type(m_spheroid);
     }
 
-    typedef closest_points::geographic_segment_box
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        > closest_points_segment_box_strategy_type;
+    typedef disjoint::geographic_segment_box_with_info
+    <
+        FormulaPolicy, Spheroid, CalculationType
+    > disjoint_segment_box_with_info_strategy_type;
 
-    inline closest_points_segment_box_strategy_type
-    get_closest_points_segment_box_strategy() const
+    inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy() const
     {
-        return closest_points_segment_box_strategy_type(m_spheroid);
+        return disjoint_segment_box_with_info_strategy_type(m_spheroid);
     }
 
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
     typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef within::spherical_point_box within_point_box_strategy_type;
     typedef envelope::spherical_box envelope_box_strategy_type;
     typedef expand::spherical_box expand_box_strategy_type;
 
-    enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
+    enum intersection_point_flag { ipi_inters = 0,
+                                   ipi_at_a1, ipi_at_a2,
+                                   ipi_at_b1, ipi_at_b2 };
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info

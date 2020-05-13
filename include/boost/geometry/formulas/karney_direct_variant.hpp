@@ -118,8 +118,11 @@ public:
         if (cos_alpha0 != 0)
         {
             sin_sigma2 = sin_beta2 / cos_alpha0;
-            cos_sigma2 = math::sqrt(cos_beta2 * cos_beta2
-                                    - sin_alpha2 * sin_alpha2) / cos_alpha0;
+            CT const cos_minus_sin = cos_beta2 * cos_beta2
+                                   - sin_alpha2 * sin_alpha2;
+            cos_sigma2 = cos_minus_sin < 0 ? 0
+                                           : math::sqrt(cos_minus_sin)
+                                             / cos_alpha0;
         }
         else
         {

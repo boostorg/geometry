@@ -59,6 +59,8 @@ struct linear_to_box
                                     Box const& box,
                                     Strategy const& strategy)
     {
+
+        // TODO: disjoint test only needed for areal to box
         typedef typename point_type<Linear>::type point_type;
         typedef segment_intersection_points<point_type> intersection_return_type;
 

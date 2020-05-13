@@ -136,7 +136,6 @@ struct disjoint_range_segment_or_box_with_info
                 return res;
             }
 
-
             return intersection_return_type();
         }
         else
@@ -176,13 +175,66 @@ template
 >
 struct disjoint_range_segment_or_box
 {
+    typedef typename closeable_view<Range const, Closure>::type view_type;
+    typedef typename ::boost::range_value<view_type>::type point_type;
+
     template <typename Strategy>
     static inline bool apply(Range const& range,
                              SegmentOrBox const& segment_or_box,
                              Strategy const& strategy)
     {
-        return disjoint_range_segment_or_box_with_info<Range, Closure, SegmentOrBox>
-                ::apply(range, segment_or_box, strategy).count == 0;
+        //return disjoint_range_segment_or_box_with_info<Range, Closure, SegmentOrBox>
+        //        ::apply(range, segment_or_box, strategy).count == 0;
+
+        typedef typename ::boost::range_iterator
+            <
+                view_type const
+            >::type const_iterator;
+
+        typedef typename ::boost::range_size<view_type>::type size_type;
+
+        typedef typename geometry::model::referring_segment
+            <
+                point_type const
+            > range_segment;
+
+        view_type view(range);
+
+        const size_type count = ::boost::size(view);
+
+        if ( count == 0 )
+        {
+            return true;
+        }
+        else if ( count == 1 )
+        {
+            return disjoint_point_segment_or_box
+                            <
+                                SegmentOrBox
+                            >::apply(geometry::range::front<view_type const>(view),
+                                     segment_or_box,
+                                     strategy);
+        }
+        else
+        {
+            const_iterator it0 = ::boost::begin(view);
+            const_iterator it1 = ::boost::begin(view) + 1;
+            const_iterator last = ::boost::end(view);
+
+            for ( ; it1 != last ; ++it0, ++it1 )
+            {
+                range_segment rng_segment(*it0, *it1);
+                if (! dispatch::disjoint
+                        <
+                            range_segment, SegmentOrBox
+                        >::apply(rng_segment, segment_or_box,
+                                    strategy))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 };
 

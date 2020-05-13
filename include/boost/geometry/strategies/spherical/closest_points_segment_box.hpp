@@ -18,7 +18,8 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
-#include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp>
+#include <boost/geometry/strategies/spherical/distance_generic_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
 #include <boost/geometry/util/promote_floating_point.hpp>
@@ -92,10 +93,12 @@ struct spherical_segment_box
         return disjoint_point_box_strategy_type();
     }
 
-    static inline spherical_segment_box<CalculationType, Strategy>
-    get_closest_points_segment_box_strategy()
+    typedef disjoint::spherical_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
     {
-        return spherical_segment_box<CalculationType, Strategy>();
+        return disjoint_segment_box_with_info_strategy_type();
     }
 
     template <typename SegmentPoint, typename BoxPoint>
@@ -149,7 +152,7 @@ struct spherical_segment_box
 
     template <typename Geometry1, typename Geometry2>
     static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+    get_point_in_geometry_strategy()
     {
         typedef typename point_in_geometry_strategy
             <
@@ -407,130 +410,6 @@ struct result_set_unique_point
     static inline void apply(T& result, Point const& point)
     {
         result.set_unique_point(point);
-    }
-};
-
-template
-<
-    typename CalculationType,
-    typename SBStrategy
->
-struct closest_points_seg_box
-<
-    strategy::closest_points::spherical_segment_box<CalculationType, SBStrategy>
->
-{
-    template
-    <
-        typename T,
-        typename SegmentPoint,
-        typename BoxPoint,
-        typename Strategy
-    >
-    static inline void apply(SegmentPoint const& p0,
-                             SegmentPoint const& p1,
-                             BoxPoint const& top_left,
-                             BoxPoint const& top_right,
-                             BoxPoint const& bottom_left,
-                             BoxPoint const& bottom_right,
-                             Strategy const& strategy,
-                             T & result)
-    {
-        typedef geometry::model::segment<SegmentPoint> segment;
-        typedef geometry::model::box<BoxPoint> box;
-        typedef segment_intersection_points<SegmentPoint> intersection_return_type;
-
-        // test if endpoints of segment covered by box
-        //TODO pass strategy
-        box b(bottom_left, top_right);
-        if (geometry::covered_by(p0, b))
-        {
-            result.set_unique_point(p0);
-            return;
-        }
-        if (geometry::covered_by(p1, b))
-        {
-            result.set_unique_point(p1);
-            return;
-        }
-
-        //check segment intersection with box meridians
-        segment s = segment(p0, p1);
-        {
-            segment sb = segment(bottom_left, top_left);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-        {
-            segment sb = segment(bottom_right, top_right);
-            intersection_return_type res =
-            geometry::detail::disjoint::disjoint_segment_with_info
-            <
-                segment,
-                segment
-            >::apply(s, sb, strategy.get_relate_segment_segment_strategy());
-            if (res.count > 0)
-            {
-                result.set_unique_point(res.intersections[0]);
-                return;
-            }
-        }
-
-        // treat the other (parallel) edges of box differently
-        // since they are not (geodesic) segments
-
-        typedef typename coordinate_type<SegmentPoint>::type CT;
-
-        CT const lon1 = get_as_radian<0>(p0);
-        CT const lat1 = get_as_radian<1>(p0);
-        CT const lon2 = get_as_radian<0>(p1);
-        CT const lat2 = get_as_radian<1>(p1);
-        CT const lat3 = get_as_radian<1>(bottom_left);
-        CT lon_left = get_as_radian<0>(bottom_left);
-        CT lon_right = get_as_radian<0>(bottom_right);
-        CT lon3_1;
-        CT lon3_2;
-        formula::crossing_parallel(lon1, lat1, lon2, lat2, lat3, lon3_1, lon3_2);
-
-        SegmentPoint p;
-        set_from_radian<1>(p, lat3);
-
-#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3_1 * math::r2d<CT>() << " , "
-                  << lon3_2 * math::r2d<CT>() << std::endl;
-#endif
-        math::normalize_longitude<radian>(lon_left);
-        math::normalize_longitude<radian>(lon_right);
-        math::normalize_longitude<radian>(lon3_1);
-        math::normalize_longitude<radian>(lon3_2);
-#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3_1 * math::r2d<CT>() << " , "
-                  << lon3_2 * math::r2d<CT>() << std::endl;
-#endif
-        if ( lon_left < lon3_1 && lon3_1 < lon_right )
-        {
-            set_from_radian<0>(p, lon3_1);
-            result.set_unique_point(p);
-            return ;
-        }
-        if ( lon_left < lon3_2 && lon3_2 < lon_right )
-        {
-            set_from_radian<0>(p, lon3_2);
-            result.set_unique_point(p);
-        }
     }
 };
 

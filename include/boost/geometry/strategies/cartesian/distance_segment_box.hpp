@@ -85,6 +85,17 @@ struct cartesian_segment_box
         return disjoint_point_box_strategy_type();
     }
 
+    typedef intersection::cartesian_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type
+    get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
     static inline side_strategy_type get_side_strategy()
@@ -121,12 +132,13 @@ struct cartesian_segment_box
         return strategy_type();
     }
 
-    static inline closest_points::cartesian_segment_box<CalculationType, Strategy>
-    get_closest_points_segment_box_strategy()
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
     {
-        return closest_points::cartesian_segment_box<CalculationType, Strategy>();
+        return disjoint_segment_box_with_info_strategy_type();
     }
-
 
     template <typename LessEqual, typename ReturnType,
               typename SegmentPoint, typename BoxPoint>

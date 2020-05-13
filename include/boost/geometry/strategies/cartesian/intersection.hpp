@@ -36,6 +36,7 @@
 #include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/envelope.hpp>
 #include <boost/geometry/strategies/cartesian/expand_box.hpp>
@@ -62,12 +63,6 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace closest_points
-{
-template <typename CalculationType, typename Strategy>
-struct cartesian_segment_box;
-}}
-
 namespace strategy { namespace intersection
 {
 
@@ -82,6 +77,12 @@ template
 struct cartesian_segments
 {
     typedef cartesian_tag cs_tag;
+
+    static inline cartesian_segments<CalculationType>
+    get_relate_segment_segment_strategy()
+    {
+        return cartesian_segments<CalculationType>();
+    }
 
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
@@ -103,7 +104,7 @@ struct cartesian_segments
 
     template <typename Geometry1, typename Geometry2>
     static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+    get_point_in_geometry_strategy()
     {
         typedef typename point_in_geometry_strategy
             <
@@ -191,20 +192,17 @@ struct cartesian_segments
         return disjoint_segment_box_strategy_type();
     }
 
-    typedef closest_points::cartesian_segment_box
-    <
-        CalculationType,
-        distance::pythagoras<CalculationType>
-    >   closest_points_cartesian_segment_box;
-
-    static inline closest_points_cartesian_segment_box
-    get_closest_points_segment_box_strategy()
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
     {
-        return closest_points_cartesian_segment_box();
+        return disjoint_segment_box_with_info_strategy_type();
     }
 
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
-    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
     {
         return disjoint_point_box_strategy_type();
     }

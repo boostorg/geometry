@@ -438,7 +438,7 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "BOX(80 1.1,100 1.2)",
                   "SEGMENT(100 1,100 1.1)",
                   "SEGMENT(95.0021 1.1,95.0021 1.1)",
-                  "SEGMENT(80 1.18863,80 1.18863)",
+                  "SEGMENT(95.0509 1.1,95.0509 1.1)",
                   strategy);
 
     tester::apply("SEGMENT(0 1,100 1)",
@@ -463,10 +463,10 @@ void test_closest_points_segment_box(Strategy const& strategy)
                   "SEGMENT(6.83635 6,6.83635 6)",
                   strategy);
     tester::apply("SEGMENT(0 -5,120 -5)",
-                  "BOX(0 -6,120 -7)",
-                  "SEGMENT(0 -5,0 -7)",
-                  "SEGMENT(14.5649 -7,14.5649 -7)",
-                  "SEGMENT(14.3791 -7,14.3791 -7)",
+                  "BOX(0 -7,120 -6)",
+                  "SEGMENT(0 -5,0 -6)",
+                  "SEGMENT(105.435 -7,105.435 -7)",
+                  "SEGMENT(105.719 -7,105.719 -7)",
                   strategy);
 
     //Case B: box intersects and contains the vertex
@@ -479,8 +479,8 @@ void test_closest_points_segment_box(Strategy const& strategy)
     tester::apply("SEGMENT(0 -5,120 -5)",
                   "BOX(0 -10,120 -9)",
                   "SEGMENT(0 -5,0 -9)",
-                  "SEGMENT(34.8464 -9,34.8464 -9)",
-                  "SEGMENT(34.2138 -9,34.2138 -9)",
+                  "SEGMENT(85.1536 -9,85.1536 -9)",
+                  "SEGMENT(85.7839 -9,85.7839 -9)",
                   strategy);
 
     tester::apply("SEGMENT(15 15,15 15)",
