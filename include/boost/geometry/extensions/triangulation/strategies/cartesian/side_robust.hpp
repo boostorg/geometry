@@ -49,9 +49,10 @@ public:
     static inline PromotedType side_value(P1 const& p1, P2 const& p2,
         P const& p)
     {
-        std::array<PromotedType, 2> pa {{ get<0>(p1), get<1>(p1) }};
-        std::array<PromotedType, 2> pb {{ get<0>(p2), get<1>(p2) }};
-        std::array<PromotedType, 2> pc {{ get<0>(p), get<1>(p) }};
+        typedef ::boost::geometry::detail::precise_math::vec2d<PromotedType> vec2d;
+        vec2d pa { get<0>(p1), get<1>(p1) };
+        vec2d pb { get<0>(p2), get<1>(p2) };
+        vec2d pc { get<0>(p), get<1>(p) };
         return ::boost::geometry::detail::precise_math::orient2d
             <PromotedType, Robustness>(pa, pb, pc);
     }
