@@ -752,6 +752,46 @@ struct is_turn_index
     signed_size_type m_index;
 };
 
+template
+<
+    typename Sbs,
+    typename Point,
+    typename Turns,
+    typename Geometry1,
+    typename Geometry2
+>
+inline bool fill_sbs(Sbs& sbs, Point& turn_point,
+                     cluster_info const& cinfo,
+                     Turns const& turns,
+                     Geometry1 const& geometry1, Geometry2 const& geometry2)
+{
+    typedef typename boost::range_value<Turns>::type turn_type;
+
+    std::set<signed_size_type> const& ids = cinfo.turn_indices;
+
+    if (ids.empty())
+    {
+        return false;
+    }
+
+    bool first = true;
+    for (std::set<signed_size_type>::const_iterator sit = ids.begin();
+         sit != ids.end(); ++sit)
+    {
+        signed_size_type turn_index = *sit;
+        turn_type const& turn = turns[turn_index];
+        if (first )
+        {
+            turn_point = turn.point;
+        }
+        for (int i = 0; i < 2; i++)
+        {
+            sbs.add(turn.operations[i], turn_index, i, geometry1, geometry2, first);
+            first = false;
+        }
+    }
+    return true;
+}
 
 template
 <
@@ -783,32 +823,14 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
          mit != clusters.end(); ++mit)
     {
         cluster_info& cinfo = mit->second;
-        std::set<signed_size_type> const& ids = cinfo.turn_indices;
-        if (ids.empty())
+
+        sbs_type sbs(strategy);
+        point_type turn_point; // should be all the same for all turns in cluster
+        if (! fill_sbs(sbs, turn_point, cinfo, turns, geometry1, geometry2))
         {
             continue;
         }
 
-        sbs_type sbs(strategy);
-        point_type turn_point; // should be all the same for all turns in cluster
-
-        bool first = true;
-        for (std::set<signed_size_type>::const_iterator sit = ids.begin();
-             sit != ids.end(); ++sit)
-        {
-            signed_size_type turn_index = *sit;
-            turn_type const& turn = turns[turn_index];
-            if (first)
-            {
-                turn_point = turn.point;
-            }
-            for (int i = 0; i < 2; i++)
-            {
-                turn_operation_type const& op = turn.operations[i];
-                sbs.add(op, turn_index, i, geometry1, geometry2, first);
-                first = false;
-            }
-        }
         sbs.apply(turn_point);
 
         sbs.find_open();
@@ -823,7 +845,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         // polygons
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
-            const typename sbs_type::rp& ranked = sbs.m_ranked_points[i];
+            typename sbs_type::rp const& ranked = sbs.m_ranked_points[i];
             turn_type& turn = turns[ranked.turn_index];
             turn_operation_type& op = turn.operations[ranked.operation_index];
 
