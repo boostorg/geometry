@@ -120,7 +120,6 @@ void test_all()
 {
     test_side_value<T>();
     test_get_intersection<T>();
-    test_same_direction<T>();
     test_degenerate<T>();
 }
 
