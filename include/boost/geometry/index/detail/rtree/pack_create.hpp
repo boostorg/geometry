@@ -3,6 +3,7 @@
 // R-tree initial packing
 //
 // Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
 // This file was modified by Oracle on 2019.
 // Modifications copyright (c) 2019 Oracle and/or its affiliates.
