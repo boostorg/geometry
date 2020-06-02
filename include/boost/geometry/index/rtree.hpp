@@ -398,13 +398,7 @@ public:
                  allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        typedef detail::rtree::pack<members_holder> pack;
-        size_type vc = 0, ll = 0;
-        m_members.root = pack::apply(first, last, vc, ll,
-                                     m_members.parameters(), m_members.translator(),
-                                     m_members.allocators());
-        m_members.values_count = vc;
-        m_members.leafs_level = ll;
+        pack_construct(first, last, boost::container::new_allocator<void>());
     }
 
     /*!
@@ -431,13 +425,7 @@ public:
                           allocator_type const& allocator = allocator_type())
         : m_members(getter, equal, parameters, allocator)
     {
-        typedef detail::rtree::pack<members_holder> pack;
-        size_type vc = 0, ll = 0;
-        m_members.root = pack::apply(::boost::begin(rng), ::boost::end(rng), vc, ll,
-                                     m_members.parameters(), m_members.translator(),
-                                     m_members.allocators());
-        m_members.values_count = vc;
-        m_members.leafs_level = ll;
+        pack_construct(::boost::begin(rng), ::boost::end(rng), boost::container::new_allocator<void>());
     }
 
     /*!
@@ -1796,6 +1784,32 @@ private:
         detail::rtree::apply_visitor(count_v, *m_members.root);
 
         return count_v.found_count;
+    }
+
+    /*!
+    \brief The constructor TODO.
+
+    The tree is created using packing algorithm.
+
+    \param first             The beginning of the range of Values.
+    \param last              The end of the range of Values.
+    \param pack_allocator    The temporary allocator object to be used by the packing algorithm.
+
+    \par Throws
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws or returns invalid value.
+    */
+    template<typename Iterator, typename PackAlloc>
+    inline void pack_construct(Iterator first, Iterator last, PackAlloc const& pack_allocator)
+    {
+        typedef detail::rtree::pack<members_holder> pack;
+        size_type vc = 0, ll = 0;
+        m_members.root = pack::apply(first, last, vc, ll,
+                                     m_members.parameters(), m_members.translator(),
+                                     m_members.allocators(), pack_allocator);
+        m_members.values_count = vc;
+        m_members.leafs_level = ll;
     }
 
     members_holder m_members;
