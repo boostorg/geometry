@@ -429,6 +429,65 @@ public:
     }
 
     /*!
+    \brief The constructor.
+
+    The tree is created using packing algorithm and a temporary packing allocator.
+
+    \param first             The beginning of the range of Values.
+    \param last              The end of the range of Values.
+    \param pack_allocator    The temporary allocator object used when packing
+    \param parameters        The parameters object.
+    \param getter            The function object extracting Indexable from Value.
+    \param equal             The function object comparing Values.
+    \param tree_allocator    The allocator object for persistent data in the tree..
+
+    \par Throws
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws or returns invalid value.
+    */
+    template<typename Iterator, typename PackAlloc>
+    inline rtree(Iterator first, Iterator last,
+                 PackAlloc const& pack_allocator,
+                 parameters_type const& parameters = parameters_type(),
+                 indexable_getter const& getter = indexable_getter(),
+                 value_equal const& equal = value_equal(),
+                 allocator_type const& tree_allocator = allocator_type())
+        : m_members(getter, equal, parameters, tree_allocator)
+    {
+        pack_construct(first, last, pack_allocator);
+    }
+
+    /*!
+    \brief The constructor.
+
+    The tree is created using packing algorithm and a temporary packing allocator.
+
+    \param rng               The range of Values.
+    \param pack_allocator    The temporary allocator object used when packing.
+    \param parameters        The parameters object.
+    \param getter            The function object extracting Indexable from Value.
+    \param equal             The function object comparing Values.
+    \param tree_allocator    The allocator object for persistent data in the tree.
+
+    \par Throws
+    \li If allocator copy constructor throws.
+    \li If Value copy constructor or copy assignment throws.
+    \li If allocation throws or returns invalid value.
+    */
+    template<typename Range, typename PackAlloc>
+    inline explicit rtree(Range const& rng,
+                          PackAlloc const& pack_allocator,
+                          parameters_type const& parameters = parameters_type(),
+                          indexable_getter const& getter = indexable_getter(),
+                          value_equal const& equal = value_equal(),
+                          allocator_type const& tree_allocator = allocator_type())
+        : m_members(getter, equal, parameters, tree_allocator)
+    {
+        pack_construct(::boost::begin(rng), ::boost::end(rng), pack_allocator);
+    }
+
+    /*!
     \brief The destructor.
 
     \par Throws
