@@ -440,7 +440,7 @@ public:
     \param getter            The function object extracting Indexable from Value.
     \param equal             The function object comparing Values.
     \param allocator         The allocator object for persistent data in the tree.
-    \param temp_allocator    The temporary allocator object used when packing
+    \param temp_allocator    The temporary allocator object used when packing.
 
     \par Throws
     \li If allocator copy constructor throws.
