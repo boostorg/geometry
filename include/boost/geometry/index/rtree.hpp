@@ -439,8 +439,8 @@ public:
     \param parameters        The parameters object.
     \param getter            The function object extracting Indexable from Value.
     \param equal             The function object comparing Values.
-    \param tree_allocator    The allocator object for persistent data in the tree..
-    \param pack_allocator    The temporary allocator object used when packing
+    \param allocator         The allocator object for persistent data in the tree.
+    \param temp_allocator    The temporary allocator object used when packing
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -452,11 +452,11 @@ public:
                  parameters_type const& parameters,
                  indexable_getter const& getter,
                  value_equal const& equal,
-                 allocator_type const& tree_allocator,
-                 PackAlloc const& pack_allocator)
-        : m_members(getter, equal, parameters, tree_allocator)
+                 allocator_type const& allocator,
+                 PackAlloc const& temp_allocator)
+        : m_members(getter, equal, parameters, allocator)
     {
-        pack_construct(first, last, pack_allocator);
+        pack_construct(first, last, temp_allocator);
     }
 
     /*!
@@ -468,8 +468,8 @@ public:
     \param parameters        The parameters object.
     \param getter            The function object extracting Indexable from Value.
     \param equal             The function object comparing Values.
-    \param tree_allocator    The allocator object for persistent data in the tree.
-    \param pack_allocator    The temporary allocator object used when packing.
+    \param allocator         The allocator object for persistent data in the tree.
+    \param temp_allocator    The temporary allocator object used when packing.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -481,11 +481,11 @@ public:
                           parameters_type const& parameters,
                           indexable_getter const& getter,
                           value_equal const& equal,
-                          allocator_type const& tree_allocator,
-                          PackAlloc const& pack_allocator)
-        : m_members(getter, equal, parameters, tree_allocator)
+                          allocator_type const& allocator,
+                          PackAlloc const& temp_allocator)
+        : m_members(getter, equal, parameters, allocator)
     {
-        pack_construct(::boost::begin(rng), ::boost::end(rng), pack_allocator);
+        pack_construct(::boost::begin(rng), ::boost::end(rng), temp_allocator);
     }
 
     /*!
@@ -493,9 +493,9 @@ public:
 
     The tree is created using packing algorithm and a temporary packing allocator.
 
-    \param first             The beginning of the range of Values.
-    \param last              The end of the range of Values.
-    \param tree_allocator    The allocator object for persistent data in the tree.
+    \param first        The beginning of the range of Values.
+    \param last         The end of the range of Values.
+    \param allocator    The allocator object for persistent data in the tree.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -504,8 +504,8 @@ public:
     */
     template<typename Iterator>
     inline rtree(Iterator first, Iterator last,
-                 allocator_type const& tree_allocator)
-        : m_members(indexable_getter(), value_equal(), parameters_type(), tree_allocator)
+                 allocator_type const& allocator)
+        : m_members(indexable_getter(), value_equal(), parameters_type(), allocator)
     {
         pack_construct(first, last, boost::container::new_allocator<void>());
     }
@@ -515,8 +515,8 @@ public:
 
     The tree is created using packing algorithm and a temporary packing allocator.
 
-    \param rng               The range of Values.
-    \param tree_allocator    The allocator object for persistent data in the tree.
+    \param rng          The range of Values.
+    \param allocator    The allocator object for persistent data in the tree.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -525,8 +525,8 @@ public:
     */
     template<typename Range>
     inline explicit rtree(Range const& rng,
-                          allocator_type const& tree_allocator)
-        : m_members(indexable_getter(), value_equal(), parameters_type(), tree_allocator)
+                          allocator_type const& allocator)
+        : m_members(indexable_getter(), value_equal(), parameters_type(), allocator)
     {
         pack_construct(::boost::begin(rng), ::boost::end(rng), boost::container::new_allocator<void>());
     }
@@ -538,8 +538,8 @@ public:
 
     \param first             The beginning of the range of Values.
     \param last              The end of the range of Values.
-    \param tree_allocator    The allocator object for persistent data in the tree.
-    \param pack_allocator    The temporary allocator object used when packing.
+    \param allocator         The allocator object for persistent data in the tree.
+    \param temp_allocator    The temporary allocator object used when packing.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -548,11 +548,11 @@ public:
     */
     template<typename Iterator, typename PackAlloc>
     inline rtree(Iterator first, Iterator last,
-                 allocator_type const& tree_allocator,
-                 PackAlloc const& pack_allocator)
-        : m_members(indexable_getter(), value_equal(), parameters_type(), tree_allocator)
+                 allocator_type const& allocator,
+                 PackAlloc const& temp_allocator)
+        : m_members(indexable_getter(), value_equal(), parameters_type(), allocator)
     {
-        pack_construct(first, last, pack_allocator);
+        pack_construct(first, last, temp_allocator);
     }
 
     /*!
@@ -561,8 +561,8 @@ public:
     The tree is created using packing algorithm and a temporary packing allocator.
 
     \param rng               The range of Values.
-    \param tree_allocator    The allocator object for persistent data in the tree.
-    \param pack_allocator    The temporary allocator object used when packing.
+    \param allocator         The allocator object for persistent data in the tree.
+    \param temp_allocator    The temporary allocator object used when packing.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -571,11 +571,11 @@ public:
     */
     template<typename Range, typename PackAlloc>
     inline explicit rtree(Range const& rng,
-                          allocator_type const& tree_allocator,
-                          PackAlloc const& pack_allocator)
-        : m_members(indexable_getter(), value_equal(), parameters_type(), tree_allocator)
+                          allocator_type const& allocator,
+                          PackAlloc const& temp_allocator)
+        : m_members(indexable_getter(), value_equal(), parameters_type(), allocator)
     {
-        pack_construct(::boost::begin(rng), ::boost::end(rng), pack_allocator);
+        pack_construct(::boost::begin(rng), ::boost::end(rng), temp_allocator);
     }
 
     /*!
@@ -1943,7 +1943,7 @@ private:
 
     \param first             The beginning of the range of Values.
     \param last              The end of the range of Values.
-    \param pack_allocator    The temporary allocator object to be used by the packing algorithm.
+    \param temp_allocator    The temporary allocator object to be used by the packing algorithm.
 
     \par Throws
     \li If allocator copy constructor throws.
@@ -1951,13 +1951,13 @@ private:
     \li If allocation throws or returns invalid value.
     */
     template<typename Iterator, typename PackAlloc>
-    inline void pack_construct(Iterator first, Iterator last, PackAlloc const& pack_allocator)
+    inline void pack_construct(Iterator first, Iterator last, PackAlloc const& temp_allocator)
     {
         typedef detail::rtree::pack<members_holder> pack;
         size_type vc = 0, ll = 0;
         m_members.root = pack::apply(first, last, vc, ll,
                                      m_members.parameters(), m_members.translator(),
-                                     m_members.allocators(), pack_allocator);
+                                     m_members.allocators(), temp_allocator);
         m_members.values_count = vc;
         m_members.leafs_level = ll;
     }
