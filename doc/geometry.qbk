@@ -119,6 +119,7 @@ Boost.Geometry contains contributions by:
 * Adeel Ahmad (Karney's solution of direct and inverse geodesic problems)
 * Yaghyavardhan Singh Khangarot (discrete Frechet and Hausdorff distance)
 * Tinko Bartels (Delaunay triangulation, Voronoi diagram, random point generation, ...)
+* Caian Benedicto (patch for temporary allocator support)
 
 [include imports.qbk]
 
