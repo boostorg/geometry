@@ -533,7 +533,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.test_validity = false;
+        settings.set_test_validity(false);
 
         // Tickets
         test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 494.7192, 0.5, settings);
@@ -591,7 +591,7 @@ void test_all()
         // Test issue 555 as reported (-0.000001) and some variants
         bg::strategy::buffer::join_round jr(180);
         bg::strategy::buffer::end_round er(180);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         // With rescaling the interior ring is missing
         test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7942, -0.000001);
 #endif
@@ -866,6 +866,10 @@ int test_main(int, char* [])
     test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
 #endif
 
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(2, 1);
 #endif
 
     return 0;

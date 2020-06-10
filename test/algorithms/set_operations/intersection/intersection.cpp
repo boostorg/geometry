@@ -178,7 +178,7 @@ void test_areal()
 
     {
         ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
 
         // SQL Server gives: 88.1920416352664
         // PostGIS gives:    88.19203677911
@@ -316,7 +316,7 @@ void test_areal()
     {
         // Not yet valid when rescaling is turned off
         ut_settings settings;
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
         test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                     1, 8, 129.90381, settings);
     }
@@ -720,7 +720,7 @@ void test_all()
     boost::ignore_unused<polygon_ccw, polygon_open, polygon_ccw_open>();
 
     ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
+    ignore_validity.set_test_validity(false);
 
     std::string clip = "box(2 2,8 8)";
 
@@ -968,6 +968,12 @@ int test_main(int, char* [])
     test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 #endif
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
+    // TODO: this should be easy to fix
+    BoostGeometryWriteExpectedFailures(4, 3);
 #endif
 
     return 0;

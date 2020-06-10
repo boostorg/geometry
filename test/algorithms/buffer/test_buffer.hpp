@@ -95,17 +95,11 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
     static std::string name() { return "flat"; }
 };
 
-struct ut_settings
+struct ut_settings : public ut_base_settings
 {
-    double tolerance;
-    bool test_validity;
-    bool test_area;
-    bool use_ln_area;
-    int points_per_circle;
-
     explicit ut_settings(double tol = 0.01, bool val = true, int points = 88)
-        : tolerance(tol)
-        , test_validity(val)
+        : ut_base_settings(val)
+        , tolerance(tol)
         , test_area(true)
         , use_ln_area(false)
         , points_per_circle(points)
@@ -114,19 +108,24 @@ struct ut_settings
     static inline ut_settings ignore_validity()
     {
         ut_settings result;
-        result.test_validity = false;
+        result.set_test_validity(false);
         return result;
     }
 
     static inline ut_settings assertions_only()
     {
         ut_settings result;
-        result.test_validity = false;
         result.test_area = false;
+        result.set_test_validity(false);
         return result;
     }
 
     static inline double ignore_area() { return 9999.9; }
+
+    double tolerance;
+    bool test_area;
+    bool use_ln_area;
+    int points_per_circle;
 };
 
 template
@@ -349,14 +348,9 @@ void test_buffer(std::string const& caseid,
 //        }
     }
 
-#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
-    if (settings.test_validity)
-#endif
+    if (settings.test_validity() && ! bg::is_valid(buffered))
     {
-        if (! bg::is_valid(buffered))
-        {
-            BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
-        }
+        BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
     }
 
 #if defined(TEST_WITH_SVG_PER_TURN)
@@ -472,10 +466,12 @@ void test_one(std::string const& caseid, std::string const& wkt,
             expected_count, expected_holes_count, expected_area,
             settings);
 
-#if !defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)
+#if !defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG) \
+    && !defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER) \
+    && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)
 
     // Also test symmetric distance strategy if right-distance is not specified
-    // (only in release mode)
+    // (only in release mode, not if "one order" if speficied)
     if (bg::math::equals(distance_right, same_distance))
     {
         bg::strategy::buffer::distance_symmetric

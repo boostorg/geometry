@@ -43,15 +43,14 @@
 #include <algorithms/check_validity.hpp>
 #include "../setop_output_type.hpp"
 
-struct ut_settings
+struct ut_settings : ut_base_settings
 {
     double percentage;
-    bool test_validity;
     bool debug;
 
     explicit ut_settings(double p = 0.0001, bool tv = true)
-        : percentage(p)
-        , test_validity(tv)
+        : ut_base_settings(tv)
+        , percentage(p)
         , debug(false)
     {}
 
@@ -98,9 +97,7 @@ void check_result(IntersectionOutput const& intersection_output,
         }
     }
 
-#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
-    if (settings.test_validity)
-#endif
+    if (settings.test_validity())
     {
         std::string message;
         bool const valid = check_validity<IntersectionOutput>
