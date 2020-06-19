@@ -39,6 +39,7 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
 {
@@ -243,7 +244,7 @@ protected:
                               linear::get(oit));
             }
         }
-        else if ( FollowIsolatedPoints
+        else if ( BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
                   && is_isolated_point(*it, *op_it, entered) )
         {
             detail::turns::debug_turn(*it, *op_it, "-> Isolated point");
@@ -253,7 +254,7 @@ protected:
                     typename pointlike::type
                 >(it->point, pointlike::get(oit));
         }
-        else if ( FollowContinueTurns
+        else if ( BOOST_GEOMETRY_CONDITION(FollowContinueTurns)
                   && is_staying_inside(*it, *op_it, entered) )
         {
             detail::turns::debug_turn(*it, *op_it, "-> Staying inside");
