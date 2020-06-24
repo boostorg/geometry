@@ -381,7 +381,7 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.1;
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
 
         test_one<Polygon, Polygon, Polygon>("isovist",
             isovist1[0], isovist1[1],
@@ -427,7 +427,7 @@ void test_areal()
 
     {
         ut_settings settings;
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
         test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                 1, 0, 13, 150.0, settings);
     }
@@ -464,7 +464,7 @@ void test_areal()
     if (! BOOST_GEOMETRY_CONDITION((boost::is_same<ct, float>::value)) )
     {
         ut_settings ignore_validity;
-        ignore_validity.test_validity = false;
+        ignore_validity.set_test_validity(false);
         ignore_validity.percentage = 0.01;
         test_one<Polygon, Polygon, Polygon>("geos_1", geos_1[0], geos_1[1],
                 1, 0, -1, 3461.3203125,
@@ -543,7 +543,7 @@ void test_areal()
                 1, 0, if_typed_tt<ct>(93, 91), 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                1, BG_IF_RESCALED(1, (if_typed<ct, float>(1, 0))), 217, 36.752837);
+                1, -1, 217, 36.752837);
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
@@ -638,6 +638,10 @@ int test_main(int, char* [])
     std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(3, 10);
 #endif
 
     return 0;

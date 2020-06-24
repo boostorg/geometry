@@ -220,5 +220,9 @@ int test_main(int, char* [])
     std::cout << "Skipping some tests in debug or unknown mode" << std::endl;
 #endif
 
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES);
+#endif
+
     return 0;
 }

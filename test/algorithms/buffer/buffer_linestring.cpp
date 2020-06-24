@@ -410,5 +410,10 @@ int test_main(int, char* [])
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_invalid<true, bg::model::point<long double, 2, bg::cs::cartesian> >();
 #endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(2, 2);
+#endif
+
     return 0;
 }

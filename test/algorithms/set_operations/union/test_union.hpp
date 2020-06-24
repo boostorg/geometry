@@ -45,16 +45,13 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
-struct ut_settings
+struct ut_settings : public ut_base_settings
 {
-    double percentage;
-    bool test_validity;
-
     ut_settings()
         : percentage(0.001)
-        , test_validity(true)
     {}
 
+    double percentage;
 };
 
 #if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
@@ -125,9 +122,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     }
 #endif
 
-#if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_VALIDITY)
-    if (settings.test_validity)
-#endif
+    if (settings.test_validity())
     {
         std::string message;
         bool const valid = check_validity<result_type>::apply(clip, caseid, g1, g2, message);

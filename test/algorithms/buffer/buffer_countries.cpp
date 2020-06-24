@@ -239,7 +239,11 @@ int test_main(int, char* [])
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
     test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 #endif
-    
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(1, BG_NO_FAILURES);
+#endif
+
     return 0;
 }
 

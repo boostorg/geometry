@@ -19,7 +19,7 @@ template <typename P, bool ClockWise, bool Closed>
 void test_spikes_in_ticket_8364()
 {
     ut_settings ignore_validity;
-    ignore_validity.test_validity = false;
+    ignore_validity.set_test_validity(false);
 
     // See: https://svn.boost.org/trac/boost/ticket/8364
     //_TPolygon<T> polygon( "MULTIPOLYGON(((1031 1056,3232 1056,3232 2856,1031 2856)))" );
