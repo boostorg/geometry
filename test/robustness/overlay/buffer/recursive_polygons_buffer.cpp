@@ -12,6 +12,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_NO_BOOST_TEST
+
 #if defined(_MSC_VER)
 #  pragma warning( disable : 4244 )
 #  pragma warning( disable : 4267 )
@@ -36,6 +38,7 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
+#include <geometry_test_common.hpp>
 #include <common/common_settings.hpp>
 #include <common/make_square_polygon.hpp>
 
@@ -285,6 +288,7 @@ void test_all(int seed, int count, int level, Settings const& settings)
 
 int main(int argc, char** argv)
 {
+    BoostGeometryWriteTestConfiguration();
     try
     {
         namespace po = boost::program_options;

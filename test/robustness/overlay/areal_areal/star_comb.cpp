@@ -7,11 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-
-// #define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
-// #define BOOST_GEOMETRY_TIME_OVERLAY
-
 
 #include <test_overlay_p_q.hpp>
 
@@ -71,6 +67,7 @@ void test_all(int count, int star_point_count, int comb_comb_count, double facto
 
 int main(int argc, char** argv)
 {
+    BoostGeometryWriteTestConfiguration();
     try
     {
         namespace po = boost::program_options;
