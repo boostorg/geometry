@@ -436,10 +436,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p5", rt_p5, join_miter, end_flat, 17.0, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_p6", rt_p6, join_miter, end_flat, 18.4853, 1.0);
-#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("rt_p7", rt_p7, join_miter, end_flat, 26.2279, 1.0);
-#endif
-
     test_one<multi_polygon_type, polygon_type>("rt_p8", rt_p8, join_miter, end_flat, 29.0563, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p9", rt_p9, join_miter, end_flat, 26.1421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p10", rt_p10, join_miter, end_flat, 23.3995, 1.0);
@@ -452,14 +449,9 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p16", rt_p16, join_miter, end_flat, 23.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_p17", rt_p17, join_miter, end_flat, 25.3137, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<multi_polygon_type, polygon_type>("rt_p18", rt_p18, join_miter, end_flat, 23.3137, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_p19", rt_p19, join_miter, end_flat, 25.5637, 1.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<multi_polygon_type, polygon_type>("rt_p20", rt_p20, join_miter, end_flat, 25.4853, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_p21", rt_p21, join_miter, end_flat, 17.1716, 1.0);
 #if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<multi_polygon_type, polygon_type>("rt_p22", rt_p22, join_miter, end_flat, 26.5711, 1.0);
@@ -499,7 +491,7 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51);
     // TODO: invalid - making a bow-tie
-    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50, ut_settings::ignore_validity()); // False positive
+    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50, ut_settings::ignore_validity());
     test_one<multi_polygon_type, polygon_type>("rt_u10_45", rt_u10, join_miter, end_flat, 1.3000, -0.45);
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
 
@@ -551,7 +543,7 @@ int test_main(int, char* [])
 #endif
     
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 9);
+    BoostGeometryWriteExpectedFailures(1, 5);
 #endif
 
     return 0;

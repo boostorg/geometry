@@ -12,7 +12,6 @@
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
-
 #include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
@@ -128,6 +127,7 @@ void test_all(std::string const& type, int count, int min_points, int max_points
 
 int main(int argc, char** argv)
 {
+    BoostGeometryWriteTestConfiguration();
     try
     {
         namespace po = boost::program_options;

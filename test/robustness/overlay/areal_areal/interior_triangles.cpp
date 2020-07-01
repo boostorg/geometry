@@ -13,9 +13,7 @@
 #include <iomanip>
 #include <string>
 
-#define BOOST_GEOMETRY_REPORT_OVERLAY_ERROR
 #define BOOST_GEOMETRY_NO_BOOST_TEST
-#define BOOST_GEOMETRY_TIME_OVERLAY
 
 #include <test_overlay_p_q.hpp>
 
@@ -92,6 +90,7 @@ void test_all(int count, int count_x, int count_y, int offset, p_q_settings cons
 
 int main(int argc, char** argv)
 {
+    BoostGeometryWriteTestConfiguration();
     try
     {
         namespace po = boost::program_options;
