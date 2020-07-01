@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2018-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,11 +11,16 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_MULTIPOINT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_ENVELOPE_MULTIPOINT_HPP
 
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/detail/envelope/range.hpp>
+#include <boost/geometry/algorithms/detail/envelope/initialize.hpp>
 
 #include <boost/geometry/strategies/cartesian/envelope.hpp>
+#include <boost/geometry/strategies/cartesian/envelope_point.hpp>
+#include <boost/geometry/strategies/cartesian/expand_point.hpp>
 
 
 namespace boost { namespace geometry
@@ -30,7 +35,26 @@ public:
     template <typename MultiPoint, typename Box>
     static inline void apply(MultiPoint const& multipoint, Box& mbr)
     {
-        geometry::detail::envelope::envelope_range::apply(multipoint, mbr, cartesian<>());
+        apply(boost::begin(multipoint), boost::end(multipoint), mbr);
+    }
+
+private:
+    template <typename Iterator, typename Box>
+    static inline void apply(Iterator it,
+                             Iterator last,
+                             Box& mbr)
+    {
+        geometry::detail::envelope::initialize<Box, 0, dimension<Box>::value>::apply(mbr);
+
+        if (it != last)
+        {
+            strategy::envelope::cartesian_point::apply(*it, mbr);
+
+            for (++it; it != last; ++it)
+            {
+                strategy::expand::cartesian_point::apply(mbr, *it);
+            }
+        }
     }
 };
 

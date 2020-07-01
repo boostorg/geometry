@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -38,6 +38,38 @@ struct default_strategy
 };
 
 }}} // namespace strategy::envelope::services
+
+
+namespace strategies { namespace envelope { namespace services
+{
+
+template
+<
+    typename Geometry,
+    typename Box,
+    typename CSTag = typename geometry::cs_tag<Geometry>::type
+>
+struct default_strategy
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
+        , (types<Geometry, Box, CSTag>)
+    );
+};
+
+template <typename Strategy>
+struct strategy_converter
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
+        , (Strategy)
+    );
+};
+
+
+}}} // namespace strategies::envelope::services
 
 
 }} // namespace boost::geometry

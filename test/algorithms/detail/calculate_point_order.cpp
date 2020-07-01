@@ -22,6 +22,9 @@
 #include <boost/geometry/strategies/geographic/point_order.hpp>
 #include <boost/geometry/strategies/spherical/point_order.hpp>
 
+//TEMP
+#include <boost/geometry/strategies2/area.hpp>
+
 
 inline const char * order_str(bg::order_selector o)
 {

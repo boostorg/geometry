@@ -21,6 +21,9 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 
+// TEMP
+#include <boost/geometry/strategies2/strategies2.hpp>
+
 #if defined(TEST_WITH_SVG)
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>

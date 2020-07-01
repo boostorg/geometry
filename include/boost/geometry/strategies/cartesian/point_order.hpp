@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -28,6 +28,12 @@ struct cartesian
     : strategy::area::cartesian<CalculationType>
 {
     typedef area_tag version_tag;
+
+    // TEMP
+    static strategy::area::cartesian<CalculationType> get_area_strategy()
+    {
+        return strategy::area::cartesian<CalculationType>();
+    }
 };
 
 namespace services

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015, 2016, 2017, 2018.
-// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -47,19 +47,13 @@ namespace detail
 
 struct segment_on_spheroid
 {
-    template <typename Box, typename Segment, typename EnvelopeStrategy>
-    static inline void apply(Box& box, Segment const& segment, EnvelopeStrategy const& strategy)
+    template <typename Box, typename Segment, typename Strategy>
+    static inline void apply(Box& box, Segment const& segment, Strategy const& strategy)
     {
         Box mbrs[2];
 
         // compute the envelope of the segment
-        typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
-        geometry::detail::envelope::envelope_segment
-            <
-                dimension<Segment>::value
-            >::apply(p[0], p[1], mbrs[0], strategy);
+        geometry::detail::envelope::envelope_segment::apply(segment, mbrs[0], strategy);
 
         // normalize the box
         strategy::envelope::spherical_box::apply(box, mbrs[1]);

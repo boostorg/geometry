@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -199,6 +199,11 @@ public :
         result(state<Geometry> const& st) const
     {
         return st.area(m_spheroid_constants);
+    }
+
+    Spheroid model() const
+    {
+        return m_spheroid_constants.m_spheroid;
     }
 
 private:

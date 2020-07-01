@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2019.
-// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -144,6 +144,10 @@
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
 #include <boost/geometry/strategies/transform/inverse_transformer.hpp>
+
+
+// TEMP
+#include <boost/geometry/strategies2/strategies2.hpp>
 
 
 #endif // BOOST_GEOMETRY_STRATEGIES_STRATEGIES_HPP

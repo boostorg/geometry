@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2018, 2019.
-// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -57,33 +57,9 @@ public:
         : m_spheroid(spheroid)
     {}
 
-    typedef geographic_segment
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        > element_envelope_strategy_type;
-    inline element_envelope_strategy_type get_element_envelope_strategy() const
+    Spheroid model() const
     {
-        return element_envelope_strategy_type(m_spheroid);
-    }
-
-    typedef expand::geographic_segment
-        <
-            FormulaPolicy, Spheroid, CalculationType
-        > element_expand_strategy_type;
-    inline element_expand_strategy_type get_element_expand_strategy() const
-    {
-        return element_expand_strategy_type(m_spheroid);
-    }
-
-    template <typename Point1, typename Point2, typename Box>
-    inline void apply(Point1 const& point1, Point2 const& point2, Box& box) const
-    {
-        geographic_segment
-            <
-                FormulaPolicy,
-                Spheroid,
-                CalculationType
-            >(m_spheroid).apply(point1, point2, box);
+        return m_spheroid;
     }
 
 private:

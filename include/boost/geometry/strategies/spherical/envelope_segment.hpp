@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017-2018 Oracle and/or its affiliates.
+// Copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -376,12 +376,6 @@ template
 class spherical_segment
 {
 public:
-    typedef strategy::expand::spherical_box box_expand_strategy_type;
-    static inline box_expand_strategy_type get_box_expand_strategy()
-    {
-        return box_expand_strategy_type();
-    }
-
     template <typename Point, typename Box>
     static inline void apply(Point const& point1, Point const& point2,
                              Box& box)

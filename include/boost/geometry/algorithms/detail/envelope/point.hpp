@@ -38,9 +38,11 @@ namespace detail { namespace envelope
 struct envelope_point
 {
     template <typename Point, typename Box, typename Strategy>
-    static inline void apply(Point const& point, Box& mbr, Strategy const& )
+    static inline void apply(Point const& point, Box& mbr, Strategy const& strategy)
     {
-        Strategy::apply(point, mbr);
+        // strategy.envelope(point, mbr).apply(point, mbr);
+        using strategy_t = decltype(strategy.envelope(point, mbr));
+        strategy_t::apply(point, mbr);
     }
 };
 

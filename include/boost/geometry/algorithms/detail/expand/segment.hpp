@@ -54,8 +54,7 @@ struct expand
                              Segment const& segment,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(strategy);
-        strategy.apply(box, segment);
+        strategy.expand(box, segment).apply(box, segment);
     }
 };
 

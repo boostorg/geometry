@@ -21,6 +21,10 @@
 
 #include <boost/tuple/tuple.hpp>
 
+// TEST
+#include <boost/geometry/strategies2/strategies2.hpp>
+
+
 typedef bg::model::point<double, 2, bg::cs::cartesian> Pt;
 typedef bg::model::linestring<Pt> Ls;
 typedef bg::model::polygon<Pt> Po;

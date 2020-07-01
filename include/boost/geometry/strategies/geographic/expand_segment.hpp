@@ -66,6 +66,11 @@ public:
         detail::segment_on_spheroid::apply(box, segment, m_envelope_strategy);
     }
 
+    Spheroid model() const
+    {
+        return m_envelope_strategy.model();
+    }
+
 private:
     strategy::envelope::geographic_segment
         <

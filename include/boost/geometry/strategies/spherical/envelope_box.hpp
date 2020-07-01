@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015-2019.
-// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -35,13 +35,6 @@ struct spherical_box
     : geometry::detail::envelope::envelope_box_on_spheroid
 {
     typedef spherical_tag cs_tag;
-
-    typedef strategy::expand::spherical_box box_expand_strategy_type;
-
-    static inline box_expand_strategy_type get_box_expand_strategy()
-    {
-        return box_expand_strategy_type();
-    }
 };
 
 

@@ -43,24 +43,6 @@ class spherical
 public:
     typedef spherical_tag cs_tag;
 
-    typedef spherical_segment<CalculationType> element_envelope_strategy_type;
-    static inline element_envelope_strategy_type get_element_envelope_strategy()
-    {
-        return element_envelope_strategy_type();
-    }
-
-    typedef expand::spherical_segment<CalculationType> element_expand_strategy_type;
-    static inline element_expand_strategy_type get_element_expand_strategy()
-    {
-        return element_expand_strategy_type();
-    }
-
-    typedef strategy::expand::spherical_box box_expand_strategy_type;
-    static inline box_expand_strategy_type get_box_expand_strategy()
-    {
-        return box_expand_strategy_type();
-    }
-
     // Linestring, Ring, Polygon
 
     template <typename Range>
@@ -100,23 +82,6 @@ public:
     private:
         std::vector<Box> m_boxes;
     };
-
-    // Segment
-
-    template <typename Point1, typename Point2, typename Box>
-    static inline void apply(Point1 const& point1, Point2 const& point2,
-                             Box& box)
-    {
-        spherical_segment<CalculationType>::apply(point1, point2, box);
-    }
-
-    // Box
-
-    template <typename BoxIn, typename Box>
-    static inline void apply(BoxIn const& box_in, Box& box)
-    {
-        spherical_box::apply(box_in, box);
-    }
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

@@ -38,6 +38,10 @@
 #include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 
+// TEMP
+#include <boost/geometry/strategies2/envelope.hpp>
+
+
 namespace boost { namespace geometry
 {
 
@@ -142,7 +146,12 @@ private:
         {
             geometry::expand(total,
                              geometry::return_envelope<Box>(segment, m_strategy),
-                             m_strategy.get_box_expand_strategy());
+                             // TEMP - envelope umbrella strategy also contains
+                             //        expand strategies
+                             strategies::envelope::services::strategy_converter
+                                <
+                                    EnvelopeStrategy
+                                >::get(m_strategy));
         }
 
         EnvelopeStrategy const& m_strategy;

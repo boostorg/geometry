@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -147,7 +147,13 @@ struct correct_ring
         typedef typename area_result<Ring, Strategy>::type area_result_type;
         Predicate<area_result_type> predicate;
         area_result_type const zero = 0;
-        if (predicate(ring_area_type::apply(r, strategy), zero))
+        if (predicate(ring_area_type::apply(r,
+                                            // TEMP - in the future (umbrella) strategy will be passed
+                                            geometry::strategies::area::services::strategy_converter
+                                                <
+                                                    Strategy
+                                                >::get(strategy)),
+                      zero))
         {
             std::reverse(boost::begin(r), boost::end(r));
         }

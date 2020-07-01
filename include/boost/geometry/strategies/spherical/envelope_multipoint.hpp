@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015-2018, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -254,10 +254,8 @@ public:
 
         if (boost::size(multipoint) == 1)
         {
-            return dispatch::envelope
-                <
-                    typename boost::range_value<MultiPoint>::type
-                >::apply(range::front(multipoint), mbr, strategy::envelope::spherical_point());
+            spherical_point::apply(range::front(multipoint), mbr);
+            return;
         }
 
         // analyze the points and put the non-pole ones in the

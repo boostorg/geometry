@@ -2,6 +2,10 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -16,6 +20,8 @@
 #include <boost/geometry/strategies/area.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 
+#include <boost/geometry/strategies2/base.hpp>
+
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_sequence_element.hpp>
 
@@ -29,6 +35,36 @@ namespace boost { namespace geometry
 {
 
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace area
+{
+
+
+template
+<
+    typename Geometry,
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
+struct area_result
+    : decltype(std::declval<Strategy>().area(std::declval<Geometry>()))
+        ::template result_type<Geometry>
+{};
+
+template
+<
+    typename Geometry,
+    typename Strategy
+>
+struct area_result<Geometry, Strategy, false>
+    : Strategy::template result_type<Geometry>
+{};
+
+
+}} // namespace detail::area
+#endif //DOXYGEN_NO_DETAIL
+
+
 /*!
 \brief Meta-function defining return type of area function
 \ingroup area
@@ -40,7 +76,7 @@ template
     typename Strategy = default_strategy
 >
 struct area_result
-    : Strategy::template result_type<Geometry>
+    : detail::area::area_result<Geometry, Strategy>
 {};
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
@@ -60,9 +96,9 @@ struct area_result<Geometry, default_strategy>
     : geometry::area_result
         <
             Geometry,
-            typename geometry::strategy::area::services::default_strategy
+            typename geometry::strategies::area::services::default_strategy
                 <
-                    typename cs_tag<Geometry>::type
+                    Geometry
                 >::type
         >
 {};

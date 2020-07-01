@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -46,6 +46,11 @@ template
 >
 class spherical
 {
+    typedef typename strategy_detail::get_radius
+        <
+            RadiusTypeOrSphere
+        >::type radius_type;
+
     // Enables special handling of long segments
     static const bool LongSegment = false;
 
@@ -154,11 +159,13 @@ public :
         return st.area(m_radius);
     }
 
+    srs::sphere<radius_type> model() const
+    {
+        return srs::sphere<radius_type>(m_radius);
+    }
+
 private :
-    typename strategy_detail::get_radius
-        <
-            RadiusTypeOrSphere
-        >::type m_radius;
+    radius_type m_radius;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS

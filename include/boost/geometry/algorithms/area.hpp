@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -86,15 +86,17 @@ template
 >
 struct ring_area
 {
-    template <typename Ring, typename Strategy>
-    static inline typename area_result<Ring, Strategy>::type
-    apply(Ring const& ring, Strategy const& strategy)
+    template <typename Ring, typename Strategies>
+    static inline typename area_result<Ring, Strategies>::type
+    apply(Ring const& ring, Strategies const& strategies)
     {
-        BOOST_CONCEPT_ASSERT( (geometry::concepts::AreaStrategy<Ring, Strategy>) );
+        using strategy_type = decltype(strategies.area(ring));
+
+        BOOST_CONCEPT_ASSERT( (geometry::concepts::AreaStrategy<Ring, strategy_type>) );
         assert_dimension<Ring, 2>();
 
         // Ignore warning (because using static method sometimes) on strategy
-        boost::ignore_unused(strategy);
+        boost::ignore_unused(strategies);
 
         // An open ring has at least three points,
         // A closed ring has at least four points,
@@ -102,7 +104,7 @@ struct ring_area
         if (boost::size(ring)
                 < core_detail::closure::minimum_ring_size<Closure>::value)
         {
-            return typename area_result<Ring, Strategy>::type();
+            return typename area_result<Ring, Strategies>::type();
         }
 
         typedef typename reversible_view<Ring const, Direction>::type rview_type;
@@ -114,9 +116,11 @@ struct ring_area
 
         rview_type rview(ring);
         view_type view(rview);
-        typename Strategy::template state<Ring> state;
         iterator_type it = boost::begin(view);
         iterator_type end = boost::end(view);
+
+        strategy_type strategy = strategies.area(ring);
+        typename strategy_type::template state<Ring> state;        
 
         for (iterator_type previous = it++;
             it != end;
@@ -216,7 +220,11 @@ struct area<MultiGeometry, multi_polygon_tag> : detail::multi_sum
 namespace resolve_strategy
 {
 
-template <typename Strategy>
+template
+<
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
 struct area
 {
     template <typename Geometry>
@@ -227,16 +235,30 @@ struct area
     }
 };
 
+template <typename Strategy>
+struct area<Strategy, false>
+{
+    template <typename Geometry>
+    static auto apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        using strategies::area::services::strategy_converter;
+        return dispatch::area
+            <
+                Geometry
+            >::apply(geometry, strategy_converter<Strategy>::get(strategy));
+    }
+};
+
 template <>
-struct area<default_strategy>
+struct area<default_strategy, false>
 {
     template <typename Geometry>
     static inline typename area_result<Geometry>::type
     apply(Geometry const& geometry, default_strategy)
     {
-        typedef typename strategy::area::services::default_strategy
+        typedef typename strategies::area::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
+                Geometry
             >::type strategy_type;
 
         return dispatch::area<Geometry>::apply(geometry, strategy_type());

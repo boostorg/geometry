@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -17,6 +21,8 @@
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
+
 #include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/mpl/assert.hpp>
@@ -85,6 +91,41 @@ struct default_strategy
 } // namespace services
 
 }} // namespace strategy::area
+
+
+namespace strategies { namespace area {
+
+namespace services
+{
+
+template
+<
+    typename Geometry,
+    typename CSTag = typename geometry::cs_tag<Geometry>::type
+>
+struct default_strategy
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
+        , (types<Geometry, CSTag>)
+    );
+};
+
+template <typename Strategy>
+struct strategy_converter
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
+        , (Strategy)
+    );
+};
+
+
+} // namespace services
+
+}} // namespace strategies::area
 
 
 }} // namespace boost::geometry

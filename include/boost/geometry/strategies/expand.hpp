@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,6 +37,38 @@ struct default_strategy
 };
 
 }}} // namespace strategy::expand::services
+
+
+namespace strategies { namespace expand { namespace services
+{
+
+template
+<
+    typename Box,
+    typename Geometry,
+    typename CSTag = typename geometry::cs_tag<Geometry>::type
+>
+struct default_strategy
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
+        , (types<Box, Geometry, CSTag>)
+    );
+};
+
+template <typename Strategy>
+struct strategy_converter
+{
+    BOOST_MPL_ASSERT_MSG
+    (
+        false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
+        , (Strategy)
+    );
+};
+
+
+}}} // namespace strategies::expand::services
 
 
 }} // namespace boost::geometry

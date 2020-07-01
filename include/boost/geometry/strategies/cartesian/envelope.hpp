@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2018, 2019.
-// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -43,24 +43,6 @@ class cartesian
 public:
     typedef cartesian_tag cs_tag;
 
-    typedef cartesian_point element_envelope_strategy_type;
-    static inline element_envelope_strategy_type get_element_envelope_strategy()
-    {
-        return element_envelope_strategy_type();
-    }
-
-    typedef expand::cartesian_point element_expand_strategy_type;
-    static inline element_expand_strategy_type get_element_expand_strategy()
-    {
-        return element_expand_strategy_type();
-    }
-
-    typedef expand::cartesian_box box_expand_strategy_type;
-    static inline box_expand_strategy_type get_box_expand_strategy()
-    {
-        return box_expand_strategy_type();
-    }
-
     // Linestring, Ring, Polygon
 
     template <typename Range>
@@ -93,7 +75,7 @@ public:
             }
             else
             {
-                box_expand_strategy_type::apply(m_box, single_box);
+                strategy::expand::cartesian_box::apply(m_box, single_box);
             }
         }
 
@@ -113,23 +95,6 @@ public:
         bool m_initialized;
         Box m_box;
     };
-
-    // Segment
-
-    template <typename Point1, typename Point2, typename Box>
-    static inline void apply(Point1 const& point1, Point2 const& point2,
-                             Box& box)
-    {
-        cartesian_segment<CalculationType>::apply(point1, point2, box);
-    }
-
-    // Box
-
-    template <typename BoxIn, typename Box>
-    static inline void apply(BoxIn const& box_in, Box& box)
-    {
-        cartesian_box::apply(box_in, box);
-    }
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
