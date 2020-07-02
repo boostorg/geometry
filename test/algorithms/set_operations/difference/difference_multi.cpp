@@ -30,7 +30,7 @@
                 clips3, -1, area1 + area2)
 
 #define TEST_DIFFERENCE_IGNORE(caseid, clips1, area1, clips2, area2, clips3) \
-    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+    { ut_settings ignore_validity; ignore_validity.set_test_validity(false); \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
                 clips3, -1, area1 + area2, ignore_validity); }
@@ -148,7 +148,7 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.001;
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 
@@ -158,13 +158,13 @@ void test_areal()
         // POSTGIS areas: 3.75893745345145, 2.5810000723917e-15
         ut_settings settings;
         settings.sym_difference = BG_IF_RESCALED(false, true);
-        settings.test_validity = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(BG_IF_RESCALED(false, true));
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
         // No output for B
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 0, 0.0, 1);
 #else
         // Very small sliver for B, and sym difference is not considered valid
-        settings.test_validity = false;
+        settings.set_test_validity(false);
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
 #endif
     }
@@ -172,9 +172,10 @@ void test_areal()
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // With rescaling, it is complete but invalid
+        // Without rescaling, one ring is missing (for a and s)
         ut_settings settings;
         settings.percentage = 0.001;
-        settings.test_validity = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(BG_IF_RESCALED(false, true));
         TEST_DIFFERENCE_WITH(0, 1, ticket_9081,
                              2, 0.0907392476356186,
                              4, 0.126018011439877,
@@ -382,9 +383,9 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_88, 3, 4.75, 5, 6.75, 4);
 
     // Output of A can be 0 or 1 polygons (with a very small area)
-    TEST_DIFFERENCE(case_precision_m1, -1, 0.0, 1, 57.0, -1);
+    TEST_DIFFERENCE(case_precision_m1, optional(), 0.0, 1, 57.0, count_set(1, 2));
     // Output of A can be 1 or 2 polygons (one with a very small area)
-    TEST_DIFFERENCE(case_precision_m2, -1, 1.0, 1, 57.75, -1);
+    TEST_DIFFERENCE(case_precision_m2, count_set(1, 2), 1.0, 1, 57.75, count_set(2, 3));
 
     {
         ut_settings sym_settings;
@@ -400,8 +401,8 @@ void test_areal()
     }
 
     TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31,
-                    BG_IF_RESCALED(1, 0), BG_IF_RESCALED(4.30697514e-7, 0),
-                    3, 152.0642, BG_IF_RESCALED(4, 3));
+                    optional(), BG_IF_RESCALED(4.30697514e-7, 0),
+                    3, 152.0642, count_set(3, 4));
 }
 
 
@@ -423,13 +424,13 @@ void test_specific_areal()
         // Spikes in a-b and b-a, failure in symmetric difference
         ut_settings settings;
         settings.sym_difference = false;
-        settings.test_validity = false;
+        settings.set_test_validity(false);
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674,
                              BG_IF_KRAMER(3, 4),
                              BG_IF_KRAMER(9105781.5, 9105473.5),
                              5,
-                             BG_IF_KRAMER(119059.5, 119423), -1);
+                             BG_IF_KRAMER(119059.5, 119423), ignore_count());
     }
 
     {
@@ -446,7 +447,7 @@ void test_specific_areal()
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER)
         // Fails with general line form intersection, symmetric version misses one outcut
         // TODO GENERAL FORM
-        settings.test_validity = false;
+        settings.set_test_validity(false);
         settings.sym_difference = false;
 #endif
 
@@ -525,6 +526,10 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(23, 13);
 #endif
 
     return 0;

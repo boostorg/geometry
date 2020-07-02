@@ -186,9 +186,9 @@ struct base_turn_handler
                 <  ti.operations[IndexQ].remaining_distance;
         dm_type const dm
                 = p_closer
-                ? get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(index_q - 1),
+                ? get_distance_measure(range_q.at(index_q - 1),
                     range_q.at(index_q), range_p.at(index_p))
-                : get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_p.at(index_p - 1),
+                : get_distance_measure(range_p.at(index_p - 1),
                     range_p.at(index_p), range_q.at(index_q));
 
         if (! dm.is_zero())
@@ -609,9 +609,9 @@ struct equal : public base_turn_handler
             typedef detail::distance_measure<coordinate_type> dm_type;
 
             dm_type const dm_qk_p
-               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_q.at(1), range_q.at(2), range_p.at(2));
+               = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(2));
             dm_type const dm_pk_q
-               = get_distance_measure<typename UmbrellaStrategy::cs_tag>(range_p.at(1), range_p.at(2), range_q.at(2));
+               = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(2));
 
             if (dm_pk_q.measure != dm_qk_p.measure)
             {

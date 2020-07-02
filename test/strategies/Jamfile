@@ -4,8 +4,8 @@
 # Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 #
-# This file was modified by Oracle on 2014-2019.
-# Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014-2020.
+# Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -35,7 +35,6 @@ test-suite boost-geometry-strategies
     [ run segment_intersection_collinear.cpp : : : : strategies_segment_intersection_collinear ]
     [ run segment_intersection_geo.cpp       : : : : strategies_segment_intersection_geo ]
     [ run segment_intersection_sph.cpp       : : : : strategies_segment_intersection_sph ]
-    [ run side_of_intersection.cpp           : : : : strategies_side_of_intersection ]
     [ run spherical_side.cpp                 : : : : strategies_spherical_side ]
     [ run thomas.cpp                         : : : : strategies_thomas ]
     [ run transform_cs.cpp                   : : : : strategies_transform_cs ]

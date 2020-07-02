@@ -161,6 +161,33 @@ struct mathematical_policy
 
 };
 
+struct ut_base_settings
+{
+    explicit ut_base_settings(bool val = true)
+        : m_test_validity(true)
+    {
+        set_test_validity(val);
+    }
+
+    inline void set_test_validity(bool val)
+    {
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+        boost::ignore_unused(val);
+#else
+        m_test_validity = val;
+#endif
+    }
+
+    inline bool test_validity() const
+    {
+        return m_test_validity;
+    }
+
+private :
+    bool m_test_validity;
+};
+
+
 typedef double default_test_type;
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
@@ -198,5 +225,23 @@ inline void BoostGeometryWriteTestConfiguration()
     std::cout << "  - Default test type: " << string_from_type<default_test_type>::name() << std::endl;
     std::cout << std::endl;
 }
+
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
+#define BG_NO_FAILURES 0
+inline void BoostGeometryWriteExpectedFailures(std::size_t for_rescaling,
+                std::size_t for_no_rescaling = BG_NO_FAILURES)
+{
+    boost::ignore_unused(for_rescaling, for_no_rescaling);
+
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) && defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    std::cout << std::endl;
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+    std::cout << "RESCALED - Expected: " << for_rescaling << " error(s)" << std::endl;
+#else
+    std::cout << "NOT RESCALED - Expected: " << for_no_rescaling << " error(s)" << std::endl;
+#endif
+#endif
+}
+#endif
 
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP

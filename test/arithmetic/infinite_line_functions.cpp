@@ -3,8 +3,8 @@
 
 // Copyright (c) 2018-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019, 2020.
+// Modifications copyright (c) 2019, 2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -97,77 +97,6 @@ void test_get_intersection()
 }
 
 template <typename T>
-void test_same_direction()
-{
-    bg::model::infinite_line<T> p, q;
-
-    // Exactly opposite, diagonal
-    p = bg::detail::make::make_infinite_line<T>(2, 1, 12, 11);
-    q = bg::detail::make::make_infinite_line<T>(12, 11, 2, 1);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // Exactly opposite, horizontal
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
-    q = bg::detail::make::make_infinite_line<T>(10, 0, 0, 0);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // Exactly opposite, vertical
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 10, 0, 0);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // Exactly equal, diagonal
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    BOOST_CHECK(bg::arithmetic::similar_direction(p, q));
-
-    // Exactly equal, horizontal
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
-    BOOST_CHECK(bg::arithmetic::similar_direction(p, q));
-
-    // Exactly equal, vertical
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
-    BOOST_CHECK(bg::arithmetic::similar_direction(p, q));
-
-    // Coming together, diagonal
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(20, 20, 10, 10);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // Leaving from common point, diagonal
-    p = bg::detail::make::make_infinite_line<T>(10, 10, 0, 0);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // Continuing each other, diagonal
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(10, 10, 20, 20);
-    BOOST_CHECK(bg::arithmetic::similar_direction(p, q));
-
-    // (Nearly) perpendicular
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, -10, 10);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // 45 deg
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
-    BOOST_CHECK(bg::arithmetic::similar_direction(p, q));
-
-    // a bit more than 45 deg
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, -1, 10);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-
-    // 135 deg
-    p = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
-    q = bg::detail::make::make_infinite_line<T>(0, 0, -10, 0);
-    BOOST_CHECK(! bg::arithmetic::similar_direction(p, q));
-}
-
-template <typename T>
 void test_degenerate()
 {
     typedef bg::model::infinite_line<T> line_type;
@@ -191,7 +120,6 @@ void test_all()
 {
     test_side_value<T>();
     test_get_intersection<T>();
-    test_same_direction<T>();
     test_degenerate<T>();
 }
 
