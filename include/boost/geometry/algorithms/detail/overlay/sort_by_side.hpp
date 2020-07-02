@@ -186,7 +186,14 @@ struct less_by_side
             return on_same(first, second);
         }
 
-        int const side_first_wrt_second = -side_second_wrt_first;
+        int const side_first_wrt_second = m_strategy.apply(m_turn_point, second.point, first.point);
+        if (side_second_wrt_first != -side_first_wrt_second)
+        {
+            // (FP) accuracy error in side calculation, the sides are not opposite.
+            // In that case they can be handled as collinear.
+            // If not, then the sort-order might not be stable.
+            return on_same(first, second);
+        }
 
         // Both are on same side, and not collinear
         // Union: return true if second is right w.r.t. first, so -1,
@@ -367,9 +374,11 @@ public :
         }
     }
 
-    template <signed_size_type segment_identifier::*Member, typename Map>
-    void find_open_generic(Map& handled, bool check)
+    void find_open_by_piece_index()
     {
+        // For buffers, use piece index
+        std::set<signed_size_type> handled;
+
         for (std::size_t i = 0; i < m_ranked_points.size(); i++)
         {
             const rp& ranked = m_ranked_points[i];
@@ -378,17 +387,35 @@ public :
                 continue;
             }
 
-            signed_size_type const& index = ranked.seg_id.*Member;
-            if (check && (index < 0 || index > 1))
+            signed_size_type const& index = ranked.seg_id.piece_index;
+            if (handled.count(index) > 0)
             {
-                // Should not occur
                 continue;
             }
-            if (! handled[index])
+            find_polygons_for_source<&segment_identifier::piece_index>(index, i);
+            handled.insert(index);
+        }
+    }
+
+    void find_open_by_source_index()
+    {
+        // Check for source index 0 and 1
+        bool handled[2] = {false, false};
+        for (std::size_t i = 0; i < m_ranked_points.size(); i++)
+        {
+            const rp& ranked = m_ranked_points[i];
+            if (ranked.direction != dir_from)
             {
-                find_polygons_for_source<Member>(index, i);
-                handled[index] = true;
+                continue;
             }
+
+            signed_size_type const& index = ranked.seg_id.source_index;
+            if (index < 0 || index > 1 || handled[index])
+            {
+                continue;
+            }
+            find_polygons_for_source<&segment_identifier::source_index>(index, i);
+            handled[index] = true;
         }
     }
 
@@ -396,21 +423,11 @@ public :
     {
         if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
         {
-            // For buffers, use piece index
-            std::map<signed_size_type, bool> handled;
-            find_open_generic
-                <
-                    &segment_identifier::piece_index
-                >(handled, false);
+            find_open_by_piece_index();
         }
         else
         {
-            // For other operations, by source (there should only source 0,1)
-            bool handled[2] = {false, false};
-            find_open_generic
-                <
-                    &segment_identifier::source_index
-                >(handled, true);
+            find_open_by_source_index();
         }
     }
 

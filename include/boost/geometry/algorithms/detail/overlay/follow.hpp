@@ -30,6 +30,8 @@
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -487,7 +489,7 @@ public :
                     strategy, robust_policy,
                     linear::get(out));
             }
-            else if (FollowIsolatedPoints
+            else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
                   && following::is_touching(*it, *iit, entered))
             {
                 debug_traverse(*it, *iit, "-> Isolated point");
@@ -519,7 +521,7 @@ public :
         {
             *linear::get(out)++ = current_piece;
         }
-        else if (FollowIsolatedPoints
+        else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
               && current_piece_size == 1)
         {
             action::template isolated_point

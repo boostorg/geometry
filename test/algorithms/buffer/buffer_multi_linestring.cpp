@@ -197,9 +197,10 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
             mysql_23023665_1, join_round32, end_flat, 1, 1, 350.1135, 2.0);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
-        ut_settings settings(10.0);
+        // Cases failing with rescaling
+        ut_settings settings(10.0, false);
         test_one<multi_linestring_type, polygon>("ticket_13444_1",
                 ticket_13444, join_round32, end_round32, 3, 0, 11801.7832, 1.0, settings);
         test_one<multi_linestring_type, polygon>("ticket_13444_3",
@@ -222,5 +223,8 @@ int test_main(int, char* [])
     test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 #endif
 
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(10, BG_NO_FAILURES);
+#endif
     return 0;
 }
