@@ -369,15 +369,6 @@ struct touch : public base_turn_handler
         return side1 == side2 && ! opposite(side1, turn);
     }
 
-    /*static inline void block_second(bool block, TurnInfo& ti)
-    {
-        if (block)
-        {
-            ti.operations[1].operation = operation_blocked;
-        }
-    }*/
-
-
     template
     <
         typename UniqueSubRange1,
@@ -457,7 +448,6 @@ struct touch : public base_turn_handler
                     {
                         ti.operations[1].operation = operation_blocked;
                     }
-                    //block_second(block_q, ti);
                     return;
                 }
 
@@ -483,7 +473,6 @@ struct touch : public base_turn_handler
                     {
                         ti.touch_only = true;
                     }
-                    //block_second(block_q, ti);
                     return;
                 }
             }
@@ -608,16 +597,16 @@ struct equal : public base_turn_handler
 
             typedef detail::distance_measure<coordinate_type> dm_type;
 
-            dm_type const dm_qk_p
+            dm_type const dm_pk_q2
                = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(2));
-            dm_type const dm_pk_q
+            dm_type const dm_qk_p2
                = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(2));
 
-            if (dm_pk_q.measure != dm_qk_p.measure)
+            if (dm_qk_p2.measure != dm_pk_q2.measure)
             {
                 // A (possibly very small) difference is detected, which
                 // can be used to distinguish between union/intersection
-                ui_else_iu(dm_pk_q.measure < dm_qk_p.measure, ti);
+                ui_else_iu(dm_qk_p2.measure < dm_pk_q2.measure, ti);
                 return;
             }
         }
