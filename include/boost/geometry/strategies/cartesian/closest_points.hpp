@@ -158,7 +158,7 @@ struct swap<strategy::closest_points::cartesian<CalculationType, Strategy> >
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 

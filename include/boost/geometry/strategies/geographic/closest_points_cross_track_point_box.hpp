@@ -348,7 +348,7 @@ struct swap
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 

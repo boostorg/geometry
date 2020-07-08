@@ -130,15 +130,15 @@ struct multirange_constant_size_geometry
           Strategy const& strategy)
     {
         typedef unary_disjoint_geometry_to_query_geometry
-        <
+            <
                 ConstantSizeGeometry,
                 Strategy,
                 dispatch::disjoint
-                <
-                    typename boost::range_value<MultiRange>::type,
-                    ConstantSizeGeometry
-                >
-         > unary_predicate_type;
+                    <
+                        typename boost::range_value<MultiRange>::type,
+                        ConstantSizeGeometry
+                    >
+            > unary_predicate_type;
          return detail::check_iterator_range
                 <
                      unary_predicate_type

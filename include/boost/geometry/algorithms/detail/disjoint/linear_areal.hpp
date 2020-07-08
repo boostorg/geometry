@@ -50,6 +50,7 @@
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 
+#include <boost/geometry/util/select_point_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -79,11 +80,11 @@ struct disjoint_no_intersections_policy
         return !geometry::covered_by(p, g2, strategy);
     }
 
-    template <typename Strategy>
+    template <typename Point, typename Strategy>
     static inline bool apply(Geometry1 const& g1,
                              Geometry2 const& g2,
-                             Strategy const& strategy,
-                             point1_type& p)
+                             Point& p,
+                             Strategy const& strategy)
     {
         geometry::point_on_border(p, g1);
 
@@ -118,11 +119,11 @@ struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
 
     typedef typename point_type<Geometry1>::type point1_type;
 
-    template <typename Strategy>
+    template <typename Point, typename Strategy>
     static inline bool apply(Geometry1 const& g1,
                              Geometry2 const& g2,
-                             Strategy const& strategy,
-                             point1_type& p)
+                             Point& p,
+                             Strategy const& strategy)
     {
         // TODO: use partition or rtree on g2
         typedef typename boost::range_iterator<Geometry1 const>::type iterator;
@@ -130,7 +131,7 @@ struct disjoint_no_intersections_policy<Geometry1, Geometry2, Tag1, multi_tag>
         {
             typedef typename boost::range_value<Geometry1 const>::type value_type;
             if ( ! disjoint_no_intersections_policy<value_type const, Geometry2>
-                    ::apply(*it, g2, strategy, p) )
+                    ::apply(*it, g2, p, strategy) )
             {
                 return false;
             }
@@ -145,8 +146,8 @@ template<typename Geometry1, typename Geometry2,
                       <Geometry1, Geometry2> >
 struct disjoint_linear_areal_with_info
 {
-    typedef typename point_type<Geometry1>::type p_type;
-
+    typedef typename geometry::select_point_type<Geometry1, Geometry2>::type
+            p_type;
     typedef segment_intersection_points<p_type> intersection_return_type;
 
     template <typename Strategy>
@@ -163,10 +164,12 @@ struct disjoint_linear_areal_with_info
 
         p_type p;
         if (!NoIntersectionsPolicy
-                ::apply(g1, g2,
+                ::apply(g1, g2, p,
                         strategy.template get_point_in_geometry_strategy
-                        <Geometry1, Geometry2>(),
-                        p))
+                        <
+                            Geometry1,
+                            Geometry2
+                        >()))
         {
             res.count = 1;
             res.intersections[0] = p;
@@ -199,7 +202,11 @@ struct disjoint_linear_areal
 
         return NoIntersectionsPolicy
                 ::apply(g1, g2,
-                        strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>());
+                        strategy.template get_point_in_geometry_strategy
+                                   <
+                                     Geometry1,
+                                     Geometry2
+                                   >());
     }
 };
 
@@ -229,8 +236,7 @@ struct disjoint_segment_areal
 template <typename Segment, typename Polygon>
 class disjoint_segment_areal_with_info<Segment, Polygon, polygon_tag>
 {
-    typedef typename point_type<Segment>::type p_type;
-
+    typedef typename geometry::select_point_type<Segment, Polygon>::type p_type;
     typedef segment_intersection_points<p_type> intersection_return_type;
 
 private:
@@ -275,7 +281,9 @@ public:
 
         intersection_return_type res = disjoint_range_segment_or_box_with_info
         <
-            ring, closure<Polygon>::value, Segment
+            ring,
+            closure<Polygon>::value,
+            Segment
         >::apply(geometry::exterior_ring(polygon), segment, strategy);
 
         if ( res.count != 0 )
@@ -293,11 +301,15 @@ public:
             return res;
         }
 
-        typename point_type<Segment>::type p;
+        typename geometry::select_point_type<Segment, Polygon>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
         if (geometry::covered_by(p, polygon,
-                    strategy.template get_point_in_geometry_strategy<Segment, Polygon>()))
+                    strategy.template get_point_in_geometry_strategy
+                                      <
+                                        Segment,
+                                        Polygon
+                                      >()))
         {
             intersection_return_type res;
             res.count = 1;
@@ -332,8 +344,8 @@ public:
 template <typename Segment, typename MultiPolygon>
 struct disjoint_segment_areal_with_info<Segment, MultiPolygon, multi_polygon_tag>
 {
-    typedef typename point_type<Segment>::type p_type;
-
+    typedef typename geometry::select_point_type<Segment, MultiPolygon>::type
+            p_type;
     typedef segment_intersection_points<p_type> intersection_return_type;
 
     template <typename IntersectionStrategy>
@@ -352,7 +364,8 @@ template <typename Segment, typename MultiPolygon>
 struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 {
     template <typename IntersectionStrategy>
-    static inline bool apply(Segment const& segment, MultiPolygon const& multipolygon,
+    static inline bool apply(Segment const& segment,
+                             MultiPolygon const& multipolygon,
                              IntersectionStrategy const& strategy)
     {
         return multirange_constant_size_geometry
@@ -366,8 +379,8 @@ struct disjoint_segment_areal<Segment, MultiPolygon, multi_polygon_tag>
 template <typename Segment, typename Ring>
 struct disjoint_segment_areal_with_info<Segment, Ring, ring_tag>
 {
-    typedef typename point_type<Ring>::type p_type;
-
+    typedef typename geometry::select_point_type<Segment, Ring>::type
+            p_type;
     typedef segment_intersection_points<p_type> intersection_return_type;
 
     template <typename IntersectionStrategy>
@@ -390,7 +403,11 @@ struct disjoint_segment_areal_with_info<Segment, Ring, ring_tag>
         detail::assign_point_from_index<0>(segment, p);
 
         if (geometry::covered_by(p, ring,
-                    strategy.template get_point_in_geometry_strategy<Segment, Ring>()))
+                    strategy.template get_point_in_geometry_strategy
+                                       <
+                                         Segment,
+                                         Ring
+                                       >()))
         {
             intersection_return_type res;
             res.count = 1;

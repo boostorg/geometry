@@ -512,7 +512,7 @@ struct swap<strategy::closest_points::geographic_cross_track<CalculationType, St
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 

@@ -182,8 +182,8 @@ struct areal_areal
 template <typename Areal, typename Box>
 struct areal_box_with_info
 {
-    typedef typename point_type<Areal>::type point_type;
-    typedef segment_intersection_points<point_type> intersection_return_type;
+    typedef typename point_type<Areal>::type areal_point_type;
+    typedef segment_intersection_points<areal_point_type> intersection_return_type;
 
     template <typename Strategy>
     static inline intersection_return_type
@@ -192,10 +192,9 @@ struct areal_box_with_info
           Strategy const& strategy)
     {
         intersection_return_type res =
-                for_each_segment(geometry::segments_begin(areal),
-                                 geometry::segments_end(areal),
-                                 box, strategy);
-                                 //strategy.get_disjoint_segment_box_strategy());
+                check_segments_range(geometry::segments_begin(areal),
+                                     geometry::segments_end(areal),
+                                     box, strategy);
         if ( res.count != 0 )
         {
             return res;
@@ -208,7 +207,10 @@ struct areal_box_with_info
                 strategy.template get_point_in_geometry_strategy<Box, Areal>()) )
         {
             res.count = 1;
-            res.intersections[0] = box.max_corner();
+            typename point_type<Box>::type box_point;
+            set<0>(box_point, get<1,0>(box));
+            set<1>(box_point, get<1,1>(box));
+            res.intersections[0] = box_point;
             return res;
         }
 
@@ -218,10 +220,10 @@ struct areal_box_with_info
 private:
     template <typename SegIter, typename Strategy>
     static inline intersection_return_type
-    for_each_segment(SegIter first,
-                     SegIter last,
-                     Box const& box,
-                     Strategy const& strategy)
+    check_segments_range(SegIter first,
+                         SegIter last,
+                         Box const& box,
+                         Strategy const& strategy)
     {
         for ( ; first != last ; ++first)
         {
@@ -252,10 +254,10 @@ struct areal_box
                              Box const& box,
                              Strategy const& strategy)
     {
-        if ( ! for_each_segment(geometry::segments_begin(areal),
-                                geometry::segments_end(areal),
-                                box,
-                                strategy.get_disjoint_segment_box_strategy()) )
+        if ( ! check_segments_range(geometry::segments_begin(areal),
+                                    geometry::segments_end(areal),
+                                    box,
+                                    strategy.get_disjoint_segment_box_strategy()) )
         {
             return false;
         }
@@ -274,10 +276,10 @@ struct areal_box
 
 private:
     template <typename SegIter, typename Strategy>
-    static inline bool for_each_segment(SegIter first,
-                                        SegIter last,
-                                        Box const& box,
-                                        Strategy const& strategy)
+    static inline bool check_segments_range(SegIter first,
+                                            SegIter last,
+                                            Box const& box,
+                                            Strategy const& strategy)
     {
         for ( ; first != last ; ++first)
         {

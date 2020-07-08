@@ -371,7 +371,7 @@ struct swap<strategy::closest_points::spherical_segment_box<CalculationType, Str
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 

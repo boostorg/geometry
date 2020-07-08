@@ -58,9 +58,11 @@ struct closest_points
             Strategy,
             Geometry1,
             typename point_type<Geometry2>::type
-        >::type result = distance <
-                                      Geometry1, Geometry2, Strategy
-                                  >::apply(g1, g2, strategy);
+        >::type result = distance<
+                                     Geometry1,
+                                     Geometry2,
+                                     Strategy
+                                 >::apply(g1, g2, strategy);
 
         set_from_radian<0,0>(shortest_seg, result.lon1);
         set_from_radian<0,1>(shortest_seg, result.lat1);

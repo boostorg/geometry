@@ -312,7 +312,7 @@ struct swap<strategy::closest_points::cross_track_box_box<CalculationType, Strat
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 

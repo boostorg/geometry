@@ -273,7 +273,7 @@ struct swap<strategy::closest_points::cartesian_point_box<CalculationType, Strat
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.swap();
+        res.swap_points();
     }
 };
 
