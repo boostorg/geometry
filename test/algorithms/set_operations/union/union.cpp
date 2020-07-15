@@ -281,9 +281,7 @@ void test_areal()
     TEST_UNION(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_19, 1, 1, -1, 73.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION(case_precision_20, 1, 0, -1, 22.0);
-#endif
     TEST_UNION(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION(case_precision_22, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_23, 1, 1, -1, 73.0);
@@ -310,9 +308,7 @@ void test_areal()
     TEST_UNION_REV(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_19, 1, 1, -1, 73.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION_REV(case_precision_20, 1, 0, -1, 22.0);
-#endif
     TEST_UNION_REV(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_22, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_23, 1, 1, -1, 73.0);

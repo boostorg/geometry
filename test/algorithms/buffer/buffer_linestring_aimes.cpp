@@ -483,8 +483,8 @@ int test_main(int, char* [])
     test_aimes<bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Non-rescaled reports 22 failures (failures in validity only)
-    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, 22);
+    // Non-rescaled reports failures, but in validity only
+    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, 4);
 #endif
 
     return 0;
