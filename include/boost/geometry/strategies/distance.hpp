@@ -66,7 +66,7 @@ template <typename Strategy, typename P1, typename P2>
 struct result_from_distance {};
 
 template <typename StrategyType>
-struct swap
+struct swap_result_points
 {
     template <typename T>
     static inline void apply(T&)

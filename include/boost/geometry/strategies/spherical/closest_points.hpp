@@ -199,7 +199,10 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct swap<strategy::closest_points::spherical<CalculationType, Strategy> >
+struct swap_result_points
+<
+    strategy::closest_points::spherical<CalculationType, Strategy>
+>
 {
     template <typename Result>
     static inline void apply(Result& res)
@@ -214,9 +217,9 @@ template
     typename Strategy
 >
 struct result_set_unique_point
-<
-    strategy::closest_points::spherical<CalculationType, Strategy>
->
+    <
+        strategy::closest_points::spherical<CalculationType, Strategy>
+    >
 {
     template <typename T, typename Point>
     static inline void apply(T& result, Point const& point)

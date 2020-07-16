@@ -453,14 +453,14 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct swap
-       <
-            strategy::closest_points::geographic_segment_box
+struct swap_result_points
+    <
+        strategy::closest_points::geographic_segment_box
             <
                 CalculationType,
                 Strategy
             >
-       >
+    >
 {
     template <typename Result>
     static inline void apply(Result& res)

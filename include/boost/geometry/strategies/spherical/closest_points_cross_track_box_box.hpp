@@ -307,7 +307,10 @@ template
     typename CalculationType,
     typename Strategy
 >
-struct swap<strategy::closest_points::cross_track_box_box<CalculationType, Strategy> >
+struct swap_result_points
+    <
+        strategy::closest_points::cross_track_box_box<CalculationType, Strategy>
+    >
 {
     template <typename Result>
     static inline void apply(Result& res)

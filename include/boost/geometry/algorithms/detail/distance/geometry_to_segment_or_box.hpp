@@ -183,9 +183,10 @@ private:
         apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
         {
             return geometry::detail::disjoint::disjoint_with_info
-                       <Geometry, SegOrBox>::apply(
-                          g1, g2, s.get_relate_segment_segment_strategy());
-            //return geometry::intersects(g1, g2);
+                <
+                    Geometry,
+                    SegOrBox
+                >::apply(g1, g2, s.get_relate_segment_segment_strategy());
         }
     };
 
@@ -202,8 +203,6 @@ private:
             return geometry::detail::disjoint::disjoint_with_info
                        <Geometry, SegOrBox>::apply(
                         g1, g2, s.get_relate_segment_segment_strategy());
-            //return res.count != 0;
-            //return geometry::intersects(g1, g2, s.get_relate_segment_segment_strategy());
         }
     };
 
@@ -266,7 +265,7 @@ public:
 
         // consider all distances of the points in the geometry to the
         // segment or box
-        comparable_return_type cd_min1;
+        comparable_return_type cr_min1;
         point_iterator_type pit_min;
         seg_or_box_const_iterator it_min1 = boost::const_begin(seg_or_box_points);
         seg_or_box_const_iterator it_min2 = it_min1;
@@ -276,7 +275,7 @@ public:
         for (point_iterator_type pit = points_begin(geometry);
              pit != points_end(geometry); ++pit, first = false)
         {
-            comparable_return_type cd;
+            comparable_return_type cr;
             std::pair
                 <
                     seg_or_box_const_iterator, seg_or_box_const_iterator
@@ -285,11 +284,11 @@ public:
                                               boost::const_begin(seg_or_box_points),
                                               boost::const_end(seg_or_box_points),
                                               cstrategy,
-                                              cd);
+                                              cr);
 
-            if (first || cd < cd_min1)
+            if (first || cr < cr_min1)
             {
-                cd_min1 = cd;
+                cr_min1 = cr;
                 pit_min = pit;
                 assign_new_value::apply(it_min1, it_pair.first);
                 assign_new_value::apply(it_min2, it_pair.second);
@@ -298,7 +297,7 @@ public:
 
         // consider all distances of the points in the segment or box to the
         // segments of the geometry
-        comparable_return_type cd_min2;
+        comparable_return_type cr_min2;
         segment_iterator_type sit_min;
         seg_or_box_const_iterator it_min;
 
@@ -306,17 +305,17 @@ public:
         for (seg_or_box_const_iterator it = boost::const_begin(seg_or_box_points);
              it != boost::const_end(seg_or_box_points); ++it, first = false)
         {
-            comparable_return_type cd;
+            comparable_return_type cr;
             segment_iterator_type sit
                 = geometry_to_range::apply(*it,
                                            segments_begin(geometry),
                                            segments_end(geometry),
                                            cstrategy,
-                                           cd);
+                                           cr);
 
-            if (first || cd < cd_min2)
+            if (first || cr < cr_min2)
             {
-                cd_min2 = cd;
+                cr_min2 = cr;
                 it_min = it;
                 sit_min = sit;
             }
@@ -326,10 +325,10 @@ public:
 
         if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
         {
-            return (std::min)(cd_min1, cd_min2);
+            return (std::min)(cr_min1, cr_min2);
         }
 
-        if (cd_min1 < cd_min2)
+        if (cr_min1 < cr_min2)
         {
             res = strategy.apply(*pit_min, *it_min1, *it_min2);
         }
@@ -345,13 +344,13 @@ public:
                     Strategy
                 >::apply(*it_min, *sit_min, strategy);
         }
-
+/*
         bool is_cartesian = boost::is_same
                 <
                     typename cs_tag<Geometry>::type,
                     cartesian_tag
                 >::type::value;
-
+*/
 
         bool is_polygon = boost::is_same
                 <
@@ -378,13 +377,9 @@ public:
                     box_tag
                 >::type::value;
 
-        if ((is_polygon || is_mpolygon) && is_cartesian && is_box)
+        if (((is_polygon || is_mpolygon) && is_box) || is_ring)
         {
-            strategy::distance::services::swap<Strategy>::apply(res);
-        }
-        if (is_ring)
-        {
-            strategy::distance::services::swap<Strategy>::apply(res);
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
         }
         return res;
     }
@@ -447,7 +442,7 @@ public:
                                            >::apply(strategy),
                                        cd_min);
 
-        strategy::distance::services::swap<Strategy>::apply(cd_min);
+        strategy::distance::services::swap_result_points<Strategy>::apply(cd_min);
 
         return
             is_comparable<Strategy>::value

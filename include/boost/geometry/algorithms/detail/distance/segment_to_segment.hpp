@@ -118,7 +118,7 @@ public:
 
         if (imin < 2)
         {
-            strategy::distance::services::swap<Strategy>::apply(d[imin]);
+            strategy::distance::services::swap_result_points<Strategy>::apply(d[imin]);
         }
         return strategy.apply(d[imin]);
     }

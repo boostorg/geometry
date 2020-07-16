@@ -105,7 +105,7 @@ public:
                                     Strategy const& strategy)
     {
 
-        return_type const zero = return_type();
+        return_type const zero = return_type(0);
 
         if (boost::size(range) == 0)
         {

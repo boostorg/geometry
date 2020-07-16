@@ -154,8 +154,11 @@ struct disjoint_linear_areal_with_info
     static inline intersection_return_type
     apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
-        intersection_return_type res =
-        disjoint_linear_with_info<Geometry1, Geometry2>::apply(g1, g2, strategy);
+        intersection_return_type res = disjoint_linear_with_info
+                                           <
+                                               Geometry1,
+                                               Geometry2
+                                           >::apply(g1, g2, strategy);
 
         if ( res.count != 0 )
         {

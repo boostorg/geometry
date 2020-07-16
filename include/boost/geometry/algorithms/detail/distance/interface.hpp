@@ -87,7 +87,7 @@ struct distance
                 false
             >::apply(g2, g1, strategy);
 
-        strategy::distance::services::swap<Strategy>::apply(res);
+        strategy::distance::services::swap_result_points<Strategy>::apply(res);
         return res;
     }
 };

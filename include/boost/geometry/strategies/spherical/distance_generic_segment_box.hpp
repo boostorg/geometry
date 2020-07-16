@@ -155,20 +155,23 @@ struct generic_segment_box
                         SegmentBoxStrategy::distance_ps_strategy::type()
                                             .apply(bottom_left, p0, p1));
 
-            strategy::distance::services::swap<SegmentBoxStrategy>::apply(result);
+            strategy::distance::services::swap_result_points
+               <
+                  SegmentBoxStrategy
+               >::apply(result);
         }
         else
         {
             result = geometry::detail::distance::segment_to_box_2D
+                <
+                    ReturnType,
+                    SegmentPoint,
+                    BoxPoint,
+                    SegmentBoxStrategy
+                >::template call_above_of_box
                     <
-                        ReturnType,
-                        SegmentPoint,
-                        BoxPoint,
-                        SegmentBoxStrategy
-                    >::template call_above_of_box
-                                <
-                                    typename LessEqual::other
-                                >(p1, p0, p_max, bottom_right, sb_strategy);
+                        typename LessEqual::other
+                    >(p1, p0, p_max, bottom_right, sb_strategy);
         }
         return result;
     }

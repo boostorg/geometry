@@ -182,7 +182,7 @@ public :
                 ReturnType res = ps_strategy.vertical_or_meridian(lat_min2,
                                                                   lat_max1,
                                                                   lon_closest);
-                strategy::distance::services::swap<PSStrategy>::apply(res);
+                strategy::distance::services::swap_result_points<PSStrategy>::apply(res);
                 return res;
             }
             else
@@ -226,7 +226,7 @@ public :
                                            north_shortest, non_overlap,
                                            pp_strategy, ps_strategy);
 
-            strategy::distance::services::swap<PSStrategy>::apply(res);
+            strategy::distance::services::swap_result_points<PSStrategy>::apply(res);
             return res;
         }
         if (bottom_max && right_wrap)
@@ -239,7 +239,7 @@ public :
                                             north_shortest, non_overlap,
                                             pp_strategy, ps_strategy);
 
-            strategy::distance::services::swap<PSStrategy>::apply(res);
+            strategy::distance::services::swap_result_points<PSStrategy>::apply(res);
             return res;
 
         }
