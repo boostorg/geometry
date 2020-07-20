@@ -94,7 +94,7 @@ public :
         return envelope_strategy_type();
     }
 
-    typedef strategy::disjoint::segment_box_spherical disjoint_strategy_type;
+    typedef strategy::disjoint::spherical_segment_box disjoint_strategy_type;
 
     static inline disjoint_strategy_type get_disjoint_strategy()
     {

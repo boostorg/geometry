@@ -32,6 +32,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
+#include <boost/geometry/strategies/spherical/comparable_point_segment_distance.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
@@ -132,8 +133,11 @@ public :
         typedef typename return_type<Point, PointOfSegment>::type return_type;
 
         Strategy distance_strategy = Strategy(m_strategy);
-        typedef geometry::formula::comparable_spherical_point_segment_distance
-                <return_type, false> spherical_ps_distance;
+        typedef comparable_spherical_point_segment_distance
+            <
+                return_type,
+                false
+            > spherical_ps_distance;
         typename spherical_ps_distance::result_type res = spherical_ps_distance
                     ::apply(p, sp1, sp2,
                             distance::services::get_comparable<Strategy>

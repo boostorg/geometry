@@ -53,16 +53,16 @@ template
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-struct segment_box_geographic
+struct geographic_segment_box
 {
 public:
     typedef Spheroid model_type;
 
-    inline segment_box_geographic()
+    inline geographic_segment_box()
         : m_spheroid()
     {}
 
-    explicit inline segment_box_geographic(Spheroid const& spheroid)
+    explicit inline geographic_segment_box(Spheroid const& spheroid)
         : m_spheroid(spheroid)
     {}
 
@@ -108,14 +108,14 @@ template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
                         geographic_tag, geographic_tag>
 {
-    typedef segment_box_geographic<> type;
+    typedef geographic_segment_box<> type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
                         geographic_tag, geographic_tag>
 {
-    typedef segment_box_geographic<> type;
+    typedef geographic_segment_box<> type;
 };
 
 

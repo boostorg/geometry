@@ -43,7 +43,7 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
-#include <boost/geometry/formulas/point_segment_distance.hpp>
+#include <boost/geometry/formulas/geographic_point_segment_distance.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
 #include <boost/geometry/formulas/mean_radius.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
@@ -139,17 +139,16 @@ public :
     inline typename return_type<Point, PointOfSegment>::type
     apply(Point const& p, PointOfSegment const& sp1, PointOfSegment const& sp2) const
     {
-        return (formula::point_segment_distance
-                <
-                    typename return_type<Point, PointOfSegment>::type,
-                    false,
-                    FormulaPolicy,
-                    Bisection
-                >
-                       ::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                               get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                               get_as_radian<0>(p), get_as_radian<1>(p),
-                               m_spheroid).distance);
+        return (formula::geographic_point_segment_distance
+            <
+                FormulaPolicy,
+                typename return_type<Point, PointOfSegment>::type,
+                false,
+                Bisection
+            >::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                     get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                     get_as_radian<0>(p), get_as_radian<1>(p),
+                     m_spheroid).distance);
     }
 
     template <typename ResultType>

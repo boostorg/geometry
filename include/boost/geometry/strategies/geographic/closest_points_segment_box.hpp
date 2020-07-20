@@ -179,7 +179,7 @@ struct geographic_segment_box
         return disjoint_segment_box_with_info_strategy_type(m_spheroid);
     }
 
-    Spheroid get_spheroid() const
+    Spheroid model() const
     {
         return m_spheroid;
     }
@@ -475,7 +475,7 @@ template
     typename Spheroid,
     typename CalculationType
 >
-struct mirror
+struct mirror_points
        <
             strategy::closest_points::geographic_segment_box
             <
@@ -488,7 +488,7 @@ struct mirror
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.mirror();
+        res.mirror_points();
     }
 };
 

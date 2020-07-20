@@ -182,8 +182,7 @@ struct cartesian_segments
 
     typedef disjoint::segment_box
     <
-        CalculationType,
-        distance::pythagoras<CalculationType>
+        CalculationType
     > disjoint_segment_box_strategy_type;
 
     static inline disjoint_segment_box_strategy_type

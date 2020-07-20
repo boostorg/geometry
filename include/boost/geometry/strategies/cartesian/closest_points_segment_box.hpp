@@ -60,7 +60,7 @@ struct cartesian_segment_box
     // point-segment strategy getters
     struct distance_ps_strategy
     {
-        typedef projected_point<CalculationType, Strategy> type;
+        typedef cartesian_point_segment<CalculationType, Strategy> type;
     };
 
     inline typename distance_ps_strategy::type get_distance_ps_strategy() const
@@ -266,26 +266,25 @@ public :
 
 template <typename CalculationType, typename Strategy, typename PS, typename PB>
 struct result_from_distance
-       <
-            closest_points::cartesian_segment_box
-            <
-                CalculationType,
-                Strategy
-            >,
-            PS,
-            PB
-       >
+<
+    closest_points::cartesian_segment_box
+        <
+            CalculationType,
+            Strategy
+        >,
+    PS, PB
+>
 {
 private :
-    typedef typename return_type<
-                                    closest_points::cartesian_segment_box
-                                    <
-                                        CalculationType,
-                                        Strategy
-                                    >,
-                                    PS,
-                                    PB
-                                 >::type return_type;
+    typedef typename return_type
+        <
+            closest_points::cartesian_segment_box
+                <
+                    CalculationType,
+                    Strategy
+                >,
+            PS, PB
+        >::type return_type;
 public :
     template <typename T>
     static inline return_type

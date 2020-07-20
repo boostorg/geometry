@@ -74,7 +74,7 @@ struct swap_result_points
 };
 
 template <typename StrategyType>
-struct mirror
+struct mirror_points
 {
     template <typename T>
     static inline void apply(T&)

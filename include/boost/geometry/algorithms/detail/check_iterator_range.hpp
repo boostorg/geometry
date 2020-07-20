@@ -72,9 +72,10 @@ struct check_iterator_range_with_index
 
     // version where we can pass a predicate object
     template <typename InputIterator>
-    static inline int apply(InputIterator first,
-                             InputIterator beyond,
-                             Predicate const& predicate)
+    static inline typename std::iterator_traits<InputIterator>::difference_type
+    apply(InputIterator first,
+          InputIterator beyond,
+          Predicate const& predicate)
     {
         // in case predicate's apply method is static, MSVC will
         // complain that predicate is not used

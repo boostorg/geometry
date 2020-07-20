@@ -201,7 +201,7 @@ struct ecef_segments
         return disjoint_box_box_strategy_type();
     }
 
-    typedef disjoint::segment_box_spherical disjoint_segment_box_strategy_type;
+    typedef disjoint::spherical_segment_box disjoint_segment_box_strategy_type;
 
     static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
     {

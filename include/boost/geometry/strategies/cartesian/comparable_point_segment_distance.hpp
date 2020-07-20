@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019 Oracle and/or its affiliates.
+// Copyright (c) 2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_CARTESIAN_HPP
-#define BOOST_GEOMETRY_FORMULAS_CARTESIAN_HPP
+#ifndef BOOST_GEOMETRY_COMPARABLE_POINT_SEGMENT_DISTANCE_HPP
+#define BOOST_GEOMETRY_COMPARABLE_POINT_SEGMENT_DISTANCE_HPP
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -28,10 +28,11 @@
 // Helper geometry (projected point on line)
 #include <boost/geometry/geometries/point.hpp>
 
-namespace boost { namespace geometry { namespace formula
+namespace boost { namespace geometry { namespace strategy
 {
 
-template <
+template
+<
     typename CalculationType,
     bool EnableClosestPoint = false
 >
@@ -132,6 +133,6 @@ public :
     }
 };
 
-} } } // namespace boost::geometry::formula
+} } } // namespace boost::geometry::strategy
 
-#endif // BOOST_GEOMETRY_FORMULAS_CARTESIAN_HPP
+#endif // BOOST_GEOMETRY_COMPARABLE_POINT_SEGMENT_DISTANCE_HPP

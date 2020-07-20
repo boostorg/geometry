@@ -44,7 +44,7 @@ namespace boost { namespace geometry { namespace strategy { namespace disjoint
 // It seems to be more appropriate to implement the opposite of it
 // e.g. intersection::segment_box because in disjoint() algorithm
 // other strategies that are used are intersection and covered_by strategies.
-struct segment_box_spherical
+struct spherical_segment_box
 {
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
 
@@ -71,74 +71,6 @@ struct segment_box_spherical
     }
 };
 
-
-struct segment_box_spherical_with_info
-{
-    template
-    <
-        typename T,
-        typename SegmentPoint,
-        typename BoxPoint,
-        typename Strategy
-    >
-    static inline void apply(SegmentPoint const& p0,
-                             SegmentPoint const& p1,
-                             BoxPoint const& top_left,
-                             BoxPoint const& top_right,
-                             BoxPoint const& bottom_left,
-                             BoxPoint const& bottom_right,
-                             Strategy const& strategy,
-                             T & result)
-    {
-        // treat the other (parallel) edges of box differently
-        // since they are not (geodesic) segments
-
-        typedef typename coordinate_type<SegmentPoint>::type CT;
-
-        CT const lon1 = get_as_radian<0>(p0);
-        CT const lat1 = get_as_radian<1>(p0);
-        CT const lon2 = get_as_radian<0>(p1);
-        CT const lat2 = get_as_radian<1>(p1);
-        CT const lat3 = get_as_radian<1>(bottom_left);
-        CT lon_left = get_as_radian<0>(bottom_left);
-        CT lon_right = get_as_radian<0>(bottom_right);
-        CT lon3_1;
-        CT lon3_2;
-        formula::crossing_parallel(lon1, lat1, lon2, lat2, lat3, lon3_1, lon3_2);
-
-        SegmentPoint p;
-        set_from_radian<1>(p, lat3);
-
-#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3_1 * math::r2d<CT>() << " , "
-                  << lon3_2 * math::r2d<CT>() << std::endl;
-#endif
-        math::normalize_longitude<radian>(lon_left);
-        math::normalize_longitude<radian>(lon_right);
-        math::normalize_longitude<radian>(lon3_1);
-        math::normalize_longitude<radian>(lon3_2);
-#ifdef BOOST_GEOMETRY_DEBUG_SPHERICAL_SEGMENT_BOX
-        std::cout << lon_left * math::r2d<CT>() << " , "
-                  << lon_right * math::r2d<CT>() << " , "
-                  << lon3_1 * math::r2d<CT>() << " , "
-                  << lon3_2 * math::r2d<CT>() << std::endl;
-#endif
-        if ( lon_left < lon3_1 && lon3_1 < lon_right )
-        {
-            set_from_radian<0>(p, lon3_1);
-            result.set_unique_point(p);
-            return ;
-        }
-        if ( lon_left < lon3_2 && lon3_2 < lon_right )
-        {
-            set_from_radian<0>(p, lon3_2);
-            result.set_unique_point(p);
-        }
-    }
-};
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
@@ -149,14 +81,14 @@ template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
                         spherical_equatorial_tag, spherical_equatorial_tag>
 {
-    typedef segment_box_spherical type;
+    typedef spherical_segment_box type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
                         spherical_equatorial_tag, spherical_equatorial_tag>
 {
-    typedef segment_box_spherical type;
+    typedef spherical_segment_box type;
 };
 
 } // namespace services

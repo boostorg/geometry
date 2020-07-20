@@ -13,8 +13,6 @@
 
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
-#include <boost/geometry/formulas/cartesian.hpp>
-
 #include <boost/geometry/strategies/closest_points.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
@@ -256,12 +254,15 @@ public :
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct result_from_distance<closest_points::cartesian_box_box
-                                            <
-                                                CalculationType,
-                                                Strategy
-                                            >,
-                            P, PS>
+struct result_from_distance
+<
+    closest_points::cartesian_box_box
+        <
+            CalculationType,
+            Strategy
+        >,
+    P, PS
+>
 {
 private :
     typedef typename return_type<closest_points::cartesian_box_box

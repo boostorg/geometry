@@ -191,7 +191,7 @@ struct geographic_segments
         return disjoint_box_box_strategy_type();
     }
 
-    typedef disjoint::segment_box_geographic
+    typedef disjoint::geographic_segment_box
         <
             FormulaPolicy, Spheroid, CalculationType
         > disjoint_segment_box_strategy_type;

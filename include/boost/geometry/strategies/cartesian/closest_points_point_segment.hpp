@@ -8,14 +8,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PROJECTED_POINT_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PROJECTED_POINT_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_SEGMENT_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_SEGMENT_HPP
 
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
-#include <boost/geometry/formulas/cartesian.hpp>
-
 #include <boost/geometry/strategies/closest_points.hpp>
+#include <boost/geometry/strategies/cartesian/comparable_point_segment_distance.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
@@ -32,7 +31,7 @@ template
     typename CalculationType = void,
     typename Strategy = distance::pythagoras<CalculationType>
 >
-class projected_point
+class cartesian_point_segment
 {
 public :
 
@@ -90,29 +89,32 @@ public :
         assert_dimension_equal<Point, PointOfSegment>();
 
         typename closest_point_result<Point, PointOfSegment>::type
-                 closest_point_result;
+                 cp_result;
 
         typedef typename calculation_type<Point, PointOfSegment>::type CT;
 
-        typedef formula::comparable_cartesian_point_segment_distance<CT, true>
-                cartesian_ps_distance;
+        typedef comparable_cartesian_point_segment_distance
+            <
+                CT,
+                true
+            > cartesian_ps_distance;
+
         typename cartesian_ps_distance::result_type result
-                = cartesian_ps_distance::apply(p, p1, p2,
-                         distance::services::get_comparable<Strategy>
-                                 ::apply(Strategy()));
+            = cartesian_ps_distance::apply(p, p1, p2,
+                                           distance::services::get_comparable<Strategy>
+                                           ::apply(Strategy()));
 
-        closest_point_result.lon1 = get<0>(p);
-        closest_point_result.lat1 = get<1>(p);
-        closest_point_result.lon2 = result.x2;
-        closest_point_result.lat2 = result.y2;
-        closest_point_result.distance = result.distance;
+        cp_result.lon1 = get<0>(p);
+        cp_result.lat1 = get<1>(p);
+        cp_result.lon2 = result.x2;
+        cp_result.lat2 = result.y2;
+        cp_result.distance = result.distance;
 
-        return closest_point_result;
+        return cp_result;
     }
 
     template <typename ResultType>
-    ResultType
-    apply(ResultType comparable_result) const
+    ResultType apply(ResultType comparable_result) const
     {
         return comparable_result;
     }
@@ -145,7 +147,7 @@ struct default_strategy
         cartesian_tag, cartesian_tag
     >
 {
-    typedef projected_point<> type;
+    typedef cartesian_point_segment<> type;
 };
 
 
@@ -175,26 +177,26 @@ namespace services
 {
 
 template <typename CalculationType, typename Strategy>
-struct tag<closest_points::projected_point<CalculationType, Strategy> >
+struct tag<closest_points::cartesian_point_segment<CalculationType, Strategy> >
 {
     typedef strategy_tag_distance_point_segment type;
 };
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct return_type<closest_points::projected_point<CalculationType, Strategy>, P, PS>
-    : closest_points::projected_point<CalculationType, Strategy>
+struct return_type<closest_points::cartesian_point_segment<CalculationType, Strategy>, P, PS>
+    : closest_points::cartesian_point_segment<CalculationType, Strategy>
                     ::template closest_point_result<P, PS>
 {};
 
 
 
 template <typename CalculationType, typename Strategy>
-struct comparable_type<closest_points::projected_point<CalculationType, Strategy> >
+struct comparable_type<closest_points::cartesian_point_segment<CalculationType, Strategy> >
 {
-    // Define a projected_point strategy with its underlying point-point-strategy
+    // Define a cartesian_point_segment strategy with its underlying point-point-strategy
     // being comparable
-    typedef closest_points::projected_point
+    typedef closest_points::cartesian_point_segment
         <
             CalculationType,
             typename comparable_type<Strategy>::type
@@ -203,14 +205,14 @@ struct comparable_type<closest_points::projected_point<CalculationType, Strategy
 
 
 template <typename CalculationType, typename Strategy>
-struct get_comparable<closest_points::projected_point<CalculationType, Strategy> >
+struct get_comparable<closest_points::cartesian_point_segment<CalculationType, Strategy> >
 {
     typedef typename comparable_type
         <
-            closest_points::projected_point<CalculationType, Strategy>
+            closest_points::cartesian_point_segment<CalculationType, Strategy>
         >::type comparable_type;
 public :
-    static inline comparable_type apply(closest_points::projected_point
+    static inline comparable_type apply(closest_points::cartesian_point_segment
                                         <
                                             CalculationType,
                                             Strategy
@@ -222,15 +224,18 @@ public :
 
 
 template <typename CalculationType, typename Strategy, typename P, typename PS>
-struct result_from_distance<closest_points::projected_point
-                                            <
-                                                CalculationType,
-                                                Strategy
-                                            >,
-                            P, PS>
+struct result_from_distance
+<
+    closest_points::cartesian_point_segment
+        <
+            CalculationType,
+            Strategy
+        >,
+    P, PS
+>
 {
 private :
-    typedef typename return_type<closest_points::projected_point
+    typedef typename return_type<closest_points::cartesian_point_segment
                                                  <
                                                     CalculationType,
                                                     Strategy
@@ -238,7 +243,7 @@ private :
                                  P, PS>::type return_type;
 public :
     template <typename T>
-    static inline return_type apply(closest_points::projected_point
+    static inline return_type apply(closest_points::cartesian_point_segment
                                                     <
                                                         CalculationType,
                                                         Strategy
@@ -257,7 +262,7 @@ template
 >
 struct swap_result_points
     <
-        strategy::closest_points::projected_point<CalculationType, Strategy>
+        strategy::closest_points::cartesian_point_segment<CalculationType, Strategy>
     >
 {
     template <typename Result>
@@ -274,7 +279,7 @@ template
 >
 struct result_set_unique_point
 <
-    strategy::closest_points::projected_point<CalculationType, Strategy>
+    strategy::closest_points::cartesian_point_segment<CalculationType, Strategy>
 >
 {
     template <typename T, typename Point>
@@ -290,4 +295,4 @@ struct result_set_unique_point
 }} // namespace strategy::distance
 
 }} // namespace boost::geometry
-#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PROJECTED_POINT_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_POINT_SEGMENT_HPP

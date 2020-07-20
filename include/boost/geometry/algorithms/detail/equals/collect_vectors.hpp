@@ -47,7 +47,7 @@
 
 #include <boost/geometry/strategies/cartesian/closest_points_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/closest_points_point_box.hpp>
-#include <boost/geometry/strategies/cartesian/closest_points_projected_point.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_point_segment.hpp>
 #include <boost/geometry/strategies/cartesian/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 

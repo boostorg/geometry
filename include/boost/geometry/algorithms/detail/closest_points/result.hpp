@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_RESULT_HPP
 
-//#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/geographic_point_segment_distance.hpp>
 
 namespace boost { namespace geometry
 {
@@ -72,7 +72,7 @@ public :
         std::swap(lat1, lat2);
     }
 
-    void mirror()
+    void mirror_points()
     {
         lat1 *= -1;
         lat2 *= -1;

@@ -379,36 +379,48 @@ private:
                     // segment & crosses band (TODO:merge with box-box dist)
                     if (math::equals(geometry::get<0>(p0), geometry::get<0>(p1)))
                     {
-                        SegmentPoint high = geometry::get<1>(p1)
-                                            > geometry::get<1>(p0) ? p1 : p0;
-                        if (less_equal(geometry::get<1>(high),
-                                       geometry::get<1>(top_right)))
+                        SegmentPoint high = geometry::get<1>(p1) > geometry::get<1>(p0) ? p1 : p0;
+                        if (less_equal(geometry::get<1>(high), geometry::get<1>(top_right)))
                         {
-                            return cast_to_result<ReturnType>::apply(ps_strategy
-                                         .apply(high, bottom_right, top_right));
+                            return cast_to_result
+                                <
+                                    ReturnType
+                                >::apply(ps_strategy.apply(high, bottom_right, top_right));
                         }
-                        ReturnType res = cast_to_result<ReturnType>::apply
-                                         (ps_strategy.apply(top_right, p0, p1));
+                        ReturnType res = cast_to_result
+                            <
+                                ReturnType
+                            >::apply(ps_strategy.apply(top_right, p0, p1));
+
                         strategy::distance::services::swap_result_points<SBStrategy>::apply(res);
+
                         return res;
                     }
-                    return cast_to_result<ReturnType>::apply
-                               (ps_strategy.apply(p0, bottom_right, top_right));
+                    return cast_to_result<ReturnType>::apply(
+                        ps_strategy.apply(p0, bottom_right, top_right));
                 }
                 // distance is realized between the top-right
                 // corner of the box and the segment
-                ReturnType res = cast_to_result<ReturnType>
-                                  ::apply(ps_strategy.apply(top_right, p0, p1));
+                ReturnType res = cast_to_result
+                    <
+                        ReturnType
+                    >::apply(ps_strategy.apply(top_right, p0, p1));
+
                 strategy::distance::services::swap_result_points<SBStrategy>::apply(res);
+
                 return res;
             }
             else
             {
                 // distance is realized between the bottom-right
                 // corner of the box and the segment
-               ReturnType res = cast_to_result<ReturnType>
-                               ::apply(ps_strategy.apply(bottom_right, p0, p1));
+               ReturnType res = cast_to_result
+                   <
+                       ReturnType
+                   >::apply(ps_strategy.apply(bottom_right, p0, p1));
+
                strategy::distance::services::swap_result_points<SBStrategy>::apply(res);
+
                return res;
             }
         }
@@ -445,26 +457,29 @@ private:
             if (less_equal(geometry::get<0>(top_left), geometry::get<0>(p_max)))
             {
                 ReturnType diff =
-                    sb_strategy.get_distance_ps_strategy().vertical_or_meridian
-                    (
+                    sb_strategy.get_distance_ps_strategy().vertical_or_meridian(
                         geometry::get_as_radian<1>(p_max),
                         geometry::get_as_radian<1>(top_left),
-                        geometry::get_as_radian<0>(p0)
-                    );
+                        geometry::get_as_radian<0>(p0));
 
                 return strategy::distance::services::result_from_distance
                     <
-                        SBStrategy, SegmentPoint, BoxPoint
+                        SBStrategy,
+                        SegmentPoint,
+                        BoxPoint
                     >::apply(sb_strategy, diff);
             }
 
             // p0 is to the left of the box, but p1 is above the box
             // in this case the distance is realized between the
             // top-left corner of the box and the segment
-            ReturnType res = cast_to_result<ReturnType>
-                    ::apply(sb_strategy.get_distance_ps_strategy()
-                    .apply(top_left, p0, p1));
+            ReturnType res = cast_to_result
+                <
+                    ReturnType
+                >::apply(sb_strategy.get_distance_ps_strategy().apply(top_left, p0, p1));
+
             strategy::distance::services::swap_result_points<SBStrategy>::apply(res);
+
             return res;
         }
     };
@@ -520,10 +535,10 @@ private:
                                  ReturnType& result)
         {
             typedef typename geometry::select_most_precise
-                    <
-                        typename coordinate_type<SegmentPoint>::type,
-                        typename coordinate_type<BoxPoint>::type
-                    >::type CT;
+                <
+                    typename coordinate_type<SegmentPoint>::type,
+                    typename coordinate_type<BoxPoint>::type
+                >::type CT;
 
             typedef compare_less_equal<CT, false> GreaterEqual;
 
@@ -531,12 +546,12 @@ private:
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
                 result = sb_strategy.template segment_below_of_box
-                        <
-                            LessEqual,
-                            ReturnType
-                        >(p0, p1,
-                          top_left, top_right,
-                          bottom_left, bottom_right);
+                    <
+                        LessEqual,
+                        ReturnType
+                    >(p0, p1,
+                      top_left, top_right,
+                      bottom_left, bottom_right);
 
                 return true;
             }
@@ -545,13 +560,13 @@ private:
             if (geometry::get<1>(p0) > geometry::get<1>(top_right))
             {
                 result = (std::min)(above_of_box
-                                    <
-                                        LessEqual
-                                    >::apply(p0, p1, top_left, sb_strategy),
-                                    above_of_box
-                                    <
-                                        GreaterEqual
-                                    >::apply(p1, p0, top_right, sb_strategy));
+                    <
+                        LessEqual
+                    >::apply(p0, p1, top_left, sb_strategy),
+                             above_of_box
+                                 <
+                                     GreaterEqual
+                                 >::apply(p1, p0, top_right, sb_strategy));
                 return true;
             }
             return false;
@@ -571,10 +586,10 @@ private:
                 side_strategy = sb_strategy.get_side_strategy();
 
             typedef typename geometry::select_most_precise
-                    <
-                        typename coordinate_type<SegmentPoint>::type,
-                        typename coordinate_type<BoxPoint>::type
-                    >::type CT;
+                <
+                    typename coordinate_type<SegmentPoint>::type,
+                    typename coordinate_type<BoxPoint>::type
+                >::type CT;
 
             typedef cast_to_result<CT> cast;
             CT diff1 = cast::apply(geometry::get<1>(p1))
@@ -612,10 +627,10 @@ private:
                                SBStrategy const& sb_strategy)
     {
         typedef typename geometry::select_most_precise
-                <
-                    typename coordinate_type<SegmentPoint>::type,
-                    typename coordinate_type<BoxPoint>::type
-                >::type CT;
+            <
+                typename coordinate_type<SegmentPoint>::type,
+                typename coordinate_type<BoxPoint>::type
+            >::type CT;
 
         typedef compare_less_equal<CT, true> less_equal;
 
@@ -672,10 +687,10 @@ private:
                            SBStrategy const& sb_strategy)
     {
         typedef typename geometry::select_most_precise
-                <
-                    typename coordinate_type<SegmentPoint>::type,
-                    typename coordinate_type<BoxPoint>::type
-                >::type CT;
+        <
+            typename coordinate_type<SegmentPoint>::type,
+            typename coordinate_type<BoxPoint>::type
+        >::type CT;
 
         typedef compare_less_equal<CT, false> greater_equal;
 
@@ -881,7 +896,7 @@ public:
         }
         if (mirror)
         {
-            strategy::distance::services::mirror<SBStrategy>::apply(result);
+            strategy::distance::services::mirror_points<SBStrategy>::apply(result);
             return result;
         }
         return result;

@@ -260,8 +260,7 @@ struct disjoint_segment_box_impl
 // other strategies that are used are intersection and covered_by strategies.
 template
 <
-    typename CalculationType = void,
-    typename Strategy = distance::pythagoras<CalculationType>
+    typename CalculationType = void
 >
 struct segment_box
 {

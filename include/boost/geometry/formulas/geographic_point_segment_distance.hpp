@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019 Oracle and/or its affiliates.
+// Copyright (c) 2019-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -8,8 +8,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
-#define BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
+#ifndef BOOST_GEOMETRY_FORMULAS_GEOGRAPHIC_POINT_SEGMENT_DISTANCE_HPP
+#define BOOST_GEOMETRY_FORMULAS_GEOGRAPHIC_POINT_SEGMENT_DISTANCE_HPP
 
 #include <boost/algorithm/minmax.hpp>
 
@@ -38,13 +38,14 @@
 namespace boost { namespace geometry { namespace formula
 {
 
-template <
-    typename CT,
-    bool EnableClosestPoint = false,
+template
+<
     typename FormulaPolicy = strategy::andoyer,
+    typename CT = void,
+    bool EnableClosestPoint = false,
     bool Bisection = false
 >
-class point_segment_distance
+class geographic_point_segment_distance
 {
 
 public :
@@ -59,52 +60,11 @@ public :
             , lat2(0)
         {}
 
-        //result_type(CT init)
-        //    : distance(init)
-        //    , lon1(0)
-        //    , lat1(0)
-        //    , lon2(0)
-        //    , lat2(0)
-        //{}
-
         CT distance;
         CT lon1;
         CT lat1;
         CT lon2;
         CT lat2;
-/*
-        template <typename T>
-        void operator=(T const& res)
-        {
-            distance = res.distance;
-            lon1 = res.lon1;
-            lat1 = res.lat1;
-            lon2 = res.lon2;
-            lat2 = res.lat2;
-        }
-
-        bool operator<(const result_type& rhs) const
-        {
-            return distance < rhs.distance;
-        }
-
-        bool operator==(const result_type& rhs) const
-        {
-            return distance == rhs.distance;
-        }
-
-        void swap()
-        {
-            std::swap(lon1, lon2);
-            std::swap(lat1, lat2);
-        }
-
-        void mirror()
-        {
-            lat1 *= -1;
-            lat2 *= -1;
-        }
-*/
     };
 
 private :
@@ -726,4 +686,4 @@ public :
 }}} // namespace boost::geometry::formula
 
 
-#endif // BOOST_GEOMETRY_FORMULAS_POINT_SEGMENT_DISTANCE_HPP
+#endif // BOOST_GEOMETRY_FORMULAS_GEOGRAPHIC_POINT_SEGMENT_DISTANCE_HPP

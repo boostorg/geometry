@@ -33,11 +33,10 @@
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/arithmetic/dot_product.hpp>
 
-#include <boost/geometry/formulas/cartesian.hpp>
-
 #include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
+#include <boost/geometry/strategies/cartesian/comparable_point_segment_distance.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
@@ -130,8 +129,10 @@ public :
 
         typedef typename calculation_type<Point, PointOfSegment>::type calculation_type;
 
-        return formula::comparable_cartesian_point_segment_distance<calculation_type>
-                      ::apply(p, p1, p2, Strategy()).distance;
+        return comparable_cartesian_point_segment_distance
+            <
+                calculation_type
+            >::apply(p, p1, p2, Strategy()).distance;
     }
 
     template <typename ResultType>
@@ -149,7 +150,7 @@ public :
         {
             return comparable_result;
         }
-        return std::sqrt(comparable_result);
+        return boost::geometry::math::sqrt(comparable_result);
     }
 
     template <typename CT>

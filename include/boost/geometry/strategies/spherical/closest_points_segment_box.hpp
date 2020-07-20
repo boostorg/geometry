@@ -383,7 +383,7 @@ template
       typename CalculationType,
       typename Strategy
 >
-struct mirror
+struct mirror_points
        <
             strategy::closest_points::spherical_segment_box
             <
@@ -395,7 +395,7 @@ struct mirror
     template <typename Result>
     static inline void apply(Result& res)
     {
-        res.mirror();
+        res.mirror_points();
     }
 };
 

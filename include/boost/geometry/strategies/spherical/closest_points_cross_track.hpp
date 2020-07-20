@@ -14,9 +14,8 @@
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
 #include <boost/geometry/strategies/closest_points.hpp>
+#include <boost/geometry/strategies/spherical/comparable_point_segment_distance.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
-
-#include <boost/geometry/formulas/spherical.hpp>
 
 #include <iostream>
 
@@ -56,13 +55,6 @@ public :
     static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
     {
         return point_in_geometry_strategy_type();
-    }
-    //
-
-    inline distance::comparable::cross_track<CalculationType, Strategy>
-    get_cross_track() const
-    {
-        return distance::comparable::cross_track<CalculationType, Strategy>();
     }
 
     template <typename Point, typename PointOfSegment>
@@ -105,25 +97,25 @@ public :
           PointOfSegment const& sp2) const
     {
         typename closest_point_result<Point, PointOfSegment>::type
-                 closest_point_result;
+                 cp_result;
 
         typedef typename calculation_type<Point, PointOfSegment>::type CT;
 
         Strategy distance_strategy = Strategy(m_strategy);
-        typedef geometry::formula::comparable_spherical_point_segment_distance<CT, true>
+        typedef comparable_spherical_point_segment_distance<CT, true>
                 spherical_ps_distance;
         typename spherical_ps_distance::result_type result
                 = spherical_ps_distance::apply(p, sp1, sp2,
                          distance::services::get_comparable<Strategy>
                                  ::apply(distance_strategy));
 
-        closest_point_result.lon1 = get_as_radian<0>(p);
-        closest_point_result.lat1 = get_as_radian<1>(p);
-        closest_point_result.lon2 = result.lon2;
-        closest_point_result.lat2 = result.lat2;
-        closest_point_result.distance = result.distance;
+        cp_result.lon1 = get_as_radian<0>(p);
+        cp_result.lat1 = get_as_radian<1>(p);
+        cp_result.lon2 = result.lon2;
+        cp_result.lat2 = result.lat2;
+        cp_result.distance = result.distance;
 
-        return closest_point_result;
+        return cp_result;
     }
 
     template <typename ResultType>

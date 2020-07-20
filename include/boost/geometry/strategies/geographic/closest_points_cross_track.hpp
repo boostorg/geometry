@@ -65,7 +65,7 @@ public :
                 (m_spheroid);
     }
 
-    Spheroid get_spheroid() const
+    Spheroid model() const
     {
         return m_spheroid;
     }
@@ -102,36 +102,37 @@ public :
           PointOfSegment const& sp1,
           PointOfSegment const& sp2) const
     {
-        typedef typename formula::point_segment_distance
-        <
+        typedef typename formula::geographic_point_segment_distance
+            <
+                FormulaPolicy,
                 typename calculation_type<Point, PointOfSegment>::type,
                 true,
-                FormulaPolicy,
                 false
-        >::result_type  point_segment_distance_result;
+            >::result_type  geographic_point_segment_distance_result;
 
-        point_segment_distance_result res = formula::point_segment_distance
-               <
+        geographic_point_segment_distance_result res =
+            formula::geographic_point_segment_distance
+                <
+                    FormulaPolicy,
                     typename calculation_type<Point, PointOfSegment>::type,
                     true,
-                    FormulaPolicy,
                     false
-               >::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
-                              get_as_radian<0>(sp2), get_as_radian<1>(sp2),
-                              get_as_radian<0>(p), get_as_radian<1>(p),
-                              this->m_spheroid);
+                >::apply(get_as_radian<0>(sp1), get_as_radian<1>(sp1),
+                         get_as_radian<0>(sp2), get_as_radian<1>(sp2),
+                         get_as_radian<0>(p), get_as_radian<1>(p),
+                         this->m_spheroid);
 
         typename closest_point_result<Point, PointOfSegment>::type
-                 closest_point_result;
+                 cp_result;
 
-        closest_point_result.lon1 = res.lon1;
-        closest_point_result.lat1 = res.lat1;
-        closest_point_result.lon2 = res.lon2;
-        closest_point_result.lat2 = res.lat2;
+        cp_result.lon1 = res.lon1;
+        cp_result.lat1 = res.lat1;
+        cp_result.lon2 = res.lon2;
+        cp_result.lat2 = res.lat2;
 
-        closest_point_result.distance = res.distance;
+        cp_result.distance = res.distance;
 
-        return closest_point_result;
+        return cp_result;
     }
 
     template <typename ResultType>
@@ -399,7 +400,7 @@ public :
     apply(closest_points::geographic_cross_track
                     <FormulaPolicy, Spheroid, CalculationType> const& strategy)
     {
-        return comparable_type(strategy.get_spheroid());
+        return comparable_type(strategy.model());
     }
 };
 

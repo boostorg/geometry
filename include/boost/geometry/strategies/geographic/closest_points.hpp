@@ -14,7 +14,7 @@
 #include <boost/geometry/algorithms/detail/closest_points/result.hpp>
 
 #include <boost/geometry/strategies/closest_points.hpp>
-//#include <boost/geometry/formulas/point_segment_distance.hpp>
+//#include <boost/geometry/formulas/geographic_point_segment_distance.hpp>
 
 namespace boost { namespace geometry
 {
@@ -62,7 +62,7 @@ public :
         : m_spheroid(spheroid)
     {}
 
-    Spheroid get_spheroid() const
+    Spheroid model() const
     {
         return m_spheroid;
     }
@@ -206,8 +206,15 @@ template
         typename Spheroid,
         typename CalculationType
 >
-struct comparable_type<closest_points::geographic
-                         <FormulaPolicy, Spheroid, CalculationType> >
+struct comparable_type
+    <
+        closest_points::geographic
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >
+    >
 {
     typedef closest_points::geographic
         <
@@ -222,28 +229,32 @@ template
         typename CalculationType
 >
 struct get_comparable
-        <
-            closest_points::geographic
-                            <
-                                FormulaPolicy,
-                                Spheroid,
-                                CalculationType
-                            >
-        >
+    <
+        closest_points::geographic
+            <
+                FormulaPolicy,
+                Spheroid,
+                CalculationType
+            >
+    >
 {
     typedef typename comparable_type
         <
             closest_points::geographic
-                    <
-                        FormulaPolicy,
-                        Spheroid,
-                        CalculationType
-                    >
+                <
+                    FormulaPolicy,
+                    Spheroid,
+                    CalculationType
+                >
         >::type comparable_type;
 public :
     static inline comparable_type
     apply(closest_points::geographic
-                    <FormulaPolicy, Spheroid, CalculationType> const& strategy)
+              <
+                  FormulaPolicy,
+                  Spheroid,
+                  CalculationType
+              > const& strategy)
     {
         return comparable_type(strategy);
     }
