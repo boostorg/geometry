@@ -200,29 +200,23 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling, a-b is partly generated, b-a does not have any output
-    // It failed already in 1.59
     test_one<polygon, polygon, polygon>("case_58_iet",
         case_58[0], case_58[2],
         3, 12, 0.6666666667,
         1, -1, 11.1666666667,
         2, -1, 0.6666666667 + 11.1666666667);
-#endif
 
     test_one<polygon, polygon, polygon>("case_80",
         case_80[0], case_80[1],
         1, 9, 44.5,
         1, 10, 84.5);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Fails without rescaling, holes are not subtracted
     test_one<polygon, polygon, polygon>("case_81",
         case_81[0], case_81[1],
         1, 8, 80.5,
         1, 8, 83.0,
         1, 12, 80.5 + 83.0);
-#endif
 
     test_one<polygon, polygon, polygon>("case_100",
         case_100[0], case_100[1],
@@ -248,41 +242,31 @@ void test_all()
     TEST_DIFFERENCE(case_precision_2, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_3, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_4, 1, 14.0, 1, 8.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_5, 1, 14.0, 1, 8.0, count_set(1, 2));
     // Small optional sliver allowed, here and below
     TEST_DIFFERENCE(case_precision_6, optional(), 0.0, 1, 57.0, count_set(1, 2));
-#endif
     TEST_DIFFERENCE(case_precision_7, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_8, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_9, optional(), 0.0, 1, 59.0, count_set(1, 2));
     TEST_DIFFERENCE(case_precision_10, optional(), 0.0, 1, 59.0, count_set(1, 2));
+#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_11, optional(), 0.0, 1, 59.0, 1);
 #endif
     TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
     TEST_DIFFERENCE(case_precision_13, 1, BG_IF_KRAMER(12.00002, 12.0), 0, 0.0, 1);
     TEST_DIFFERENCE(case_precision_14, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_15, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_16, optional(), 0.0, 1, 59.0, 1);
-#endif
     TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_19, 1, 0.0, 1, 59.0, 2);
-#endif
     TEST_DIFFERENCE(case_precision_20, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_21, 1, 14.0, 1, 7.99999, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_22, optional(), 0.0, 1, 59.0, count_set(1, 2));
     TEST_DIFFERENCE(case_precision_23, optional(), 0.0, 1, 59.0, count_set(1, 2));
-#endif
     TEST_DIFFERENCE(case_precision_24, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_25, 1, 14.0, 1, 7.99999, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_26, optional(), 0.0, 1, 59.0, count_set(1, 2));
-#endif
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
@@ -454,9 +438,9 @@ void test_all()
         ut_settings settings;
         settings.set_test_validity(BG_IF_RESCALED(false, true));
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1,
-                BG_IF_KRAMER(2, 1), 0.18461532,
-                BG_IF_KRAMER(2, 1), 0.617978,
-                BG_IF_KRAMER(4, 2));
+                count_set(1, 2), 0.18461532,
+                count_set(1, 2), 0.617978,
+                count_set(3, 4));
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2);
     }
 
@@ -661,7 +645,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(12, 15);
+    BoostGeometryWriteExpectedFailures(12, 9);
 #endif
 
     return 0;
