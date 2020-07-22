@@ -272,6 +272,59 @@ template
 >
 struct touch_interior : public base_turn_handler
 {
+
+    template
+    <
+        typename IntersectionInfo,
+        typename UniqueSubRange
+    >
+    static bool handle_as_touch(IntersectionInfo const& info,
+                                UniqueSubRange const& non_touching_range)
+    {
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        return false;
+#endif
+        //
+        //
+        //                         ^  Q(i)                ^ P(i)
+        //                          \                    /
+        //                           \                  /
+        //                            \                /
+        //                             \              /
+        //                              \            /
+        //                               \          /
+        //                                \        /
+        //                                 \      /
+        //                                  \    /
+        //                                   \  / it is about buffer_rt_r
+        //                  P(k)              v/  they touch here "in the middle", but at the intersection...
+        //                  <---------------->v   there is no follow up IP
+        //                                   /
+        //                                  /
+        //                                 /
+        //                                /
+        //                               /
+        //                              /
+        //                             v Q(k)
+        //
+
+        // Measure where the IP is located. If it is really close to the end,
+        // then there is no space for the next IP (on P(1)/Q(2). A "from"
+        // intersection will be generated, but those are never handled.
+        // Therefore handle it as a normal touch (two segments arrive at the
+        // intersection point). It currently checks for zero, but even a
+        // distance a little bit larger would do.
+        typedef typename geometry::coordinate_type
+            <
+                typename UniqueSubRange::point_type
+            >::type coor_t;
+
+        coor_t const location = distance_measure(info.intersections[0], non_touching_range.at(1));
+        coor_t const zero = 0;
+        bool const result = math::equals(location, zero);
+        return result;
+    }
+
     // Index: 0, P is the interior, Q is touching and vice versa
     template
     <
@@ -1027,8 +1080,6 @@ public:
               tp_model, out, intersection_info, side, empty_transformer);
     }
 
-public:
-
     template
     <
         typename UniqueSubRange1,
@@ -1191,139 +1242,136 @@ struct get_turn_info
 
         char const method = inters.d_info().how;
 
+        if (method == 'd')
+        {
+            // Disjoint
+            return out;
+        }
+
         // Copy, to copy possibly extended fields
         TurnInfo tp = tp_model;
 
-        bool do_only_convert = false;
+        bool const handle_as_touch_interior = method == 'm';
+        bool const handle_as_cross = method == 'i';
+        bool handle_as_touch = method == 't';
+        bool handle_as_equal = method == 'e';
+        bool const handle_as_collinear = method == 'c';
+        bool const handle_as_degenerate = method == '0';
 
-        // Select method and apply
-        switch(method)
+        // (angle, from, start)
+        bool const do_only_convert = method == 'a' || method == 'f' || method == 's';
+
+        if (handle_as_touch_interior)
         {
-            case 'a' : // "angle"
-            case 'f' : // "from"
-            case 's' : // "start"
-                do_only_convert = true;
-                break;
+            typedef touch_interior<TurnInfo> handler;
 
-            case 'd' : // disjoint: never do anything
-                break;
-
-            case 'm' :
+            if ( inters.d_info().arrival[1] == 1 )
             {
-                typedef touch_interior
-                    <
-                        TurnInfo
-                    > handler;
-
-                // If Q (1) arrives (1)
-                if ( inters.d_info().arrival[1] == 1 )
+                // Q arrives
+                if (handler::handle_as_touch(inters.i_info(), range_p))
+                {
+                    handle_as_touch = true;
+                }
+                else
                 {
                     handler::template apply<0>(range_p, range_q, tp, inters.i_info(), inters.d_info(),
                                 inters.sides(), umbrella_strategy);
+                    *out++ = tp;
+                }
+            }
+            else
+            {
+                // P arrives, swap p/q
+                if (handler::handle_as_touch(inters.i_info(), range_q))
+                {
+                    handle_as_touch = true;
                 }
                 else
                 {
-                    // Swap p/q
                     handler::template apply<1>(range_q, range_p, tp, inters.i_info(), inters.d_info(),
                                 inters.get_swapped_sides(), umbrella_strategy);
-                }
-                *out++ = tp;
-            }
-            break;
-            case 'i' :
-            {
-                crosses<TurnInfo>::apply(tp, inters.i_info(), inters.d_info());
-                *out++ = tp;
-            }
-            break;
-            case 't' :
-            {
-                // Both touch (both arrive there)
-                touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
-                *out++ = tp;
-            }
-            break;
-            case 'e':
-            {
-                if ( ! inters.d_info().opposite )
-                {
-                    // Both equal
-                    // or collinear-and-ending at intersection point
-                    equal<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
-                    *out++ = tp;
-                }
-                else
-                {
-                    equal_opposite
-                        <
-                            TurnInfo,
-                            AssignPolicy
-                        >::apply(range_p, range_q, tp, out, inters);
-                }
-            }
-            break;
-            case 'c' :
-            {
-                // Collinear
-                if ( ! inters.d_info().opposite )
-                {
-
-                    if ( inters.d_info().arrival[0] == 0 )
-                    {
-                        // Collinear, but similar thus handled as equal
-                        equal<TurnInfo>::apply(range_p, range_q, tp,
-                                inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
-
-                        // override assigned method
-                        tp.method = method_collinear;
-                    }
-                    else
-                    {
-                        collinear<TurnInfo>::apply(range_p, range_q, tp,
-                                inters.i_info(), inters.d_info(), inters.sides());
-                    }
-
-                    *out++ = tp;
-                }
-                else
-                {
-                    collinear_opposite
-                        <
-                            TurnInfo,
-                            AssignPolicy
-                        >::apply(range_p, range_q,
-                            tp, out, inters, inters.sides());
-                }
-            }
-            break;
-            case '0' :
-            {
-                // degenerate points
-                if (AssignPolicy::include_degenerate)
-                {
-                    only_convert::apply(tp, inters.i_info());
                     *out++ = tp;
                 }
             }
-            break;
-            default :
-            {
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-                std::cout << "TURN: Unknown method: " << method << std::endl;
-#endif
-#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
-                BOOST_THROW_EXCEPTION(turn_info_exception(method));
-#endif
-            }
-            break;
         }
 
-        if (do_only_convert
-            && AssignPolicy::include_no_turn
-            && inters.i_info().count > 0)
+        if (handle_as_cross)
         {
-            only_convert::apply(tp, inters.i_info());
+            crosses<TurnInfo>::apply(tp, inters.i_info(), inters.d_info());
             *out++ = tp;
+        }
+
+        if (handle_as_touch)
+        {
+            // Touch: both segments arrive at the intersection point
+            touch<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy);
+            *out++ = tp;
+        }
+
+        if (handle_as_collinear)
+        {
+            // Collinear
+            if ( ! inters.d_info().opposite )
+            {
+
+                if ( inters.d_info().arrival[0] == 0 )
+                {
+                    handle_as_equal = true;
+                }
+                else
+                {
+                    collinear<TurnInfo>::apply(range_p, range_q, tp,
+                            inters.i_info(), inters.d_info(), inters.sides());
+                    *out++ = tp;
+                }
+            }
+            else
+            {
+                collinear_opposite
+                    <
+                        TurnInfo,
+                        AssignPolicy
+                    >::apply(range_p, range_q, tp, out, inters, inters.sides());
+                // Zero, or two, turn points are assigned to *out++
+            }
+        }
+
+        if (handle_as_equal)
+        {
+            if ( ! inters.d_info().opposite )
+            {
+                // Both equal
+                // or collinear-and-ending at intersection point
+                equal<TurnInfo>::apply(range_p, range_q, tp,
+                        inters.i_info(), inters.d_info(), inters.sides(),
+                        umbrella_strategy);
+                if (handle_as_collinear)
+                {
+                    // Keep info as collinear,
+                    // so override already assigned method
+                    tp.method = method_collinear;
+                }
+                *out++ = tp;
+            }
+            else
+            {
+                equal_opposite
+                    <
+                        TurnInfo,
+                        AssignPolicy
+                    >::apply(range_p, range_q, tp, out, inters);
+                // Zero, or two, turn points are assigned to *out++
+            }
+        }
+
+        if ((handle_as_degenerate && AssignPolicy::include_degenerate)
+            || (do_only_convert && AssignPolicy::include_no_turn))
+        {
+            if (inters.i_info().count > 0)
+            {
+                only_convert::apply(tp, inters.i_info());
+                *out++ = tp;
+            }
         }
 
         return out;
