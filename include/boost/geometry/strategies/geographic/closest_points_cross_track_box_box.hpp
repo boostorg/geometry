@@ -69,6 +69,8 @@ public:
                 > type;
     };
 
+    typedef within::spherical_point_box point_in_box_strategy_type;
+
     template <typename Box1, typename Box2>
     struct calculation_type
         : promote_floating_point
@@ -97,30 +99,14 @@ public:
         > type;
     };
 
-    template <typename Point, typename Box, typename Result>
-    static bool covered_by_box_with_info(Point const& box_corner,
-                                         Box const& other_box,
-                                         Result& result)
-    {
-        if (geometry::covered_by(box_corner, other_box))
-        {
-            result.lon1 = get_as_radian<0>(box_corner);
-            result.lat1 = get_as_radian<1>(box_corner);
-            result.lon2 = result.lon1;
-            result.lat2 = result.lat1;
-            result.distance = 0;
-            return true;
-        }
-        return false;
-    }
-
     template <typename Box1, typename Box2>
     typename closest_point_result<Box1, Box2>::type
     apply(Box1 const& box1, Box2 const& box2) const
     {
 
         typename closest_point_result<Box1, Box2>::type result;
-        if (cross_track_box_box_generic::box_box_overlap(box1, box2, result))
+        if (cross_track_box_box_generic::box_box_overlap(
+                box1, box2, result, point_in_box_strategy_type()))
         {
             return result;
         }
