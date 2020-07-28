@@ -37,7 +37,7 @@
     ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
 
 #define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-    { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+    { ut_settings ignore_validity; ignore_validity.set_test_validity(false); \
     (test_one<Polygon, MultiPolygon, MultiPolygon>) \
     ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 
@@ -509,6 +509,10 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(10, 4);
 #endif
 
     return 0;

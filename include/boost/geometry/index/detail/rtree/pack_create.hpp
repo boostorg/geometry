@@ -3,6 +3,7 @@
 // R-tree initial packing
 //
 // Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
 // This file was modified by Oracle on 2019.
 // Modifications copyright (c) 2019 Oracle and/or its affiliates.
@@ -167,6 +168,19 @@ public:
                        translator_type const& translator,
                        allocators_type & allocators)
     {
+        return apply(first, last, values_count, leafs_level, parameters, translator,
+                     allocators, boost::container::new_allocator<void>());
+    }
+
+    template <typename InIt, typename TmpAlloc> inline static
+    node_pointer apply(InIt first, InIt last,
+                       size_type & values_count,
+                       size_type & leafs_level,
+                       parameters_type const& parameters,
+                       translator_type const& translator,
+                       allocators_type & allocators,
+                       TmpAlloc const& temp_allocator)
+    {
         typedef typename std::iterator_traits<InIt>::difference_type diff_type;
             
         diff_type diff = std::distance(first, last);
@@ -174,7 +188,11 @@ public:
             return node_pointer(0);
 
         typedef std::pair<point_type, InIt> entry_type;
-        std::vector<entry_type> entries;
+        typedef typename boost::container::allocator_traits<TmpAlloc>::
+            template rebind_alloc<entry_type> temp_entry_allocator_type;
+
+        temp_entry_allocator_type temp_entry_allocator(temp_allocator);
+        boost::container::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
 
         values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);

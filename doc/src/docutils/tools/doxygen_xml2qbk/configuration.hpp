@@ -2,6 +2,11 @@
 //
 // Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
+//
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -34,9 +39,12 @@ struct configuration
     output_style_type output_style;
     bool output_member_variables;
 
+    unsigned alt_max_synopsis_length;
+
     configuration()
       : output_style(def)
       , output_member_variables(false)
+      , alt_max_synopsis_length(0)
     {}
 };
 

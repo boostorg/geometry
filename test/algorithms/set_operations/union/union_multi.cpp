@@ -34,7 +34,7 @@
     ( #caseid, caseid[0], caseid[1], clips, holes, points, area)
 
 #define TEST_UNION_IGNORE(caseid, clips, holes, points, area) \
-   { ut_settings ignore_validity; ignore_validity.test_validity = false; \
+   { ut_settings ignore_validity; ignore_validity.set_test_validity(false); \
      test_one<Polygon, MultiPolygon, MultiPolygon> \
      (#caseid, caseid[0], caseid[1], \
      clips, holes, points, area, ignore_validity); }
@@ -390,7 +390,7 @@ void test_areal()
         // Generates either 4 or 3 output polygons
         // With rescaling the result is invalid.
         ut_settings settings;
-        settings.test_validity = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(BG_IF_RESCALED(false, true));
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
             ticket_9081[0], ticket_9081[1],
             BG_IF_RESCALED(4, 3), 0, 31, 0.2187385,
@@ -467,12 +467,9 @@ void test_specific()
     typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    ut_settings settings;
-    settings.test_validity = true;
-
     test_one<polygon, multi_polygon, multi_polygon>("ticket_10803",
         ticket_10803[0], ticket_10803[1],
-        1, 0, 9, 2664270, settings);
+        1, 0, 9, 2664270);
 }
 
 
@@ -493,6 +490,10 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
 
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(9, 2);
 #endif
 
     return 0;

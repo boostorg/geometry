@@ -20,7 +20,6 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -35,12 +34,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace buffer
 {
-
-
-enum intersection_location_type
-{
-    location_ok, inside_buffer, location_discard
-};
 
 class backtrack_for_buffer
 {
@@ -146,8 +139,8 @@ struct buffer_turn_operation
     {}
 };
 
-// Version for buffer including type of location, is_opposite, and helper variables
-template <typename Point, typename RobustPoint, typename SegmentRatio>
+// Version of turn_info for buffer with its turn index and other helper variables
+template <typename Point, typename SegmentRatio>
 struct buffer_turn_info
     : public detail::overlay::turn_info
         <
@@ -157,54 +150,123 @@ struct buffer_turn_info
         >
 {
     typedef Point point_type;
-    typedef RobustPoint robust_point_type;
 
-    std::size_t turn_index; // TODO: this might go if partition can operate on non-const input
+    std::size_t turn_index;
 
-    RobustPoint robust_point;
+    // Information if turn can be used. It is not traversable if it is within
+    // another piece, or within the original (depending on deflation),
+    // or (for deflate) if there are not enough points to traverse it.
+    bool is_turn_traversable;
 
-    inline RobustPoint const& get_robust_point() const
-    {
-        return robust_point;
-    }
-
-    intersection_location_type location;
-
-    robust_point_type rob_pi, rob_pj, rob_qi, rob_qj;
-
-    std::size_t count_within;
-
+    bool close_to_offset;
+    bool is_linear_end_point;
     bool within_original;
     signed_size_type count_in_original; // increased by +1 for in ext.ring, -1 for int.ring
 
-    std::size_t count_on_offsetted;
-    std::size_t count_on_helper;
-    std::size_t count_within_near_offsetted;
-
     inline buffer_turn_info()
         : turn_index(0)
-        , location(location_ok)
-        , count_within(0)
+        , is_turn_traversable(true)
+        , close_to_offset(false)
+        , is_linear_end_point(false)
         , within_original(false)
         , count_in_original(0)
-        , count_on_offsetted(0)
-        , count_on_helper(0)
-        , count_within_near_offsetted(0)
     {}
 };
 
-struct buffer_operation_less
+struct buffer_less
 {
-    template <typename Turn>
-    inline bool operator()(Turn const& left, Turn const& right) const
+    template <typename Indexed>
+    inline bool operator()(Indexed const& left, Indexed const& right) const
     {
-        segment_identifier const& sl = left.seg_id;
-        segment_identifier const& sr = right.seg_id;
+        if (! (left.subject->seg_id == right.subject->seg_id))
+        {
+            return left.subject->seg_id < right.subject->seg_id;
+        }
 
-        // Sort them descending
-        return sl == sr
-            ? left.fraction < right.fraction
-            : sl < sr;
+        // Both left and right are located on the SAME segment.
+        if (! (left.subject->fraction == right.subject->fraction))
+        {
+            return left.subject->fraction < right.subject->fraction;
+        }
+
+        return left.turn_index < right.turn_index;
+    }
+};
+
+struct piece_get_box
+{
+    template <typename Box, typename Piece>
+    static inline void apply(Box& total, Piece const& piece)
+    {
+        typedef typename strategy::expand::services::default_strategy
+            <
+                box_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+
+        if (piece.m_piece_border.m_has_envelope)
+        {
+            geometry::expand(total, piece.m_piece_border.m_envelope,
+                             expand_strategy_type());
+        }
+    }
+};
+
+template <typename DisjointBoxBoxStrategy>
+struct piece_ovelaps_box
+{
+    template <typename Box, typename Piece>
+    static inline bool apply(Box const& box, Piece const& piece)
+    {
+        if (piece.type == strategy::buffer::buffered_flat_end
+            || piece.type == strategy::buffer::buffered_concave)
+        {
+            // Turns cannot be inside a flat end (though they can be on border)
+            // Neither we need to check if they are inside concave helper pieces
+
+            // Skip all pieces not used as soon as possible
+            return false;
+        }
+        if (! piece.m_piece_border.m_has_envelope)
+        {
+            return false;
+        }
+
+        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.m_piece_border.m_envelope,
+                                                              DisjointBoxBoxStrategy());
+    }
+};
+
+struct turn_get_box
+{
+    template <typename Box, typename Turn>
+    static inline void apply(Box& total, Turn const& turn)
+    {
+        typedef typename strategy::expand::services::default_strategy
+            <
+                point_tag, typename cs_tag<Box>::type
+            >::type expand_strategy_type;
+        geometry::expand(total, turn.point, expand_strategy_type());
+    }
+};
+
+template <typename DisjointPointBoxStrategy>
+struct turn_ovelaps_box
+{
+    template <typename Box, typename Turn>
+    static inline bool apply(Box const& box, Turn const& turn)
+    {
+        return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box,
+                                                                DisjointPointBoxStrategy());
+    }
+};
+
+struct enriched_map_buffer_include_policy
+{
+    template <typename Operation>
+    static inline bool include(Operation const& op)
+    {
+        return op != detail::overlay::operation_intersection
+            && op != detail::overlay::operation_blocked;
     }
 };
 
