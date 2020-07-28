@@ -28,3 +28,4 @@ build-project gis ;
 build-project iterators ;
 build-project nsphere ;
 build-project triangulation ;
+build-project generic_robust_predicates ;
