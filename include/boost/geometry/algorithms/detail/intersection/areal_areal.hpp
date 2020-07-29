@@ -26,7 +26,7 @@ namespace detail { namespace intersection
 template
 <
     typename GeometryOut,
-    typename OutTag = typename detail::intersection::tag
+    typename OutTag = typename geometry::detail::setop_insert_output_tag
                         <
                             typename geometry::detail::output_geometry_value
                                 <
@@ -85,9 +85,10 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
 
         boost::ignore_unused
             <
-                detail::intersection::expect_output_pla
+                geometry::detail::expect_output
                     <
-                        Areal1, Areal2, single_out
+                        Areal1, Areal2, single_out,
+                        point_tag, linestring_tag, polygon_tag
                     >
             >();
 

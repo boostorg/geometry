@@ -49,7 +49,20 @@ model::infinite_line<Type> make_infinite_line(Segment const& segment)
         geometry::get<1, 1>(segment));
 }
 
-
+template <typename Type, typename Point>
+inline
+model::infinite_line<Type> make_perpendicular_line(Point const& a, Point const& b, Point const& c)
+{
+    // https://www.math-only-math.com/equation-of-a-line-perpendicular-to-a-line.html
+    model::infinite_line<Type> const line = make_infinite_line<Type>(a, b);
+    model::infinite_line<Type> result;
+    result.a = line.b;
+    result.b = -line.a;
+    // Lines with any result.c are perpendicular to a->b
+    // Calculate this result such that it goes through point c
+    result.c = -result.a * geometry::get<0>(c) - result.b * geometry::get<1>(c);
+    return result;
+}
 
 }} // namespace detail::make
 #endif // DOXYGEN_NO_DETAIL

@@ -2,12 +2,12 @@
 //
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2012-2015 Adam Wulkiewicz, Lodz, Poland.
-
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015, Oracle and/or its affiliates.
-
+//
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -769,6 +769,15 @@ std::string remove_template_parameters(std::string const& name)
     return res;
 }
 
+std::string remove_template_parameters_block(std::string const& name)
+{
+    std::string res = remove_template_parameters(name);
+    size_t i = res.find("<...>");
+    if (i != std::string::npos)
+        res = res.substr(0, i) + res.substr(i + 5);
+    return res;
+}
+
 std::string replace_brackets(std::string const& str)
 {
     return boost::replace_all_copy(boost::replace_all_copy(str, "[", "\\["), "]", "\\]");
@@ -793,26 +802,122 @@ void quickbook_output_enumerations(std::vector<enumeration> const& enumerations,
         << std::endl;
 }
 
-void quickbook_synopsis_short(function const& f, std::ostream& out)
+std::string quickbook_synopsis_short(function const& f)
 {
+    std::string result;
+
     if ( f.type != function_unknown )
-        out << f.name;
+        result += f.name;
 
     bool first = true;
     BOOST_FOREACH(parameter const& p, f.parameters)
     {
         if ( !p.skip && p.default_value.empty() )
         {
-            out << (first ? "(" : ", ") << remove_template_parameters(p.fulltype_without_links);
+            result += first ? "(" : ", ";
+            result += remove_template_parameters(p.fulltype_without_links);
             first = false;
         }
     }
 
-
     if (! first)
-        out << ")";
+        result += ")";
     else if (f.type != function_define)
-        out << "()";
+        result += "()";
+
+    return result;
+}
+
+std::string quickbook_section_escape_characters(std::string const& name)
+{
+    std::string result;
+    result.reserve(name.size());
+    for (size_t i = 0; i < name.size(); ++i)
+    {
+        if ( ('a' <= name[i] && name[i] <= 'z')
+          || ('0' <= name[i] && name[i] <= '9') )
+            result += name[i];
+        else if ('A' <= name[i] && name[i] <= 'Z')
+            result += name[i] + ('a' - 'A');
+        else if (name[i] == '_')
+            result += '_';
+        else
+        {
+            std::stringstream ss;
+            ss << ((int)(unsigned char)(name[i]));
+            result += ss.str();
+        }
+    }
+    return result;
+}
+
+std::string quickbook_section_function(function const& f, size_t param_length = 3)
+{
+    if (param_length < 1)
+        param_length = 1;
+
+    std::string result;
+
+    if ( f.type != function_unknown )
+        result += quickbook_section_escape_characters(f.name);
+
+    BOOST_FOREACH(parameter const& p, f.parameters)
+    {
+        if ( !p.skip && p.default_value.empty() )
+        {
+            std::string pn = remove_template_parameters_block(p.fulltype_without_links);
+            size_t i = pn.find(p.type);
+            if (i != std::string::npos)
+                pn = pn.substr(0, i) + pn.substr(i + p.type.size());
+
+            std::string mods;
+            if (pn.find("const") != std::string::npos)
+                mods += 'c';
+            if (pn.find("volatile") != std::string::npos)
+                mods += 'v';
+            if (pn.find("&&") != std::string::npos)
+                mods += "rr";
+            else if (pn.find("&") != std::string::npos)
+                mods += 'r';
+
+            size_t n = (std::min)(param_length, (size_t)p.type.size());
+            if (n > 0)
+            {
+                result += '_';
+                result += quickbook_section_escape_characters(p.type.substr(0, n));
+                if (!mods.empty())
+                {
+                    result += '_';
+                    result += mods;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::string quickbook_section_class(std::string const& name, size_t namespace_length = 3)
+{
+    if (namespace_length < 1)
+        namespace_length = 1;
+
+    std::string result;
+    size_t b = 0;
+    for (;;)
+    {
+        size_t e = name.find("::", b);
+        if (e != std::string::npos)
+        {
+            size_t n = (std::min)(e - b, namespace_length);
+            result += quickbook_section_escape_characters(name.substr(b, n)) + '_';
+            b = e + 2;
+        }
+        else
+            break;
+    }
+    result += quickbook_section_escape_characters(name.substr(b));    
+    return result;
 }
 
 void quickbook_output_functions(std::vector<function> const& functions,
@@ -855,7 +960,7 @@ void quickbook_output_functions(std::vector<function> const& functions,
                 out << "]";
             }
             out << "[[link " << f.id << " `";
-            quickbook_synopsis_short(f, out);
+            out << quickbook_synopsis_short(f);
             out << "`]]";
             out << "[" << f.brief_description << "]";
             out << "]" << std::endl;
@@ -1171,7 +1276,7 @@ bool has_brief_description(Range const& rng, function_type t)
 
 void quickbook_output_functions_details(std::vector<function> const& functions,
                                         function_type type,
-                                        configuration const& ,
+                                        configuration const& config,
                                         std::ostream& out,
                                         bool display_all = false)
 {
@@ -1185,10 +1290,17 @@ void quickbook_output_functions_details(std::vector<function> const& functions,
         if ( display_all || f.type == type )
         {
             // Section
-            std::stringstream ss;
-            quickbook_synopsis_short(f, ss);
             out << "[#" << f.id << "]" << std::endl;
-            out << "[section " << replace_brackets(ss.str()) << "]" << std::endl;
+            std::string synopsis_short = quickbook_synopsis_short(f);
+            if (config.alt_max_synopsis_length > 0
+                && synopsis_short.size() > config.alt_max_synopsis_length)
+            {
+                out << "[section:" << quickbook_section_function(f) << " " << synopsis_short << "]" << std::endl;
+            }
+            else
+            {
+                out << "[section " << synopsis_short << "]" << std::endl;
+            }
 
             quickbook_output_indexterm(f.name, out);
 
@@ -1354,24 +1466,24 @@ void quickbook_output_alt(documentation const& doc, configuration const& config,
 {
     if ( !doc.group_id.empty() )
     {
-        std::cout << "[section:" << doc.group_id << " " << doc.group_title << "]" << std::endl;
+        out << "[section:" << doc.group_id << " " << doc.group_title << "]" << std::endl;
     }
 
     if ( !doc.enumerations.empty() )
     {
-        std::cout << "[heading Enumerations]\n";
+        out << "[heading Enumerations]\n";
         quickbook_output_enumerations(doc.enumerations, config, out);
     }
 
     if ( !doc.defines.empty() )
     {
-        std::cout << "[heading Defines]\n";
+        out << "[heading Defines]\n";
         quickbook_output_functions(doc.defines, function_unknown, config, out, true, "Define");
     }
 
     if ( !doc.functions.empty() )
     {
-        std::cout << "[heading Functions]\n";
+        out << "[heading Functions]\n";
         quickbook_output_functions(doc.functions, function_unknown, config, out, true, "Function");
     }
 
@@ -1400,6 +1512,7 @@ void quickbook_output_alt(class_or_struct const& cos, configuration const& confi
     if ( !cos.id.empty() )
         out << "[#" << cos.id << "]" << std::endl;
     out << "[section " << short_name << "]" << std::endl << std::endl;
+    //out << "[section:" << quickbook_section_class(short_name, 1) << " " << short_name << "]" << std::endl << std::endl;
 
     // WARNING! Can't be used in the case of specializations
     quickbook_output_indexterm(short_name, out);

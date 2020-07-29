@@ -20,6 +20,7 @@
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/cluster_exits.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -88,21 +89,6 @@ template
 struct traversal
 {
 private :
-    struct linked_turn_op_info
-    {
-        explicit linked_turn_op_info(signed_size_type ti = -1, int oi = -1,
-                    signed_size_type nti = -1)
-            : turn_index(ti)
-            , op_index(oi)
-            , next_turn_index(nti)
-            , rank_index(-1)
-        {}
-
-        signed_size_type turn_index;
-        int op_index;
-        signed_size_type next_turn_index;
-        signed_size_type rank_index;
-    };
 
     static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
@@ -741,158 +727,6 @@ public :
         return false;
     }
 
-    inline signed_size_type get_rank(sbs_type const& sbs,
-            linked_turn_op_info const& info) const
-    {
-        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
-        {
-            typename sbs_type::rp const& rp = sbs.m_ranked_points[i];
-            if (rp.turn_index == info.turn_index
-                    && rp.operation_index == info.op_index
-                    && rp.direction == sort_by_side::dir_to)
-            {
-                return rp.rank;
-            }
-        }
-        return -1;
-    }
-
-    // Function checks simple cases, such as a cluster with two turns,
-    // arriving at the first turn, first turn points to second turn,
-    // second turn points further.
-    inline bool select_turn_from_cluster_linked(signed_size_type& turn_index,
-            int& op_index,
-            std::set<signed_size_type> const& ids,
-            segment_identifier const& previous_seg_id) const
-    {
-        typedef typename std::set<signed_size_type>::const_iterator sit_type;
-
-        std::vector<linked_turn_op_info> possibilities;
-        std::vector<linked_turn_op_info> blocked;
-        for (sit_type it = ids.begin(); it != ids.end(); ++it)
-        {
-            signed_size_type cluster_turn_index = *it;
-            turn_type const& cluster_turn = m_turns[cluster_turn_index];
-            if (cluster_turn.discarded)
-            {
-                continue;
-            }
-            if (cluster_turn.both(target_operation))
-            {
-                // Not (yet) supported, can be cluster of u/u turns
-                return false;
-            }
-            for (int i = 0; i < 2; i++)
-            {
-                turn_operation_type const& op = cluster_turn.operations[i];
-                turn_operation_type const& other_op = cluster_turn.operations[1 - i];
-                signed_size_type const ni = op.enriched.get_next_turn_index();
-                if (op.operation == target_operation
-                    || op.operation == operation_continue)
-                {
-                    if (ni == cluster_turn_index)
-                    {
-                        // Not (yet) supported, traveling to itself, can be
-                        // hole
-                        return false;
-                    }
-                    possibilities.push_back(
-                        linked_turn_op_info(cluster_turn_index, i, ni));
-                }
-                else if (op.operation == operation_blocked
-                         && ! (ni == other_op.enriched.get_next_turn_index())
-                         && ids.count(ni) == 0)
-                {
-                    // Points to turn, not part of this cluster,
-                    // and that way is blocked. But if the other operation
-                    // points at the same turn, it is still fine.
-                    blocked.push_back(
-                        linked_turn_op_info(cluster_turn_index, i, ni));
-                }
-            }
-        }
-
-        typedef typename std::vector<linked_turn_op_info>::const_iterator const_it_type;
-
-        if (! blocked.empty())
-        {
-            sbs_type sbs(m_strategy);
-
-            if (! fill_sbs(sbs, turn_index, ids, previous_seg_id))
-            {
-                return false;
-            }
-
-            for (typename std::vector<linked_turn_op_info>::iterator it = possibilities.begin();
-                 it != possibilities.end(); ++it)
-            {
-                linked_turn_op_info& info = *it;
-                info.rank_index = get_rank(sbs, info);
-            }
-            for (typename std::vector<linked_turn_op_info>::iterator it = blocked.begin();
-                 it != blocked.end(); ++it)
-            {
-                linked_turn_op_info& info = *it;
-                info.rank_index = get_rank(sbs, info);
-            }
-
-
-            for (const_it_type it = possibilities.begin();
-                 it != possibilities.end(); ++it)
-            {
-                linked_turn_op_info const& lti = *it;
-                for (const_it_type bit = blocked.begin();
-                     bit != blocked.end(); ++bit)
-                {
-                    linked_turn_op_info const& blti = *bit;
-                    if (blti.next_turn_index == lti.next_turn_index
-                            && blti.rank_index == lti.rank_index)
-                    {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        // Traversal can either enter the cluster in the first turn,
-        // or it can start halfway.
-        // If there is one (and only one) possibility pointing outside
-        // the cluster, take that one.
-        linked_turn_op_info target;
-        for (const_it_type it = possibilities.begin();
-             it != possibilities.end(); ++it)
-        {
-            linked_turn_op_info const& lti = *it;
-            if (ids.count(lti.next_turn_index) == 0)
-            {
-                if (target.turn_index >= 0
-                    && target.next_turn_index != lti.next_turn_index)
-                {
-                    // Points to different target
-                    return false;
-                }
-                if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer)
-                    && target.turn_index > 0)
-                {
-                    // Target already assigned, so there are more targets
-                    // or more ways to the same target
-                    return false;
-                }
-
-                target = lti;
-            }
-        }
-        if (target.turn_index < 0)
-        {
-            return false;
-        }
-
-        turn_index = target.turn_index;
-        op_index = target.op_index;
-
-        return true;
-    }
-
     inline bool fill_sbs(sbs_type& sbs,
                          signed_size_type turn_index,
                          std::set<signed_size_type> const& ids,
@@ -945,16 +779,18 @@ public :
         cluster_info const& cinfo = mit->second;
         std::set<signed_size_type> const& ids = cinfo.turn_indices;
 
-        if (select_turn_from_cluster_linked(turn_index, op_index, ids, previous_seg_id))
-        {
-            return true;
-        }
-
         sbs_type sbs(m_strategy);
 
         if (! fill_sbs(sbs, turn_index, ids, previous_seg_id))
         {
             return false;
+        }
+
+        cluster_exits<OverlayType, Turns, sbs_type> exits(m_turns, ids, sbs);
+
+        if (exits.apply(turn_index, op_index))
+        {
+            return true;
         }
 
         bool result = false;
@@ -963,6 +799,11 @@ public :
         {
             result = select_from_cluster_union(turn_index, op_index, sbs,
                 start_turn_index, start_op_index);
+            if (! result)
+            {
+               // There no way out found, try second pass in collected cluster exits
+               result = exits.apply(turn_index, op_index, false);
+            }
         }
         else
         {

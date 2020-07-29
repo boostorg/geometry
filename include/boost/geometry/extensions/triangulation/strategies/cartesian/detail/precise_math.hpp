@@ -88,42 +88,6 @@ inline std::array<RealNumber, 2> two_diff(RealNumber const a,
     return {{ x, y }};
 }
 
-// constexpr power-method, helper for splitter
-template
-<
-    typename RealNumber
->
-constexpr RealNumber int_pow(RealNumber const base,
-                             int exp,
-                             RealNumber out = 1.0)
-{
-    return exp < 1 ? out :
-        int_pow<RealNumber>(base*base, exp/2, (exp % 2) ? out*base : out);
-}
-
-// consexpr method to compute 2^s + 1 as in Theorem 17, page 18
-template
-<
-    typename RealNumber
->
-constexpr RealNumber splitter()
-{
-    return int_pow<RealNumber>(2.0,
-            (std::numeric_limits<RealNumber>::digits + 1) / 2) + 1;
-}
-
-// see theorem 17, page 18
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> split(RealNumber const a) {
-    RealNumber c = splitter<RealNumber>() * a;
-    RealNumber a_big = c - a;
-    RealNumber a_hi = c - a_big;
-    return {{ a_hi, a - a_hi }};
-}
-
 // see theorem 18, page 19
 template
 <
@@ -133,12 +97,7 @@ inline RealNumber two_product_tail(RealNumber const a,
                                    RealNumber const b,
                                    RealNumber const x)
 {
-    std::array<RealNumber, 2> a_expansion = split(a);
-    std::array<RealNumber, 2> b_expansion = split(b);
-    RealNumber err1 = x - (a_expansion[0] * b_expansion[0]);
-    RealNumber err2 = err1 - (a_expansion[1] * b_expansion[0]);
-    RealNumber err3 = err2 - (a_expansion[0] * b_expansion[1]);
-    return (a_expansion[1] * b_expansion[1]) - err3;
+    return std::fma(a, b, -x);
 }
 
 // see theorem 18, page 19
@@ -199,45 +158,63 @@ inline int fast_expansion_sum_zeroelim(
 {
     std::array<RealNumber, 2> Qh;
     int i_e = 0, i_f = 0, i_h = 0;
-    if (std::abs(f[0]) > std::abs(e[0])) {
+    if (std::abs(f[0]) > std::abs(e[0]))
+    {
         Qh[0] = e[i_e++];
-    } else {
+    }
+    else
+    {
         Qh[0] = f[i_f++];
     }
     i_h = 0;
-    if ((i_e < m) && (i_f < n)) {
-        if (std::abs(f[i_f]) > std::abs(e[i_e])) {
+    if ((i_e < m) && (i_f < n))
+    {
+        if (std::abs(f[i_f]) > std::abs(e[i_e]))
+        {
             Qh = fast_two_sum(e[i_e++], Qh[0]);
-        } else {
+        }
+        else
+        {
             Qh = fast_two_sum(f[i_f++], Qh[0]);
         }
-        if (Qh[1] != 0.0) {
+        if (Qh[1] != 0.0)
+        {
             h[i_h++] = Qh[1];
         }
-        while ((i_e < m) && (i_f < n)) {
-            if (std::abs(f[i_f]) > std::abs(e[i_e])) {
+        while ((i_e < m) && (i_f < n))
+        {
+            if (std::abs(f[i_f]) > std::abs(e[i_e]))
+            {
                 Qh = two_sum(Qh[0], e[i_e++]);
-            } else {
+            }
+            else
+            {
                 Qh = two_sum(Qh[0], f[i_f++]);
             }
-            if (Qh[1] != 0.0) {
+            if (Qh[1] != 0.0)
+            {
                 h[i_h++] = Qh[1];
             }
         }
     }
-    while (i_e < m) {
+    while (i_e < m)
+    {
         Qh = two_sum(Qh[0], e[i_e++]);
-        if (Qh[1] != 0.0) {
+        if (Qh[1] != 0.0)
+        {
             h[i_h++] = Qh[1];
         }
     }
-    while (i_f < n) {
+    while (i_f < n)
+    {
         Qh = two_sum(Qh[0], f[i_f++]);
-        if (Qh[1] != 0.0) {
+        if (Qh[1] != 0.0)
+        {
             h[i_h++] = Qh[1];
         }
     }
-    if ((Qh[0] != 0.0) || (i_h == 0)) {
+    if ((Qh[0] != 0.0) || (i_h == 0))
+    {
         h[i_h++] = Qh[0];
     }
     return i_h;
@@ -259,83 +236,76 @@ inline int scale_expansion_zeroelim(
 {
     std::array<RealNumber, 2> Qh = two_product(e[0], b);
     int i_h = 0;
-    if (Qh[1] != 0) {
+    if (Qh[1] != 0)
+    {
         h[i_h++] = Qh[1];
     }
-    for (int i_e = 1; i_e < e_non_zeros; i_e++) {
+    for (int i_e = 1; i_e < e_non_zeros; i_e++)
+    {
         std::array<RealNumber, 2> Tt = two_product(e[i_e], b);
         Qh = two_sum(Qh[0], Tt[1]);
-        if (Qh[1] != 0) {
+        if (Qh[1] != 0)
+        {
             h[i_h++] = Qh[1];
         }
         Qh = fast_two_sum(Tt[0], Qh[0]);
-        if (Qh[1] != 0) {
+        if (Qh[1] != 0)
+        {
             h[i_h++] = Qh[1];
         }
     }
-    if ((Qh[0] != 0.0) || (i_h == 0)) {
+    if ((Qh[0] != 0.0) || (i_h == 0))
+    {
         h[i_h++] = Qh[0];
     }
     return i_h;
 }
 
-// see page 38, Figure 21 for the calculations, notation follows the notation in the figure.
+template<typename RealNumber>
+struct vec2d
+{
+    RealNumber x;
+    RealNumber y;
+};
+
 template
 <
     typename RealNumber,
-    std::size_t Robustness = 3
+    std::size_t Robustness
 >
-inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
-                           std::array<RealNumber, 2> const& p2,
-                           std::array<RealNumber, 2> const& p3)
+inline RealNumber orient2dtail(vec2d<RealNumber> const& p1,
+                               vec2d<RealNumber> const& p2,
+                               vec2d<RealNumber> const& p3,
+                               std::array<RealNumber, 2>& t1,
+                               std::array<RealNumber, 2>& t2,
+                               std::array<RealNumber, 2>& t3,
+                               std::array<RealNumber, 2>& t4,
+                               std::array<RealNumber, 2>& t5_01,
+                               std::array<RealNumber, 2>& t6_01,
+                               RealNumber const& magnitude
+                               )
 {
-    if(Robustness == 0) {
-        return (p1[0]-p3[0])*(p2[1]-p3[1]) - (p1[1]-p3[1])*(p2[0] - p3[0]);
-    }
-    std::array<RealNumber, 2> t1, t2, t3, t4;
-    t1[0] = p1[0] - p3[0];
-    t2[0] = p2[1] - p3[1];
-    t3[0] = p1[1] - p3[1];
-    t4[0] = p2[0] - p3[0];
-    std::array<RealNumber, 2> t5_01, t6_01;
-    t5_01[0] = t1[0] * t2[0];
-    t6_01[0] = t3[0] * t4[0];
-    RealNumber det = t5_01[0] - t6_01[0];
-    if ( (t5_01[0] > 0 && t6_01[0] <= 0) || (t5_01[0] < 0 && t6_01[0] >= 0) ) {
-        //if diagonal and antidiagonal have different sign, the sign of det is
-        //obvious
-        return det;
-    }
-    RealNumber const magnitude = std::abs(t5_01[0]) + std::abs(t6_01[0]);
-
-    // see p.39, mind the different definition of epsilon for error bound
-    RealNumber const A_relative_bound =
-          (1.5 + 4 * std::numeric_limits<RealNumber>::epsilon())
-        * std::numeric_limits<RealNumber>::epsilon();
-    RealNumber absolute_bound = A_relative_bound * magnitude;
-    if ( std::abs(det) >= absolute_bound ) {
-        return det; //A estimate
-    }
-
     t5_01[1] = two_product_tail(t1[0], t2[0], t5_01[0]);
     t6_01[1] = two_product_tail(t3[0], t4[0], t6_01[0]);
     std::array<RealNumber, 4> tA_03 = two_two_expansion_diff(t5_01, t6_01);
-    det = std::accumulate(tA_03.begin(), tA_03.end(), static_cast<RealNumber>(0));
+    RealNumber det = std::accumulate(tA_03.begin(), tA_03.end(), static_cast<RealNumber>(0));
     if(Robustness == 1) return det;
     // see p.39, mind the different definition of epsilon for error bound
     RealNumber B_relative_bound =
           (1 + 3 * std::numeric_limits<RealNumber>::epsilon())
         * std::numeric_limits<RealNumber>::epsilon();
-    absolute_bound = B_relative_bound * magnitude;
-    if (std::abs(det) >= absolute_bound) {
+    RealNumber absolute_bound = B_relative_bound * magnitude;
+    if (std::abs(det) >= absolute_bound)
+    {
         return det; //B estimate
     }
-    t1[1] = two_diff_tail(p1[0], p3[0], t1[0]);
-    t2[1] = two_diff_tail(p2[1], p3[1], t2[0]);
-    t3[1] = two_diff_tail(p1[1], p3[1], t3[0]);
-    t4[1] = two_diff_tail(p2[0], p3[0], t4[0]);
+    t1[1] = two_diff_tail(p1.x, p3.x, t1[0]);
+    t2[1] = two_diff_tail(p2.y, p3.y, t2[0]);
+    t3[1] = two_diff_tail(p1.y, p3.y, t3[0]);
+    t4[1] = two_diff_tail(p2.x, p3.x, t4[0]);
 
-    if ((t1[1] == 0) && (t3[1] == 0) && (t2[1] == 0) && (t4[1] == 0)) {
+    if ((t1[1] == 0) && (t3[1] == 0) && (t2[1] == 0) && (t4[1] == 0))
+    {
         return det; //If all tails are zero, there is noething else to compute
     }
     RealNumber sub_bound =
@@ -348,7 +318,8 @@ inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
         * std::numeric_limits<RealNumber>::epsilon();
     absolute_bound = C_relative_bound * magnitude + sub_bound * std::abs(det);
     det += (t1[0] * t2[1] + t2[0] * t1[1]) - (t3[0] * t4[1] + t4[0] * t3[1]);
-    if (Robustness == 2 || std::abs(det) >= absolute_bound) {
+    if (Robustness == 2 || std::abs(det) >= absolute_bound)
+    {
         return det; //C estimate
     }
     std::array<RealNumber, 8> D_left;
@@ -374,6 +345,50 @@ inline RealNumber orient2d(std::array<RealNumber, 2> const& p1,
     int D_nz = fast_expansion_sum_zeroelim(D_left, D_right, D, D_left_nz, D_right_nz);
     // only return component of highest magnitude because we mostly care about the sign.
     return(D[D_nz - 1]);
+}
+
+// see page 38, Figure 21 for the calculations, notation follows the notation in the figure.
+template
+<
+    typename RealNumber,
+    std::size_t Robustness = 3
+>
+inline RealNumber orient2d(vec2d<RealNumber> const& p1,
+                           vec2d<RealNumber> const& p2,
+                           vec2d<RealNumber> const& p3)
+{
+    if(Robustness == 0)
+    {
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
+    }
+    std::array<RealNumber, 2> t1, t2, t3, t4;
+    t1[0] = p1.x - p3.x;
+    t2[0] = p2.y - p3.y;
+    t3[0] = p1.y - p3.y;
+    t4[0] = p2.x - p3.x;
+    std::array<RealNumber, 2> t5_01, t6_01;
+    t5_01[0] = t1[0] * t2[0];
+    t6_01[0] = t3[0] * t4[0];
+    RealNumber det = t5_01[0] - t6_01[0];
+    RealNumber const magnitude = std::abs(t5_01[0]) + std::abs(t6_01[0]);
+
+    // see p.39, mind the different definition of epsilon for error bound
+    RealNumber const A_relative_bound =
+          (1.5 + 4 * std::numeric_limits<RealNumber>::epsilon())
+        * std::numeric_limits<RealNumber>::epsilon();
+    RealNumber absolute_bound = A_relative_bound * magnitude;
+    if ( std::abs(det) >= absolute_bound )
+    {
+        return det; //A estimate
+    }
+
+    if ( (t5_01[0] > 0 && t6_01[0] <= 0) || (t5_01[0] < 0 && t6_01[0] >= 0) )
+    {
+        //if diagonal and antidiagonal have different sign, the sign of det is
+        //obvious
+        return det;
+    }
+    return orient2dtail<RealNumber, Robustness>(p1, p2, p3, t1, t2, t3, t4, t5_01, t6_01, magnitude);
 }
 
 // This method adaptively computes increasingly precise approximations of the following
@@ -433,7 +448,8 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
           (5 + 24 * std::numeric_limits<RealNumber>::epsilon())
         * std::numeric_limits<RealNumber>::epsilon();
     RealNumber absolute_bound = A_relative_bound * magnitude;
-    if (std::abs(det) > absolute_bound) {
+    if (std::abs(det) > absolute_bound)
+    {
         return det;
     }
     // (p2_x - p4_x) * (p3_y - p4_y)
@@ -492,16 +508,16 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
     std::array<RealNumber, 16> C_23_x_A_22_sq;
     // ( (cx - dx) * (ay - dy) - (ax - dx) * (cy - dy) ) * ( by - dy ) * ( by - dy )
     int C_23_x_A_22_sq_nz = scale_expansion_zeroelim(C_23_x_A_22, A_22,
-													 C_23_x_A_22_sq,
-													 C_23_x_A_22_nz);
+                                                     C_23_x_A_22_sq,
+                                                     C_23_x_A_22_nz);
     std::array<RealNumber, 32> A_23_x_C_23;
-	//   ( (cx - dx) * (ay - dy) - (ax - dx) * (cy - dy) )
-	// * ( ( bx - dx ) * ( bx - dx ) + ( by - dy ) * ( by - dy ) )
+    //   ( (cx - dx) * (ay - dy) - (ax - dx) * (cy - dy) )
+    // * ( ( bx - dx ) * ( bx - dx ) + ( by - dy ) * ( by - dy ) )
     int A_23_x_C_23_nz = fast_expansion_sum_zeroelim(C_23_x_A_21_sq,
-													 C_23_x_A_22_sq,
-													 A_23_x_C_23,
-													 C_23_x_A_21_sq_nz,
-													 C_23_x_A_22_sq_nz);
+                                                     C_23_x_A_22_sq,
+                                                     A_23_x_C_23,
+                                                     C_23_x_A_21_sq_nz,
+                                                     C_23_x_A_22_sq_nz);
 
     // (ax - dx) * (by - dy)
     A_11_x_A_22[1] = two_product_tail(A_11, A_22, A_11_x_A_22[0]);
@@ -555,7 +571,8 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
           (2 + 12 * std::numeric_limits<RealNumber>::epsilon())
         * std::numeric_limits<RealNumber>::epsilon();
     absolute_bound = B_relative_bound * magnitude;
-    if (std::abs(det) >= absolute_bound) {
+    if (std::abs(det) >= absolute_bound)
+    {
         return det;
     }
     RealNumber A_11tail = two_diff_tail(p1[0], p4[0], A_11);
@@ -565,7 +582,8 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
     RealNumber A_31tail = two_diff_tail(p3[0], p4[0], A_31);
     RealNumber A_32tail = two_diff_tail(p3[1], p4[1], A_32);
     if ((A_11tail == 0) && (A_21tail == 0) && (A_31tail == 0)
-        && (A_12tail == 0) && (A_22tail == 0) && (A_32tail == 0)) {
+        && (A_12tail == 0) && (A_22tail == 0) && (A_32tail == 0))
+    {
         return det;
     }
     //  RealNumber sub_bound =  (1.5 + 2.0 * std::numeric_limits<RealNumber>::epsilon())
@@ -583,7 +601,8 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
     + ((A_31 * A_31 + A_32 * A_32) * ((A_11 * A_22tail + A_22 * A_11tail)
         - (A_12 * A_21tail + A_21 * A_12tail))
     + 2 * (A_31 * A_31tail + A_32 * A_32tail) * (A_11 * A_22 - A_12 * A_21));
-    //if (std::abs(det) >= absolute_bound) {
+    //if (std::abs(det) >= absolute_bound)
+    //{
     return det;
     //}
 }

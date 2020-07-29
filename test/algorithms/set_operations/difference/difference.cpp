@@ -59,7 +59,7 @@ void test_all()
 #endif
 
     ut_settings ignore_validity_settings;
-    ignore_validity_settings.test_validity = false;
+    ignore_validity_settings.set_test_validity(false);
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -105,12 +105,12 @@ void test_all()
         1, 5, 1.0,
         1, 5, 1.0);
 
-    // The too small one might be discarded (depending on point-type / compiler)
-    // We check area only
+    // Two outputs, but the small one might be discarded
+    // (depending on point-type / compiler)
     test_one<polygon, polygon, polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        -1, -1, 8.7048386,
-        -1, -1, 0.0098387,
+        count_set(1, 2), -1, 8.7048386,
+        count_set(1, 2), -1, 0.0098387,
         tolerance(0.001));
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
@@ -200,29 +200,23 @@ void test_all()
             8, 36, 2.43452380952381,
             7, 33, 3.18452380952381);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling, a-b is partly generated, b-a does not have any output
-    // It failed already in 1.59
     test_one<polygon, polygon, polygon>("case_58_iet",
         case_58[0], case_58[2],
         3, 12, 0.6666666667,
         1, -1, 11.1666666667,
         2, -1, 0.6666666667 + 11.1666666667);
-#endif
 
     test_one<polygon, polygon, polygon>("case_80",
         case_80[0], case_80[1],
         1, 9, 44.5,
         1, 10, 84.5);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Fails without rescaling, holes are not subtracted
     test_one<polygon, polygon, polygon>("case_81",
         case_81[0], case_81[1],
         1, 8, 80.5,
         1, 8, 83.0,
         1, 12, 80.5 + 83.0);
-#endif
 
     test_one<polygon, polygon, polygon>("case_100",
         case_100[0], case_100[1],
@@ -248,40 +242,31 @@ void test_all()
     TEST_DIFFERENCE(case_precision_2, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_3, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_4, 1, 14.0, 1, 8.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(case_precision_5, 1, 14.0, 1, 8.0, 1);
-    TEST_DIFFERENCE(case_precision_6, 0, 0.0, 1, 57.0, 1);
-#endif
+    TEST_DIFFERENCE(case_precision_5, 1, 14.0, 1, 8.0, count_set(1, 2));
+    // Small optional sliver allowed, here and below
+    TEST_DIFFERENCE(case_precision_6, optional(), 0.0, 1, 57.0, count_set(1, 2));
     TEST_DIFFERENCE(case_precision_7, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_8, 0, 0.0, 1, 59.0, 1);
+    TEST_DIFFERENCE(case_precision_9, optional(), 0.0, 1, 59.0, count_set(1, 2));
+    TEST_DIFFERENCE(case_precision_10, optional(), 0.0, 1, 59.0, count_set(1, 2));
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(case_precision_9, 0, 0.0, 1, 59.0, 1);
-    TEST_DIFFERENCE(case_precision_10, 0, 0.0, 1, 59.0, 1);
-    TEST_DIFFERENCE(case_precision_11, 0, 0.0, 1, 59.0, 1);
+    TEST_DIFFERENCE(case_precision_11, optional(), 0.0, 1, 59.0, 1);
 #endif
     TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
     TEST_DIFFERENCE(case_precision_13, 1, BG_IF_KRAMER(12.00002, 12.0), 0, 0.0, 1);
     TEST_DIFFERENCE(case_precision_14, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_15, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(case_precision_16, 0, 0.0, 1, 59.0, 1);
-#endif
+    TEST_DIFFERENCE(case_precision_16, optional(), 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_precision_19, 1, 0.0, 1, 59.0, 2);
-#endif
     TEST_DIFFERENCE(case_precision_20, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_21, 1, 14.0, 1, 7.99999, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(case_precision_22, 0, 0.0, 1, 59.0, 1);
-    TEST_DIFFERENCE(case_precision_23, 0, 0.0, 1, 59.0, 1);
-#endif
+    TEST_DIFFERENCE(case_precision_22, optional(), 0.0, 1, 59.0, count_set(1, 2));
+    TEST_DIFFERENCE(case_precision_23, optional(), 0.0, 1, 59.0, count_set(1, 2));
     TEST_DIFFERENCE(case_precision_24, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_25, 1, 14.0, 1, 7.99999, 1);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(case_precision_26, 0, 0.0, 1, 59.0, 1);
-#endif
+    TEST_DIFFERENCE(case_precision_26, optional(), 0.0, 1, 59.0, count_set(1, 2));
 
     test_one<polygon, polygon, polygon>("winded",
         winded[0], winded[1],
@@ -328,7 +313,7 @@ void test_all()
     {
         ut_settings settings;
         settings.percentage = BG_IF_RESCALED(0.001, 0.1);
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
         settings.sym_difference = BG_IF_RESCALED(true, false);
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
@@ -340,8 +325,8 @@ void test_all()
 
         test_one<polygon, polygon, polygon>("isovist",
             isovist1[0], isovist1[1],
-            -1, -1, 0.279132,
-            -1, -1, 224.8892,
+            ignore_count(), -1, 0.279132,
+            ignore_count(), -1, 224.8892,
             settings);
     }
 
@@ -349,14 +334,14 @@ void test_all()
     {
         ut_settings settings;
         settings.percentage = 0.1;
-        settings.test_validity = false;
+        settings.set_test_validity(false);
 
         // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
         // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
         TEST_DIFFERENCE_WITH(geos_1,
-            -1, BG_IF_KRAMER(0.29171, 0.20705),
-            -1, BG_IF_KRAMER(0.00076855, 0.00060440758),
-            -1);
+            ignore_count(), BG_IF_KRAMER(0.29171, 0.20705),
+            ignore_count(), BG_IF_KRAMER(0.00076855, 0.00060440758),
+            ignore_count());
     }
 #endif
 
@@ -365,7 +350,7 @@ void test_all()
 
         ut_settings settings = sym_settings;
         settings.percentage = 0.01;
-        settings.test_validity = false;
+        settings.set_test_validity(false);
 
         // Output polygons for sym difference might be combined
         test_one<polygon, polygon, polygon>("geos_2",
@@ -417,7 +402,7 @@ void test_all()
         // Symmetric difference should output one polygon
         // Using rescaling, it currently outputs two.
         ut_settings settings;
-        settings.test_validity = false;
+        settings.set_test_validity(false);
 
         TEST_DIFFERENCE_WITH(ggl_list_20110820_christophe,
             1, 2.8570121719168924,
@@ -451,11 +436,11 @@ void test_all()
     {
         // With rescaling, difference of output a-b and a sym b is invalid
         ut_settings settings;
-        settings.test_validity = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(BG_IF_RESCALED(false, true));
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1,
-                BG_IF_KRAMER(2, 1), 0.18461532,
-                BG_IF_KRAMER(2, 1), 0.617978,
-                BG_IF_KRAMER(4, 2));
+                count_set(1, 2), 0.18461532,
+                count_set(1, 2), 0.617978,
+                count_set(3, 4));
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2);
     }
 
@@ -485,7 +470,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) && defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
         const int expected_count = 1; // Wrong, considers all consecutive polygons as one
 #else
@@ -591,7 +576,7 @@ void test_all()
     {
         ut_settings settings;
 #if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
-        settings.test_validity = BG_IF_RESCALED(true, false);
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
 #endif
         TEST_DIFFERENCE_WITH(issue_566_a, 1, 143.662, BG_IF_RESCALED(1, 0),
                              BG_IF_RESCALED(1.605078e-6, 0.0),
@@ -657,6 +642,10 @@ int test_main(int, char* [])
     std::cout << "Testing TTMATH" << std::endl;
     test_all<bg::model::d2::point_xy<ttmath_big> >();
 #endif
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    BoostGeometryWriteExpectedFailures(12, 9);
 #endif
 
     return 0;
