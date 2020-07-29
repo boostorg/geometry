@@ -16,10 +16,10 @@
 #include <boost/geometry/strategies/distance.hpp>
 
 #include <boost/geometry/algorithms/intersects.hpp>
-
 #include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
-
 #include <boost/geometry/algorithms/detail/disjoint/interface_with_info.hpp>
+
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -65,25 +65,9 @@ struct linear_to_areal
                 Linear, Areal, Strategy
             >::apply(linear, areal, strategy, false);
 
-        bool is_ring = boost::is_same
-                <
-                    typename tag<Areal>::type,
-                    ring_tag
-                >::type::value;
-
-        bool is_multi_polygon = boost::is_same
-                <
-                    typename tag<Areal>::type,
-                    multi_polygon_tag
-                >::type::value;
-
-        bool is_multi_linestring = boost::is_same
-                <
-                    typename tag<Linear>::type,
-                    multi_linestring_tag
-                >::type::value;
-
-        if (!is_ring && !is_multi_polygon && is_multi_linestring)
+        if (!is_ring<Areal>::value &&
+            !is_multi_polygon<Areal>::value &&
+            is_multi_linestring<Linear>::value)
         {
             strategy::distance::services::swap_result_points<Strategy>::apply(res);
         }

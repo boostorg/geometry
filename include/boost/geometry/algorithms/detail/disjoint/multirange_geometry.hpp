@@ -100,7 +100,9 @@ struct multirange_constant_size_geometry_with_info
 
         intersection_return_type res = detail::check_iterator_range_with_info
             <
-                ConstantSizeGeometry, unary_predicate_type
+                intersection_return_type,
+                ConstantSizeGeometry,
+                unary_predicate_type
             >::apply(boost::begin(multirange), boost::end(multirange),
                      unary_predicate_type(constant_size_geometry, strategy));
         return res;

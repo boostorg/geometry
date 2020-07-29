@@ -20,12 +20,11 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -102,13 +101,7 @@ struct multipoint_to_linear
                      linear,
                      strategy);
 
-        bool is_multi_linestring = boost::is_same
-                <
-                    typename tag<Linear>::type,
-                    multi_linestring_tag
-                >::type::value;
-
-        if (!is_multi_linestring)
+        if (!is_multi_linestring<Linear>::value)
         {
             strategy::distance::services::swap_result_points<Strategy>::apply(res);
         }
@@ -217,18 +210,8 @@ public:
                          boost::end(multipoint),
                          areal,
                          strategy);
-            bool is_ring = boost::is_same
-                    <
-                        typename tag<Areal>::type,
-                        ring_tag
-                    >::type::value;
-            bool is_multi_polygon = boost::is_same
-                    <
-                        typename tag<Areal>::type,
-                        multi_polygon_tag
-                    >::type::value;
 
-            if (!is_ring && !is_multi_polygon)
+            if (!is_ring<Areal>::value && !is_multi_polygon<Areal>::value)
             {
                 strategy::distance::services::swap_result_points<Strategy>::apply(res);
             }

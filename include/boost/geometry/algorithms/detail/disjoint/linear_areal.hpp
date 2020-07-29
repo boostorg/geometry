@@ -264,7 +264,9 @@ private:
 
         intersection_return_type res = detail::check_iterator_range_with_info
             <
-                Segment, unary_predicate_type
+                intersection_return_type,
+                Segment,
+                unary_predicate_type
             >::apply(boost::begin(interior_rings),
                      boost::end(interior_rings),
                      unary_predicate_type(segment, strategy));

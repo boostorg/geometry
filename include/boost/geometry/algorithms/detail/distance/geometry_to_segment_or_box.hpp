@@ -31,15 +31,13 @@
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 #include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
-
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 #include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
 
 #include <boost/geometry/util/condition.hpp>
-
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -344,40 +342,9 @@ public:
                     Strategy
                 >::apply(*it_min, *sit_min, strategy);
         }
-/*
-        bool is_cartesian = boost::is_same
-                <
-                    typename cs_tag<Geometry>::type,
-                    cartesian_tag
-                >::type::value;
-*/
 
-        bool is_polygon = boost::is_same
-                <
-                    typename tag<Geometry>::type,
-                    polygon_tag
-                >::type::value;
-
-        bool is_ring = boost::is_same
-                <
-                    typename tag<Geometry>::type,
-                    ring_tag
-                >::type::value;
-
-
-        bool is_mpolygon = boost::is_same
-                <
-                    typename tag<Geometry>::type,
-                    multi_polygon_tag
-                >::type::value;
-
-        bool is_box = boost::is_same
-                <
-                    typename tag<SegmentOrBox>::type,
-                    box_tag
-                >::type::value;
-
-        if (((is_polygon || is_mpolygon) && is_box) || is_ring)
+        if (((is_polygon<Geometry>::value || is_multi_polygon<Geometry>::value) &&
+            is_box<Geometry>::value) || is_ring<Geometry>::value)
         {
             strategy::distance::services::swap_result_points<Strategy>::apply(res);
         }

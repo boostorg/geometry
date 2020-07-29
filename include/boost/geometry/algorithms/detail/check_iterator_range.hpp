@@ -11,7 +11,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CHECK_ITERATOR_RANGE_HPP
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/geometry/strategies/intersection_result.hpp>
 
 namespace boost { namespace geometry
 {
@@ -96,17 +95,12 @@ struct check_iterator_range_with_index
 
 // As check_iterator_range but the index of the element that
 // satisfies the predicate is returned otherwise -1 is returned
-template <typename Geometry, typename Construction>
+template <typename ResturnType, typename Geometry, typename Construction>
 struct check_iterator_range_with_info
 {
-    typedef typename point_type<Geometry>::type point_type;
-
-    typedef geometry::segment_intersection_points<point_type>
-    intersection_return_type;
-
     // version where we can pass a predicate object
     template <typename InputIterator>
-    static inline intersection_return_type
+    static inline ResturnType
     apply(InputIterator first,
           InputIterator beyond,
           Construction const& construction)
@@ -117,14 +111,14 @@ struct check_iterator_range_with_info
 
         for (InputIterator it = first; it != beyond; ++it)
         {
-            intersection_return_type res = construction.apply(*it);
+            ResturnType res = construction.apply(*it);
             if (res.count != 0)
             {
                 return res;
             }
         }
 
-        return intersection_return_type();
+        return ResturnType();
     }
 };
 
