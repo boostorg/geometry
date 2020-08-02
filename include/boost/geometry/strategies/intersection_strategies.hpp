@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016, 2017.
-// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -13,9 +13,6 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_INTERSECTION_HPP
 #define BOOST_GEOMETRY_STRATEGIES_INTERSECTION_HPP
 
-
-#include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/policies/relate/intersection_points.hpp>
 #include <boost/geometry/policies/relate/direction.hpp>
@@ -54,11 +51,6 @@ struct intersection_strategies
 {
 private :
     // for development BOOST_STATIC_ASSERT((! boost::is_same<RobustPolicy, void>::type::value));
-
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-    typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename model::referring_segment<point1_type const> segment1_type;
-    typedef typename model::referring_segment<point2_type const> segment2_type;
 
     typedef segment_intersection_points
     <

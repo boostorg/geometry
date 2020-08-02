@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -448,8 +448,6 @@ public :
 private :
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename model::referring_segment<point1_type const> segment1_type;
-    typedef typename model::referring_segment<point2_type const> segment2_type;
 
     // It is NOT possible to have section-iterators here
     // because of the logistics of "index" (the section-iterator automatically
