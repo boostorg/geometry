@@ -39,7 +39,7 @@
 #endif
 
 // TEMP
-#include <boost/geometry/strategies2/strategies2.hpp>
+#include <boost/geometry/strategies/cartesian.hpp>
 
 
 template <int DimensionCount, typename Geometry>

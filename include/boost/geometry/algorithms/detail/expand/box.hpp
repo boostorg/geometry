@@ -24,10 +24,6 @@
 
 #include <boost/geometry/core/tags.hpp>
 
-// For backward compatibility
-#include <boost/geometry/strategies/cartesian/expand_box.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
-
 
 namespace boost { namespace geometry
 {

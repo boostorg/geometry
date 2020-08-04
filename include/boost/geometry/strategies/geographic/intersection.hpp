@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2019, Oracle and/or its affiliates.
+// Copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -36,14 +36,16 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-#include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/envelope.hpp>
+#include <boost/geometry/strategy/geographic/expand_segment.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/intersection.hpp>

@@ -27,10 +27,6 @@
 
 #include <boost/geometry/core/tags.hpp>
 
-// For backward compatibility
-#include <boost/geometry/strategies/cartesian/expand_point.hpp>
-#include <boost/geometry/strategies/spherical/expand_point.hpp>
-
 
 namespace boost { namespace geometry
 {

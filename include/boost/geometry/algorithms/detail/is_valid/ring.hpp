@@ -38,7 +38,11 @@
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
-#include <boost/geometry/strategies/area.hpp>
+// TEMP - with UmberllaStrategy this will be not needed
+#include <boost/geometry/strategy/area.hpp>
+#include <boost/geometry/strategies/area/services.hpp>
+// TODO: use point_order instead of area
+
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <boost/geometry/io/dsv/write.hpp>

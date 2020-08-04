@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -38,11 +38,12 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-
+#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -51,18 +52,17 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
-#include <boost/geometry/geometries/segment.hpp>
 
-#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
-
-#include <boost/geometry/strategies/envelope.hpp>
-#include <boost/geometry/strategies/expand.hpp>
+// TEMP
+#include <boost/geometry/strategy/envelope.hpp>
+#include <boost/geometry/strategy/expand.hpp>
 
 namespace boost { namespace geometry
 {

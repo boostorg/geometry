@@ -21,10 +21,6 @@
 
 #include <boost/geometry/core/tags.hpp>
 
-// For backward compatibility
-#include <boost/geometry/strategies/cartesian/envelope_box.hpp>
-#include <boost/geometry/strategies/spherical/envelope_box.hpp>
-
 
 namespace boost { namespace geometry
 {

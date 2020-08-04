@@ -3,6 +3,10 @@
 
 // Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // htt//www.boost.org/LICENSE_1_0.txt)
@@ -22,7 +26,7 @@
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 
 // TEMP
-#include <boost/geometry/strategies2/strategies2.hpp>
+#include <boost/geometry/strategies/cartesian.hpp>
 
 #if defined(TEST_WITH_SVG)
 #include <boost/geometry/io/svg/svg_mapper.hpp>

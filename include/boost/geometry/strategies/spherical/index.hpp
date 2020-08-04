@@ -2,7 +2,7 @@
 //
 // R-tree strategies
 //
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,16 +12,17 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_INDEX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_INDEX_HPP
 
+#include <boost/geometry/strategy/spherical/envelope_box.hpp>
+#include <boost/geometry/strategy/spherical/envelope_point.hpp>
+#include <boost/geometry/strategy/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+#include <boost/geometry/strategy/spherical/expand_point.hpp>
+#include <boost/geometry/strategy/spherical/expand_segment.hpp>
+
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
-#include <boost/geometry/strategies/spherical/envelope_box.hpp>
-#include <boost/geometry/strategies/spherical/envelope_point.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
-#include <boost/geometry/strategies/spherical/expand_point.hpp>
-#include <boost/geometry/strategies/spherical/expand_segment.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 

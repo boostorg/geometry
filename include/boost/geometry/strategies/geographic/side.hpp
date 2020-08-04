@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2019.
-// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -27,8 +27,9 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/strategy/geographic/envelope.hpp>
+
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
-#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>

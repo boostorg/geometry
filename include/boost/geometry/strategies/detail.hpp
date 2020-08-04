@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES2_BASE_HPP
-#define BOOST_GEOMETRY_STRATEGIES2_BASE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_DETAIL_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DETAIL_HPP
 
 
 #include <type_traits>
@@ -204,4 +204,4 @@ struct enable_if_segment
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES2_BASE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DETAIL_HPP

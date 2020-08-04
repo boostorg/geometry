@@ -64,7 +64,9 @@
 
 
 // TEMP
-#include <boost/geometry/strategies2/envelope.hpp>
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
 
 
 namespace boost { namespace geometry

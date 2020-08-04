@@ -22,7 +22,9 @@
 #include <boost/tuple/tuple.hpp>
 
 // TEMP
-#include <boost/geometry/strategies2/strategies2.hpp>
+#include <boost/geometry/strategies/cartesian.hpp>
+#include <boost/geometry/strategies/geographic.hpp>
+#include <boost/geometry/strategies/spherical.hpp>
 
 
 typedef bg::model::point<double, 2, bg::cs::cartesian> Pt;

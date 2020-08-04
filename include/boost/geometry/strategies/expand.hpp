@@ -1,77 +1,21 @@
 // Boost.Geometry
 
-// Copyright (c) 2018-2020 Oracle and/or its affiliates.
+// Copyright (c) 2020, Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
-// Use, modification and distribution is subject to the Boost Software License,
-// Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
 
 #ifndef BOOST_GEOMETRY_STRATEGIES_EXPAND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_EXPAND_HPP
 
-#include <boost/mpl/assert.hpp>
 
-namespace boost { namespace geometry
-{
-
-
-namespace strategy { namespace expand { namespace services
-{
-
-/*!
-\brief Traits class binding a default envelope strategy to a coordinate system
-\ingroup util
-\tparam Tag tag of geometry
-\tparam CSTag tag of coordinate system
-\tparam CalculationType \tparam_calculation
-*/
-template <typename Tag, typename CSTag, typename CalculationType = void>
-struct default_strategy
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_TYPE
-            , (types<Tag, CSTag>)
-        );
-};
-
-}}} // namespace strategy::expand::services
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in the future.")
 
 
-namespace strategies { namespace expand { namespace services
-{
+#include <boost/geometry/strategy/expand.hpp>
 
-template
-<
-    typename Box,
-    typename Geometry,
-    typename CSTag = typename geometry::cs_tag<Geometry>::type
->
-struct default_strategy
-{
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
-        , (types<Box, Geometry, CSTag>)
-    );
-};
-
-template <typename Strategy>
-struct strategy_converter
-{
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
-        , (Strategy)
-    );
-};
-
-
-}}} // namespace strategies::expand::services
-
-
-}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_STRATEGIES_EXPAND_HPP
-

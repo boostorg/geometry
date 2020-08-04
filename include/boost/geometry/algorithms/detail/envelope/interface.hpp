@@ -35,8 +35,9 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/envelope.hpp>
-#include <boost/geometry/strategies2/base.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/envelope/services.hpp>
+#include <boost/geometry/strategy/envelope.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 

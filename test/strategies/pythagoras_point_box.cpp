@@ -52,7 +52,9 @@
 #endif
 
 // TEST
-#include <boost/geometry/strategies2/strategies2.hpp>
+#include <boost/geometry/strategies/cartesian.hpp>
+#include <boost/geometry/strategies/geographic.hpp>
+#include <boost/geometry/strategies/spherical.hpp>
 
 
 namespace bg = boost::geometry;

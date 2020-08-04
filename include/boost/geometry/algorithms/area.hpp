@@ -43,10 +43,12 @@
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
 
-#include <boost/geometry/strategies/area.hpp>
-#include <boost/geometry/strategies/area_result.hpp>
-#include <boost/geometry/strategies/default_area_result.hpp>
+#include <boost/geometry/algorithms/area_result.hpp>
+#include <boost/geometry/algorithms/default_area_result.hpp>
+
+#include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategy/area.hpp>
 
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
 

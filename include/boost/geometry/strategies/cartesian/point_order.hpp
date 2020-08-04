@@ -13,8 +13,8 @@
 
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/strategy/cartesian/area.hpp>
 #include <boost/geometry/strategies/point_order.hpp>
-#include <boost/geometry/strategies/cartesian/area.hpp>
 
 
 namespace boost { namespace geometry

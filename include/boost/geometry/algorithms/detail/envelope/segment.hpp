@@ -25,13 +25,8 @@
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
-// For backward compatibility
-#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
-
 // TEMP
-#include <boost/geometry/strategies2/base.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 
 namespace boost { namespace geometry
 {

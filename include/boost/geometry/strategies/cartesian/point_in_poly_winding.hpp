@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2016, 2017, 2018, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -22,6 +22,8 @@
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
+
+#include <boost/geometry/strategy/cartesian/expand_point.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>

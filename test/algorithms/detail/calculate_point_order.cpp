@@ -23,7 +23,9 @@
 #include <boost/geometry/strategies/spherical/point_order.hpp>
 
 //TEMP
-#include <boost/geometry/strategies2/area.hpp>
+#include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/area/spherical.hpp>
 
 
 inline const char * order_str(bg::order_selector o)

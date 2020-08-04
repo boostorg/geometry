@@ -35,8 +35,9 @@
 #include <boost/geometry/algorithms/dispatch/expand.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/expand.hpp>
-#include <boost/geometry/strategies2/base.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/expand/services.hpp>
+#include <boost/geometry/strategy/expand.hpp>
 
 
 namespace boost { namespace geometry

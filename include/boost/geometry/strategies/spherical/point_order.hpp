@@ -18,7 +18,7 @@
 
 #include <boost/geometry/formulas/spherical.hpp>
 
-#include <boost/geometry/strategies/spherical/area.hpp>
+#include <boost/geometry/strategy/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/point_order.hpp>
 

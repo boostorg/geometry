@@ -48,7 +48,8 @@
 #include "test_envelope_expand_on_spheroid.hpp"
 
 //TEMP
-#include <boost/geometry/strategies2/strategies2.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
 
 
 template <typename FormulaPolicy, typename CS_Tag>
