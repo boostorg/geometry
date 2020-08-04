@@ -307,13 +307,6 @@ static std::string const mysql_report_2015_07_05_1
 static std::string const mysql_report_2015_07_05_2
     = "MULTIPOLYGON(((19777 -21893,3.22595e+307 6.86823e+307,-40 -13,19777 -21893)),((-1322 4851,8.49998e+307 3.94481e+307,75 -69,8.64636e+307 3.94909e+307,-1.15292e+18 7.20576e+16,-1322 4851)))";
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) \
-    && defined(BOOST_GEOMETRY_USE_KRAMER_RULE) \
-    && ! defined(BOOST_GEOMETRY_TEST_FAILURES)
-// These testcases are failing for non-rescaled Kramer rule
-#define BOOST_GEOMETRY_EXCLUDE
-#endif
-
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -453,18 +446,14 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p19", rt_p19, join_miter, end_flat, 25.5637, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p20", rt_p20, join_miter, end_flat, 25.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p21", rt_p21, join_miter, end_flat, 17.1716, 1.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<multi_polygon_type, polygon_type>("rt_p22", rt_p22, join_miter, end_flat, 26.5711, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_q1", rt_q1, join_miter, end_flat, 27, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 26.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_q2", rt_q2, join_miter, end_flat, 0.9697, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_r", rt_r, join_miter, end_flat, 21.0761, 1.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<multi_polygon_type, polygon_type>("rt_s1", rt_s1, join_miter, end_flat, 20.4853, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_s2", rt_s2, join_miter, end_flat, 24.6495, 1.0);
 
@@ -543,7 +532,7 @@ int test_main(int, char* [])
 #endif
     
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 5);
+    BoostGeometryWriteExpectedFailures(1, 1);
 #endif
 
     return 0;
