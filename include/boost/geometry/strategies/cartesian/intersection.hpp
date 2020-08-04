@@ -371,6 +371,38 @@ struct cartesian_segments
         return unified<ratio_type>(sinfo, p, q, policy, modelled_range_p, modelled_range_q);
     }
 
+    //! Returns true if two segments do not overlap.
+    //! If not, then no further calculations need to be done.
+    template
+    <
+        std::size_t Dimension,
+        typename CoordinateType,
+        typename PointP,
+        typename PointQ
+    >
+    static inline bool disjoint_by_range(PointP const& p1, PointP const& p2,
+                                         PointQ const& q1, PointQ const& q2)
+    {
+        CoordinateType minp = get<Dimension>(p1);
+        CoordinateType maxp = get<Dimension>(p2);
+        CoordinateType minq = get<Dimension>(q1);
+        CoordinateType maxq = get<Dimension>(q2);
+        if (minp > maxp)
+        {
+            std::swap(minp, maxp);
+        }
+        if (minq > maxq)
+        {
+            std::swap(minq, maxq);
+        }
+
+        // In this case, max(p) < min(q)
+        //     P         Q
+        // <-------> <------->
+        // (and the space in between is not extremely small)
+        return math::smaller(maxp, minq) || math::smaller(maxq, minp);
+    }
+
     // Implementation for either rescaled or non rescaled versions.
     template
     <
@@ -411,6 +443,12 @@ struct cartesian_segments
                 ? Policy::degenerate(p, true)
                 : Policy::disjoint()
                 ;
+        }
+
+        if (disjoint_by_range<0, coordinate_type>(p1, p2, q1, q2)
+         || disjoint_by_range<1, coordinate_type>(p1, p2, q1, q2))
+        {
+            return Policy::disjoint();
         }
 
         side_info sides;
@@ -467,8 +505,8 @@ struct cartesian_segments
             {
                 // If this is the case, no rescaling is done for FP precision.
                 // We set it to collinear, but it indicates a robustness issue.
-                sides.set<0>(0,0);
-                sides.set<1>(0,0);
+                sides.set<0>(0, 0);
+                sides.set<1>(0, 0);
                 collinear = true;
             }
             else

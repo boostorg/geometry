@@ -281,9 +281,7 @@ void test_areal()
     TEST_UNION(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_19, 1, 1, -1, 73.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION(case_precision_20, 1, 0, -1, 22.0);
-#endif
     TEST_UNION(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION(case_precision_22, 1, 1, -1, 73.0);
     TEST_UNION(case_precision_23, 1, 1, -1, 73.0);
@@ -310,9 +308,7 @@ void test_areal()
     TEST_UNION_REV(case_precision_17, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_18, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_19, 1, 1, -1, 73.0);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     TEST_UNION_REV(case_precision_20, 1, 0, -1, 22.0);
-#endif
     TEST_UNION_REV(case_precision_21, 1, 0, -1, 22.0);
     TEST_UNION_REV(case_precision_22, 1, 1, -1, 73.0);
     TEST_UNION_REV(case_precision_23, 1, 1, -1, 73.0);
@@ -497,13 +493,10 @@ void test_areal()
                 1, 0, -1, 16.571);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g_rev", buffer_rt_g[1], buffer_rt_g[0],
                 1, 0, -1, 16.571);
-#if ! defined(BOOST_GEOMETRY_EXCLUDE)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i", buffer_rt_i[0], buffer_rt_i[1],
                 1, 0, -1, 13.6569);
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_i_rev", buffer_rt_i[1], buffer_rt_i[0],
                     1, 0, -1, 13.6569);
-
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j", buffer_rt_j[0], buffer_rt_j[1],
                 1, 0, -1, 16.5711);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_j_rev", buffer_rt_j[1], buffer_rt_j[0],
@@ -641,7 +634,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(3, 10);
+    BoostGeometryWriteExpectedFailures(3, 6);
 #endif
 
     return 0;
