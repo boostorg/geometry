@@ -20,6 +20,26 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.74]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/720 720] Additional R-tree constructors (thanks to Caian Benedicto).
+* Various improvements in buffer, set and relational operations
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/709 709] memcpy called for object with no trivial copy-assignment
+* [@https://github.com/boostorg/geometry/issues/721 721] Compilation error in bgi::detail::rtree::visitors::insert.
+* [@https://github.com/boostorg/geometry/issues/727 727] MSVC warning: conditional expression is constant.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/700 700] Missing cases for default strategies in distance algorithm.
+* [@https://github.com/boostorg/geometry/pull/738 738] Longitudes out of range in direct geodesic formulas.
+
+[/=================]
 [heading Boost 1.73]
 [/=================]
 
