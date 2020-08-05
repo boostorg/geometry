@@ -551,6 +551,124 @@ struct touch : public base_turn_handler
     }
 #endif
 
+    //! Returns the side of a point w.r.t. a range,
+    //! 1 if it is located left
+    //! -1 if it is located right
+    //! 0 if it is collinear
+    template <typename UniqueSubRange, typename Point, typename SideStrategy>
+    static inline int side_of_range(UniqueSubRange const& range,
+                                    Point const point,
+                                    SideStrategy const& side_strategy)
+    {
+        int const side01 = side_strategy.apply(range.at(0), range.at(1), point);
+        int const side12 = side_strategy.apply(range.at(1), range.at(2), point);
+        if (side01 == side12)
+        {
+            // Situation 1
+            // Both left, both right or both collinear
+            // (both collinear is possible:
+            //  - if the range is collinear, and the point is on top
+            //  - if the point is on at(1), so on the j-point (of i,j,k)
+            return side01;
+        }
+
+        // Situation 2                          Situation 3
+        // TURN LEFT -> points having R         TURN RIGHT -> points having L
+        //              are on right side                     are on left side
+        //
+        //  *(LR)                                          *(RL)
+        //
+        // <----+                                        +--->
+        //      |  *(RL)                          *(LR)  |
+        //      |                                        |
+        //
+
+        // Situation 4
+        // COLLINEAR
+        //
+        //            *(0R) (handled as in situation 2)
+        //
+        // <--*(L0)---*(00)      *(R0) (handled as in situation 2)
+        //            |
+        //            *(0L)
+        //            |
+
+        int const turn = side_strategy.apply(range.at(0), range.at(1), range.at(2));
+        if (turn == 0)
+        {
+            // Error! The point should either be left of both segments,
+            // or both right, or both collinear, all handled above.
+            // Unless there are FP errors
+            return turn;
+        }
+        if (turn == 1 && (side01 == -1 || side12 == -1))
+        {
+            // Situation 2: turn left, anything having right is on right
+            return -turn;
+        }
+        if (turn == -1 && (side01 == 1 || side12 == 1))
+        {
+            // Situation 3: turn right, anything having left is on left
+            return -turn;
+        }
+        if (side01 == 0 || side12 == 0)
+        {
+            // Situation 4: turn left, anything collinear is collinear
+            return 0;
+        }
+        return 0;
+
+    }
+
+    template
+    <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename SideStrategy
+    >
+    static inline bool is_ii(UniqueSubRange1 const& range_p,
+            UniqueSubRange2 const& range_q, SideStrategy const& strategy)
+    {
+        // P turns right and Q turns left (pk/p != qk/q)
+        // (Q should turn left - the opposite case doesn't work)
+        //
+        //                 V P(i)
+        //                  \            | The segments touch and should create
+        //                   \           | an ii situation
+        //          #         \          | Polygons are on the right side, so
+        //                     \         | # is polygon P, * is polygon Q
+        //  P(k)                \        | Therefore ii should be created
+        //  <--------------------+
+        //                      /|
+        //                     / |
+        //              *     /  |   *
+        //                   /   |
+        //                  /    |
+        //            Q(k) /     | Q(i)
+        //                v      ^
+        //
+
+        // Precondition: Q turns left and P turns right
+        int const side_pi = side_of_range(range_q, range_p.at(0), strategy);
+        int const side_pk = side_of_range(range_q, range_p.at(2), strategy);
+        if (side_pi != side_pk)
+        {
+            // P should be completely at one side of Q
+            return false;
+        }
+        int const side_qi = side_of_range(range_p, range_q.at(0), strategy);
+        if (side_pi == side_qi)
+        {
+            // P and Q should be at opposite sides from each other
+            return false;
+        }
+
+        int const side_qk = side_of_range(range_p, range_q.at(2), strategy);
+
+        // Q should be completely at one side of P
+        return side_qi == side_qk;
+    }
+
     template
     <
         typename UniqueSubRange1,
@@ -639,6 +757,15 @@ struct touch : public base_turn_handler
                     {
                         ti.operations[1].operation = operation_blocked;
                     }
+                    return;
+                }
+
+                if (q_turns_left
+                    && has_pk && has_qk && opposite(side_pk_p, side_qk_q)
+                    && is_ii(range_p, range_q, umbrella_strategy.get_side_strategy()))
+                {
+                    both(ti, operation_intersection);
+                    ti.touch_only = true;
                     return;
                 }
 
