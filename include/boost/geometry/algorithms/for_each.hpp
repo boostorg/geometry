@@ -5,10 +5,11 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -25,6 +26,7 @@
 
 #include <boost/range.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
@@ -94,31 +96,76 @@ struct fe_range_per_point
 };
 
 
+template
+<
+    typename Range,
+    typename Point = typename add_const_if_c
+        <
+            boost::is_const<Range>::value,
+            typename point_type<Range>::type
+        >::type,
+    bool UseReferences =
+        ( boost::is_const<Range>::value
+       || boost::is_same
+            <
+                typename boost::range_reference<Range>::type,
+                Point&
+            >::value )
+>
+struct fe_range_per_segment_call_f
+{
+    template <typename Iterator, typename Functor>
+    static inline void apply(Iterator it0, Iterator it1, Functor& f)
+    {
+        // Implementation for real references (both const and mutable)
+        // and const proxy references.
+        // If const proxy references are returned by iterators
+        // then const real references here prevents temporary
+        // objects from being destroyed.
+        Point& p0 = *it0;
+        Point& p1 = *it1;
+        model::referring_segment<Point> s(p0, p1);
+        f(s);
+    }
+};
+
+template <typename Range, typename Point>
+struct fe_range_per_segment_call_f<Range, Point, false>
+{
+    template <typename Iterator, typename Functor>
+    static inline void apply(Iterator it0, Iterator it1, Functor& f)
+    {
+        // Mutable proxy references returned by iterators.
+        // Temporary points have to be created and assigned afterwards.
+        Point p0 = *it0;
+        Point p1 = *it1;
+        model::referring_segment<Point> s(p0, p1);
+        f(s);
+        *it0 = p0;
+        *it1 = p1;
+    }
+};
+
+
 template <closure_selector Closure>
 struct fe_range_per_segment_with_closure
 {
     template <typename Range, typename Functor>
     static inline void apply(Range& range, Functor& f)
     {
-        typedef typename add_const_if_c
-            <
-                is_const<Range>::value,
-                typename point_type<Range>::type
-            >::type point_type;
-
         typedef typename boost::range_iterator<Range>::type iterator_type;
 
         iterator_type it = boost::begin(range);
-        if (it == boost::end(range))
+        iterator_type end = boost::end(range);
+        if (it == end)
         {
             return;
         }
 
         iterator_type previous = it++;
-        while(it != boost::end(range))
+        while(it != end)
         {
-            model::referring_segment<point_type> s(*previous, *it);
-            f(s);
+            fe_range_per_segment_call_f<Range>::apply(previous, it, f);
             previous = it++;
         }
     }
@@ -130,19 +177,18 @@ struct fe_range_per_segment_with_closure<open>
 {
     template <typename Range, typename Functor>
     static inline void apply(Range& range, Functor& f)
-    {    
+    {
         fe_range_per_segment_with_closure<closed>::apply(range, f);
 
-        model::referring_segment
-            <
-                typename add_const_if_c
-                    <
-                        is_const<Range>::value,
-                        typename point_type<Range>::type
-                    >::type
-            > s(range::back(range), range::front(range));
+        typedef typename boost::range_iterator<Range>::type iterator_type;
+        iterator_type begin = boost::begin(range);
+        iterator_type end = boost::end(range);
+        if (begin == end)
+        {
+            return;
+        }
 
-        f(s);
+        fe_range_per_segment_call_f<Range>::apply(--end, begin, f);
     }
 };
 
