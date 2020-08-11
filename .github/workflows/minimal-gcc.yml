@@ -20,7 +20,6 @@ jobs:
       fail-fast: false
       matrix:
         b2_toolset: [
-#          gcc-4.8,
           gcc-4.9,
           gcc-5,
           gcc-6,
@@ -30,32 +29,22 @@ jobs:
         ]
 
         include:
-#          - b2_toolset: gcc-4.8
-#            b2_cxxstd: 03,11
-#            b2_cxxstd: 14
-#            version: "4.8"
           - b2_toolset: gcc-4.9
-#            b2_cxxstd: 03,11
             b2_cxxstd: 14
             version: "4.9"
           - b2_toolset: gcc-5
-#            b2_cxxstd: 03,11,14
             b2_cxxstd: 14
             version: "5"
           - b2_toolset: gcc-6
-#            b2_cxxstd: 03,11,14
             b2_cxxstd: 14
             version: "6"
           - b2_toolset: gcc-7
-#            b2_cxxstd: 03,11,14,17
             b2_cxxstd: 14,17
             version: "7"
           - b2_toolset: gcc-8
-#            b2_cxxstd: 03,11,14,17
             b2_cxxstd: 14,17
             version: "8"
           - b2_toolset: gcc-9
-#            b2_cxxstd: 03,11,14,17,2a
             b2_cxxstd: 14,17,2a
             version: "9"
 
