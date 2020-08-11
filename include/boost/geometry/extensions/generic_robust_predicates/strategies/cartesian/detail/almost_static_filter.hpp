@@ -28,7 +28,7 @@ template <typename Filter, std::size_t N, std::size_t End>
 struct make_filter_impl
 {
     template <typename ExtremaArray, typename ...Reals>
-    static Filter apply(const ExtremaArray& extrema, const Reals&... args)
+    static Filter apply(ExtremaArray const& extrema, Reals const&... args)
     {
         return make_filter_impl<Filter, N + 1, End>
             ::apply(extrema, args..., extrema[N]);
@@ -39,12 +39,26 @@ template <typename Filter, std::size_t End>
 struct make_filter_impl<Filter, End, End>
 {
     template <typename ExtremaArray, typename ...Reals>
-    static Filter apply(const ExtremaArray& extrema, const Reals&... args)
+    static Filter apply(ExtremaArray const& extrema, Reals const&... args)
     {
         Filter f(args...);
         return f;
     }
 };
+
+//The almost static filter holds an instance of a static filter and applies it
+//when it is called. Its static filter can be updated and applied like this:
+//
+//almost_static_filter<...> f;
+//
+//f.update(max1, max2, ..., min1, min2, ...);
+//
+//f.apply(arg1, arg2, ...);
+//
+//Unlike with the static filter, global bounds do not need to be known at
+//construction time and with incremental algorithms where inputs with higher
+//magnitude are added later, the earlier applications of the filter may benefit
+//from more optimistic error bounds.
 
 template
 <
@@ -72,13 +86,13 @@ public:
                   std::numeric_limits<ct>::infinity());
     }
     template <typename ...Reals>
-    int apply(const Reals&... args) const
+    int apply(Reals const&... args) const
     {
         return m_filter.apply(args...);
     }
 
     template <typename ...Reals>
-    inline void update_extrema(const Reals&... args)
+    inline void update_extrema(Reals const&... args)
     {
         std::array<ct, sizeof...(Reals)> input {{ static_cast<ct>(args)... }};
         for(int i = 0; i < m_extrema.size() / 2; ++i)
@@ -92,7 +106,7 @@ public:
     }
 
     template <typename ...Reals>
-    inline bool update_extrema_check(const Reals&... args)
+    inline bool update_extrema_check(Reals const&... args)
     {
         bool changed = false;
         std::array<ct, sizeof...(Reals)> input {{ static_cast<ct>(args)... }};

@@ -31,6 +31,9 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//The following templates apply the ideas implemented in error_bound.hpp and
+//interval_error_bound.hpp to generate error expressions from expressions.
+
 template <typename Expression, typename CalculationType>
 struct stage_a_error_bound_impl
 {

@@ -25,6 +25,18 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//The templates in this file are helpers for the computation of error maps and
+//error expressions (see also error_bound.hpp). A coefficient list is a
+//boost::mp11::mp_list that contains integers that represent the coefficients
+//of an polynomial. This is used for the polynomials in epsilon that occur in
+//forward error analysis, e.g. epsilon + 2 * epsilon^2 + epsilon^3 would be
+//represented by the type mp_list<mp_int<1>, mp_int<2>, mp_int<1>>.
+//
+//See p. 39 in "Adaptive Precision Floating-Point Arithmetic and Fast Robust
+//Geometric Predicates" by Jonathan Richard Shewchuk (can be downloaded from
+//https://www.cs.cmu.edu/~quake/robust.html) for the inspiration for the
+//methods implemented below.
+
 //only meant to be used in assertions
 template <typename T> using is_mp_int =
     boost::mp11::mp_same<T, boost::mp11::mp_int<T::value>>;
@@ -68,12 +80,21 @@ public:
     static_assert(is_coeff_list<L>::value, "type should be a coefficient list");
 };
 
+//Because of the way floating-point numbers are rounded, for a given epsilon
+//polynomial we only care about the first two non-zero coefficients.
+//e.g. if a*eps + b*eps^2 + c*eps^3 is considered then c * eps^3 is always
+//neglible unless c is so large that it must have resulted from the analysis
+//of an expression that is so complex that it cannot be feasibly processed
+//by the methods implemented in this feature.
 template <typename L> using coeff_truncate = typename coeff_truncate_impl<L>::type;
 
 template <typename L> using app_zero_b =
     boost::mp11::mp_push_front<L, boost::mp11::mp_int<0>>;
 template <typename L> using app_zero_f =
     boost::mp11::mp_push_back<L, boost::mp11::mp_int<0>>;
+
+//For a coefficient list representing the polynomial p, the following template
+//produces the coefficient list representing p * (1 + eps).
 template <typename L> using mult_by_1_p_eps = coeff_truncate
         <
             boost::mp11::mp_transform
@@ -110,6 +131,9 @@ public:
     using type = L;
 };
 
+
+//For a coefficient list representing the polynomial p, the following template
+//produces the cofficient list representing p * (1 + eps)^N
 template <typename L, typename N> using mult_by_1_p_eps_pow = coeff_truncate
         <
             typename mult_by_1_p_eps_pow_impl<L, N>::type
@@ -123,6 +147,9 @@ template <typename L> using div_by_1_m_eps_helper =
             boost::mp11::mp_plus
         >;
 
+//For a coefficient list representing a polynomial p in eps, the following
+//template computes a coefficient list representing a polynomial q such that
+//q * (1 - p) >= p.
 template <typename L> using div_by_1_m_eps = coeff_truncate
     <
         boost::mp11::mp_push_back
@@ -406,6 +433,11 @@ struct coeff_round_impl<L, 0> { using type = L; };
 template <typename L>
 struct coeff_round_impl<L, 1> { using type = L; };
 
+//The following template rounds a coefficient list up such that the
+//corresponding polynomial evaluated for epsilon is a representable
+//floating-point number.
+//
+//e.g. 3 * eps + 12 * eps^2 + 1 * eps^3 is rounded to 3 * eps + 16 * eps^2
 template <typename L> using coeff_round = typename coeff_round_impl<L>::type;
 
 template <typename IV1, typename IV2> using indexed_value_product =

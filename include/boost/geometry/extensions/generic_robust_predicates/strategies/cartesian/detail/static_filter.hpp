@@ -27,6 +27,16 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//The static filter works similar to the semi static filter with the exception
+//that the error bound is only computed once at construction time. For this
+//purpose, the filter is stateful and it requires upper and lower bounds on the
+//inputs at compile time like this:
+//
+//static_filter<...> f(max1, max2, ..., min1, min2, ...);
+//
+//for each call to the filter, i.e. f.apply(arg1, arg2, ...); it must hold that
+//min1 <= arg1 <= max1 and so on.
+
 template
 <
     typename Expression,
@@ -50,7 +60,7 @@ public:
     ct error_bound() const { return m_error_bound; }
 
     template <typename ...Reals>
-    inline static_filter(const Reals&... args)
+    inline static_filter(Reals const&... args)
         : m_error_bound(approximate_value<ErrorExpression, ct>(
                 std::array<ct, sizeof...(Reals)>
                     {static_cast<ct>(args)...}))
@@ -60,7 +70,7 @@ public:
     }
 
     template <typename ...Reals>
-    inline int apply(const Reals&... args) const
+    inline int apply(Reals const&... args) const
     {
         std::array<ct, sizeof...(Reals)> input {static_cast<ct>(args)...};
         std::array<ct, boost::mp11::mp_size<evals>::value> results;
@@ -85,7 +95,7 @@ public:
     }
 
     template <typename ...Reals>
-    inline int operator()(const Reals&... args) const
+    inline int operator()(Reals const&... args) const
     {
         return apply(args...);
     }

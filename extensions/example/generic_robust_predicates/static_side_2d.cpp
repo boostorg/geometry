@@ -56,7 +56,7 @@ public:
                                   bg::get<1>(p2),
                                   bg::get<0>(p),
                                   bg::get<1>(p));
-        if(sign != bg::detail::generic_robust_predicates::sign_uncertain)
+        if (sign != bg::detail::generic_robust_predicates::sign_uncertain)
         {
             return sign;
         }
@@ -68,7 +68,7 @@ public:
     }
 };
 
-int main(int argc, char** argv)
+int main()
 {
     point p1(0.0, 0.0);
     point p2(1.0, 1.0);

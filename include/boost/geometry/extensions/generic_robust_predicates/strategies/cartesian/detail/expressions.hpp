@@ -32,10 +32,10 @@ using det2x2 = difference
     >;
 
 using orient2d = det2x2
-        <
-            difference <_1, _5>, difference<_2, _6>,
-            difference <_3, _5>, difference<_4, _6>
-        >;
+    <
+        difference <_1, _5>, difference<_2, _6>,
+        difference <_3, _5>, difference<_4, _6>
+    >;
 
 template
 <

@@ -25,6 +25,19 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//The templates in this file are designed to represent arithmetic expressions
+//In the type system so that they can be processed at compile-time for the
+//automatic creation of floating-point filters.
+//
+//E.g. the arithmetic expression a * b + c can be represented by the type
+//
+//sum< product < argument<1>, argument<2> >, argument<3> >
+//
+//The arguments represent the input variables and are the leaves of the
+//expression tree (other possible leaves are constants). Because they represent
+//placeholders their indexing is one-based rather than zero-based, similar to
+//the placeholders for std::bind.
+
 enum class operator_types {
     sum, difference, product, abs, no_op, max, min
 };
@@ -143,6 +156,12 @@ struct static_constant_interface : public leaf
 
 template <typename Node>
 using is_leaf = boost::mp11::mp_bool<Node::is_leaf>;
+
+//post_order_impl and post_order are templates for compile-time traversion of
+//expression trees. The post_order traversal was chosen because it guarantees
+//that children (subexpressions) are evaluated before there parents as is
+//necessary for the evaluation of the arithmetic expressions that these
+//expression trees represent.
 
 template
 <

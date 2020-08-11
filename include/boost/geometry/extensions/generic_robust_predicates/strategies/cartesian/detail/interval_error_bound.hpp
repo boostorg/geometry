@@ -20,6 +20,13 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//This file contains methods to manipulate expression trees based on the ideas
+//found in https://en.wikipedia.org/wiki/Interval_arithmetic. The purpose of
+//this is to transform error expressions for semi-static filters, i.e. error
+//expressions that compute error bounds for specific inputs, to error
+//expressions for static filters that compute error bounds for upper and lower
+//bounds on input values.
+
 template <typename Expression, std::size_t max_argn>
 struct interval_min_impl
 {

@@ -26,6 +26,24 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
+//The templates in this file are utilities for the generation of error
+//expressions for given arithmetic expressions. This is done using forward
+//error analysis methods at compile time. This analysis produces an error map
+//that is folded into an error expression.
+//
+//An Error Map is a template fulfilling the boost::mp11 map concept. The keys K
+//are expressions (as in expression trees and the values V are lists of
+//integers. Each key-value pair represents the contribution of an error term to
+//the total error, i.e. the error expression is something like the sum of
+//abs<K> * (V[0] * epsilon + V[1] * epsilon^2 + ...)
+//
+//over all key-value pairs KV in the error map.
+//
+//See p. 39 in "Adaptive Precision Floating-Point Arithmetic and Fast Robust
+//Geometric Predicates" by Jonathan Richard Shewchuk (can be downloaded from
+//https://www.cs.cmu.edu/~quake/robust.html) for the inspiration for the
+//methods implemented below.
+
 template <typename KV> using second_is_coeff_list =
     is_coeff_list< boost::mp11::mp_second<KV> >;
 
