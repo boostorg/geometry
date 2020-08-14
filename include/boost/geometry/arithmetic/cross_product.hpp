@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -50,7 +50,7 @@ template <>
 struct cross_product<2>
 {
     template <typename P1, typename P2, typename ResultP>
-    static inline void apply(P1 const& p1, P2 const& p2, ResultP& result)
+    static void apply(P1 const& p1, P2 const& p2, ResultP& result)
     {
         assert_dimension<P1, 2>();
         assert_dimension<P2, 2>();
@@ -67,7 +67,7 @@ template <>
 struct cross_product<3>
 {
     template <typename P1, typename P2, typename ResultP>
-    static inline void apply(P1 const& p1, P2 const& p2, ResultP& result)
+    static void apply(P1 const& p1, P2 const& p2, ResultP& result)
     {
         assert_dimension<P1, 3>();
         assert_dimension<P2, 3>();
@@ -76,6 +76,18 @@ struct cross_product<3>
         set<0>(result, get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2));
         set<1>(result, get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2));
         set<2>(result, get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
+    }
+
+    template <typename ResultP, typename P1, typename P2>
+    static constexpr ResultP apply(P1 const& p1, P2 const& p2)
+    {
+        assert_dimension<P1, 3>();
+        assert_dimension<P2, 3>();
+        assert_dimension<ResultP, 3>();
+
+        return ResultP(get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2),
+                       get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2),
+                       get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
     }
 };
 
@@ -92,7 +104,23 @@ struct cross_product<3>
 \return the cross product vector
 
 */
-template <typename ResultP, typename P1, typename P2>
+
+template
+<
+    typename ResultP, typename P1, typename P2,
+    std::enable_if_t
+        <
+            dimension<ResultP>::value != 3
+         || ! std::is_constructible
+                <
+                    ResultP,
+                    typename coordinate_type<ResultP>::type const&,
+                    typename coordinate_type<ResultP>::type const&,
+                    typename coordinate_type<ResultP>::type const&
+                >::value,
+            int
+        > = 0
+>
 inline ResultP cross_product(P1 const& p1, P2 const& p2)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<ResultP>) );
@@ -102,6 +130,31 @@ inline ResultP cross_product(P1 const& p1, P2 const& p2)
     ResultP result;
     detail::cross_product<dimension<ResultP>::value>::apply(p1, p2, result);
     return result;
+}
+
+template
+<
+    typename ResultP, typename P1, typename P2,
+    std::enable_if_t
+        <
+            dimension<ResultP>::value == 3
+         && std::is_constructible
+                <
+                    ResultP,
+                    typename coordinate_type<ResultP>::type const&,
+                    typename coordinate_type<ResultP>::type const&,
+                    typename coordinate_type<ResultP>::type const&
+                >::value,
+            int
+        > = 0
+>
+constexpr inline ResultP cross_product(P1 const& p1, P2 const& p2)
+{
+    BOOST_CONCEPT_ASSERT((concepts::Point<ResultP>));
+    BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P1>));
+    BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P2>));
+
+    return detail::cross_product<3>::apply<ResultP>(p1, p2);
 }
 
 /*!
@@ -115,7 +168,22 @@ inline ResultP cross_product(P1 const& p1, P2 const& p2)
 \qbk{[heading Examples]}
 \qbk{[cross_product] [cross_product_output]}
 */
-template <typename P>
+template
+<
+    typename P,
+    std::enable_if_t
+        <
+            dimension<P>::value != 3
+         || ! std::is_constructible
+                <
+                    P,
+                    typename coordinate_type<P>::type const&,
+                    typename coordinate_type<P>::type const&,
+                    typename coordinate_type<P>::type const&
+                >::value,
+            int
+        > = 0
+>
 inline P cross_product(P const& p1, P const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<P>));
@@ -124,6 +192,31 @@ inline P cross_product(P const& p1, P const& p2)
     P result;
     detail::cross_product<dimension<P>::value>::apply(p1, p2, result);
     return result;
+}
+
+
+template
+<
+    typename P,
+    std::enable_if_t
+        <
+            dimension<P>::value == 3
+         && std::is_constructible
+                <
+                    P,
+                    typename coordinate_type<P>::type const&,
+                    typename coordinate_type<P>::type const&,
+                    typename coordinate_type<P>::type const&
+                >::value,
+            int
+        > = 0
+>
+constexpr inline P cross_product(P const& p1, P const& p2)
+{
+    BOOST_CONCEPT_ASSERT((concepts::Point<P>));
+    BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P>));
+
+    return detail::cross_product<3>::apply<P>(p1, p2);
 }
 
 
