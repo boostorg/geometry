@@ -33,6 +33,31 @@ The Point Concept is defined as following:
 	* `get` to get a coordinate value
 	* `set` to set a coordinate value (this one is not checked for ConstPoint)
 	
+[heading Example]
+
+While you can `#include boost/geometry/geometries/adapted/std_array.hpp` to use `std::array<T, D>` to model the Point concept,
+the following code spells it out in detail, as you might use for your own point types:
+```
+namespace boost { namespace geometry { namespace traits
+{
+
+template <typename T, std::size_t D> struct tag<std::array<T, D>> { using type = point_tag; };
+template <typename T, std::size_t D> struct dimension<std::array<T, D>> : boost::mpl::int_<D> {};
+template <typename T, std::size_t D> struct coordinate_type<std::array<T, D>> { using type = T; };
+template <typename T, std::size_t D> struct coordinate_system<std::array<T, D>> { using type = boost::geometry::cs::cartesian; };
+
+template <typename T, std::size_t D, std::size_t Index>
+struct access<std::array<T, D>, Index> {
+    static_assert(Index < D, "Out of range");
+    using Point = std::array<T, D>;
+    using CoordinateType = typename coordinate_type<Point>::type;
+    static inline CoordinateType get(Point const& p) { return p[Index]; }
+    static inline void set(Point& p, CoordinateType const& value) { p[Index] = value; }
+};
+
+}}} // namespace boost::geometry::traits
+```
+
 [heading Available Models]	
 * [link geometry.reference.models.model_point model::point]
 * [link geometry.reference.models.model_d2_point_xy model::d2::point_xy]
