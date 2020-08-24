@@ -91,7 +91,7 @@ struct dimension
 \ingroup utility
 */
 template <typename Geometry, int Dimensions>
-inline void assert_dimension()
+constexpr inline void assert_dimension()
 {
     BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::value) == Dimensions ));
 }
@@ -101,13 +101,13 @@ inline void assert_dimension()
 \ingroup utility
 */
 template <typename Geometry, int Dimensions>
-inline void assert_dimension_less_equal()
+constexpr inline void assert_dimension_less_equal()
 {
     BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) <= Dimensions ));
 }
 
 template <typename Geometry, int Dimensions>
-inline void assert_dimension_greater_equal()
+constexpr inline void assert_dimension_greater_equal()
 {
     BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::type::value) >= Dimensions ));
 }
@@ -117,7 +117,7 @@ inline void assert_dimension_greater_equal()
 \ingroup utility
 */
 template <typename G1, typename G2>
-inline void assert_dimension_equal()
+constexpr inline void assert_dimension_equal()
 {
     BOOST_STATIC_ASSERT(( static_cast<size_t>(dimension<G1>::type::value) == static_cast<size_t>(dimension<G2>::type::value) ));
 }
