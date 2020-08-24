@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -34,7 +34,6 @@
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>

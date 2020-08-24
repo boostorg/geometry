@@ -133,6 +133,14 @@ void test_all()
             true
         );
 
+    // Ring-Ring
+    test_touches<ring, ring>
+        (
+            "POLYGON((0 0,0 100,100 100,100 0,0 0))",
+            "POLYGON((100 100,100 200,200 200, 200 100,100 100))",
+            true
+        );
+
     // Point-Polygon
     test_touches<P, ring>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);
     test_touches<P, polygon>("POINT(40 50)", "POLYGON((40 40,40 60,60 60,60 40,40 40))", true);

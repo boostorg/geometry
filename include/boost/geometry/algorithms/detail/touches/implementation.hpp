@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2019.
-// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -199,51 +199,30 @@ struct areal_interrupt_policy
     }
 };
 
-template<typename Geometry, typename PointInRingStrategy>
-struct check_each_ring_for_within
+template <typename Geometry1, typename Geometry2, typename Strategy>
+inline bool point_on_border_within(Geometry1 const& geometry1,
+                                   Geometry2 const& geometry2,
+                                   Strategy const& strategy)
 {
-    bool has_within;
-    Geometry const& m_geometry;
-    PointInRingStrategy const& m_strategy;
-
-    inline check_each_ring_for_within(Geometry const& g, PointInRingStrategy const& strategy)
-        : has_within(false)
-        , m_geometry(g)
-        , m_strategy(strategy)
-    {}
-
-    template <typename Range>
-    inline void apply(Range const& range)
-    {
-        typename geometry::point_type<Range>::type p;
-        geometry::point_on_border(p, range);
-        if ( !has_within && geometry::within(p, m_geometry, m_strategy) )
-        {
-            has_within = true;
-        }
-    }
-};
+    typename geometry::point_type<Geometry1>::type pt;
+    return geometry::point_on_border(pt, geometry1)
+        && geometry::within(pt, geometry2, strategy);
+}
 
 template <typename FirstGeometry, typename SecondGeometry, typename IntersectionStrategy>
 inline bool rings_containing(FirstGeometry const& geometry1,
                              SecondGeometry const& geometry2,
                              IntersectionStrategy const& strategy)
 {
-    // NOTE: This strategy could be defined inside IntersectionStrategy
-    typedef typename IntersectionStrategy::template point_in_geometry_strategy
-        <
-            FirstGeometry, SecondGeometry
-        >::type point_in_ring_strategy_type;
-
-    point_in_ring_strategy_type point_in_ring_strategy
+    // TODO: This will be removed when IntersectionStrategy is replaced with
+    //       UmbrellaStrategy
+    auto const point_in_ring_strategy
         = strategy.template get_point_in_geometry_strategy<FirstGeometry, SecondGeometry>();
 
-    check_each_ring_for_within
-        <
-            FirstGeometry, point_in_ring_strategy_type
-        > checker(geometry1, point_in_ring_strategy);
-    geometry::detail::for_each_range(geometry2, checker);
-    return checker.has_within;
+    return geometry::detail::any_range_of(geometry2, [&](auto const& range)
+    {
+        return point_on_border_within(range, geometry1, point_in_ring_strategy);
+    });
 }
 
 template <typename Geometry1, typename Geometry2>
