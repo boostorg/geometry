@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// Copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -214,7 +217,7 @@ struct checker<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const>
     \ingroup concepts
 */
 template <typename Geometry>
-inline void check()
+constexpr inline void check()
 {
     detail::checker<Geometry> c;
     boost::ignore_unused(c);
@@ -227,7 +230,7 @@ inline void check()
     \ingroup concepts
 */
 template <typename Geometry1, typename Geometry2>
-inline void check_concepts_and_equal_dimensions()
+constexpr inline void check_concepts_and_equal_dimensions()
 {
     check<Geometry1>();
     check<Geometry2>();
