@@ -249,6 +249,21 @@ struct max_argn_impl<Node, boost::mp11::mp_true>
     using type = boost::mp11::mp_size_t<Node::argn>;
 };
 
+template <typename Node, typename IsLeaf = is_leaf<Node>>
+struct is_static_constant_impl
+{
+    using type = boost::mp11::mp_false;   
+};
+  
+template <typename Node>
+struct is_static_constant_impl<Node, boost::mp11::mp_true>
+{
+    using type = boost::mp11::mp_bool<Node::argn == 0>;
+};
+        
+template <typename Node>
+using is_static_constant = typename is_static_constant_impl<Node>::type;
+
 using  _1 = argument<1>;
 using  _2 = argument<2>;
 using  _3 = argument<3>;

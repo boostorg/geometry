@@ -33,6 +33,7 @@ void test_all()
     using bg::detail::generic_robust_predicates::approximate_value;
     using bg::detail::generic_robust_predicates::get_approx;
     using bg::detail::generic_robust_predicates::approximate_interim;
+    using bg::detail::generic_robust_predicates::argument_list;
     using ct = CalculationType;
     ct r1 = approximate_value<sum<_1, _2>, ct>(
             std::array<ct, 2>{1.0, 2.0});
@@ -47,14 +48,16 @@ void test_all()
             difference<_3, _4>
         >;
     using evals = post_order<expression>;
+    using arg_list_input = argument_list<4>;
+    using arg_list = boost::mp11::mp_list<evals, arg_list_input>;
     std::array<ct, boost::mp11::mp_size<evals>::value> r;
     std::array<ct, 4> input {5.0, 3.0, 2.0, 8.0};
-    approximate_interim<evals, evals, ct>(r, input);
-    ct r3 = get_approx<evals, typename expression::left, ct>(r, input);
+    approximate_interim<evals, arg_list, ct>(r, input);
+    ct r3 = get_approx<typename expression::left, arg_list, ct>(r, input);
     BOOST_CHECK_EQUAL(2.0, r3);
-    ct r4 = get_approx<evals, typename expression::right, ct>(r, input);
+    ct r4 = get_approx<typename expression::right, arg_list, ct>(r, input);
     BOOST_CHECK_EQUAL(-6.0, r4);
-    ct r5 = get_approx<evals, expression, ct>(r, input);
+    ct r5 = get_approx<expression, arg_list, ct>(r, input);
     BOOST_CHECK_EQUAL(-12.0, r5);
 }
 

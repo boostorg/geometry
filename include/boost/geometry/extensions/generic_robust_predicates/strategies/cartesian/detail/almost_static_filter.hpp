@@ -75,6 +75,7 @@ private:
     extrema_array m_extrema;
     StaticFilter m_filter;
 public:
+    static constexpr std::size_t arg_count = StaticFilter::arg_count;
     const StaticFilter& filter() const { return m_filter; }
     inline almost_static_filter()
     {

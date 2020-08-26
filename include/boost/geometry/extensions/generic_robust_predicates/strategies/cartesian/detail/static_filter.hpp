@@ -16,10 +16,10 @@
 
 #include <boost/mp11/list.hpp>
 #include <boost/mp11/algorithm.hpp>
-#include <boost/mp11/map.hpp>
-#include <boost/mp11/set.hpp>
 
-#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/stage_a.hpp>
+#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/expression_tree.hpp>
+#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/approximate.hpp>
+#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/result_propagation.hpp>
 
 namespace boost { namespace geometry
 {
@@ -54,28 +54,39 @@ private:
             post_order<ErrorExpression>
         >;
     ct m_error_bound;
+    static constexpr std::size_t extrema_count =
+        max_argn<ErrorExpression>::value;
 public:
+    static constexpr std::size_t arg_count = max_argn<Expression>::value;
+
     inline static_filter() {}
 
     ct error_bound() const { return m_error_bound; }
 
     template <typename ...Reals>
-    inline static_filter(Reals const&... args)
+    inline static_filter(const Reals&... args)
         : m_error_bound(approximate_value<ErrorExpression, ct>(
-                std::array<ct, sizeof...(Reals)>
+                std::array<ct, extrema_count>
                     {static_cast<ct>(args)...}))
     {
-        static_assert(sizeof...(Reals) == max_argn<ErrorExpression>::value,
+        static_assert(sizeof...(Reals) == extrema_count,
                       "Number of constructor arguments is incompatible with error expression.");
     }
 
+    inline static_filter(const std::array<ct, extrema_count>& extrema)
+        : m_error_bound(approximate_value<ErrorExpression, ct>(extrema)) {}
+
+    inline static_filter(const ct& b) : m_error_bound(b) {}
+
     template <typename ...Reals>
-    inline int apply(Reals const&... args) const
+    inline int apply(const Reals&... args) const
     {
+        using arg_list_input = argument_list<sizeof...(Reals)>;
+        using arg_list = boost::mp11::mp_list<evals, arg_list_input>;
         std::array<ct, sizeof...(Reals)> input {static_cast<ct>(args)...};
         std::array<ct, boost::mp11::mp_size<evals>::value> results;
-        approximate_interim<evals, evals, ct>(results, input);
-        const ct det = get_approx<evals, Expression, ct>(results, input);
+        approximate_interim<evals, arg_list, ct>(results, input);
+        const ct det = get_approx<Expression, arg_list, ct>(results, input);
         if (det > m_error_bound)
         {
             return 1;
