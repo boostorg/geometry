@@ -62,12 +62,21 @@ struct hull_insert
     // of output-iterator-type, from hull_to_geometry)
     template <typename Geometry, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry const& geometry,
-            OutputIterator out, Strategy const& strategy)
+                                       OutputIterator out,
+                                       Strategy const& strategy)
     {
-        typename Strategy::state_type state;
+        typedef typename strategy::convex_hull::graham_andrew
+            <
+                Geometry,
+                typename point_type<Geometry>::type
+            > ConvexHullAlgorithm;
 
-        strategy.apply(geometry, state);
-        strategy.result(state, out, Order == clockwise, Closure != open);
+        ConvexHullAlgorithm algorithm;
+        typename ConvexHullAlgorithm::state_type state;
+
+        algorithm.apply(geometry, state, strategy);
+        algorithm.result(state, out, Order == clockwise, Closure != open);
+
         return out;
     }
 };
@@ -114,8 +123,9 @@ template <typename Box>
 struct convex_hull<Box, box_tag>
 {
     template <typename OutputGeometry, typename Strategy>
-    static inline void apply(Box const& box, OutputGeometry& out,
-            Strategy const& )
+    static inline void apply(Box const& box,
+                             OutputGeometry& out,
+                             Strategy const& )
     {
         static bool const Close
             = geometry::closure<OutputGeometry>::value == closed;
@@ -154,7 +164,7 @@ struct convex_hull
                              OutputGeometry& out,
                              Strategy const& strategy)
     {
-        BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
+        //BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
         dispatch::convex_hull<Geometry>::apply(geometry, out, strategy);
     }
 
@@ -163,10 +173,10 @@ struct convex_hull
                              OutputGeometry& out,
                              default_strategy)
     {
-        typedef typename strategy_convex_hull<
-            Geometry,
-            typename point_type<Geometry>::type
-        >::type strategy_type;
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<Geometry>::type
+            >::type strategy_type;
 
         apply(geometry, out, strategy_type());
     }
@@ -179,7 +189,7 @@ struct convex_hull_insert
                                        OutputIterator& out,
                                        Strategy const& strategy)
     {
-        BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
+        //BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
 
         return dispatch::convex_hull_insert<
                    geometry::point_order<Geometry>::value,
@@ -192,10 +202,10 @@ struct convex_hull_insert
                                        OutputIterator& out,
                                        default_strategy)
     {
-        typedef typename strategy_convex_hull<
-            Geometry,
-            typename point_type<Geometry>::type
-        >::type strategy_type;
+        typedef typename strategy::side::services::default_strategy
+            <
+                typename cs_tag<Geometry>::type
+            >::type strategy_type;
 
         return apply(geometry, out, strategy_type());
     }
@@ -210,7 +220,9 @@ template <typename Geometry>
 struct convex_hull
 {
     template <typename OutputGeometry, typename Strategy>
-    static inline void apply(Geometry const& geometry, OutputGeometry& out, Strategy const& strategy)
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategy const& strategy)
     {
         concepts::check_concepts_and_equal_dimensions<
             const Geometry,
@@ -247,7 +259,8 @@ struct convex_hull<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
           OutputGeometry& out,
           Strategy const& strategy)
     {
-        boost::apply_visitor(visitor<OutputGeometry, Strategy>(out, strategy), geometry);
+        boost::apply_visitor(visitor<OutputGeometry, Strategy>(out, strategy),
+                             geometry);
     }
 };
 
@@ -255,7 +268,9 @@ template <typename Geometry>
 struct convex_hull_insert
 {
     template <typename OutputIterator, typename Strategy>
-    static inline OutputIterator apply(Geometry const& geometry, OutputIterator& out, Strategy const& strategy)
+    static inline OutputIterator apply(Geometry const& geometry,
+                                       OutputIterator& out,
+                                       Strategy const& strategy)
     {
         // Concept: output point type = point type of input geometry
         concepts::check<Geometry const>();
@@ -339,8 +354,10 @@ template<typename Geometry, typename OutputIterator, typename Strategy>
 inline OutputIterator convex_hull_insert(Geometry const& geometry,
             OutputIterator out, Strategy const& strategy)
 {
-    return resolve_variant::convex_hull_insert<Geometry>
-                          ::apply(geometry, out, strategy);
+    return resolve_variant::convex_hull_insert
+        <
+            Geometry
+        >::apply(geometry, out, strategy);
 }
 
 

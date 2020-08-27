@@ -190,8 +190,10 @@ private:
 public:
     typedef partitions state_type;
 
-
-    inline void apply(InputGeometry const& geometry, partitions& state) const
+    template <typename Strategy>
+    inline void apply(InputGeometry const& geometry,
+                      partitions& state,
+                      Strategy& side) const
     {
         // First pass.
         // Get min/max (in most cases left / right) points
@@ -217,7 +219,7 @@ public:
         container_type lower_points, upper_points;
 
         // TODO: User-defiend CS-specific side strategy
-        typename strategy::side::services::default_strategy<cs_tag>::type side;
+        //typename strategy::side::services::default_strategy<cs_tag>::type side;
 
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points
