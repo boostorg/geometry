@@ -3,6 +3,10 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -58,11 +62,22 @@ void test_copy_assignment()
 }
 
 template <typename T>
+void test_constexpr()
+{
+    typedef bg::model::d2::point_xy<T> P;
+    constexpr P p = P(1, 2);
+    constexpr T c = bg::get<0>(p);
+    BOOST_CHECK_EQUAL(c, 1);
+    check_point_xy(p, 1, 2);
+}
+
+template <typename T>
 void test_all()
 {
     test_default_constructor<T>();
     test_copy_constructor<T>();
     test_copy_assignment<T>();
+    test_constexpr<T>();
 }
 
 int test_main(int, char* [])
