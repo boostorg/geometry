@@ -23,7 +23,6 @@
 #include <boost/range/metafunctions.hpp>
 
 
-#include <boost/geometry/core/is_areal.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>

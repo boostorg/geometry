@@ -16,7 +16,6 @@
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/geometry_id.hpp>
-#include <boost/geometry/core/is_areal.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>

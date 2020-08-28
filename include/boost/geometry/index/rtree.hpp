@@ -6,8 +6,8 @@
 // Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -90,6 +90,8 @@
 // serialization
 #include <boost/geometry/index/detail/serialization.hpp>
 #endif
+
+#include <boost/geometry/util/type_traits.hpp>
 
 // TODO change the name to bounding_tree
 
@@ -1826,7 +1828,7 @@ private:
     inline void insert_dispatch(Range const& rng,
                                 boost::mpl::bool_<false> const& /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+        BOOST_MPL_ASSERT_MSG((geometry::detail::is_range<Range>::value),
                              PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
                              (Range));
 
@@ -1862,7 +1864,7 @@ private:
     inline size_type remove_dispatch(Range const& rng,
                                      boost::mpl::bool_<false> const& /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
+        BOOST_MPL_ASSERT_MSG((geometry::detail::is_range<Range>::value),
                              PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
                              (Range));
 
