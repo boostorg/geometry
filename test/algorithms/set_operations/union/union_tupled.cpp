@@ -21,6 +21,12 @@
 
 #include <boost/tuple/tuple.hpp>
 
+// TEMP
+#include <boost/geometry/strategies/cartesian.hpp>
+#include <boost/geometry/strategies/geographic.hpp>
+#include <boost/geometry/strategies/spherical.hpp>
+
+
 typedef bg::model::point<double, 2, bg::cs::cartesian> Pt;
 typedef bg::model::linestring<Pt> Ls;
 typedef bg::model::polygon<Pt> Po;

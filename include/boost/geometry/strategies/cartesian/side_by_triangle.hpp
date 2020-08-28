@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -28,8 +28,9 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
+#include <boost/geometry/strategy/cartesian/envelope.hpp>
+
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
-#include <boost/geometry/strategies/cartesian/envelope.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/side.hpp>
