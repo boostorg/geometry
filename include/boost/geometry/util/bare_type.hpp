@@ -4,9 +4,8 @@
 // Copyright (c) 2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,9 +16,7 @@
 #define BOOST_GEOMETRY_UTIL_BARE_TYPE_HPP
 
 
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include <type_traits>
 
 
 namespace boost { namespace geometry
@@ -28,19 +25,17 @@ namespace boost { namespace geometry
 namespace util
 {
 
+
 template <typename T>
 struct bare_type
 {
-    typedef typename boost::remove_const
+    typedef std::remove_const_t
         <
-            typename boost::remove_pointer
+            std::remove_pointer_t
                 <
-                    typename boost::remove_reference
-                        <
-                            T
-                        >::type
-                >::type
-        >::type type;
+                    std::remove_reference_t<T>
+                >
+        > type;
 };
 
 
