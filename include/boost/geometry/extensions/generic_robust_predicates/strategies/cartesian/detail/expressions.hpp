@@ -43,14 +43,14 @@ template
     typename A21, typename A22, typename A23,
     typename A31, typename A32, typename A33
 >
-struct det3x3_helper
+struct det3x3_impl
 {
 private:
     using minor1 = product<A11, det2x2<A22, A23, A32, A33>>;
     using minor2 = product<A21, det2x2<A12, A13, A32, A33>>;
     using minor3 = product<A31, det2x2<A12, A13, A22, A23>>;
 public:
-    using type = sum<minor1, sum<minor2, minor3>>;
+    using type = sum<difference<minor1, minor2>, minor3>;
 };
 
 template
@@ -59,7 +59,7 @@ template
     typename A21, typename A22, typename A23,
     typename A31, typename A32, typename A33
 >
-using det3x3 = typename det3x3_helper
+using det3x3 = typename det3x3_impl
     <
         A11, A12, A13,
         A21, A22, A23,
@@ -73,7 +73,7 @@ using orient3d = det3x3
         difference<_7, _10>, difference<_8, _11>, difference<_9, _12>
     >;
 
-struct incircle_helper
+struct incircle_impl
 {
 private:
     using adx = difference<_1, _7>;
@@ -94,7 +94,7 @@ public:
         >;
 };
 
-using incircle = incircle_helper::type;
+using incircle = incircle_impl::type;
 
 }} // namespace detail::generic_robust_predicates
 
