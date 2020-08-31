@@ -1,0 +1,4 @@
+#ifndef PRECISE_MATH_HPP
+#define PRECISE_MATH_HPP
+
+#endif // PRECISE_MATH_HPP
