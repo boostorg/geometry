@@ -29,7 +29,8 @@ namespace strategy { namespace area
 /*!
 \brief Cartesian area calculation
 \ingroup strategies
-\details Calculates cartesian area using the trapezoidal rule and precise summation
+\details Calculates cartesian area using the trapezoidal rule and precise
+         summation (useful to increase precision with floating point arithmetic)
 \tparam CalculationType \tparam_calculation
 
 \qbk{
