@@ -19,15 +19,13 @@
 #ifndef BOOST_GEOMETRY_CORE_CLOSURE_HPP
 #define BOOST_GEOMETRY_CORE_CLOSURE_HPP
 
-#include <type_traits>
-
 #include <boost/mpl/assert.hpp>
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry
 {
@@ -196,7 +194,7 @@ struct closure
     static const closure_selector value = core_dispatch::closure
         <
             typename tag<Geometry>::type,
-            typename util::bare_type<Geometry>::type
+            typename detail::remove_cptrref<Geometry>::type
         >::value;
 };
 

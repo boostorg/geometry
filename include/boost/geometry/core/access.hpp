@@ -20,14 +20,13 @@
 
 
 #include <cstddef>
-#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 
 namespace boost { namespace geometry
@@ -277,7 +276,7 @@ constexpr inline typename coordinate_type<Geometry>::type get(Geometry const& ge
     typedef core_dispatch::access
         <
             typename tag<Geometry>::type,
-            typename geometry::util::bare_type<Geometry>::type,
+            typename detail::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
             typename std::is_pointer<Geometry>::type
@@ -310,7 +309,7 @@ inline void set(Geometry& geometry
     typedef core_dispatch::access
         <
             typename tag<Geometry>::type,
-            typename geometry::util::bare_type<Geometry>::type,
+            typename detail::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
             typename std::is_pointer<Geometry>::type
@@ -343,7 +342,7 @@ constexpr inline typename coordinate_type<Geometry>::type get(Geometry const& ge
     typedef core_dispatch::indexed_access
         <
             typename tag<Geometry>::type,
-            typename geometry::util::bare_type<Geometry>::type,
+            typename detail::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,
@@ -378,7 +377,7 @@ inline void set(Geometry& geometry
     typedef core_dispatch::indexed_access
         <
             typename tag<Geometry>::type,
-            typename geometry::util::bare_type<Geometry>::type,
+            typename detail::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,

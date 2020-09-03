@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,7 +20,6 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_SYSTEM_HPP
 
 #include <boost/geometry/core/coordinate_system.hpp>
-
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
 namespace boost { namespace geometry {
@@ -28,7 +31,7 @@ template <typename Vector>
 struct coordinate_system<vector_tag, Vector>
 {
     typedef typename traits::coordinate_system<
-        typename geometry::util::bare_type<Vector>::type
+        typename detail::remove_cptrref<Vector>::type
     >::type type;
 };
 
@@ -36,7 +39,7 @@ struct coordinate_system<vector_tag, Vector>
 //struct coordinate_system<quaternion_tag, G>
 //{
 //    typedef typename traits::coordinate_system<
-//        typename geometry::util::bare_type<G>::type
+//        typename detail::remove_cptrref<G>::type
 //    >::type type;
 //};
 //
@@ -44,7 +47,7 @@ struct coordinate_system<vector_tag, Vector>
 //struct coordinate_system<matrix_tag, G>
 //{
 //    typedef typename traits::coordinate_system<
-//        typename geometry::util::bare_type<G>::type
+//        typename detail::remove_cptrref<G>::type
 //    >::type type;
 //};
 
@@ -53,7 +56,7 @@ template <typename G>
 struct coordinate_system<rotation_quaternion_tag, G>
 {
     typedef typename traits::coordinate_system<
-        typename geometry::util::bare_type<G>::type
+        typename detail::remove_cptrref<G>::type
     >::type type;
 };
 
@@ -61,7 +64,7 @@ template <typename G>
 struct coordinate_system<rotation_matrix_tag, G>
 {
     typedef typename traits::coordinate_system<
-        typename geometry::util::bare_type<G>::type
+        typename detail::remove_cptrref<G>::type
     >::type type;
 };
 

@@ -20,13 +20,12 @@
 
 
 #include <cstddef>
-#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry
 {
@@ -68,13 +67,13 @@ struct dimension<point_tag, P>
     : std::integral_constant
         <
             std::size_t,
-            traits::dimension<typename geometry::util::bare_type<P>::type>::value
+            traits::dimension<detail::remove_cptrref_t<P>>::value
         >
 {
     BOOST_MPL_ASSERT_MSG(
-        (traits::dimension<typename geometry::util::bare_type<P>::type>::value > 0),
+        (traits::dimension<detail::remove_cptrref_t<P>>::value > 0),
         INVALID_DIMENSION_VALUE,
-        (traits::dimension<typename geometry::util::bare_type<P>::type>)
+        (traits::dimension<detail::remove_cptrref_t<P>>)
     );
 };
 
@@ -93,7 +92,7 @@ struct dimension
     : core_dispatch::dimension
         <
             typename tag<Geometry>::type,
-            typename geometry::util::bare_type<Geometry>::type
+            typename detail::remove_cptrref<Geometry>::type
         >
 {};
 

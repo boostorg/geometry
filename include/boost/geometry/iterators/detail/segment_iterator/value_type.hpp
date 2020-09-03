@@ -12,12 +12,11 @@
 #define BOOST_GEOMETRY_ITERATORS_DETAIL_SEGMENT_ITERATOR_VALUE_TYPE_HPP
 
 #include <iterator>
-#include <type_traits>
 
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/pointing_segment.hpp>
 #include <boost/geometry/iterators/point_iterator.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry
 {
@@ -53,7 +52,7 @@ struct value_type
             geometry::model::pointing_segment<point_iterator_value_type>,
             geometry::model::segment
                 <
-                    typename geometry::util::bare_type
+                    typename detail::remove_cptrref
                         <
                             point_iterator_value_type
                         >::type

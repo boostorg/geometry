@@ -19,15 +19,13 @@
 #define BOOST_GEOMETRY_CORE_POINT_TYPE_HPP
 
 
-#include <type_traits>
-
 #include <boost/mpl/assert.hpp>
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 
 namespace boost { namespace geometry
@@ -157,7 +155,7 @@ struct point_type
     typedef typename core_dispatch::point_type
         <
             typename tag<Geometry>::type,
-            typename boost::geometry::util::bare_type<Geometry>::type
+            typename detail::remove_cptrref<Geometry>::type
         >::type type;
 };
 

@@ -16,32 +16,10 @@
 #define BOOST_GEOMETRY_UTIL_BARE_TYPE_HPP
 
 
-#include <type_traits>
+#include <boost/config/header_deprecated.hpp>
+BOOST_HEADER_DEPRECATED("<boost/geometry/util/type_traits.hpp>")
 
-
-namespace boost { namespace geometry
-{
-
-namespace util
-{
-
-
-template <typename T>
-struct bare_type
-{
-    typedef std::remove_const_t
-        <
-            std::remove_pointer_t
-                <
-                    std::remove_reference_t<T>
-                >
-        > type;
-};
-
-
-} // namespace util
-
-}} // namespace boost::geometry
+#include <boost/geometry/util/type_traits.hpp>
 
 
 #endif // BOOST_GEOMETRY_UTIL_BARE_TYPE_HPP

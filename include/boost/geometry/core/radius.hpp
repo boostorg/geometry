@@ -22,13 +22,12 @@
 
 
 #include <cstddef>
-#include <type_traits>
 
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/bare_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 
 namespace boost { namespace geometry
@@ -111,7 +110,7 @@ struct radius_type
     typedef typename core_dispatch::radius_type
                         <
                             typename tag<Geometry>::type,
-                            typename util::bare_type<Geometry>::type
+                            typename detail::remove_cptrref<Geometry>::type
                         >::type type;
 };
 
@@ -128,7 +127,7 @@ inline typename radius_type<Geometry>::type get_radius(Geometry const& geometry)
     return core_dispatch::radius_access
             <
                 typename tag<Geometry>::type,
-                typename util::bare_type<Geometry>::type,
+                typename detail::remove_cptrref<Geometry>::type,
                 I,
                 typename std::is_pointer<Geometry>::type
             >::get(geometry);
@@ -148,7 +147,7 @@ inline void set_radius(Geometry& geometry,
     core_dispatch::radius_access
         <
             typename tag<Geometry>::type,
-            typename util::bare_type<Geometry>::type,
+            typename detail::remove_cptrref<Geometry>::type,
             I,
             typename std::is_pointer<Geometry>::type
         >::set(geometry, radius);

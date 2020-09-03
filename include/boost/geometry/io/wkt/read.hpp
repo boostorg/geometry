@@ -22,7 +22,6 @@
 
 #include <cstddef>
 #include <string>
-#include <type_traits>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
@@ -47,14 +46,15 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/util/coordinate_cast.hpp>
-
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
+
+#include <boost/geometry/util/coordinate_cast.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry
 {
@@ -264,14 +264,10 @@ struct stateful_range_appender<Geometry, open>
     typedef typename geometry::point_type<Geometry>::type point_type;
     typedef typename boost::range_size
         <
-            typename util::bare_type<Geometry>::type
+            typename detail::remove_cptrref<Geometry>::type
         >::type size_type;
 
-    BOOST_STATIC_ASSERT(( std::is_same
-                            <
-                                typename tag<Geometry>::type,
-                                ring_tag
-                            >::value ));
+    BOOST_STATIC_ASSERT(( detail::is_ring<Geometry>::value ));
 
     inline stateful_range_appender()
         : pt_index(0)
