@@ -19,7 +19,7 @@
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
-//template <typename T, typename V, bool IsRange = geometry::detail::is_range<T>::value>
+//template <typename T, typename V, bool IsRange = range::detail::is_range<T>::value>
 //struct is_range_of_convertible_values_impl
 //    : std::is_convertible<typename ::boost::range_value<T>::type, V>
 //{};

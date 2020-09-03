@@ -30,7 +30,7 @@ namespace detail
 {
 
 
-template <typename T, bool IsRange = is_range<T>::value>
+template <typename T, bool IsRange = range::detail::is_range<T>::value>
 struct is_tupled_output_element_base
     : bool_constant<false>
 {};

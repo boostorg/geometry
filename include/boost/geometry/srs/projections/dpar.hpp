@@ -24,6 +24,8 @@
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 
+#include <boost/geometry/util/range.hpp>
+
 #include <boost/mpl/assert.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -74,7 +76,7 @@ template
 <
     typename Range,
     typename ToValue,
-    bool IsRange = boost::has_range_iterator<Range>::value
+    bool IsRange = range::detail::is_range<Range>::value
 >
 struct is_convertible_range
     : std::is_convertible

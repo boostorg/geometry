@@ -92,6 +92,7 @@
 #include <boost/geometry/index/detail/serialization.hpp>
 #endif
 
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 // TODO change the name to bounding_tree
@@ -1832,7 +1833,7 @@ private:
     inline void insert_dispatch(Range const& rng,
                                 std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((geometry::detail::is_range<Range>::value),
+        BOOST_MPL_ASSERT_MSG((range::detail::is_range<Range>::value),
                              PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
                              (Range));
 
@@ -1868,7 +1869,7 @@ private:
     inline size_type remove_dispatch(Range const& rng,
                                      std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((geometry::detail::is_range<Range>::value),
+        BOOST_MPL_ASSERT_MSG((range::detail::is_range<Range>::value),
                              PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
                              (Range));
 

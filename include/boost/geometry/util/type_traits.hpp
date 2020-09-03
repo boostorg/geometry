@@ -12,14 +12,10 @@
 
 
 #include <cstddef>
-#include <iterator>
 #include <type_traits>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/mpl/has_xxx.hpp>
-#include <boost/range/has_range_iterator.hpp>
 
 
 namespace boost { namespace geometry
@@ -290,39 +286,6 @@ struct enable_if_polysegmental
 
 template <typename Geometry, typename T = void>
 using enable_if_polysegmental_t = typename enable_if_polysegmental<Geometry, T>::type;
-
-
-
-BOOST_MPL_HAS_XXX_TRAIT_DEF(iterator_category)
-
-template <typename T>
-struct is_iterator
-    : bool_constant
-        <
-            has_iterator_category
-                <
-                    std::iterator_traits<T>
-                >::value
-        >
-{};
-
-
-template <typename T, bool HasIterator = boost::has_range_iterator<T>::value>
-struct is_range_impl
-    : is_iterator
-        <
-            typename boost::range_iterator<T>::type
-        >
-{};
-template <typename T>
-struct is_range_impl<T, false>
-    : std::false_type
-{};
-
-template <typename T>
-struct is_range
-    : is_range_impl<T>
-{};
 
 
 
