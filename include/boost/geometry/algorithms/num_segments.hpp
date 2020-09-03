@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -11,9 +12,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_NUM_SEGMENTS_HPP
 
 #include <cstddef>
-
-#include <boost/mpl/size_t.hpp>
-#include <boost/mpl/times.hpp>
 
 #include <boost/range.hpp>
 

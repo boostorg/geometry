@@ -13,24 +13,20 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_META_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_META_HPP
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <type_traits>
 
-//#include <boost/geometry/util/type_traits.hpp>
+#include <boost/range.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 //template <typename T, typename V, bool IsRange = geometry::detail::is_range<T>::value>
 //struct is_range_of_convertible_values_impl
-//    : ::boost::is_convertible<typename ::boost::range_value<T>::type, V>
+//    : std::is_convertible<typename ::boost::range_value<T>::type, V>
 //{};
 //
 //template <typename T, typename V>
 //struct is_range_of_convertible_values_impl<T, V, false>
-//    : ::boost::mpl::bool_<false>
+//    : std::integral_constant<bool, false>
 //{};
 //
 //template <typename T, typename V>
@@ -55,12 +51,12 @@ struct convertible_type_impl
 template <typename T, typename Value, typename Indexable>
 struct convertible_type_impl<T, Value, Indexable, void, 0>
 {
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_convertible<T, Indexable>::value,
+            std::is_convertible<T, Indexable>::value,
             Indexable,
             void
-        >::type result_type;
+        > result_type;
 
     typedef typename convertible_type_impl
         <
@@ -71,28 +67,28 @@ struct convertible_type_impl<T, Value, Indexable, void, 0>
 template <typename T, typename Value, typename Indexable>
 struct convertible_type_impl<T, Value, Indexable, void, 1>
 {
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_convertible<T, Value>::value,
+            std::is_convertible<T, Value>::value,
             Value,
             void
-        >::type type;
+        > type;
 };
 
 template <typename T, typename Value, typename Indexable>
 struct convertible_type
 {
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_same<T, Value>::value,
+            std::is_same<T, Value>::value,
             Value,
-            typename boost::mpl::if_c
+            std::conditional_t
                 <
-                    boost::is_same<T, Indexable>::value,
+                    std::is_same<T, Indexable>::value,
                     Indexable,
                     void
-                >::type
-        >::type result_type;
+                >
+        > result_type;
 
     typedef typename convertible_type_impl
         <

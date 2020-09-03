@@ -2,7 +2,7 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015, 2017, 2019, 2020.
+// This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -17,11 +17,10 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
-#include <boost/mpl/if.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/range/metafunctions.hpp>
-
 
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
@@ -77,7 +76,7 @@ struct intersection_segment_segment_point
             Strategy const& strategy)
     {
         // Make sure this is only called with no rescaling
-        BOOST_STATIC_ASSERT((boost::is_same
+        BOOST_STATIC_ASSERT((std::is_same
            <
                no_rescale_policy_tag,
                typename rescale_policy_type<RobustPolicy>::type
@@ -126,7 +125,7 @@ struct intersection_linestring_linestring_point
             Strategy const& strategy)
     {
         // Make sure this is only called with no rescaling
-        BOOST_STATIC_ASSERT((boost::is_same
+        BOOST_STATIC_ASSERT((std::is_same
            <
                no_rescale_policy_tag,
                typename rescale_policy_type<RobustPolicy>::type
@@ -284,7 +283,7 @@ struct intersection_of_linestring_with_areal
             Strategy const& strategy)
     {
         // Make sure this is only called with no rescaling
-        BOOST_STATIC_ASSERT((boost::is_same
+        BOOST_STATIC_ASSERT((std::is_same
            <
                no_rescale_policy_tag,
                typename rescale_policy_type<RobustPolicy>::type
@@ -455,7 +454,7 @@ struct intersection_linear_areal_point
                                        Strategy const& strategy)
     {
         // Make sure this is only called with no rescaling
-        BOOST_STATIC_ASSERT((boost::is_same
+        BOOST_STATIC_ASSERT((std::is_same
            <
                no_rescale_policy_tag,
                typename rescale_policy_type<RobustPolicy>::type
@@ -935,12 +934,12 @@ struct intersection_insert
         <
             Linear1, Linear2, TupledOut,
             // NOTE: points can be the result only in case of intersection.
-            typename boost::mpl::if_c
+            std::conditional_t
                 <
                     (OverlayType == overlay_intersection),
                     point_tag,
                     void
-                >::type,
+                >,
             linestring_tag
         >
 {
@@ -1427,26 +1426,26 @@ inline OutputIterator insert(Geometry1 const& geometry1,
             OutputIterator out,
             Strategy const& strategy)
 {
-    return boost::mpl::if_c
-    <
-        geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
-        geometry::dispatch::intersection_insert_reversed
+    return std::conditional_t
         <
-            Geometry1, Geometry2,
-            GeometryOut,
-            OverlayType,
-            overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-            overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
-        >,
-        geometry::dispatch::intersection_insert
-        <
-            Geometry1, Geometry2,
-            GeometryOut,
-            OverlayType,
-            geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-            geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
-        >
-    >::type::apply(geometry1, geometry2, robust_policy, out, strategy);
+            geometry::reverse_dispatch<Geometry1, Geometry2>::type::value,
+            geometry::dispatch::intersection_insert_reversed
+            <
+                Geometry1, Geometry2,
+                GeometryOut,
+                OverlayType,
+                overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
+            >,
+            geometry::dispatch::intersection_insert
+            <
+                Geometry1, Geometry2,
+                GeometryOut,
+                OverlayType,
+                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, ReverseSecond>::value
+            >
+        >::apply(geometry1, geometry2, robust_policy, out, strategy);
 }
 
 

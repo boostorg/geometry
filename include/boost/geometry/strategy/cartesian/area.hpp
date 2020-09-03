@@ -21,8 +21,6 @@
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_AREA_HPP
 
 
-#include <boost/mpl/if.hpp>
-
 //#include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2016, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
 #include <boost/config.hpp>
@@ -30,7 +31,6 @@
 #include <boost/range/reference.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/type_traits/is_convertible.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
@@ -217,7 +217,7 @@ namespace detail {
 
 template <typename It,
           typename OutIt,
-          bool UseMove = boost::is_convertible
+          bool UseMove = std::is_convertible
                             <
                                 typename std::iterator_traits<It>::value_type &&,
                                 typename std::iterator_traits<OutIt>::value_type

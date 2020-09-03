@@ -4,10 +4,11 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -93,8 +94,8 @@ template <> struct tag_to_term<multi_point_tag>             { typedef info::MULT
 template <> struct tag_to_term<multi_linestring_tag>        { typedef info::MULTI_LINESTRING type; };
 template <> struct tag_to_term<multi_polygon_tag>           { typedef info::MULTI_POLYGON type; };
 template <> struct tag_to_term<geometry_collection_tag>     { typedef info::GEOMETRY_COLLECTION type; };
-template <int D> struct tag_to_term<boost::mpl::int_<D> >   { typedef info::DIMENSION<D> type; };
-
+template <int D> struct tag_to_term<std::integral_constant<int, D> > { typedef info::DIMENSION<D> type; };
+template <size_t D> struct tag_to_term<std::integral_constant<size_t, D> > { typedef info::DIMENSION<D> type; };
 
 }
 

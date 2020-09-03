@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2015-2018.
-// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -22,12 +22,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_SPHERICAL_EXPAND_POINT_HPP
 #define BOOST_GEOMETRY_STRATEGY_SPHERICAL_EXPAND_POINT_HPP
 
-#include <cstddef>
 #include <algorithm>
+#include <cstddef>
 #include <functional>
+#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -191,7 +191,7 @@ struct spherical_point
         expand::detail::point_loop_on_spheroid
             <
                 dimension<Point>::value,
-                ! boost::is_same<typename cs_tag<Point>::type, spherical_polar_tag>::value
+                ! std::is_same<typename cs_tag<Point>::type, spherical_polar_tag>::value
             >::apply(box, point);
     }
 };

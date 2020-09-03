@@ -29,11 +29,12 @@
 
 #include <boost/geometry/index/rtree.hpp>
 
-
 // TEMP
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
+
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -606,14 +607,7 @@ template
 <
     typename MultiPoint, typename Geometry,
     bool Transpose = false,
-    bool isMulti = boost::is_same
-                    <
-                        typename tag_cast
-                            <
-                                typename tag<Geometry>::type, multi_tag
-                            >::type,
-                            multi_tag
-                    >::value
+    bool isMulti = detail::is_multi<Geometry>::value
 >
 struct multi_point_geometry
     : multi_point_single_geometry<MultiPoint, Geometry, Transpose>

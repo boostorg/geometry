@@ -19,6 +19,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
 
 
+#include <type_traits>
 #include <utility>
 
 #include <boost/concept/requires.hpp>
@@ -26,8 +27,6 @@
 #include <boost/mpl/assert.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -66,7 +65,7 @@ struct fe_range_segment
     template <typename Functor>
     static inline bool apply(Segment& segment, Functor&& f)
     {
-        return f(segment_view<typename boost::remove_const<Segment>::type>(segment));
+        return f(segment_view<typename std::remove_const<Segment>::type>(segment));
     }
 };
 
@@ -101,7 +100,7 @@ struct fe_range_box
     template <typename Functor>
     static inline bool apply(Box& box, Functor&& f)
     {
-        return f(box_view<typename boost::remove_const<Box>::type>(box));
+        return f(box_view<typename std::remove_const<Box>::type>(box));
     }
 };
 
@@ -198,7 +197,7 @@ struct for_each_range<Geometry, multi_linestring_tag>
                 <
                     typename add_const_if_c
                         <
-                            boost::is_const<Geometry>::value,
+                            std::is_const<Geometry>::value,
                             typename boost::range_value<Geometry>::type
                         >::type
                 >
@@ -215,7 +214,7 @@ struct for_each_range<Geometry, multi_polygon_tag>
                 <
                     typename add_const_if_c
                         <
-                            boost::is_const<Geometry>::value,
+                            std::is_const<Geometry>::value,
                             typename boost::range_value<Geometry>::type
                         >::type
                 >

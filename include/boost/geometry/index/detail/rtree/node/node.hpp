@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,6 +14,8 @@
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_HPP
+
+#include <type_traits>
 
 #include <boost/container/vector.hpp>
 #include <boost/geometry/index/detail/varray.hpp>
@@ -139,11 +141,10 @@ struct destroy_elements
     template <typename It>
     inline static void apply(It first, It last, allocators_type & allocators)
     {
-        typedef boost::mpl::bool_<
-            boost::is_same<
+        typedef std::is_same
+            <
                 value_type, typename std::iterator_traits<It>::value_type
-            >::value
-        > is_range_of_values;
+            > is_range_of_values;
 
         apply_dispatch(first, last, allocators, is_range_of_values());
     }
@@ -151,7 +152,7 @@ struct destroy_elements
 private:
     template <typename It>
     inline static void apply_dispatch(It first, It last, allocators_type & allocators,
-                                      boost::mpl::bool_<false> const& /*is_range_of_values*/)
+                                      std::false_type /*is_range_of_values*/)
     {
         for ( ; first != last ; ++first )
         {
@@ -163,7 +164,7 @@ private:
 
     template <typename It>
     inline static void apply_dispatch(It /*first*/, It /*last*/, allocators_type & /*allocators*/,
-                                      boost::mpl::bool_<true> const& /*is_range_of_values*/)
+                                      std::true_type /*is_range_of_values*/)
     {}
 };
 

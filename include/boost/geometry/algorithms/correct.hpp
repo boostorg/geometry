@@ -26,7 +26,6 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>

@@ -22,6 +22,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 
 #include <boost/concept/requires.hpp>
@@ -30,8 +31,6 @@
 #include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/is_fundamental.hpp>
 
 #include <boost/geometry/core/config.hpp>
 
@@ -804,7 +803,7 @@ struct expand_by_epsilon<spherical_tag>
     static inline void apply(Box & box)
     {
         typedef typename coordinate_type<Box>::type coord_t;
-        static const coord_t eps = boost::is_same<coord_t, float>::value
+        static const coord_t eps = std::is_same<coord_t, float>::value
             ? coord_t(1e-6)
             : coord_t(1e-12);
         detail::expand_by_epsilon(box, eps);
@@ -1009,7 +1008,7 @@ inline void sectionalize(Geometry const& geometry,
                 int source_index = 0,
                 std::size_t max_count = 10)
 {
-    BOOST_STATIC_ASSERT((! boost::is_fundamental<EnvelopeStrategy>::value));
+    BOOST_STATIC_ASSERT((! std::is_fundamental<EnvelopeStrategy>::value));
 
     concepts::check<Geometry const>();
 
@@ -1030,7 +1029,7 @@ inline void sectionalize(Geometry const& geometry,
         >::type
     >::type ctype2;
 
-    BOOST_MPL_ASSERT((boost::is_same<ctype1, ctype2>));
+    BOOST_STATIC_ASSERT((std::is_same<ctype1, ctype2>::value));
 
 
     sections.clear();
@@ -1074,12 +1073,12 @@ inline void sectionalize(Geometry const& geometry,
 
     typedef typename strategy::expand::services::default_strategy
         <
-            typename boost::mpl::if_c
+            std::conditional_t
                 <
-                    boost::is_same<typename tag<Geometry>::type, box_tag>::value,
+                    std::is_same<typename tag<Geometry>::type, box_tag>::value,
                     box_tag,
                     segment_tag
-                >::type,
+                >,
             typename cs_tag<Geometry>::type
         >::type expand_strategy_type;
 

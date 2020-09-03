@@ -2,6 +2,10 @@
 //
 // Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,29 +15,20 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits/is_reference.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/index/detail/is_indexable.hpp>
 
-namespace boost { namespace geometry { namespace index { namespace detail {
+#include <boost/geometry/util/type_traits.hpp>
 
-template <typename T>
-struct remove_cr
-    : boost::remove_const
-        <
-            typename boost::remove_reference<T>::type
-        >
-{};
+namespace boost { namespace geometry { namespace index { namespace detail
+{
 
 template <typename From, typename To>
 struct is_referencable
-    : boost::is_same
+    : std::is_same
         <
-            typename remove_cr<From>::type,
-            typename remove_cr<To>::type
+            typename geometry::detail::remove_cref<From>::type,
+            typename geometry::detail::remove_cref<To>::type
         >
 {};
 

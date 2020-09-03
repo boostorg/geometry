@@ -311,13 +311,11 @@ struct tupled_back_inserters<std::pair<F, S> >
 
 #ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
-// NOTE: In C++14 std::integer_sequence and std::make_integer_sequence could be used
-
 template <typename Is, typename Tuple>
 struct tupled_back_inserters_st;
 
-template <int ...Is, typename ...Ts>
-struct tupled_back_inserters_st<geometry::tuples::int_sequence<Is...>, std::tuple<Ts...> >
+template <std::size_t ...Is, typename ...Ts>
+struct tupled_back_inserters_st<std::index_sequence<Is...>, std::tuple<Ts...> >
 {
     typedef std::tuple<geometry::range::back_insert_iterator<Ts>...> type;
 
@@ -331,7 +329,7 @@ template <typename ...Ts>
 struct tupled_back_inserters<std::tuple<Ts...> >
     : tupled_back_inserters_st
         <
-            typename geometry::tuples::make_int_sequence<sizeof...(Ts)>::type,
+            std::make_index_sequence<sizeof...(Ts)>,
             std::tuple<Ts...>
         >
 {};

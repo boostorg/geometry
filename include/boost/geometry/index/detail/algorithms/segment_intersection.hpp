@@ -4,12 +4,18 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SEGMENT_INTERSECTION_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SEGMENT_INTERSECTION_HPP
+
+#include <type_traits>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -25,7 +31,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 //    >::type type;
 //
 //
-//    BOOST_MPL_ASSERT_MSG((!::boost::is_unsigned<type>::value),
+//    BOOST_MPL_ASSERT_MSG((!std::is_unsigned<type>::value),
 //        THIS_TYPE_SHOULDNT_BE_UNSIGNED, (type));
 //};
 
@@ -113,7 +119,7 @@ struct segment_intersection<Indexable, Point, box_tag>
 
 // TODO: this ASSERT CHECK is wrong for user-defined CoordinateTypes!
 
-        static const bool check = !::boost::is_integral<RelativeDistance>::value;
+        static const bool check = !std::is_integral<RelativeDistance>::value;
         BOOST_MPL_ASSERT_MSG(check, RELATIVE_DISTANCE_MUST_BE_FLOATING_POINT_TYPE, (RelativeDistance));
 
         RelativeDistance t_near = -(::std::numeric_limits<RelativeDistance>::max)();

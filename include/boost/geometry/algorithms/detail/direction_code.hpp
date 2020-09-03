@@ -2,8 +2,8 @@
 
 // Copyright (c) 2015-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2017, 2019.
-// Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
 
+
+#include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
@@ -91,7 +93,7 @@ struct direction_code_impl<spherical_equatorial_tag>
         typedef typename coordinate_type<Point2>::type coord2_t;
         typedef typename cs_angular_units<Point1>::type units_t;
         typedef typename cs_angular_units<Point2>::type units2_t;
-        BOOST_MPL_ASSERT_MSG((boost::is_same<units_t, units2_t>::value),
+        BOOST_MPL_ASSERT_MSG((std::is_same<units_t, units2_t>::value),
                              NOT_IMPLEMENTED_FOR_DIFFERENT_UNITS,
                              (units_t, units2_t));
 
@@ -223,16 +225,16 @@ struct direction_code_impl<spherical_tag>
     {
         return direction_code_impl
             <
-                typename boost::mpl::if_c
+                std::conditional_t
                     <
-                        boost::is_same
+                        std::is_same
                             <
                                 typename geometry::cs_tag<Point1>::type,
                                 spherical_polar_tag
                             >::value,
                         spherical_polar_tag,
                         spherical_equatorial_tag
-                    >::type
+                    >
             >::apply(segment_a, segment_b, p);
     }
 };

@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -14,25 +15,20 @@
 // TODO: activate it later
 #define BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
 
+
 #include <climits>
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/mpl/begin.hpp>
 #include <boost/mpl/deref.hpp>
 #include <boost/mpl/end.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/mpl/list.hpp>
 #include <boost/mpl/next.hpp>
-#include <boost/mpl/size_t.hpp>
 
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
 #endif
-
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_fundamental.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_unsigned.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,7 +42,7 @@ namespace detail { namespace promote_integral
 template
 <
     typename T,
-    bool IsFundamental = boost::is_fundamental<T>::type::value
+    bool IsFundamental = std::is_fundamental<T>::type::value
 >
 struct bit_size
 {};
@@ -55,7 +51,7 @@ struct bit_size
 // for fundamental types, just return CHAR_BIT * sizeof(T)
 template <typename T>
 struct bit_size<T, true>
-    : boost::mpl::size_t<(CHAR_BIT * sizeof(T))>
+    : std::integral_constant<std::size_t, (CHAR_BIT * sizeof(T))>
 {};
 
 
@@ -81,7 +77,8 @@ struct bit_size
                 ExpressionTemplates
             >,
         false
-    > : boost::mpl::size_t<MaxSize>
+    >
+    : std::integral_constant<std::size_t, MaxSize>
 {};
 #endif // BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
 
@@ -97,7 +94,7 @@ struct promote_to_larger
 {
     typedef typename boost::mpl::deref<Iterator>::type current_type;
 
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             (bit_size<current_type>::type::value >= MinSize),
             current_type,
@@ -108,7 +105,7 @@ struct promote_to_larger
                     EndIterator,
                     MinSize
                 >::type
-        >::type type;
+        > type;
 };
 
 // The following specialization is required to finish the loop over
@@ -173,31 +170,31 @@ template
     typename T,
     bool PromoteUnsignedToUnsigned = false,
     bool UseCheckedInteger = false,
-    bool IsIntegral = boost::is_integral<T>::type::value
+    bool IsIntegral = std::is_integral<T>::value
 >
 class promote_integral
 {
 private:
-    static bool const is_unsigned = boost::is_unsigned<T>::type::value;
+    static bool const is_unsigned = std::is_unsigned<T>::value;
 
     typedef detail::promote_integral::bit_size<T> bit_size_type;
 
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
     // Define the proper check policy for the multiprecision integer
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             UseCheckedInteger,
-            boost::integral_constant
+            std::integral_constant
                 <
                     boost::multiprecision::cpp_int_check_type,
                     boost::multiprecision::checked
                 >,
-            boost::integral_constant
+            std::integral_constant
                 <
                     boost::multiprecision::cpp_int_check_type,
                     boost::multiprecision::unchecked
                 >
-        >::type check_policy_type;
+        > check_policy_type;
 
     // Meta-function to get the multiprecision integer type for the
     // given size and sign type (signed/unsigned)
@@ -229,17 +226,17 @@ private:
     // * if T is unsigned and P is unsigned: 2 * b
     // * if T is signed and P is signed: 2 * b - 1
     // * if T is unsigned and P is signed: 2 * b + 1
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             (PromoteUnsignedToUnsigned && is_unsigned),
-            boost::mpl::size_t<(2 * bit_size_type::value)>,
-            typename boost::mpl::if_c
+            std::integral_constant<std::size_t, (2 * bit_size_type::value)>,
+            std::conditional_t
                 <
                     is_unsigned,
-                    boost::mpl::size_t<(2 * bit_size_type::value + 1)>,
-                    boost::mpl::size_t<(2 * bit_size_type::value - 1)>
-                >::type
-        >::type min_bit_size_type;
+                    std::integral_constant<std::size_t, (2 * bit_size_type::value + 1)>,
+                    std::integral_constant<std::size_t, (2 * bit_size_type::value - 1)>
+                >
+        > min_bit_size_type;
 
     // Define the list of signed integral types we are going to use
     // for promotion
@@ -284,12 +281,12 @@ private:
     // Define the list of integral types that will be used for
     // promotion (depending in whether we was to promote unsigned to
     // unsigned or not)
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             (is_unsigned && PromoteUnsignedToUnsigned),
             unsigned_integral_types,
             signed_integral_types
-        >::type integral_types;
+        > integral_types;
 
 public:
     typedef typename detail::promote_integral::promote_to_larger

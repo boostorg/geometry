@@ -20,13 +20,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SIDE_BY_TRIANGLE_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_SIDE_BY_TRIANGLE_HPP
 
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_void.hpp>
+
+#include <type_traits>
 
 #include <boost/geometry/arithmetic/determinant.hpp>
 #include <boost/geometry/core/access.hpp>
-#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/strategy/cartesian/envelope.hpp>
 
@@ -230,19 +229,17 @@ public :
         typedef typename coordinate_type<P2>::type coordinate_type2;
         typedef typename coordinate_type<P>::type coordinate_type3;
 
-        typedef typename boost::mpl::if_c
+        typedef std::conditional_t
             <
-                boost::is_void<CalculationType>::type::value,
+                std::is_void<CalculationType>::value,
                 typename select_most_precise
                     <
-                        typename select_most_precise
-                            <
-                                coordinate_type1, coordinate_type2
-                            >::type,
+                        coordinate_type1,
+                        coordinate_type2,
                         coordinate_type3
                     >::type,
                 CalculationType
-            >::type coordinate_type;
+            > coordinate_type;
 
         // Promote float->double, small int->int
         typedef typename select_most_precise
@@ -252,9 +249,9 @@ public :
             >::type promoted_type;
 
         bool const are_all_integral_coordinates =
-            boost::is_integral<coordinate_type1>::value
-            && boost::is_integral<coordinate_type2>::value
-            && boost::is_integral<coordinate_type3>::value;
+            std::is_integral<coordinate_type1>::value
+            && std::is_integral<coordinate_type2>::value
+            && std::is_integral<coordinate_type3>::value;
 
         eps_policy< math::detail::equals_factor_policy<promoted_type> > epsp;
         promoted_type s = compute_side_value

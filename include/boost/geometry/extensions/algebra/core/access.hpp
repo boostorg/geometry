@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -47,11 +51,11 @@ struct access<vector_tag, Vector, CoordinateType, Dimension, boost::true_type>
 {
     static inline CoordinateType get(Vector const* v)
     {
-        return traits::access<typename boost::remove_pointer<Vector>::type, Dimension>::get(*v);
+        return traits::access<typename std::remove_pointer<Vector>::type, Dimension>::get(*v);
     }
     static inline void set(Vector* v, CoordinateType const& value)
     {
-        traits::access<typename boost::remove_pointer<Vector>::type, Dimension>::set(*v, value);
+        traits::access<typename std::remove_pointer<Vector>::type, Dimension>::set(*v, value);
     }
 };
 
@@ -73,11 +77,11 @@ struct access<quaternion_tag, Q, CoordinateType, Dimension, boost::true_type>
 {
     static inline CoordinateType get(Q const* v)
     {
-        return traits::access<typename boost::remove_pointer<Q>::type, Dimension>::get(*v);
+        return traits::access<typename std::remove_pointer<Q>::type, Dimension>::get(*v);
     }
     static inline void set(Q* v, CoordinateType const& value)
     {
-        traits::access<typename boost::remove_pointer<Q>::type, Dimension>::set(*v, value);
+        traits::access<typename std::remove_pointer<Q>::type, Dimension>::set(*v, value);
     }
 };
 
@@ -110,11 +114,11 @@ struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::true
 {
     static inline CoordinateType get(Q const* v)
     {
-        return traits::access<typename boost::remove_pointer<Q>::type, Dimension>::get(*v);
+        return traits::access<typename std::remove_pointer<Q>::type, Dimension>::get(*v);
     }
     static inline void set(Q* v, CoordinateType const& value)
     {
-        traits::access<typename boost::remove_pointer<Q>::type, Dimension>::set(*v, value);
+        traits::access<typename std::remove_pointer<Q>::type, Dimension>::set(*v, value);
     }
 };
 

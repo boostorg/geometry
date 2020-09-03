@@ -14,6 +14,8 @@
 #define BOOST_GEOMETRY_STRATEGY_AREA_RESULT_HPP
 
 
+#include <type_traits>
+
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 
@@ -25,9 +27,6 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_sequence_element.hpp>
 
-
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 
@@ -113,9 +112,9 @@ struct pred_more_precise_default_area_result
     typedef typename geometry::area_result<Curr, default_strategy>::type curr_result_t;
     typedef typename geometry::area_result<Next, default_strategy>::type next_result_t;
 
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_same
+            std::is_same
                 <
                     curr_result_t,
                     typename geometry::select_most_precise
@@ -126,7 +125,7 @@ struct pred_more_precise_default_area_result
                 >::value,
             Curr,
             Next
-        >::type type;
+        > type;
 };
 
 }} // namespace detail::area

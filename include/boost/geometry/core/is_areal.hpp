@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -16,7 +20,7 @@
 #define BOOST_GEOMETRY_CORE_IS_AREAL_HPP
 
 
-#include <boost/type_traits/integral_constant.hpp>
+#include <type_traits>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -30,12 +34,12 @@ namespace boost { namespace geometry
 namespace core_dispatch
 {
 
-template <typename GeometryTag> struct is_areal : boost::false_type {};
+template <typename GeometryTag> struct is_areal : std::false_type {};
 
-template <> struct is_areal<ring_tag> : boost::true_type {};
-template <> struct is_areal<box_tag> : boost::true_type {};
-template <> struct is_areal<polygon_tag> : boost::true_type {};
-template <> struct is_areal<multi_polygon_tag> : boost::true_type {};
+template <> struct is_areal<ring_tag> : std::true_type {};
+template <> struct is_areal<box_tag> : std::true_type {};
+template <> struct is_areal<polygon_tag> : std::true_type {};
+template <> struct is_areal<multi_polygon_tag> : std::true_type {};
 
 } // namespace core_dispatch
 #endif

@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,12 +19,9 @@
 #ifndef BOOST_GEOMETRY_CORE_INTERIOR_TYPE_HPP
 #define BOOST_GEOMETRY_CORE_INTERIOR_TYPE_HPP
 
+#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -87,14 +88,14 @@ struct interior_return_type
 template <typename Polygon>
 struct interior_return_type<polygon_tag, Polygon>
 {
-    typedef typename boost::remove_const<Polygon>::type nc_polygon_type;
+    typedef typename std::remove_const<Polygon>::type nc_polygon_type;
 
-    typedef typename boost::mpl::if_
+    typedef std::conditional_t
         <
-            boost::is_const<Polygon>,
+            std::is_const<Polygon>::value,
             typename traits::interior_const_type<nc_polygon_type>::type,
             typename traits::interior_mutable_type<nc_polygon_type>::type
-        >::type type;
+        > type;
 };
 
 
@@ -114,7 +115,7 @@ struct interior_type
 template <typename Polygon>
 struct interior_type<polygon_tag, Polygon>
 {
-    typedef typename boost::remove_reference
+    typedef typename std::remove_reference
         <
             typename interior_return_type<polygon_tag, Polygon>::type
         >::type type;

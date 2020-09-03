@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2020.
+// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,6 +12,8 @@
 
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_TRANSFORM_HPP
+
+#include <type_traits>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
@@ -70,21 +72,20 @@ struct transform_geometrically<Point, Vector, point_tag, vector_tag>
 
     static inline void apply(Point & point, Vector const& vector)
     {
-        typedef boost::mpl::bool_<
-            boost::is_same<
+        typedef std::is_same
+            <
                 typename traits::coordinate_system<Point>::type,
                 cs::cartesian
-            >::value
-        > is_cartesian;
+            > is_cartesian;
         apply(point, vector, is_cartesian());
     }
 
-    static inline void apply(Point & point, Vector const& vector, boost::mpl::bool_<true> /*is_cartesian*/)
+    static inline void apply(Point & point, Vector const& vector, std::true_type /*is_cartesian*/)
     {
         for_each_coordinate(point, detail::point_operation<Vector, std::plus>(vector));
     }
 
-    static inline void apply(Point & point, Vector const& vector, boost::mpl::bool_<false> /*is_cartesian*/)
+    static inline void apply(Point & point, Vector const& vector, std::false_type /*is_cartesian*/)
     {
         typedef typename traits::coordinate_system<Point>::type cs;
         BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_CS, (cs));
@@ -102,23 +103,22 @@ struct transform_geometrically<Box, Vector, box_tag, vector_tag>
 
     static inline void apply(Box & box, Vector const& vector)
     {
-        typedef boost::mpl::bool_<
-            boost::is_same<
+        typedef std::is_same
+            <
                 typename traits::coordinate_system<point_type>::type,
                 cs::cartesian
-            >::value
-        > is_cartesian;
+            > is_cartesian;
         apply(box, vector, is_cartesian());
     }
 
-    static inline void apply(Box & box, Vector const& vector, boost::mpl::bool_<true> /*is_cartesian*/)
+    static inline void apply(Box & box, Vector const& vector, std::true_type /*is_cartesian*/)
     {
         geometry::detail::transform_geometrically::box_vector_cartesian<
             Box, Vector, traits::dimension<point_type>::value
         >::apply(box, vector);
     }
 
-    static inline void apply(Box & box, Vector const& vector, boost::mpl::bool_<false> /*is_cartesian*/)
+    static inline void apply(Box & box, Vector const& vector, std::false_type /*is_cartesian*/)
     {
         typedef typename traits::coordinate_system<point_type>::type cs;
         BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_CS, (cs));

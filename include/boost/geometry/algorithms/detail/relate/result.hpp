@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/at.hpp>
@@ -30,7 +31,6 @@
 #include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits/integral_constant.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -167,7 +167,7 @@ public:
     {
         static const bool in_bounds = F1 < Matrix::static_height
                                    && F2 < Matrix::static_width;
-        typedef boost::integral_constant<bool, in_bounds> in_bounds_t;
+        typedef std::integral_constant<bool, in_bounds> in_bounds_t;
         set_dispatch<F1, F2, V>(in_bounds_t());
     }
 
@@ -176,13 +176,13 @@ public:
     {
         static const bool in_bounds = F1 < Matrix::static_height
                                    && F2 < Matrix::static_width;
-        typedef boost::integral_constant<bool, in_bounds> in_bounds_t;
+        typedef std::integral_constant<bool, in_bounds> in_bounds_t;
         update_dispatch<F1, F2, D>(in_bounds_t());
     }
 
 private:
     template <field F1, field F2, char V>
-    inline void set_dispatch(integral_constant<bool, true>)
+    inline void set_dispatch(std::true_type)
     {
         static const std::size_t index = F1 * Matrix::static_width + F2;
         BOOST_STATIC_ASSERT(index < Matrix::static_size);
@@ -190,11 +190,11 @@ private:
         m_matrix.template set<F1, F2, V>();
     }
     template <field F1, field F2, char V>
-    inline void set_dispatch(integral_constant<bool, false>)
+    inline void set_dispatch(std::false_type)
     {}
 
     template <field F1, field F2, char D>
-    inline void update_dispatch(integral_constant<bool, true>)
+    inline void update_dispatch(std::true_type)
     {
         static const std::size_t index = F1 * Matrix::static_width + F2;
         BOOST_STATIC_ASSERT(index < Matrix::static_size);
@@ -204,7 +204,7 @@ private:
             m_matrix.template set<F1, F2, D>();
     }
     template <field F1, field F2, char D>
-    inline void update_dispatch(integral_constant<bool, false>)
+    inline void update_dispatch(std::false_type)
     {}
 
     Matrix m_matrix;
@@ -864,35 +864,37 @@ struct static_may_update_dispatch
                         : mask_el >= '0' && mask_el <= '9' ? 2
                         : 3;
 
+    // TODO: use std::enable_if_t instead of std::integral_constant
+
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)
     {
-        return apply_dispatch(matrix, integral_constant<int, version>());
+        return apply_dispatch(matrix, std::integral_constant<int, version>());
     }
 
     // mask_el == 'F'
     template <typename Matrix>
-    static inline bool apply_dispatch(Matrix const& , integral_constant<int, 0>)
+    static inline bool apply_dispatch(Matrix const& , std::integral_constant<int, 0>)
     {
         return true;
     }
     // mask_el == 'T'
     template <typename Matrix>
-    static inline bool apply_dispatch(Matrix const& matrix, integral_constant<int, 1>)
+    static inline bool apply_dispatch(Matrix const& matrix, std::integral_constant<int, 1>)
     {
         char const c = matrix.template get<F1, F2>();
         return c == 'F'; // if it's T or between 0 and 9, the result will be the same
     }
     // mask_el >= '0' && mask_el <= '9'
     template <typename Matrix>
-    static inline bool apply_dispatch(Matrix const& matrix, integral_constant<int, 2>)
+    static inline bool apply_dispatch(Matrix const& matrix, std::integral_constant<int, 2>)
     {
         char const c = matrix.template get<F1, F2>();
         return D > c || c > '9';
     }
     // else
     template <typename Matrix>
-    static inline bool apply_dispatch(Matrix const&, integral_constant<int, 3>)
+    static inline bool apply_dispatch(Matrix const&, std::integral_constant<int, 3>)
     {
         return false;
     }
@@ -990,30 +992,32 @@ struct static_check_dispatch
                             : mask_el >= '0' && mask_el <= '9' ? 2
                             : 3;
 
+        // TODO: use std::enable_if_t instead of std::integral_constant
+
         template <typename Matrix>
         static inline bool apply(Matrix const& matrix)
         {
             const char el = matrix.template get<F1, F2>();
-            return apply_dispatch(el, integral_constant<int, version>());
+            return apply_dispatch(el, std::integral_constant<int, version>());
         }
 
         // mask_el == 'F'
-        static inline bool apply_dispatch(char el, integral_constant<int, 0>)
+        static inline bool apply_dispatch(char el, std::integral_constant<int, 0>)
         {
             return el == 'F';
         }
         // mask_el == 'T'
-        static inline bool apply_dispatch(char el, integral_constant<int, 1>)
+        static inline bool apply_dispatch(char el, std::integral_constant<int, 1>)
         {
             return el == 'T' || ( el >= '0' && el <= '9' );
         }
         // mask_el >= '0' && mask_el <= '9'
-        static inline bool apply_dispatch(char el, integral_constant<int, 2>)
+        static inline bool apply_dispatch(char el, std::integral_constant<int, 2>)
         {
             return el == mask_el;
         }
         // else
-        static inline bool apply_dispatch(char /*el*/, integral_constant<int, 3>)
+        static inline bool apply_dispatch(char /*el*/, std::integral_constant<int, 3>)
         {
             return true;
         }

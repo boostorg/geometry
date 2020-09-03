@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015, 2018, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -16,6 +16,7 @@
 #include <iterator>
 #include <memory>
 #include <new>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -23,10 +24,6 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_convertible.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -61,7 +58,7 @@ template
     typename Reference = typename ring_return_type<Polygon>::type,
     typename Difference = typename boost::range_difference
         <
-            typename boost::remove_reference
+            typename std::remove_reference
                 <
                     typename interior_return_type<Polygon>::type
                 >::type
@@ -79,7 +76,7 @@ class polygon_rings_iterator
 {
     typedef typename boost::range_size
         <
-            typename boost::remove_reference
+            typename std::remove_reference
                 <
                     typename interior_return_type<Polygon>::type
                 >::type
@@ -122,7 +119,7 @@ public:
         , m_index(other.m_index)
     {
         static const bool is_convertible
-            = boost::is_convertible<OtherPolygon, Polygon>::value;
+            = std::is_convertible<OtherPolygon, Polygon>::value;
 
         BOOST_MPL_ASSERT_MSG((is_convertible),
                              NOT_CONVERTIBLE,
@@ -282,12 +279,12 @@ struct views_container_initializer<Polygon, polygon_tag>
 template <typename MultiPolygon>
 class views_container_initializer<MultiPolygon, multi_polygon_tag>
 {
-    typedef typename boost::mpl::if_
+    typedef std::conditional_t
         <
-            boost::is_const<MultiPolygon>,
+            std::is_const<MultiPolygon>::value,
             typename boost::range_value<MultiPolygon>::type const,
             typename boost::range_value<MultiPolygon>::type
-        >::type polygon_type;
+        > polygon_type;
 
     typedef polygon_rings_iterator<polygon_type> inner_iterator_type;
 

@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -10,8 +10,9 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
+#include <type_traits>
+
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_convertible.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
@@ -92,11 +93,11 @@ public:
           m_inner_it(other.m_inner_it)
     {
         static const bool are_conv
-            = boost::is_convertible
+            = std::is_convertible
                 <
                     OtherOuterIterator, OuterIterator
                 >::value
-           && boost::is_convertible
+           && std::is_convertible
                 <
                     OtherInnerIterator, InnerIterator
                 >::value;

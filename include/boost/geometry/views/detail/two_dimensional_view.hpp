@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -53,12 +54,12 @@ struct two_dimensional_view<Point, Dimension1, Dimension2, point_tag>
     BOOST_MPL_ASSERT_MSG(
         (Dimension1 < static_cast<std::size_t>(dimension<Point>::value)),
         COORDINATE_DIMENSION1_IS_LARGER_THAN_POINT_DIMENSION,
-        (boost::mpl::int_<Dimension1>));
+        (std::integral_constant<std::size_t, Dimension1>));
 
     BOOST_MPL_ASSERT_MSG(
         (Dimension2 < static_cast<std::size_t>(dimension<Point>::value)),
         COORDINATE_DIMENSION2_IS_LARGER_THAN_POINT_DIMENSION,
-        (boost::mpl::int_<Dimension2>));
+        (std::integral_constant<std::size_t, Dimension2>));
 
     two_dimensional_view(Point& point)
         : m_point(point)
@@ -116,7 +117,7 @@ struct dimension
             <
                 Point, Dimension1, Dimension2, point_tag
             >
-    > : boost::mpl::int_<2>
+    > : std::integral_constant<std::size_t, 2>
 {};
 
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>

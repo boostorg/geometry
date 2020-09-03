@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,19 +22,17 @@
 
 #include <cstddef>
 #include <string>
+#include <type_traits>
 
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -269,7 +267,7 @@ struct stateful_range_appender<Geometry, open>
             typename util::bare_type<Geometry>::type
         >::type size_type;
 
-    BOOST_STATIC_ASSERT(( boost::is_same
+    BOOST_STATIC_ASSERT(( std::is_same
                             <
                                 typename tag<Geometry>::type,
                                 ring_tag
@@ -441,7 +439,7 @@ struct polygon_parser
                 appender::apply(it, end, wkt, ring);
                 traits::push_back
                     <
-                        typename boost::remove_reference
+                        typename std::remove_reference
                         <
                             typename traits::interior_mutable_type<Polygon>::type
                         >::type

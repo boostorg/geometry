@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -11,8 +11,9 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_HPP
 
 
+#include <type_traits>
+
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -58,7 +59,7 @@ struct default_strategy
             Geometry
         >::type covered_by_strategy_type;
 
-    static const bool same_strategies = boost::is_same<within_strategy_type, covered_by_strategy_type>::value;
+    static const bool same_strategies = std::is_same<within_strategy_type, covered_by_strategy_type>::value;
     BOOST_MPL_ASSERT_MSG((same_strategies),
                          DEFAULT_WITHIN_AND_COVERED_BY_STRATEGIES_NOT_COMPATIBLE,
                          (within_strategy_type, covered_by_strategy_type));
