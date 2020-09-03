@@ -310,8 +310,51 @@ template <typename T>
 using remove_cref_t = typename remove_cref<T>::type;
 
 
+
+template <typename From, typename To>
+struct transcribe_const
+{
+    using type = std::conditional_t
+                    <
+                        std::is_const<std::remove_reference_t<From>>::value,
+                        std::add_const_t<To>,
+                        To
+                    >;
+};
+
+template <typename From, typename To>
+using transcribe_const_t = typename transcribe_const<From, To>::type;
+
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
+
+
+/*!
+    \brief Meta-function to define a const or non const type
+    \ingroup utility
+    \details If the boolean template parameter is true, the type parameter
+        will be defined as const, otherwise it will be defined as it was.
+        This meta-function is used to have one implementation for both
+        const and non const references
+    \note This traits class is completely independant from Boost.Geometry
+        and might be a separate addition to Boost
+    \note Used in a.o. for_each, interior_rings, exterior_ring
+    \par Example
+    \code
+        void foo(typename add_const_if_c<IsConst, Point>::type& point)
+    \endcode
+*/
+template <bool IsConst, typename Type>
+struct add_const_if_c
+{
+    typedef std::conditional_t
+        <
+            IsConst,
+            Type const,
+            Type
+        > type;
+};
 
 
 }} // namespace boost::geometry

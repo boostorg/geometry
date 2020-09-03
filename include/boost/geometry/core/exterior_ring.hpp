@@ -27,7 +27,6 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/util/add_const_if_c.hpp>
 
 
 namespace boost { namespace geometry
@@ -83,11 +82,7 @@ struct exterior_ring<polygon_tag, Polygon>
 {
     static
     typename geometry::ring_return_type<Polygon>::type
-        apply(typename add_const_if_c
-            <
-                std::is_const<Polygon>::type::value,
-                Polygon
-            >::type& polygon)
+        apply(Polygon& polygon)
     {
         return traits::exterior_ring
             <

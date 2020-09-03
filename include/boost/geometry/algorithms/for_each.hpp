@@ -23,7 +23,6 @@
 
 
 #include <algorithm>
-#include <type_traits>
 
 #include <boost/range.hpp>
 
@@ -40,8 +39,8 @@
 
 #include <boost/geometry/geometries/segment.hpp>
 
-#include <boost/geometry/util/add_const_if_c.hpp>
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
@@ -108,21 +107,21 @@ struct fe_segment_segment
 template <typename Range>
 struct fe_range_value
 {
-    typedef typename add_const_if_c
+    typedef detail::transcribe_const_t
         <
-            std::is_const<Range>::value,
+            Range,
             typename boost::range_value<Range>::type
-        >::type type;
+        > type;
 };
 
 template <typename Range>
 struct fe_point_type
 {
-    typedef typename add_const_if_c
+    typedef detail::transcribe_const_t
         <
-            std::is_const<Range>::value,
+            Range,
             typename point_type<Range>::type
-        >::type type;
+        > type;
 };
 
 

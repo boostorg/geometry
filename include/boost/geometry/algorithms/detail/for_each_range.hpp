@@ -32,7 +32,7 @@
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/add_const_if_c.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/box_view.hpp>
 #include <boost/geometry/views/segment_view.hpp>
@@ -195,11 +195,11 @@ struct for_each_range<Geometry, multi_linestring_tag>
             Geometry,
             detail::for_each::fe_range_range
                 <
-                    typename add_const_if_c
+                    detail::transcribe_const_t
                         <
-                            std::is_const<Geometry>::value,
+                            Geometry,
                             typename boost::range_value<Geometry>::type
-                        >::type
+                        >
                 >
         >
 {};
@@ -212,11 +212,11 @@ struct for_each_range<Geometry, multi_polygon_tag>
             Geometry,
             detail::for_each::fe_range_polygon
                 <
-                    typename add_const_if_c
+                    detail::transcribe_const_t
                         <
-                            std::is_const<Geometry>::value,
+                            Geometry,
                             typename boost::range_value<Geometry>::type
-                        >::type
+                        >
                 >
         >
 {};
