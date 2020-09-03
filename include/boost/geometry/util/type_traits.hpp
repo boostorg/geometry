@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_UTIL_TYPE_TRAITS_HPP
 
 
+#include <cstddef>
 #include <iterator>
 #include <type_traits>
 
@@ -34,6 +35,18 @@ namespace detail
 template <bool B>
 using bool_constant = std::integral_constant<bool, B>;
 
+// non-standard
+template <int I>
+using int_constant = std::integral_constant<int, I>;
+
+// non-standard
+template <std::size_t I>
+using index_constant = std::integral_constant<std::size_t, I>;
+
+// non-standard
+template <std::size_t S>
+using size_constant = std::integral_constant<std::size_t, S>;
+
 
 // C++17
 template <typename ...>
@@ -49,7 +62,6 @@ struct conjunction<Trait, Traits...>
     : std::conditional_t<Trait::value, conjunction<Traits...>, Trait>
 {};
 
-
 // C++17
 template <typename ...>
 struct disjunction
@@ -63,7 +75,6 @@ template <typename Trait, typename ...Traits>
 struct disjunction<Trait, Traits...>
     : std::conditional_t<Trait::value, Trait, disjunction<Traits...>>
 {};
-
 
 // C++17
 template <typename Trait>
@@ -93,7 +104,6 @@ template <typename T>
 struct is_not_geometry
     : std::is_void<typename tag<T>::type>
 {};
-
 
 template <typename T>
 struct is_point
@@ -190,6 +200,7 @@ template <typename T>
 struct is_single
     : std::is_base_of<single_tag, typename tag<T>::type>
 {};
+
 
 
 template <typename Geometry, typename T = void>
@@ -312,6 +323,28 @@ template <typename T>
 struct is_range
     : is_range_impl<T>
 {};
+
+
+
+// C++20
+template <typename T>
+struct remove_cvref
+{
+    using type = std::remove_cv_t<std::remove_reference_t<T>>;
+};
+
+template <typename T>
+using remove_cvref_t = typename remove_cvref<T>::type;
+
+// non-standard
+template <typename T>
+struct remove_cref
+{
+    using type = std::remove_const_t<std::remove_reference_t<T>>;
+};
+
+template <typename T>
+using remove_cref_t = typename remove_cref<T>::type;
 
 
 } // namespace detail
