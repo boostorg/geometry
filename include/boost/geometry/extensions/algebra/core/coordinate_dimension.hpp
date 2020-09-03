@@ -22,6 +22,7 @@
 #include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
 namespace boost { namespace geometry {

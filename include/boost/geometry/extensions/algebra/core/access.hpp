@@ -19,12 +19,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_ACCESS_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_ACCESS_HPP
 
-
-
 #include <boost/geometry/core/access.hpp>
 
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -34,7 +31,7 @@ namespace core_dispatch
 {
 
 template <typename Vector, typename CoordinateType, std::size_t Dimension>
-struct access<vector_tag, Vector, CoordinateType, Dimension, boost::false_type>
+struct access<vector_tag, Vector, CoordinateType, Dimension, std::false_type>
 {
     static inline CoordinateType get(Vector const& v)
     {
@@ -47,7 +44,7 @@ struct access<vector_tag, Vector, CoordinateType, Dimension, boost::false_type>
 };
 
 template <typename Vector, typename CoordinateType, std::size_t Dimension>
-struct access<vector_tag, Vector, CoordinateType, Dimension, boost::true_type>
+struct access<vector_tag, Vector, CoordinateType, Dimension, std::true_type>
 {
     static inline CoordinateType get(Vector const* v)
     {
@@ -60,7 +57,7 @@ struct access<vector_tag, Vector, CoordinateType, Dimension, boost::true_type>
 };
 
 template <typename Q, typename CoordinateType, std::size_t Dimension>
-struct access<quaternion_tag, Q, CoordinateType, Dimension, boost::false_type>
+struct access<quaternion_tag, Q, CoordinateType, Dimension, std::false_type>
 {
     static inline CoordinateType get(Q const& v)
     {
@@ -73,7 +70,7 @@ struct access<quaternion_tag, Q, CoordinateType, Dimension, boost::false_type>
 };
 
 template <typename Q, typename CoordinateType, std::size_t Dimension>
-struct access<quaternion_tag, Q, CoordinateType, Dimension, boost::true_type>
+struct access<quaternion_tag, Q, CoordinateType, Dimension, std::true_type>
 {
     static inline CoordinateType get(Q const* v)
     {
@@ -86,18 +83,18 @@ struct access<quaternion_tag, Q, CoordinateType, Dimension, boost::true_type>
 };
 
 template<typename M, typename CoordinateType, std::size_t I, std::size_t J>
-struct indexed_access<matrix_tag, M, CoordinateType, I, J, boost::false_type>
+struct indexed_access<matrix_tag, M, CoordinateType, I, J, std::false_type>
     : detail::indexed_access_non_pointer<M, CoordinateType, I, J>
 {};
 
 template<typename M, typename CoordinateType, std::size_t I, std::size_t J>
-struct indexed_access<matrix_tag, M, CoordinateType, I, J, boost::true_type>
+struct indexed_access<matrix_tag, M, CoordinateType, I, J, std::true_type>
     : detail::indexed_access_pointer<M, CoordinateType, I, J>
 {};
 
 
 template <typename Q, typename CoordinateType, std::size_t Dimension>
-struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::false_type>
+struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, std::false_type>
 {
     static inline CoordinateType get(Q const& v)
     {
@@ -110,7 +107,7 @@ struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::fals
 };
 
 template <typename Q, typename CoordinateType, std::size_t Dimension>
-struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::true_type>
+struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, std::true_type>
 {
     static inline CoordinateType get(Q const* v)
     {
@@ -123,12 +120,12 @@ struct access<rotation_quaternion_tag, Q, CoordinateType, Dimension, boost::true
 };
 
 template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
-struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::false_type>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, std::false_type>
     : detail::indexed_access_non_pointer<RM, CoordinateType, I, J>
 {};
 
 template<typename RM, typename CoordinateType, std::size_t I, std::size_t J>
-struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, boost::true_type>
+struct indexed_access<rotation_matrix_tag, RM, CoordinateType, I, J, std::true_type>
     : detail::indexed_access_pointer<RM, CoordinateType, I, J>
 {};
 

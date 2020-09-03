@@ -20,6 +20,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_SYSTEM_HPP
 
 #include <boost/geometry/core/coordinate_system.hpp>
+
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
 namespace boost { namespace geometry {
