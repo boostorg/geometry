@@ -25,7 +25,7 @@
 #include <boost/geometry/strategy/area.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
-#include <boost/geometry/util/select_sequence_element.hpp>
+#include <boost/geometry/util/select_pack_element.hpp>
 
 #include <boost/variant/variant_fwd.hpp>
 
@@ -60,6 +60,46 @@ struct area_result<Geometry, Strategy, false>
 {};
 
 
+template <typename Geometry>
+struct default_area_result
+    : area_result
+        <
+            Geometry,
+            typename geometry::strategies::area::services::default_strategy
+                <
+                    Geometry
+                >::type
+        >
+{};
+
+template <typename Curr, typename Next>
+struct more_precise_coordinate_type
+    : std::is_same
+        <
+            typename geometry::coordinate_type<Curr>::type,
+            typename geometry::select_most_precise
+                <
+                    typename geometry::coordinate_type<Curr>::type,
+                    typename geometry::coordinate_type<Next>::type
+                >::type
+        >
+{};
+
+
+template <typename Curr, typename Next>
+struct more_precise_default_area_result
+    : std::is_same
+        <
+            typename default_area_result<Curr>::type,
+            typename geometry::select_most_precise
+                <
+                    typename default_area_result<Curr>::type,
+                    typename default_area_result<Next>::type
+                >::type
+        >
+{};
+
+
 }} // namespace detail::area
 #endif //DOXYGEN_NO_DETAIL
 
@@ -78,13 +118,14 @@ struct area_result
     : detail::area::area_result<Geometry, Strategy>
 {};
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
+template <typename ...Ts, typename Strategy>
+struct area_result<boost::variant<Ts...>, Strategy>
     : geometry::area_result
         <
-            typename geometry::util::select_sequence_element
+            typename detail::select_pack_element
                 <
-                    typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types
+                    detail::area::more_precise_coordinate_type,
+                    Ts...
                 >::type,
             Strategy
         >
@@ -92,53 +133,17 @@ struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 
 template <typename Geometry>
 struct area_result<Geometry, default_strategy>
-    : geometry::area_result
-        <
-            Geometry,
-            typename geometry::strategies::area::services::default_strategy
-                <
-                    Geometry
-                >::type
-        >
+    : detail::area::default_area_result<Geometry>
 {};
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace area
-{
-
-template <typename Curr, typename Next>
-struct pred_more_precise_default_area_result
-{
-    typedef typename geometry::area_result<Curr, default_strategy>::type curr_result_t;
-    typedef typename geometry::area_result<Next, default_strategy>::type next_result_t;
-
-    typedef std::conditional_t
-        <
-            std::is_same
-                <
-                    curr_result_t,
-                    typename geometry::select_most_precise
-                        <
-                            curr_result_t,
-                            next_result_t
-                        >::type
-                >::value,
-            Curr,
-            Next
-        > type;
-};
-
-}} // namespace detail::area
-#endif //DOXYGEN_NO_DETAIL
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, default_strategy>
+template <typename ...Ts>
+struct area_result<boost::variant<Ts...>, default_strategy>
     : geometry::area_result
         <
-            typename geometry::util::select_sequence_element
+            typename detail::select_pack_element
                 <
-                    typename boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types,
-                    geometry::detail::area::pred_more_precise_default_area_result
+                    detail::area::more_precise_default_area_result,
+                    Ts...
                 >::type,
             default_strategy
         >
