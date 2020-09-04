@@ -20,12 +20,6 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/mpl/begin.hpp>
-#include <boost/mpl/deref.hpp>
-#include <boost/mpl/end.hpp>
-#include <boost/mpl/list.hpp>
-#include <boost/mpl/next.hpp>
-
 #if !defined(BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER)
 #include <boost/multiprecision/cpp_int.hpp>
 #endif
@@ -42,7 +36,7 @@ namespace detail { namespace promote_integral
 template
 <
     typename T,
-    bool IsFundamental = std::is_fundamental<T>::type::value
+    bool IsFundamental = std::is_fundamental<T>::value
 >
 struct bit_size
 {};
@@ -83,40 +77,33 @@ struct bit_size
 #endif // BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
 
 
-template
-<
-    typename T,
-    typename Iterator,
-    typename EndIterator,
-    std::size_t MinSize
->
+template <typename T, std::size_t MinSize, typename ...Ts>
 struct promote_to_larger
-{
-    typedef typename boost::mpl::deref<Iterator>::type current_type;
-
-    typedef std::conditional_t
-        <
-            (bit_size<current_type>::type::value >= MinSize),
-            current_type,
-            typename promote_to_larger
-                <
-                    T,
-                    typename boost::mpl::next<Iterator>::type,
-                    EndIterator,
-                    MinSize
-                >::type
-        > type;
-};
-
-// The following specialization is required to finish the loop over
-// all list elements
-template <typename T, typename EndIterator, std::size_t MinSize>
-struct promote_to_larger<T, EndIterator, EndIterator, MinSize>
 {
     // if promotion fails, keep the number T
     // (and cross fingers that overflow will not occur)
     typedef T type;
 };
+
+template <typename T, std::size_t MinSize, typename CurrentT, typename ...Ts>
+struct promote_to_larger<T, MinSize, CurrentT, Ts...>
+{
+    typedef std::conditional_t
+        <
+            (bit_size<CurrentT>::value >= MinSize),
+            CurrentT,
+            typename promote_to_larger<T, MinSize, Ts...>::type
+        > type;
+};
+
+template <typename ...Ts>
+struct integral_types {};
+
+template <typename T, std::size_t MinSize, typename ...Ts>
+struct promote_to_larger<T, MinSize, integral_types<Ts...>>
+    : promote_to_larger<T, MinSize, Ts...>
+{};
+
 
 }} // namespace detail::promote_integral
 #endif // DOXYGEN_NO_DETAIL
@@ -132,14 +119,14 @@ struct promote_to_larger<T, EndIterator, EndIterator, MinSize>
     to a another integral type with size (roughly) twice the bit size of T.
 
     To do this, two times the bit size of T is tested against the bit sizes of:
-         short, int, long, boost::long_long_type, boost::int128_t
+         short, int, long, long long, boost::int128_t
     and the one that first matches is chosen.
 
     For unsigned types the bit size of T is tested against the bit
     sizes of the types above, if T is promoted to a signed type, or
     the bit sizes of
          unsigned short, unsigned int, unsigned long, std::size_t,
-         boost::ulong_long_type, boost::uint128_t
+         unsigned long long, boost::uint128_t
     if T is promoted to an unsigned type.
 
     By default an unsigned type is promoted to a signed type.
@@ -157,9 +144,6 @@ struct promote_to_larger<T, EndIterator, EndIterator, MinSize>
 
     Finally, if the passed type is either a floating-point type or a
     user-defined type it is returned as is.
-
-    \note boost::long_long_type and boost::ulong_long_type are
-    considered only if the macro BOOST_HAS_LONG_LONG is defined
 
     \note boost::int128_type and boost::uint128_type are considered
     only if the macros BOOST_HAS_INT128 and BOOST_GEOMETRY_ENABLE_INT128
@@ -240,12 +224,12 @@ private:
 
     // Define the list of signed integral types we are going to use
     // for promotion
-    typedef boost::mpl::list
+    typedef detail::promote_integral::integral_types
         <
-            short, int, long
-#if defined(BOOST_HAS_LONG_LONG)
-            , boost::long_long_type
-#endif
+            short,
+            int,
+            long,
+            long long
 #if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
             , boost::int128_type
 #endif
@@ -260,12 +244,13 @@ private:
 
     // Define the list of unsigned integral types we are going to use
     // for promotion
-    typedef boost::mpl::list
+    typedef detail::promote_integral::integral_types
         <
-            unsigned short, unsigned int, unsigned long, std::size_t
-#if defined(BOOST_HAS_LONG_LONG)
-            , boost::ulong_long_type
-#endif
+            unsigned short,
+            unsigned int,
+            unsigned long,
+            std::size_t,
+            unsigned long long
 #if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
             , boost::uint128_type
 #endif
@@ -292,9 +277,8 @@ public:
     typedef typename detail::promote_integral::promote_to_larger
         <
             T,
-            typename boost::mpl::begin<integral_types>::type,
-            typename boost::mpl::end<integral_types>::type,
-            min_bit_size_type::value
+            min_bit_size_type::value,
+            integral_types            
         >::type type;
 };
 
