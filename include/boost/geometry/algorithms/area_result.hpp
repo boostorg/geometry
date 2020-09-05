@@ -25,7 +25,7 @@
 #include <boost/geometry/strategy/area.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
-#include <boost/geometry/util/select_pack_element.hpp>
+#include <boost/geometry/util/sequence.hpp>
 
 #include <boost/variant/variant_fwd.hpp>
 
