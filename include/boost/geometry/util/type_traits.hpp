@@ -226,6 +226,19 @@ using enable_if_polysegmental_t = typename enable_if_polysegmental<Geometry, T>:
 #endif // DOXYGEN_NO_DETAIL
 
 
+// Deprecated utilities, defined for backward compatibility but might be
+// removed in the future.
+
+
+/*!
+    \brief Meta-function defining "true" for areal types (box, (multi)polygon, ring),
+    \note Used for tag dispatching and meta-function finetuning
+    \note Also a "ring" has areal properties within Boost.Geometry
+    \ingroup core
+*/
+using detail::is_areal;
+
+
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_STRATEGIES_DETAIL_HPP
