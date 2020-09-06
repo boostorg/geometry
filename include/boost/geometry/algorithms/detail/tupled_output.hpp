@@ -9,8 +9,11 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TUPLED_OUTPUT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TUPLED_OUTPUT_HPP
 
+#include <boost/range/value_type.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/core/config.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -18,8 +21,6 @@
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/tuples.hpp>
 #include <boost/geometry/util/type_traits.hpp>
-
-#include <boost/range/value_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -519,31 +520,28 @@ struct expect_output_assert_base;
 template <typename Geometry1, typename Geometry2, typename TupledOut, bool IsFound>
 struct expect_output_assert_base<Geometry1, Geometry2, TupledOut, IsFound, pointlike_tag>
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            IsFound, POINTLIKE_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-            (types<Geometry1, Geometry2, TupledOut>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        IsFound,
+        "PointLike Geometry expected in tupled output.",
+        Geometry1, Geometry2, TupledOut);
 };
 
 template <typename Geometry1, typename Geometry2, typename TupledOut, bool IsFound>
 struct expect_output_assert_base<Geometry1, Geometry2, TupledOut, IsFound, linear_tag>
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        IsFound, LINEAR_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-        (types<Geometry1, Geometry2, TupledOut>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        IsFound,
+        "Linear Geometry expected in tupled output.",
+        Geometry1, Geometry2, TupledOut);
 };
 
 template <typename Geometry1, typename Geometry2, typename TupledOut, bool IsFound>
 struct expect_output_assert_base<Geometry1, Geometry2, TupledOut, IsFound, areal_tag>
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        IsFound, AREAL_GEOMETRY_EXPECTED_IN_TUPLED_OUTPUT,
-        (types<Geometry1, Geometry2, TupledOut>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        IsFound,
+        "Areal Geometry expected in tupled output.",
+        Geometry1, Geometry2, TupledOut);
 };
 
 

@@ -13,12 +13,14 @@
 
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/iterators/closing_iterator.hpp>
 
 
@@ -154,7 +156,9 @@ public:
         static const bool are_conv
             = std::is_convertible<other_iterator_type, iterator_type>::value;
 
-        BOOST_MPL_ASSERT_MSG((are_conv), NOT_CONVERTIBLE, (types<OtherRange>));
+        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
+            "Other iterator has to be convertible to member iterator.",
+            OtherRange);
     }
 
 private:

@@ -13,8 +13,7 @@
 #include <iterator>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/iterators/point_iterator.hpp>
 
 namespace boost { namespace geometry
@@ -53,9 +52,9 @@ public:
                 std::reverse_iterator<point_iterator<OtherGeometry> >
             >::value;
 
-        BOOST_MPL_ASSERT_MSG((is_conv),
-                             NOT_CONVERTIBLE,
-                             (point_reverse_iterator<OtherGeometry>));
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv),
+            "Other iterator has to be convertible to member iterator.",
+            point_reverse_iterator<OtherGeometry>);
     }
 };
 

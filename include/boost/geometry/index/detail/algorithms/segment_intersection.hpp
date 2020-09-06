@@ -17,6 +17,8 @@
 
 #include <type_traits>
 
+#include <boost/geometry/core/static_assert.hpp>
+
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 //template <typename Indexable, typename Point>
@@ -31,8 +33,8 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 //    >::type type;
 //
 //
-//    BOOST_MPL_ASSERT_MSG((!std::is_unsigned<type>::value),
-//        THIS_TYPE_SHOULDNT_BE_UNSIGNED, (type));
+//    BOOST_GEOMETRY_STATIC_ASSERT((!std::is_unsigned<type>::value),
+//        "Distance type can not be unsigned.", type);
 //};
 
 namespace dispatch {
@@ -99,13 +101,17 @@ struct box_segment_intersection<Box, Point, 1>
 template <typename Indexable, typename Point, typename Tag>
 struct segment_intersection
 {
-    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_GEOMETRY, (segment_intersection));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Indexable type.",
+        Indexable, Point, Tag);
 };
 
 template <typename Indexable, typename Point>
 struct segment_intersection<Indexable, Point, point_tag>
 {
-    BOOST_MPL_ASSERT_MSG((false), SEGMENT_POINT_INTERSECTION_UNAVAILABLE, (segment_intersection));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Segment-Point intersection unavailable.",
+        Indexable, Point);
 };
 
 template <typename Indexable, typename Point>
@@ -120,7 +126,9 @@ struct segment_intersection<Indexable, Point, box_tag>
 // TODO: this ASSERT CHECK is wrong for user-defined CoordinateTypes!
 
         static const bool check = !std::is_integral<RelativeDistance>::value;
-        BOOST_MPL_ASSERT_MSG(check, RELATIVE_DISTANCE_MUST_BE_FLOATING_POINT_TYPE, (RelativeDistance));
+        BOOST_GEOMETRY_STATIC_ASSERT(check,
+            "RelativeDistance must be a floating point type.",
+            RelativeDistance);
 
         RelativeDistance t_near = -(::std::numeric_limits<RelativeDistance>::max)();
         RelativeDistance t_far = (::std::numeric_limits<RelativeDistance>::max)();

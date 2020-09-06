@@ -24,7 +24,6 @@
 #include <cstddef>
 #include <functional>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/range.hpp>
 
 #include <boost/variant/apply_visitor.hpp>

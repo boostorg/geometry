@@ -14,11 +14,12 @@
 #include <type_traits>
 
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/iterators/dispatch/point_iterator.hpp>
@@ -280,9 +281,9 @@ public:
                     >::type
             >::value;
 
-        BOOST_MPL_ASSERT_MSG((is_conv),
-                             NOT_CONVERTIBLE,
-                             (point_iterator<OtherGeometry>));
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv),
+            "Other iterator has to be convertible to member iterator.",
+            point_iterator<OtherGeometry>);
     }
 };
 

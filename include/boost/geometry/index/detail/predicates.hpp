@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,10 +15,12 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
 
+#include <type_traits>
 //#include <utility>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/tuple/tuple.hpp>
+
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/index/detail/tags.hpp>
 
@@ -121,10 +123,9 @@ struct path
 template <typename Predicate, typename Tag>
 struct predicate_check
 {
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THIS_PREDICATE_OR_TAG,
-        (predicate_check));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Predicate or Tag.",
+        Predicate, Tag);
 };
 
 // ------------------------------------------------------------------ //
@@ -154,7 +155,9 @@ struct predicate_check<predicates::satisfies<Fun, true>, value_tag>
 template <typename Tag>
 struct spatial_predicate_call
 {
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Tag.",
+        Tag);
 };
 
 template <>
@@ -546,7 +549,10 @@ struct predicates_length< boost::tuples::cons<Head, Tail> >
 template <unsigned I, typename T>
 struct predicates_element
 {
-    BOOST_MPL_ASSERT_MSG((I < 1), INVALID_INDEX, (predicates_element));
+    BOOST_GEOMETRY_STATIC_ASSERT((I < 1),
+        "Invalid I index.",
+        std::integral_constant<unsigned, I>);
+
     typedef T type;
     static type const& get(T const& p) { return p; }
 };
@@ -554,7 +560,7 @@ struct predicates_element
 //template <unsigned I, typename F, typename S>
 //struct predicates_element< I, std::pair<F, S> >
 //{
-//    BOOST_MPL_ASSERT_MSG((I < 2), INVALID_INDEX, (predicates_element));
+//    BOOST_GEOMETRY_STATIC_ASSERT((I < 2), "INVALID_INDEX", std::integral_constant<unsigned, I>, F, S);
 //
 //    typedef F type;
 //    static type const& get(std::pair<F, S> const& p) { return p.first; }
@@ -662,7 +668,9 @@ template <typename Predicate, typename Tag, unsigned First, unsigned Last>
 struct predicates_check_impl
 {
     static const bool check = First < 1 && Last <= 1 && First <= Last;
-    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
+    BOOST_GEOMETRY_STATIC_ASSERT((check),
+        "Invalid First or Last index.",
+        std::integer_sequence<unsigned, First, Last>);
 
     template <typename Value, typename Indexable, typename Strategy>
     static inline bool apply(Predicate const& p, Value const& v, Indexable const& i, Strategy const& s)
@@ -674,7 +682,9 @@ struct predicates_check_impl
 //template <typename Predicate1, typename Predicate2, typename Tag, size_t First, size_t Last>
 //struct predicates_check_impl<std::pair<Predicate1, Predicate2>, Tag, First, Last>
 //{
-//    BOOST_MPL_ASSERT_MSG((First < 2 && Last <= 2 && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+//    BOOST_GEOMETRY_STATIC_ASSERT((First < 2 && Last <= 2 && First <= Last),
+//        "INVALID_INDEXES",
+//        std::integer_sequence<unsigned, First, Last>);
 //
 //    template <typename Value, typename Indexable>
 //    static inline bool apply(std::pair<Predicate1, Predicate2> const& p, Value const& v, Indexable const& i)
@@ -697,7 +707,9 @@ struct predicates_check_impl
 //    typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> predicates_type;
 //
 //    static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
-//    BOOST_MPL_ASSERT_MSG((First < pred_len && Last <= pred_len && First <= Last), INVALID_INDEXES, (predicates_check_impl));
+//    BOOST_GEOMETRY_STATIC_ASSERT((First < pred_len && Last <= pred_len && First <= Last),
+//        "INVALID_INDEXES",
+//        std::integer_sequence<unsigned, First, Last>);
 //
 //    template <typename Value, typename Indexable>
 //    static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i)
@@ -719,7 +731,9 @@ struct predicates_check_impl<
 
     static const unsigned pred_len = boost::tuples::length<predicates_type>::value;
     static const bool check = First < pred_len && Last <= pred_len && First <= Last;
-    BOOST_MPL_ASSERT_MSG((check), INVALID_INDEXES, (predicates_check_impl));
+    BOOST_GEOMETRY_STATIC_ASSERT((check),
+        "Invalid First or Last index.",
+        std::integer_sequence<unsigned, First, Last>);
 
     template <typename Value, typename Indexable, typename Strategy>
     static inline bool apply(predicates_type const& p, Value const& v, Indexable const& i, Strategy const& s)

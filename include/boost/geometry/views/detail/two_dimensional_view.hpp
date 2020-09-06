@@ -13,14 +13,12 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/int.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -51,15 +49,15 @@ struct two_dimensional_view
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>
 struct two_dimensional_view<Point, Dimension1, Dimension2, point_tag>
 {
-    BOOST_MPL_ASSERT_MSG(
-        (Dimension1 < static_cast<std::size_t>(dimension<Point>::value)),
-        COORDINATE_DIMENSION1_IS_LARGER_THAN_POINT_DIMENSION,
-        (std::integral_constant<std::size_t, Dimension1>));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        (Dimension1 < dimension<Point>::value),
+        "Coordinate Dimension1 is larger than Point's dimension.",
+        std::integral_constant<std::size_t, Dimension1>);
 
-    BOOST_MPL_ASSERT_MSG(
-        (Dimension2 < static_cast<std::size_t>(dimension<Point>::value)),
-        COORDINATE_DIMENSION2_IS_LARGER_THAN_POINT_DIMENSION,
-        (std::integral_constant<std::size_t, Dimension2>));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        (Dimension2 < dimension<Point>::value),
+        "Coordinate Dimension2 is larger than Point's dimension.",
+        std::integral_constant<std::size_t, Dimension2>);
 
     two_dimensional_view(Point& point)
         : m_point(point)

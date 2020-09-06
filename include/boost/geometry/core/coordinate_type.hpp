@@ -19,9 +19,8 @@
 #define BOOST_GEOMETRY_CORE_COORDINATE_TYPE_HPP
 
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
@@ -44,10 +43,9 @@ namespace traits
 template <typename Point, typename Enable = void>
 struct coordinate_type
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Point>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Point type.",
+        Point);
 };
 
 } // namespace traits

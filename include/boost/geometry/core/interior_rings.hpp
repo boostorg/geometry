@@ -21,12 +21,12 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/interior_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/core/interior_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -49,11 +49,9 @@ namespace traits
 template <typename Geometry>
 struct interior_rings
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        Geometry);
 };
 
 

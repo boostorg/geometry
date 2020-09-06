@@ -19,9 +19,8 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_DIMENSION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_CORE_COORDINATE_DIMENSION_HPP
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/extensions/algebra/core/tags.hpp>
 
@@ -32,9 +31,9 @@ namespace traits {
 template <typename Geometry, std::size_t Index>
 struct indexed_dimension
 {
-     BOOST_MPL_ASSERT_MSG(false,
-                          NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEX,
-                          (Geometry, std::integral_constant<std::size_t, Index>));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry or Index",
+        Geometry, std::integral_constant<std::size_t, Index>);
 };
 
 } // namespace traits
@@ -55,9 +54,9 @@ struct dimension<quaternion_tag, G>
 template <typename T, typename G, std::size_t Index>
 struct indexed_dimension
 {
-    BOOST_MPL_ASSERT_MSG(false,
-                         NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_OR_INDEX,
-                         (G, std::integral_constant<std::size_t, Index>));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry or Index",
+        G, std::integral_constant<std::size_t, Index>);
 };
 
 template <typename G, std::size_t Index>

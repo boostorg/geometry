@@ -12,11 +12,11 @@
 
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -102,9 +102,9 @@ public:
                     OtherInnerIterator, InnerIterator
                 >::value;
 
-        BOOST_MPL_ASSERT_MSG((are_conv),
-                             NOT_CONVERTIBLE,
-                             (types<OtherOuterIterator, OtherInnerIterator>));
+        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
+            "Other iterators have to be convertible to member iterators.",
+            OtherOuterIterator, OtherInnerIterator);
     }
 
     flatten_iterator& operator=(flatten_iterator const& other)

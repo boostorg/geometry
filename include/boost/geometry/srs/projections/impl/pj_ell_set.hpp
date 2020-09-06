@@ -45,6 +45,7 @@
 #include <type_traits>
 #include <vector>
 
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/util/math.hpp>
 
@@ -516,7 +517,9 @@ struct static_srs_tag<Params, void, void, void>
         > type;
 
     static const bool is_found = ! std::is_void<type>::value;
-    BOOST_MPL_ASSERT_MSG((is_found), UNKNOWN_ELLP_PARAM, (Params));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_found),
+        "Expected ellipsoid or sphere definition.",
+        Params);
 };
 
 

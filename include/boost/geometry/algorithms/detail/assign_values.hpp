@@ -22,10 +22,10 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/mpl/assert.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -34,10 +34,10 @@
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
-
 
 #include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/for_each_coordinate.hpp>
@@ -254,11 +254,9 @@ namespace dispatch
 template <typename GeometryTag, typename Geometry, std::size_t DimensionCount>
 struct assign
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        GeometryTag, Geometry, std::integral_constant<std::size_t, DimensionCount>);
 };
 
 template <typename Point>
