@@ -5,6 +5,7 @@
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -14,8 +15,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_CONVEX_GRAHAM_ANDREW_HPP
-#define BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_CONVEX_GRAHAM_ANDREW_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_GRAHAM_ANDREW_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_GRAHAM_ANDREW_HPP
 
 
 #include <cstddef>
@@ -40,13 +41,9 @@
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace convex_hull
-{
-
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
+namespace detail { namespace convex_hull
 {
-
 
 template <typename Geometry, typename Point, typename Less>
 inline void get_extremes(Geometry const& geometry,
@@ -214,23 +211,20 @@ public:
         // TODO: User-defined CS-specific less-compare
         geometry::less<point_type> less;
 
-        detail::get_extremes(geometry, most_left, most_right, less);
+        detail::convex_hull::get_extremes(geometry, most_left, most_right, less);
 
         container_type lower_points, upper_points;
-
-        // TODO: User-defiend CS-specific side strategy
-        //typename strategy::side::services::default_strategy<cs_tag>::type side;
 
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points
         // in either lower, either upper
-        detail::assign_ranges(geometry, most_left, most_right,
+        detail::convex_hull::assign_ranges(geometry, most_left, most_right,
                               lower_points, upper_points,
                               side);
 
         // Sort both collections, first on x(, then on y)
-        detail::sort(lower_points, less);
-        detail::sort(upper_points, less);
+        detail::convex_hull::sort(lower_points, less);
+        detail::convex_hull::sort(upper_points, less);
 
         // And decide which point should be in the final hull
         build_half_hull<-1>(lower_points, state.m_lower_hull,
@@ -306,8 +300,10 @@ private:
 
 
     template <typename OutputIterator>
-    static inline void output_ranges(container_type const& first, container_type const& second,
-                                     OutputIterator out, bool closed)
+    static inline void output_ranges(container_type const& first,
+                                     container_type const& second,
+                                     OutputIterator out,
+                                     bool closed)
     {
         std::copy(boost::begin(first), boost::end(first), out);
 
@@ -329,18 +325,8 @@ private:
     }
 };
 
-}} // namespace strategy::convex_hull
-
-
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-template <typename InputGeometry, typename OutputPoint>
-struct strategy_convex_hull<InputGeometry, OutputPoint, cartesian_tag>
-{
-    typedef strategy::convex_hull::graham_andrew<InputGeometry, OutputPoint> type;
-};
-#endif
+} // namespace convex_hull
 
 }} // namespace boost::geometry
 
-
-#endif // BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_CONVEX_GRAHAM_ANDREW_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_GRAHAM_ANDREW_HPP
