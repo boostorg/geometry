@@ -12,7 +12,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_IN_CIRCLE_ROBUST_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_IN_CIRCLE_ROBUST_HPP
 
-#include<boost/geometry/extensions/triangulation/strategies/cartesian/detail/precise_math.hpp>
+#include<boost/geometry/util/precise_math.hpp>
 
 namespace boost { namespace geometry
 {

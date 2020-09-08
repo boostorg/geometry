@@ -33,6 +33,8 @@
 
 #include <boost/variant/variant.hpp>
 
+#include <boost/geometry/strategy/cartesian/precise_area.hpp>
+
 template <typename Polygon>
 void test_polygon()
 {
@@ -173,6 +175,34 @@ void test_large_integers()
     double double_area = bg::area(double_poly);
 
     BOOST_CHECK_CLOSE(int_area, double_area, 0.0001);
+}
+
+struct precise_cartesian : bg::strategies::detail::cartesian_base
+{
+    template <typename Geometry>
+    static auto area(Geometry const&)
+    {
+        return bg::strategy::area::precise_cartesian<>();
+    }
+};
+
+void test_inaccurate_cases()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
+
+    bg::model::polygon<point_type> poly;
+
+    bg::read_wkt("POLYGON((0.10000000000000001 0.10000000000000001,\
+                           0.20000000000000001 0.20000000000000004,\
+                           0.79999999999999993 0.80000000000000004,\
+                           1.267650600228229e30 1.2676506002282291e30,\
+                           0.10000000000000001 0.10000000000000001))", poly);
+
+    double inaccurate = bg::area(poly);
+    double accurate = bg::area(poly, precise_cartesian());
+
+    BOOST_CHECK_CLOSE(inaccurate, 0, 0.0001);
+    BOOST_CHECK_CLOSE(accurate, -0.315, 0.0001);
 }
 
 void test_variant()

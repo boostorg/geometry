@@ -14,7 +14,7 @@
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
-#include <boost/geometry/extensions/triangulation/strategies/cartesian/detail/precise_math.hpp>
+#include <boost/geometry/util/precise_math.hpp>
 
 namespace boost { namespace geometry
 {

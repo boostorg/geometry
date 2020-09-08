@@ -36,17 +36,19 @@
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
+#include <boost/geometry/strategy/spherical/area.hpp>
+#include <boost/geometry/strategy/spherical/envelope.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+#include <boost/geometry/strategy/spherical/expand_segment.hpp>
+
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/envelope.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
