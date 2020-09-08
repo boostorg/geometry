@@ -21,7 +21,7 @@
 // Note the addition of this whole file was committed to SVN by accident,
 // probably obsolete
 
-#include <boost/range.hpp>
+#include <boost/range/iterator.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/util/type_traits.hpp>

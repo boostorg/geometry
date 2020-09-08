@@ -26,7 +26,7 @@
 #include <type_traits>
 #include <vector>
 
-#include <boost/range.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
