@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_FUNCTIONS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_FUNCTIONS_HPP
 
+#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
@@ -131,7 +132,14 @@ static inline bool preceding(int dir,
                              RobustBox const& other_robust_box,
                              RobustPolicy const& robust_policy)
 {
-    typename geometry::robust_point_type<Point, RobustPolicy>::type robust_point;
+    typedef typename geometry::robust_point_type<Point, RobustPolicy>::type robust_point_type;
+    BOOST_STATIC_ASSERT((boost::is_same
+                         <
+                             typename geometry::coordinate_type<robust_point_type>::type,
+                             typename geometry::coordinate_type<RobustBox>::type
+                         >::value));
+
+    robust_point_type robust_point;
     geometry::recalculate(robust_point, point, robust_policy);
     return preceding_check<Dimension, Point>::apply(dir, robust_point, point_robust_box, other_robust_box);
 }
