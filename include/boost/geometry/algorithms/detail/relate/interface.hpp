@@ -15,7 +15,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_INTERFACE_HPP
 
 
-#include <boost/mpl/is_sequence.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -30,6 +29,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/relate.hpp>
+#include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 
@@ -85,16 +85,13 @@ struct interruption_enabled
         dispatch::relate<Geometry1, Geometry2>::interruption_enabled;
 };
 
-template <typename Geometry1,
-          typename Geometry2,
-          typename Result,
-          bool IsSequence = boost::mpl::is_sequence<Result>::value>
+template <typename Geometry1, typename Geometry2, typename Result>
 struct result_handler_type
     : not_implemented<Result>
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask, false>
+struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask>
 {
     typedef mask_handler
         <
@@ -108,7 +105,7 @@ struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask, false>
 };
 
 template <typename Geometry1, typename Geometry2, typename Head, typename Tail>
-struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail>, false>
+struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail>>
 {
     typedef mask_handler
         <
@@ -129,8 +126,7 @@ struct result_handler_type
     <
         Geometry1,
         Geometry2,
-        geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
-        false
+        geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
     >
 {
     typedef static_mask_handler
@@ -144,12 +140,12 @@ struct result_handler_type
         > type;
 };
 
-template <typename Geometry1, typename Geometry2, typename StaticSequence>
-struct result_handler_type<Geometry1, Geometry2, StaticSequence, true>
+template <typename Geometry1, typename Geometry2, typename ...StaticMasks>
+struct result_handler_type<Geometry1, Geometry2, detail::type_sequence<StaticMasks...>>
 {
     typedef static_mask_handler
         <
-            StaticSequence,
+            detail::type_sequence<StaticMasks...>,
             interruption_enabled
                 <
                     Geometry1,
