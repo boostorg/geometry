@@ -28,26 +28,94 @@ namespace detail
 template <typename ...Ts>
 struct type_sequence {};
 
-template <typename First, typename Second>
-struct type_pair
+
+// true if T is a sequence
+template <typename T>
+struct is_sequence : std::false_type {};
+
+template <typename ...Ts>
+struct is_sequence<type_sequence<Ts...>> : std::true_type {};
+
+template <typename T, T ...Is>
+struct is_sequence<std::integer_sequence<T, Is...>> : std::true_type {};
+
+
+// number of elements in a sequence
+template <typename Sequence>
+struct sequence_size {};
+
+template <typename ...Ts>
+struct sequence_size<type_sequence<Ts...>>
+    : std::integral_constant<std::size_t, sizeof...(Ts)>
+{};
+
+template <typename T, T ...Is>
+struct sequence_size<std::integer_sequence<T, Is...>>
+    : std::integral_constant<std::size_t, sizeof...(Is)>
+{};
+
+
+// element of a sequence
+template <std::size_t I, typename Sequence>
+struct sequence_element {};
+
+template <std::size_t I, typename T, typename ...Ts>
+struct sequence_element<I, type_sequence<T, Ts...>>
 {
-    typedef First first_type;
-    typedef Second second_type;
+    typedef typename sequence_element<I - 1, type_sequence<Ts...>>::type type;
 };
 
-template <typename T, T First, T Second>
-struct integer_pair
+template <typename T, typename ...Ts>
+struct sequence_element<0, type_sequence<T, Ts...>>
 {
-    static_assert(std::is_integral<T>::value, "T has to be an integral type.");
-    typedef T value_type;
-    static const T first_value = First;
-    static const T second_value = Second;
+    typedef T type;
 };
 
+template <std::size_t I, typename T, T J, T ...Js>
+struct sequence_element<I, std::integer_sequence<T, J, Js...>>
+    : std::integral_constant
+        <
+            T,
+            sequence_element<I - 1, std::integer_sequence<T, Js...>>::value
+        >
+{};
+
+template <typename T, T J, T ...Js>
+struct sequence_element<0, std::integer_sequence<T, J, Js...>>
+    : std::integral_constant<T, J>
+{};
+
+
+template <typename Sequence>
+struct sequence_front
+    : sequence_element<0, Sequence>
+{
+    static_assert(sequence_size<Sequence>::value > 0, "Sequence can not be empty.");
+};
+
+
+template <typename Sequence>
+struct sequence_back
+    : sequence_element<sequence_size<Sequence>::value - 1, Sequence>
+{
+    static_assert(sequence_size<Sequence>::value > 0, "Sequence can not be empty.");
+};
+
+
+template <typename Sequence>
+struct sequence_empty
+    : std::integral_constant
+        <
+            bool,
+            sequence_size<Sequence>::value == 0
+        >
+{};
 
 
 // merge<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<A, B, C, D>
+// merge<integer_sequence<A, B>, integer_sequence<C, D>>::type is
+//   integer_sequence<A, B, C, D>
 template <typename ...Sequences>
 struct merge;
 
@@ -81,8 +149,8 @@ struct merge<S1, S2, Sequences...>
 
 
 // combine<type_sequence<A, B>, type_sequence<C, D>>::type is
-//   type_sequence<type_pair<A, C>, type_pair<A, D>,
-//                 type_pair<B, C>, type_pair<B, D>>
+//   type_sequence<type_sequence<A, C>, type_sequence<A, D>,
+//                 type_sequence<B, C>, type_sequence<B, D>>
 template <typename Sequence1, typename Sequence2>
 struct combine;
 
@@ -90,7 +158,7 @@ template <typename ...T1s, typename ...T2s>
 struct combine<type_sequence<T1s...>, type_sequence<T2s...>>
 {
     template <typename U1, typename ...U2s>
-    using type_sequence_t = type_sequence<type_pair<U1, U2s>...>;
+    using type_sequence_t = type_sequence<type_sequence<U1, U2s>...>;
 
     typedef typename merge
         <
@@ -99,20 +167,19 @@ struct combine<type_sequence<T1s...>, type_sequence<T2s...>>
 };
 
 // combine<integer_sequence<T, 1, 2>, integer_sequence<T, 3, 4>>::type is
-//   type_sequence<integer_pair<1, 3>, integer_pair<1, 4>,
-//                 integer_pair<2, 3>, integer_pair<2, 4>>
+//   type_sequence<integer_sequence<T, 1, 3>, integer_sequence<T, 1, 4>,
+//                 integer_sequence<T, 2, 3>, integer_sequence<T, 2, 4>>
 template <typename T, T ...I1s, T ...I2s>
 struct combine<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
 {
     template <T J1, T ...J2s>
-    using type_sequence_t = type_sequence<integer_pair<T, J1, J2s>...>;
+    using type_sequence_t = type_sequence<std::integer_sequence<T, J1, J2s>...>;
 
     typedef typename merge
         <
             type_sequence_t<I1s, I2s...>...
         >::type type;
 };
-
 
 
 // Selects least element from a parameter pack based on
@@ -180,8 +247,8 @@ struct select_element<type_sequence<Ts...>, LessPred>
 };
 
 
-// Selects least pair of elements from a parameter pack based on
-// LessPred<xxx_pair<T11, T12>, xxx_pair<T21, T22>>::value comparison
+// Selects least pair sequence of elements from a parameter pack based on
+// LessPred<xxx_sequence<T11, T12>, xxx_sequence<T21, T22>>::value comparison
 template
 <
     typename Sequence1,

@@ -77,18 +77,22 @@ struct more_precise_distance_result
             <
                 typename resolve_strategy::distance_result
                     <
-                        typename Curr::first_type, typename Curr::second_type, Strategy
+                        typename detail::sequence_element<0, Curr>::type,
+                        typename detail::sequence_element<1, Curr>::type,
+                        Strategy
                     >::type,
                 typename geometry::select_most_precise
                     <
                         typename resolve_strategy::distance_result
                             <
-                                typename Curr::first_type, typename Curr::second_type,
+                                typename detail::sequence_element<0, Curr>::type,
+                                typename detail::sequence_element<1, Curr>::type,
                                 Strategy
                             >::type,
                         typename resolve_strategy::distance_result
                             <
-                                typename Next::first_type, typename Next::second_type,
+                                typename detail::sequence_element<0, Next>::type,
+                                typename detail::sequence_element<1, Next>::type,
                                 Strategy
                             >::type
                     >::type
@@ -130,8 +134,8 @@ struct distance_result<Geometry1, boost::variant<Ts...>, Strategy>
 
     typedef typename resolve_strategy::distance_result
         <
-            typename elements::first_type,
-            typename elements::second_type,
+            typename detail::sequence_element<0, elements>::type,
+            typename detail::sequence_element<1, elements>::type,
             Strategy
         >::type type;
 };
@@ -160,8 +164,8 @@ struct distance_result<boost::variant<Ts...>, boost::variant<Us...>, Strategy>
 
     typedef typename resolve_strategy::distance_result
         <
-            typename elements::first_type,
-            typename elements::second_type,
+            typename detail::sequence_element<0, elements>::type,
+            typename detail::sequence_element<1, elements>::type,
             Strategy
         >::type type;
 };
