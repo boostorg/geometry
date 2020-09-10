@@ -276,7 +276,7 @@ constexpr inline typename coordinate_type<Geometry>::type get(Geometry const& ge
     typedef core_dispatch::access
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
             typename std::is_pointer<Geometry>::type
@@ -309,7 +309,7 @@ inline void set(Geometry& geometry
     typedef core_dispatch::access
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Dimension,
             typename std::is_pointer<Geometry>::type
@@ -342,7 +342,7 @@ constexpr inline typename coordinate_type<Geometry>::type get(Geometry const& ge
     typedef core_dispatch::indexed_access
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,
@@ -377,7 +377,7 @@ inline void set(Geometry& geometry
     typedef core_dispatch::indexed_access
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type,
             typename coordinate_type<Geometry>::type,
             Index,
             Dimension,

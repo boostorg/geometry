@@ -17,7 +17,7 @@
 namespace boost { namespace geometry
 {
 
-namespace detail
+namespace util
 {
 
 
@@ -265,7 +265,7 @@ struct select_combination_element
 };
 
 
-} // namespace detail
+} // namespace util
 
 
 }} // namespace boost::geometry

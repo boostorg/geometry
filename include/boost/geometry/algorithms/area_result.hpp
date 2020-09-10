@@ -122,7 +122,7 @@ template <typename ...Ts, typename Strategy>
 struct area_result<boost::variant<Ts...>, Strategy>
     : geometry::area_result
         <
-            typename detail::select_pack_element
+            typename util::select_pack_element
                 <
                     detail::area::more_precise_coordinate_type,
                     Ts...
@@ -140,7 +140,7 @@ template <typename ...Ts>
 struct area_result<boost::variant<Ts...>, default_strategy>
     : geometry::area_result
         <
-            typename detail::select_pack_element
+            typename util::select_pack_element
                 <
                     detail::area::more_precise_default_area_result,
                     Ts...

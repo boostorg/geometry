@@ -52,7 +52,7 @@ struct value_type
             geometry::model::pointing_segment<point_iterator_value_type>,
             geometry::model::segment
                 <
-                    typename detail::remove_cptrref
+                    typename util::remove_cptrref
                         <
                             point_iterator_value_type
                         >::type

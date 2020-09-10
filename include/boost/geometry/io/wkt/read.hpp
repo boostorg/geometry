@@ -264,10 +264,10 @@ struct stateful_range_appender<Geometry, open>
     typedef typename geometry::point_type<Geometry>::type point_type;
     typedef typename boost::range_size
         <
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type size_type;
 
-    BOOST_STATIC_ASSERT(( detail::is_ring<Geometry>::value ));
+    BOOST_STATIC_ASSERT(( util::is_ring<Geometry>::value ));
 
     inline stateful_range_appender()
         : pt_index(0)

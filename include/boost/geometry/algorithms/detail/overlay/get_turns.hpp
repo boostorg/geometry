@@ -265,7 +265,7 @@ class get_turns_in_sections
 
         boost::ignore_unused(n, index1, index2);
 
-        return detail::is_areal<Geometry>::value
+        return util::is_areal<Geometry>::value
                && index1 == 0
                && index2 >= n - 2
                 ;
@@ -286,8 +286,8 @@ public :
     {
         boost::ignore_unused(interrupt_policy);
 
-        static bool const areal1 = detail::is_areal<Geometry1>::value;
-        static bool const areal2 = detail::is_areal<Geometry2>::value;
+        static bool const areal1 = util::is_areal<Geometry1>::value;
+        static bool const areal2 = util::is_areal<Geometry2>::value;
 
         if ((sec1.duplicate && (sec1.count + 1) < sec1.range_count)
            || (sec2.duplicate && (sec2.count + 1) < sec2.range_count))

@@ -244,7 +244,7 @@ protected:
         inline bool apply(partition_item<Iterator, Box> const& item1,
                           partition_item<Iterator, Box> const& item2)
         {
-            typedef detail::type_sequence
+            typedef util::type_sequence
                 <
                     geometry::de9im::static_mask<'T'>,
                     geometry::de9im::static_mask<'*', 'T'>,

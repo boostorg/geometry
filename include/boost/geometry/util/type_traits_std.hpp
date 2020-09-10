@@ -19,8 +19,7 @@ namespace boost { namespace geometry
 {
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
+namespace util
 {
 
 
@@ -139,8 +138,7 @@ template <typename From, typename To>
 using transcribe_const_t = typename transcribe_const<From, To>::type;
 
 
-} // namespace detail
-#endif // DOXYGEN_NO_DETAIL
+} // namespace util
 
 
 // Deprecated utilities, defined for backward compatibility but might be
@@ -178,7 +176,7 @@ namespace util
 {
 
 template <typename T>
-using bare_type = geometry::detail::remove_cptrref<T>;
+using bare_type = remove_cptrref<T>;
 
 } // namespace util
 

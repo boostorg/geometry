@@ -305,7 +305,7 @@ struct rescale_policy_type
 #endif
     >
 {
-    BOOST_MPL_ASSERT_MSG((detail::is_point<Point>::value),
+    BOOST_MPL_ASSERT_MSG((util::is_point<Point>::value),
                          INVALID_INPUT_GEOMETRY,
                          (typename geometry::tag<Point>::type));
 };

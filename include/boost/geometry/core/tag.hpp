@@ -64,7 +64,7 @@ struct tag
 {
     typedef typename traits::tag
         <
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type type;
 };
 

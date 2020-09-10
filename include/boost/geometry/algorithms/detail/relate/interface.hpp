@@ -43,14 +43,14 @@ namespace detail { namespace relate {
 template <typename Geometry1, typename Geometry2>
 struct is_generic
 {
-    static const bool value = (detail::is_polysegmental<Geometry1>::value
-                            && detail::is_polysegmental<Geometry2>::value)
+    static const bool value = (util::is_polysegmental<Geometry1>::value
+                            && util::is_polysegmental<Geometry2>::value)
                               ||
-                              (detail::is_point<Geometry1>::value
-                            && detail::is_polysegmental<Geometry2>::value)
+                              (util::is_point<Geometry1>::value
+                            && util::is_polysegmental<Geometry2>::value)
                               ||
-                              (detail::is_polysegmental<Geometry1>::value
-                            && detail::is_point<Geometry2>::value);
+                              (util::is_polysegmental<Geometry1>::value
+                            && util::is_point<Geometry2>::value);
 };
 
 }} // namespace detail::relate
@@ -141,11 +141,11 @@ struct result_handler_type
 };
 
 template <typename Geometry1, typename Geometry2, typename ...StaticMasks>
-struct result_handler_type<Geometry1, Geometry2, detail::type_sequence<StaticMasks...>>
+struct result_handler_type<Geometry1, Geometry2, util::type_sequence<StaticMasks...>>
 {
     typedef static_mask_handler
         <
-            detail::type_sequence<StaticMasks...>,
+            util::type_sequence<StaticMasks...>,
             interruption_enabled
                 <
                     Geometry1,

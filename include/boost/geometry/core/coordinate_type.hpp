@@ -70,7 +70,7 @@ struct coordinate_type<point_tag, Point>
 {
     typedef typename traits::coordinate_type
         <
-            typename detail::remove_cptrref<Point>::type
+            typename util::remove_cptrref<Point>::type
         >::type type;
 };
 
@@ -92,7 +92,7 @@ struct coordinate_type
     typedef typename core_dispatch::coordinate_type
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type type;
 };
 

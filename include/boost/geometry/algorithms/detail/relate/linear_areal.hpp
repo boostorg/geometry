@@ -223,7 +223,7 @@ struct linear_areal
     struct turn_info_type
         : std::conditional
             <
-                is_multi<Geometry2>::value,
+                util::is_multi<Geometry2>::value,
                 multi_turn_info<Geom1, Geom2, Strategy>,
                 typename turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
             >
@@ -295,7 +295,7 @@ struct linear_areal
             return;
 
         {
-            sort_dispatch<cs_tag>(turns.begin(), turns.end(), is_multi<Geometry2>());
+            sort_dispatch<cs_tag>(turns.begin(), turns.end(), util::is_multi<Geometry2>());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
@@ -757,7 +757,7 @@ struct linear_areal
                 m_exit_watcher.reset_detected_exit();
             }
 
-            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
               && m_first_from_unknown )
             {
                 // For MultiPolygon many x/u operations may be generated as a first IP
@@ -945,7 +945,7 @@ struct linear_areal
                     }
                 }
 
-                if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value ) )
+                if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value ) )
                 {
                     m_first_from_unknown = false;
                     m_first_from_unknown_boundary_detected = false;
@@ -1033,7 +1033,7 @@ struct linear_areal
                         }
                         else
                         {
-                            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+                            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
                               /*&& ( op == overlay::operation_blocked
                                 || op == overlay::operation_union )*/ ) // if we're here it's u or x
                             {
@@ -1061,7 +1061,7 @@ struct linear_areal
                                 }
                                 else
                                 {
-                                    if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+                                    if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
                                       /*&& ( op == overlay::operation_blocked
                                         || op == overlay::operation_union )*/ ) // if we're here it's u or x
                                     {
@@ -1111,7 +1111,7 @@ struct linear_areal
             // For MultiPolygon many x/u operations may be generated as a first IP
             // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
             // then we know that the LineString is outside
-            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
               && m_first_from_unknown )
             {
                 update<interior, exterior, '1', TransposeResult>(res);

@@ -71,7 +71,7 @@ namespace core_dispatch
     {
         typedef typename traits::coordinate_system
             <
-                typename detail::remove_cptrref<Point>::type
+                typename util::remove_cptrref<Point>::type
             >::type type;
     };
 
@@ -93,7 +93,7 @@ struct coordinate_system
     typedef typename core_dispatch::coordinate_system
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type type;
 };
 

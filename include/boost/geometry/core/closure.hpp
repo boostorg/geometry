@@ -194,7 +194,7 @@ struct closure
     static const closure_selector value = core_dispatch::closure
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::value;
 };
 

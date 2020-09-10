@@ -77,22 +77,22 @@ struct more_precise_distance_result
             <
                 typename resolve_strategy::distance_result
                     <
-                        typename detail::sequence_element<0, Curr>::type,
-                        typename detail::sequence_element<1, Curr>::type,
+                        typename util::sequence_element<0, Curr>::type,
+                        typename util::sequence_element<1, Curr>::type,
                         Strategy
                     >::type,
                 typename geometry::select_most_precise
                     <
                         typename resolve_strategy::distance_result
                             <
-                                typename detail::sequence_element<0, Curr>::type,
-                                typename detail::sequence_element<1, Curr>::type,
+                                typename util::sequence_element<0, Curr>::type,
+                                typename util::sequence_element<1, Curr>::type,
                                 Strategy
                             >::type,
                         typename resolve_strategy::distance_result
                             <
-                                typename detail::sequence_element<0, Next>::type,
-                                typename detail::sequence_element<1, Next>::type,
+                                typename util::sequence_element<0, Next>::type,
+                                typename util::sequence_element<1, Next>::type,
                                 Strategy
                             >::type
                     >::type
@@ -125,17 +125,17 @@ struct distance_result<Geometry1, boost::variant<Ts...>, Strategy>
     //   for all variant type combinations.
     // TODO: We should ignore the combinations that are not valid
     //   but is_implemented is not ready for prime time.
-    typedef typename detail::select_combination_element
+    typedef typename util::select_combination_element
         <
-            detail::type_sequence<Geometry1>,
-            detail::type_sequence<Ts...>,
+            util::type_sequence<Geometry1>,
+            util::type_sequence<Ts...>,
             detail::distance::more_precise_distance_result<Strategy>::template predicate
         >::type elements;
 
     typedef typename resolve_strategy::distance_result
         <
-            typename detail::sequence_element<0, elements>::type,
-            typename detail::sequence_element<1, elements>::type,
+            typename util::sequence_element<0, elements>::type,
+            typename util::sequence_element<1, elements>::type,
             Strategy
         >::type type;
 };
@@ -155,17 +155,17 @@ struct distance_result<boost::variant<Ts...>, boost::variant<Us...>, Strategy>
     //   for all variant type combinations.
     // TODO: We should ignore the combinations that are not valid
     //   but is_implemented is not ready for prime time.
-    typedef typename detail::select_combination_element
+    typedef typename util::select_combination_element
         <
-            detail::type_sequence<Ts...>,
-            detail::type_sequence<Us...>,
+            util::type_sequence<Ts...>,
+            util::type_sequence<Us...>,
             detail::distance::more_precise_distance_result<Strategy>::template predicate
         >::type elements;
 
     typedef typename resolve_strategy::distance_result
         <
-            typename detail::sequence_element<0, elements>::type,
-            typename detail::sequence_element<1, elements>::type,
+            typename util::sequence_element<0, elements>::type,
+            typename util::sequence_element<1, elements>::type,
             Strategy
         >::type type;
 };

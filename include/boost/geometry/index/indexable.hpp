@@ -27,8 +27,8 @@ template <typename From, typename To>
 struct is_referencable
     : std::is_same
         <
-            typename geometry::detail::remove_cref<From>::type,
-            typename geometry::detail::remove_cref<To>::type
+            typename util::remove_cref<From>::type,
+            typename util::remove_cref<To>::type
         >
 {};
 

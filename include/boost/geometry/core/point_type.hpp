@@ -155,7 +155,7 @@ struct point_type
     typedef typename core_dispatch::point_type
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type type;
 };
 

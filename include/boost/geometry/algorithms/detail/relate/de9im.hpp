@@ -194,7 +194,7 @@ template
     char EI2, char EB2, char EE2
 >
 inline
-detail::type_sequence
+util::type_sequence
     <
         static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1>,
         static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2>
@@ -202,7 +202,7 @@ detail::type_sequence
 operator||(static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1> const& ,
            static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2> const& )
 {
-    return detail::type_sequence
+    return util::type_sequence
             <
                 static_mask<II1, IB1, IE1, BI1, BB1, BE1, EI1, EB1, EE1>,
                 static_mask<II2, IB2, IE2, BI2, BB2, BE2, EI2, EB2, EE2>
@@ -217,15 +217,15 @@ template
     char EI, char EB, char EE
 >
 inline
-detail::type_sequence
+util::type_sequence
 <
     StaticMasks...,
     static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
 >
-operator||(detail::type_sequence<StaticMasks...> const& ,
+operator||(util::type_sequence<StaticMasks...> const& ,
            static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE> const& )
 {
-    return detail::type_sequence
+    return util::type_sequence
             <
                 StaticMasks...,
                 static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
@@ -273,7 +273,7 @@ template
 >
 struct static_mask_touches_impl
 {
-    typedef detail::type_sequence
+    typedef util::type_sequence
         <
             geometry::de9im::static_mask<'F', 'T', '*', '*', '*', '*', '*', '*', '*'>,
             geometry::de9im::static_mask<'F', '*', '*', 'T', '*', '*', '*', '*', '*'>,
@@ -304,7 +304,7 @@ struct static_mask_within_type
 template <typename Geometry1, typename Geometry2>
 struct static_mask_covered_by_type
 {
-    typedef detail::type_sequence
+    typedef util::type_sequence
         <
             geometry::de9im::static_mask<'T', '*', 'F', '*', '*', 'F', '*', '*', '*'>,
             geometry::de9im::static_mask<'*', 'T', 'F', '*', '*', 'F', '*', '*', '*'>,

@@ -178,7 +178,7 @@ struct point_order
     static const order_selector value = core_dispatch::point_order
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::value;
 };
 

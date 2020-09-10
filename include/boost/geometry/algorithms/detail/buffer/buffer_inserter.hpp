@@ -943,7 +943,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection_type collection(intersection_strategy, distance_strategy, robust_policy);
     collection_type const& const_collection = collection;
 
-    bool const areal = detail::is_areal<GeometryInput>::value;
+    bool const areal = util::is_areal<GeometryInput>::value;
 
     dispatch::buffer_inserter
         <

@@ -67,13 +67,13 @@ struct dimension<point_tag, P>
     : std::integral_constant
         <
             std::size_t,
-            traits::dimension<detail::remove_cptrref_t<P>>::value
+            traits::dimension<util::remove_cptrref_t<P>>::value
         >
 {
     BOOST_MPL_ASSERT_MSG(
-        (traits::dimension<detail::remove_cptrref_t<P>>::value > 0),
+        (traits::dimension<util::remove_cptrref_t<P>>::value > 0),
         INVALID_DIMENSION_VALUE,
-        (traits::dimension<detail::remove_cptrref_t<P>>)
+        (traits::dimension<util::remove_cptrref_t<P>>)
     );
 };
 
@@ -92,7 +92,7 @@ struct dimension
     : core_dispatch::dimension
         <
             typename tag<Geometry>::type,
-            typename detail::remove_cptrref<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >
 {};
 

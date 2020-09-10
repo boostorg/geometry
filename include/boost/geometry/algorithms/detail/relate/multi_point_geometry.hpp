@@ -607,7 +607,7 @@ template
 <
     typename MultiPoint, typename Geometry,
     bool Transpose = false,
-    bool isMulti = detail::is_multi<Geometry>::value
+    bool isMulti = util::is_multi<Geometry>::value
 >
 struct multi_point_geometry
     : multi_point_single_geometry<MultiPoint, Geometry, Transpose>

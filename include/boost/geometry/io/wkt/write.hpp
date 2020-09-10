@@ -510,7 +510,7 @@ Small example showing how to use the wkt class
 template <typename Geometry>
 class wkt_manipulator
 {
-    static const bool is_ring = detail::is_ring<Geometry>::value;
+    static const bool is_ring = util::is_ring<Geometry>::value;
 
 public:
 

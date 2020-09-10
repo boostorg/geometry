@@ -20,8 +20,7 @@ namespace boost { namespace geometry
 {
 
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
+namespace util
 {
 
 
@@ -222,8 +221,7 @@ template <typename Geometry, typename T = void>
 using enable_if_polysegmental_t = typename enable_if_polysegmental<Geometry, T>::type;
 
 
-} // namespace detail
-#endif // DOXYGEN_NO_DETAIL
+} // namespace util
 
 
 // Deprecated utilities, defined for backward compatibility but might be
@@ -236,7 +234,7 @@ using enable_if_polysegmental_t = typename enable_if_polysegmental<Geometry, T>:
     \note Also a "ring" has areal properties within Boost.Geometry
     \ingroup core
 */
-using detail::is_areal;
+using util::is_areal;
 
 
 }} // namespace boost::geometry

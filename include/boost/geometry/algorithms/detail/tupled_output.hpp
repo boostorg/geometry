@@ -32,18 +32,18 @@ namespace detail
 
 template <typename T, bool IsRange = range::detail::is_range<T>::value>
 struct is_tupled_output_element_base
-    : bool_constant<false>
+    : util::bool_constant<false>
 {};
 
 template <typename T>
 struct is_tupled_output_element_base<T, true>
-    : bool_constant
+    : util::bool_constant
         <
-            (is_multi<T>::value
+            (util::is_multi<T>::value
                 ||
-                (is_not_geometry<T>::value
+                (util::is_not_geometry<T>::value
                     &&
-                    is_multi_element
+                    util::is_multi_element
                         <
                             typename boost::range_value<T>::type
                         >::value))
@@ -64,9 +64,9 @@ struct is_tupled_output_element
 // a range of points, linestrings or polygons
 template <typename Output>
 struct is_tupled_output_check
-    : bool_constant
+    : util::bool_constant
         <
-            (is_not_geometry<Output>::value
+            (util::is_not_geometry<Output>::value
           && geometry::tuples::exists_if<Output, is_tupled_output_element>::value)
         >
 {};
@@ -77,10 +77,10 @@ struct is_tupled_output_check
 // or polygon
 template <typename T>
 struct is_tupled_single_output_check
-    : bool_constant
+    : util::bool_constant
         <
-            (is_not_geometry<T>::value
-          && geometry::tuples::exists_if<T, is_multi_element>::value)
+            (util::is_not_geometry<T>::value
+          && geometry::tuples::exists_if<T, util::is_multi_element>::value)
         >
 {};
 
@@ -88,7 +88,7 @@ struct is_tupled_single_output_check
 // true if Output is boost::tuple, boost::tuples::cons, std::pair or std::tuple
 template <typename T>
 struct is_tupled
-    : bool_constant<false>
+    : util::bool_constant<false>
 {};
 
 template
@@ -97,24 +97,24 @@ template
     class T5, class T6, class T7, class T8, class T9
 >
 struct is_tupled<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> >
-    : bool_constant<true>
+    : util::bool_constant<true>
 {};
 
 template <typename HT, typename TT>
 struct is_tupled<boost::tuples::cons<HT, TT> >
-    : bool_constant<true>
+    : util::bool_constant<true>
 {};
 
 template <typename F, typename S>
 struct is_tupled<std::pair<F, S> >
-    : bool_constant<true>
+    : util::bool_constant<true>
 {};
 
 #ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
 template <typename ...Ts>
 struct is_tupled<std::tuple<Ts...> >
-    : bool_constant<true>
+    : util::bool_constant<true>
 {};
 
 #endif // BOOST_GEOMETRY_CXX11_TUPLE
@@ -125,7 +125,7 @@ struct is_tupled<std::tuple<Ts...> >
 // and is_tupled_output_check defiend above passes
 template <typename Output, bool IsTupled = is_tupled<Output>::value>
 struct is_tupled_output
-    : bool_constant<false>
+    : util::bool_constant<false>
 {};
 
 template <typename Output>
@@ -138,7 +138,7 @@ struct is_tupled_output<Output, true>
 // and is_tupled_single_output_check defiend above passes
 template <typename T, bool IsTupled = is_tupled<T>::value>
 struct is_tupled_single_output
-    : bool_constant<false>
+    : util::bool_constant<false>
 {};
 
 template <typename T>
@@ -174,12 +174,12 @@ template
     bool IsTupledOutput = is_tupled_output<Output>::value
 >
 struct tupled_output_has
-    : bool_constant<false>
+    : util::bool_constant<false>
 {};
 
 template <typename Output, typename Tag>
 struct tupled_output_has<Output, Tag, true>
-    : bool_constant
+    : util::bool_constant
         <
             ((tupled_output_find_index<Output, Tag>::value)
                 < (geometry::tuples::size<Output>::value))
@@ -627,7 +627,7 @@ template
 <
     typename Geometry,
     typename SingleOut,
-    bool IsMulti = geometry::detail::is_multi<Geometry>::value
+    bool IsMulti = util::is_multi<Geometry>::value
 >
 struct convert_to_output
 {

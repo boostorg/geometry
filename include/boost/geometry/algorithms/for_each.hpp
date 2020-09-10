@@ -107,7 +107,7 @@ struct fe_segment_segment
 template <typename Range>
 struct fe_range_value
 {
-    typedef detail::transcribe_const_t
+    typedef util::transcribe_const_t
         <
             Range,
             typename boost::range_value<Range>::type
@@ -117,7 +117,7 @@ struct fe_range_value
 template <typename Range>
 struct fe_point_type
 {
-    typedef detail::transcribe_const_t
+    typedef util::transcribe_const_t
         <
             Range,
             typename point_type<Range>::type

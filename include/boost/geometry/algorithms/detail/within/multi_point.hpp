@@ -168,7 +168,7 @@ struct multi_point_multi_geometry
     {
         typedef typename point_type<LinearOrAreal>::type point2_type;
         typedef model::box<point2_type> box2_type;
-        static const bool is_linear = detail::is_linear<LinearOrAreal>::value;
+        static const bool is_linear = util::is_linear<LinearOrAreal>::value;
 
         typename Strategy::envelope_strategy_type const
             envelope_strategy = strategy.get_envelope_strategy();

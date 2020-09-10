@@ -38,42 +38,42 @@ struct cartesian : strategies::detail::cartesian_base
 {
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename geometry::detail::enable_if_point_t<Geometry> * = nullptr)
+                         typename util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian_point();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename geometry::detail::enable_if_multi_point_t<Geometry> * = nullptr)
+                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian_multipoint();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename geometry::detail::enable_if_box_t<Geometry> * = nullptr)
+                         typename util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian_box();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename geometry::detail::enable_if_segment_t<Geometry> * = nullptr)
+                         typename util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian_segment<CalculationType>();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename geometry::detail::enable_if_polysegmental_t<Geometry> * = nullptr)
+                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian<CalculationType>();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename geometry::detail::enable_if_point_t<Geometry> * = nullptr)
+                       typename util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_point();
     }
@@ -81,14 +81,14 @@ struct cartesian : strategies::detail::cartesian_base
     // TEMP
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename geometry::detail::enable_if_box_t<Geometry> * = nullptr)
+                       typename util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_box();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename geometry::detail::enable_if_segment_t<Geometry> * = nullptr)
+                       typename util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_segment();
     }

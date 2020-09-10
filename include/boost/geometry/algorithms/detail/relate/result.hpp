@@ -685,7 +685,7 @@ struct static_mask
     static const std::size_t static_size = Width * Height;
 
     BOOST_STATIC_ASSERT(
-        std::size_t(detail::sequence_size<Seq>::value) == static_size);
+        std::size_t(util::sequence_size<Seq>::value) == static_size);
     
     template <detail::relate::field F1, detail::relate::field F2>
     struct static_get
@@ -694,7 +694,7 @@ struct static_mask
         BOOST_STATIC_ASSERT(std::size_t(F2) < static_width);
 
         static const char value
-            = detail::sequence_element<F1 * static_width + F2, Seq>::value;
+            = util::sequence_element<F1 * static_width + F2, Seq>::value;
     };
 
 private:
@@ -707,7 +707,7 @@ private:
 template
 <
     typename StaticMask, field F1, field F2,
-    bool IsSequence = detail::is_sequence<StaticMask>::value
+    bool IsSequence = util::is_sequence<StaticMask>::value
 >
 struct static_should_handle_element_dispatch
 {
@@ -721,11 +721,11 @@ template
 <
     typename Seq, field F1, field F2,
     std::size_t I = 0,
-    std::size_t N = detail::sequence_size<Seq>::value
+    std::size_t N = util::sequence_size<Seq>::value
 >
 struct static_should_handle_element_sequence
 {
-    typedef typename detail::sequence_element<I, Seq>::type StaticMask;
+    typedef typename util::sequence_element<I, Seq>::type StaticMask;
 
     static const bool value
         = static_should_handle_element_dispatch
@@ -770,7 +770,7 @@ template
 <
     typename StaticMask, char V, field F1, field F2,
     bool InterruptEnabled,
-    bool IsSequence = detail::is_sequence<StaticMask>::value
+    bool IsSequence = util::is_sequence<StaticMask>::value
 >
 struct static_interrupt_dispatch
 {
@@ -792,11 +792,11 @@ template
 <
     typename Seq, char V, field F1, field F2,
     std::size_t I = 0,
-    std::size_t N = detail::sequence_size<Seq>::value
+    std::size_t N = util::sequence_size<Seq>::value
 >
 struct static_interrupt_sequence
 {
-    typedef typename detail::sequence_element<I, Seq>::type StaticMask;
+    typedef typename util::sequence_element<I, Seq>::type StaticMask;
 
     static const bool value
         = static_interrupt_dispatch
@@ -840,7 +840,7 @@ struct static_interrupt
 template
 <
     typename StaticMask, char D, field F1, field F2,
-    bool IsSequence = detail::is_sequence<StaticMask>::value
+    bool IsSequence = util::is_sequence<StaticMask>::value
 >
 struct static_may_update_dispatch
 {
@@ -891,11 +891,11 @@ template
 <
     typename Seq, char D, field F1, field F2,
     std::size_t I = 0,
-    std::size_t N = detail::sequence_size<Seq>::value
+    std::size_t N = util::sequence_size<Seq>::value
 >
 struct static_may_update_sequence
 {
-    typedef typename detail::sequence_element<I, Seq>::type StaticMask;
+    typedef typename util::sequence_element<I, Seq>::type StaticMask;
 
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)
@@ -952,7 +952,7 @@ struct static_may_update
 template
 <
     typename StaticMask,
-    bool IsSequence = detail::is_sequence<StaticMask>::value
+    bool IsSequence = util::is_sequence<StaticMask>::value
 >
 struct static_check_dispatch
 {
@@ -1016,11 +1016,11 @@ template
 <
     typename Seq,
     std::size_t I = 0,
-    std::size_t N = detail::sequence_size<Seq>::value
+    std::size_t N = util::sequence_size<Seq>::value
 >
 struct static_check_sequence
 {
-    typedef typename detail::sequence_element<I, Seq>::type StaticMask;
+    typedef typename util::sequence_element<I, Seq>::type StaticMask;
 
     template <typename Matrix>
     static inline bool apply(Matrix const& matrix)

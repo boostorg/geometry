@@ -195,7 +195,7 @@ struct for_each_range<Geometry, multi_linestring_tag>
             Geometry,
             detail::for_each::fe_range_range
                 <
-                    detail::transcribe_const_t
+                    util::transcribe_const_t
                         <
                             Geometry,
                             typename boost::range_value<Geometry>::type
@@ -212,7 +212,7 @@ struct for_each_range<Geometry, multi_polygon_tag>
             Geometry,
             detail::for_each::fe_range_polygon
                 <
-                    detail::transcribe_const_t
+                    util::transcribe_const_t
                         <
                             Geometry,
                             typename boost::range_value<Geometry>::type
