@@ -22,7 +22,6 @@
 #include <boost/array.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
@@ -552,7 +551,7 @@ public:
         typedef geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
-        typedef boost::mpl::vector_c<std::size_t, 0, 1> dimensions;
+        typedef std::integer_sequence<std::size_t, 0, 1> dimensions;
 
         typename IntersectionStrategy::envelope_strategy_type const
             envelope_strategy = intersection_strategy.get_envelope_strategy();

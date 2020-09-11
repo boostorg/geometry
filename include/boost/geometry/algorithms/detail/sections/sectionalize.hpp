@@ -28,7 +28,6 @@
 #include <boost/concept/requires.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/vector_c.hpp>
 #include <boost/range.hpp>
 #include <boost/static_assert.hpp>
 
@@ -56,6 +55,7 @@
 #include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
+#include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 
@@ -159,7 +159,7 @@ template
 >
 struct get_direction_loop
 {
-    typedef typename boost::mpl::at_c<DimensionVector, Index>::type dimension;
+    typedef typename util::sequence_element<Index, DimensionVector>::type dimension;
 
     template <typename Segment>
     static inline void apply(Segment const& seg,
@@ -191,7 +191,7 @@ template
 >
 struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
 {
-    typedef typename boost::mpl::at_c<DimensionVector, 0>::type dimension;
+    typedef typename util::sequence_element<0, DimensionVector>::type dimension;
 
     template <typename Segment>
     static inline void apply(Segment const& seg,
@@ -387,7 +387,7 @@ template
 struct sectionalize_part
 {
     static const std::size_t dimension_count
-        = boost::mpl::size<DimensionVector>::value;
+        = util::sequence_size<DimensionVector>::value;
 
     template
     <
@@ -441,8 +441,8 @@ struct sectionalize_part
         typedef typename boost::range_value<Sections>::type section_type;
         BOOST_STATIC_ASSERT
             (
-                (static_cast<std::size_t>(section_type::dimension_count)
-                 == static_cast<std::size_t>(boost::mpl::size<DimensionVector>::value))
+                section_type::dimension_count
+                 == util::sequence_size<DimensionVector>::value
             );
 
         typedef typename geometry::robust_point_type
