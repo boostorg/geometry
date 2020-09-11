@@ -5,8 +5,8 @@
 // Copyright (c) 2014-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2019.
-// Modifications copyright (c) 2015, 2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -43,6 +43,13 @@
 #include <boost/geometry/policies/robustness/rescale_policy.hpp>
 
 #include <boost/geometry/util/promote_floating_point.hpp>
+
+
+// TEMP
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -160,7 +167,13 @@ static inline void init_rescale_policy(Geometry1 const& geometry1,
             <
                 model::box<Point>
             >(geometry2, strategy2);
-        geometry::expand(env, env2, strategy1.get_box_expand_strategy());
+        geometry::expand(env, env2,
+                         // TEMP - envelope umbrella strategy also contains
+                         //        expand strategies
+                         strategies::envelope::services::strategy_converter
+                            <
+                                EnvelopeStrategy1
+                            >::get(strategy1));
     }
 
     scale_box_to_integer_range(env, min_point, min_robust_point, factor);

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -297,7 +297,12 @@ struct calculate_point_order_by_area
                 Ring, Strategy
             >::type result_type;
 
-        result_type const result = ring_area_type::apply(ring, strategy);
+        result_type const result = ring_area_type::apply(ring,
+                                                         // TEMP - in the future (umbrella) strategy will be passed
+                                                         geometry::strategies::area::services::strategy_converter
+                                                            <
+                                                                decltype(strategy.get_area_strategy())
+                                                            >::get(strategy.get_area_strategy()));
 
         result_type const zero = 0;
         return result == zero ? geometry::order_undetermined

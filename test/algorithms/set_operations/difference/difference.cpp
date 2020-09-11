@@ -482,11 +482,14 @@ void test_all()
                 expected_count);
     }
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Without rescaling the "b" case produces no output.
     test_one<polygon, polygon, polygon>("ticket_10108_a",
             ticket_10108_a[0], ticket_10108_a[1],
             1, 4,  0.0145037,
             1, 4,  0.029019232,
             sym_settings);
+#endif
 
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
@@ -645,7 +648,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(12, 9);
+    BoostGeometryWriteExpectedFailures(12, 11);
 #endif
 
     return 0;

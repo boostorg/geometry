@@ -34,6 +34,12 @@
 #include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
 
 
+// TEMP
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
+
+
 namespace boost { namespace geometry
 {
 
@@ -167,7 +173,14 @@ private:
                        box_pairs,
                        strategy.get_envelope_strategy());
 
-        typedef typename Strategy::envelope_strategy_type::box_expand_strategy_type expand_box_strategy_type;
+        // TEMP - envelope umbrella strategy also contains
+        //        expand strategies
+        using expand_box_strategy_type = decltype(
+            strategies::envelope::services::strategy_converter
+                <
+                    typename Strategy::envelope_strategy_type
+                >::get(strategy.get_envelope_strategy())
+                    .expand(std::declval<box_type>(), std::declval<box_type>()));
         typedef typename Strategy::disjoint_box_box_strategy_type disjoint_box_box_strategy_type;
         typedef typename Strategy::disjoint_point_box_strategy_type disjoint_point_box_strategy_type;
         typedef typename Strategy::expand_point_strategy_type expand_point_strategy_type;

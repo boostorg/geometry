@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2019, Oracle and/or its affiliates.
+// Copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -32,23 +32,23 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
-//#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/strategy/spherical/area.hpp>
+#include <boost/geometry/strategy/spherical/envelope.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+#include <boost/geometry/strategy/spherical/expand_segment.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
-#include <boost/geometry/strategies/spherical/area.hpp>
-//#include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
-#include <boost/geometry/strategies/spherical/envelope.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>

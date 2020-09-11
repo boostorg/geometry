@@ -12,6 +12,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_DETAIL_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_DETAIL_HPP
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <memory>
@@ -24,25 +25,19 @@
 #include <boost/mpl/or.hpp>
 #include <boost/mpl/int.hpp>
 
+#include <boost/type_traits/has_trivial_assign.hpp>
+#include <boost/type_traits/has_trivial_destructor.hpp>
+#include <boost/type_traits/has_trivial_constructor.hpp>
+#include <boost/type_traits/has_trivial_copy.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/remove_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
-#include <boost/type_traits/has_trivial_assign.hpp>
-#include <boost/type_traits/has_trivial_copy.hpp>
-#include <boost/type_traits/has_trivial_constructor.hpp>
-#include <boost/type_traits/has_trivial_destructor.hpp>
-#include <boost/type_traits/has_trivial_move_constructor.hpp>
-#include <boost/type_traits/has_trivial_move_assign.hpp>
-//#include <boost/type_traits/has_nothrow_constructor.hpp>
-//#include <boost/type_traits/has_nothrow_copy.hpp>
-//#include <boost/type_traits/has_nothrow_assign.hpp>
-//#include <boost/type_traits/has_nothrow_destructor.hpp>
 
 #if ! defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS)
 #include <type_traits>
 #endif
 
-#include <boost/detail/no_exceptions_support.hpp>
+#include <boost/core/no_exceptions_support.hpp>
 #include <boost/move/move.hpp>
 #include <boost/core/addressof.hpp>
 #include <boost/iterator/iterator_traits.hpp>
@@ -319,7 +314,7 @@ O uninitialized_move_dispatch(I first, I last, O dst,
     }
     BOOST_CATCH(...)
     {
-        destroy(dst, o);
+        varray_detail::destroy(dst, o);
         BOOST_RETHROW;
     }
     BOOST_CATCH_END
@@ -464,12 +459,12 @@ O uninitialized_move_if_noexcept(I first, I last, O dst)
 template <typename I, typename O>
 inline
 O move_if_noexcept_dispatch(I first, I last, O dst, boost::mpl::bool_<true> const& /*use_move*/)
-{ return move(first, last, dst); }
+{ return varray_detail::move(first, last, dst); }
 
 template <typename I, typename O>
 inline
 O move_if_noexcept_dispatch(I first, I last, O dst, boost::mpl::bool_<false> const& /*use_move*/)
-{ return copy(first, last, dst); }
+{ return varray_detail::copy(first, last, dst); }
 
 template <typename I, typename O>
 inline
@@ -518,7 +513,7 @@ void uninitialized_fill_dispatch(I first, I last,
     }
     BOOST_CATCH(...)
     {
-        destroy(first, it);
+        varray_detail::destroy(first, it);
         BOOST_RETHROW;
     }
     BOOST_CATCH_END
@@ -553,7 +548,7 @@ void construct(DisableTrivialInit const&, I pos)
 {
     typedef typename ::boost::iterator_value<I>::type value_type;
     typedef typename ::boost::mpl::and_<
-        boost::has_trivial_constructor<value_type>,
+        is_trivially_copyable<value_type>,
         DisableTrivialInit
     >::type dont_init;
 
@@ -620,7 +615,7 @@ void construct(DisableTrivialInit const&, I pos, BOOST_RV_REF(P) p)
     typedef typename
     ::boost::mpl::and_<
         is_corresponding_value<I, P>,
-        ::boost::has_trivial_move_constructor<P>
+        is_trivially_copyable<P>
     >::type
     use_memcpy;
 
@@ -725,7 +720,7 @@ void assign(I pos, BOOST_RV_REF(V) v)
     typedef typename
     ::boost::mpl::and_<
         is_corresponding_value<I, V>,
-        ::boost::has_trivial_move_assign<V>
+        is_trivially_copyable<V>
     >::type
     use_memcpy;
 
@@ -753,7 +748,7 @@ inline std::size_t uninitialized_copy_s(I first, I last, F dest, std::size_t max
     }
     BOOST_CATCH(...)
     {
-        destroy(dest, it);
+        varray_detail::destroy(dest, it);
         BOOST_RETHROW;
     }
     BOOST_CATCH_END
@@ -772,7 +767,7 @@ public:
     ~scoped_destructor()
     {
         if(m_ptr)
-            destroy(m_ptr);
+            varray_detail::destroy(m_ptr);
     }
 
     void release() { m_ptr = 0; }

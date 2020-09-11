@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -48,6 +48,8 @@ struct is_valid_linestring
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
+        // TODO: Consider checking coordinates based on coordinate system
+        //       Right now they are only checked for infinity in all systems.
         if (has_invalid_coordinate<Linestring>::apply(linestring, visitor))
         {
             return false;
@@ -81,6 +83,11 @@ struct is_valid_linestring
             return visitor.template apply<no_failure>();
         }
 
+        // TODO: This algorithm iterates over the linestring until a spike is
+        //   found and only then the decision about the validity is made. This
+        //   is done regardless of VisitPolicy.
+        //   An obvious improvement is to avoid calling the algorithm at all if
+        //   spikes are allowed which is the default.
         return ! has_spikes
                     <
                         Linestring, closed
