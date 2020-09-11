@@ -131,15 +131,15 @@ namespace projections
                 return pj;
             }
 
-            template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename Parameters>
-            inline Parameters o_proj_parameters(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& /*params*/,
+            template <typename ...Ps, typename Parameters>
+            inline Parameters o_proj_parameters(srs::spar::parameters<Ps...> const& /*params*/,
                                                 Parameters const& par)
             {
                 /* copy existing header into new */
                 Parameters pj = par;
 
                 /* get name of projection to be translated */
-                typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> params_type;
+                typedef srs::spar::parameters<Ps...> params_type;
                 typedef typename geometry::tuples::find_if
                     <
                         params_type,

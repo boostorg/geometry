@@ -168,18 +168,18 @@ template
             Params,
             srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
         >::value,
-    int N = boost::tuples::length<Params>::value
+    int N = geometry::tuples::size<Params>::value
 >
 struct pj_ell_init_ellps_static
 {
     template <typename T>
     static bool apply(Params const& params, T &a, T &b)
     {
-        typedef typename boost::tuples::element<I, Params>::type param_type;
+        typedef typename geometry::tuples::element<I, Params>::type param_type;
         typedef srs::spar::detail::ellps_traits<param_type> traits_type;
         typedef typename traits_type::template model_type<T>::type model_type;
 
-        param_type const& param = boost::tuples::get<I>(params);
+        param_type const& param = geometry::tuples::get<I>(params);
         model_type const& model = traits_type::template model<T>(param);
 
         a = geometry::get_radius<0>(model);
@@ -198,13 +198,13 @@ struct pj_ell_init_ellps_static<Params, N, N>
     }
 };
 
-template <typename T, BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX>
-inline bool pj_ell_init_ellps(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX> const& params,
+template <typename T, typename ...Ps>
+inline bool pj_ell_init_ellps(srs::spar::parameters<Ps...> const& params,
                               T &a, T &b)
 {
     return pj_ell_init_ellps_static
         <
-            srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+            srs::spar::parameters<Ps...>
         >::apply(params, a, b);
 }
 

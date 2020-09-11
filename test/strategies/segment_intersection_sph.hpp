@@ -1,7 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,9 +23,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
-#include <boost/geometry/policies/relate/direction.hpp>
-#include <boost/geometry/policies/relate/intersection_points.hpp>
-#include <boost/geometry/policies/relate/tupled.hpp>
+#include <boost/geometry/policies/relate/intersection_policy.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
 
@@ -66,14 +65,10 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
                        int opposite_id = -1)
 {
     typedef typename bg::coordinate_type<P>::type coord_t;
-    typedef bg::policies::relate::segments_tupled
-                <
-                    bg::policies::relate::segments_intersection_points
-                        <
-                            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
-                        >,
-                    bg::policies::relate::segments_direction
-                > policy_t;
+    typedef bg::policies::relate::segments_intersection_policy
+        <
+            bg::segment_intersection_points<P, bg::segment_ratio<coord_t> >
+        > policy_t;
 
     typedef typename policy_t::return_type return_type;
 
@@ -82,8 +77,8 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
 
     return_type res = strategy.apply(sr1, sr2, policy_t());
 
-    size_t const res_count = boost::get<0>(res).count;
-    char const res_method = boost::get<1>(res).how;
+    size_t const res_count = res.intersection_points.count;
+    char const res_method = res.direction.how;
 
     BOOST_CHECK_MESSAGE(res_method == m,
                         "IP method: " << res_method << " different than expected: " << m
@@ -113,9 +108,9 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
 
     if (res_count > 0 && expected_count > 0)
     {
-        P const& res_i0 = boost::get<0>(res).intersections[0];
-        coord_t denom_a0 = boost::get<0>(res).fractions[0].robust_ra.denominator();
-        coord_t denom_b0 = boost::get<0>(res).fractions[0].robust_rb.denominator();
+        P const& res_i0 = res.intersection_points.intersections[0];
+        coord_t denom_a0 = res.intersection_points.fractions[0].robust_ra.denominator();
+        coord_t denom_b0 = res.intersection_points.fractions[0].robust_rb.denominator();
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i0, ip0, eps_scale),
                             "IP0: " << std::setprecision(16) << bg::wkt(res_i0) << " different than expected: " << bg::wkt(ip0)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
@@ -126,9 +121,9 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
     }
     if (res_count > 1 && expected_count > 1)
     {
-        P const& res_i1 = boost::get<0>(res).intersections[1];
-        coord_t denom_a1 = boost::get<0>(res).fractions[1].robust_ra.denominator();
-        coord_t denom_b1 = boost::get<0>(res).fractions[1].robust_rb.denominator();
+        P const& res_i1 = res.intersection_points.intersections[1];
+        coord_t denom_a1 = res.intersection_points.fractions[1].robust_ra.denominator();
+        coord_t denom_b1 = res.intersection_points.fractions[1].robust_rb.denominator();
         BOOST_CHECK_MESSAGE(equals_relaxed(res_i1, ip1, eps_scale),
                             "IP1: " << std::setprecision(16) << bg::wkt(res_i1) << " different than expected: " << bg::wkt(ip1)
                                 << " for " << bg::wkt(s1) << " and " << bg::wkt(s2));
@@ -141,7 +136,7 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
     if (opposite_id >= 0)
     {
         bool opposite = opposite_id != 0;
-        BOOST_CHECK_MESSAGE(opposite == boost::get<1>(res).opposite,
+        BOOST_CHECK_MESSAGE(opposite == res.direction.opposite,
                             bg::wkt(s1) << " and " << bg::wkt(s2) << (opposite_id == 0 ? " are not " : " are ") << "opposite" );
     }
 }
