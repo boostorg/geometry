@@ -318,11 +318,12 @@ void test_buffer(std::string const& caseid,
     if (settings.test_area)
     {
         // Because areas vary hugely in buffer, the Boost.Test methods are not convenient.
-        // Use just the abs - but if areas are really small that is not convenient neither.
+        // Use just the abs - but if the areas are really small that is not convenient either.
         // Therefore there is a logarithmic option too.
-        typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered, area_strategy);
-        double const difference = settings.use_ln_area
-                ? std::log(area) - std::log(expected_area)
+        typedef typename bg::default_area_result<GeometryOut>::type area_type;
+        area_type const area = bg::area(buffered, area_strategy);
+        area_type const difference = settings.use_ln_area
+                ? log(area) - std::log(expected_area)
                 : area  - expected_area;
         BOOST_CHECK_MESSAGE
             (

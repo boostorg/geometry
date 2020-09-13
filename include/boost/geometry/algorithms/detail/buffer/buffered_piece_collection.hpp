@@ -57,8 +57,6 @@
 #include <boost/geometry/views/detail/normalized_view.hpp>
 #include <boost/geometry/util/range.hpp>
 
-// TODO remove this
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
 namespace boost { namespace geometry
 {
@@ -124,7 +122,7 @@ struct buffered_piece_collection
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
 
-    // Robust ring/polygon type, always clockwise
+    // Ring/polygon type, always clockwise
     typedef geometry::model::ring<point_type> clockwise_ring_type;
 
     typedef geometry::model::box<point_type> box_type;

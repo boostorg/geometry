@@ -40,20 +40,20 @@ void test_all()
     > distance_strategy;
     bg::strategy::buffer::side_straight side_strategy;
 
-    double const pi = boost::geometry::math::pi<double>();
+    double const expectation = boost::geometry::math::pi<double>() *  0.99915;
 
-    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * pi, 1.0);
-    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8372, 2.0);
-    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5692, 3.0);
+    test_one<multi_point_type, polygon>("simplex1", simplex, join, end_flat, 2.0 * expectation, 1.0);
+    test_one<multi_point_type, polygon>("simplex2", simplex, join, end_flat, 22.8335, 2.0);
+    test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5619, 3.0);
 
-    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * pi, 1.0);
+    test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * expectation, 1.0);
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // For no-rescaling, fails in CCW mode
-    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7592, 2.0);
+    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7528, 2.0);
 #endif
-    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6914, 1.9);
-    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6394, 2.1);
-    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.533, 3.0);
+    test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6857, 1.9);
+    test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6337, 2.1);
+    test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.5243, 3.0);
 
     test_one<multi_point_type, polygon>("multipoint_a", multipoint_a, join, end_flat, 2049.98, 14.0);
     test_one<multi_point_type, polygon>("multipoint_b", multipoint_b, join, end_flat, 7109.88, 15.0);

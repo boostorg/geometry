@@ -148,19 +148,19 @@ struct buffer_range
                 {
                     // The corner is convex, we create a join
                     // TODO (future) - avoid a separate vector, add the piece directly
-                    output_point_type const
-                        intersection_point
-                            = line_line_intersection::apply(perp1, perp2,
-                                    prev_perp1, prev_perp2);
-
-                    std::vector<output_point_type> range_out;
-                    if (join_strategy.apply(intersection_point,
-                                previous_input, prev_perp2, perp1,
-                                distance.apply(previous_input, input, side),
-                                range_out))
+                    output_point_type intersection_point;
+                    if (line_line_intersection::apply(perp1, perp2,
+                                    prev_perp1, prev_perp2, intersection_point))
                     {
-                        collection.add_piece(geometry::strategy::buffer::buffered_join,
-                                previous_input, range_out);
+                        std::vector<output_point_type> range_out;
+                        if (join_strategy.apply(intersection_point,
+                                    previous_input, prev_perp2, perp1,
+                                    distance.apply(previous_input, input, side),
+                                    range_out))
+                        {
+                            collection.add_piece(geometry::strategy::buffer::buffered_join,
+                                    previous_input, range_out);
+                        }
                     }
                 }
                 break;
