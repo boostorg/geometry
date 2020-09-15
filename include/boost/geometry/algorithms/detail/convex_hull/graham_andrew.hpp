@@ -190,7 +190,7 @@ public:
     template <typename Strategy>
     inline void apply(InputGeometry const& geometry,
                       partitions& state,
-                      Strategy& side) const
+                      Strategy& strategy) const
     {
         // First pass.
         // Get min/max (in most cases left / right) points
@@ -215,12 +215,14 @@ public:
 
         container_type lower_points, upper_points;
 
+        auto side_strategy = strategy.side(geometry);
+
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points
         // in either lower, either upper
         detail::convex_hull::assign_ranges(geometry, most_left, most_right,
                               lower_points, upper_points,
-                              side);
+                              side_strategy);
 
         // Sort both collections, first on x(, then on y)
         detail::convex_hull::sort(lower_points, less);
@@ -229,10 +231,10 @@ public:
         // And decide which point should be in the final hull
         build_half_hull<-1>(lower_points, state.m_lower_hull,
                             most_left, most_right,
-                            side);
+                            side_strategy);
         build_half_hull<1>(upper_points, state.m_upper_hull,
                            most_left, most_right,
-                           side);
+                           side_strategy);
     }
 
 

@@ -71,8 +71,18 @@ public :
         calc_t crs_AD = geometry::formula::spherical_azimuth<calc_t, false>
                              (lon1, lat1, lon, lat).azimuth;
 
+        if (crs_AD == 0)
+        {
+            return 0;
+        }
+
         calc_t crs_AB = geometry::formula::spherical_azimuth<calc_t, false>
                              (lon1, lat1, lon2, lat2).azimuth;
+
+        if (crs_AB == 0)
+        {
+            return 0;
+        }
 
         calc_t XTD = asin(sin(d1) * sin(crs_AD - crs_AB));
 

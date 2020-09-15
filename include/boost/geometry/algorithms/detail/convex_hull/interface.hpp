@@ -34,9 +34,9 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/strategies/convex_hull.hpp>
-#include <boost/geometry/strategies/concepts/convex_hull_concept.hpp>
+#include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/concepts/area_concept.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 
@@ -175,9 +175,16 @@ struct convex_hull
                              OutputGeometry& out,
                              default_strategy)
     {
+        /*
         typedef typename strategy::side::services::default_strategy
             <
                 typename cs_tag<Geometry>::type
+            >::type strategy_type;
+        */
+
+        typedef typename strategies::convex_hull::services::default_strategy
+            <
+                Geometry
             >::type strategy_type;
 
         apply(geometry, out, strategy_type());
