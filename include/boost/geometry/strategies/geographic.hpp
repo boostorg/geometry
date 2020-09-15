@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/expand/geographic.hpp>
 

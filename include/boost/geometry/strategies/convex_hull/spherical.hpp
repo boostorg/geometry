@@ -7,12 +7,13 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
-#define BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_SPHERICAL_HPP
+#define BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_SPHERICAL_HPP
 
 
 #include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/spherical/ssf.hpp>
 
 
 namespace boost { namespace geometry
@@ -21,14 +22,18 @@ namespace boost { namespace geometry
 namespace strategies { namespace convex_hull
 {
 
-template <typename CalculationType = void>
-class cartesian : strategies::detail::cartesian_base
+template
+<
+    typename RadiusTypeOrSphere = double,
+    typename CalculationType = void
+>
+class spherical : strategies::detail::spherical_base<RadiusTypeOrSphere>
 {
 public:
     template <typename Geometry>
     static auto side(Geometry const&)
     {
-        return strategy::side::side_by_triangle<CalculationType>();
+        return strategy::side::spherical_side_formula<CalculationType>();
     }
 };
 
@@ -36,9 +41,9 @@ namespace services
 {
 
 template <typename Geometry>
-struct default_strategy<Geometry, cartesian_tag>
+struct default_strategy<Geometry, spherical_equatorial_tag>
 {
-    using type = strategies::convex_hull::cartesian<>;
+    using type = strategies::convex_hull::spherical<>;
 };
 
 } // namespace services
@@ -47,4 +52,4 @@ struct default_strategy<Geometry, cartesian_tag>
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_SPHERICAL_HPP

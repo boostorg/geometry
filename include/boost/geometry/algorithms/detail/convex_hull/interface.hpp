@@ -175,13 +175,6 @@ struct convex_hull
                              OutputGeometry& out,
                              default_strategy)
     {
-        /*
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Geometry>::type
-            >::type strategy_type;
-        */
-
         typedef typename strategies::convex_hull::services::default_strategy
             <
                 Geometry
@@ -211,9 +204,9 @@ struct convex_hull_insert
                                        OutputIterator& out,
                                        default_strategy)
     {
-        typedef typename strategy::side::services::default_strategy
+        typedef typename strategies::convex_hull::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
+                Geometry
             >::type strategy_type;
 
         return apply(geometry, out, strategy_type());
