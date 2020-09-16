@@ -104,35 +104,45 @@ void test_convex_hull(Geometry const& geometry,
     bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
     static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
     
-    // convex_hull_insert() uses the original Geometry as a source of the info about the order and closure
-    std::size_t const size_hull_from_orig = is_original_closed ? size_hull_closed : size_hull_closed - 1;
-    std::size_t const size_hull = is_hull_closed ? size_hull_closed : size_hull_closed - 1;
+    // convex_hull_insert() uses the original Geometry as a source of the info
+    // about the order and closure
+    std::size_t const size_hull_from_orig = is_original_closed ?
+        size_hull_closed : size_hull_closed - 1;
+    std::size_t const size_hull = is_hull_closed ? size_hull_closed :
+        size_hull_closed - 1;
 
     Hull hull;
 
     // Test version with output iterator
-    bg::detail::convex_hull::convex_hull_insert(geometry, std::back_inserter(hull.outer()));
-    check_convex_hull(geometry, hull, size_original, size_hull_from_orig, expected_area, expected_perimeter, reverse);
+    bg::detail::convex_hull::convex_hull_insert(geometry,
+        std::back_inserter(hull.outer()));
+    check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
+        expected_area, expected_perimeter, reverse);
 
     // Test version with ring as output
     bg::clear(hull);
     bg::convex_hull(geometry, hull.outer());
-    check_convex_hull(geometry, hull, size_original, size_hull, expected_area, expected_perimeter, false);
+    check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+        expected_perimeter, false);
 
     // Test version with polygon as output
     bg::clear(hull);
     bg::convex_hull(geometry, hull);
-    check_convex_hull(geometry, hull, size_original, size_hull, expected_area, expected_perimeter, false);
+    check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+        expected_perimeter, false);
 
     // Test version with strategy
     bg::clear(hull);
     bg::convex_hull(geometry, hull.outer(), Strategy());
-    check_convex_hull(geometry, hull, size_original, size_hull, expected_area, expected_perimeter, false);
+    check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+        expected_perimeter, false);
 
     // Test version with output iterator and strategy
     bg::clear(hull);
-    bg::detail::convex_hull::convex_hull_insert(geometry, std::back_inserter(hull.outer()), Strategy());
-    check_convex_hull(geometry, hull, size_original, size_hull_from_orig, expected_area, expected_perimeter, reverse);
+    bg::detail::convex_hull::convex_hull_insert(geometry,
+        std::back_inserter(hull.outer()), Strategy());
+    check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
+        expected_area, expected_perimeter, reverse);
 }
 
 
@@ -148,18 +158,16 @@ void test_geometry_order(std::string const& wkt,
             Closed
         > hull_type;
 
-    typedef bg::strategy::convex_hull::graham_andrew
-        <
-            Geometry,
-            typename bg::point_type<Geometry>::type
-        > strategy_type;
+    typedef boost::geometry::strategies::convex_hull::cartesian<> strategy_type;
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     boost::variant<Geometry> v(geometry);
 
-    test_convex_hull<hull_type, strategy_type>(geometry, size_original, size_hull_closed, expected_area, expected_perimeter, !Clockwise);
-    test_convex_hull<hull_type, strategy_type>(v, size_original, size_hull_closed, expected_area, expected_perimeter, !Clockwise);
+    test_convex_hull<hull_type, strategy_type>(geometry, size_original,
+        size_hull_closed, expected_area, expected_perimeter, !Clockwise);
+    test_convex_hull<hull_type, strategy_type>(v, size_original,
+        size_hull_closed, expected_area, expected_perimeter, !Clockwise);
 }
 
 template <typename Geometry>
@@ -167,10 +175,14 @@ void test_geometry(std::string const& wkt,
                       std::size_t size_original, std::size_t size_hull_closed,
                       double expected_area, double expected_perimeter = -1.0)
 {
-    test_geometry_order<Geometry, true, true>(wkt, size_original, size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, false, true>(wkt, size_original, size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, true, false>(wkt, size_original, size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, false, false>(wkt, size_original, size_hull_closed, expected_area, expected_perimeter);
+    test_geometry_order<Geometry, true, true>(wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter);
+    test_geometry_order<Geometry, false, true>(wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter);
+    test_geometry_order<Geometry, true, false>(wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter);
+    test_geometry_order<Geometry, false, false>(wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter);
 }
 
 template <typename Geometry>
