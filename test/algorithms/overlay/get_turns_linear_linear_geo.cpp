@@ -21,7 +21,7 @@ void test_radian()
     typedef bg::model::multi_linestring<ls> mls;
 
     bg::srs::spheroid<double> sph_wgs84(6378137.0, 6356752.3142451793);
-    boost::geometry::strategy::intersection::geographic_segments<> wgs84(sph_wgs84);
+    boost::geometry::strategies::relate::geographic<> wgs84(sph_wgs84);
 
     test_geometry<ls, mls>(
         "LINESTRING(0 0, -3.14159265358979 0)",

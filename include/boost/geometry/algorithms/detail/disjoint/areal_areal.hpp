@@ -60,13 +60,9 @@ inline bool rings_containing(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
 {
-    // TODO: This will be removed when IntersectionStrategy is replaced with
-    //       UmbrellaStrategy
-    auto const pgs = strategy.template get_point_in_geometry_strategy<Geometry2, Geometry1>();
-
     return geometry::detail::any_range_of(geometry2, [&](auto const& range)
     {
-        return point_on_border_covered_by(range, geometry1, pgs);
+        return point_on_border_covered_by(range, geometry1, strategy);
     });
 }
 
@@ -116,11 +112,9 @@ struct areal_box
                              Box const& box,
                              Strategy const& strategy)
     {
-        // TODO: This will be removed when UmbrellaStrategy is supported
-        auto const ds = strategy.get_disjoint_segment_box_strategy();
         if (! geometry::all_segments_of(areal, [&](auto const& s)
               {
-                  return disjoint_segment_box::apply(s, box, ds);
+                  return disjoint_segment_box::apply(s, box, strategy);
               }) )
         {
             return false;
@@ -129,8 +123,7 @@ struct areal_box
         // If there is no intersection of any segment and box,
         // the box might be located inside areal geometry
 
-        if ( point_on_border_covered_by(box, areal,
-                strategy.template get_point_in_geometry_strategy<Box, Areal>()) )
+        if ( point_on_border_covered_by(box, areal, strategy) )
         {
             return false;
         }

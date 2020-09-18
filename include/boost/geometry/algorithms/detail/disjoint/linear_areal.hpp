@@ -74,7 +74,7 @@ struct disjoint_no_intersections_policy
         point1_type p;
         geometry::point_on_border(p, g1);
 
-        return !geometry::covered_by(p, g2, strategy);
+        return ! geometry::covered_by(p, g2, strategy);
     }
 };
 
@@ -120,9 +120,7 @@ struct disjoint_linear_areal
             return false;
         }
 
-        return NoIntersectionsPolicy
-                ::apply(g1, g2,
-                        strategy.template get_point_in_geometry_strategy<Geometry1, Geometry2>());
+        return NoIntersectionsPolicy::apply(g1, g2, strategy);
     }
 };
 
@@ -195,8 +193,7 @@ public:
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
-        return !geometry::covered_by(p, polygon,
-                    strategy.template get_point_in_geometry_strategy<Segment, Polygon>());
+        return ! geometry::covered_by(p, polygon, strategy);
     }
 };
 
@@ -235,8 +232,7 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
         typename point_type<Segment>::type p;
         detail::assign_point_from_index<0>(segment, p);
 
-        return !geometry::covered_by(p, ring,
-                    strategy.template get_point_in_geometry_strategy<Segment, Ring>());
+        return ! geometry::covered_by(p, ring, strategy);
     }
 };
 

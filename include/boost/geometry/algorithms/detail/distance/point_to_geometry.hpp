@@ -41,6 +41,7 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 
@@ -164,8 +165,12 @@ struct point_to_ring
                                     Strategy const& strategy)
     {
         // TODO: pass strategy
-        if (within::within_point_geometry(point, ring,
-                                          strategy.get_point_in_geometry_strategy()))
+        auto const s = strategies::relate::services::strategy_converter
+            <
+                decltype(strategy.get_point_in_geometry_strategy())
+            >::get(strategy.get_point_in_geometry_strategy());
+
+        if (within::within_point_geometry(point, ring, s))
         {
             return return_type(0);
         }
@@ -207,11 +212,15 @@ private:
                                         InteriorRingIterator last,
                                         Strategy const& strategy)
         {
+            // TEMP: pass strategy
+            auto const s = strategies::relate::services::strategy_converter
+                <
+                    decltype(strategy.get_point_in_geometry_strategy())
+                >::get(strategy.get_point_in_geometry_strategy());
+
             for (InteriorRingIterator it = first; it != last; ++it)
             {
-                // TODO: pass strategy
-                if (within::within_point_geometry(point, *it,
-                                                  strategy.get_point_in_geometry_strategy()))
+                if (within::within_point_geometry(point, *it, s))
                 {
                     // the point is inside a polygon hole, so its distance
                     // to the polygon its distance to the polygon's
@@ -240,9 +249,13 @@ public:
                                     Polygon const& polygon,
                                     Strategy const& strategy)
     {
-        // TODO: pass strategy
-        if (! within::covered_by_point_geometry(point, exterior_ring(polygon),
-                                                strategy.get_point_in_geometry_strategy()))
+        // TEMP: pass strategy
+        auto const s = strategies::relate::services::strategy_converter
+            <
+                decltype(strategy.get_point_in_geometry_strategy())
+            >::get(strategy.get_point_in_geometry_strategy());
+
+        if (! within::covered_by_point_geometry(point, exterior_ring(polygon), s))
         {
             // the point is outside the exterior ring, so its distance
             // to the polygon is its distance to the polygon's exterior ring
@@ -340,8 +353,12 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
                                     Strategy const& strategy)
     {
         // TODO: pass strategy
-        if (within::covered_by_point_geometry(point, multipolygon,
-                                              strategy.get_point_in_geometry_strategy()))
+        auto const s = strategies::relate::services::strategy_converter
+            <
+                decltype(strategy.get_point_in_geometry_strategy())
+            >::get(strategy.get_point_in_geometry_strategy());
+
+        if (within::covered_by_point_geometry(point, multipolygon, s))
         {
             return 0;
         }

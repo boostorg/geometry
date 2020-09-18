@@ -242,22 +242,23 @@ inline void buffer(GeometryIn const& geometry_in,
     geometry::envelope(geometry_in, box);
     geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
 
-    typename strategy::intersection::services::default_strategy
+    typename strategies::relate::services::default_strategy
         <
-            typename cs_tag<GeometryIn>::type
-        >::type intersection_strategy;
+            GeometryIn, GeometryIn
+        >::type strategy;
 
     rescale_policy_type rescale_policy
             = boost::geometry::get_rescale_policy<rescale_policy_type>(
-                box, intersection_strategy);
+                box, strategy);
 
-    detail::buffer::buffer_inserter<polygon_type>(geometry_in, range::back_inserter(geometry_out),
+    detail::buffer::buffer_inserter<polygon_type>(geometry_in,
+                range::back_inserter(geometry_out),
                 distance_strategy,
                 side_strategy,
                 join_strategy,
                 end_strategy,
                 point_strategy,
-                intersection_strategy,
+                strategy,
                 rescale_policy);
 }
 

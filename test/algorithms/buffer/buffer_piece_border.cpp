@@ -103,10 +103,11 @@ Border setup_piece_border(Ring& ring, Ring& original,
 
     typedef typename bg::point_type<Ring>::type point_type;
 
-    border.get_properties_of_border(false, point_type());
+    bg::strategies::relate::cartesian<> strategy;
 
-    bg::strategy::side::side_by_triangle<> side_strategy;
-    border.get_properties_of_offsetted_ring_part(side_strategy);
+    border.get_properties_of_border(false, point_type(), strategy);
+
+    border.get_properties_of_offsetted_ring_part(strategy);
 
     return border;
 }

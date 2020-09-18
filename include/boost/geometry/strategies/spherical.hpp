@@ -14,6 +14,9 @@
 #include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
+#include <boost/geometry/strategies/io/spherical.hpp>
+#include <boost/geometry/strategies/index/spherical.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
 
 
 namespace boost { namespace geometry

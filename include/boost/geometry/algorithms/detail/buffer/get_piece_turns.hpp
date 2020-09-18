@@ -117,7 +117,7 @@ template
     typename Pieces,
     typename Rings,
     typename Turns,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy
 >
 class piece_turn_visitor
@@ -125,7 +125,7 @@ class piece_turn_visitor
     Pieces const& m_pieces;
     Rings const& m_rings;
     Turns& m_turns;
-    IntersectionStrategy const& m_intersection_strategy;
+    Strategy const& m_strategy;
     RobustPolicy const& m_robust_policy;
 
     template <typename Piece>
@@ -271,7 +271,7 @@ class piece_turn_visitor
 
                 turn_policy::apply(unique_sub_range1, unique_sub_range2,
                                    the_model,
-                                   m_intersection_strategy,
+                                   m_strategy,
                                    m_robust_policy,
                                    std::back_inserter(m_turns));
             }
@@ -283,12 +283,12 @@ public:
     piece_turn_visitor(Pieces const& pieces,
             Rings const& ring_collection,
             Turns& turns,
-            IntersectionStrategy const& intersection_strategy,
+            Strategy const& strategy,
             RobustPolicy const& robust_policy)
         : m_pieces(pieces)
         , m_rings(ring_collection)
         , m_turns(turns)
-        , m_intersection_strategy(intersection_strategy)
+        , m_strategy(strategy)
         , m_robust_policy(robust_policy)
     {}
 
@@ -307,7 +307,7 @@ public:
           || is_on_same_convex_ring(piece1, piece2)
           || detail::disjoint::disjoint_box_box(section1.bounding_box,
                                                 section2.bounding_box,
-                                                m_intersection_strategy.get_disjoint_box_box_strategy()) )
+                                                m_strategy) )
         {
             return true;
         }

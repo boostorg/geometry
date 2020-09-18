@@ -92,21 +92,7 @@ struct is_topologically_closed<Ring, closed>
 };
 
 
-
-template <typename ResultType, bool IsInteriorRing /* false */>
-struct ring_area_predicate
-{
-    typedef std::greater<ResultType> type;
-};
-
-template <typename ResultType>
-struct ring_area_predicate<ResultType, true>
-{
-    typedef std::less<ResultType> type;
-};
-
-
-
+// TODO: use calculate_point_order here
 template <typename Ring, bool IsInteriorRing>
 struct is_properly_oriented
 {
@@ -122,25 +108,15 @@ struct is_properly_oriented
                 geometry::closure<Ring>::value
             > ring_area_type;
 
-        typedef typename Strategy::template area_strategy
+        std::conditional_t
             <
-                Ring
-            >::type::template result_type<Ring>::type area_result_type;
-
-        typename ring_area_predicate
-            <
-                area_result_type, IsInteriorRing
-            >::type predicate;
+                IsInteriorRing, std::less<>, std::greater<>
+            > predicate;
 
         // Check area
-        area_result_type const zero = 0;
-        area_result_type const area
-            = ring_area_type::apply(ring,
-                                    // TEMP - in the future (umbrella) strategy will be passed here
-                                    geometry::strategies::area::services::strategy_converter
-                                        <
-                                            decltype(strategy.template get_area_strategy<Ring>())
-                                        >::get(strategy.template get_area_strategy<Ring>()));
+        auto const area = ring_area_type::apply(ring, strategy);
+        decltype(area) const zero = 0;
+
         if (predicate(area, zero))
         {
             return visitor.template apply<no_failure>();
@@ -166,8 +142,6 @@ struct is_valid_ring
     static inline bool apply(Ring const& ring, VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        typedef typename Strategy::cs_tag cs_tag;
-
         // return invalid if any of the following condition holds:
         // (a) the ring's point coordinates are not invalid (e.g., NaN)
         // (b) the ring's size is below the minimal one
@@ -199,13 +173,8 @@ struct is_valid_ring
         view_type const view(ring);
         if (detail::num_distinct_consecutive_points
                 <
-                    view_type, 4u, true,
-                    not_equal_to
-                        <
-                            typename point_type<Ring>::type,
-                            typename Strategy::equals_point_point_strategy_type
-                        >
-                >::apply(view)
+                    view_type, 4u, true
+                >::apply(view, strategy)
             < 4u)
         {
             return
@@ -213,9 +182,9 @@ struct is_valid_ring
         }
 
         return
-            is_topologically_closed<Ring, closure>::apply(ring, visitor, strategy.get_equals_point_point_strategy())
-            && ! has_duplicates<Ring, closure, cs_tag>::apply(ring, visitor)
-            && ! has_spikes<Ring, closure>::apply(ring, visitor, strategy.get_side_strategy())
+            is_topologically_closed<Ring, closure>::apply(ring, visitor, strategy)
+            && ! has_duplicates<Ring, closure>::apply(ring, visitor, strategy)
+            && ! has_spikes<Ring, closure>::apply(ring, visitor, strategy)
             && (! CheckSelfIntersections
                 || has_valid_self_turns<Ring, typename Strategy::cs_tag>::apply(ring, visitor, strategy))
             && is_properly_oriented<Ring, IsInteriorRing>::apply(ring, visitor, strategy);

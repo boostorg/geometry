@@ -14,6 +14,9 @@
 #include <boost/geometry/strategies/area/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/expand/geographic.hpp>
+#include <boost/geometry/strategies/io/geographic.hpp>
+#include <boost/geometry/strategies/index/geographic.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
 
 
 namespace boost { namespace geometry

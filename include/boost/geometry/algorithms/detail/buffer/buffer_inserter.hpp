@@ -921,7 +921,7 @@ template
     typename JoinStrategy,
     typename EndStrategy,
     typename PointStrategy,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy,
     typename VisitPiecesPolicy
 >
@@ -931,7 +931,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
         PointStrategy const& point_strategy,
-        IntersectionStrategy const& intersection_strategy,
+        Strategy const& strategy,
         RobustPolicy const& robust_policy,
         VisitPiecesPolicy& visit_pieces_policy
     )
@@ -941,11 +941,11 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     typedef detail::buffer::buffered_piece_collection
     <
         typename geometry::ring_type<GeometryOutput>::type,
-        IntersectionStrategy,
+        Strategy,
         DistanceStrategy,
         RobustPolicy
     > collection_type;
-    collection_type collection(intersection_strategy, distance_strategy, robust_policy);
+    collection_type collection(strategy, distance_strategy, robust_policy);
     collection_type const& const_collection = collection;
 
     bool const areal = util::is_areal<GeometryInput>::value;
@@ -962,7 +962,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         >::apply(geometry_input, collection,
             distance_strategy, side_strategy, join_strategy,
             end_strategy, point_strategy,
-            robust_policy, intersection_strategy.get_side_strategy());
+            robust_policy, strategy.side()); // pass strategy?
 
     collection.get_turns();
     if (BOOST_GEOMETRY_CONDITION(areal))
@@ -1029,7 +1029,7 @@ template
     typename JoinStrategy,
     typename EndStrategy,
     typename PointStrategy,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy
 >
 inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
@@ -1038,14 +1038,14 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         JoinStrategy const& join_strategy,
         EndStrategy const& end_strategy,
         PointStrategy const& point_strategy,
-        IntersectionStrategy const& intersection_strategy,
+        Strategy const& strategy,
         RobustPolicy const& robust_policy)
 {
     detail::buffer::visit_pieces_default_policy visitor;
     buffer_inserter<GeometryOutput>(geometry_input, out,
         distance_strategy, side_strategy, join_strategy,
         end_strategy, point_strategy,
-        intersection_strategy, robust_policy, visitor);
+        strategy, robust_policy, visitor);
 }
 #endif // DOXYGEN_NO_DETAIL
 

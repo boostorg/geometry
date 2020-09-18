@@ -14,6 +14,9 @@
 #include <boost/geometry/strategies/area/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/expand/cartesian.hpp>
+#include <boost/geometry/strategies/io/cartesian.hpp>
+#include <boost/geometry/strategies/index/cartesian.hpp>
+#include <boost/geometry/strategies/relate/cartesian.hpp>
 
 
 namespace boost { namespace geometry

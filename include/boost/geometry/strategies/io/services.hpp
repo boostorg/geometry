@@ -7,34 +7,39 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_IO_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_IO_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_IO_SERVICES_HPP
+#define BOOST_GEOMETRY_STRATEGIES_IO_SERVICES_HPP
 
 
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-namespace strategy { namespace io
+namespace strategies { namespace io
 {
 
 namespace services
 {
 
-template <typename CSTag>
+template
+<
+    typename Geometry,
+    typename CSTag = typename geometry::cs_tag<Geometry>::type
+>
 struct default_strategy
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
         "Not implemented for this coordinate system.",
-        CSTag);
+        Geometry, CSTag);
 };
 
 } // namespace services
 
-}} // namespace strategy::io
+}} // namespace strategies::io
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_STRATEGIES_IO_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_IO_SERVICES_HPP

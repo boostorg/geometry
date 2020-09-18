@@ -40,9 +40,9 @@ inline void append_with_duplicates(Range& range, Point const& point)
     geometry::append(range, point);
 }
 
-template <typename Range, typename Point, typename EqPPStrategy>
+template <typename Range, typename Point, typename Strategy>
 inline void append_no_duplicates(Range& range, Point const& point,
-                                 EqPPStrategy const& strategy)
+                                 Strategy const& strategy)
 {
     if ( boost::empty(range)
       || ! geometry::detail::equals::equals_point_point(geometry::range::back(range),

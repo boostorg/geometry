@@ -63,14 +63,14 @@ template
     typename Geometry,
     typename Turns,
     typename TurnPolicy,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy,
     typename InterruptPolicy
 >
 struct self_section_visitor
 {
     Geometry const& m_geometry;
-    IntersectionStrategy const& m_intersection_strategy;
+    Strategy const& m_strategy;
     RobustPolicy const& m_rescale_policy;
     Turns& m_turns;
     InterruptPolicy& m_interrupt_policy;
@@ -78,14 +78,14 @@ struct self_section_visitor
     bool m_skip_adjacent;
 
     inline self_section_visitor(Geometry const& g,
-                                IntersectionStrategy const& is,
+                                Strategy const& s,
                                 RobustPolicy const& rp,
                                 Turns& turns,
                                 InterruptPolicy& ip,
                                 int source_index,
                                 bool skip_adjacent)
         : m_geometry(g)
-        , m_intersection_strategy(is)
+        , m_strategy(s)
         , m_rescale_policy(rp)
         , m_turns(turns)
         , m_interrupt_policy(ip)
@@ -98,7 +98,7 @@ struct self_section_visitor
     {
         if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
                                                  sec2.bounding_box,
-                                                 m_intersection_strategy.get_disjoint_box_box_strategy())
+                                                 m_strategy)
                 && ! sec1.duplicate
                 && ! sec2.duplicate)
         {
@@ -112,7 +112,7 @@ struct self_section_visitor
                     >::apply(m_source_index, m_geometry, sec1,
                              m_source_index, m_geometry, sec2,
                              false, m_skip_adjacent,
-                             m_intersection_strategy,
+                             m_strategy,
                              m_rescale_policy,
                              m_turns, m_interrupt_policy);
         }
@@ -127,10 +127,10 @@ struct self_section_visitor
 template <bool Reverse, typename TurnPolicy>
 struct get_turns
 {
-    template <typename Geometry, typename IntersectionStrategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
+    template <typename Geometry, typename Strategy, typename RobustPolicy, typename Turns, typename InterruptPolicy>
     static inline bool apply(
             Geometry const& geometry,
-            IntersectionStrategy const& intersection_strategy,
+            Strategy const& strategy,
             RobustPolicy const& robust_policy,
             Turns& turns,
             InterruptPolicy& interrupt_policy,
@@ -152,32 +152,23 @@ struct get_turns
         typedef std::integer_sequence<std::size_t, 0, 1> dimensions;
 
         sections_type sec;
-        geometry::sectionalize<Reverse, dimensions>(geometry, robust_policy, sec,
-                                                    intersection_strategy.get_envelope_strategy(),
-                                                    intersection_strategy.get_expand_strategy());
+        geometry::sectionalize<Reverse, dimensions>(geometry, robust_policy,
+                                                    sec, strategy);
 
         self_section_visitor
             <
                 Reverse, Geometry,
-                Turns, TurnPolicy, IntersectionStrategy, RobustPolicy, InterruptPolicy
-            > visitor(geometry, intersection_strategy, robust_policy, turns, interrupt_policy, source_index, skip_adjacent);
-
-        typedef detail::section::get_section_box
-            <
-                typename IntersectionStrategy::expand_box_strategy_type
-            > get_section_box_type;
-        typedef detail::section::overlaps_section_box
-            <
-                typename IntersectionStrategy::disjoint_box_box_strategy_type
-            > overlaps_section_box_type;
+                Turns, TurnPolicy, Strategy, RobustPolicy, InterruptPolicy
+            > visitor(geometry, strategy, robust_policy, turns, interrupt_policy,
+                      source_index, skip_adjacent);
 
         // false if interrupted
         geometry::partition
             <
                 box_type
             >::apply(sec, visitor,
-                     get_section_box_type(),
-                     overlaps_section_box_type());
+                     detail::section::get_section_box<Strategy>(strategy),
+                     detail::section::overlaps_section_box<Strategy>(strategy));
 
         return ! interrupt_policy.has_intersections;
     }
@@ -340,13 +331,13 @@ template
 <
     typename AssignPolicy,
     typename Geometry,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy,
     typename Turns,
     typename InterruptPolicy
 >
 inline void self_turns(Geometry const& geometry,
-                       IntersectionStrategy const& strategy,
+                       Strategy const& strategy,
                        RobustPolicy const& robust_policy,
                        Turns& turns,
                        InterruptPolicy& interrupt_policy,

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -73,9 +73,9 @@ struct check_turn_less
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2)
     {
-        typedef typename bg::strategy::intersection::services::default_strategy
+        typedef typename bg::strategies::relate::services::default_strategy
             <
-                typename bg::cs_tag<Geometry1>::type
+                Geometry1, Geometry2
             >::type strategy_type;
 
         typedef bg::detail::no_rescale_policy robust_policy_type;

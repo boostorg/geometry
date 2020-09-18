@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 //
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,9 +57,9 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     map_type selected;
     std::map<bg::ring_identifier, bg::detail::overlay::ring_turn_info> empty;
 
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<Geometry1>::type
+            Geometry1, Geometry2
         >::type strategy_type;
 
     bg::detail::overlay::select_rings<OverlayType>(geometry1, geometry2, empty, selected, strategy_type());

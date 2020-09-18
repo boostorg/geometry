@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -65,11 +65,13 @@ private:
     <
         typename Turns,
         typename LinearGeometry1,
-        typename LinearGeometry2
+        typename LinearGeometry2,
+        typename Strategy
     >
     static inline void compute_turns(Turns& turns,
                                      LinearGeometry1 const& linear1,
-                                     LinearGeometry2 const& linear2)
+                                     LinearGeometry2 const& linear2,
+                                     Strategy const& strategy)
     {
         turns.clear();
         bg_detail::relate::turns::get_turns
@@ -77,12 +79,14 @@ private:
                 LinearGeometry1,
                 LinearGeometry2,
                 bg_detail::get_turns::get_turn_info_type
-                <
-                    LinearGeometry1,
-                    LinearGeometry2,
-                    assign_policy
-                >
-            >::apply(turns, linear1, linear2);
+                    <
+                        LinearGeometry1,
+                        LinearGeometry2,
+                        assign_policy
+                    >
+            >::apply(turns, linear1, linear2,
+                     bg_detail::get_turns::no_interrupt_policy(),
+                     strategy);
     }
 
 
@@ -92,7 +96,7 @@ public:
     static inline void apply(Linear1 const& lineargeometry1,
                              Linear2 const& lineargeometry2)
     {
-        typedef typename bg::strategy::relate::services::default_strategy
+        typedef typename bg::strategies::relate::services::default_strategy
             <
                 Linear1, Linear2
             >::type strategy_type;
@@ -123,8 +127,9 @@ public:
         boost::geometry::reverse(linear2_reverse);
 
         turns_container turns_all, rturns_all;
-        compute_turns(turns_all, linear1, linear2);
-        compute_turns(rturns_all, linear1, linear2_reverse);
+        strategy_type strategy;
+        compute_turns(turns_all, linear1, linear2, strategy);
+        compute_turns(rturns_all, linear1, linear2_reverse, strategy);
 
         turns_container turns_wo_cont(turns_all);
         turns_container rturns_wo_cont(rturns_all);

@@ -44,7 +44,7 @@ struct is_umbrella_strategy
 
 struct cartesian_base : umbrella_strategy
 {
-    typedef cartesian_tag tag;
+    typedef cartesian_tag cs_tag;
 };
 
 template
@@ -60,7 +60,7 @@ protected:
         >::type radius_type;
 
 public:
-    typedef spherical_tag tag;
+    typedef spherical_tag cs_tag;
 
     spherical_base()
         : m_radius(1.0)
@@ -87,7 +87,7 @@ template <>
 class spherical_base<void> : umbrella_strategy
 {
 public:
-    typedef spherical_tag tag;
+    typedef spherical_tag cs_tag;
 
     srs::sphere<double> model() const
     {
@@ -99,7 +99,7 @@ template <typename Spheroid>
 class geographic_base : umbrella_strategy
 {
 public:
-    typedef geographic_tag tag;
+    typedef geographic_tag cs_tag;
 
     geographic_base()
         : m_spheroid()

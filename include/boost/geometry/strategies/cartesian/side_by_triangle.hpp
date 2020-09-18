@@ -269,8 +269,7 @@ private:
     template <typename P1, typename P2>
     static inline bool equals_point_point(P1 const& p1, P2 const& p2)
     {
-        typedef equals_point_point_strategy_type strategy_t;
-        return geometry::detail::equals::equals_point_point(p1, p2, strategy_t());
+        return strategy::within::cartesian_point_point::apply(p1, p2);
     }
 };
 

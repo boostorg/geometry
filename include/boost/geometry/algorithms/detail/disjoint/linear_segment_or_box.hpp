@@ -58,8 +58,7 @@ struct disjoint_point_segment_or_box<Segment, segment_tag>
         return dispatch::disjoint
             <
                 Point, Segment
-            >::apply(point, segment,
-                     strategy.template get_point_in_geometry_strategy<Point, Segment>());
+            >::apply(point, segment, strategy);
     }
 };
 
@@ -72,8 +71,7 @@ struct disjoint_point_segment_or_box<Box, box_tag>
         return dispatch::disjoint
             <
                 Point, Box
-            >::apply(point, box,
-                     strategy.get_disjoint_point_box_strategy());
+            >::apply(point, box, strategy);
     }
 };
 

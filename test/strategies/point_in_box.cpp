@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,7 +21,7 @@ void test_box_of(std::string const& wkt_point, std::string const& wkt_box,
               bool expected_within, bool expected_covered_by)
 {
     typedef bg::model::box<Point> box_type;
-
+    
     Point point;
     box_type box;
     bg::read_wkt(wkt_point, point);
@@ -32,22 +32,26 @@ void test_box_of(std::string const& wkt_point, std::string const& wkt_box,
     BOOST_CHECK_EQUAL(detected_within, expected_within);
     BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
 
-    // Also test with the non-default agnostic side version
-    namespace wi = bg::strategy::within;
-    wi::point_in_box_by_side<> within_strategy;
-    wi::point_in_box_by_side<wi::decide_covered_by> covered_by_strategy;
+    // Also test with the non-default side version
+    bg::strategy::within::cartesian_point_box_by_side<> within_strategy;
+    bg::strategy::covered_by::cartesian_point_box_by_side<> covered_by_strategy;
 
     detected_within = bg::within(point, box, within_strategy);
     detected_covered_by = bg::covered_by(point, box, covered_by_strategy);
     BOOST_CHECK_EQUAL(detected_within, expected_within);
     BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
 
+    // BREAKING CHANGE:
+    // Internally the strategies are converted to umbrella strategy
+    // and then the umbrella strategy is used to get correct strategy
+    // for corresponding algorithm.
+    // PREVIOUSLY:
     // We might exchange strategies between within/covered by.
     // So the lines below might seem confusing, but are as intended
-    detected_within = bg::covered_by(point, box, within_strategy);
-    detected_covered_by = bg::within(point, box, covered_by_strategy);
-    BOOST_CHECK_EQUAL(detected_within, expected_within);
-    BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
+    //detected_within = bg::covered_by(point, box, within_strategy);
+    //detected_covered_by = bg::within(point, box, covered_by_strategy);
+    //BOOST_CHECK_EQUAL(detected_within, expected_within);
+    //BOOST_CHECK_EQUAL(detected_covered_by, expected_covered_by);
 
     // Finally we call the strategies directly
     detected_within = within_strategy.apply(point, box);

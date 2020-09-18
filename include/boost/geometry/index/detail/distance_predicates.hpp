@@ -102,133 +102,39 @@ struct relation< to_furthest<T> >
 
 template
 <
-    typename G1, typename G2, typename Strategy,
-    typename Tag1 = typename geometry::tag<G1>::type,
-    typename Tag2 = typename geometry::tag<G2>::type
->
-struct comparable_distance_call_base
-{
-    typedef typename geometry::default_comparable_distance_result
-        <
-            G1, G2
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const&)
-    {
-        return geometry::comparable_distance(g1, g2);
-    }
-};
-
-template
-<
-    typename G1, typename G2, typename Strategy
->
-struct comparable_distance_call_base<G1, G2, Strategy, point_tag, point_tag>
-{
-    typedef typename geometry::comparable_distance_result
-        <
-            G1, G2,
-            typename Strategy::comparable_distance_point_point_strategy_type
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
-    {
-        return geometry::comparable_distance(g1, g2,
-                s.get_comparable_distance_point_point_strategy());
-    }
-};
-
-template
-<
-    typename G1, typename G2, typename Strategy
->
-struct comparable_distance_call_base<G1, G2, Strategy, point_tag, box_tag>
-{
-    typedef typename geometry::comparable_distance_result
-        <
-            G1, G2,
-            typename Strategy::comparable_distance_point_box_strategy_type
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
-    {
-        return geometry::comparable_distance(g1, g2,
-                s.get_comparable_distance_point_box_strategy());
-    }
-};
-
-template
-<
-    typename G1, typename G2, typename Strategy
->
-struct comparable_distance_call_base<G1, G2, Strategy, segment_tag, point_tag>
-{
-    typedef typename geometry::comparable_distance_result
-        <
-            G1, G2,
-            typename Strategy::comparable_distance_point_segment_strategy_type
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
-    {
-        return geometry::comparable_distance(g1, g2,
-                s.get_comparable_distance_point_segment_strategy());
-    }
-};
-
-template
-<
-    typename G1, typename G2, typename Strategy
->
-struct comparable_distance_call_base<G1, G2, Strategy, segment_tag, box_tag>
-{
-    typedef typename geometry::comparable_distance_result
-        <
-            G1, G2,
-            typename Strategy::comparable_distance_segment_box_strategy_type
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
-    {
-        return geometry::comparable_distance(g1, g2,
-                s.get_comparable_distance_segment_box_strategy());
-    }
-};
-
-template
-<
-    typename G1, typename G2, typename Strategy
->
-struct comparable_distance_call_base<G1, G2, Strategy, segment_tag, segment_tag>
-{
-    typedef typename geometry::comparable_distance_result
-        <
-            G1, G2,
-            typename Strategy::comparable_distance_point_segment_strategy_type
-        >::type result_type;
-
-    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
-    {
-        return geometry::comparable_distance(g1, g2,
-                s.get_comparable_distance_point_segment_strategy());
-    }
-};
-
-template
-<
     typename G1, typename G2, typename Strategy
 >
 struct comparable_distance_call
-    : comparable_distance_call_base<G1, G2, Strategy>
-{};
+{
+    typedef typename geometry::comparable_distance_result
+        <
+            G1, G2,
+            decltype(std::declval<Strategy>().comparable_distance(std::declval<G1>(),
+                                                                  std::declval<G2>()))
+        >::type result_type;
+
+    static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
+    {
+        return geometry::comparable_distance(g1, g2, s.comparable_distance(g1, g2));
+    }
+};
 
 template
 <
     typename G1, typename G2
 >
 struct comparable_distance_call<G1, G2, default_strategy>
-    : comparable_distance_call_base<G1, G2, default_strategy, void, void>
-{};
+{
+    typedef typename geometry::default_comparable_distance_result
+        <
+            G1, G2
+        >::type result_type;
+
+    static inline result_type apply(G1 const& g1, G2 const& g2, default_strategy const&)
+    {
+        return geometry::comparable_distance(g1, g2);
+    }
+};
 
 // ------------------------------------------------------------------ //
 // calculate_distance
