@@ -146,7 +146,7 @@ void test_convex_hull(Geometry const& geometry,
 }
 
 
-template <typename Geometry, bool Clockwise, bool Closed>
+template <typename Geometry, typename Strategy, bool Clockwise, bool Closed>
 void test_geometry_order(std::string const& wkt,
                       std::size_t size_original, std::size_t size_hull_closed,
                       double expected_area, double expected_perimeter = -1.0)
@@ -158,31 +158,45 @@ void test_geometry_order(std::string const& wkt,
             Closed
         > hull_type;
 
-    typedef boost::geometry::strategies::convex_hull::cartesian<> strategy_type;
-
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
     boost::variant<Geometry> v(geometry);
 
-    test_convex_hull<hull_type, strategy_type>(geometry, size_original,
+    test_convex_hull<hull_type, Strategy>(geometry, size_original,
         size_hull_closed, expected_area, expected_perimeter, !Clockwise);
-    test_convex_hull<hull_type, strategy_type>(v, size_original,
+    test_convex_hull<hull_type, Strategy>(v, size_original,
         size_hull_closed, expected_area, expected_perimeter, !Clockwise);
 }
 
-template <typename Geometry>
+template <typename Geometry, typename Strategy>
 void test_geometry(std::string const& wkt,
-                      std::size_t size_original, std::size_t size_hull_closed,
-                      double expected_area, double expected_perimeter = -1.0)
+                   std::size_t size_original, std::size_t size_hull_closed,
+                   double expected_area, double expected_perimeter = -1.0)
 {
-    test_geometry_order<Geometry, true, true>(wkt, size_original,
+    test_geometry_order<Geometry, Strategy, true, true>(wkt, size_original,
         size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, false, true>(wkt, size_original,
+    test_geometry_order<Geometry, Strategy, false, true>(wkt, size_original,
         size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, true, false>(wkt, size_original,
+    test_geometry_order<Geometry, Strategy, true, false>(wkt, size_original,
         size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, false, false>(wkt, size_original,
+    test_geometry_order<Geometry, Strategy, false, false>(wkt, size_original,
         size_hull_closed, expected_area, expected_perimeter);
+}
+
+template <class SGeometry, class GGeometry>
+void test_geometry_sph_geo(std::string const& wkt,
+                           std::size_t size_original,
+                           std::size_t size_hull_closed,
+                           double spherical_expected_area,
+                           double geographic_expected_area)
+{
+    typedef boost::geometry::strategies::convex_hull::spherical<> SphericalStrategy;
+    test_geometry<SGeometry, SphericalStrategy>(wkt, size_original,
+        size_hull_closed, spherical_expected_area);
+
+    typedef boost::geometry::strategies::convex_hull::geographic<> GeoStrategy;
+    test_geometry<GGeometry, GeoStrategy>(wkt, size_original,
+        size_hull_closed, geographic_expected_area);
 }
 
 template <typename Geometry>

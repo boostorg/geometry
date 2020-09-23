@@ -27,6 +27,8 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
+
 #include <boost/geometry/strategy/geographic/envelope.hpp>
 
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
@@ -119,6 +121,11 @@ public:
 
         typedef typename FormulaPolicy::template inverse
                     <calc_t, false, true, false, false, false> inverse_formula;
+
+        if (geometry::equals(p, p1) || geometry::equals(p, p2))
+        {
+            return 0;
+        }
 
         calc_t a1p = azimuth<calc_t, inverse_formula>(p1, p, m_model);
         calc_t a12 = azimuth<calc_t, inverse_formula>(p1, p2, m_model);

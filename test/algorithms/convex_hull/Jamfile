@@ -12,4 +12,5 @@ test-suite boost-geometry-algorithms-convex_hull
     :
     [ run convex_hull.cpp              : : : : algorithms_convex_hull ]
     [ run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ]
+    [ run convex_hull_sph_geo.cpp      : : : : algorithms_convex_hull_sph_geo ]
     ;
