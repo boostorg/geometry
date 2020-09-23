@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 //
-// Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,22 +11,15 @@
 
 struct common_settings
 {
-    bool svg;
-    bool wkt;
-    bool also_difference;
-    double tolerance;
+    bool svg{false};
+    bool wkt{false};
+    bool also_difference{false};
+    double tolerance{1.0e-6};
 
-    int field_size;
-    bool triangular;
+    int field_size{10};
+    bool triangular{false};
 
-    common_settings()
-        : svg(false)
-        , wkt(false)
-        , also_difference(false)
-        , tolerance(1.0e-6)
-        , field_size(10)
-        , triangular(false)
-    {}
+    bool check_validity{true};
 };
 
 #endif // BOOST_GEOMETRY_COMMON_SETTINGS_HPP
