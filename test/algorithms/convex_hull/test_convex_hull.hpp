@@ -27,17 +27,18 @@
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/strategies/area/services.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/geometries/polygon.hpp>
 
 
-template <typename Geometry, typename Hull>
+template <typename Geometry, typename Hull, typename AreaStrategy>
 void check_convex_hull(Geometry const& geometry, Hull const& hull,
                       std::size_t /*size_original*/, std::size_t size_hull,
                       double expected_area, double expected_perimeter,
-                      bool reverse)
+                      bool reverse, AreaStrategy area_strategy)
 {
     std::size_t n = bg::num_points(hull);
 
@@ -53,7 +54,8 @@ void check_convex_hull(Geometry const& geometry, Hull const& hull,
     // We omit this check as it is not important for the hull algorithm
     // BOOST_CHECK(bg::num_points(geometry) == size_original);
 
-    typename bg::default_area_result<Geometry>::type ah = bg::area(hull);
+    auto ah = bg::area(hull, area_strategy);
+
     if (reverse)
     {
         ah = -ah;
@@ -63,8 +65,7 @@ void check_convex_hull(Geometry const& geometry, Hull const& hull,
 
     if ( expected_perimeter >= 0 )
     {
-        typename bg::default_length_result<Geometry>::type
-            ph = bg::perimeter(hull);
+        auto ph = bg::perimeter(hull);
 
         BOOST_CHECK_CLOSE(ph, expected_perimeter, 0.001);
     }
@@ -95,11 +96,11 @@ inline bg::closure_selector get_closure(boost::variant<BOOST_VARIANT_ENUM_PARAMS
 
 } // namespace resolve_variant
 
-template <typename Hull, typename Strategy, typename Geometry>
+template <typename Hull, typename Strategy, typename AreaStrategy, typename Geometry>
 void test_convex_hull(Geometry const& geometry,
                       std::size_t size_original, std::size_t size_hull_closed,
                       double expected_area, double expected_perimeter,
-                      bool reverse)
+                      bool reverse, bool use_only_strategy = false)
 {
     bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
     static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
@@ -113,43 +114,55 @@ void test_convex_hull(Geometry const& geometry,
 
     Hull hull;
 
-    // Test version with output iterator
-    bg::detail::convex_hull::convex_hull_insert(geometry,
-        std::back_inserter(hull.outer()));
-    check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
-        expected_area, expected_perimeter, reverse);
+    if (!use_only_strategy)
+    {
+        // Test version with output iterator
+        bg::detail::convex_hull::convex_hull_insert(geometry,
+                                                    std::back_inserter(hull.outer()));
+        check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
+                          expected_area, expected_perimeter, reverse,
+                          AreaStrategy());
 
-    // Test version with ring as output
-    bg::clear(hull);
-    bg::convex_hull(geometry, hull.outer());
-    check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
-        expected_perimeter, false);
+        // Test version with ring as output
+        bg::clear(hull);
+        bg::convex_hull(geometry, hull.outer());
+        check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+                          expected_perimeter, false, AreaStrategy());
 
-    // Test version with polygon as output
-    bg::clear(hull);
-    bg::convex_hull(geometry, hull);
-    check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
-        expected_perimeter, false);
-
+        // Test version with polygon as output
+        bg::clear(hull);
+        bg::convex_hull(geometry, hull);
+        check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+                          expected_perimeter, false, AreaStrategy());
+    }
     // Test version with strategy
     bg::clear(hull);
     bg::convex_hull(geometry, hull.outer(), Strategy());
     check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
-        expected_perimeter, false);
+        expected_perimeter, false, AreaStrategy());
 
     // Test version with output iterator and strategy
     bg::clear(hull);
     bg::detail::convex_hull::convex_hull_insert(geometry,
         std::back_inserter(hull.outer()), Strategy());
     check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
-        expected_area, expected_perimeter, reverse);
+        expected_area, expected_perimeter, reverse, AreaStrategy());
+
 }
 
 
-template <typename Geometry, typename Strategy, bool Clockwise, bool Closed>
+template
+<
+    typename Geometry,
+    typename Strategy,
+    typename AreaStrategy,
+    bool Clockwise,
+    bool Closed
+>
 void test_geometry_order(std::string const& wkt,
-                      std::size_t size_original, std::size_t size_hull_closed,
-                      double expected_area, double expected_perimeter = -1.0)
+                         std::size_t size_original, std::size_t size_hull_closed,
+                         double expected_area, double expected_perimeter = -1.0,
+                         bool use_only_strategy = false)
 {
     typedef bg::model::polygon
         <
@@ -160,27 +173,48 @@ void test_geometry_order(std::string const& wkt,
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
-    boost::variant<Geometry> v(geometry);
 
-    test_convex_hull<hull_type, Strategy>(geometry, size_original,
-        size_hull_closed, expected_area, expected_perimeter, !Clockwise);
-    test_convex_hull<hull_type, Strategy>(v, size_original,
-        size_hull_closed, expected_area, expected_perimeter, !Clockwise);
+
+    test_convex_hull<hull_type, Strategy, AreaStrategy>(geometry, size_original,
+        size_hull_closed, expected_area, expected_perimeter, !Clockwise,
+        use_only_strategy);
+
+    boost::variant<Geometry> v(geometry);
+    test_convex_hull<hull_type, Strategy, AreaStrategy>(v, size_original,
+        size_hull_closed, expected_area, expected_perimeter, !Clockwise,
+        use_only_strategy);
 }
 
-template <typename Geometry, typename Strategy>
+template
+<
+    typename Geometry,
+    typename Strategy,
+    typename AreaStrategy = typename bg::strategies::area::services::default_strategy
+        <
+            Geometry
+        >::type
+>
 void test_geometry(std::string const& wkt,
                    std::size_t size_original, std::size_t size_hull_closed,
-                   double expected_area, double expected_perimeter = -1.0)
+                   double expected_area, double expected_perimeter = -1.0,
+                   bool use_only_strategy = false)
 {
-    test_geometry_order<Geometry, Strategy, true, true>(wkt, size_original,
-        size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, Strategy, false, true>(wkt, size_original,
-        size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, Strategy, true, false>(wkt, size_original,
-        size_hull_closed, expected_area, expected_perimeter);
-    test_geometry_order<Geometry, Strategy, false, false>(wkt, size_original,
-        size_hull_closed, expected_area, expected_perimeter);
+    test_geometry_order<Geometry, Strategy, AreaStrategy, true, true>(
+        wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter, use_only_strategy
+    );
+    test_geometry_order<Geometry, Strategy, AreaStrategy, false, true>(
+        wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter, use_only_strategy
+    );
+    test_geometry_order<Geometry, Strategy, AreaStrategy, true, false>(
+        wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter, use_only_strategy
+    );
+    test_geometry_order<Geometry, Strategy, AreaStrategy, false, false>(
+        wkt, size_original,
+        size_hull_closed, expected_area, expected_perimeter, use_only_strategy
+    );
 }
 
 template <class SGeometry, class GGeometry>
