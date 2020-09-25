@@ -16,8 +16,7 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/extensions/triangulation/strategies/cartesian/side_robust.hpp>
-
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
 
 #include <boost/multiprecision/cpp_dec_float.hpp>
