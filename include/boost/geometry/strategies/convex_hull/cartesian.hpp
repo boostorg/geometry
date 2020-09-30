@@ -13,7 +13,7 @@
 
 #include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 namespace boost { namespace geometry
 {
@@ -28,7 +28,7 @@ public:
     template <typename Geometry>
     static auto side(Geometry const&)
     {
-        return strategy::side::side_by_triangle<CalculationType>();
+        return strategy::side::side_robust<CalculationType>();
     }
 };
 

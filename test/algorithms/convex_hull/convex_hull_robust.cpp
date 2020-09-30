@@ -16,45 +16,24 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
-#include <boost/geometry/strategy/cartesian/precise_area.hpp>
-
 #include <boost/multiprecision/cpp_dec_float.hpp>
-
-struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
-{
-    template <typename Geometry>
-    static auto side(Geometry const&)
-    {
-        return boost::geometry::strategy::side::side_robust<>();
-    }
-};
-
-struct precise_cartesian : boost::geometry::strategies::detail::cartesian_base
-{
-    template <typename Geometry>
-    static auto area(Geometry const&)
-    {
-        return boost::geometry::strategy::area::precise_cartesian<>();
-    }
-};
 
 template <typename CT, typename CTmp>
 void test_all()
 {
     typedef bg::model::d2::point_xy<CT> P;
     typedef bg::model::d2::point_xy<CTmp> Pmp;
-    typedef boost::geometry::strategies::convex_hull::cartesian<>
-        non_robust_cartesian;
 
     // from sample polygon, with concavity
     auto polygon_wkt0 = "polygon((2.0 1.3, 2.4 1.7, 2.8 1.8, 3.4 1.2, 3.7 1.6,\
         3.4 2.0, 4.1 3.0, 5.3 2.6, 5.4 1.2, 4.9 0.8, 2.9 0.7,2.0 1.3))";
     test_geometry<bg::model::polygon<P>, robust_cartesian>(
         polygon_wkt0, 12, 8, 5.245);
-    test_geometry<bg::model::polygon<P>, non_robust_cartesian>(
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt>(
         polygon_wkt0, 12, 8, 5.245);
-    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian>(
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast>(
+        polygon_wkt0, 12, 8, 5.245);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt>(
         polygon_wkt0, 12, 8, 5.245);
 
     // some colinear cases are ok with non robust predicate
@@ -65,9 +44,11 @@ void test_all()
         0 1,8 4,25 26,26 25,19 11))";
     test_geometry<bg::model::polygon<P>, robust_cartesian >(
         polygon_wkt1, 9, 7, 137.25);
-    test_geometry<bg::model::polygon<P>, non_robust_cartesian >(
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt >(
         polygon_wkt1, 9, 7, 137.25);
-    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian >(
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast >(
+        polygon_wkt1, 9, 7, 137.25);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt >(
         polygon_wkt1, 9, 7, 137.25);
 
     // slightly non-convex result but areas equal
@@ -77,14 +58,16 @@ void test_all()
         73.415841584158414 8.8613861386138595,\
         27.643564356435643 -21.881188118811881))";
     test_geometry<bg::model::polygon<P>, robust_cartesian >(
-        polygon_wkt2, 5, 4, 1163.5247524752476, -1, true);
-    test_geometry<bg::model::polygon<P>, non_robust_cartesian >(
+        polygon_wkt2, 5, 4, 1163.5247524752476);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt >(
         polygon_wkt2, 5, 5, 1163.5247524752476);
-    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian >(
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast >(
+        polygon_wkt2, 5, 4, 1163.5247524752476);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt >(
         polygon_wkt2, 5, 4, 1163.5247524752476);
 
     // wrong orientation / sign in area
-    // here non_robust_cartesian computes wrong result with mp arithmetic
+    // here non_robust_cartesian_sbt computes wrong result with mp arithmetic
     // correct results double checked with CGAL 5.1
     auto polygon_wkt3 = "polygon((200.0 49.200000000000003,\
         100.0 49.600000000000001,\
@@ -92,11 +75,13 @@ void test_all()
         166.66666666666669 49.333333333333336,\
         200.0 49.200000000000003))";
     test_geometry<bg::model::polygon<P>, robust_cartesian, precise_cartesian >(
-        polygon_wkt3, 5, 4, 1.4210854715202004e-14, -1, true);
-    test_geometry<bg::model::polygon<P>, non_robust_cartesian, precise_cartesian >(
+        polygon_wkt3, 5, 4, 1.4210854715202004e-14);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt, precise_cartesian >(
         polygon_wkt3, 5, 4, -1.4210854715202004e-14);
-    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian >(
-        polygon_wkt3, 5, 5, 1.69333333333333265e-13, -1, true);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast, precise_cartesian >(
+        polygon_wkt3, 5, 4, 1.4210854715202004e-14);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt >(
+        polygon_wkt3, 5, 5, 1.69333333333333265e-13);
 
     // missing one point could lead in arbitrary large errors in area
     auto polygon_wkt4 = "polygon((0.10000000000000001 0.10000000000000001,\
@@ -105,11 +90,13 @@ void test_all()
         1.267650600228229e30 1.2676506002282291e30,\
         0.10000000000000001 0.10000000000000001))";
     test_geometry<bg::model::polygon<P>, robust_cartesian, precise_cartesian>(
-        polygon_wkt4, 5, 5, -0.315, -1, true);
-    test_geometry<bg::model::polygon<P>, non_robust_cartesian, precise_cartesian>(
-        polygon_wkt4, 5, 4, 0, -1, true);
-    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian>(
-        polygon_wkt4, 5, 5, 3.472078301e+13, -1, true);
+        polygon_wkt4, 5, 5, -0.315);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt, precise_cartesian>(
+        polygon_wkt4, 5, 4, 0);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast, precise_cartesian>(
+        polygon_wkt4, 5, 4, -0.015);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt>(
+        polygon_wkt4, 5, 5, 3.472078301e+13);
 }
 
 
