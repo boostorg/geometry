@@ -109,13 +109,6 @@ int test_main(int, char* [])
     test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, false, false>();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, true, true >();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, false, false >();
-
-#ifdef HAVE_TTMATH
-    std::cout << "Testing TTMATH" << std::endl;
-    test_spikes_in_ticket_8364<bg::model::d2::point_xy<ttmath_big>, true, true>();
-    test_spikes_in_ticket_8365<bg::model::d2::point_xy<ttmath_big>, true, true>();
-#endif
-
     return 0;
 }
 

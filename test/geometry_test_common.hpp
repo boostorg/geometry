@@ -80,22 +80,8 @@
 
 #endif
 
-
-#if defined(HAVE_TTMATH)
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
-#if defined(HAVE_CLN) || defined(HAVE_GMP)
-#  include <boost/numeric_adaptor/numeric_adaptor.hpp>
-#endif
-
-
-#if defined(HAVE_GMP)
-#  include <boost/numeric_adaptor/gmp_value_type.hpp>
-#endif
-#if defined(HAVE_CLN)
-#  include <boost/numeric_adaptor/cln_value_type.hpp>
-#endif
+// For testing high precision numbers
+#include <boost/multiprecision/cpp_bin_float.hpp>
 
 // For all tests:
 // - do NOT use "using namespace boost::geometry" to make clear what is Boost.Geometry
@@ -107,17 +93,6 @@
 #include <boost/geometry/core/tag.hpp>
 namespace bg = boost::geometry;
 
-
-template <typename CoordinateType, typename T1, typename T2>
-inline T1 if_typed_tt(T1 value_tt, T2 value)
-{
-#if defined(HAVE_TTMATH)
-    return boost::is_same<CoordinateType, ttmath_big>::type::value ? value_tt : value;
-#else
-    boost::ignore_unused(value_tt);
-    return value;
-#endif
-}
 
 template <typename CoordinateType, typename Specified, typename T>
 inline T if_typed(T value_typed, T value)
@@ -188,7 +163,15 @@ private :
 };
 
 
+typedef boost::multiprecision::cpp_bin_float_100 mp_test_type;
 typedef double default_test_type;
+
+template <typename CoordinateType, typename T1, typename T2>
+inline T1 const& bg_if_mp(T1 const& value_mp, T2 const& value)
+{
+    return boost::is_same<CoordinateType, mp_test_type>::type::value ? value_mp : value;
+}
+
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
 #define BG_IF_RESCALED(a, b) a

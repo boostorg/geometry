@@ -10,7 +10,6 @@
 #include <iostream>
 #include <string>
 
-//#define HAVE_TTMATH
 //#define BOOST_GEOMETRY_DEBUG_ASSEMBLE
 //#define BOOST_GEOMETRY_CHECK_WITH_SQLSERVER
 

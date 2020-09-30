@@ -212,12 +212,11 @@ public :
                 OutputRange& output_range)
     {
         // Generate a block along (left or right of) the segment
-
-        double const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
-        double const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
+        auto const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
+        auto const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
 
         // For normalization [0,1] (=dot product d.d, sqrt)
-        double const length = bg::math::sqrt(dx * dx + dy * dy);
+        auto const length = bg::math::sqrt(dx * dx + dy * dy);
 
         if (bg::math::equals(length, 0))
         {
@@ -225,9 +224,9 @@ public :
         }
 
         // Generate the perpendicular p, to the left (ccw), and use an adapted distance
-        double const d = 1.1 * distance.apply(input_p1, input_p2, side);
-        double const px = d * -dy / length;
-        double const py = d * dx / length;
+        auto const d = 1.1 * distance.apply(input_p1, input_p2, side);
+        auto const px = d * -dy / length;
+        auto const py = d * dx / length;
 
         output_range.resize(2);
 
@@ -835,10 +834,6 @@ void test_mixed()
             simplex, join_round, end_flat, 47.4831, 1.5);
 }
 
-#ifdef HAVE_TTMATH
-#include <ttmath_stub.hpp>
-#endif
-
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -867,11 +862,6 @@ int test_main(int, char* [])
     test_mixed<dpoint, dpoint, false, true, false, true>();
     test_mixed<dpoint, dpoint, true, false, false, true>();
     test_mixed<dpoint, dpoint, true, true, false, true>();
-
-#ifdef HAVE_TTMATH
-    test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)

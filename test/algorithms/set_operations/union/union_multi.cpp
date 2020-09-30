@@ -43,6 +43,8 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
+    using ct = typename bg::coordinate_type<Ring>::type;
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
@@ -364,7 +366,7 @@ void test_areal()
     TEST_UNION(case_recursive_boxes_79, 1, 2, -1, 14.75);
 
     // No hole should be generated (but rescaling generates one hole)
-    TEST_UNION(case_recursive_boxes_80, 2, BG_IF_RESCALED(1, 0), -1, 1.5);
+    TEST_UNION(case_recursive_boxes_80, 2, BG_IF_RESCALED(bg_if_mp<ct>(0, 1), 0), -1, 1.5);
 
     TEST_UNION(case_recursive_boxes_81, 5, 0, -1, 15.5);
     TEST_UNION(case_recursive_boxes_82, 2, 2, -1, 20.25);
@@ -384,7 +386,7 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20140212_sybren",
          ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
-         2, 0, 16, 0.002471626);
+         2, bg_if_mp<ct>(1, 0), -1, 0.002471626);
 
     {
         // Generates either 4 or 3 output polygons
@@ -393,7 +395,7 @@ void test_areal()
         settings.set_test_validity(BG_IF_RESCALED(false, true));
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
             ticket_9081[0], ticket_9081[1],
-            BG_IF_RESCALED(4, 3), 0, 31, 0.2187385,
+            BG_IF_RESCALED(bg_if_mp<ct>(3, 4), 3), 0, -1, 0.2187385,
             settings);
     }
 
@@ -480,16 +482,10 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<double>, false, false>();
+    test_all<bg::model::d2::point_xy<float>, true, true>();
+    test_all<bg::model::d2::point_xy<mp_test_type>, true, true>();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
-
-    test_all<bg::model::d2::point_xy<float>, true, true>();
-
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
