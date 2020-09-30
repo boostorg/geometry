@@ -22,13 +22,14 @@
 #include <fstream>
 #include <sstream>
 
+#include <chrono>
+
 #include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -113,7 +114,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         }
     }
 
-    if (result)
+    if (result && settings.check_validity)
     {
         bg::validity_failure_type failure;
         if (! bg::is_valid(buffer, failure)
@@ -128,16 +129,9 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool wkt = settings.wkt;
     if (! result)
     {
-        std::cout << "ERROR " << caseid << std::endl;
-        //std::cout << bg::wkt(mp) << std::endl;
-        //std::cout << bg::wkt(buffer) << std::endl;
+        // The result is wrong, override settings to create a SVG and WKT
         svg = true;
         wkt = true;
-    }
-
-    if (svg || wkt)
-    {
-        //std::cout << caseid << std::endl;
     }
 
     if (svg)
@@ -257,7 +251,7 @@ bool test_buffer(MultiPolygon& result, int& index,
 template <typename T, bool Clockwise, bool Closed, typename Settings>
 void test_all(int seed, int count, int level, Settings const& settings)
 {
-    boost::timer t;
+    auto const t0 = std::chrono::high_resolution_clock::now();
 
     typedef boost::minstd_rand base_generator_type;
 
@@ -275,15 +269,23 @@ void test_all(int seed, int count, int level, Settings const& settings)
 
 
     int index = 0;
+    int errors = 0;
     for(int i = 0; i < count; i++)
     {
         mp p;
-        test_buffer<mp>(p, index, coordinate_generator, level, settings);
+        if (! test_buffer<mp>(p, index, coordinate_generator, level, settings))
+        {
+            errors++;
+        }
     }
+
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
         << "geometries: " << index
+        << " errors: " << errors
         << " type: " << typeid(T).name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -292,7 +294,7 @@ int main(int argc, char** argv)
     try
     {
         namespace po = boost::program_options;
-        po::options_description description("=== recursive_polygons_linear_areal ===\nAllowed options");
+        po::options_description description("=== recursive_polygons_buffer ===\nAllowed options");
 
         int count = 1;
         int seed = static_cast<unsigned int>(std::time(0));
@@ -316,6 +318,7 @@ int main(int argc, char** argv)
             ("size", po::value<int>(&settings.field_size)->default_value(10), "Size of the field")
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
+            ("check_validity", po::value<bool>(&settings.check_validity)->default_value(true), "Check validity")
         ;
 
         po::variables_map varmap;

@@ -101,6 +101,19 @@ struct fp_coordinate_type
         >::type type;
 };
 
+/*!
+\brief assert_coordinate_type_equal, a compile-time check for equality of two coordinate types
+\ingroup utility
+*/
+template <typename Geometry1, typename Geometry2>
+constexpr inline void assert_coordinate_type_equal(Geometry1 const& , Geometry2 const& )
+{
+  static_assert(std::is_same
+      <
+          typename coordinate_type<Geometry1>::type,
+          typename coordinate_type<Geometry2>::type
+      >::value, "Coordinate types in geometries should be the same");
+}
 
 }} // namespace boost::geometry
 

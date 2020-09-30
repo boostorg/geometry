@@ -272,10 +272,15 @@ struct buffered_piece_collection
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
-    // Specificly for offsetted rings around points
-    // but also for large joins with many points
-    typedef geometry::sections<box_type, 2> sections_type;
-    sections_type monotonic_sections;
+    // Monotonic sections (used for offsetted rings around points)
+    // are still using a robust type, to be comparable with turn calculations,
+    // which is using rescaling.
+    typedef geometry::model::box
+    <
+        typename geometry::robust_point_type<point_type, RobustPolicy>::type
+    > robust_box_type;
+    typedef geometry::sections <robust_box_type, 2> robust_sections_type;
+    robust_sections_type monotonic_sections;
 
     // Define the clusters, mapping cluster_id -> turns
     typedef std::map
@@ -459,14 +464,14 @@ struct buffered_piece_collection
     // Check if a turn is inside any of the originals
     inline void check_turn_in_original()
     {
-        typedef turn_in_original_ovelaps_box
+        typedef turn_in_original_overlaps_box
             <
                 typename IntersectionStrategy::disjoint_point_box_strategy_type
-            > turn_in_original_ovelaps_box_type;
-        typedef original_ovelaps_box
+            > turn_in_original_overlaps_box_type;
+        typedef original_overlaps_box
             <
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
-            > original_ovelaps_box_type;
+            > original_overlaps_box_type;
 
         turn_in_original_visitor
             <
@@ -480,8 +485,8 @@ struct buffered_piece_collection
                 include_turn_policy,
                 detail::partition::include_all_policy
             >::apply(m_turns, original_rings, visitor,
-                     turn_get_box(), turn_in_original_ovelaps_box_type(),
-                     original_get_box(), original_ovelaps_box_type());
+                     turn_get_box(), turn_in_original_overlaps_box_type(),
+                     original_get_box(), original_overlaps_box_type());
 
         bool const deflate = m_distance_strategy.negative();
 
@@ -589,7 +594,7 @@ struct buffered_piece_collection
                                                    m_envelope_strategy);
             geometry::partition
                 <
-                    box_type
+                    robust_box_type
                 >::apply(monotonic_sections, visitor,
                          get_section_box_type(),
                          overlaps_section_box_type());
@@ -605,21 +610,21 @@ struct buffered_piece_collection
                     turn_vector_type, piece_vector_type, DistanceStrategy
                 > visitor(m_turns, m_pieces, m_distance_strategy);
 
-            typedef turn_ovelaps_box
+            typedef turn_overlaps_box
                 <
                     typename IntersectionStrategy::disjoint_point_box_strategy_type
-                > turn_ovelaps_box_type;
-            typedef piece_ovelaps_box
+                > turn_overlaps_box_type;
+            typedef piece_overlaps_box
                 <
                     typename IntersectionStrategy::disjoint_box_box_strategy_type
-                > piece_ovelaps_box_type;
+                > piece_overlaps_box_type;
 
             geometry::partition
                 <
                     box_type
                 >::apply(m_turns, m_pieces, visitor,
-                         turn_get_box(), turn_ovelaps_box_type(),
-                         piece_get_box(), piece_ovelaps_box_type());
+                         turn_get_box(), turn_overlaps_box_type(),
+                         piece_get_box(), piece_overlaps_box_type());
         }
     }
 

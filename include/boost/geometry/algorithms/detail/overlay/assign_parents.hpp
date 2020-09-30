@@ -16,6 +16,7 @@
 
 #include <boost/range.hpp>
 
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
@@ -131,16 +132,18 @@ struct ring_info_helper_get_box
     template <typename Box, typename InputItem>
     static inline void apply(Box& total, InputItem const& item)
     {
+        assert_coordinate_type_equal(total, item.envelope);
         geometry::expand(total, item.envelope, BoxExpandStrategy());
     }
 };
 
 template <typename DisjointBoxBoxStrategy>
-struct ring_info_helper_ovelaps_box
+struct ring_info_helper_overlaps_box
 {
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
     {
+        assert_coordinate_type_equal(box, item.envelope);
         return ! geometry::detail::disjoint::disjoint_box_box(
                     box, item.envelope, DisjointBoxBoxStrategy());
     }
@@ -336,7 +339,7 @@ inline void assign_parents(Geometry1 const& geometry1,
             <
                 typename Strategy::expand_box_strategy_type
             > expand_box_type;
-        typedef ring_info_helper_ovelaps_box
+        typedef ring_info_helper_overlaps_box
             <
                 typename Strategy::disjoint_box_box_strategy_type
             > overlaps_box_type;
