@@ -11,13 +11,12 @@
 #define BOOST_GEOMETRY_STRATEGIES_DETAIL_HPP
 
 
-#include <type_traits>
-
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/spherical/get_radius.hpp>
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -118,81 +117,6 @@ public:
 protected:
     Spheroid m_spheroid;
 };
-
-
-template <typename Geometry, typename T = void>
-struct enable_if_pointlike
-    : std::enable_if
-        <
-            std::is_base_of<pointlike_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_linear
-    : std::enable_if
-        <
-            std::is_base_of<linear_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_polygonal
-    : std::enable_if
-        <
-            std::is_base_of<polygonal_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_non_trivial_linear_or_polygonal
-    : std::enable_if
-        <
-            ((std::is_base_of<linear_tag, typename tag<Geometry>::type>::value
-                || std::is_base_of<polygonal_tag, typename tag<Geometry>::type>::value)
-                && (!std::is_same<segment_tag, typename tag<Geometry>::type>::value)),
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_point
-    : std::enable_if
-        <
-            std::is_same<point_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_multi_point
-    : std::enable_if
-        <
-            std::is_same<multi_point_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_box
-    : std::enable_if
-        <
-            std::is_same<box_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
-
-template <typename Geometry, typename T = void>
-struct enable_if_segment
-    : std::enable_if
-        <
-            std::is_same<segment_tag, typename tag<Geometry>::type>::value,
-            T
-        >
-{};
 
 
 } // namespace detail

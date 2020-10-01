@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2019, Oracle and/or its affiliates.
+// Copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -9,6 +9,8 @@
 
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_PARAMETERS_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_PARAMETERS_HPP
+
+#include <type_traits>
 
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
@@ -19,7 +21,6 @@
 //#include <boost/geometry/formulas/karney_inverse.hpp>
 
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/integral_c.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -191,22 +192,22 @@ struct default_order
 
 template<>
 struct default_order<andoyer>
-    : boost::mpl::integral_c<unsigned int, 1>
+    : std::integral_constant<unsigned int, 1>
 {};
 
 template<>
 struct default_order<thomas>
-    : boost::mpl::integral_c<unsigned int, 2>
+    : std::integral_constant<unsigned int, 2>
 {};
 
 template<>
 struct default_order<vincenty>
-    : boost::mpl::integral_c<unsigned int, 4>
+    : std::integral_constant<unsigned int, 4>
 {};
 /*
 template<>
 struct default_order<karney>
-    : boost::mpl::integral_c<unsigned int, 8>
+    : std::integral_constant<unsigned int, 8>
 {};
 */
 

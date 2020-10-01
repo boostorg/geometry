@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -27,14 +27,11 @@
 #include <boost/tokenizer.hpp>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -49,14 +46,15 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/core/tag_cast.hpp>
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/util/coordinate_cast.hpp>
-
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
+
+#include <boost/geometry/util/coordinate_cast.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry
 {
@@ -266,14 +264,10 @@ struct stateful_range_appender<Geometry, open>
     typedef typename geometry::point_type<Geometry>::type point_type;
     typedef typename boost::range_size
         <
-            typename util::bare_type<Geometry>::type
+            typename util::remove_cptrref<Geometry>::type
         >::type size_type;
 
-    BOOST_STATIC_ASSERT(( boost::is_same
-                            <
-                                typename tag<Geometry>::type,
-                                ring_tag
-                            >::value ));
+    BOOST_STATIC_ASSERT(( util::is_ring<Geometry>::value ));
 
     inline stateful_range_appender()
         : pt_index(0)
@@ -441,7 +435,7 @@ struct polygon_parser
                 appender::apply(it, end, wkt, ring);
                 traits::push_back
                     <
-                        typename boost::remove_reference
+                        typename std::remove_reference
                         <
                             typename traits::interior_mutable_type<Polygon>::type
                         >::type

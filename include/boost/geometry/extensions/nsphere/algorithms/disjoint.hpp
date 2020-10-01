@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2019 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,13 +19,14 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_DISJOINT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_DISJOINT_HPP
 
+#include <type_traits>
+
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_same.hpp>
-
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
+
+#include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
 {
@@ -98,8 +103,8 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
     {
         typedef typename coordinate_system<Point>::type p_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
-        static const bool check_cs = ::boost::is_same<p_cs, cs::cartesian>::value
-                                  && ::boost::is_same<s_cs, cs::cartesian>::value;
+        static const bool check_cs = std::is_same<p_cs, cs::cartesian>::value
+                                  && std::is_same<s_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs,
                              NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
                              (p_cs, s_cs));
@@ -122,8 +127,8 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
     {
         typedef typename coordinate_system<Box>::type b_cs;
         typedef typename coordinate_system<NSphere>::type s_cs;
-        static const bool check_cs = ::boost::is_same<b_cs, cs::cartesian>::value
-                                  && ::boost::is_same<s_cs, cs::cartesian>::value;
+        static const bool check_cs = std::is_same<b_cs, cs::cartesian>::value
+                                  && std::is_same<s_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs,
                              NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
                              (b_cs, s_cs));
@@ -146,8 +151,8 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
     {
         typedef typename coordinate_system<NSphere1>::type s1_cs;
         typedef typename coordinate_system<NSphere2>::type s2_cs;
-        static const bool check_cs = ::boost::is_same<s1_cs, cs::cartesian>::value
-                                  && ::boost::is_same<s2_cs, cs::cartesian>::value;
+        static const bool check_cs = std::is_same<s1_cs, cs::cartesian>::value
+                                  && std::is_same<s2_cs, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(check_cs,
                              NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
                              (s1_cs, s2_cs));

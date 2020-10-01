@@ -21,11 +21,10 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/range.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -226,7 +225,7 @@ struct polygon_to_polygon
         // Container should be resizeable
         traits::resize
             <
-                typename boost::remove_reference
+                typename std::remove_reference
                 <
                     typename traits::interior_mutable_type<Polygon2>::type
                 >::type
@@ -295,10 +294,15 @@ template
     typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
     typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
     std::size_t DimensionCount = dimension<Geometry1>::type::value,
-    bool UseAssignment = boost::is_same<Geometry1, Geometry2>::value
-                         && !boost::is_array<Geometry1>::value
+    bool UseAssignment = std::is_same<Geometry1, Geometry2>::value
+                         && !std::is_array<Geometry1>::value
 >
-struct convert: not_implemented<Tag1, Tag2, boost::mpl::int_<DimensionCount> >
+struct convert
+    : not_implemented
+        <
+            Tag1, Tag2,
+            std::integral_constant<std::size_t, DimensionCount>
+        >
 {};
 
 
@@ -456,7 +460,7 @@ struct convert<Polygon, Ring, polygon_tag, ring_tag, DimensionCount, false>
 
 // Dispatch for multi <-> multi, specifying their single-version as policy.
 // Note that, even if the multi-types are mutually different, their single
-// version types might be the same and therefore we call boost::is_same again
+// version types might be the same and therefore we call std::is_same again
 
 template <typename Multi1, typename Multi2, std::size_t DimensionCount>
 struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>

@@ -2,7 +2,7 @@
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019, 2020.
+// This file was modified by Oracle on 2019-2020.
 // Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
@@ -13,15 +13,12 @@
 #ifndef BOOST_GEOMETRY_UTIL_TUPLES_HPP
 #define BOOST_GEOMETRY_UTIL_TUPLES_HPP
 
+#include <type_traits>
+#include <utility>
+
 #include <boost/geometry/core/config.hpp>
 
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/not.hpp>
 #include <boost/tuple/tuple.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_same.hpp>
-
-#include <utility>
 
 #ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
@@ -42,7 +39,11 @@ struct element
 
 template <typename Tuple>
 struct size
-    : boost::tuples::length<Tuple>
+    : std::integral_constant
+        <
+            std::size_t,
+            boost::tuples::length<Tuple>::value
+        >
 {};
 
 template <int I, typename HT, typename TT>
@@ -84,7 +85,7 @@ struct element<1, std::pair<F, S> >
 
 template <typename F, typename S>
 struct size<std::pair<F, S> >
-    : boost::integral_constant<int, 2>
+    : std::integral_constant<std::size_t, 2>
 {};
 
 template <int I, typename Pair>
@@ -173,26 +174,26 @@ template
 <
     typename Tuple,
     template <typename> class UnaryPred,
-    int I = 0,
-    int N = size<Tuple>::value
+    std::size_t I = 0,
+    std::size_t N = size<Tuple>::value
 >
 struct find_index_if
-    : boost::mpl::if_c
+    : std::conditional_t
         <
             UnaryPred<typename element<I, Tuple>::type>::value,
-            boost::integral_constant<int, I>,
+            std::integral_constant<std::size_t, I>,
             typename find_index_if<Tuple, UnaryPred, I+1, N>::type
-        >::type
+        >
 {};
 
 template
 <
     typename Tuple,
     template <typename> class UnaryPred,
-    int N
+    std::size_t N
 >
 struct find_index_if<Tuple, UnaryPred, N, N>
-    : boost::integral_constant<int, N>
+    : std::integral_constant<std::size_t, N>
 {};
 
 
@@ -204,23 +205,23 @@ template
 <
     typename Tuple,
     template <typename> class UnaryPred,
-    int I = 0,
-    int N = size<Tuple>::value
+    std::size_t I = 0,
+    std::size_t N = size<Tuple>::value
 >
 struct find_if
-    : boost::mpl::if_c
+    : std::conditional_t
         <
             UnaryPred<typename element<I, Tuple>::type>::value,
             element<I, Tuple>,
             find_if<Tuple, UnaryPred, I+1, N>
-        >::type
+        >
 {};
 
 template
 <
     typename Tuple,
     template <typename> class UnaryPred,
-    int N
+    std::size_t N
 >
 struct find_if<Tuple, UnaryPred, N, N>
 {
@@ -233,7 +234,11 @@ struct find_if<Tuple, UnaryPred, N, N>
 
 template <typename T>
 struct is_found
-    : boost::mpl::not_<boost::is_same<T, boost::tuples::null_type> >
+    : std::integral_constant
+        <
+            bool,
+            ! std::is_same<T, boost::tuples::null_type>::value
+        >
 {};
 
 
@@ -242,7 +247,7 @@ struct is_found
 
 template <typename T>
 struct is_not_found
-    : boost::is_same<T, boost::tuples::null_type>
+    : std::is_same<T, boost::tuples::null_type>
 {};
 
 
@@ -261,8 +266,8 @@ struct exists_if
 
 template <typename Tuple,
           typename T,
-          size_t I = 0,
-          size_t N = size<Tuple>::value>
+          std::size_t I = 0,
+          std::size_t N = size<Tuple>::value>
 struct push_back_bt
 {
     typedef
@@ -281,7 +286,7 @@ struct push_back_bt
     }
 };
 
-template <typename Tuple, typename T, size_t N>
+template <typename Tuple, typename T, std::size_t N>
 struct push_back_bt<Tuple, T, N, N>
 {
     typedef boost::tuples::cons<T, boost::tuples::null_type> type;
@@ -331,28 +336,11 @@ struct push_back<std::pair<F, S>, T>
 
 #ifdef BOOST_GEOMETRY_CXX11_TUPLE
 
-// NOTE: In C++14 std::integer_sequence and std::make_integer_sequence could be used
-
-template <int... Is>
-struct int_sequence {};
-
-template <int N, int ...Is>
-struct make_int_sequence
-{
-    typedef typename make_int_sequence<N - 1, N - 1, Is...>::type type;
-};
-
-template <int ...Is>
-struct make_int_sequence<0, Is...>
-{
-    typedef int_sequence<Is...> type;
-};
-
 template <typename Is, typename Tuple, typename T>
 struct push_back_st;
 
-template <int ...Is, typename ...Ts, typename T>
-struct push_back_st<int_sequence<Is...>, std::tuple<Ts...>, T>
+template <std::size_t ...Is, typename ...Ts, typename T>
+struct push_back_st<std::index_sequence<Is...>, std::tuple<Ts...>, T>
 {
     typedef std::tuple<Ts..., T> type;
 
@@ -380,7 +368,7 @@ template <typename ...Ts, typename T>
 struct push_back<std::tuple<Ts...>, T>
     : push_back_st
         <
-            typename make_int_sequence<sizeof...(Ts)>::type,
+            std::make_index_sequence<sizeof...(Ts)>,
             std::tuple<Ts...>,
             T
         >

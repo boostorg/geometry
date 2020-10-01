@@ -3,6 +3,10 @@
 
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -78,7 +82,7 @@ void test_ctor_nc(size_t n)
     BOOST_CHECK(s.size() == n);
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
-    if ( !boost::has_trivial_constructor<T>::value )
+    if ( ! std::is_trivially_constructible<T>::value )
     {
         for ( size_t i = 0 ; i < n ; ++i )
             BOOST_CHECK(T() == s[i]);
@@ -117,7 +121,7 @@ void test_resize_nc(size_t n)
     BOOST_CHECK(s.capacity() == N);
     BOOST_CHECK_THROW( s.at(n), std::out_of_range );
 
-    if ( !boost::has_trivial_constructor<T>::value )
+    if ( ! std::is_trivially_constructible<T>::value )
     {
         for ( size_t i = 0 ; i < n ; ++i )
             BOOST_CHECK(T() == s[i]);

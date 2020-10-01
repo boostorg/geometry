@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,8 +23,8 @@
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/util/bare_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 
 namespace boost { namespace geometry
@@ -66,7 +70,7 @@ struct coordinate_type<point_tag, Point>
 {
     typedef typename traits::coordinate_type
         <
-            typename geometry::util::bare_type<Point>::type
+            typename util::remove_cptrref<Point>::type
         >::type type;
 };
 
@@ -86,10 +90,10 @@ template <typename Geometry>
 struct coordinate_type
 {
     typedef typename core_dispatch::coordinate_type
-                <
-                    typename tag<Geometry>::type,
-                    typename geometry::util::bare_type<Geometry>::type
-                >::type type;
+        <
+            typename tag<Geometry>::type,
+            typename util::remove_cptrref<Geometry>::type
+        >::type type;
 };
 
 template <typename Geometry>

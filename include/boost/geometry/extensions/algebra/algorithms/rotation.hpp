@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2020.
+// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,6 +12,8 @@
 
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_ROTATION_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_ALGORITHMS_ROTATION_HPP
+
+#include <type_traits>
 
 #include <boost/geometry/util/math.hpp>
 
@@ -37,8 +39,8 @@ template <typename V1, typename V2, typename Rotation>
 struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
 {
     static const bool cs_check =
-        ::boost::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
-        ::boost::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
+        std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
+        std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
     BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
 
@@ -118,8 +120,8 @@ template <typename V1, typename V2, typename Rotation>
 struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
 {
     static const bool cs_check =
-        ::boost::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
-        ::boost::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
+        std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
+        std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
     BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
 
@@ -185,8 +187,8 @@ template <typename V1, typename V2, typename Rotation>
 struct rotation<V1, V2, Rotation, vector_tag, vector_tag, rotation_quaternion_tag>
 {
     static const bool cs_check =
-        ::boost::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
-        ::boost::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
+        std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
+        std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
     BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
 

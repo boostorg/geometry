@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016-2019.
-// Modifications copyright (c) 2016-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -241,7 +241,7 @@ struct buffered_piece_collection
             // The dimension is critical because the direction is later used
             // in the optimization for within checks using winding strategy
             // and this strategy is scanning in x direction.
-            typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
+            typedef std::integer_sequence<std::size_t, 0> dimensions;
             geometry::sectionalize<false, dimensions>(m_ring,
                     detail::no_rescale_policy(), m_sections,
                     envelope_strategy, expand_strategy);
@@ -854,7 +854,7 @@ struct buffered_piece_collection
         typedef geometry::detail::sectionalize::sectionalize_part
         <
             point_type,
-            boost::mpl::vector_c<std::size_t, 0, 1> // x,y dimension
+            std::integer_sequence<std::size_t, 0, 1> // x,y dimension
         > sectionalizer;
 
         // Create a ring-identifier. The source-index is the piece index

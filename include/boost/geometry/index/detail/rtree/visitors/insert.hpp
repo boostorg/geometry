@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,7 +15,9 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_INSERT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_INSERT_HPP
 
-#include <boost/type_traits/is_same.hpp>
+#ifdef BOOST_GEOMETRY_INDEX_EXPERIMENTAL_ENLARGE_BY_EPSILON
+#include <type_traits>
+#endif
 
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/util/condition.hpp>
@@ -324,7 +326,7 @@ protected:
         // It's because Points and Segments are compared WRT machine epsilon
         // This ensures that leafs bounds correspond to the stored elements
         if (BOOST_GEOMETRY_CONDITION((
-                boost::is_same<Element, value_type>::value
+                std::is_same<Element, value_type>::value
              && ! index::detail::is_bounding_geometry
                     <
                         typename indexable_type<translator_type>::type
@@ -421,7 +423,7 @@ protected:
         // It's because Points and Segments are compared WRT machine epsilon
         // This ensures that leafs' bounds correspond to the stored elements.
         if (BOOST_GEOMETRY_CONDITION((
-                boost::is_same<Node, leaf>::value
+                std::is_same<Node, leaf>::value
              && ! index::detail::is_bounding_geometry
                     <
                         typename indexable_type<translator_type>::type

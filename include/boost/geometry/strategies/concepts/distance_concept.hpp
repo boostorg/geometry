@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2018.
-// Modifications copyright (c) 2014, 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -20,13 +20,13 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CONCEPTS_DISTANCE_CONCEPT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_DISTANCE_CONCEPT_HPP
 
-#include <vector>
 #include <iterator>
+#include <type_traits>
+#include <vector>
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/util/parameter_type_of.hpp>
 
@@ -87,9 +87,9 @@ private :
                 >::type tag;
 
             static const bool is_correct_strategy_tag =
-                boost::is_same<tag, strategy_tag_distance_point_point>::value
-                || boost::is_same<tag, strategy_tag_distance_point_box>::value
-                || boost::is_same<tag, strategy_tag_distance_box_box>::value;
+                std::is_same<tag, strategy_tag_distance_point_point>::value
+                || std::is_same<tag, strategy_tag_distance_point_box>::value
+                || std::is_same<tag, strategy_tag_distance_box_box>::value;
 
             BOOST_MPL_ASSERT_MSG
                 ((is_correct_strategy_tag),
@@ -162,7 +162,7 @@ private :
             typedef typename services::tag<Strategy>::type tag;
 
             BOOST_MPL_ASSERT_MSG
-                ((boost::is_same
+                ((std::is_same
                       <
                           tag, strategy_tag_distance_point_segment
                       >::value),

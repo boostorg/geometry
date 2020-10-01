@@ -14,6 +14,8 @@
 #define BOOST_GEOMETRY_STRATEGY_GEOGRAPHIC_AREA_HPP
 
 
+#include <type_traits>
+
 #include <boost/geometry/srs/spheroid.hpp>
 
 #include <boost/geometry/formulas/area_formulas.hpp>
@@ -78,12 +80,12 @@ public:
 protected :
     struct spheroid_constants
     {
-        typedef typename boost::mpl::if_c
+        typedef std::conditional_t
             <
-                boost::is_void<CalculationType>::value,
+                std::is_void<CalculationType>::value,
                 typename geometry::radius_type<Spheroid>::type,
                 CalculationType
-            >::type calc_t;
+            > calc_t;
 
         Spheroid m_spheroid;
         calc_t const m_a2;  // squared equatorial radius

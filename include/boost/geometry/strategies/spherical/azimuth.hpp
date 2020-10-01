@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,11 +12,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_AZIMUTH_HPP
 
 
+#include <type_traits>
+
 #include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
-
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_void.hpp>
 
 
 namespace boost { namespace geometry
@@ -76,10 +75,10 @@ private :
                         T const& lon2_rad, T const& lat2_rad,
                         T& a1, T& a2) const
     {
-        typedef typename boost::mpl::if_
+        typedef std::conditional_t
             <
-                boost::is_void<CalculationType>, T, CalculationType
-            >::type calc_t;
+                std::is_void<CalculationType>::value, T, CalculationType
+            > calc_t;
 
         geometry::formula::result_spherical<calc_t>
             result = geometry::formula::spherical_azimuth
