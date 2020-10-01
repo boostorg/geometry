@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -39,6 +39,8 @@
 
 #ifndef BOOST_GEOMETRY_PROJECTIONS_OB_TRAN_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_OB_TRAN_HPP
+
+#include <type_traits>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/shared_ptr.hpp>
@@ -152,7 +154,7 @@ namespace projections
                 pj.id = srs::spar::detail::proj_traits<proj_type>::id;
 
                 /* avoid endless recursion */
-                static const bool is_non_resursive = ! boost::is_same<proj_type, srs::spar::proj_ob_tran>::value;
+                static const bool is_non_resursive = ! std::is_same<proj_type, srs::spar::proj_ob_tran>::value;
                 BOOST_MPL_ASSERT_MSG((is_non_resursive), INVALID_O_PROJ_PARAMETER, (params_type));
 
                 // Commented out for consistency with Proj4 >= 5.0.0
@@ -204,7 +206,7 @@ namespace projections
                     >::type o_proj_tag;
 
                 /* avoid endless recursion */
-                static const bool is_o_proj_not_ob_tran = ! boost::is_same<o_proj_tag, srs::spar::proj_ob_tran>::value;
+                static const bool is_o_proj_not_ob_tran = ! std::is_same<o_proj_tag, srs::spar::proj_ob_tran>::value;
                 BOOST_MPL_ASSERT_MSG((is_o_proj_not_ob_tran), INVALID_O_PROJ_PARAMETER, (StaticParameters));
 
                 typedef typename projections::detail::static_projection_type

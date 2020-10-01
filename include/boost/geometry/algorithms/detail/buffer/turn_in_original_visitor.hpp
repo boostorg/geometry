@@ -15,6 +15,7 @@
 
 
 #include <boost/core/ignore_unused.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -35,6 +36,7 @@ struct original_get_box
     template <typename Box, typename Original>
     static inline void apply(Box& total, Original const& original)
     {
+        assert_coordinate_type_equal(total, original.m_box);
         typedef typename strategy::expand::services::default_strategy
             <
                 box_tag, typename cs_tag<Box>::type
@@ -45,11 +47,12 @@ struct original_get_box
 };
 
 template <typename DisjointBoxBoxStrategy>
-struct original_ovelaps_box
+struct original_overlaps_box
 {
     template <typename Box, typename Original>
     static inline bool apply(Box const& box, Original const& original)
     {
+        assert_coordinate_type_equal(box, original.m_box);
         return ! detail::disjoint::disjoint_box_box(box, original.m_box,
                                                     DisjointBoxBoxStrategy());
     }
@@ -65,7 +68,7 @@ struct include_turn_policy
 };
 
 template <typename DisjointPointBoxStrategy>
-struct turn_in_original_ovelaps_box
+struct turn_in_original_overlaps_box
 {
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)

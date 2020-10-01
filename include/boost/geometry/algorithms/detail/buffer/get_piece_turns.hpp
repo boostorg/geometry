@@ -149,7 +149,6 @@ class piece_turn_visitor
         return ! m_rings[piece1.first_seg_id.multi_index].has_concave;
     }
 
-
     template <std::size_t Dimension, typename Iterator, typename Box>
     inline void move_begin_iterator(Iterator& it_begin, Iterator it_beyond,
                                     signed_size_type& index, int dir,

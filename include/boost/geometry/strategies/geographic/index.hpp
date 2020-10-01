@@ -12,6 +12,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_INDEX_HPP
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_INDEX_HPP
 
+#include <boost/geometry/strategy/geographic/envelope_segment.hpp>
+#include <boost/geometry/strategy/geographic/expand_segment.hpp>
 
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp> // backward compatibility
@@ -20,8 +22,6 @@
 #include <boost/geometry/strategies/geographic/distance_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp> // backward compatibility
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp> // backward compatibility
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
-#include <boost/geometry/strategies/geographic/expand_segment.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 

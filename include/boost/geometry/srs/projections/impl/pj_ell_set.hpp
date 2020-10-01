@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -42,6 +42,7 @@
 #define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_ELL_SET_HPP
 
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include <boost/geometry/formulas/eccentricity_sqr.hpp>
@@ -361,7 +362,7 @@ inline void pj_ell_init(Params const& params, T &a, T &es)
 template <typename Params>
 struct static_srs_tag_check_nonexpanded
 {
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             geometry::tuples::exists_if
                 <
@@ -398,7 +399,7 @@ struct static_srs_tag_check_nonexpanded
             srs_sphere_tag,
             // NOTE: The assumption here is that if the user defines either one of:
             // b, es, e, f, rf parameters then he wants to define spheroid, not sphere
-            typename boost::mpl::if_c
+            std::conditional_t
                 <
                     geometry::tuples::exists_if
                         <
@@ -422,8 +423,8 @@ struct static_srs_tag_check_nonexpanded
                         >::value,
                     srs_spheroid_tag,
                     void
-                >::type
-        >::type type;
+                >
+        > type;
 };
 
 template <typename Params>
@@ -504,7 +505,7 @@ struct static_srs_tag<Params, void, void, void>
 {
     // User didn't pass any parameter defining model
     // so use default or generate error
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
             geometry::tuples::exists_if
                 <
@@ -512,9 +513,9 @@ struct static_srs_tag<Params, void, void, void>
                 >::value,
             void,
             srs_spheroid_tag // WGS84
-        >::type type;
+        > type;
 
-    static const bool is_found = ! boost::is_same<type, void>::value;
+    static const bool is_found = ! std::is_void<type>::value;
     BOOST_MPL_ASSERT_MSG((is_found), UNKNOWN_ELLP_PARAM, (Params));
 };
 

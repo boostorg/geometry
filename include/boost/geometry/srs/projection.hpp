@@ -2,8 +2,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,6 +15,7 @@
 
 
 #include <string>
+#include <type_traits>
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
@@ -34,11 +35,8 @@
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 
 namespace boost { namespace geometry
@@ -53,22 +51,21 @@ namespace detail
 
 template <typename G1, typename G2>
 struct same_tags
-{
-    static const bool value = boost::is_same
+    : std::is_same
         <
             typename geometry::tag<G1>::type,
             typename geometry::tag<G2>::type
-        >::value;
-};
+        >
+{};
 
 template <typename CT>
 struct promote_to_double
 {
-    typedef typename boost::mpl::if_c
+    typedef std::conditional_t
         <
-            boost::is_integral<CT>::value || boost::is_same<CT, float>::value,
+            std::is_integral<CT>::value || std::is_same<CT, float>::value,
             double, CT
-        >::type type;
+        > type;
 };
 
 // Copy coordinates of dimensions >= MinDim
@@ -341,12 +338,16 @@ class proj_wrapper<srs::dynamic, CT>
     typedef projections::detail::dynamic_wrapper_b<calc_t, parameters_type> vprj_t;
 
 public:
-    template <typename Params>
-    proj_wrapper(Params const& params,
-                 typename boost::enable_if_c
-                    <
-                        dynamic_parameters<Params>::is_specialized
-                    >::type * = 0)
+    template
+    <
+        typename Params,
+        std::enable_if_t
+            <
+                dynamic_parameters<Params>::is_specialized,
+                int
+            > = 0
+    >
+    proj_wrapper(Params const& params)
         : m_ptr(create(dynamic_parameters<Params>::apply(params)))
     {}
 
@@ -530,12 +531,16 @@ public:
         <tt>srs::proj4("+proj=labrd +ellps=intl +lon_0=46d26'13.95E +lat_0=18d54S +azi=18d54 +k_0=.9995 +x_0=400000 +y_0=800000")</tt>
         for the Madagascar projection.
     */
-    template <typename DynamicParameters>
-    projection(DynamicParameters const& dynamic_parameters,
-               typename boost::enable_if_c
-                <
-                    projections::dynamic_parameters<DynamicParameters>::is_specialized
-                >::type * = 0)
+    template
+    <
+        typename DynamicParameters,
+        std::enable_if_t
+            <
+                projections::dynamic_parameters<DynamicParameters>::is_specialized,
+                int
+            > = 0
+    >
+    projection(DynamicParameters const& dynamic_parameters)
         : base_t(dynamic_parameters)
     {}
 };

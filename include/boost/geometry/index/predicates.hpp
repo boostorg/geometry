@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -402,8 +402,8 @@ boost::tuples::cons<
 >
 operator&&(Pred1 const& p1, Pred2 const& p2)
 {
-    /*typedef typename boost::mpl::if_c<is_predicate<Pred1>::value, Pred1, Pred1 const&>::type stored1;
-    typedef typename boost::mpl::if_c<is_predicate<Pred2>::value, Pred2, Pred2 const&>::type stored2;*/
+    /*typedef std::conditional_t<is_predicate<Pred1>::value, Pred1, Pred1 const&> stored1;
+    typedef std::conditional_t<is_predicate<Pred2>::value, Pred2, Pred2 const&> stored2;*/
     namespace bt = boost::tuples;
 
     return
@@ -417,7 +417,7 @@ typename geometry::tuples::push_back<
 >::type
 operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
 {
-    //typedef typename boost::mpl::if_c<is_predicate<Pred>::value, Pred, Pred const&>::type stored;
+    //typedef std::conditional_t<is_predicate<Pred>::value, Pred, Pred const&> stored;
     namespace bt = boost::tuples;
 
     return

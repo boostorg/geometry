@@ -20,10 +20,9 @@
 
 #include <cstddef>
 #include <utility>
+#include <type_traits>
 
 #include <boost/concept/assert.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/make.hpp>
@@ -89,9 +88,9 @@ template<typename ConstOrNonConstPoint>
 class referring_segment
 {
     BOOST_CONCEPT_ASSERT( (
-        typename boost::mpl::if_
+        typename std::conditional
             <
-                boost::is_const<ConstOrNonConstPoint>,
+                std::is_const<ConstOrNonConstPoint>::value,
                 concepts::Point<ConstOrNonConstPoint>,
                 concepts::ConstPoint<ConstOrNonConstPoint>
             >

@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -22,6 +26,9 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/util/condition.hpp>
 
+// TEMP
+#include <boost/geometry/strategies/cartesian.hpp>
+
 
 template <int DimensionCount, bool Reverse, typename Geometry>
 void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, std::size_t section_count)
@@ -30,7 +37,7 @@ void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, s
     typedef bg::model::box<point> box;
     typedef bg::sections<box, DimensionCount> sections;
 
-    typedef boost::mpl::vector_c<std::size_t, 0> dim2;
+    typedef std::integer_sequence<std::size_t, 0> dim2;
 
     sections s;
     bg::sectionalize<Reverse, dim2>(geometry, bg::detail::no_rescale_policy(), s);

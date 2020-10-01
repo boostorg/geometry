@@ -21,6 +21,8 @@
 
 #include <string>
 
+#include <boost/multiprecision/cpp_bin_float.hpp>
+
 #if defined(HAVE_TTMATH)
 #  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
 #endif
@@ -62,6 +64,9 @@ template <> struct string_from_type<int>
 
 template <> struct string_from_type<long>
 { static std::string name() { return "l"; }  };
+
+template <> struct string_from_type<boost::multiprecision::cpp_bin_float_100>
+{ static std::string name() { return "m"; }  };
 
 #if defined(BOOST_HAS_LONG_LONG)
 // this is what g++ and clang++ use

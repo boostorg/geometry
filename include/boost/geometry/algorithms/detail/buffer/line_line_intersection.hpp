@@ -24,12 +24,13 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-// TODO: it might once be changed this to proper strategy
+// TODO: this might once be changed to a proper strategy
 struct line_line_intersection
 {
     template <typename Point>
-    static inline Point
-    apply(Point const& pi, Point const& pj, Point const& qi, Point const& qj)
+    static inline bool
+    apply(Point const& pi, Point const& pj, Point const& qi, Point const& qj,
+          Point& ip)
     {
         typedef typename coordinate_type<Point>::type ct;
         typedef model::infinite_line<ct> line_type;
@@ -39,12 +40,7 @@ struct line_line_intersection
 
         // The input lines are not parallel, they intersect, because
         // their join type is checked before.
-        Point ip;
-        bool const intersecting = arithmetic::intersection_point(p, q, ip);
-        BOOST_GEOMETRY_ASSERT(intersecting);
-        boost::ignore_unused(intersecting);
-
-        return ip;
+        return arithmetic::intersection_point(p, q, ip);
     }
 };
 

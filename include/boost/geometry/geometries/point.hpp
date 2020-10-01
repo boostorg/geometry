@@ -23,8 +23,6 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/int.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -97,9 +95,7 @@ template
 >
 class point
 {
-    BOOST_MPL_ASSERT_MSG((DimensionCount >= 1),
-                         DIMENSION_GREATER_THAN_ZERO_EXPECTED,
-                         (boost::mpl::int_<DimensionCount>));
+    BOOST_STATIC_ASSERT(DimensionCount > 0);
 
     // The following enum is used to fully instantiate the
     // CoordinateSystem class and check the correctness of the units
@@ -270,7 +266,7 @@ template
     typename CoordinateSystem
 >
 struct dimension<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
-    : boost::mpl::int_<DimensionCount>
+    : std::integral_constant<std::size_t, DimensionCount>
 {};
 
 template

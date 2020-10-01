@@ -25,9 +25,6 @@
 #include <algorithm>
 
 #include <boost/range.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -42,8 +39,8 @@
 
 #include <boost/geometry/geometries/segment.hpp>
 
-#include <boost/geometry/util/add_const_if_c.hpp>
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
@@ -110,21 +107,21 @@ struct fe_segment_segment
 template <typename Range>
 struct fe_range_value
 {
-    typedef typename add_const_if_c
+    typedef util::transcribe_const_t
         <
-            boost::is_const<Range>::value,
+            Range,
             typename boost::range_value<Range>::type
-        >::type type;
+        > type;
 };
 
 template <typename Range>
 struct fe_point_type
 {
-    typedef typename add_const_if_c
+    typedef util::transcribe_const_t
         <
-            boost::is_const<Range>::value,
+            Range,
             typename point_type<Range>::type
-        >::type type;
+        > type;
 };
 
 
@@ -132,8 +129,8 @@ template <typename Range>
 struct fe_point_type_is_referencable
 {
     static const bool value =
-        boost::is_const<Range>::value
-     || boost::is_same
+        std::is_const<Range>::value
+     || std::is_same
             <
                 typename boost::range_reference<Range>::type,
                 typename fe_point_type<Range>::type&

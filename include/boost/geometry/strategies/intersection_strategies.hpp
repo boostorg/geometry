@@ -13,6 +13,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_INTERSECTION_HPP
 #define BOOST_GEOMETRY_STRATEGIES_INTERSECTION_HPP
 
+//#include <type_traits>
 
 #include <boost/geometry/policies/relate/intersection_points.hpp>
 #include <boost/geometry/policies/relate/direction.hpp>
@@ -50,7 +51,7 @@ template
 struct intersection_strategies
 {
 private :
-    // for development BOOST_STATIC_ASSERT((! boost::is_same<RobustPolicy, void>::type::value));
+    // for development BOOST_STATIC_ASSERT((! std::is_same<RobustPolicy, void>::type::value));
 
     typedef segment_intersection_points
     <

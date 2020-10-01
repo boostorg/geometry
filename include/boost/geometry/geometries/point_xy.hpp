@@ -102,7 +102,7 @@ struct coordinate_system<model::d2::point_xy<CoordinateType, CoordinateSystem> >
 
 template<typename CoordinateType, typename CoordinateSystem>
 struct dimension<model::d2::point_xy<CoordinateType, CoordinateSystem> >
-    : boost::mpl::int_<2>
+    : std::integral_constant<std::size_t, 2>
 {};
 
 template<typename CoordinateType, typename CoordinateSystem, std::size_t Dimension>

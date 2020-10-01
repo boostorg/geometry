@@ -5,7 +5,7 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018.
+// This file was modified by Oracle on 2018-2020.
 // Modifications copyright (c) 2018 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,6 +18,8 @@
 
 #ifndef BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_VECTOR_CONCEPT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_ALGEBRA_GEOMETRIES_CONCEPTS_VECTOR_CONCEPT_HPP
+
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
@@ -63,7 +65,7 @@ public:
     /// BCCL macro to apply the Vector concept
     BOOST_CONCEPT_USAGE(Vector)
     {
-        static const bool cs_check = ::boost::is_same<csystem, cs::cartesian>::value;
+        static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
 
         dimension_checker<Geometry, 0, ccount>::apply();
@@ -106,7 +108,7 @@ public:
     /// BCCL macro to apply the ConstVector concept
     BOOST_CONCEPT_USAGE(ConstVector)
     {
-        static const bool cs_check = ::boost::is_same<csystem, cs::cartesian>::value;
+        static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
         BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
 
         dimension_checker<Geometry, 0, ccount>::apply();

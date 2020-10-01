@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -38,7 +38,11 @@
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
 
-#include <boost/geometry/strategies/area.hpp>
+// TEMP - with UmberllaStrategy this will be not needed
+#include <boost/geometry/strategy/area.hpp>
+#include <boost/geometry/strategies/area/services.hpp>
+// TODO: use point_order instead of area
+
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <boost/geometry/io/dsv/write.hpp>
@@ -132,7 +136,11 @@ struct is_properly_oriented
         area_result_type const zero = 0;
         area_result_type const area
             = ring_area_type::apply(ring,
-                                    strategy.template get_area_strategy<Ring>());
+                                    // TEMP - in the future (umbrella) strategy will be passed here
+                                    geometry::strategies::area::services::strategy_converter
+                                        <
+                                            decltype(strategy.template get_area_strategy<Ring>())
+                                        >::get(strategy.template get_area_strategy<Ring>()));
         if (predicate(area, zero))
         {
             return visitor.template apply<no_failure>();

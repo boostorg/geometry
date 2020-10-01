@@ -13,6 +13,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_INTERSECTION_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -37,14 +38,16 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-#include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/envelope.hpp>
+#include <boost/geometry/strategy/geographic/expand_segment.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
@@ -934,7 +937,7 @@ private:
     static inline bool is_near(CalcT const& dist)
     {
         // NOTE: This strongly depends on the Inverse method
-        CalcT const small_number = CalcT(boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
+        CalcT const small_number = CalcT(std::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
         return math::abs(dist) <= small_number;
     }
 

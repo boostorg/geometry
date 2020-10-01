@@ -65,6 +65,7 @@ void test_all()
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::multi_linestring<linestring> multi_linestring_type;
     typedef bg::model::polygon<P, Clockwise> polygon;
+    typedef typename bg::coordinate_type<P>::type coor_type;
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
@@ -140,6 +141,7 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
 
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
     {
         // Coordinates in one linestring vary so much that
         // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,6 +22,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
@@ -210,15 +211,6 @@ struct linear_areal
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
 
-    template <typename Geometry>
-        struct is_multi
-            : boost::is_base_of
-                <
-                    multi_tag,
-                    typename tag<Geometry>::type
-                >
-        {};
-
     template <typename Geom1, typename Geom2, typename Strategy>
     struct multi_turn_info
         : turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
@@ -229,9 +221,9 @@ struct linear_areal
 
     template <typename Geom1, typename Geom2, typename Strategy>
     struct turn_info_type
-        : boost::mpl::if_c
+        : std::conditional
             <
-                is_multi<Geometry2>::value,
+                util::is_multi<Geometry2>::value,
                 multi_turn_info<Geom1, Geom2, Strategy>,
                 typename turns::get_turns<Geom1, Geom2>::template turn_info_type<Strategy>::type
             >
@@ -303,7 +295,7 @@ struct linear_areal
             return;
 
         {
-            sort_dispatch<cs_tag>(turns.begin(), turns.end(), is_multi<Geometry2>());
+            sort_dispatch<cs_tag>(turns.begin(), turns.end(), util::is_multi<Geometry2>());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
@@ -531,7 +523,7 @@ struct linear_areal
     };
 
     template <typename CSTag, typename TurnIt>
-    static void sort_dispatch(TurnIt first, TurnIt last, boost::true_type const& /*is_multi*/)
+    static void sort_dispatch(TurnIt first, TurnIt last, std::true_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then by other multi_index
         typedef turns::less<0, turns::less_other_multi_index<0>, CSTag> less;
@@ -555,7 +547,7 @@ struct linear_areal
     }
 
     template <typename CSTag, typename TurnIt>
-    static void sort_dispatch(TurnIt first, TurnIt last, boost::false_type const& /*is_multi*/)
+    static void sort_dispatch(TurnIt first, TurnIt last, std::false_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then
         // for same ring id: x, u, i, c
@@ -765,7 +757,7 @@ struct linear_areal
                 m_exit_watcher.reset_detected_exit();
             }
 
-            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
               && m_first_from_unknown )
             {
                 // For MultiPolygon many x/u operations may be generated as a first IP
@@ -953,7 +945,7 @@ struct linear_areal
                     }
                 }
 
-                if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value ) )
+                if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value ) )
                 {
                     m_first_from_unknown = false;
                     m_first_from_unknown_boundary_detected = false;
@@ -1041,7 +1033,7 @@ struct linear_areal
                         }
                         else
                         {
-                            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+                            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
                               /*&& ( op == overlay::operation_blocked
                                 || op == overlay::operation_union )*/ ) // if we're here it's u or x
                             {
@@ -1069,7 +1061,7 @@ struct linear_areal
                                 }
                                 else
                                 {
-                                    if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+                                    if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
                                       /*&& ( op == overlay::operation_blocked
                                         || op == overlay::operation_union )*/ ) // if we're here it's u or x
                                     {
@@ -1119,7 +1111,7 @@ struct linear_areal
             // For MultiPolygon many x/u operations may be generated as a first IP
             // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
             // then we know that the LineString is outside
-            if ( BOOST_GEOMETRY_CONDITION( is_multi<OtherGeometry>::value )
+            if ( BOOST_GEOMETRY_CONDITION( util::is_multi<OtherGeometry>::value )
               && m_first_from_unknown )
             {
                 update<interior, exterior, '1', TransposeResult>(res);

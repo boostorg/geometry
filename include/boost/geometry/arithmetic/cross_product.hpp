@@ -17,9 +17,9 @@
 
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/mpl/assert.hpp>
-#include <boost/mpl/size_t.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/make.hpp>
@@ -44,7 +44,7 @@ struct cross_product
     // wedge product but it is not direct analogue to binary cross product.
     BOOST_MPL_ASSERT_MSG((false),
                          NOT_IMPLEMENTED_FOR_THIS_DIMENSION,
-                         (mpl::size_t<Dimension>));
+                         (std::integral_constant<std::size_t, Dimension>));
 };
 
 template <>
