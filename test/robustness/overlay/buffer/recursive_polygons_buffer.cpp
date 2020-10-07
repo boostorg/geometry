@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2015.
 // Modifications copyright (c) 2015 Oracle and/or its affiliates.
@@ -19,10 +19,9 @@
 #  pragma warning( disable : 4267 )
 #endif
 
+#include <chrono>
 #include <fstream>
 #include <sstream>
-
-#include <chrono>
 
 #include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
@@ -91,8 +90,8 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool result = true;
 
     // Area of buffer must be larger than of original polygon
-    double area_mp = bg::area(mp);
-    double area_buf = bg::area(buffer);
+    auto const area_mp = bg::area(mp);
+    auto const area_buf = bg::area(buffer);
 
     if (area_buf < area_mp)
     {
@@ -138,7 +137,10 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     {
         std::ostringstream filename;
         filename << caseid << "_"
-            << typeid(typename bg::coordinate_type<MultiPolygon>::type).name()
+            << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
+#endif
             << ".svg";
         create_svg(filename.str(), mp, buffer);
     }
@@ -284,7 +286,7 @@ void test_all(int seed, int count, int level, Settings const& settings)
     std::cout
         << "geometries: " << index
         << " errors: " << errors
-        << " type: " << typeid(T).name()
+        << " type: " << string_from_type<T>::name()
         << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
@@ -309,6 +311,7 @@ int main(int argc, char** argv)
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
+            ("validity", po::value<bool>(&settings.check_validity)->default_value(true), "Include testing on validity")
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("distance", po::value<double>(&settings.distance)->default_value(1.0), "Distance (1.0)")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
@@ -318,7 +321,6 @@ int main(int argc, char** argv)
             ("size", po::value<int>(&settings.field_size)->default_value(10), "Size of the field")
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
-            ("check_validity", po::value<bool>(&settings.check_validity)->default_value(true), "Check validity")
         ;
 
         po::variables_map varmap;
@@ -339,19 +341,19 @@ int main(int argc, char** argv)
 
         if (ccw && open)
         {
-            test_all<double, false, false>(seed, count, level, settings);
+            test_all<default_test_type, false, false>(seed, count, level, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(seed, count, level, settings);
+            test_all<default_test_type, false, true>(seed, count, level, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(seed, count, level, settings);
+            test_all<default_test_type, true, false>(seed, count, level, settings);
         }
         else
         {
-            test_all<double, true, true>(seed, count, level, settings);
+            test_all<default_test_type, true, true>(seed, count, level, settings);
         }
     }
     catch(std::exception const& e)

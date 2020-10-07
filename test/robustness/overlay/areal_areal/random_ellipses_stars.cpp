@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-// Unit Test
+// Robustness Test
 
-// Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -9,11 +9,9 @@
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
-
 #include <test_overlay_p_q.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/timer.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
@@ -95,15 +93,14 @@ void test_star_ellipse(int seed, int index, star_params const& par_p,
     make_star(q, par_q);
 
     std::ostringstream out;
-    out << "rse_" << seed << "_" << index;
+    out << "star_ellipse_" << seed << "_" << index;
     test_overlay_p_q<polygon, T>(out.str(), p, q, settings);
 }
 
 template <typename T, bool Clockwise, bool Closed>
 void test_type(int seed, int count, p_q_settings const& settings)
 {
-    boost::timer t;
-
+    auto const t0 = std::chrono::high_resolution_clock::now();
     typedef boost::minstd_rand base_generator_type;
 
     //boost::uniform_real<> random_factor(0.5, 1.2);
@@ -159,9 +156,11 @@ void test_type(int seed, int count, p_q_settings const& settings)
                     location_generator(), location_generator(), rotation_generator()),
             settings);
     }
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
         << "type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
 template <bool Clockwise, bool Closed>
