@@ -390,10 +390,6 @@ void test_invalid()
     test_one<linestring, polygon>("mysql_report_2015_04_10g", mysql_report_2015_04_10g, join_round32, end_round32, 86527.871, 100.0);
 }
 
-#ifdef HAVE_TTMATH
-#include <ttmath_stub.hpp>
-#endif
-
 
 int test_main(int, char* [])
 {

@@ -57,20 +57,7 @@ a <a href="http://en.wikipedia.org/wiki/Long_double">long double</a>, not standa
 
 By default, algorithms select the coordinate type of the input geometries. If there are two input geometries, and they have different coordinate types, the coordinate type with the most precision is selected. This is done by the meta-function \b select_most_precise.
 
-Boost.Geometry supports also high precision arithmetic types, by adaption. The numeric_adaptor, used for adaption, is not part of Boost.Geometry itself but developed by us and sent (as preview) to the Boost List (as it turned out, that functionality might also be provided by Boost.Math bindings, but the mechanism is the same). Types from the following libraries are supported:
-
-- GMP (http://gmplib.org)
-- CLN (http://www.ginac.de/CLN)
-
-Note that the libraries themselves are not included in Boost.Geometry, they are completely independant of each other.
-
-These numeric types can be used as following:
-\code
-boost::geometry::point_xy<boost::numeric_adaptor::gmp_value_type> p4;
-boost::geometry::point_xy<boost::numeric_adaptor::cln_value_type> p5;
-\endcode
-
-All algorithms using these points will use the \b GMP resp. \b CLN library for calculations.
+Boost.Geometry supports also high precision arithmetic types, by adaption. For example from Boost.Multiprecision.
 
 \section robustness_par4 Calculation types
 
@@ -81,21 +68,21 @@ Example:
 
 \code
     {
-        typedef boost::geometry::point_xy<double> point_type;
-        boost::geometry::linear_ring<point_type> ring;
+        using point_type = bg::model::point<default_test_type, 2, bg::cs::cartesian> ;
+        boost::geometry::model::ring<point_type> ring;
         ring.push_back(boost::geometry::make<point_type>(0.0, 0.0));
         ring.push_back(boost::geometry::make<point_type>(0.0, 0.0012));
         ring.push_back(boost::geometry::make<point_type>(1234567.89012345, 0.0));
         ring.push_back(ring.front());
 
-        typedef boost::numeric_adaptor::gmp_value_type gmp;
+        using mp = boost::multiprecision::cpp_bin_float_100;
 
-        gmp area = boost::geometry::area(ring, boost::geometry::strategy::area::by_triangles<point_type, gmp>());
+        auto area = boost::geometry::area(ring, boost::geometry::strategies::area::cartesian<mp>());
         std::cout << area << std::endl;
     }
 \endcode
 
-Above shows how this is used to use \b GMP or \b CLN for double coordinates. Exactly the same mechanism works (of course) also to do calculation in double, where coordinates are stored in float.
+Above shows how this is used to use Boost.Multiprecision with double coordinates. Exactly the same mechanism works (of course) also to do calculation in double, where coordinates are stored in float.
 
 \section robustness_par5 Strategies
 

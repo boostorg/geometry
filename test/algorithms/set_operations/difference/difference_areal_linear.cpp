@@ -31,10 +31,6 @@
 #include <algorithms/overlay/multi_overlay_cases.hpp>
 
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 template <typename CoordinateType>
 void test_ticket_10835(std::string const& wkt_out1, std::string const& wkt_out2)
 {
