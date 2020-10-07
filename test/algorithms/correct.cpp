@@ -175,9 +175,5 @@ int test_main(int, char* [])
     test_ring_polygon<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
     test_ring_polygon<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     return 0;
 }

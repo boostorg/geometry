@@ -175,12 +175,6 @@ void test_all(std::string const& type, int seed, int count, p_q_settings setting
     {
         test_type<double, Clockwise, Closed>(seed, count, settings);
     }
-#if defined(HAVE_TTMATH)
-    else if (type == "ttmath")
-    {
-        test_type<ttmath_big, Clockwise, Closed>(seed, count, settings);
-    }
-#endif
 }
 
 

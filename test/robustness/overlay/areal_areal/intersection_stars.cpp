@@ -117,12 +117,6 @@ void test_all(std::string const& type, int count, int min_points, int max_points
     {
         test_type<double, double>(count, min_points, max_points, rotation, settings);
     }
-#if defined(HAVE_TTMATH)
-    else if (type == "ttmath")
-    {
-        test_type<ttmath_big, ttmath_big>(count, min_points, max_points, rotation, settings);
-    }
-#endif
 }
 
 int main(int argc, char** argv)

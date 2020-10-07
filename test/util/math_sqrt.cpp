@@ -29,10 +29,6 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 namespace bg = boost::geometry;
 
 
@@ -142,12 +138,4 @@ BOOST_AUTO_TEST_CASE( test_math_sqrt_custom )
     check_sqrt<custom1, custom1>::apply(custom1(2.0), custom1(sqrt2));
     check_sqrt<custom2, custom2>::apply(custom2(2.0), custom2(sqrt2));
     check_sqrt<custom3, custom3>::apply(custom3(2.0), custom3(sqrt2));
-
-#ifdef HAVE_TTMATH
-    typedef ttmath_big custom4;
-    typedef ttmath::Big<1, 4> custom5;
-
-    check_sqrt<custom4, custom4>::apply(custom4(2.0), custom4(sqrt2));
-    check_sqrt<custom5, custom5>::apply(custom5(2.0), custom5(sqrt2));
-#endif
 }

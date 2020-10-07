@@ -292,10 +292,5 @@ int test_main( int , char* [] )
     test_all<float>();
     test_all<double>();
 
-#ifdef HAVE_TTMATH
-    common_tests<bg::model::d2::point_xy<ttmath_big> >();
-    common_tests<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
-#endif
-
     return 0;
 }

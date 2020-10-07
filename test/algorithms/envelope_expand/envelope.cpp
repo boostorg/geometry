@@ -226,10 +226,5 @@ int test_main(int, char* [])
     test_invalid<bg::model::d2::point_xy<float> >();
     test_invalid<bg::model::d2::point_xy<double> >();
 
-#ifdef HAVE_TTMATH
-    test_2d<bg::model::d2::point_xy<ttmath_big> >();
-    test_3d<boost::tuple<ttmath_big, ttmath_big, ttmath_big> >();
-#endif
-
     return 0;
 }

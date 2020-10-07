@@ -34,10 +34,6 @@
 
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 template <typename T>
 void normalize_deg(T & deg)
 {
@@ -319,12 +315,6 @@ int test_main(int, char* [])
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
-#endif
-
 
     return 0;
 }
