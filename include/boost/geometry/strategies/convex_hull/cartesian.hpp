@@ -25,8 +25,7 @@ template <typename CalculationType = void>
 class cartesian : strategies::detail::cartesian_base
 {
 public:
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return strategy::side::side_robust<CalculationType>();
     }

@@ -30,8 +30,7 @@ template
 class spherical : strategies::detail::spherical_base<RadiusTypeOrSphere>
 {
 public:
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return strategy::side::spherical_side_formula<CalculationType>();
     }

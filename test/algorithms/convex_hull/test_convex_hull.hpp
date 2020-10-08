@@ -40,8 +40,7 @@
 
 struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
 {
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return boost::geometry::strategy::side::side_robust<>();
     }
@@ -49,8 +48,7 @@ struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
 
 struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesian_base
 {
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return boost::geometry::strategy::side::side_non_robust<>();
     }
@@ -58,8 +56,7 @@ struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesia
 
 struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian_base
 {
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return boost::geometry::strategy::side::side_by_triangle<>();
     }

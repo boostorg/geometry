@@ -215,7 +215,7 @@ public:
 
         container_type lower_points, upper_points;
 
-        auto side_strategy = strategy.side(geometry);
+        auto side_strategy = strategy.side();
 
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points

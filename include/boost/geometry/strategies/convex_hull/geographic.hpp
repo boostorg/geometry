@@ -41,8 +41,7 @@ public:
         : base_t(spheroid)
     {}
 
-    template <typename Geometry>
-    static auto side(Geometry const&)
+    static auto side()
     {
         return strategy::side::geographic
             <
