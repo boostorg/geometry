@@ -116,6 +116,8 @@ struct byte_order_parser
             if (byte_order_type::unknown > value)
             {
                 order = byte_order_type::enum_t(value);
+            }else{
+                order = byte_order_type::unknown;
             }
             return true;
         }
@@ -146,7 +148,7 @@ struct parsing_assigner
 {
     template <typename Iterator>
     static void run(Iterator& it, Iterator end, P& point, 
-                byte_order_type::enum_t order)
+                byte_order_type::enum_t order)order
     {
         typedef typename coordinate_type<P>::type coordinate_type;
 
