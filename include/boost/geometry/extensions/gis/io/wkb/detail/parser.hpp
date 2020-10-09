@@ -148,7 +148,7 @@ struct parsing_assigner
 {
     template <typename Iterator>
     static void run(Iterator& it, Iterator end, P& point, 
-                byte_order_type::enum_t order)order
+                byte_order_type::enum_t order)
     {
         typedef typename coordinate_type<P>::type coordinate_type;
 
