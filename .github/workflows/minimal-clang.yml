@@ -91,6 +91,7 @@ jobs:
 
       - name: Install
         run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
           sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt -q -y update
