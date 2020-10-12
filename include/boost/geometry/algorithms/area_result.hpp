@@ -46,9 +46,10 @@ template
     bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
 >
 struct area_result
-    : decltype(std::declval<Strategy>().area(std::declval<Geometry>()))
-        ::template result_type<Geometry>
-{};
+{
+    typedef decltype(std::declval<Strategy>().area(std::declval<Geometry>())) strategy_type;
+    typedef typename strategy_type::template result_type<Geometry>::type type;
+};
 
 template
 <
