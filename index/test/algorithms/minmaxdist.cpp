@@ -87,14 +87,6 @@ int test_main(int, char* [])
 
     test_indexable<bg::model::box<P2ic> >(P2ic(1, 2), "POLYGON((1 2,3 5))", 4.0);
     
-#ifdef HAVE_TTMATH
-    typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
-    typedef bg::model::point<ttmath_big, 3, bg::cs::cartesian> P3ttmc;
-
-    test_indexable<bg::model::box<P2ttmc> >(P2ttmc(1, 2), "POLYGON((0 1,2 4))", 5.0);
-    test_indexable<bg::model::box<P3ttmc> >(P3ttmc(1, 2, 3), "POLYGON((0 1 2,2 4 6))", 14.0);
-#endif
-
     test_large_integers();
 
     return 0;

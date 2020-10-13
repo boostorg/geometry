@@ -47,9 +47,5 @@ int test_main( int , char* [] )
 {
     test_all<double>();
 
-#ifdef HAVE_TTMATH
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     return 0;
 }

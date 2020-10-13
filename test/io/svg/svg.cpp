@@ -149,9 +149,5 @@ int test_main(int, char* [])
     test_all< boost::geometry::model::d2::point_xy<double> >();
     test_all< boost::geometry::model::d2::point_xy<int> >();
 
-#if defined(HAVE_TTMATH)
-    test_all< boost::geometry::model::d2::point_xy<ttmath_big> >();
-#endif
-
     return 0;
 }

@@ -186,12 +186,5 @@ int test_main( int , char* [] )
     test_mixed();
     test_3d();
 
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-    test_eps<bg::model::d2::point_xy<ttmath_big> >();
-    //test_spherical<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-#endif
-
     return 0;
 }

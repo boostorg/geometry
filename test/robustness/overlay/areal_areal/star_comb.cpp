@@ -123,10 +123,6 @@ int main(int argc, char** argv)
         {
             test_all<double, true, true>(count, star_point_count, comb_comb_count, factor1, factor2, do_union, settings);
         }
-
-#if defined(HAVE_TTMATH)
-        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
-#endif
     }
     catch(std::exception const& e)
     {

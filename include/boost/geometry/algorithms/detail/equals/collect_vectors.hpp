@@ -147,7 +147,7 @@ private:
         // For high precision arithmetic, we have to be
         // more relaxed then using ==
         // Because 2/sqrt( (0,0)<->(2,2) ) == 1/sqrt( (0,0)<->(1,1) )
-        // is not always true (at least, it is not for ttmath)
+        // is not always true (at least, not for some user defined types)
         return math::equals_with_epsilon(dx, other.dx)
             && math::equals_with_epsilon(dy, other.dy);
     }

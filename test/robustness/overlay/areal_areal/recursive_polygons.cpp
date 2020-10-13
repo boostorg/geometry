@@ -200,10 +200,6 @@ int main(int argc, char** argv)
         {
             test_all<double, true, true>(seed, count, field_size, level, triangular, settings);
         }
-
-#if defined(HAVE_TTMATH)
-        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
-#endif
     }
     catch(std::exception const& e)
     {

@@ -33,12 +33,6 @@
 
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
-
-
 double make_deg(double deg, double min, double sec)
 {
     return deg + min / 60.0 + sec / 3600.0;
@@ -336,11 +330,6 @@ int test_main(int, char* [])
     //test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
     //test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
-#endif
 
     return 0;
 }

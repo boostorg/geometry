@@ -56,14 +56,6 @@ int test_main(int, char* [])
     test_geometry<bg::model::box<P2dc> >("POLYGON((0 1,2 4))", "POLYGON((2 1,3 4))", 0.0);
     test_geometry<bg::model::box<P2dc> >("POLYGON((0 1,2 4))", "POLYGON((2 4,3 5))", 0.0);
     
-#ifdef HAVE_TTMATH
-    typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
-    typedef bg::model::point<ttmath_big, 3, bg::cs::cartesian> P3ttmc;
-
-    test_geometry<bg::model::box<P2ttmc> >("POLYGON((0 1,2 4))", "POLYGON((1 2,3 5))", 2.0);
-    test_geometry<bg::model::box<P3ttmc> >("POLYGON((0 1 2,2 4 6))", "POLYGON((1 2 3,3 5 7))", 6.0);
-#endif
-
     test_large_integers();
 
     return 0;

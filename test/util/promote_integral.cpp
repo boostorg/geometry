@@ -538,9 +538,4 @@ BOOST_AUTO_TEST_CASE( test_floating_point )
     tester2::apply<float, float>("fp-f");
     tester2::apply<double, double>("fp-d");
     tester2::apply<long double, long double>("fp-ld");
-
-#ifdef HAVE_TTMATH
-    tester1::apply<ttmath_big, ttmath_big>("fp-tt");
-    tester2::apply<ttmath_big, ttmath_big>("fp-tt");
-#endif
 }

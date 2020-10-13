@@ -143,10 +143,6 @@ int main(int argc, char** argv)
         {
             test_all<double, true, true>(count, count_x, count_y, offset, settings);
         }
-
-#if defined(HAVE_TTMATH)
-        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
-#endif
     }
     catch(std::exception const& e)
     {

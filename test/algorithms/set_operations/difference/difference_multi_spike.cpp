@@ -34,7 +34,7 @@ void test_spikes_in_ticket_8364()
     typedef bg::model::polygon<P, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    // The difference of polygons below result in a spike. The spike should be there, it is also generated in ttmath,
+    // The difference of polygons below result in a spike. The spike should be there, it was also generated in ttmath,
     // and (e.g.) in SQL Server. However, using int-coordinates, the spike makes the polygon invalid. Therefore it is now (since August 2013) checked and removed.
 
 #ifdef BOOST_GEOMETRY_TEST_FAILURES

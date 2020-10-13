@@ -319,9 +319,5 @@ int test_main( int , char* [] )
 
     test_linestring_linestring_radians<point_rad>();
 
-#if defined(HAVE_TTMATH)
-    test_cs<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-#endif
-
     return 0;
 }

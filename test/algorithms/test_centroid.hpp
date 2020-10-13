@@ -82,10 +82,6 @@ void test_centroid(Geometry const& geometry, T const& d1, T const& d2, T const& 
     //test_with_other_calculation_type<long long>(geometry, c1);
     test_with_other_calculation_type<float>(geometry, c1);
     test_with_other_calculation_type<long double>(geometry, c1);
-#if defined(HAVE_TTMATH)
-    test_with_other_calculation_type<ttmath_big>(geometry, c1);
-#endif
-
 #endif
 }
 
