@@ -41,14 +41,14 @@ public:
         : base_t(spheroid)
     {}
 
-    static auto side()
+    auto side() const
     {
         return strategy::side::geographic
             <
                 FormulaPolicy,
                 Spheroid,
                 CalculationType
-            >();
+            >(base_t::m_spheroid);
     }
 };
 

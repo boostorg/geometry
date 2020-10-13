@@ -22,12 +22,8 @@ namespace boost { namespace geometry
 namespace strategies { namespace convex_hull
 {
 
-template
-<
-    typename RadiusTypeOrSphere = double,
-    typename CalculationType = void
->
-class spherical : strategies::detail::spherical_base<RadiusTypeOrSphere>
+template <typename CalculationType = void>
+class spherical : strategies::detail::spherical_base<void>
 {
 public:
     static auto side()

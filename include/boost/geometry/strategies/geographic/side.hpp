@@ -110,6 +110,13 @@ public:
     template <typename P1, typename P2, typename P>
     inline int apply(P1 const& p1, P2 const& p2, P const& p) const
     {
+        if (geometry::equals(p, p1, equals_point_point_strategy_type())
+                || geometry::equals(p, p2, equals_point_point_strategy_type())
+                || geometry::equals(p1, p2, equals_point_point_strategy_type()))
+        {
+            return 0;
+        }
+
         typedef typename promote_floating_point
             <
                 typename select_calculation_type_alt
@@ -121,11 +128,6 @@ public:
 
         typedef typename FormulaPolicy::template inverse
                     <calc_t, false, true, false, false, false> inverse_formula;
-
-        if (geometry::equals(p, p1) || geometry::equals(p, p2))
-        {
-            return 0;
-        }
 
         calc_t a1p = azimuth<calc_t, inverse_formula>(p1, p, m_model);
         calc_t a12 = azimuth<calc_t, inverse_formula>(p1, p2, m_model);
