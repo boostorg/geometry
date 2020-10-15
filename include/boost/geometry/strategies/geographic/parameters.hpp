@@ -12,6 +12,7 @@
 
 #include <type_traits>
 
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/formulas/andoyer_inverse.hpp>
 #include <boost/geometry/formulas/thomas_direct.hpp>
 #include <boost/geometry/formulas/thomas_inverse.hpp>
@@ -19,8 +20,6 @@
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
 //#include <boost/geometry/formulas/karney_direct.hpp>
 //#include <boost/geometry/formulas/karney_inverse.hpp>
-
-#include <boost/mpl/assert.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -183,11 +182,9 @@ struct karney
 template <typename FormulaPolicy>
 struct default_order
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_TYPE
-        , (types<FormulaPolicy>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this type.",
+        FormulaPolicy);
 };
 
 template<>

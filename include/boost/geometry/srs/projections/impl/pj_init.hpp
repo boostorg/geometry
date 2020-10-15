@@ -45,10 +45,9 @@
 #include <vector>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/range.hpp>
+#include <boost/tuple/tuple.hpp>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/srs/projections/dpar.hpp>
 #include <boost/geometry/srs/projections/impl/dms_parser.hpp>
@@ -60,6 +59,9 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/proj4.hpp>
 #include <boost/geometry/srs/projections/spar.hpp>
+
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -104,7 +106,7 @@ inline void pj_init_proj(srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL
 
     static const bool is_found = geometry::tuples::is_found<proj_type>::value;
 
-    BOOST_MPL_ASSERT_MSG((is_found), PROJECTION_NOT_NAMED, (params_type));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_found), "Projection not named.", params_type);
 
     par.id = srs::spar::detail::proj_traits<proj_type>::id;
 }
@@ -261,7 +263,7 @@ struct pj_init_units_static<Params, Vertical, UnitsI, N, N>
                     >::id;
     static const bool is_valid = i >= 0 && i < n;
 
-    BOOST_MPL_ASSERT_MSG((is_valid), UNKNOWN_UNIT_ID, (Params));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_valid), "Unknown unit ID.", Params);
 
     template <typename T>
     static void apply(Params const& ,

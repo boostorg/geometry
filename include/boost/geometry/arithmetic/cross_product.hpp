@@ -19,10 +19,9 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
@@ -41,9 +40,9 @@ struct cross_product
     // In Math, it is also well-defined for 7-dimension.
     // Generalisation of cross product to n-dimension is defined as
     // wedge product but it is not direct analogue to binary cross product.
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_DIMENSION,
-                         (std::integral_constant<std::size_t, Dimension>));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Dimension.",
+        std::integral_constant<std::size_t, Dimension>);
 };
 
 template <>

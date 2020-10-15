@@ -22,9 +22,8 @@
 
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -50,11 +49,9 @@ namespace traits
 template <typename Polygon>
 struct exterior_ring
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POLYGON_TYPE
-            , (types<Polygon>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Polygon type.",
+        Polygon);
 };
 
 
@@ -69,11 +66,9 @@ namespace core_dispatch
 template <typename Tag, typename Geometry>
 struct exterior_ring
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        Tag, Geometry);
 };
 
 

@@ -12,8 +12,6 @@
 #define BOOST_GEOMETRY_STRATEGIES_DISJOINT_HPP
 
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>

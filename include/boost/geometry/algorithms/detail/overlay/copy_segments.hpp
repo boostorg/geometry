@@ -4,7 +4,6 @@
 
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -20,8 +19,9 @@
 #include <vector>
 
 #include <boost/array.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>

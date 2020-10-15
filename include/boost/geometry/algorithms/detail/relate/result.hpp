@@ -1,4 +1,4 @@
-﻿// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
@@ -20,14 +20,13 @@
 #include <cstring>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exception.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/sequence.hpp>
 
@@ -666,9 +665,9 @@ struct static_check_characters<std::integer_sequence<char, C, Cs...>>
     typedef std::integer_sequence<char, C, Cs...> type;
     static const bool is_valid = (C >= '0' && C <= '9')
                                || C == 'T' || C == 'F' || C == '*';
-    BOOST_MPL_ASSERT_MSG((is_valid),
-                         INVALID_STATIC_MASK_CHARACTER,
-                         (type));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_valid),
+                                 "Invalid static mask character",
+                                 type);
 };
 
 template <char ...Cs>

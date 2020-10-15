@@ -19,10 +19,10 @@
 #define BOOST_GEOMETRY_CORE_POINT_TYPE_HPP
 
 
-#include <boost/mpl/assert.hpp>
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
@@ -46,10 +46,9 @@ namespace traits
 template <typename Geometry>
 struct point_type
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        Geometry);
 };
 
 

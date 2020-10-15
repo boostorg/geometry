@@ -23,9 +23,8 @@
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/extensions/nsphere/views/center_view.hpp>
-
 #include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
@@ -105,9 +104,10 @@ struct disjoint<Point, NSphere, DimensionCount, point_tag, nsphere_tag, Reverse>
         typedef typename coordinate_system<NSphere>::type s_cs;
         static const bool check_cs = std::is_same<p_cs, cs::cartesian>::value
                                   && std::is_same<s_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs,
-                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
-                             (p_cs, s_cs));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            check_cs,
+            "Not implemented for those coordinate systems.",
+            p_cs, s_cs);
 
         typename radius_type<NSphere>::type const r = get_radius<0>(s);
         center_view<const NSphere> const c(s);
@@ -129,9 +129,10 @@ struct disjoint<NSphere, Box, DimensionCount, nsphere_tag, box_tag, Reverse>
         typedef typename coordinate_system<NSphere>::type s_cs;
         static const bool check_cs = std::is_same<b_cs, cs::cartesian>::value
                                   && std::is_same<s_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs,
-                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
-                             (b_cs, s_cs));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            check_cs,
+            "Not implemented for those coordinate systems.",
+            b_cs, s_cs);
 
         typename radius_type<NSphere>::type const r = get_radius<0>(s);
 
@@ -153,9 +154,10 @@ struct disjoint<NSphere1, NSphere2, DimensionCount, nsphere_tag, nsphere_tag, Re
         typedef typename coordinate_system<NSphere2>::type s2_cs;
         static const bool check_cs = std::is_same<s1_cs, cs::cartesian>::value
                                   && std::is_same<s2_cs, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(check_cs,
-                             NOT_IMPLEMENTED_FOR_THOSE_COORDINATE_SYSTEMS,
-                             (s1_cs, s2_cs));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            check_cs,
+            "Not implemented for those coordinate systems.",
+            s1_cs, s2_cs);
 
         /*return get_radius<0>(s1) + get_radius<0>(s2)
                <   ::sqrt(geometry::comparable_distance(center_view<NSphere>(s1), center_view<NSphere>(s2)));*/

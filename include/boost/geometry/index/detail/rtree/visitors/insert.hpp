@@ -20,6 +20,7 @@
 #endif
 
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/condition.hpp>
 
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
@@ -110,10 +111,9 @@ template
 >
 struct redistribute_elements
 {
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THIS_REDISTRIBUTE_TAG_TYPE,
-        (redistribute_elements));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this RedistributeTag type.",
+        MembersHolder, RedistributeTag);
 };
 
 // ----------------------------------------------------------------------- //
@@ -126,10 +126,9 @@ template
 >
 class split
 {
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THIS_SPLIT_TAG_TYPE,
-        (split));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this SplitTag type.",
+        MembersHolder, SplitTag);
 };
 
 // Default split algorithm

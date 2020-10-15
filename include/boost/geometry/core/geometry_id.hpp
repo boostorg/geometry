@@ -22,8 +22,7 @@
 
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -39,11 +38,9 @@ namespace core_dispatch
 template <typename GeometryTag>
 struct geometry_id
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<GeometryTag>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        GeometryTag);
 };
 
 

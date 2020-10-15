@@ -32,7 +32,9 @@ namespace detail { namespace rotation {
 template <typename V1, typename V2, typename Rotation, typename Tag1, typename Tag2, std::size_t Dimension>
 struct matrix
 {
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THIS_DIMENSION, (Rotation));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Dimension.",
+        Rotation, std::integral_constant<std::size_t, Dimension>);
 };
 
 template <typename V1, typename V2, typename Rotation>
@@ -42,7 +44,10 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 3>
         std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
         std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
-    BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        cs_check,
+        "Not implemented for coordinate systems of these vectors.",
+        V1, V2);
 
     typedef typename geometry::select_most_precise<
         typename traits::coordinate_type<V1>::type,
@@ -123,7 +128,10 @@ struct matrix<V1, V2, Rotation, vector_tag, vector_tag, 2>
         std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
         std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
-    BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        cs_check,
+        "Not implemented for coordinate systems of these vectors.",
+        V1, V2);
 
     typedef typename geometry::select_most_precise<
         typename traits::coordinate_type<V1>::type,
@@ -180,7 +188,9 @@ template <typename V1, typename V2, typename Rotation,
 >
 struct rotation
 {
-    BOOST_MPL_ASSERT_MSG(false, NOT_IMPLEMENTED_FOR_THOSE_TAGS, (Tag1, Tag2, Rotation));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for these Geometries and Rotation.",
+        V1, V2, Rotation);
 };
 
 template <typename V1, typename V2, typename Rotation>
@@ -190,7 +200,10 @@ struct rotation<V1, V2, Rotation, vector_tag, vector_tag, rotation_quaternion_ta
         std::is_same<typename traits::coordinate_system<V1>::type, cs::cartesian>::value &&
         std::is_same<typename traits::coordinate_system<V2>::type, cs::cartesian>::value;
 
-    BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THOSE_SYSTEMS, (V1, V2));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        cs_check,
+        "Not implemented for coordinate systems of these vectors.",
+        V1, V2);
 
     typedef typename geometry::select_most_precise<
         typename traits::coordinate_type<V1>::type,

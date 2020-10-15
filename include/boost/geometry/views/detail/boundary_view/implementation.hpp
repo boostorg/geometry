@@ -23,23 +23,19 @@
 #include <boost/core/addressof.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
-#include <boost/mpl/assert.hpp>
 
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
-
 #include <boost/geometry/iterators/flatten_iterator.hpp>
-
 #include <boost/geometry/util/range.hpp>
-
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/detail/boundary_view/interface.hpp>
-
-#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 
 namespace boost { namespace geometry
@@ -121,9 +117,9 @@ public:
         static const bool is_convertible
             = std::is_convertible<OtherPolygon, Polygon>::value;
 
-        BOOST_MPL_ASSERT_MSG((is_convertible),
-                             NOT_CONVERTIBLE,
-                             (types<OtherPolygon>));
+        BOOST_GEOMETRY_STATIC_ASSERT((is_convertible),
+            "OtherPolygon has to be convertible to Polygon.",
+            OtherPolygon, Polygon);
     }
 
 private:

@@ -19,13 +19,12 @@
 #include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
-
-#include <boost/mpl/assert.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,7 +38,9 @@ namespace detail
 template <typename CSTag>
 struct direction_code_impl
 {
-    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_CS, (CSTag));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this coordinate system.",
+        CSTag);
 };
 
 template <>
@@ -93,9 +94,10 @@ struct direction_code_impl<spherical_equatorial_tag>
         typedef typename coordinate_type<Point2>::type coord2_t;
         typedef typename cs_angular_units<Point1>::type units_t;
         typedef typename cs_angular_units<Point2>::type units2_t;
-        BOOST_MPL_ASSERT_MSG((std::is_same<units_t, units2_t>::value),
-                             NOT_IMPLEMENTED_FOR_DIFFERENT_UNITS,
-                             (units_t, units2_t));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<units_t, units2_t>::value),
+            "Not implemented for different units.",
+            units_t, units2_t);
 
         typedef typename geometry::select_coordinate_type <Point1, Point2>::type calc_t;
         typedef math::detail::constants_on_spheroid<coord1_t, units_t> constants1;

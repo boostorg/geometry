@@ -45,7 +45,7 @@
 #include <type_traits>
 #include <vector>
 
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/srs/projections/exception.hpp>
 
@@ -191,7 +191,7 @@ inline void check_name(Name const&)
                            || std::is_same<Name, srs::dpar::name_i>::value
                            || std::is_same<Name, srs::dpar::name_f>::value
                            || std::is_same<Name, srs::dpar::name_r>::value;
-    BOOST_MPL_ASSERT_MSG((is_ok), INVALID_ARGUMENT, (Name));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_ok), "Invalid argument.", Name);
 }
 
 

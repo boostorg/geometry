@@ -23,8 +23,10 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry { namespace concepts {
 
@@ -60,9 +62,9 @@ public:
     BOOST_CONCEPT_USAGE(Quaternion)
     {
         //static const bool dim_check = dimension<Geometry>::value == 4;
-        //BOOST_MPL_ASSERT_MSG(dim_check, INVALID_DIMENSION, (RotationQuaternion));
+        //BOOST_GEOMETRY_STATIC_ASSERT(dim_check, "INVALID_DIMENSION", RotationQuaternion);
         //static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
-        //BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
+        //BOOST_GEOMETRY_STATIC_ASSERT(cs_check, "NOT_IMPLEMENTED_FOR_THIS_CS", csystem);
 
         dimension_checker<Geometry, 0, 4>::apply();
     }
@@ -103,9 +105,9 @@ public:
     BOOST_CONCEPT_USAGE(ConstQuaternion)
     {
         //static const bool dim_check = dimension<Geometry>::value == 4;
-        //BOOST_MPL_ASSERT_MSG(dim_check, INVALID_DIMENSION, (ConstRotationQuaternion));
+        //BOOST_GEOMETRY_STATIC_ASSERT(dim_check, "INVALID_DIMENSION", ConstRotationQuaternion);
         //static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
-        //BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
+        //BOOST_GEOMETRY_STATIC_ASSERT(cs_check, "NOT_IMPLEMENTED_FOR_THIS_CS", csystem);
 
         dimension_checker<Geometry, 0, 4>::apply();
     }

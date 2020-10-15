@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <boost/geometry/core/radius.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -28,7 +29,6 @@
 
 #include <boost/geometry/util/tuples.hpp>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/variant/variant.hpp>
 
@@ -203,7 +203,9 @@ namespace detail
 template <typename Parameters, typename Parameter>
 struct add_parameter
 {
-    BOOST_MPL_ASSERT_MSG((false), INVALID_ARGUMENT, (Parameters));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Invalid Parameters argument.",
+        Parameters);
 };
 
 // NOTE: parameters has to be convertible to tuples::cons
@@ -1068,7 +1070,7 @@ struct pick_proj_tag
 
     static const bool is_found = geometry::tuples::is_found<proj_type>::value;
 
-    BOOST_MPL_ASSERT_MSG((is_found), PROJECTION_NOT_NAMED, (Tuple));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_found), "Projection not named.", Tuple);
 
     typedef proj_traits<proj_type> traits_type;
     typedef typename traits_type::type type;
@@ -1085,7 +1087,7 @@ struct pick_o_proj_tag
 
     static const bool is_found = geometry::tuples::is_found<o_proj_type>::value;
 
-    BOOST_MPL_ASSERT_MSG((is_found), NO_O_PROJ_PARAMETER, (Tuple));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_found), "Expected o_proj parameter.", Tuple);
 
     typedef proj_traits<typename o_proj_type::type> traits_type;
     typedef typename traits_type::type type;

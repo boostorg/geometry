@@ -27,8 +27,6 @@
 #include <functional>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>

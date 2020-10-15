@@ -14,9 +14,12 @@
 #include <string>
 #include <type_traits>
 
+#include <boost/throw_exception.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
@@ -29,10 +32,6 @@
 #include <boost/geometry/srs/projections/impl/pj_transform.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/throw_exception.hpp>
 
 
 namespace boost { namespace geometry
@@ -677,9 +676,10 @@ public:
     bool forward(GeometryIn const& in, GeometryOut & out,
                  transformation_grids<GridsStorage> const& grids) const
     {
-        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
-                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
-                             (GeometryIn, GeometryOut));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (projections::detail::same_tags<GeometryIn, GeometryOut>::value),
+            "Not supported combination of Geometries.",
+            GeometryIn, GeometryOut);
 
         return projections::detail::transform
                 <
@@ -696,9 +696,10 @@ public:
     bool inverse(GeometryIn const& in, GeometryOut & out,
                  transformation_grids<GridsStorage> const& grids) const
     {
-        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<GeometryIn, GeometryOut>::value),
-                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
-                             (GeometryIn, GeometryOut));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (projections::detail::same_tags<GeometryIn, GeometryOut>::value),
+            "Not supported combination of Geometries.",
+            GeometryIn, GeometryOut);
 
         return projections::detail::transform
                 <

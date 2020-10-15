@@ -21,10 +21,9 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
@@ -55,10 +54,9 @@ namespace traits
 template <typename Geometry, std::size_t Dimension, typename Enable = void>
 struct access
 {
-   BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        Geometry);
 };
 
 

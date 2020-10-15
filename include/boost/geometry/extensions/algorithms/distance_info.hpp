@@ -16,8 +16,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISTANCE_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISTANCE_INFO_HPP
 
-#include <boost/range/functions.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>

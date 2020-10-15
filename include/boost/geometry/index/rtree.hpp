@@ -27,6 +27,8 @@
 #include <boost/tuple/tuple.hpp>
 
 // Boost.Geometry
+#include <boost/geometry/core/static_assert.hpp>
+
 #include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
@@ -878,6 +880,10 @@ public:
             this->raw_create();
 
         typedef std::is_convertible<ConvertibleOrRange, value_type> is_conv_t;
+        typedef range::detail::is_range<ConvertibleOrRange> is_range_t;
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv_t::value || is_range_t::value),
+            "The argument has to be convertible to Value type or be a Range.",
+            ConvertibleOrRange);
 
         this->insert_dispatch(conv_or_rng, is_conv_t());
     }
@@ -974,6 +980,10 @@ public:
             return 0;
 
         typedef std::is_convertible<ConvertibleOrRange, value_type> is_conv_t;
+        typedef range::detail::is_range<ConvertibleOrRange> is_range_t;
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv_t::value || is_range_t::value),
+            "The argument has to be convertible to Value type or be a Range.",
+            ConvertibleOrRange);
 
         return this->remove_dispatch(conv_or_rng, is_conv_t());
     }
@@ -1074,7 +1084,9 @@ public:
 
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         static const bool is_distance_predicate = 0 < distance_predicates_count;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
         return query_dispatch(predicates, out_it,
                               std::integral_constant<bool, is_distance_predicate>());
@@ -1241,7 +1253,9 @@ private:
     qbegin_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
         typedef std::conditional_t
             <
@@ -1306,7 +1320,9 @@ private:
     qend_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
         typedef std::conditional_t
             <
@@ -1556,9 +1572,9 @@ public:
             >::type value_or_indexable;
 
         static const bool is_void = std::is_void<value_or_indexable>::value;
-        BOOST_MPL_ASSERT_MSG((! is_void),
-                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
-                             (ValueOrIndexable));
+        BOOST_GEOMETRY_STATIC_ASSERT((! is_void),
+            "The argument has to be convertible to Value or Indexable type.",
+            ValueOrIndexable);
 
         // NOTE: If an object of convertible but not the same type is passed
         // into the function, here a temporary will be created.
@@ -1833,10 +1849,6 @@ private:
     inline void insert_dispatch(Range const& rng,
                                 std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((range::detail::is_range<Range>::value),
-                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
-                             (Range));
-
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
             this->raw_insert(*it);
@@ -1869,10 +1881,6 @@ private:
     inline size_type remove_dispatch(Range const& rng,
                                      std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((range::detail::is_range<Range>::value),
-                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
-                             (Range));
-
         size_type result = 0;
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )

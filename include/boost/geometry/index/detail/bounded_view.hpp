@@ -5,8 +5,8 @@
 //
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,11 +16,11 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_BOUNDED_VIEW_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_BOUNDED_VIEW_HPP
 
-#include <boost/mpl/assert.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/strategies/index.hpp>
+
 
 namespace boost { namespace geometry {
 
@@ -53,10 +53,9 @@ template
 >
 struct bounded_view_base
 {
-    BOOST_MPL_ASSERT_MSG(
-        (false),
-        NOT_IMPLEMENTED_FOR_THOSE_GEOMETRIES,
-        (types<Tag, BoundingTag, CSTag>));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for these Geometries.",
+        Geometry, BoundingGeometry, Strategy, Tag, BoundingTag, CSTag);
 };
 
 

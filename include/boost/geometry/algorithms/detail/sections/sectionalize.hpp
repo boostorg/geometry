@@ -27,9 +27,10 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/config.hpp>
 
@@ -47,6 +48,7 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -867,11 +869,9 @@ template
 >
 struct sectionalize
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        Tag, Geometry);
 };
 
 template

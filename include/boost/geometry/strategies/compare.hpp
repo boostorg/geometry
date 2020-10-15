@@ -24,12 +24,11 @@
 #include <cstddef>
 #include <functional>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/util/math.hpp>
 
@@ -194,12 +193,9 @@ template
 >
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false,
-            NOT_IMPLEMENTED_FOR_THESE_TYPES,
-            (types<CSTag1, CSTag2>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for these types.",
+        CSTag1, CSTag2);
 };
 
 
