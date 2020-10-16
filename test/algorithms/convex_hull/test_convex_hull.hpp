@@ -28,6 +28,7 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/strategies/area/services.hpp>
+#include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
@@ -59,6 +60,15 @@ struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian
     static auto side()
     {
         return boost::geometry::strategy::side::side_by_triangle<>();
+    }
+};
+
+template <typename CalculationType = void>
+struct sphrerical_side_by_cross_track : boost::geometry::strategies::detail::spherical_base<void>
+{
+    static auto side()
+    {
+        return boost::geometry::strategy::side::side_by_cross_track<>();
     }
 };
 
@@ -317,6 +327,7 @@ void test_geometry_sph_geo(std::string const& wkt,
     test_geometry<GGeometry, GeoStrategy>(wkt, size_original,
         size_hull_closed, geographic_expected_area);
 }
+
 
 template <typename Geometry>
 void test_empty_input()

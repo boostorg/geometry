@@ -52,6 +52,14 @@ void test_all()
         >("polygon((1 1, 1 4, 3 4, 3 3, 4 3, 4 4, 5 4, 5 1, 1 1))",
           9, 5, 0.003652987070377825, 147615606532.65408);
 
+    // calculate convex hull with a non-default spherical side strategy
+    test_geometry
+        <
+            bg::model::polygon<SphericalPoint>,
+            sphrerical_side_by_cross_track<>
+        >("polygon((359 0,1 1,1 -1,359 0))", 4, 4,
+          0.00060931217091786914);
+
     test_empty_input<bg::model::linestring<SphericalPoint>>();
     test_empty_input<bg::model::ring<SphericalPoint>>();
     test_empty_input<bg::model::polygon<SphericalPoint>>();
