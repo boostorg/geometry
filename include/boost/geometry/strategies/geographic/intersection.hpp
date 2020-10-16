@@ -13,6 +13,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_INTERSECTION_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -936,7 +937,7 @@ private:
     static inline bool is_near(CalcT const& dist)
     {
         // NOTE: This strongly depends on the Inverse method
-        CalcT const small_number = CalcT(boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
+        CalcT const small_number = CalcT(std::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
         return math::abs(dist) <= small_number;
     }
 

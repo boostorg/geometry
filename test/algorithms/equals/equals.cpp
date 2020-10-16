@@ -303,16 +303,9 @@ void verify()
 int test_main( int , char* [] )
 {
     //verify<double>();
-#if defined(HAVE_TTMATH)
-    verify<ttmath_big>();
-#endif
 
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
 
     return 0;
 }

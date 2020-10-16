@@ -10,9 +10,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_EXPAND_SERVICES_HPP
 #define BOOST_GEOMETRY_STRATEGIES_EXPAND_SERVICES_HPP
 
-#include <boost/geometry/core/cs.hpp>
 
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 
 namespace boost { namespace geometry
@@ -29,21 +29,17 @@ template
 >
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
-        , (types<Box, Geometry, CSTag>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this coordinate system.",
+        Geometry, Box, CSTag);
 };
 
 template <typename Strategy>
 struct strategy_converter
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_STRATEGY
-        , (Strategy)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Strategy.",
+        Strategy);
 };
 
 

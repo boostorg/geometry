@@ -212,12 +212,11 @@ public :
                 OutputRange& output_range)
     {
         // Generate a block along (left or right of) the segment
-
-        double const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
-        double const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
+        auto const dx = bg::get<0>(input_p2) - bg::get<0>(input_p1);
+        auto const dy = bg::get<1>(input_p2) - bg::get<1>(input_p1);
 
         // For normalization [0,1] (=dot product d.d, sqrt)
-        double const length = bg::math::sqrt(dx * dx + dy * dy);
+        auto const length = bg::math::sqrt(dx * dx + dy * dy);
 
         if (bg::math::equals(length, 0))
         {
@@ -225,9 +224,9 @@ public :
         }
 
         // Generate the perpendicular p, to the left (ccw), and use an adapted distance
-        double const d = 1.1 * distance.apply(input_p1, input_p2, side);
-        double const px = d * -dy / length;
-        double const py = d * dx / length;
+        auto const d = 1.1 * distance.apply(input_p1, input_p2, side);
+        auto const px = d * -dy / length;
+        auto const py = d * dx / length;
 
         output_range.resize(2);
 
@@ -245,6 +244,7 @@ template <bool Clockwise, typename P>
 void test_all()
 {
     typedef bg::model::polygon<P, Clockwise, true> polygon_type;
+    typedef typename bg::coordinate_type<P>::type coor_type;
 
     bg::strategy::buffer::join_miter join_miter(10.0);
     bg::strategy::buffer::join_round join_round(100);
@@ -531,6 +531,7 @@ void test_all()
     test_one<polygon_type, polygon_type>("italy_part2_5", italy_part2,
         join_round, end_flat, BG_IF_RESCALED(12496082123.6245, 12496082120.9337444), 5 * 1000.0);
 
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
     {
         ut_settings settings;
         settings.set_test_validity(false);
@@ -563,12 +564,13 @@ void test_all()
         // Larger distance, resulting in only one circle. Not solved yet in non-rescaled mode.
         test_one<polygon_type, polygon_type>("ticket_11580_237", ticket_11580, join_miter, end_flat, 999.999, 2.37, settings);
     #endif
+
+        // Tickets - deflated
+        test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 404.3936, -0.5);
+        test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 246.7329, -2.5);
     }
 
-    // Tickets - deflated
-    test_one<polygon_type, polygon_type>("ticket_10398_1_5", ticket_10398_1, join_miter, end_flat, 404.3936, -0.5);
-    test_one<polygon_type, polygon_type>("ticket_10398_1_25", ticket_10398_1, join_miter, end_flat, 246.7329, -2.5);
-
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
     {
         // Test issue 369 as reported (1.15e-3) and some variants
         // Use high tolerance because output areas are very small
@@ -587,6 +589,7 @@ void test_all()
         test_one<polygon_type, polygon_type>("issue_369_1000", issue_369, jr, er, 7.881e-10, distance / 1000.0, specific);
     }
 
+    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
     {
         // Test issue 555 as reported (-0.000001) and some variants
         bg::strategy::buffer::join_round jr(180);
@@ -635,10 +638,12 @@ void test_all()
             mysql_report_2015_02_17_3,
             join_round32, end_round32, 64.0, -1.0);
 
+        if (BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, double>::value)))
         {
             // These extreme testcases, containing huge coordinate differences
             // and huge buffer distances, are to verify assertions.
             // No assertions should be raised.
+            // They are only tested for double (also because these WKT's are not supported for float)
 
             // The buffers themselves are most often wrong. Versions
             // without interior rings might be smaller (or have no output)
@@ -829,10 +834,6 @@ void test_mixed()
             simplex, join_round, end_flat, 47.4831, 1.5);
 }
 
-#ifdef HAVE_TTMATH
-#include <ttmath_stub.hpp>
-#endif
-
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -861,11 +862,6 @@ int test_main(int, char* [])
     test_mixed<dpoint, dpoint, false, true, false, true>();
     test_mixed<dpoint, dpoint, true, false, false, true>();
     test_mixed<dpoint, dpoint, true, true, false, true>();
-
-#ifdef HAVE_TTMATH
-    test_all<bg::model::point<tt, 2, bg::cs::cartesian> >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)

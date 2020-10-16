@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -40,8 +40,12 @@
 #define BOOST_GEOMETRY_PROJECTIONS_PJ_PARAM_HPP
 
 
+#include <iterator>
 #include <string>
+#include <type_traits>
 #include <vector>
+
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/srs/projections/exception.hpp>
 
@@ -50,11 +54,6 @@
 #include <boost/geometry/srs/projections/proj4.hpp>
 #include <boost/geometry/srs/projections/dpar.hpp>
 #include <boost/geometry/srs/projections/spar.hpp>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <iterator>
 
 
 namespace boost { namespace geometry { namespace projections {
@@ -67,9 +66,12 @@ inline bool pj_param_pred(srs::detail::proj4_parameter const& p, std::string con
     return p.name == name;
 }
 
-template <typename T, typename Id>
-inline bool pj_param_pred(srs::dpar::parameter<T> const& p, Id const& id,
-                          typename boost::disable_if_c<boost::is_convertible<Id, std::string>::value>::type * = 0)
+template
+<
+    typename T, typename Id,
+    std::enable_if_t<! std::is_convertible<Id, std::string>::value, int> = 0
+>
+inline bool pj_param_pred(srs::dpar::parameter<T> const& p, Id const& id)
 {
     return p.is_id_equal(id);
 }
@@ -185,11 +187,11 @@ inline void set_value_r(T & val, srs::dpar::parameter<T> const& p)
 template <typename Name>
 inline void check_name(Name const&)
 {
-    static const bool is_ok = boost::is_convertible<Name, std::string>::value
-                           || boost::is_same<Name, srs::dpar::name_i>::value
-                           || boost::is_same<Name, srs::dpar::name_f>::value
-                           || boost::is_same<Name, srs::dpar::name_r>::value;
-    BOOST_MPL_ASSERT_MSG((is_ok), INVALID_ARGUMENT, (Name));
+    static const bool is_ok = std::is_convertible<Name, std::string>::value
+                           || std::is_same<Name, srs::dpar::name_i>::value
+                           || std::is_same<Name, srs::dpar::name_f>::value
+                           || std::is_same<Name, srs::dpar::name_r>::value;
+    BOOST_GEOMETRY_STATIC_ASSERT((is_ok), "Invalid argument.", Name);
 }
 
 

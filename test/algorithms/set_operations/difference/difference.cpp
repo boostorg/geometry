@@ -30,11 +30,6 @@
 #include <algorithms/overlay/multi_overlay_cases.hpp>
 
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
-
 // Convenience macros (points are not checked)
 #define TEST_DIFFERENCE(caseid, clips1, area1, clips2, area2, clips3) \
     (test_one<polygon, polygon, polygon>) \
@@ -428,7 +423,7 @@ void test_all()
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         BG_IF_RESCALED(1, 0), -1,
-        BG_IF_RESCALED(if_typed_tt<ct>(0.0000000000001105367, 0.000125137888971949), 0),
+        BG_IF_RESCALED(0.000125137888971949, 0),
         1, -1, 3577.40960816756,
         tolerance(0.01)
         );
@@ -640,11 +635,6 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
-
-#ifdef HAVE_TTMATH
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)

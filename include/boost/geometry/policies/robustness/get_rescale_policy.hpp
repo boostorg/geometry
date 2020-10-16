@@ -21,10 +21,6 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_floating_point.hpp>
-#include <boost/type_traits/is_same.hpp>
-
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -34,16 +30,14 @@
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/get_max_size.hpp>
-#include <boost/geometry/policies/robustness/robust_type.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/box.hpp>
-
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/rescale_policy.hpp>
-
+#include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
-
+#include <boost/geometry/util/type_traits.hpp>
 
 // TEMP
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
@@ -291,12 +285,12 @@ struct rescale_policy_type
     <
         Point,
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
-        boost::is_floating_point
+        std::is_floating_point
             <
                 typename geometry::coordinate_type<Point>::type
             >::type::value
         &&
-        boost::is_same
+        std::is_same
             <
                 CSTag,
                 geometry::cartesian_tag
@@ -306,16 +300,10 @@ struct rescale_policy_type
 #endif
     >
 {
-    static const bool is_point
-        = boost::is_same
-            <
-                typename geometry::tag<Point>::type,
-                geometry::point_tag
-            >::type::value;
-
-    BOOST_MPL_ASSERT_MSG((is_point),
-                         INVALID_INPUT_GEOMETRY,
-                         (typename geometry::tag<Point>::type));
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        (util::is_point<Point>::value),
+        "Point type expected.",
+        Point);
 };
 
 

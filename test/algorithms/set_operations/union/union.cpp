@@ -61,10 +61,10 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("star_ring", example_star, example_ring,
         1, 0, 23, 5.67017141);
 
-    // This sample was selected because of the border case, and ttmath generates one point more.
+    // This sample was selected because of the border case.
     test_one<Polygon, Polygon, Polygon>("star_poly", example_star, example_polygon,
         1, 1,
-        if_typed_tt<ct>(28, 27), 5.647949);
+        27, 5.647949);
 
     // Pseudo-box as Polygon
     // (note, internally, the intersection points is different, so yes,
@@ -160,7 +160,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        1, 0, 8, 9.0098387);
+        1, 0, -1, 9.0098387);
 
     test_one<Polygon, Polygon, Polygon>("wrapped_a",
         wrapped[0], wrapped[1],
@@ -370,7 +370,7 @@ void test_areal()
         ggl_list_20110820_christophe[0], ggl_list_20110820_christophe[1],
         -1, // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
         0,
-        if_typed_tt<ct>(9, 8),
+        8,
         67.3550722317627);
 #endif
 
@@ -508,14 +508,14 @@ void test_areal()
                 1, 0, -1, 19.3995);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1", buffer_rt_m1[0], buffer_rt_m1[1],
-                1, 0, 9, 19.4852);
+                1, 0, -1, 19.4852);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m1_rev", buffer_rt_m1[1], buffer_rt_m1[0],
-                1, 0, 9, 19.4852);
+                1, 0, -1, 19.4852);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2", buffer_rt_m2[0], buffer_rt_m2[1],
                 1, 0, -1, 21.4853);
     test_one<Polygon, Polygon, Polygon>("buffer_rt_m2_rev", buffer_rt_m2[1], buffer_rt_m2[0],
-                1, 0, 15, 21.4853);
+                1, 0, -1, 21.4853);
 
     test_one<Polygon, Polygon, Polygon>("buffer_rt_q", buffer_rt_q[0], buffer_rt_q[1],
                 1, 0, -1, 18.5710);
@@ -531,7 +531,7 @@ void test_areal()
                 1, 0, -1, 15.6569);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
-                1, 0, if_typed_tt<ct>(93, 91), 22.815);
+                1, 0, 91, 22.815);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
                 1, -1, 217, 36.752837);
@@ -618,17 +618,12 @@ void test_all()
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
-    test_all<bg::model::d2::point_xy<default_test_type> >();
+    test_all<bg::model::d2::point_xy<default_test_type>>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-
-    test_all<bg::model::d2::point_xy<float> >();
-    test_all<bg::model::d2::point_xy<long double> >();
-
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
+    test_all<bg::model::d2::point_xy<float>>();
+    test_all<bg::model::d2::point_xy<long double>>();
+    test_all<bg::model::d2::point_xy<mp_test_type>>();
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)

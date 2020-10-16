@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,10 +22,10 @@
 
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 

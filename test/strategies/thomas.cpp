@@ -32,11 +32,6 @@
 
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
-
 
 template <typename P1, typename P2>
 void test_distance(double lon1, double lat1, double lon2, double lat2, double expected_km)
@@ -143,11 +138,6 @@ int test_main(int, char* [])
     test_all<bg::model::point<int, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<float, 2, bg::cs::geographic<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::point<ttmath::Big<1,4>, 2, bg::cs::geographic<bg::degree> > >();
-    test_all<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
-#endif
 
     return 0;
 }

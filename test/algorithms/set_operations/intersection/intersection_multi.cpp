@@ -503,12 +503,6 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
-
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)

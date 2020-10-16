@@ -54,7 +54,6 @@ void test_spherical_geo()
     bg::model::polygon<pt> geometry;
 
     // unit-sphere has area of 4-PI. Polygon covering 1/8 of it:
-    // calculations splitted for ttmath
     std::string poly = "POLYGON((0 0,0 90,90 0,0 0))";
 
     bg::strategy::area::spherical

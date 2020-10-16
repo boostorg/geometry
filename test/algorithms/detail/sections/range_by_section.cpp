@@ -37,7 +37,7 @@ void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, s
     typedef bg::model::box<point> box;
     typedef bg::sections<box, DimensionCount> sections;
 
-    typedef boost::mpl::vector_c<std::size_t, 0> dim2;
+    typedef std::integer_sequence<std::size_t, 0> dim2;
 
     sections s;
     bg::sectionalize<Reverse, dim2>(geometry, bg::detail::no_rescale_policy(), s);

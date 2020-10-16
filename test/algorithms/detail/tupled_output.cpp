@@ -73,9 +73,9 @@ int test_main(int, char* [])
     typedef bg::model::multi_linestring<linestring> multi_linestring;
     //typedef bg::model::multi_polygon<polygon> multi_polygon;
 
-    BOOST_CHECK_EQUAL((bgd::is_range<int>::value), false);
-    BOOST_CHECK_EQUAL((bgd::is_range<linestring>::value), true);
-    BOOST_CHECK_EQUAL((bgd::is_range<multi_point>::value), true);
+    BOOST_CHECK_EQUAL((bg::range::detail::is_range<int>::value), false);
+    BOOST_CHECK_EQUAL((bg::range::detail::is_range<linestring>::value), true);
+    BOOST_CHECK_EQUAL((bg::range::detail::is_range<multi_point>::value), true);
     
     BOOST_CHECK_EQUAL((bgd::is_tupled_output_element<int>::value), false);
     BOOST_CHECK_EQUAL((bgd::is_tupled_output_element<linestring>::value), false);

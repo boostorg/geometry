@@ -5,10 +5,11 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,8 +22,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_NUM_POINTS_HPP
 
 #include <cstddef>
-
-#include <boost/mpl/size_t.hpp>
 
 #include <boost/range.hpp>
 

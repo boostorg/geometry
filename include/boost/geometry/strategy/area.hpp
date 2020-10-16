@@ -21,10 +21,9 @@
 
 
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/mpl/assert.hpp>
 
 
 namespace boost { namespace geometry
@@ -79,11 +78,9 @@ namespace services
 template <typename Tag>
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_COORDINATE_SYSTEM
-            , (types<Tag>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this coordinate system.",
+        Tag);
 };
 
 

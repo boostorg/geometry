@@ -15,7 +15,6 @@ project boost-geometry-extensions-test
     :
     requirements
         <include>../../test
-        <include>../../../boost/geometry/extensions/contrib/ttmath
         <toolset>msvc:<asynch-exceptions>on
         <toolset>msvc:<cxxflags>/bigobj
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj

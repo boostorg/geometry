@@ -59,35 +59,35 @@ public:
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename strategies::detail::enable_if_point<Geometry>::type * = nullptr)
+                         typename util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_point();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename strategies::detail::enable_if_multi_point<Geometry>::type * = nullptr)
+                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_multipoint();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename strategies::detail::enable_if_box<Geometry>::type * = nullptr)
+                         typename util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_box();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename strategies::detail::enable_if_segment<Geometry>::type * = nullptr)
+                         typename util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_segment<CalculationType>();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename strategies::detail::enable_if_non_trivial_linear_or_polygonal<Geometry>::type * = nullptr)
+                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical<CalculationType>();
     }
@@ -96,21 +96,21 @@ public:
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_point<Geometry>::type * = nullptr)
+                       typename util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::expand::spherical_point();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_box<Geometry>::type * = nullptr)
+                       typename util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::expand::spherical_box();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_segment<Geometry>::type * = nullptr)
+                       typename util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::expand::spherical_segment<CalculationType>();
     }

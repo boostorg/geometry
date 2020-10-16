@@ -34,21 +34,21 @@ struct cartesian : strategies::detail::cartesian_base
 {
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_point<Geometry>::type * = nullptr)
+                       typename util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_point();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_box<Geometry>::type * = nullptr)
+                       typename util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_box();
     }
 
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
-                       typename strategies::detail::enable_if_segment<Geometry>::type * = nullptr)
+                       typename util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::expand::cartesian_segment();
     }

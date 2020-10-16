@@ -423,6 +423,15 @@ void test_aimes()
 
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
+    typedef typename bg::coordinate_type<P>::type coor_type;
+
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
+    {
+      std::cout << "This unit test can't be tested with float,"
+                << " the coordinate values are too small." << std::endl;
+      return;
+    }
+
 
     int const n = sizeof(testcases) / sizeof(testcases[0]);
     int const ne = sizeof(expectations) / sizeof(expectations[0]);

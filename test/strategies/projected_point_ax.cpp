@@ -74,14 +74,5 @@ int test_main(int, char* [])
     test_all_2d_ax<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_all_2d_ax<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-#if defined(HAVE_TTMATH)
-    test_all_2d_ax
-        <
-            bg::model::point<ttmath_big, 2, bg::cs::cartesian>,
-            bg::model::point<ttmath_big, 2, bg::cs::cartesian>
-        >();
-#endif
-
-
     return 0;
 }

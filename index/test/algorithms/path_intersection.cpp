@@ -116,17 +116,6 @@ int test_main(int, char* [])
     test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 3 0, 3 2, 0 2)", true, 6);
     test_geometry<bg::model::box<P2fc>, L2fc>("POLYGON((0 1,2 4))", "LINESTRING(1 2, 3 3, 0 3)", true, 0);
     
-#ifdef HAVE_TTMATH
-    typedef bg::model::point<ttmath_big, 2, bg::cs::cartesian> P2ttmc;
-    typedef bg::model::point<ttmath_big, 3, bg::cs::cartesian> P3ttmc;
-
-    typedef bg::model::linestring<P2ttmc> L2ttmc;
-    typedef bg::model::linestring<P3ttmc> L3ttmc;
-
-    test_geometry<bg::model::box<P2ttmc>, L2ttmc>("POLYGON((0 1,2 4))", "LINESTRING(0 0, 2 5)", true, 1.0/5);
-    test_geometry<bg::model::box<P3ttmc>, L3ttmc>("POLYGON((0 1 2,2 4 6))", "LINESTRING(0 0 0, 2 5 7)", true, 2.0/7);
-#endif
-
     test_large_integers();
 
     return 0;

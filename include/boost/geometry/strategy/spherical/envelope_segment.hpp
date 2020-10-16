@@ -16,9 +16,7 @@
 #include <utility>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 

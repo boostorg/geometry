@@ -177,7 +177,7 @@ void test_areal()
         1, 4, 163292.679042133, ut_settings(0.1));
 
     {
-        ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
+        ut_settings settings(0.1);
         settings.set_test_validity(BG_IF_RESCALED(true, false));
 
         // SQL Server gives: 88.1920416352664
@@ -213,7 +213,7 @@ void test_areal()
 
     if ( BOOST_GEOMETRY_CONDITION(! ccw && open) )
     {
-        // Pointcount for ttmath/double (both 5) or float (4)
+        // Pointcount for double (5) or float (4)
         // double returns 5 (since method append_no_dups_or_spikes)
         // but not for ccw/open. Those cases has to be adapted once, anyway,
         // because for open always one point too much is generated...
@@ -234,7 +234,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, if_typed_tt<ct>(6, 5), 11151.6618);
+        1, 5, 11151.6618);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
@@ -934,12 +934,6 @@ int test_main(int, char* [])
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
-
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
 
     // Commented, because exception is now disabled:
     // test_exception<bg::model::d2::point_xy<double> >();

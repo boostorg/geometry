@@ -3,8 +3,8 @@
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -146,7 +146,7 @@ struct pj_datum_find_datum_static
         }
         else
         {
-            // TODO: Implemnt as MPL_ASSERT instead
+            // TODO: Implemnt as BOOST_GEOMETRY_STATIC_ASSERT instead
             BOOST_THROW_EXCEPTION( projection_exception(error_unknown_ellp_param) );
         }
     }

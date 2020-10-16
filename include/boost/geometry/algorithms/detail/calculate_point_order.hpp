@@ -13,11 +13,10 @@
 
 #include <vector>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/strategies/geographic/point_order.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -323,10 +322,9 @@ template
 >
 struct calculate_point_order
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THIS_TAG, (types<VersionTag>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this VersionTag.",
+        VersionTag);
 };
 
 template <typename Strategy>
