@@ -50,6 +50,15 @@ public :
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
+        typedef strategy::within::spherical_point_point
+            equals_point_point_strategy_type;
+        if (geometry::equals(p, p1, equals_point_point_strategy_type())
+                || geometry::equals(p, p2, equals_point_point_strategy_type())
+                || geometry::equals(p1, p2, equals_point_point_strategy_type()))
+        {
+            return 0;
+        }
+
         typedef typename promote_floating_point
             <
                 typename select_calculation_type_alt
@@ -71,18 +80,8 @@ public :
         calc_t crs_AD = geometry::formula::spherical_azimuth<calc_t, false>
                              (lon1, lat1, lon, lat).azimuth;
 
-        if (crs_AD == 0)
-        {
-            return 0;
-        }
-
         calc_t crs_AB = geometry::formula::spherical_azimuth<calc_t, false>
                              (lon1, lat1, lon2, lat2).azimuth;
-
-        if (crs_AB == 0)
-        {
-            return 0;
-        }
 
         calc_t XTD = asin(sin(d1) * sin(crs_AD - crs_AB));
 
