@@ -14,7 +14,6 @@
 #define BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHP_READ_OBJECT_HPP
 
 
-#include <boost/range.hpp>
 #include <boost/scoped_array.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>

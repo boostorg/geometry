@@ -22,7 +22,8 @@
 // Note the addition of this whole file was committed to SVN by accident,
 // probably obsolete
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 

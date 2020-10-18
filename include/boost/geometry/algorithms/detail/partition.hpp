@@ -21,11 +21,14 @@
 #include <type_traits>
 #include <vector>
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/empty.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/algorithms/assign.hpp>
 
 
 namespace boost { namespace geometry

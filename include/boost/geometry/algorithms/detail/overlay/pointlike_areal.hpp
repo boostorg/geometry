@@ -13,12 +13,10 @@
 
 #include <vector>
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/point.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -33,6 +31,10 @@
 
 #include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
 
+#include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/point.hpp>
 
 // TEMP
 #include <boost/geometry/strategies/envelope/cartesian.hpp>

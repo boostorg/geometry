@@ -24,7 +24,6 @@
 #include <boost/range/concepts.hpp>
 #include <boost/range/value_type.hpp>
 
-
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
 
