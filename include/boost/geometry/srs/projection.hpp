@@ -416,11 +416,11 @@ private:
     projection_type m_proj;
 };
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
-class proj_wrapper<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
-    : public static_proj_wrapper_base<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+template <typename ...Ps, typename CT>
+class proj_wrapper<srs::spar::parameters<Ps...>, CT>
+    : public static_proj_wrapper_base<srs::spar::parameters<Ps...>, CT>
 {
-    typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+    typedef srs::spar::parameters<Ps...>
         static_parameters_type;
     typedef static_proj_wrapper_base
         <

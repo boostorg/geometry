@@ -15,7 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_INTERFACE_HPP
 
 
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
+
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -104,12 +105,12 @@ struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask>
         > type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Head, typename Tail>
-struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail>>
+template <typename Geometry1, typename Geometry2, typename ...Masks>
+struct result_handler_type<Geometry1, Geometry2, std::tuple<Masks...>>
 {
     typedef mask_handler
         <
-            boost::tuples::cons<Head, Tail>,
+            std::tuple<Masks...>,
             interruption_enabled
                 <
                     Geometry1,

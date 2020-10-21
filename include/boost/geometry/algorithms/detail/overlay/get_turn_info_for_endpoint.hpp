@@ -118,16 +118,16 @@ public:
                          bool is_p_last, bool is_q_last,
                          EqPPStrategy const& strategy)
     {
-        int arrival_a = result.template get<1>().arrival[0];
-        int arrival_b = result.template get<1>().arrival[1];
-        bool same_dirs = result.template get<1>().dir_a == 0
-                      && result.template get<1>().dir_b == 0;
+        int arrival_a = result.direction.arrival[0];
+        int arrival_b = result.direction.arrival[1];
+        bool same_dirs = result.direction.dir_a == 0
+                      && result.direction.dir_b == 0;
 
         if ( same_dirs )
         {
-            if ( result.template get<0>().count == 2 )
+            if ( result.intersection_points.count == 2 )
             {
-                if ( ! result.template get<1>().opposite )
+                if ( ! result.direction.opposite )
                 {
                     ips[0].p_operation = operation_intersection;
                     ips[0].q_operation = operation_intersection;
@@ -136,10 +136,10 @@ public:
 
                     ips[0].is_pi
                         = equals::equals_point_point(
-                            pi, result.template get<0>().intersections[0], strategy);
+                            pi, result.intersection_points.intersections[0], strategy);
                     ips[0].is_qi
                         = equals::equals_point_point(
-                            qi, result.template get<0>().intersections[0], strategy);
+                            qi, result.intersection_points.intersections[0], strategy);
                     ips[1].is_pj = arrival_a != -1;
                     ips[1].is_qj = arrival_b != -1;
                 }
@@ -158,7 +158,7 @@ public:
             }
             else
             {
-                BOOST_GEOMETRY_ASSERT(result.template get<0>().count == 1);
+                BOOST_GEOMETRY_ASSERT(result.intersection_points.count == 1);
                 ips[0].p_operation = union_or_blocked_same_dirs(arrival_a, is_p_last);
                 ips[0].q_operation = union_or_blocked_same_dirs(arrival_b, is_q_last);
 
@@ -542,19 +542,19 @@ struct get_turn_info_for_endpoint
         
         //geometry::convert(ip, tp.point);
         //tp.method = method;
-        base_turn_handler::assign_point(tp, method, result.template get<0>(), ip_index);
+        base_turn_handler::assign_point(tp, method, result.intersection_points, ip_index);
 
         tp.operations[0].operation = op0;
         tp.operations[1].operation = op1;
         tp.operations[0].position = pos0;
         tp.operations[1].position = pos1;
 
-        if ( result.template get<0>().count > 1 )
+        if ( result.intersection_points.count > 1 )
         {
             // NOTE: is_collinear is NOT set for the first endpoint
             // for which there is no preceding segment
 
-            //BOOST_GEOMETRY_ASSERT( result.template get<1>().dir_a == 0 && result.template get<1>().dir_b == 0 );
+            //BOOST_GEOMETRY_ASSERT( result.direction.dir_a == 0 && result.direction.dir_b == 0 );
             if ( ! is_p_first_ip )
             {
                 tp.operations[0].is_collinear = op0 != operation_intersection
@@ -567,7 +567,7 @@ struct get_turn_info_for_endpoint
                                              || is_q_spike;
             }
         }
-        else //if ( result.template get<0>().count == 1 )
+        else //if ( result.intersection_points.count == 1 )
         {
             if ( op0 == operation_blocked && op1 == operation_intersection )
             {
