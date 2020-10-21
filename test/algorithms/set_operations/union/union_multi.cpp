@@ -424,7 +424,7 @@ void test_areal()
 #endif
     TEST_UNION(issue_630_b, 1, 0, -1, 1.675976);
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Failure with Kramer rule
+    // Failure with Kramer rule, it doesn't generate any output
     TEST_UNION(issue_630_c, 1, 0, -1, 1.670367);
 #endif
 
@@ -489,7 +489,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(9, 2);
+    BoostGeometryWriteExpectedFailures(9, 2, 5, 0);
 #endif
 
     return 0;

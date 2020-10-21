@@ -350,21 +350,16 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        2, 10, 0.0019812556);
+        count_set(2, 4), 10, 0.0019812556);
 
     // Should generate output, even for <float>
+    // For long double two small extra slivers are generated
     test_one<Polygon, MultiPolygon, MultiPolygon>("mail_2019_01_21_johan",
         mail_2019_01_21_johan[2], mail_2019_01_21_johan[3],
-        2, -1, 0.0005889587);
+        count_set(2, 4), -1, 0.0005889587);
 
-    // Very small slice is generated.
-    // qcc-arm reports 1.7791215549400884e-14
-    // With rescaling, generates very small triangle
-    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_11018",
-        ticket_11018[0], ticket_11018[1],
-        BG_IF_RESCALED(1, 0), 0,
-        1.0e-8, ut_settings(-1)
-    );
+    // Might generate a very small triangle, which is acceptable
+    TEST_INTERSECTION(ticket_11018, count_set(0, 1), 0, expectation_limits(0.0, 4.0e-7));
 
     TEST_INTERSECTION(ticket_12503, 2, 13, 17.375);
 
@@ -374,7 +369,7 @@ void test_areal()
 #endif
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Two cases produce either too large, or no output if Kramer rule is used
-    TEST_INTERSECTION(issue_630_b, 1, -1, BG_IF_KRAMER(0.1714, 0.1713911));
+    TEST_INTERSECTION(issue_630_b, 1, -1, expectation_limits(0.1713911, 0.1714));
     TEST_INTERSECTION(issue_630_c, 1, -1, 0.1770);
 #endif
 
@@ -491,8 +486,6 @@ void test_all()
 #endif
 
     test_point_output<P>();
-    // linear
-
 }
 
 
@@ -506,7 +499,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(10, 4);
+    BoostGeometryWriteExpectedFailures(9, 3, 2, 1);
 #endif
 
     return 0;

@@ -165,7 +165,10 @@ void test_areal()
 #else
         // Very small sliver for B, and sym difference is not considered valid
         settings.set_test_validity(false);
-        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, 1, 1.7763568394002505e-15, 2);
+        TEST_DIFFERENCE_WITH(0, 1, bug_21155501,
+                             (count_set(1, 4)), expectation_limits(3.75893, 3.75894),
+                             (count_set(1, 4)), (expectation_limits(1.776357e-15, 7.661281e-15)),
+                             (count_set(2, 5)));
 #endif
     }
 
@@ -174,12 +177,11 @@ void test_areal()
         // With rescaling, it is complete but invalid
         // Without rescaling, one ring is missing (for a and s)
         ut_settings settings;
-        settings.percentage = 0.001;
         settings.set_test_validity(BG_IF_RESCALED(false, true));
         TEST_DIFFERENCE_WITH(0, 1, ticket_9081,
                              2, 0.0907392476356186,
                              4, 0.126018011439877,
-                             BG_IF_RESCALED(4, 3));
+                             count_set(3, 4));
     }
 #endif
 
@@ -191,7 +193,7 @@ void test_areal()
         settings.percentage = 0.001;
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, 0.0, 1, BG_IF_KRAMER(2.023326, 2.200326), 1);
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, expectation_limits(0.0), 1, (expectation_limits(2.023, 2.2004)), 1);
 #endif
         TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
@@ -201,7 +203,7 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
 #endif
 
-        TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, 76.5385, BG_IF_KRAMER(1, 0), BG_IF_KRAMER(2.8634e-09, 0.0), 1);
+        TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, expectation_limits(76.5385), optional(), optional_sliver(1.0e-6), 1);
 #endif
     }
 
@@ -367,8 +369,8 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_79, 2, 1.25, 6, 4.5, 8);
 
     // one polygon is divided into two, for same reason as union creates a small
-    // interior ring there
-    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, BG_IF_RESCALED(3, 2));
+    // interior ring there, which is acceptable
+    TEST_DIFFERENCE(case_recursive_boxes_80, 1, 0.5, 2, 0.75, count_set(2, 3));
 
     TEST_DIFFERENCE(case_recursive_boxes_81, 3, 5.0, 6, 6.75, 6);
     TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
@@ -383,7 +385,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_88, 3, 4.75, 5, 6.75, 4);
 
     // Output of A can be 0 or 1 polygons (with a very small area)
-    TEST_DIFFERENCE(case_precision_m1, optional(), 0.0, 1, 57.0, count_set(1, 2));
+    TEST_DIFFERENCE(case_precision_m1, optional(), expectation_limits(0.0, 5.0e-7), 1, 57.0, count_set(1, 2));
     // Output of A can be 1 or 2 polygons (one with a very small area)
     TEST_DIFFERENCE(case_precision_m2, count_set(1, 2), 1.0, 1, 57.75, count_set(2, 3));
 
@@ -401,8 +403,8 @@ void test_areal()
     }
 
     TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31,
-                    optional(), BG_IF_RESCALED(4.30697514e-7, 0),
-                    3, 152.0642, count_set(3, 4));
+                    optional(), optional_sliver(1e-6),
+                    3, 152.064185, count_set(3, 4));
 }
 
 
@@ -427,10 +429,10 @@ void test_specific_areal()
         settings.set_test_validity(false);
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674,
-                             BG_IF_KRAMER(3, 4),
-                             BG_IF_KRAMER(9105781.5, 9105473.5),
+                             count_set(3, 4),
+                             expectation_limits(9105473, 9105782),
                              5,
-                             BG_IF_KRAMER(119059.5, 119423), ignore_count());
+                             expectation_limits(119059, 119424), ignore_count());
     }
 
     {
@@ -441,8 +443,8 @@ void test_specific_areal()
         settings.remove_spikes = true;
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1,
-                             BG_IF_KRAMER(2781965.0, 2782114), 1,
-                             BG_IF_KRAMER(597.0, 598.0), 2);
+                             expectation_limits(2781964, 2782115), 1,
+                             expectation_limits(597.0, 598.0), 2);
 
 #if ! defined(BOOST_GEOMETRY_USE_KRAMER)
         // Fails with general line form intersection, symmetric version misses one outcut
@@ -452,8 +454,8 @@ void test_specific_areal()
 #endif
 
         TEST_DIFFERENCE_WITH(2, 3, ticket_12751,
-                             2, BG_IF_KRAMER(2537992.5, 2538305),
-                             2, BG_IF_KRAMER(294963.5, 294737),
+                             2, expectation_limits(2537992, 2538306),
+                             2, expectation_limits(294736, 294964),
                              3);
     }
 
@@ -464,8 +466,8 @@ void test_specific_areal()
         settings.remove_spikes = true;
         settings.sym_difference = false;
         TEST_DIFFERENCE_WITH(0, 1, ticket_12752,
-                             BG_IF_KRAMER(3, 2), BG_IF_KRAMER(2776692.0, 2776657),
-                             3, BG_IF_KRAMER(7893.0, 7710.5),
+                             count_set(2, 3), expectation_limits(2776656, 2776693),
+                             3, expectation_limits(7710, 7894),
                              2);
     }
 
@@ -480,7 +482,7 @@ void test_specific_areal()
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
             1, 8, 825192.0,
-            1, 10, BG_IF_KRAMER(27226370.5, 27842811),
+            1, 10, expectation_limits(27226370, 27842812),
             1, -1, 825192.0 + 27226370.5);
 #endif
     }
@@ -490,15 +492,12 @@ void test_specific_areal()
         settings.sym_difference = false;
 
 #if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Fails with general line form intersection
-        // Misses one clip
-        // TODO GENERAL FORM
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, 7427727.5, 4,
-                             BG_IF_KRAMER(131506, 130083.5), 4);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, expectation_limits(7427727.5), 4,
+                             expectation_limits(130083, 131507), 4);
 #endif
         TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2,
-                             BG_IF_KRAMER(412676.5, 413183.5), 2,
-                             BG_IF_KRAMER(76779.5, 76924), 4);
+                             expectation_limits(412676, 413184), 2,
+                             expectation_limits(76779, 76925), 4);
     }
 }
 
@@ -523,7 +522,9 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(23, 13);
+    // Not yet fully tested for float.
+    // The difference algorithm can generate (additional) slivers
+    BoostGeometryWriteExpectedFailures(22, 13, 19, 7);
 #endif
 
     return 0;
