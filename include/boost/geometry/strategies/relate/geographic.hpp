@@ -11,24 +11,18 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_GEOGRAPHIC_HPP
 
 
-// TEMP
+// TEMP - move to strategy
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
+#include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 
 #include <boost/geometry/strategy/geographic/area.hpp>
-#include <boost/geometry/strategy/geographic/envelope.hpp>
-#include <boost/geometry/strategy/geographic/expand_segment.hpp>
-#include <boost/geometry/strategy/spherical/envelope_point.hpp>
-#include <boost/geometry/strategy/spherical/envelope_multipoint.hpp>
-#include <boost/geometry/strategy/spherical/envelope_segment.hpp>
-#include <boost/geometry/strategy/spherical/expand_box.hpp>
-#include <boost/geometry/strategy/spherical/expand_point.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -48,9 +42,9 @@ template
     typename CalculationType = void
 >
 class geographic
-    : public strategies::detail::geographic_base<Spheroid>
+    : public strategies::envelope::geographic<FormulaPolicy, Spheroid, CalculationType>
 {
-    using base_t = strategies::detail::geographic_base<Spheroid>;
+    using base_t = strategies::envelope::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
     geographic()
@@ -120,75 +114,6 @@ public:
         // NOTE: Inconsistent name
         // The only disjoint(Seg, Box) strategy that takes CalculationType.
         return strategy::disjoint::segment_box_geographic
-            <
-                FormulaPolicy, Spheroid, CalculationType
-            >(base_t::m_spheroid);
-    }
-
-    // envelope
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical_point();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical_multipoint();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical_box();
-    }
-
-    template <typename Geometry, typename Box>
-    auto envelope(Geometry const&, Box const&,
-                  typename util::enable_if_segment_t<Geometry> * = nullptr) const
-    {
-        return strategy::envelope::geographic_segment
-            <
-                FormulaPolicy, Spheroid, CalculationType
-            >(base_t::m_spheroid);
-    }
-
-    template <typename Geometry, typename Box>
-    auto envelope(Geometry const&, Box const&,
-                  typename util::enable_if_polysegmental_t<Geometry> * = nullptr) const
-    {
-        return strategy::envelope::geographic
-            <
-                FormulaPolicy, Spheroid, CalculationType
-            >(base_t::m_spheroid);
-    }
-
-    // expand
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::spherical_point();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::spherical_box();
-    }
-
-    template <typename Box, typename Geometry>
-    auto expand(Box const&, Geometry const&,
-                typename util::enable_if_segment_t<Geometry> * = nullptr) const
-    {
-        return strategy::expand::geographic_segment
             <
                 FormulaPolicy, Spheroid, CalculationType
             >(base_t::m_spheroid);

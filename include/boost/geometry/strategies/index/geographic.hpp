@@ -12,9 +12,9 @@
 
 
 #include <boost/geometry/strategies/index/services.hpp>
-
 #include <boost/geometry/strategies/relate/geographic.hpp>
 
+// TEMP - move to strategy
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>

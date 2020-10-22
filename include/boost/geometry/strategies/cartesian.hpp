@@ -28,74 +28,17 @@ namespace strategies
 
 
 template <typename CalculationType = void>
-struct cartesian : strategies::detail::cartesian_base
+class cartesian
+    // derived from the umbrella strategy defining the most strategies
+    : public strategies::index::cartesian<CalculationType>
 {
-    // area
+public:
 
-    template <typename Geometry>
-    static auto area(Geometry const&)
+    // point_order
+
+    static auto point_order()
     {
-        return strategy::area::cartesian<CalculationType>();
-    }
-
-    // envelope
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_point();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_multipoint();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_box();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_segment<CalculationType>();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian<CalculationType>();
-    }
-
-    // expand
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_point();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_box();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_segment();
+        return strategy::point_order::cartesian<CalculationType>();
     }
 };
 

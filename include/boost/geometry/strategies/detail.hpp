@@ -47,10 +47,7 @@ struct cartesian_base : umbrella_strategy
     typedef cartesian_tag cs_tag;
 };
 
-template
-<
-    typename RadiusTypeOrSphere
->
+template <typename RadiusTypeOrSphere>
 class spherical_base : umbrella_strategy
 {
 protected:
@@ -80,18 +77,32 @@ public:
     }
 
 protected:
+    radius_type const& radius() const
+    {
+        return m_radius;
+    }
+
     radius_type m_radius;
 };
 
 template <>
 class spherical_base<void> : umbrella_strategy
 {
+protected:
+    typedef double radius_type;
+
 public:
     typedef spherical_tag cs_tag;
 
-    srs::sphere<double> model() const
+    srs::sphere<radius_type> model() const
     {
-        return srs::sphere<double>(1.0);
+        return srs::sphere<radius_type>(1.0);
+    }
+
+protected:
+    radius_type radius() const
+    {
+        return 1.0;
     }
 };
 

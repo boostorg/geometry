@@ -17,7 +17,6 @@
 #include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
 
 #include <boost/geometry/strategies/index/services.hpp>
-
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 
 

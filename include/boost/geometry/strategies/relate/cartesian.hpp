@@ -21,17 +21,11 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
-#include <boost/geometry/strategy/cartesian/envelope.hpp>
-#include <boost/geometry/strategy/cartesian/envelope_point.hpp>
-#include <boost/geometry/strategy/cartesian/envelope_multipoint.hpp>
-#include <boost/geometry/strategy/cartesian/envelope_segment.hpp>
-#include <boost/geometry/strategy/cartesian/expand_box.hpp>
-#include <boost/geometry/strategy/cartesian/expand_point.hpp>
-#include <boost/geometry/strategy/cartesian/expand_segment.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -44,7 +38,7 @@ namespace strategies { namespace relate
 
 template <typename CalculationType = void>
 class cartesian
-    : public strategies::detail::cartesian_base
+    : public strategies::envelope::cartesian<CalculationType>
 {
 public:
     //area
@@ -102,66 +96,6 @@ public:
     {
         // NOTE: Inconsistent name.
         return strategy::disjoint::segment_box();
-    }
-
-    // envelope
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_point();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_multipoint();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_box();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian_segment<CalculationType>();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::cartesian<CalculationType>();
-    }
-
-    // expand
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_point();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_box();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_segment();
     }
 
     // relate
