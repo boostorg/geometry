@@ -23,7 +23,7 @@ namespace strategies { namespace convex_hull
 {
 
 template <typename CalculationType = void>
-class spherical : strategies::detail::spherical_base<void>
+class spherical : public strategies::detail::spherical_base<void>
 {
 public:
     static auto side()

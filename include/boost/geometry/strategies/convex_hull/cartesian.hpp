@@ -22,7 +22,7 @@ namespace strategies { namespace convex_hull
 {
 
 template <typename CalculationType = void>
-class cartesian : strategies::detail::cartesian_base
+class cartesian : public strategies::detail::cartesian_base
 {
 public:
     static auto side()
