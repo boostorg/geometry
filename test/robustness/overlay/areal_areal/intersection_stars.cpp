@@ -1,21 +1,22 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-// Unit Test
+// Robustness Test
 
-// Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
-#include <string>
-
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
 #include <test_overlay_p_q.hpp>
 
+#include <chrono>
+#include <iostream>
+#include <string>
+#include <sstream>
+
 #include <boost/program_options.hpp>
-#include <boost/timer.hpp>
 
 template <typename Polygon>
 inline void make_star(Polygon& polygon,
@@ -63,7 +64,7 @@ inline void make_star(Polygon& polygon,
 template <typename T, typename CalculationType>
 void test_star(int count, int min_points, int max_points, T rotation, p_q_settings const& settings)
 {
-    boost::timer t;
+    auto const t0 = std::chrono::high_resolution_clock::now();
     typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type> polygon;
 
@@ -73,9 +74,7 @@ void test_star(int count, int min_points, int max_points, T rotation, p_q_settin
         for (int i = min_points; i <= max_points; i++)
         {
             std::ostringstream out;
-            out << "_" << string_from_type<T>::name() << "_"
-                << string_from_type<CalculationType>::name() << "_"
-                << i << "_int";
+            out << "stars_" << c << "_" << i;
 
             polygon p;
             make_star(p, i * 2 + 1, 0.5, 1.0);
@@ -93,10 +92,12 @@ void test_star(int count, int min_points, int max_points, T rotation, p_q_settin
             n++;
         }
     }
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
         << "polygons: " << n
         << " type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
 template <typename T, typename CalculationType>
@@ -117,12 +118,6 @@ void test_all(std::string const& type, int count, int min_points, int max_points
     {
         test_type<double, double>(count, min_points, max_points, rotation, settings);
     }
-#if defined(HAVE_TTMATH)
-    else if (type == "ttmath")
-    {
-        test_type<ttmath_big, ttmath_big>(count, min_points, max_points, rotation, settings);
-    }
-#endif
 }
 
 int main(int argc, char** argv)

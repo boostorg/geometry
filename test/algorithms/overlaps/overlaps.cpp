@@ -55,9 +55,5 @@ int test_main( int , char* [] )
     test_2d<bg::model::d2::point_xy<int> >();
     test_2d<bg::model::d2::point_xy<double> >();
 
-#if defined(HAVE_TTMATH)
-    test_2d<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     return 0;
 }

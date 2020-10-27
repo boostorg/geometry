@@ -2,7 +2,7 @@
 //
 // R-tree strategies
 //
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,7 +14,7 @@
 
 
 #include <boost/geometry/core/cs.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 
 
@@ -31,11 +31,9 @@ template
 >
 struct default_strategy
 {
-    /*BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THESE_TYPES
-        , (types<Geometry>)
-    );*/
+    /*BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this type.",
+        Geometry);*/
 
     typedef geometry::default_strategy type;
 };
@@ -48,11 +46,9 @@ struct default_strategy
 template <typename Strategy>
 struct from_strategy
 {
-    /*BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THESE_TYPES
-        , (types<Strategy>)
-    );*/
+    /*BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this type.",
+        Strategy);*/
 
     typedef geometry::default_strategy type;
 

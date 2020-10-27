@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -12,10 +12,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/rbegin.hpp>
+#include <boost/range/rend.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -137,8 +140,8 @@ struct has_spikes
         typedef typename closeable_view<Range const, Closure>::type view_type;
         typedef typename boost::range_iterator<view_type const>::type iterator; 
 
-        bool const is_linear
-            = boost::is_same<typename tag<Range>::type, linestring_tag>::value;
+        bool const is_linestring
+            = std::is_same<typename tag<Range>::type, linestring_tag>::value;
 
         view_type const view(range);
 
@@ -169,7 +172,7 @@ struct has_spikes
             if (detail::is_spike_or_equal(*next, *cur, *prev, strategy))
             {
                 return
-                    ! visitor.template apply<failure_spikes>(is_linear, *cur);
+                    ! visitor.template apply<failure_spikes>(is_linestring, *cur);
             }
             prev = cur;
             cur = next;
@@ -180,7 +183,7 @@ struct has_spikes
                 equals_point_point(range::front(view), range::back(view),
                                    strategy.get_equals_point_point_strategy()))
         {
-            return apply_at_closure(view, visitor, strategy, is_linear);
+            return apply_at_closure(view, visitor, strategy, is_linestring);
         }
 
         return ! visitor.template apply<no_failure>();

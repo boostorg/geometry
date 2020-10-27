@@ -423,6 +423,15 @@ void test_aimes()
 
     typedef bg::model::linestring<P> linestring;
     typedef bg::model::polygon<P> polygon;
+    typedef typename bg::coordinate_type<P>::type coor_type;
+
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
+    {
+      std::cout << "This unit test can't be tested with float,"
+                << " the coordinate values are too small." << std::endl;
+      return;
+    }
+
 
     int const n = sizeof(testcases) / sizeof(testcases[0]);
     int const ne = sizeof(expectations) / sizeof(expectations[0]);
@@ -446,10 +455,6 @@ void test_aimes()
         double aimes_width = static_cast<double>(width) / 1000000.0;
         for (int i = 0; i < n; i++)
         {
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-            // Without rescaling, several cases are still reported as invalid
-            settings.set_test_validity(i <= 10);
-#endif
             std::ostringstream name;
             try
             {
@@ -483,8 +488,8 @@ int test_main(int, char* [])
     test_aimes<bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Non-rescaled reports failures, but in validity only
-    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, 4);
+    // Type float is not supported for these cases
+    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, BG_NO_FAILURES);
 #endif
 
     return 0;

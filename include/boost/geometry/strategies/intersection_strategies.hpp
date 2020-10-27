@@ -14,9 +14,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_INTERSECTION_HPP
 
 
-#include <boost/geometry/policies/relate/intersection_points.hpp>
-#include <boost/geometry/policies/relate/direction.hpp>
-#include <boost/geometry/policies/relate/tupled.hpp>
+//#include <type_traits>
+
+#include <boost/geometry/policies/relate/intersection_policy.hpp>
+#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
@@ -26,8 +27,6 @@
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
-
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -50,7 +49,7 @@ template
 struct intersection_strategies
 {
 private :
-    // for development BOOST_STATIC_ASSERT((! boost::is_same<RobustPolicy, void>::type::value));
+    // for development BOOST_STATIC_ASSERT((! std::is_same<RobustPolicy, void>::type::value));
 
     typedef segment_intersection_points
     <
@@ -62,13 +61,9 @@ private :
     > ip_type;
 
 public:
-    typedef policies::relate::segments_tupled
+    typedef policies::relate::segments_intersection_policy
         <
-            policies::relate::segments_intersection_points
-                <
-                    ip_type
-                > ,
-            policies::relate::segments_direction
+            ip_type
         > intersection_policy_type;
 
     typedef typename strategy::intersection::services::default_strategy

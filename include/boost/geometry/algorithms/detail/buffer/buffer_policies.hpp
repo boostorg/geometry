@@ -2,8 +2,8 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,7 +15,7 @@
 
 #include <cstddef>
 
-#include <boost/range.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -198,6 +198,7 @@ struct piece_get_box
     template <typename Box, typename Piece>
     static inline void apply(Box& total, Piece const& piece)
     {
+        assert_coordinate_type_equal(total, piece.m_piece_border.m_envelope);
         typedef typename strategy::expand::services::default_strategy
             <
                 box_tag, typename cs_tag<Box>::type
@@ -212,11 +213,13 @@ struct piece_get_box
 };
 
 template <typename DisjointBoxBoxStrategy>
-struct piece_ovelaps_box
+struct piece_overlaps_box
 {
     template <typename Box, typename Piece>
     static inline bool apply(Box const& box, Piece const& piece)
     {
+        assert_coordinate_type_equal(box, piece.m_piece_border.m_envelope);
+
         if (piece.type == strategy::buffer::buffered_flat_end
             || piece.type == strategy::buffer::buffered_concave)
         {
@@ -245,16 +248,18 @@ struct turn_get_box
             <
                 point_tag, typename cs_tag<Box>::type
             >::type expand_strategy_type;
+        assert_coordinate_type_equal(total, turn.point);
         geometry::expand(total, turn.point, expand_strategy_type());
     }
 };
 
 template <typename DisjointPointBoxStrategy>
-struct turn_ovelaps_box
+struct turn_overlaps_box
 {
     template <typename Box, typename Turn>
     static inline bool apply(Box const& box, Turn const& turn)
     {
+        assert_coordinate_type_equal(turn.point, box);
         return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box,
                                                                 DisjointPointBoxStrategy());
     }

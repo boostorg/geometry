@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, 2019 Oracle and/or its affiliates.
+// Copyright (c) 2017-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,8 +15,10 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/range.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
@@ -36,6 +38,8 @@
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry {
@@ -167,15 +171,7 @@ struct multi_point_multi_geometry
     {
         typedef typename point_type<LinearOrAreal>::type point2_type;
         typedef model::box<point2_type> box2_type;
-        static const bool is_linear = is_same
-            <
-                typename tag_cast
-                    <
-                        typename tag<LinearOrAreal>::type,
-                        linear_tag
-                    >::type,
-                linear_tag
-            >::value;
+        static const bool is_linear = util::is_linear<LinearOrAreal>::value;
 
         typename Strategy::envelope_strategy_type const
             envelope_strategy = strategy.get_envelope_strategy();

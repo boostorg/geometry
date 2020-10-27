@@ -2,9 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -16,12 +15,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENTS_HPP
 
 
+#include <type_traits>
 #include <vector>
 
 #include <boost/array.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
-#include <boost/type_traits/integral_constant.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
@@ -130,7 +130,7 @@ private:
                                         Point const& point,
                                         SideStrategy const& strategy,
                                         RobustPolicy const& robust_policy,
-                                        boost::true_type const&)
+                                        std::true_type const&)
     {
         detail::overlay::append_no_dups_or_spikes(current_output, point,
                                                   strategy,
@@ -143,7 +143,7 @@ private:
                                         Point const& point,
                                         SideStrategy const& strategy,
                                         RobustPolicy const&,
-                                        boost::false_type const&)
+                                        std::false_type const&)
     {
         detail::overlay::append_no_duplicates(current_output, point, strategy.get_equals_point_point_strategy());
     }
@@ -182,7 +182,7 @@ public:
         for (signed_size_type i = 0; i < count; ++i, ++it)
         {
             append_to_output(current_output, *it, strategy, robust_policy,
-                             boost::integral_constant<bool, RemoveSpikes>());
+                             std::integral_constant<bool, RemoveSpikes>());
         }
     }
 };

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -15,7 +15,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 
-#include <boost/geometry/strategies/distance.hpp>
+
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
@@ -25,8 +25,7 @@
 
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
-
-#include <boost/type_traits/is_base_of.hpp>
+#include <boost/geometry/strategies/distance.hpp>
 
 
 namespace boost { namespace geometry {

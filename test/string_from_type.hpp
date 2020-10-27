@@ -21,23 +21,7 @@
 
 #include <string>
 
-#if defined(HAVE_TTMATH)
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
-#if defined(HAVE_CLN) || defined(HAVE_GMP)
-#  include <boost/numeric_adaptor/numeric_adaptor.hpp>
-#endif
-
-
-#if defined(HAVE_GMP)
-#  include <boost/numeric_adaptor/gmp_value_type.hpp>
-#endif
-#if defined(HAVE_CLN)
-#  include <boost/numeric_adaptor/cln_value_type.hpp>
-#endif
-
-
+#include <boost/multiprecision/cpp_bin_float.hpp>
 
 template <typename T>
 struct string_from_type {};
@@ -63,6 +47,9 @@ template <> struct string_from_type<int>
 template <> struct string_from_type<long>
 { static std::string name() { return "l"; }  };
 
+template <> struct string_from_type<boost::multiprecision::cpp_bin_float_100>
+{ static std::string name() { return "m"; }  };
+
 #if defined(BOOST_HAS_LONG_LONG)
 // this is what g++ and clang++ use
 template <> struct string_from_type<boost::long_long_type>
@@ -75,26 +62,9 @@ template <> struct string_from_type<boost::int128_type>
 { static std::string name() { return "n"; }  };
 #endif
 
-#if defined(HAVE_TTMATH)
-    template <> struct string_from_type<ttmath_big>
-    { static std::string name() { return "t"; }  };
-#endif
-
 #if defined(BOOST_RATIONAL_HPP)
 template <typename T> struct string_from_type<boost::rational<T> >
 { static std::string name() { return "r"; }  };
 #endif
-
-
-#if defined(HAVE_GMP)
-template <> struct string_from_type<boost::numeric_adaptor::gmp_value_type>
-{ static std::string name() { return "g"; }  };
-#endif
-
-#if defined(HAVE_CLN)
-template <> struct string_from_type<boost::numeric_adaptor::cln_value_type>
-{ static std::string name() { return "c"; }  };
-#endif
-
 
 #endif // GEOMETRY_TEST_STRING_FROM_TYPE_HPP

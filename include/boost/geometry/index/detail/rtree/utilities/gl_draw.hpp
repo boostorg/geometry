@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,7 +15,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_GL_DRAW_HPP
 
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -83,7 +83,9 @@ struct gl_draw_segment<Segment, 2>
 template <typename Indexable, typename Tag>
 struct gl_draw_indexable
 {
-    BOOST_MPL_ASSERT_MSG((false), NOT_IMPLEMENTED_FOR_THIS_TAG, (Tag));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Indexable type.",
+        Indexable, Tag);
 };
 
 template <typename Box>

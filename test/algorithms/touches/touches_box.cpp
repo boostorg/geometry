@@ -48,10 +48,6 @@ int test_main( int , char* [] )
     test_all<bg::model::d2::point_xy<double> >();
     test_box_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     return 0;
 }
 

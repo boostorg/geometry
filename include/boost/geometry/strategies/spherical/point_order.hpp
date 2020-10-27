@@ -11,7 +11,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_POINT_ORDER_HPP
 
 
-#include <boost/type_traits/is_same.hpp>
+//#include <type_traits>
 
 
 #include <boost/geometry/core/tags.hpp>
@@ -94,7 +94,7 @@ namespace strategy { namespace point_order
 //    template <typename Point, typename CalcT>
 //    static void convert_latitudes(CalcT & lat1, CalcT & lat2)
 //    {
-//        static const bool is_polar = boost::is_same
+//        static const bool is_polar = std::is_same
 //            <
 //                typename geometry::cs_tag<Point>::type,
 //                spherical_polar_tag

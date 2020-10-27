@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2017, 2018, 2019, 2020.
+// This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -16,20 +16,22 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 
 #include <cstddef>
+#include <type_traits>
 
-#include <boost/range.hpp>
-#include <boost/mpl/assert.hpp>
-
-#include <boost/geometry/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
-#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
@@ -202,8 +204,9 @@ struct add_isolated_point<PointOut, point_tag>
 template <overlay_type OverlayType, bool RemoveSpikes = true>
 struct action_selector
 {
-    // If you get here the overlay type is not intersection or difference
-    // BOOST_MPL_ASSERT(false);
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "If you get here the overlay type is not intersection or difference.",
+        std::integral_constant<overlay_type, OverlayType>);
 };
 
 // Specialization for intersection, containing the implementation

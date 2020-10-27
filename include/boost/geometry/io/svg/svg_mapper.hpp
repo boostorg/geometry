@@ -2,9 +2,8 @@
 
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -19,23 +18,18 @@
 #define BOOST_GEOMETRY_IO_SVG_MAPPER_HPP
 
 #include <cstdio>
-
+#include <type_traits>
 #include <vector>
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <boost/config.hpp>
-#include <boost/mpl/assert.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/classification.hpp>
-
-
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
-
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -61,11 +55,9 @@ namespace dispatch
 template <typename GeometryTag, typename Geometry, typename SvgPoint>
 struct svg_map
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (Geometry)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        GeometryTag, Geometry);
 };
 
 
@@ -201,7 +193,7 @@ struct devarianted_svg_map
                         typename tag<Geometry>::type,
                         multi_tag
                     >::type,
-                typename boost::remove_const<Geometry>::type,
+                typename std::remove_const<Geometry>::type,
                 SvgPoint
             >::apply(stream, style, size, geometry, strategy);
     }

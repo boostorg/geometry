@@ -25,7 +25,8 @@
 #include <vector>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -35,6 +36,7 @@
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/sequence.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
@@ -243,7 +245,7 @@ protected:
         inline bool apply(partition_item<Iterator, Box> const& item1,
                           partition_item<Iterator, Box> const& item2)
         {
-            typedef boost::mpl::vector
+            typedef util::type_sequence
                 <
                     geometry::de9im::static_mask<'T'>,
                     geometry::de9im::static_mask<'*', 'T'>,

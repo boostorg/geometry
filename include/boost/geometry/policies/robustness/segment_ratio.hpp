@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,6 +12,8 @@
 
 #ifndef BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
 #define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_SEGMENT_RATIO_HPP
+
+#include <type_traits>
 
 #include <boost/config.hpp>
 #include <boost/rational.hpp>
@@ -30,7 +32,7 @@ namespace detail { namespace segment_ratio
 template
 <
     typename Type,
-    bool IsIntegral = boost::is_integral<Type>::type::value
+    bool IsIntegral = std::is_integral<Type>::type::value
 >
 struct less {};
 
@@ -63,7 +65,7 @@ struct less<Type, false>
 template
 <
     typename Type,
-    bool IsIntegral = boost::is_integral<Type>::type::value
+    bool IsIntegral = std::is_integral<Type>::type::value
 >
 struct equal {};
 
@@ -239,10 +241,12 @@ private :
     // if Type is non-fundamental type
     //typedef typename promote_floating_point<Type>::type fp_type;
 
-    typedef typename boost::mpl::if_c
+    // TODO: What with user-defined numeric types?
+    //       Shouldn't here is_integral be checked?
+    typedef std::conditional_t
         <
-            boost::is_float<Type>::value, Type, double
-        >::type fp_type;
+            std::is_floating_point<Type>::value, Type, double
+        > fp_type;
 
     Type m_numerator;
     Type m_denominator;

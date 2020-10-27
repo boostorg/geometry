@@ -21,6 +21,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TOUCHES_IMPLEMENTATION_HPP
 
 
+#include <type_traits>
+
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
@@ -101,7 +103,7 @@ struct box_box
     template <typename Box1, typename Box2, typename Strategy>
     static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& /*strategy*/)
     {
-        BOOST_STATIC_ASSERT((boost::is_same
+        BOOST_STATIC_ASSERT((std::is_same
                                 <
                                     typename geometry::coordinate_system<Box1>::type,
                                     typename geometry::coordinate_system<Box2>::type

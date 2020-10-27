@@ -2,8 +2,8 @@
 
 // Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,27 +16,33 @@
 #include <cstddef>
 #include <iterator>
 
-
 #include <boost/core/ignore_unused.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/rbegin.hpp>
+#include <boost/range/rend.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
-#include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
-
-#include <boost/geometry/util/condition.hpp>
-#include <boost/geometry/util/math.hpp>
-
-#include <boost/geometry/strategies/buffer.hpp>
-#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
+
+#include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+
+#include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/side.hpp>
+
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
@@ -148,19 +154,19 @@ struct buffer_range
                 {
                     // The corner is convex, we create a join
                     // TODO (future) - avoid a separate vector, add the piece directly
-                    output_point_type const
-                        intersection_point
-                            = line_line_intersection::apply(perp1, perp2,
-                                    prev_perp1, prev_perp2);
-
-                    std::vector<output_point_type> range_out;
-                    if (join_strategy.apply(intersection_point,
-                                previous_input, prev_perp2, perp1,
-                                distance.apply(previous_input, input, side),
-                                range_out))
+                    output_point_type intersection_point;
+                    if (line_line_intersection::apply(perp1, perp2,
+                                    prev_perp1, prev_perp2, intersection_point))
                     {
-                        collection.add_piece(geometry::strategy::buffer::buffered_join,
-                                previous_input, range_out);
+                        std::vector<output_point_type> range_out;
+                        if (join_strategy.apply(intersection_point,
+                                    previous_input, prev_perp2, perp1,
+                                    distance.apply(previous_input, input, side),
+                                    range_out))
+                        {
+                            collection.add_piece(geometry::strategy::buffer::buffered_join,
+                                    previous_input, range_out);
+                        }
                     }
                 }
                 break;
@@ -942,11 +948,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     collection_type collection(intersection_strategy, distance_strategy, robust_policy);
     collection_type const& const_collection = collection;
 
-    bool const areal = boost::is_same
-        <
-            typename tag_cast<typename tag<GeometryInput>::type, areal_tag>::type,
-            areal_tag
-        >::type::value;
+    bool const areal = util::is_areal<GeometryInput>::value;
 
     dispatch::buffer_inserter
         <

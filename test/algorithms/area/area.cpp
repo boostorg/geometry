@@ -227,11 +227,6 @@ int test_main(int, char* [])
     test_poles_ccw<pt_sph>();
     test_poles_ccw<pt_geo >();
 
-#ifdef HAVE_TTMATH
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-    test_spherical_geo<ttmath_big>();
-#endif
-
     test_large_integers();
 
     test_variant();
