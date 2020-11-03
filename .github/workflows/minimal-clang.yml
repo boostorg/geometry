@@ -32,28 +32,28 @@ jobs:
 
         include:
           - b2_toolset: clang-3.9
-            b2_cxxstd: 03,11
+            b2_cxxstd: 14
             version: "3.9"
           - b2_toolset: clang-4.0
-            b2_cxxstd: 03,11
+            b2_cxxstd: 14
             version: "4.0"
           - b2_toolset: clang-5.0
-            b2_cxxstd: 03,11,14
+            b2_cxxstd: 14
             version: "5.0"
           - b2_toolset: clang-6.0
-            b2_cxxstd: 03,11,14
+            b2_cxxstd: 14
             version: "6.0"
           - b2_toolset: clang-7
-            b2_cxxstd: 03,11,14,17
+            b2_cxxstd: 14,17
             version: "7"
           - b2_toolset: clang-8
-            b2_cxxstd: 03,11,14,17
+            b2_cxxstd: 14,17
             version: "8"
           - b2_toolset: clang-9
-            b2_cxxstd: 03,11,14,17,2a
+            b2_cxxstd: 14,17,2a
             version: "9"
           - b2_toolset: clang-10
-            b2_cxxstd: 03,11,14,17,2a
+            b2_cxxstd: 14,17,2a
             version: "10"
 
     steps:
@@ -91,6 +91,7 @@ jobs:
 
       - name: Install
         run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
           sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt -q -y update

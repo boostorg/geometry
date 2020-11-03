@@ -209,10 +209,5 @@ int test_main(int, char* [])
     test_spherical<float>();
     test_spherical<double>();
 
-#if defined(HAVE_TTMATH)
-    test_cartesian<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-    test_spherical<ttmath_big>();
-#endif
-
     return 0;
 }

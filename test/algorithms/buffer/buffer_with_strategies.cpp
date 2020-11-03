@@ -74,8 +74,8 @@ void test_with_strategies(std::string const& caseid,
             << " detected: " << bg::num_points(result)
         );
 
-    double const area = bg::area(result);
-    double const difference = area - expected_area;
+    auto const area = bg::area(result);
+    auto const difference = area - expected_area;
 
     BOOST_CHECK_MESSAGE
         (

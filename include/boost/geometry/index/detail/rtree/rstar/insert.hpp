@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,6 +14,8 @@
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
+
+#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
 
@@ -195,7 +197,7 @@ template
     size_t InsertIndex,
     typename Element,
     typename MembersHolder,
-    bool IsValue = boost::is_same<Element, typename MembersHolder::value_type>::value
+    bool IsValue = std::is_same<Element, typename MembersHolder::value_type>::value
 >
 struct level_insert_elements_type
 {
@@ -333,7 +335,7 @@ template
     size_t InsertIndex,
     typename Element,
     typename MembersHolder,
-    bool IsValue = boost::is_same<Element, typename MembersHolder::value_type>::value
+    bool IsValue = std::is_same<Element, typename MembersHolder::value_type>::value
 >
 struct level_insert
     : public level_insert_base<InsertIndex, Element, MembersHolder>

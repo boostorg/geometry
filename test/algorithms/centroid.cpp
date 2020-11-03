@@ -257,11 +257,6 @@ int test_main(int, char* [])
 
     test_5d<boost::tuple<double, double, double, double, double> >();
 
-#if defined(HAVE_TTMATH)
-    test_2d<bg::model::d2::point_xy<ttmath_big> >();
-    test_3d<boost::tuple<ttmath_big, ttmath_big, ttmath_big> >();
-#endif
-
 #ifndef NDEBUG
     // The test currently fails in release mode. TODO: fix this
     test_large_integers();

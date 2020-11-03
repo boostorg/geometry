@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2016, 2017, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,9 +22,24 @@
 #include <boost/array.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/vector_c.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
+
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/recalculate.hpp>
+#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
+#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -35,14 +50,8 @@
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/geometries/concepts/check.hpp>
-
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
-#include <boost/geometry/views/detail/range_type.hpp>
-
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
@@ -50,22 +59,13 @@
 #include <boost/geometry/strategies/intersection_strategies.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
-#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/detail/range_type.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
-#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-
-#include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
 #  include <sstream>
@@ -267,15 +267,7 @@ class get_turns_in_sections
 
         boost::ignore_unused(n, index1, index2);
 
-        return boost::is_same
-                    <
-                        typename tag_cast
-                            <
-                                typename geometry::tag<Geometry>::type,
-                                areal_tag
-                            >::type,
-                        areal_tag
-                    >::value
+        return util::is_areal<Geometry>::value
                && index1 == 0
                && index2 >= n - 2
                 ;
@@ -296,17 +288,8 @@ public :
     {
         boost::ignore_unused(interrupt_policy);
 
-        static bool const areal1 = boost::is_same
-            <
-                typename tag_cast<typename tag<Geometry1>::type, areal_tag>::type,
-                areal_tag
-            >::type::value;
-        static bool const areal2 = boost::is_same
-            <
-                typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
-                areal_tag
-            >::type::value;
-
+        static bool const areal1 = util::is_areal<Geometry1>::value;
+        static bool const areal2 = util::is_areal<Geometry2>::value;
 
         if ((sec1.duplicate && (sec1.count + 1) < sec1.range_count)
            || (sec2.duplicate && (sec2.count + 1) < sec2.range_count))
@@ -448,8 +431,6 @@ public :
 private :
     typedef typename geometry::point_type<Geometry1>::type point1_type;
     typedef typename geometry::point_type<Geometry2>::type point2_type;
-    typedef typename model::referring_segment<point1_type const> segment1_type;
-    typedef typename model::referring_segment<point2_type const> segment2_type;
 
     // It is NOT possible to have section-iterators here
     // because of the logistics of "index" (the section-iterator automatically
@@ -573,7 +554,7 @@ public:
         typedef geometry::sections<box_type, 2> sections_type;
 
         sections_type sec1, sec2;
-        typedef boost::mpl::vector_c<std::size_t, 0, 1> dimensions;
+        typedef std::integer_sequence<std::size_t, 0, 1> dimensions;
 
         typename IntersectionStrategy::envelope_strategy_type const
             envelope_strategy = intersection_strategy.get_envelope_strategy();
@@ -1176,7 +1157,7 @@ inline void get_turns(Geometry1 const& geometry1,
     typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
     //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
 
-    boost::mpl::if_c
+    std::conditional_t
         <
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::get_turns_reversed
@@ -1195,11 +1176,11 @@ inline void get_turns(Geometry1 const& geometry1,
                 Reverse1, Reverse2,
                 TurnPolicy
             >
-        >::type::apply(0, geometry1,
-                       1, geometry2,
-                       intersection_strategy,
-                       robust_policy,
-                       turns, interrupt_policy);
+        >::apply(0, geometry1,
+                 1, geometry2,
+                 intersection_strategy,
+                 robust_policy,
+                 turns, interrupt_policy);
 }
 
 #if defined(_MSC_VER)

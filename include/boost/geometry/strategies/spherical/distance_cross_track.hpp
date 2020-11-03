@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2019.
-// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -17,11 +17,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_DISTANCE_CROSS_TRACK_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_void.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -785,16 +784,16 @@ struct default_strategy
     typedef cross_track
         <
             void,
-            typename boost::mpl::if_
+            std::conditional_t
                 <
-                    boost::is_void<Strategy>,
+                    std::is_void<Strategy>::value,
                     typename default_strategy
                         <
                             point_tag, Point, PointOfSegment,
                             spherical_polar_tag, spherical_polar_tag
                         >::type,
                     Strategy
-                >::type
+                >
         > type;
 };
 */
@@ -810,16 +809,16 @@ struct default_strategy
     typedef cross_track
         <
             void,
-            typename boost::mpl::if_
+            std::conditional_t
                 <
-                    boost::is_void<Strategy>,
+                    std::is_void<Strategy>::value,
                     typename default_strategy
                         <
                             point_tag, point_tag, Point, PointOfSegment,
                             spherical_equatorial_tag, spherical_equatorial_tag
                         >::type,
                     Strategy
-                >::type
+                >
         > type;
 };
 

@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,8 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_PARENTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_PARENTS_HPP
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
@@ -131,16 +133,18 @@ struct ring_info_helper_get_box
     template <typename Box, typename InputItem>
     static inline void apply(Box& total, InputItem const& item)
     {
+        assert_coordinate_type_equal(total, item.envelope);
         geometry::expand(total, item.envelope, BoxExpandStrategy());
     }
 };
 
 template <typename DisjointBoxBoxStrategy>
-struct ring_info_helper_ovelaps_box
+struct ring_info_helper_overlaps_box
 {
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
     {
+        assert_coordinate_type_equal(box, item.envelope);
         return ! geometry::detail::disjoint::disjoint_box_box(
                     box, item.envelope, DisjointBoxBoxStrategy());
     }
@@ -336,7 +340,7 @@ inline void assign_parents(Geometry1 const& geometry1,
             <
                 typename Strategy::expand_box_strategy_type
             > expand_box_type;
-        typedef ring_info_helper_ovelaps_box
+        typedef ring_info_helper_overlaps_box
             <
                 typename Strategy::disjoint_box_box_strategy_type
             > overlaps_box_type;

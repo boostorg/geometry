@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2019 Oracle and/or its affiliates.
+// Copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -13,14 +13,12 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_SEGMENT_TO_BOX_HPP
 
 #include <cstddef>
-
 #include <functional>
+#include <type_traits>
 #include <vector>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/if.hpp>
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -771,19 +769,19 @@ public:
         if (detail::equals::equals_point_point(p[0], p[1],
                 sb_strategy.get_equals_point_point_strategy()))
         {
-            typedef typename boost::mpl::if_
+            typedef std::conditional_t
                 <
-                    boost::is_same
+                    std::is_same
                         <
                             ps_comparable_strategy,
                             SBStrategy
-                        >,
+                        >::value,
                     typename strategy::distance::services::comparable_type
                         <
                             typename SBStrategy::distance_pb_strategy::type
                         >::type,
                     typename SBStrategy::distance_pb_strategy::type
-                >::type point_box_strategy_type;
+                > point_box_strategy_type;
 
             return dispatch::distance
                 <

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,7 +14,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_APPEND_NO_DUPS_OR_SPIKES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_APPEND_NO_DUPS_OR_SPIKES_HPP
 
-#include <boost/range.hpp>
+
+#include <type_traits>
+
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
@@ -64,7 +69,7 @@ inline bool points_equal_or_close(Point1 const& point1,
     geometry::recalculate(point2_rob, point2, robust_policy);
 
     // Only if this is the case the same strategy can be used.
-    BOOST_STATIC_ASSERT((boost::is_same
+    BOOST_STATIC_ASSERT((std::is_same
                             <
                                 typename geometry::cs_tag<Point1>::type,
                                 typename geometry::cs_tag<robust_point_type>::type

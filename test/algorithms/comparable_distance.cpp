@@ -496,10 +496,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();
 
-#ifdef HAVE_TTMATH
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
     // test variant support
     test_variant_different_default_strategy<double>::apply();
 
@@ -511,9 +507,6 @@ int test_main(int, char* [])
     test_variant_with_strategy<float>::apply();
     test_variant_with_strategy<long double>::apply();
     test_variant_with_strategy<int, double>::apply();
-#ifdef HAVE_TTMATH
-    test_variant_with_strategy<ttmath_big>::apply();
-#endif
 
     test_variant_boxes<double>::apply();
     test_variant_boxes<int>::apply();

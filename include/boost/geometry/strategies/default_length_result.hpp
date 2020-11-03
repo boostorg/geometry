@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -19,13 +19,11 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_DEFAULT_LENGTH_RESULT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_DEFAULT_LENGTH_RESULT_HPP
 
+
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
-
-#include <boost/geometry/util/compress_variant.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-#include <boost/geometry/util/transform_variant.hpp>
 
 
 namespace boost { namespace geometry
@@ -35,12 +33,19 @@ namespace boost { namespace geometry
 namespace resolve_strategy
 {
 
-template <typename Geometry>
+// NOTE: The implementation was simplified greately preserving the old
+//   behavior. In general case the result types of Strategies should be
+//   taken into account.
+// It would probably be enough to use distance_result and
+//   default_distance_result here.
+
+
+template <typename ...Geometries>
 struct default_length_result
 {
     typedef typename select_most_precise
         <
-            typename coordinate_type<Geometry>::type,
+            typename coordinate_type<Geometries>::type...,
             long double
         >::type type;
 };
@@ -56,16 +61,10 @@ struct default_length_result
     : resolve_strategy::default_length_result<Geometry>
 {};
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct default_length_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
-{
-    typedef typename compress_variant<
-        typename transform_variant<
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            resolve_strategy::default_length_result<boost::mpl::placeholders::_>
-        >::type
-    >::type type;
-};
+template <typename ...Ts>
+struct default_length_result<boost::variant<Ts...> >
+    : resolve_strategy::default_length_result<Ts...>
+{};
 
 } // namespace resolve_variant
 

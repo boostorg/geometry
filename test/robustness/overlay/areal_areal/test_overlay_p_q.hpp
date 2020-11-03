@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-// Unit Test
+// Robustness Test
 //
-// Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -15,8 +15,6 @@
 #include <iomanip>
 
 #include <boost/typeof/typeof.hpp>
-
-//#define BOOST_GEOMETRY_ROBUSTNESS_USE_DIFFERENCE
 
 #include <geometry_test_common.hpp>
 
@@ -76,8 +74,8 @@ struct verify_area
     {
         for (Iterator it = begin; it != end; ++it)
         {
-            double const area = bg::area(*it);
-            if (fabs(area) < 0.01)
+            auto const area = bg::area(*it);
+            if (bg::math::abs(area) < 0.01)
             {
                 return false;
             }
@@ -134,9 +132,9 @@ static bool test_overlay_p_q(std::string const& caseid,
     bg::union_(p, q, out_u);
     CalculationType area_u = p_q_area(out_u);
 
-    double sum = (area_p + area_q) - area_u - area_i;
+    auto const sum = (area_p + area_q) - area_u - area_i;
 
-    bool wrong = std::abs(sum) > settings.tolerance;
+    bool wrong = bg::math::abs(sum) > settings.tolerance;
 
     if (settings.also_difference)
     {
@@ -144,10 +142,10 @@ static bool test_overlay_p_q(std::string const& caseid,
         bg::difference(q, p, out_d2);
         area_d1 = p_q_area(out_d1);
         area_d2 = p_q_area(out_d2);
-        double sum_d1 = (area_u - area_q) - area_d1;
-        double sum_d2 = (area_u - area_p) - area_d2;
-        bool wrong_d1 = std::abs(sum_d1) > settings.tolerance;
-        bool wrong_d2 = std::abs(sum_d2) > settings.tolerance;
+        auto sum_d1 = (area_u - area_q) - area_d1;
+        auto sum_d2 = (area_u - area_p) - area_d2;
+        bool wrong_d1 = bg::math::abs(sum_d1) > settings.tolerance;
+        bool wrong_d2 = bg::math::abs(sum_d2) > settings.tolerance;
 
         if (wrong_d1 || wrong_d2)
         {
@@ -249,8 +247,16 @@ static bool test_overlay_p_q(std::string const& caseid,
     {
         std::ostringstream filename;
         filename << "overlay_" << caseid << "_"
-            << string_from_type<coordinate_type>::name()
-            << string_from_type<CalculationType>::name()
+            << string_from_type<coordinate_type>::name();
+        if (!std::is_same<coordinate_type, CalculationType>::value)
+        {
+            filename << string_from_type<CalculationType>::name();
+        }
+
+        filename
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
+#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());

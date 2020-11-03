@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2018, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -46,6 +46,12 @@
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include "test_envelope_expand_on_spheroid.hpp"
+
+// TEMP
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
+#include <boost/geometry/strategies/expand/geographic.hpp>
+#include <boost/geometry/strategies/expand/spherical.hpp>
 
 
 class test_expand_on_spheroid

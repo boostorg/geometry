@@ -5,8 +5,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,6 +15,8 @@
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_DISTANCE_PREDICATES_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_DISTANCE_PREDICATES_HPP
+
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/index/detail/algorithms/comparable_distance_near.hpp>
 #include <boost/geometry/index/detail/algorithms/comparable_distance_far.hpp>
@@ -235,7 +237,9 @@ struct comparable_distance_call<G1, G2, default_strategy>
 template <typename Predicate, typename Indexable, typename Strategy, typename Tag>
 struct calculate_distance
 {
-    BOOST_MPL_ASSERT_MSG((false), INVALID_PREDICATE_OR_TAG, (calculate_distance));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Invalid Predicate or Tag.",
+        Predicate, Indexable, Strategy, Tag);
 };
 
 // this handles nearest() with default Point parameter, to_nearest() and bounds

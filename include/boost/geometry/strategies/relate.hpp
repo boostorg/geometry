@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -11,11 +11,11 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_HPP
 
 
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <type_traits>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
@@ -58,10 +58,10 @@ struct default_strategy
             Geometry
         >::type covered_by_strategy_type;
 
-    static const bool same_strategies = boost::is_same<within_strategy_type, covered_by_strategy_type>::value;
-    BOOST_MPL_ASSERT_MSG((same_strategies),
-                         DEFAULT_WITHIN_AND_COVERED_BY_STRATEGIES_NOT_COMPATIBLE,
-                         (within_strategy_type, covered_by_strategy_type));
+    static const bool same_strategies = std::is_same<within_strategy_type, covered_by_strategy_type>::value;
+    BOOST_GEOMETRY_STATIC_ASSERT(same_strategies,
+        "Default within and covered_by strategies not compatible.",
+        within_strategy_type, covered_by_strategy_type);
 };
 
 template<typename Point, typename Geometry>
@@ -121,11 +121,9 @@ template
 >
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-    (
-        false, NOT_IMPLEMENTED_FOR_THESE_TYPES
-        , (types<Geometry1, Geometry2>)
-    );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for these types.",
+        Geometry1, Geometry2);
 };
 
 template <typename PointLike1, typename PointLike2>

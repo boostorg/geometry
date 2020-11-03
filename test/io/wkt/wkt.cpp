@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -19,6 +19,7 @@
 
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 #include <boost/algorithm/string.hpp>
 
@@ -117,24 +118,8 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
         e = "other exception";
     }
 
-    bool check = true;
-
-#if defined(HAVE_TTMATH)
-    // For ttmath we skip bad lexical casts
-    typedef typename bg::coordinate_type<G>::type ct;
-
-    if (boost::is_same<ct, ttmath_big>::type::value
-        && boost::starts_with(start, "bad lexical cast"))
-    {
-        check = false;
-    }
-#endif
-
-    if (check)
-    {
-        BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
+    BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
                     << start << " Got:" << e << " with WKT: " << wkt);
-    }
 }
 
 template <typename G>
@@ -242,8 +227,8 @@ void test_all()
     test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2,3 3)", "box should have 2");
     test_wrong_wkt<bg::model::box<P> >("BOX(1 1,2 2) )", "too many tokens");
 
-    if ( BOOST_GEOMETRY_CONDITION(boost::is_floating_point<T>::type::value
-                               || ! boost::is_fundamental<T>::type::value ) )
+    if ( BOOST_GEOMETRY_CONDITION(std::is_floating_point<T>::value
+                               || ! std::is_fundamental<T>::value ) )
     {
         test_wkt<P>("POINT(1.1 2.1)", 1);
     }
@@ -260,10 +245,6 @@ int test_main(int, char* [])
 {
     test_all<double>();
     test_all<int>();
-
-#if defined(HAVE_TTMATH)
-    test_all<ttmath_big>();
-#endif
 
     return 0;
 }

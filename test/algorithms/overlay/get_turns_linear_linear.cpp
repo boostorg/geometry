@@ -541,9 +541,6 @@ int test_main(int, char* [])
     test_all<long double>();
 #endif
 
-#if defined(HAVE_TTMATH)
-    test_all<ttmath_big>();
-#endif
     return 0;
 }
 

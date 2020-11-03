@@ -6,8 +6,8 @@
 // Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,6 +19,7 @@
 
 // STD
 #include <algorithm>
+#include <type_traits>
 
 // Boost
 #include <boost/container/new_allocator.hpp>
@@ -26,6 +27,8 @@
 #include <boost/tuple/tuple.hpp>
 
 // Boost.Geometry
+#include <boost/geometry/core/static_assert.hpp>
+
 #include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
@@ -91,6 +94,9 @@
 #include <boost/geometry/index/detail/serialization.hpp>
 #endif
 
+#include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
+
 // TODO change the name to bounding_tree
 
 /*!
@@ -112,7 +118,7 @@ algorithm with specific parameters like min and max number of elements in node.
 
 \par
 Predefined algorithms with compile-time parameters are:
-\li <tt>boost::geometry::index::linear</tt>,
+ \li <tt>boost::geometry::index::linear</tt>,
  \li <tt>boost::geometry::index::quadratic</tt>,
  \li <tt>boost::geometry::index::rstar</tt>.
 
@@ -129,8 +135,8 @@ access. Therefore the IndexableGetter should return the Indexable by
 a reference type. The Indexable should not be calculated since it could harm
 the performance. The default IndexableGetter can translate all types adapted
 to Point, Box or Segment concepts (called Indexables). Furthermore, it can
-handle <tt>std::pair<Indexable, T></tt>, <tt>boost::tuple<Indexable, ...></tt>
-and <tt>std::tuple<Indexable, ...></tt> when possible. For example, for Value
+handle <tt>std::pair<Indexable, T></tt>, <tt>std::tuple<Indexable, ...></tt>
+and <tt>boost::tuple<Indexable, ...></tt>. For example, for Value
 of type <tt>std::pair<Box, int></tt>, the default IndexableGetter translates
 from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 
@@ -706,7 +712,7 @@ public:
             // (allocators stored as base classes of members_holder)
             // copying them changes values_count, in this case it doesn't cause errors since data must be copied
             
-            typedef boost::mpl::bool_<
+            typedef std::integral_constant<bool,
                 allocator_traits_type::propagate_on_container_copy_assignment::value
             > propagate;
             
@@ -756,7 +762,7 @@ public:
                 // (allocators stored as base classes of members_holder)
                 // moving them changes values_count
                 
-                typedef boost::mpl::bool_<
+                typedef std::integral_constant<bool,
                     allocator_traits_type::propagate_on_container_move_assignment::value
                 > propagate;
                 detail::move_cond(this_allocs, src_allocs, propagate());
@@ -793,7 +799,7 @@ public:
         // (allocators stored as base classes of members_holder)
         // swapping them changes values_count
         
-        typedef boost::mpl::bool_<
+        typedef std::integral_constant<bool,
             allocator_traits_type::propagate_on_container_swap::value
         > propagate;
         detail::swap_cond(m_members.allocators(), other.m_members.allocators(), propagate());
@@ -873,10 +879,11 @@ public:
         if ( !m_members.root )
             this->raw_create();
 
-        typedef boost::mpl::bool_
-            <
-                boost::is_convertible<ConvertibleOrRange, value_type>::value
-            > is_conv_t;
+        typedef std::is_convertible<ConvertibleOrRange, value_type> is_conv_t;
+        typedef range::detail::is_range<ConvertibleOrRange> is_range_t;
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv_t::value || is_range_t::value),
+            "The argument has to be convertible to Value type or be a Range.",
+            ConvertibleOrRange);
 
         this->insert_dispatch(conv_or_rng, is_conv_t());
     }
@@ -972,10 +979,11 @@ public:
         if ( !m_members.root )
             return 0;
 
-        typedef boost::mpl::bool_
-            <
-                boost::is_convertible<ConvertibleOrRange, value_type>::value
-            > is_conv_t;
+        typedef std::is_convertible<ConvertibleOrRange, value_type> is_conv_t;
+        typedef range::detail::is_range<ConvertibleOrRange> is_range_t;
+        BOOST_GEOMETRY_STATIC_ASSERT((is_conv_t::value || is_range_t::value),
+            "The argument has to be convertible to Value type or be a Range.",
+            ConvertibleOrRange);
 
         return this->remove_dispatch(conv_or_rng, is_conv_t());
     }
@@ -1076,9 +1084,12 @@ public:
 
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         static const bool is_distance_predicate = 0 < distance_predicates_count;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
-        return query_dispatch(predicates, out_it, boost::mpl::bool_<is_distance_predicate>());
+        return query_dispatch(predicates, out_it,
+                              std::integral_constant<bool, is_distance_predicate>());
     }
 
     /*!
@@ -1229,27 +1240,33 @@ private:
     \return             The iterator pointing at the begin of the query range.
     */
     template <typename Predicates>
-    typename boost::mpl::if_c<
-        detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-        detail::rtree::iterators::distance_query_iterator<
-            members_holder, Predicates,
-            detail::predicates_find_distance<Predicates>::value
+    std::conditional_t
+        <
+            detail::predicates_count_distance<Predicates>::value == 0,
+            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
+            detail::rtree::iterators::distance_query_iterator
+                <
+                    members_holder, Predicates,
+                    detail::predicates_find_distance<Predicates>::value
+                >
         >
-    >::type
     qbegin_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
-        typedef typename boost::mpl::if_c<
-            detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-            detail::rtree::iterators::distance_query_iterator<
-                members_holder, Predicates,
-                detail::predicates_find_distance<Predicates>::value
-            >
-        >::type iterator_type;
+        typedef std::conditional_t
+            <
+                detail::predicates_count_distance<Predicates>::value == 0,
+                detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
+                detail::rtree::iterators::distance_query_iterator
+                    <
+                        members_holder, Predicates,
+                        detail::predicates_find_distance<Predicates>::value
+                    >
+            > iterator_type;
 
         if ( !m_members.root )
             return iterator_type(m_members.parameters(), m_members.translator(), predicates);
@@ -1290,27 +1307,33 @@ private:
     \return             The iterator pointing at the end of the query range.
     */
     template <typename Predicates>
-    typename boost::mpl::if_c<
-        detail::predicates_count_distance<Predicates>::value == 0,
-        detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-        detail::rtree::iterators::distance_query_iterator<
-            members_holder, Predicates,
-            detail::predicates_find_distance<Predicates>::value
+    std::conditional_t
+        <
+            detail::predicates_count_distance<Predicates>::value == 0,
+            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
+            detail::rtree::iterators::distance_query_iterator
+                <
+                    members_holder, Predicates,
+                    detail::predicates_find_distance<Predicates>::value
+                >
         >
-    >::type
     qend_(Predicates const& predicates) const
     {
         static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_MPL_ASSERT_MSG((distance_predicates_count <= 1), PASS_ONLY_ONE_DISTANCE_PREDICATE, (Predicates));
+        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+            "Only one distance predicate can be passed.",
+            Predicates);
 
-        typedef typename boost::mpl::if_c<
-            detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-            detail::rtree::iterators::distance_query_iterator<
-                members_holder, Predicates,
-                detail::predicates_find_distance<Predicates>::value
-            >
-        >::type iterator_type;
+        typedef std::conditional_t
+            <
+                detail::predicates_count_distance<Predicates>::value == 0,
+                detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
+                detail::rtree::iterators::distance_query_iterator
+                    <
+                        members_holder, Predicates,
+                        detail::predicates_find_distance<Predicates>::value
+                    >
+            > iterator_type;
 
         return iterator_type(m_members.parameters(), m_members.translator(), predicates);
     }
@@ -1548,10 +1571,10 @@ public:
                 indexable_type
             >::type value_or_indexable;
 
-        static const bool is_void = boost::is_same<value_or_indexable, void>::value;
-        BOOST_MPL_ASSERT_MSG((! is_void),
-                             PASSED_OBJECT_NOT_CONVERTIBLE_TO_VALUE_NOR_INDEXABLE_TYPE,
-                             (ValueOrIndexable));
+        static const bool is_void = std::is_void<value_or_indexable>::value;
+        BOOST_GEOMETRY_STATIC_ASSERT((! is_void),
+            "The argument has to be convertible to Value or Indexable type.",
+            ValueOrIndexable);
 
         // NOTE: If an object of convertible but not the same type is passed
         // into the function, here a temporary will be created.
@@ -1809,7 +1832,7 @@ private:
     */
     template <typename ValueConvertible>
     inline void insert_dispatch(ValueConvertible const& val_conv,
-                                boost::mpl::bool_<true> const& /*is_convertible*/)
+                                std::true_type /*is_convertible*/)
     {
         this->raw_insert(val_conv);
     }
@@ -1824,12 +1847,8 @@ private:
     */
     template <typename Range>
     inline void insert_dispatch(Range const& rng,
-                                boost::mpl::bool_<false> const& /*is_convertible*/)
+                                std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
-                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
-                             (Range));
-
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
             this->raw_insert(*it);
@@ -1845,7 +1864,7 @@ private:
     */
     template <typename ValueConvertible>
     inline size_type remove_dispatch(ValueConvertible const& val_conv,
-                                     boost::mpl::bool_<true> const& /*is_convertible*/)
+                                     std::true_type /*is_convertible*/)
     {
         return this->raw_remove(val_conv);
     }
@@ -1860,12 +1879,8 @@ private:
     */
     template <typename Range>
     inline size_type remove_dispatch(Range const& rng,
-                                     boost::mpl::bool_<false> const& /*is_convertible*/)
+                                     std::false_type /*is_convertible*/)
     {
-        BOOST_MPL_ASSERT_MSG((detail::is_range<Range>::value),
-                             PASSED_OBJECT_IS_NOT_CONVERTIBLE_TO_VALUE_NOR_A_RANGE,
-                             (Range));
-
         size_type result = 0;
         typedef typename boost::range_const_iterator<Range>::type It;
         for ( It it = boost::const_begin(rng); it != boost::const_end(rng) ; ++it )
@@ -1880,7 +1895,7 @@ private:
     strong
     */
     template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<false> const& /*is_distance_predicate*/) const
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, std::false_type /*is_distance_predicate*/) const
     {
         detail::rtree::visitors::spatial_query<members_holder, Predicates, OutIter>
             find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
@@ -1897,7 +1912,7 @@ private:
     strong
     */
     template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, boost::mpl::bool_<true> const& /*is_distance_predicate*/) const
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it, std::true_type /*is_distance_predicate*/) const
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
 

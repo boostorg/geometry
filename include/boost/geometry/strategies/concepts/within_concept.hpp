@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018, 2019.
-// Modifications copyright (c) 2018, 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2020.
+// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -19,11 +19,13 @@
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_WITHIN_CONCEPT_HPP
 
 
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/function_types/result_type.hpp>
 
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -78,23 +80,23 @@ class WithinStrategyPolygonal
                 );
 
             // CHECK: return types (result: int, apply: bool)
-            BOOST_MPL_ASSERT_MSG
+            BOOST_GEOMETRY_STATIC_ASSERT
                 (
-                    (boost::is_same
+                    (std::is_same
                         <
                             bool, typename boost::function_types::result_type<ApplyMethod>::type
-                        >::type::value),
-                    WRONG_RETURN_TYPE_OF_APPLY
-                    , (bool)
+                        >::value),
+                    "Wrong return type of apply().",
+                    bool, ApplyMethod
                 );
-            BOOST_MPL_ASSERT_MSG
+            BOOST_GEOMETRY_STATIC_ASSERT
                 (
-                    (boost::is_same
+                    (std::is_same
                         <
                             int, typename boost::function_types::result_type<ResultMethod>::type
-                        >::type::value),
-                    WRONG_RETURN_TYPE_OF_RESULT
-                    , (int)
+                        >::value),
+                    "Wrong return type of result().",
+                    int, ResultMethod
                 );
 
 
@@ -152,15 +154,15 @@ class WithinStrategyPointBox
                 );
 
             // CHECK: return types (apply: bool)
-            BOOST_MPL_ASSERT_MSG
+            BOOST_GEOMETRY_STATIC_ASSERT
                 (
-                    (boost::is_same
+                    (std::is_same
                         <
                             bool,
                             typename boost::function_types::result_type<ApplyMethod>::type
-                        >::type::value),
-                    WRONG_RETURN_TYPE
-                    , (bool)
+                        >::value),
+                    "Wrong return type of apply().",
+                    bool, ApplyMethod
                 );
 
 
@@ -215,15 +217,15 @@ class WithinStrategyBoxBox
                 );
 
             // CHECK: return types (apply: bool)
-            BOOST_MPL_ASSERT_MSG
+            BOOST_GEOMETRY_STATIC_ASSERT
                 (
-                    (boost::is_same
+                    (std::is_same
                         <
                             bool,
                             typename boost::function_types::result_type<ApplyMethod>::type
-                        >::type::value),
-                    WRONG_RETURN_TYPE
-                    , (bool)
+                        >::value),
+                    "Wrong return type of apply().",
+                    bool, ApplyMethod
                 );
 
 

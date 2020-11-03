@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017.
-// Modifications copyright (c) 2013-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,21 +15,23 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_INTERFACE_HPP
 
 
-#include <boost/type_traits/is_same.hpp>
+#include <tuple>
+
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
+#include <boost/geometry/algorithms/detail/relate/de9im.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
-
-#include <boost/geometry/algorithms/detail/relate/de9im.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/relate.hpp>
+#include <boost/geometry/util/sequence.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry {
@@ -38,49 +40,19 @@ namespace boost { namespace geometry {
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
 
-// Those are used only to allow dispatch::relate to produce compile-time error
-
-template <typename Geometry,
-          typename Tag = typename geometry::tag<Geometry>::type>
-struct is_supported_by_generic
-{
-    static const bool value
-        = boost::is_same<Tag, linestring_tag>::value
-       || boost::is_same<Tag, multi_linestring_tag>::value
-       || boost::is_same<Tag, ring_tag>::value
-       || boost::is_same<Tag, polygon_tag>::value
-       || boost::is_same<Tag, multi_polygon_tag>::value;
-};
-
-template <typename Geometry1,
-          typename Geometry2,
-          typename Tag1 = typename geometry::tag<Geometry1>::type,
-          typename Tag2 = typename geometry::tag<Geometry2>::type>
+// is_generic allows dispatch::relate to generate compile-time error
+template <typename Geometry1, typename Geometry2>
 struct is_generic
 {
-    static const bool value = is_supported_by_generic<Geometry1>::value
-                           && is_supported_by_generic<Geometry2>::value;
+    static const bool value = (util::is_polysegmental<Geometry1>::value
+                            && util::is_polysegmental<Geometry2>::value)
+                              ||
+                              (util::is_point<Geometry1>::value
+                            && util::is_polysegmental<Geometry2>::value)
+                              ||
+                              (util::is_polysegmental<Geometry1>::value
+                            && util::is_point<Geometry2>::value);
 };
-
-
-template <typename Point, typename Geometry, typename Tag>
-struct is_generic<Point, Geometry, point_tag, Tag>
-{
-    static const bool value = is_supported_by_generic<Geometry>::value;
-};
-
-template <typename Geometry, typename Point, typename Tag>
-struct is_generic<Geometry, Point, Tag, point_tag>
-{
-    static const bool value = is_supported_by_generic<Geometry>::value;
-};
-
-template <typename Point1, typename Point2>
-struct is_generic<Point1, Point2, point_tag, point_tag>
-{
-    static const bool value = false;
-};
-
 
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
@@ -114,16 +86,13 @@ struct interruption_enabled
         dispatch::relate<Geometry1, Geometry2>::interruption_enabled;
 };
 
-template <typename Geometry1,
-          typename Geometry2,
-          typename Result,
-          bool IsSequence = boost::mpl::is_sequence<Result>::value>
+template <typename Geometry1, typename Geometry2, typename Result>
 struct result_handler_type
     : not_implemented<Result>
 {};
 
 template <typename Geometry1, typename Geometry2>
-struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask, false>
+struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask>
 {
     typedef mask_handler
         <
@@ -136,12 +105,12 @@ struct result_handler_type<Geometry1, Geometry2, geometry::de9im::mask, false>
         > type;
 };
 
-template <typename Geometry1, typename Geometry2, typename Head, typename Tail>
-struct result_handler_type<Geometry1, Geometry2, boost::tuples::cons<Head, Tail>, false>
+template <typename Geometry1, typename Geometry2, typename ...Masks>
+struct result_handler_type<Geometry1, Geometry2, std::tuple<Masks...>>
 {
     typedef mask_handler
         <
-            boost::tuples::cons<Head, Tail>,
+            std::tuple<Masks...>,
             interruption_enabled
                 <
                     Geometry1,
@@ -158,8 +127,7 @@ struct result_handler_type
     <
         Geometry1,
         Geometry2,
-        geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>,
-        false
+        geometry::de9im::static_mask<II, IB, IE, BI, BB, BE, EI, EB, EE>
     >
 {
     typedef static_mask_handler
@@ -173,12 +141,12 @@ struct result_handler_type
         > type;
 };
 
-template <typename Geometry1, typename Geometry2, typename StaticSequence>
-struct result_handler_type<Geometry1, Geometry2, StaticSequence, true>
+template <typename Geometry1, typename Geometry2, typename ...StaticMasks>
+struct result_handler_type<Geometry1, Geometry2, util::type_sequence<StaticMasks...>>
 {
     typedef static_mask_handler
         <
-            StaticSequence,
+            util::type_sequence<StaticMasks...>,
             interruption_enabled
                 <
                     Geometry1,
