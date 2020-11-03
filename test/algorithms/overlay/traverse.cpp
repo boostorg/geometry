@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO
 //#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 //#define BOOST_GEOMETRY_OVERLAY_NO_THROW
-//#define HAVE_TTMATH
 
 #include <iostream>
 #include <iomanip>
@@ -19,10 +18,6 @@
 #include <string>
 
 #include <boost/type_traits/is_same.hpp>
-
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/contrib/ttmath_stub.hpp>
-#endif
 
 #include <geometry_test_common.hpp>
 
@@ -891,7 +886,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
 #endif
 
         // Calculate intersection/union of two triangles. Robustness case.
-        // ttmath can form a very small intersection triangle
+        // some precise types can form a very small intersection triangle
         // (which is even not accomplished by SQL Server/PostGIS)
         std::string const caseid = "ggl_list_20110820_christophe";
         test_traverse_intersection::apply(caseid,
@@ -1028,9 +1023,6 @@ int test_main(int, char* [])
     test_all<long double>();
 #endif
 
-#ifdef HAVE_TTMATH
-    test_all<ttmath_big>();
-#endif
 #endif
 
     return 0;

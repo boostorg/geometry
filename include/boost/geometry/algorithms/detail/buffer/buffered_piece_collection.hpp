@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016-2019.
-// Modifications copyright (c) 2016-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,7 +19,11 @@
 #include <set>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/empty.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -57,8 +61,6 @@
 #include <boost/geometry/views/detail/normalized_view.hpp>
 #include <boost/geometry/util/range.hpp>
 
-// TODO remove this
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 
 namespace boost { namespace geometry
 {
@@ -124,7 +126,7 @@ struct buffered_piece_collection
     typedef typename geometry::point_type<Ring>::type point_type;
     typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
 
-    // Robust ring/polygon type, always clockwise
+    // Ring/polygon type, always clockwise
     typedef geometry::model::ring<point_type> clockwise_ring_type;
 
     typedef geometry::model::box<point_type> box_type;
@@ -243,7 +245,7 @@ struct buffered_piece_collection
             // The dimension is critical because the direction is later used
             // in the optimization for within checks using winding strategy
             // and this strategy is scanning in x direction.
-            typedef boost::mpl::vector_c<std::size_t, 0> dimensions;
+            typedef std::integer_sequence<std::size_t, 0> dimensions;
             geometry::sectionalize<false, dimensions>(m_ring,
                     detail::no_rescale_policy(), m_sections,
                     envelope_strategy, expand_strategy);
@@ -274,10 +276,15 @@ struct buffered_piece_collection
     buffered_ring_collection<Ring> traversed_rings;
     segment_identifier current_segment_id;
 
-    // Specificly for offsetted rings around points
-    // but also for large joins with many points
-    typedef geometry::sections<box_type, 2> sections_type;
-    sections_type monotonic_sections;
+    // Monotonic sections (used for offsetted rings around points)
+    // are still using a robust type, to be comparable with turn calculations,
+    // which is using rescaling.
+    typedef geometry::model::box
+    <
+        typename geometry::robust_point_type<point_type, RobustPolicy>::type
+    > robust_box_type;
+    typedef geometry::sections <robust_box_type, 2> robust_sections_type;
+    robust_sections_type monotonic_sections;
 
     // Define the clusters, mapping cluster_id -> turns
     typedef std::map
@@ -461,14 +468,14 @@ struct buffered_piece_collection
     // Check if a turn is inside any of the originals
     inline void check_turn_in_original()
     {
-        typedef turn_in_original_ovelaps_box
+        typedef turn_in_original_overlaps_box
             <
                 typename IntersectionStrategy::disjoint_point_box_strategy_type
-            > turn_in_original_ovelaps_box_type;
-        typedef original_ovelaps_box
+            > turn_in_original_overlaps_box_type;
+        typedef original_overlaps_box
             <
                 typename IntersectionStrategy::disjoint_box_box_strategy_type
-            > original_ovelaps_box_type;
+            > original_overlaps_box_type;
 
         turn_in_original_visitor
             <
@@ -482,8 +489,8 @@ struct buffered_piece_collection
                 include_turn_policy,
                 detail::partition::include_all_policy
             >::apply(m_turns, original_rings, visitor,
-                     turn_get_box(), turn_in_original_ovelaps_box_type(),
-                     original_get_box(), original_ovelaps_box_type());
+                     turn_get_box(), turn_in_original_overlaps_box_type(),
+                     original_get_box(), original_overlaps_box_type());
 
         bool const deflate = m_distance_strategy.negative();
 
@@ -591,7 +598,7 @@ struct buffered_piece_collection
                                                    m_envelope_strategy);
             geometry::partition
                 <
-                    box_type
+                    robust_box_type
                 >::apply(monotonic_sections, visitor,
                          get_section_box_type(),
                          overlaps_section_box_type());
@@ -607,21 +614,21 @@ struct buffered_piece_collection
                     turn_vector_type, piece_vector_type, DistanceStrategy
                 > visitor(m_turns, m_pieces, m_distance_strategy);
 
-            typedef turn_ovelaps_box
+            typedef turn_overlaps_box
                 <
                     typename IntersectionStrategy::disjoint_point_box_strategy_type
-                > turn_ovelaps_box_type;
-            typedef piece_ovelaps_box
+                > turn_overlaps_box_type;
+            typedef piece_overlaps_box
                 <
                     typename IntersectionStrategy::disjoint_box_box_strategy_type
-                > piece_ovelaps_box_type;
+                > piece_overlaps_box_type;
 
             geometry::partition
                 <
                     box_type
                 >::apply(m_turns, m_pieces, visitor,
-                         turn_get_box(), turn_ovelaps_box_type(),
-                         piece_get_box(), piece_ovelaps_box_type());
+                         turn_get_box(), turn_overlaps_box_type(),
+                         piece_get_box(), piece_overlaps_box_type());
         }
     }
 
@@ -851,7 +858,7 @@ struct buffered_piece_collection
         typedef geometry::detail::sectionalize::sectionalize_part
         <
             point_type,
-            boost::mpl::vector_c<std::size_t, 0, 1> // x,y dimension
+            std::integer_sequence<std::size_t, 0, 1> // x,y dimension
         > sectionalizer;
 
         // Create a ring-identifier. The source-index is the piece index

@@ -124,14 +124,7 @@ int test_main(int, char* [])
     test_2d<bg::model::point<float, 2, bg::cs::cartesian> >();
     test_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
-
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
-
-#if defined(HAVE_TTMATH)
-    test_2d<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-    test_3d<bg::model::point<ttmath_big, 3, bg::cs::cartesian> >();
-#endif
-
 
     return 0;
 }

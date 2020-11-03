@@ -311,8 +311,9 @@ public :
         bg::assign_inverse(m_alternate_box);
     }
 
-    template <typename Mapper, typename Visitor, typename Envelope>
-    void prepare(Mapper& mapper, Visitor& visitor, Envelope const& envelope, double box_buffer_distance)
+    template <typename Mapper, typename Visitor, typename Envelope, typename DistanceType>
+    void prepare(Mapper& mapper, Visitor& visitor, Envelope const& envelope,
+                 const DistanceType& box_buffer_distance)
     {
 #ifdef BOOST_GEOMETRY_BUFFER_TEST_SVG_USE_ALTERNATE_BOX
         // Create a zoomed-in view

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2013-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,10 +18,7 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/geometries/segment.hpp> // referring_segment
-#include <boost/geometry/policies/relate/direction.hpp>
-#include <boost/geometry/policies/relate/intersection_points.hpp>
-#include <boost/geometry/policies/relate/tupled.hpp>
+#include <boost/geometry/policies/relate/intersection_policy.hpp>
 #include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 
@@ -249,13 +246,9 @@ public:
         TurnPoint,
         geometry::segment_ratio<boost::long_long_type>
     > intersection_point_type;
-    typedef policies::relate::segments_tupled
+    typedef policies::relate::segments_intersection_policy
         <
-            policies::relate::segments_intersection_points
-                <
-                    intersection_point_type
-                >,
-            policies::relate::segments_direction
+            intersection_point_type
         > intersection_policy_type;
 
     typedef typename intersection_policy_type::return_type result_type;
@@ -344,13 +337,9 @@ class intersection_info_base<UniqueSubRange1, UniqueSubRange2,
 public:
 
     typedef segment_intersection_points<TurnPoint> intersection_point_type;
-    typedef policies::relate::segments_tupled
+    typedef policies::relate::segments_intersection_policy
         <
-            policies::relate::segments_intersection_points
-                <
-                    intersection_point_type
-                >,
-            policies::relate::segments_direction
+            intersection_point_type
         > intersection_policy_type;
 
     typedef typename intersection_policy_type::return_type result_type;
@@ -440,22 +429,21 @@ public:
     typedef typename base::side_calculator_type side_calculator_type;
     typedef typename base::result_type result_type;
     
-    typedef typename boost::tuples::element<0, result_type>::type i_info_type; // intersection_info
-    typedef typename boost::tuples::element<1, result_type>::type d_info_type; // dir_info
+    typedef typename result_type::intersection_points_type i_info_type;
+    typedef typename result_type::direction_type d_info_type;
 
     intersection_info(UniqueSubRange1 const& range_p,
                       UniqueSubRange2 const& range_q,
                       UmbrellaStrategy const& umbrella_strategy,
                       RobustPolicy const& robust_policy)
-        : base(range_p, range_q,
-               umbrella_strategy, robust_policy)
+        : base(range_p, range_q, umbrella_strategy, robust_policy)
         , m_intersection_strategy(umbrella_strategy)
         , m_robust_policy(robust_policy)
     {}
 
     inline result_type const& result() const { return base::m_result; }
-    inline i_info_type const& i_info() const { return base::m_result.template get<0>(); }
-    inline d_info_type const& d_info() const { return base::m_result.template get<1>(); }
+    inline i_info_type const& i_info() const { return base::m_result.intersection_points; }
+    inline d_info_type const& d_info() const { return base::m_result.direction; }
 
     inline side_strategy_type get_side_strategy() const
     {

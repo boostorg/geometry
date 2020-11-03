@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,12 +11,14 @@
 
 #include <test_overlay_p_q.hpp>
 
+#include <sstream>
+#include <chrono>
+
 #include <boost/program_options.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
 
 
 template <typename Polygon, typename Generator>
@@ -109,7 +111,7 @@ bool test_recursive_boxes(MultiPolygon& result, int& index,
 template <typename T, bool Clockwise, bool Closed>
 void test_all(int seed, int count, int field_size, int level, bool triangular, p_q_settings const& settings)
 {
-    boost::timer t;
+    auto const t0 = std::chrono::high_resolution_clock::now();
 
     typedef boost::minstd_rand base_generator_type;
 
@@ -127,15 +129,23 @@ void test_all(int seed, int count, int field_size, int level, bool triangular, p
 
 
     int index = 0;
+    int errors = 0;
     for(int i = 0; i < count; i++)
     {
         mp p;
-        test_recursive_boxes<mp>(p, index, coordinate_generator, level, triangular, settings);
+        if (! test_recursive_boxes<mp>(p, index, coordinate_generator, level, triangular, settings))
+        {
+            errors++;
+        }
     }
+
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
-        << "polygons: " << index
+        << "geometries: " << index
+        << " errors: " << errors
         << " type: " << string_from_type<T>::name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -186,24 +196,20 @@ int main(int argc, char** argv)
 
         if (ccw && open)
         {
-            test_all<double, false, false>(seed, count, field_size, level, triangular, settings);
+            test_all<default_test_type, false, false>(seed, count, field_size, level, triangular, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(seed, count, field_size, level, triangular, settings);
+            test_all<default_test_type, false, true>(seed, count, field_size, level, triangular, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(seed, count, field_size, level, triangular, settings);
+            test_all<default_test_type, true, false>(seed, count, field_size, level, triangular, settings);
         }
         else
         {
-            test_all<double, true, true>(seed, count, field_size, level, triangular, settings);
+            test_all<default_test_type, true, true>(seed, count, field_size, level, triangular, settings);
         }
-
-#if defined(HAVE_TTMATH)
-        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
-#endif
     }
     catch(std::exception const& e)
     {

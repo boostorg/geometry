@@ -25,7 +25,8 @@
 #include <iomanip>
 
 #include <boost/foreach.hpp>
-#include "geometry_test_common.hpp"
+#include <geometry_test_common.hpp>
+#include <expectation_limits.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/area.hpp>
@@ -150,7 +151,7 @@ void test_buffer(std::string const& caseid,
             AreaStrategy const& area_strategy,
             int expected_count,
             int expected_holes_count,
-            double expected_area,
+            expectation_limits const& expected_area,
             ut_settings const& settings)
 {
     namespace bg = boost::geometry;
@@ -267,7 +268,7 @@ void test_buffer(std::string const& caseid,
     //std::cout << complete.str() << "," << std::fixed << std::setprecision(0) << area << std::endl;
     //return;
 
-    if (bg::is_empty(buffered) && bg::math::equals(expected_area, 0.0))
+    if (bg::is_empty(buffered) && expected_area.is_zero())
     {
         // As expected - don't get rescale policy for output (will be invalid)
         return;
@@ -317,35 +318,14 @@ void test_buffer(std::string const& caseid,
 
     if (settings.test_area)
     {
-        // Because areas vary hugely in buffer, the Boost.Test methods are not convenient.
-        // Use just the abs - but if areas are really small that is not convenient neither.
-        // Therefore there is a logarithmic option too.
-        typename bg::default_area_result<GeometryOut>::type area = bg::area(buffered, area_strategy);
-        double const difference = settings.use_ln_area
-                ? std::log(area) - std::log(expected_area)
-                : area  - expected_area;
-        BOOST_CHECK_MESSAGE
-            (
-                bg::math::abs(difference) < settings.tolerance,
-                complete.str() << " not as expected. " 
-                << std::setprecision(18)
-                << " Expected: " << expected_area
-                << " Detected: " << area
-                << " Diff: " << difference
-                << " Tol: " << settings.tolerance
-                << std::setprecision(3)
-                << " , " << 100.0 * (difference / expected_area) << "%"
-            );
-//        if (settings.use_ln_area)
-//        {
-//            std::cout << complete.str()
-//                      << std::setprecision(6)
-//                      << " ln(detected)=" << std::log(area)
-//                      << " ln(expected)=" << std::log(expected_area)
-//                      << " diff=" << difference
-//                      << " detected=" << area
-//                      << std::endl;
-//        }
+        typename bg::default_area_result<GeometryOut>::type area
+          = bg::area(buffered, area_strategy);
+        BOOST_CHECK_MESSAGE(expected_area.contains(area, settings.tolerance, settings.use_ln_area),
+              "difference: " << caseid << std::setprecision(20)
+              << " #area expected: " << expected_area
+              << " detected: " << area
+              << " type: " << (type_for_assert_message<Geometry, GeometryOut>())
+              );
     }
 
     if (settings.test_validity() && ! bg::is_valid(buffered))
@@ -393,7 +373,7 @@ void test_buffer(std::string const& caseid, bg::model::multi_polygon<GeometryOut
             DistanceStrategy const& distance_strategy,
             SideStrategy const& side_strategy,
             PointStrategy const& point_strategy,
-            double expected_area,
+            expectation_limits const& expected_area,
             ut_settings const& settings = ut_settings())
 {
     typename bg::strategy::area::services::default_strategy
@@ -420,7 +400,7 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
-        int expected_count, int expected_holes_count, double expected_area,
+        int expected_count, int expected_holes_count, expectation_limits const& expected_area,
         double distance_left, ut_settings const& settings = ut_settings(),
         double distance_right = same_distance)
 {
@@ -500,7 +480,7 @@ template
 >
 void test_one(std::string const& caseid, std::string const& wkt,
         JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
-        double expected_area,
+        expectation_limits const& expected_area,
         double distance_left, ut_settings const& settings = ut_settings(),
         double distance_right = same_distance)
 {
@@ -526,7 +506,7 @@ void test_with_custom_strategies(std::string const& caseid,
         DistanceStrategy const& distance_strategy,
         SideStrategy const& side_strategy,
         PointStrategy const& point_strategy,
-        double expected_area,
+        expectation_limits const& expected_area,
         ut_settings const& settings = ut_settings())
 {
     namespace bg = boost::geometry;

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2019.
-// Modifications copyright (c) 2013-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -131,7 +131,9 @@ struct disjoint_range_segment_or_box
 
             for ( ; it1 != last ; ++it0, ++it1 )
             {
-                range_segment rng_segment(*it0, *it1);
+                point_type const& p0 = *it0;
+                point_type const& p1 = *it1;
+                range_segment rng_segment(p0, p1);
                 if ( !dispatch::disjoint
                          <
                              range_segment, SegmentOrBox

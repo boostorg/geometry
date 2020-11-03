@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2019, Oracle and/or its affiliates.
+// Copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -13,6 +13,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_INTERSECTION_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -31,19 +32,22 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
+#include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-#include <boost/geometry/strategies/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/envelope.hpp>
+#include <boost/geometry/strategy/geographic/expand_segment.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>
-#include <boost/geometry/strategies/geographic/envelope.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
@@ -273,16 +277,21 @@ struct geographic_segments
         bool is_b_reversed = b1_lon > b2_lon || b1_lon == b2_lon && get<1>(b1) > get<1>(b2);
         */
 
-        bool const is_p_reversed = get<1>(range_p.at(0)) > get<1>(range_p.at(1));
-        bool const is_q_reversed = get<1>(range_q.at(0)) > get<1>(range_q.at(1));
+        point1_type const& p0 = range_p.at(0);
+        point1_type const& p1 = range_p.at(1);
+        point2_type const& q0 = range_q.at(0);
+        point2_type const& q1 = range_q.at(1);
+
+        bool const is_p_reversed = get<1>(p0) > get<1>(p1);
+        bool const is_q_reversed = get<1>(q0) > get<1>(q1);
 
         // Call apply with original segments and ordered points
-        return apply<Policy>(segment_type1(range_p.at(0), range_p.at(1)),
-                             segment_type2(range_q.at(0), range_q.at(1)),
-                             range_p.at(is_p_reversed ? 1 : 0),
-                             range_p.at(is_p_reversed ? 0 : 1),
-                             range_q.at(is_q_reversed ? 1 : 0),
-                             range_q.at(is_q_reversed ? 0 : 1),
+        return apply<Policy>(segment_type1(p0, p1),
+                             segment_type2(q0, q1),
+                             (is_p_reversed ? p1 : p0),
+                             (is_p_reversed ? p0 : p1),
+                             (is_q_reversed ? q1 : q0),
+                             (is_q_reversed ? q0 : q1),
                              is_p_reversed, is_q_reversed);
     }
 
@@ -928,7 +937,7 @@ private:
     static inline bool is_near(CalcT const& dist)
     {
         // NOTE: This strongly depends on the Inverse method
-        CalcT const small_number = CalcT(boost::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
+        CalcT const small_number = CalcT(std::is_same<CalcT, float>::value ? 0.0001 : 0.00000001);
         return math::abs(dist) <= small_number;
     }
 

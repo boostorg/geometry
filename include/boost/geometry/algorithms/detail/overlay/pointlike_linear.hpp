@@ -17,13 +17,9 @@
 #include <iterator>
 #include <vector>
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/box.hpp>
-
-#include <boost/geometry/iterators/segment_iterator.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -36,6 +32,17 @@
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
+
+#include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/geometries/box.hpp>
+
+#include <boost/geometry/iterators/segment_iterator.hpp>
+
+// TEMP
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
 
 
 namespace boost { namespace geometry
@@ -142,7 +149,12 @@ private:
         {
             geometry::expand(total,
                              geometry::return_envelope<Box>(segment, m_strategy),
-                             m_strategy.get_box_expand_strategy());
+                             // TEMP - envelope umbrella strategy also contains
+                             //        expand strategies
+                             strategies::envelope::services::strategy_converter
+                                <
+                                    EnvelopeStrategy
+                                >::get(m_strategy));
         }
 
         EnvelopeStrategy const& m_strategy;

@@ -3,6 +3,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -42,6 +46,18 @@ void test_all()
             , std::sqrt(2.0)
             , "LINESTRING(10 1,2 2)"
         );
+    test_geometry<bg::model::linestring<P> >
+        (
+            "LINESTRING(1 1)"
+
+            , 1
+            , "LINESTRING(101 1)"
+            , "LINESTRING(101 100)"
+
+            , "((1, 1), (1, 1))"
+            , 0
+            , "LINESTRING(10 1)"
+            );
     test_geometry<bg::model::linestring<P> >
         (
             "LINESTRING EMPTY"
@@ -121,10 +137,6 @@ void test_all()
 int test_main(int, char* [])
 {
     test_all<bg::model::point<double, 2, bg::cs::cartesian> >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::point<ttmath_big, 2, bg::cs::cartesian> >();
-#endif
 
     return 0;
 }

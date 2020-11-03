@@ -151,15 +151,5 @@ int test_main(int, char* [])
             double, bg::radian
         >(3 * bg::math::d2r<double>(), 51 * bg::math::d2r<double>(), 1);
 
-#if defined(HAVE_TTMATH)
-    typedef bg::model::d2::point_xy<ttmath_big > PT;
-    test_all<PT, PT>();
-    test_transformations<ttmath_big, bg::degree>(4, 52, 1);
-    test_transformations
-        <
-            ttmath_big, bg::radian
-        >(3 * bg::math::d2r<ttmath_big>(), 51 * bg::math::d2r<ttmath_big>(), 1);
-#endif
-
     return 0;
 }

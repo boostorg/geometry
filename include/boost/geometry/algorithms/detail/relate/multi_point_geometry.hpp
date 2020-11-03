@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2019 Oracle and/or its affiliates.
+// Copyright (c) 2017-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,7 +12,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_MULTI_POINT_GEOMETRY_HPP
 
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
@@ -23,12 +26,18 @@
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 
-#include <boost/geometry/core/is_areal.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
 #include <boost/geometry/index/rtree.hpp>
+
+// TEMP
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
+
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -396,7 +405,14 @@ public:
             > overlaps_box_point_type;
         typedef expand_box_box_pair
             <
-                typename Strategy::envelope_strategy_type::box_expand_strategy_type
+                // TEMP - envelope umbrella strategy also contains
+                //        expand strategies
+                decltype(strategies::envelope::services::strategy_converter
+                            <
+                                typename Strategy::envelope_strategy_type
+                            >::get(strategy.get_envelope_strategy())
+                                .expand(std::declval<box1_type>(),
+                                        std::declval<box2_type>()))
             > expand_box_box_pair_type;
         typedef overlaps_box_box_pair
             <
@@ -594,14 +610,7 @@ template
 <
     typename MultiPoint, typename Geometry,
     bool Transpose = false,
-    bool isMulti = boost::is_same
-                    <
-                        typename tag_cast
-                            <
-                                typename tag<Geometry>::type, multi_tag
-                            >::type,
-                            multi_tag
-                    >::value
+    bool isMulti = util::is_multi<Geometry>::value
 >
 struct multi_point_geometry
     : multi_point_single_geometry<MultiPoint, Geometry, Transpose>

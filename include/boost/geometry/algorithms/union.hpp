@@ -2,7 +2,7 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017, 2018, 2019, 2020.
+// This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -16,7 +16,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
 
 
-#include <boost/range/metafunctions.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>

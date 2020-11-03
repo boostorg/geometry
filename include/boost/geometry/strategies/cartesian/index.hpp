@@ -2,7 +2,7 @@
 //
 // R-tree strategies
 //
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -13,6 +13,13 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_INDEX_HPP
 
 
+#include <boost/geometry/strategy/cartesian/envelope_box.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_point.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategy/cartesian/expand_box.hpp>
+#include <boost/geometry/strategy/cartesian/expand_point.hpp>
+#include <boost/geometry/strategy/cartesian/expand_segment.hpp>
+
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 //#include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
@@ -20,12 +27,6 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_box.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_point.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
-#include <boost/geometry/strategies/cartesian/expand_box.hpp>
-#include <boost/geometry/strategies/cartesian/expand_point.hpp>
-#include <boost/geometry/strategies/cartesian/expand_segment.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>

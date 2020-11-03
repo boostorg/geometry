@@ -5,10 +5,10 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -21,10 +21,9 @@
 #define BOOST_GEOMETRY_GEOMETRIES_POINT_HPP
 
 #include <cstddef>
+#include <type_traits>
 
-#include <boost/config.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/int.hpp>
+#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -50,37 +49,6 @@ namespace boost { namespace geometry
 namespace model
 {
 
-namespace detail
-{
-
-template <std::size_t DimensionCount, std::size_t Index>
-struct array_assign
-{
-    template <typename T>
-    static inline void apply(T values[], T const& value)
-    {
-        values[Index] = value;
-    }
-};
-
-// Specialization avoiding assigning element [2] for only 2 dimensions
-template <> struct array_assign<2, 2>
-{
-    template <typename T> static inline void apply(T [], T const& ) {}
-};
-
-// Specialization avoiding assigning elements for (rarely used) points in 1 dim
-template <> struct array_assign<1, 1>
-{
-    template <typename T> static inline void apply(T [], T const& ) {}
-};
-
-template <> struct array_assign<1, 2>
-{
-    template <typename T> static inline void apply(T [], T const& ) {}
-};
-
-}
 /*!
 \brief Basic point class, having coordinates defined in a neutral way
 \details Defines a neutral point class, fulfilling the Point Concept.
@@ -107,9 +75,7 @@ template
 >
 class point
 {
-    BOOST_MPL_ASSERT_MSG((DimensionCount >= 1),
-                         DIMENSION_GREATER_THAN_ZERO_EXPECTED,
-                         (boost::mpl::int_<DimensionCount>));
+    BOOST_STATIC_ASSERT(DimensionCount > 0);
 
     // The following enum is used to fully instantiate the
     // CoordinateSystem class and check the correctness of the units
@@ -118,15 +84,13 @@ class point
 
 public:
 
+    // TODO: constexpr requires LiteralType and until C++20
+    // it has to have trivial destructor which makes access
+    // debugging impossible with constexpr.
+
 #if !defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
-#if !defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS)
     /// \constructor_default_no_init
-    point() = default;
-#else
-    /// \constructor_default_no_init
-    inline point()
-    {}
-#endif
+    constexpr point() = default;
 #else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     point()
     {
@@ -141,12 +105,12 @@ public:
 #endif
 
     /// @brief Constructor to set one value
-    explicit inline point(CoordinateType const& v0)
+#if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    constexpr
+#endif
+    explicit point(CoordinateType const& v0)
+        : m_values{v0}
     {
-        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
-        detail::array_assign<DimensionCount, 1>::apply(m_values, CoordinateType());
-        detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
-
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
         std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
@@ -154,12 +118,12 @@ public:
     }
 
     /// @brief Constructor to set two values
-    inline point(CoordinateType const& v0, CoordinateType const& v1)
+#if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    constexpr
+#endif
+    point(CoordinateType const& v0, CoordinateType const& v1)
+        : m_values{ v0, v1 }
     {
-        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
-        detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
-        detail::array_assign<DimensionCount, 2>::apply(m_values, CoordinateType());
-
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
         std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
@@ -167,13 +131,13 @@ public:
     }
 
     /// @brief Constructor to set three values
-    inline point(CoordinateType const& v0, CoordinateType const& v1,
-            CoordinateType const& v2)
+#if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    constexpr
+#endif
+    point(CoordinateType const& v0, CoordinateType const& v1,
+          CoordinateType const& v2)
+        : m_values{ v0, v1, v2 }
     {
-        detail::array_assign<DimensionCount, 0>::apply(m_values, v0);
-        detail::array_assign<DimensionCount, 1>::apply(m_values, v1);
-        detail::array_assign<DimensionCount, 2>::apply(m_values, v2);
-
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
         std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
@@ -184,7 +148,10 @@ public:
     /// @tparam K coordinate to get
     /// @return the coordinate
     template <std::size_t K>
-    inline CoordinateType const& get() const
+#if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
+    constexpr
+#endif
+    CoordinateType const& get() const
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         BOOST_GEOMETRY_ASSERT(m_created == 1);
@@ -198,7 +165,7 @@ public:
     /// @tparam K coordinate to set
     /// @param value value to set
     template <std::size_t K>
-    inline void set(CoordinateType const& value)
+    void set(CoordinateType const& value)
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         BOOST_GEOMETRY_ASSERT(m_created == 1);
@@ -265,7 +232,7 @@ template
     typename CoordinateSystem
 >
 struct dimension<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
-    : boost::mpl::int_<DimensionCount>
+    : std::integral_constant<std::size_t, DimensionCount>
 {};
 
 template
@@ -277,13 +244,13 @@ template
 >
 struct access<model::point<CoordinateType, DimensionCount, CoordinateSystem>, Dimension>
 {
-    static inline CoordinateType get(
+    static constexpr CoordinateType get(
         model::point<CoordinateType, DimensionCount, CoordinateSystem> const& p)
     {
         return p.template get<Dimension>();
     }
 
-    static inline void set(
+    static void set(
         model::point<CoordinateType, DimensionCount, CoordinateSystem>& p,
         CoordinateType const& value)
     {

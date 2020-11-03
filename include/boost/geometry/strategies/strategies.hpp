@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2019.
-// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -24,7 +24,6 @@
 
 #include <boost/geometry/strategies/tags.hpp>
 
-#include <boost/geometry/strategies/area.hpp>
 #include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
@@ -34,7 +33,6 @@
 #include <boost/geometry/strategies/densify.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/envelope.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_strategies.hpp> // for backward compatibility
 #include <boost/geometry/strategies/relate.hpp>
@@ -42,7 +40,6 @@
 #include <boost/geometry/strategies/transform.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
-#include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/azimuth.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
@@ -64,13 +61,6 @@
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
 #include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_box.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_point.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_multipoint.hpp>
-#include <boost/geometry/strategies/cartesian/envelope_segment.hpp>
-#include <boost/geometry/strategies/cartesian/expand_box.hpp>
-#include <boost/geometry/strategies/cartesian/expand_point.hpp>
-#include <boost/geometry/strategies/cartesian/expand_segment.hpp>
 #include <boost/geometry/strategies/cartesian/index.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
@@ -81,7 +71,6 @@
 #include <boost/geometry/strategies/cartesian/line_interpolate.hpp>
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
-#include <boost/geometry/strategies/spherical/area.hpp>
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
 #include <boost/geometry/strategies/spherical/densify.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
@@ -91,13 +80,6 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/compare.hpp>
-#include <boost/geometry/strategies/spherical/envelope_box.hpp>
-#include <boost/geometry/strategies/spherical/envelope_point.hpp>
-#include <boost/geometry/strategies/spherical/envelope_multipoint.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
-#include <boost/geometry/strategies/spherical/expand_box.hpp>
-#include <boost/geometry/strategies/spherical/expand_point.hpp>
-#include <boost/geometry/strategies/spherical/expand_segment.hpp>
 #include <boost/geometry/strategies/spherical/index.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
@@ -105,7 +87,6 @@
 #include <boost/geometry/strategies/spherical/line_interpolate.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
-#include <boost/geometry/strategies/geographic/area.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/buffer_point_circle.hpp>
 #include <boost/geometry/strategies/geographic/densify.hpp>
@@ -119,8 +100,6 @@
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
 //#include <boost/geometry/strategies/geographic/distance_karney.hpp>
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
-#include <boost/geometry/strategies/geographic/expand_segment.hpp>
 #include <boost/geometry/strategies/geographic/index.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 //#include <boost/geometry/strategies/geographic/intersection_elliptic.hpp>
@@ -144,6 +123,41 @@
 #include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 #include <boost/geometry/strategies/transform/map_transformer.hpp>
 #include <boost/geometry/strategies/transform/inverse_transformer.hpp>
+
+// TEMP
+
+#include <boost/geometry/strategy/area.hpp>
+#include <boost/geometry/strategy/envelope.hpp>
+#include <boost/geometry/strategy/expand.hpp>
+
+#include <boost/geometry/strategy/cartesian/area.hpp>
+#include <boost/geometry/strategy/cartesian/envelope.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_box.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_multipoint.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_point.hpp>
+#include <boost/geometry/strategy/cartesian/envelope_segment.hpp>
+#include <boost/geometry/strategy/cartesian/expand_box.hpp>
+#include <boost/geometry/strategy/cartesian/expand_point.hpp>
+#include <boost/geometry/strategy/cartesian/expand_segment.hpp>
+
+#include <boost/geometry/strategy/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/envelope.hpp>
+#include <boost/geometry/strategy/geographic/envelope_segment.hpp>
+#include <boost/geometry/strategy/geographic/expand_segment.hpp>
+
+#include <boost/geometry/strategy/spherical/area.hpp>
+#include <boost/geometry/strategy/spherical/envelope.hpp>
+#include <boost/geometry/strategy/spherical/envelope_box.hpp>
+#include <boost/geometry/strategy/spherical/envelope_multipoint.hpp>
+#include <boost/geometry/strategy/spherical/envelope_point.hpp>
+#include <boost/geometry/strategy/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategy/spherical/expand_box.hpp>
+#include <boost/geometry/strategy/spherical/expand_point.hpp>
+#include <boost/geometry/strategy/spherical/expand_segment.hpp>
+
+#include <boost/geometry/strategies/cartesian.hpp>
+#include <boost/geometry/strategies/geographic.hpp>
+#include <boost/geometry/strategies/spherical.hpp>
 
 
 #endif // BOOST_GEOMETRY_STRATEGIES_STRATEGIES_HPP

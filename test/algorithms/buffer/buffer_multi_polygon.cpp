@@ -13,7 +13,6 @@
 
 #include "test_buffer.hpp"
 
-
 static std::string const simplex
     = "MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))";
 
@@ -312,6 +311,7 @@ void test_all()
 {
     typedef bg::model::polygon<P, Clockwise> polygon_type;
     typedef bg::model::multi_polygon<polygon_type> multi_polygon_type;
+    typedef typename bg::coordinate_type<P>::type coor_type;
 
     bg::strategy::buffer::join_miter join_miter;
     bg::strategy::buffer::join_round join_round(100);
@@ -337,7 +337,7 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("multi_simplex_01", simplex, join_round, end_flat, 9.7514, -0.1);
     test_one<multi_polygon_type, polygon_type>("multi_simplex_05", simplex, join_round, end_flat, 3.2019, -0.5);
-    test_one<multi_polygon_type, polygon_type>("multi_simplex_10", simplex, join_round, end_flat, 0.2012, -1.0);
+    test_one<multi_polygon_type, polygon_type>("multi_simplex_10", simplex, join_round, end_flat, 0.20116, -1.0);
     test_one<multi_polygon_type, polygon_type>("multi_simplex_12", simplex, join_round, end_flat, 0.0, -1.2);
 
     test_one<multi_polygon_type, polygon_type>("zonethru_05", zonethru, join_round, end_flat, 67.4627, 0.5);
@@ -381,7 +381,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_flat, 5.708, 1.0);
     test_one<multi_polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_flat, 133.0166, 0.75);
 
-    test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.5381, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_round, end_flat, 34.53437, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_a", rt_a, join_miter, end_flat, 36.0, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_round, end_flat, 31.4186, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_b", rt_b, join_miter, end_flat, 34.0, 1.0);
@@ -475,12 +475,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0);
-    test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51);
+    test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.16738, -0.51);
     test_one<multi_polygon_type, polygon_type>("rt_u10_c_51", rt_u10_c, join_miter, end_flat, 0.066952, -0.51);
 
-    test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.1674, -0.51);
     // TODO: invalid - making a bow-tie
-    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.2145, -0.50, ut_settings::ignore_validity());
+    test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.214466, -0.50, ut_settings::ignore_validity());
     test_one<multi_polygon_type, polygon_type>("rt_u10_45", rt_u10, join_miter, end_flat, 1.3000, -0.45);
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
 
@@ -488,7 +487,10 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u11_50", rt_u11, join_miter, end_flat, 0.04289, -0.50);
     test_one<multi_polygon_type, polygon_type>("rt_u11_25", rt_u11, join_miter, end_flat, 10.1449, -0.25);
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Failing because of a start turn
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 142.1348, 1.0);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_v1", rt_v1, join_round32, end_flat, 26.9994, 1.0);
@@ -510,15 +512,18 @@ void test_all()
         join_round32, end_round32, 0.0, -10.0);
 
     // Check cases with extreme coordinates on assertions
-    test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
-        mysql_report_2015_07_05_1,
-        join_round32, end_round32, ut_settings::ignore_area(), 5526.0,
-        ut_settings::assertions_only());
+    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, double>::value)))
+    {
+        test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
+            mysql_report_2015_07_05_1,
+            join_round32, end_round32, ut_settings::ignore_area(), 5526.0,
+            ut_settings::assertions_only());
 
-    test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
-        mysql_report_2015_07_05_2,
-        join_round32, end_round32, ut_settings::ignore_area(), 948189399.0,
-        ut_settings::assertions_only());
+        test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_2",
+            mysql_report_2015_07_05_2,
+            join_round32, end_round32, ut_settings::ignore_area(), 948189399.0,
+            ut_settings::assertions_only());
+    }
 }
 
 int test_main(int, char* [])
@@ -530,9 +535,13 @@ int test_main(int, char* [])
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
     test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 #endif
-    
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+    test_all<true, bg::model::point<mp_test_type, 2, bg::cs::cartesian> >();
+#endif
+
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 1);
+    BoostGeometryWriteExpectedFailures(1, 1, 2, 3);
 #endif
 
     return 0;

@@ -5,10 +5,11 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -46,9 +47,10 @@
 
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
+// TEST
+#include <boost/geometry/strategies/cartesian.hpp>
+#include <boost/geometry/strategies/geographic.hpp>
+#include <boost/geometry/strategies/spherical.hpp>
 
 
 namespace bg = boost::geometry;
@@ -489,17 +491,3 @@ BOOST_AUTO_TEST_CASE( test_time_compare )
     //    time_compare<bg::model::point<double, 2, bg::cs::cartesian> >(10000);
 }
 
-
-#if defined(HAVE_TTMATH)
-BOOST_AUTO_TEST_CASE( test_ttmath_all )
-{
-    typedef ttmath::Big<1,4> tt;
-    typedef bg::model::point<tt, 3, bg::cs::cartesian> tt_point;
-
-    //test_all_3d<tt[3]>();
-    test_all_3d<tt_point>();
-    test_all_3d<tt_point, tt_point>();
-    test_big_2d<tt, tt>();
-    test_big_2d_string<tt, tt>();
-}
-#endif

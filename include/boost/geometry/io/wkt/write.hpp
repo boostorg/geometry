@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2018, 2019.
-// Modifications copyright (c) 2015-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -25,8 +25,10 @@
 #include <string>
 
 #include <boost/array.hpp>
-#include <boost/range.hpp>
-
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -47,6 +49,7 @@
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -509,7 +512,7 @@ Small example showing how to use the wkt class
 template <typename Geometry>
 class wkt_manipulator
 {
-    static const bool is_ring = boost::is_same<typename tag<Geometry>::type, ring_tag>::value;
+    static const bool is_ring = util::is_ring<Geometry>::value;
 
 public:
 

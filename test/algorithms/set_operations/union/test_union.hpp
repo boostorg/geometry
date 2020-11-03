@@ -18,6 +18,8 @@
 #include <fstream>
 
 #include <geometry_test_common.hpp>
+#include <count_set.hpp>
+#include <expectation_limits.hpp>
 #include <algorithms/check_validity.hpp>
 #include "../setop_output_type.hpp"
 
@@ -85,8 +87,8 @@ inline std::size_t num_points(Range const& rng, bool add_for_open = false)
 
 template <typename OutputType, typename G1, typename G2>
 void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
-        int expected_count, int expected_hole_count,
-        int expected_point_count, double expected_area,
+        const count_set& expected_count, const count_set& expected_hole_count,
+        int expected_point_count, expectation_limits const& expected_area,
         ut_settings const& settings)
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
@@ -164,7 +166,11 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             }
         }
         BOOST_CHECK_EQUAL(boost::size(clip), boost::size(inserted) - 1);
-        BOOST_CHECK_CLOSE(area_inserted, expected_area, settings.percentage);
+        BOOST_CHECK_MESSAGE(expected_area.contains(area_inserted, settings.percentage),
+                "union: " << caseid << std::setprecision(20)
+                << " #area expected: " << expected_area
+                << " detected: " << area_inserted
+                << " type: " << (type_for_assert_message<G1, G2>()));
     }
 #endif
 
@@ -179,19 +185,25 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         << std::endl;
 #endif
 
-    BOOST_CHECK_MESSAGE(expected_count < 0 || int(clip.size()) == expected_count,
+    if (! expected_count.empty())
+    {
+        BOOST_CHECK_MESSAGE(expected_count.has(clip.size()),
             "union: " << caseid
             << " #clips expected: " << expected_count
             << " detected: " << clip.size()
             << " type: " << (type_for_assert_message<G1, G2>())
             );
+    }
 
-    BOOST_CHECK_MESSAGE(expected_hole_count < 0 || int(holes) == expected_hole_count,
-            "union: " << caseid
-            << " #holes expected: " << expected_hole_count
-            << " detected: " << holes
-            << " type: " << (type_for_assert_message<G1, G2>())
-            );
+    if (! expected_hole_count.empty())
+    {
+        BOOST_CHECK_MESSAGE(expected_hole_count.has(holes),
+                            "union: " << caseid
+                            << " #holes expected: " << expected_hole_count
+                            << " detected: " << holes
+                            << " type: " << (type_for_assert_message<G1, G2>())
+                            );
+    }
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     // Without rescaling, point count might easily differ (which is no problem)
@@ -203,7 +215,11 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             );
 #endif
 
-    BOOST_CHECK_CLOSE(area, expected_area, settings.percentage);
+    BOOST_CHECK_MESSAGE(expected_area.contains(area, settings.percentage),
+            "union: " << caseid << std::setprecision(20)
+            << " #area expected: " << expected_area
+            << " detected: " << area
+            << " type: " << (type_for_assert_message<G1, G2>()));
 
 #if defined(TEST_WITH_SVG)
     {
@@ -255,8 +271,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 template <typename OutputType, typename G1, typename G2>
 void test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        int expected_count, int expected_hole_count,
-        int expected_point_count, double expected_area,
+        const count_set& expected_count, const count_set& expected_hole_count,
+        int expected_point_count, expectation_limits const& expected_area,
         ut_settings const& settings = ut_settings())
 {
     G1 g1;

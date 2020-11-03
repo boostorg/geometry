@@ -164,10 +164,5 @@ int test_main(int, char* [])
     test_all<bg::model::point<int, 2, bg::cs::spherical<bg::degree> > >();
     test_all<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 
-#if defined(HAVE_TTMATH)
-    typedef ttmath::Big<1,4> tt;
-    test_all<bg::model::point<tt, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-#endif
-
     return 0;
 }

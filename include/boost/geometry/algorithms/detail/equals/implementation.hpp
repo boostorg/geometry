@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2016, 2017, 2018, 2019.
-// Modifications copyright (c) 2014-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -23,10 +23,10 @@
 
 
 #include <cstddef>
+#include <type_traits>
 #include <vector>
 
-#include <boost/range.hpp>
-#include <boost/type_traits/is_base_of.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -243,14 +243,14 @@ struct equals_by_collection_or_relate
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        typedef typename boost::is_base_of
+        typedef std::is_base_of
             <
                 nyi::not_implemented_tag,
                 typename collected_vector
                     <
                         Geometry1, Geometry2, Strategy
                     >::type
-            >::type enable_relate_type;
+            > enable_relate_type;
 
         return apply(geometry1, geometry2, strategy, enable_relate_type());
     }
@@ -260,7 +260,7 @@ private:
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Strategy const& strategy,
-                             boost::false_type /*enable_relate*/)
+                             std::false_type /*enable_relate*/)
     {
         return equals_by_collection<TrivialCheck>::apply(geometry1, geometry2, strategy);
     }
@@ -269,7 +269,7 @@ private:
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Strategy const& strategy,
-                             boost::true_type /*enable_relate*/)
+                             std::true_type /*enable_relate*/)
     {
         return equals_by_relate<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
     }

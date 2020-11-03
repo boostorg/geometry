@@ -172,10 +172,5 @@ int test_main(int, char* [])
     // NYI: haversine for mathematical spherical coordinate systems
     // test_all<bg::model::point<double, 2, bg::cs::spherical<bg::degree> >, mathematical_policya >();
 
-#if defined(HAVE_TTMATH)
-    typedef ttmath::Big<1,4> tt;
-    //test_all<bg::model::point<tt, 2, bg::cs::geographic<bg::degree> >, geographic_policy>();
-#endif
-
     return 0;
 }

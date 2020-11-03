@@ -107,9 +107,5 @@ int test_main( int , char* [] )
     test_all<bg::model::point<float, 2, cs_t> >();
     test_all<bg::model::point<double, 2, cs_t> >();
 
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::point<ttmath_big, 2, cs_t> >();
-#endif
-
     return 0;
 }

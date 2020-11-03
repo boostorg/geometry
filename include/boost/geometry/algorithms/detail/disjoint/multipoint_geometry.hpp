@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,8 +15,10 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/range.hpp>
-#include <boost/mpl/assert.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -40,6 +42,12 @@
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
+
+
+// TEMP
+#include <boost/geometry/strategies/envelope/cartesian.hpp>
+#include <boost/geometry/strategies/envelope/geographic.hpp>
+#include <boost/geometry/strategies/envelope/spherical.hpp>
 
 
 namespace boost { namespace geometry
@@ -139,7 +147,12 @@ private:
         {
             geometry::expand(total,
                              geometry::return_envelope<Box>(segment, m_strategy),
-                             typename EnvelopeStrategy::box_expand_strategy_type());
+                             // TEMP - envelope umbrella strategy also contains
+                             //        expand strategies
+                             strategies::envelope::services::strategy_converter
+                                <
+                                    EnvelopeStrategy
+                                >::get(m_strategy));
         }
 
         EnvelopeStrategy const& m_strategy;
@@ -423,7 +436,14 @@ public:
             > overlaps_box_point_type;
         typedef expand_box_box_pair
             <
-                typename Strategy::envelope_strategy_type::box_expand_strategy_type
+                // TEMP - envelope umbrella strategy also contains
+                //        expand strategies
+                decltype(strategies::envelope::services::strategy_converter
+                            <
+                                typename Strategy::envelope_strategy_type
+                            >::get(strategy.get_envelope_strategy())
+                                .expand(std::declval<box1_type>(),
+                                        std::declval<box2_type>()))
             > expand_box_box_pair_type;
         typedef overlaps_box_box_pair
             <

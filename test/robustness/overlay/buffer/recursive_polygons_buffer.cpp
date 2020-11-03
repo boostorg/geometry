@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2015.
 // Modifications copyright (c) 2015 Oracle and/or its affiliates.
@@ -19,6 +19,7 @@
 #  pragma warning( disable : 4267 )
 #endif
 
+#include <chrono>
 #include <fstream>
 #include <sstream>
 
@@ -28,7 +29,6 @@
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/uniform_real.hpp>
 #include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -90,8 +90,8 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool result = true;
 
     // Area of buffer must be larger than of original polygon
-    double area_mp = bg::area(mp);
-    double area_buf = bg::area(buffer);
+    auto const area_mp = bg::area(mp);
+    auto const area_buf = bg::area(buffer);
 
     if (area_buf < area_mp)
     {
@@ -113,7 +113,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         }
     }
 
-    if (result)
+    if (result && settings.check_validity)
     {
         bg::validity_failure_type failure;
         if (! bg::is_valid(buffer, failure)
@@ -128,23 +128,19 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool wkt = settings.wkt;
     if (! result)
     {
-        std::cout << "ERROR " << caseid << std::endl;
-        //std::cout << bg::wkt(mp) << std::endl;
-        //std::cout << bg::wkt(buffer) << std::endl;
+        // The result is wrong, override settings to create a SVG and WKT
         svg = true;
         wkt = true;
-    }
-
-    if (svg || wkt)
-    {
-        //std::cout << caseid << std::endl;
     }
 
     if (svg)
     {
         std::ostringstream filename;
         filename << caseid << "_"
-            << typeid(typename bg::coordinate_type<MultiPolygon>::type).name()
+            << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
+#endif
             << ".svg";
         create_svg(filename.str(), mp, buffer);
     }
@@ -257,7 +253,7 @@ bool test_buffer(MultiPolygon& result, int& index,
 template <typename T, bool Clockwise, bool Closed, typename Settings>
 void test_all(int seed, int count, int level, Settings const& settings)
 {
-    boost::timer t;
+    auto const t0 = std::chrono::high_resolution_clock::now();
 
     typedef boost::minstd_rand base_generator_type;
 
@@ -275,15 +271,23 @@ void test_all(int seed, int count, int level, Settings const& settings)
 
 
     int index = 0;
+    int errors = 0;
     for(int i = 0; i < count; i++)
     {
         mp p;
-        test_buffer<mp>(p, index, coordinate_generator, level, settings);
+        if (! test_buffer<mp>(p, index, coordinate_generator, level, settings))
+        {
+            errors++;
+        }
     }
+
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
         << "geometries: " << index
-        << " type: " << typeid(T).name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " errors: " << errors
+        << " type: " << string_from_type<T>::name()
+        << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -292,7 +296,7 @@ int main(int argc, char** argv)
     try
     {
         namespace po = boost::program_options;
-        po::options_description description("=== recursive_polygons_linear_areal ===\nAllowed options");
+        po::options_description description("=== recursive_polygons_buffer ===\nAllowed options");
 
         int count = 1;
         int seed = static_cast<unsigned int>(std::time(0));
@@ -307,6 +311,7 @@ int main(int argc, char** argv)
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
+            ("validity", po::value<bool>(&settings.check_validity)->default_value(true), "Include testing on validity")
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("distance", po::value<double>(&settings.distance)->default_value(1.0), "Distance (1.0)")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
@@ -336,24 +341,20 @@ int main(int argc, char** argv)
 
         if (ccw && open)
         {
-            test_all<double, false, false>(seed, count, level, settings);
+            test_all<default_test_type, false, false>(seed, count, level, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(seed, count, level, settings);
+            test_all<default_test_type, false, true>(seed, count, level, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(seed, count, level, settings);
+            test_all<default_test_type, true, false>(seed, count, level, settings);
         }
         else
         {
-            test_all<double, true, true>(seed, count, level, settings);
+            test_all<default_test_type, true, true>(seed, count, level, settings);
         }
-
-#if defined(HAVE_TTMATH)
-        // test_all<ttmath_big, true, true>(seed, count, max, svg, level);
-#endif
     }
     catch(std::exception const& e)
     {

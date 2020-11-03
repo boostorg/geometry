@@ -31,10 +31,6 @@
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/default_comparable_distance_result.hpp>
 
-#if defined(HAVE_TTMATH)
-#include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 namespace bg = ::boost::geometry;
 
 
@@ -183,10 +179,6 @@ struct test_distance_result_box
 template <std::size_t D, typename CoordinateSystem>
 inline void test_segment_all()
 {
-#if defined(HAVE_TTMATH)
-    typedef ttmath_big tt;
-    typedef bg::util::detail::default_integral::type default_integral;
-#endif
     typedef typename boost::mpl::if_
         <
             typename boost::is_same<CoordinateSystem, bg::cs::cartesian>::type,
@@ -207,15 +199,6 @@ inline void test_segment_all()
     test_distance_result_segment<float, double, D, CoordinateSystem, double>();
     test_distance_result_segment<double, float, D, CoordinateSystem, double>();
     test_distance_result_segment<double, double, D, CoordinateSystem, double>();
-
-#if defined(HAVE_TTMATH)
-    test_distance_result_segment<tt, int, D, CoordinateSystem, tt>();
-    test_distance_result_segment<tt, default_integral, D, CoordinateSystem, tt>();
-
-    test_distance_result_segment<tt, float, D, CoordinateSystem, tt>();
-    test_distance_result_segment<tt, double, D, CoordinateSystem, tt>();
-    test_distance_result_segment<tt, tt, D, CoordinateSystem, tt>();
-#endif
 }
 
 //=========================================================================
@@ -223,9 +206,6 @@ inline void test_segment_all()
 template <std::size_t D>
 inline void test_box_all()
 {
-#if defined(HAVE_TTMATH)
-    typedef ttmath_big tt;
-#endif
     typedef bg::util::detail::default_integral::type default_integral;
 
     test_distance_result_box<short, short, D, double, default_integral>();
@@ -241,15 +221,6 @@ inline void test_box_all()
     test_distance_result_box<float, double, D, double>();
     test_distance_result_box<double, float, D, double>();
     test_distance_result_box<double, double, D, double>();
-
-#if defined(HAVE_TTMATH)
-    test_distance_result_box<tt, int, D, tt>();
-    test_distance_result_box<tt, default_integral, D, tt>();
-
-    test_distance_result_box<tt, float, D, tt>();
-    test_distance_result_box<tt, double, D, tt>();
-    test_distance_result_box<tt, tt, D, tt>();
-#endif
 }
 
 //=========================================================================
