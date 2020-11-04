@@ -79,6 +79,7 @@ struct assign_disjoint_policy
     static bool const include_no_turn = true;
     static bool const include_degenerate = true;
     static bool const include_opposite = true;
+    static bool const include_start_turn = false;
 };
 
 

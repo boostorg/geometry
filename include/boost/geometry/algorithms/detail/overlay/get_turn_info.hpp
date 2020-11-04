@@ -832,6 +832,65 @@ struct equal : public base_turn_handler
 
 template
 <
+    typename TurnInfo
+>
+struct start : public base_turn_handler
+{
+    template
+    <
+        typename UniqueSubRange1,
+        typename UniqueSubRange2,
+        typename IntersectionInfo,
+        typename DirInfo,
+        typename SideCalculator,
+        typename UmbrellaStrategy
+    >
+    static inline bool apply(UniqueSubRange1 const& /*range_p*/,
+                UniqueSubRange2 const& /*range_q*/,
+                TurnInfo& ti,
+                IntersectionInfo const& info,
+                DirInfo const& dir_info,
+                SideCalculator const& side,
+                UmbrellaStrategy const& )
+    {
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        // With rescaling, start turns are not needed.
+        return false;
+#endif
+
+        // Start turns have either how_a = -1, or how_b = -1 (either p leaves or q leaves)
+        BOOST_GEOMETRY_ASSERT(dir_info.how_a != dir_info.how_b);
+        BOOST_GEOMETRY_ASSERT(dir_info.how_a == -1 || dir_info.how_b == -1);
+        BOOST_GEOMETRY_ASSERT(dir_info.how_a == 0 || dir_info.how_b == 0);
+
+        if (dir_info.how_b == -1)
+        {
+            // p --------------->
+            //             |
+            //             | q         q leaves
+            //             v
+            //
+
+            int const side_qj_p1 = side.qj_wrt_p1();
+            ui_else_iu(side_qj_p1 == -1, ti);
+        }
+        else if (dir_info.how_a == -1)
+        {
+            // p leaves
+            int const side_pj_q1 = side.pj_wrt_q1();
+            ui_else_iu(side_pj_q1 == 1, ti);
+        }
+
+        // Copy intersection point
+        assign_point(ti, method_start, info, 0);
+        return true;
+    }
+
+};
+
+
+template
+<
     typename TurnInfo,
     typename AssignPolicy
 >
@@ -1194,6 +1253,15 @@ struct assign_null_policy
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
     static bool const include_opposite = false;
+    static bool const include_start_turn = false;
+};
+
+struct assign_policy_only_start_turns
+{
+    static bool const include_no_turn = false;
+    static bool const include_degenerate = false;
+    static bool const include_opposite = false;
+    static bool const include_start_turn = true;
 };
 
 /*!
@@ -1257,9 +1325,24 @@ struct get_turn_info
         bool handle_as_equal = method == 'e';
         bool const handle_as_collinear = method == 'c';
         bool const handle_as_degenerate = method == '0';
+        bool const handle_as_start = method == 's';
 
-        // (angle, from, start)
-        bool const do_only_convert = method == 'a' || method == 'f' || method == 's';
+        // (angle, from)
+        bool do_only_convert = method == 'a' || method == 'f';
+
+        if (handle_as_start)
+        {
+            // It is in some cases necessary to handle a start turn
+            if (AssignPolicy::include_start_turn
+                && start<TurnInfo>::apply(range_p, range_q, tp, inters.i_info(), inters.d_info(), inters.sides(), umbrella_strategy))
+            {
+                *out++ = tp;
+            }
+            else
+            {
+              do_only_convert = true;
+            }
+        }
 
         if (handle_as_touch_interior)
         {
