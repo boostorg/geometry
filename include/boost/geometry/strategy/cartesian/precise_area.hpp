@@ -89,18 +89,17 @@ public :
     {
         typedef typename state<Geometry>::return_type return_type;
 
-        auto det = (return_type(get<0>(p1)) + return_type(get<0>(p2)))
-                 * (return_type(get<1>(p1)) - return_type(get<1>(p2)));
+        auto const det = (return_type(get<0>(p1)) + return_type(get<0>(p2)))
+                * (return_type(get<1>(p1)) - return_type(get<1>(p2)));
 
-        auto res = boost::geometry::detail::precise_math::two_sum(st.sum1, det);
+        auto const res = boost::geometry::detail::precise_math::two_sum(st.sum1, det);
 
         st.sum1 = res[0];
         st.sum2 += res[1];
     }
 
     template <typename Geometry>
-    static inline typename result_type<Geometry>::type
-        result(state<Geometry>& st)
+    static inline auto result(state<Geometry>& st)
     {
         return st.area();
     }
