@@ -30,6 +30,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry
 {
@@ -38,7 +39,12 @@ namespace boost { namespace geometry
 namespace resolve_strategy
 {
 
-template <typename Geometry1, typename Geometry2, typename Strategy>
+template
+<
+    typename Geometry1, typename Geometry2, typename Strategy,
+    bool AreGeometries = (util::is_geometry<Geometry1>::value
+                       && util::is_geometry<Geometry2>::value)
+>
 struct distance_result
     : strategy::distance::services::return_type
         <
@@ -48,8 +54,8 @@ struct distance_result
         >
 {};
 
-template <typename Geometry1, typename Geometry2>
-struct distance_result<Geometry1, Geometry2, default_strategy>
+template <typename Geometry1, typename Geometry2, bool AreGeometries>
+struct distance_result<Geometry1, Geometry2, default_strategy, AreGeometries>
     : distance_result
         <
             Geometry1,
@@ -60,6 +66,22 @@ struct distance_result<Geometry1, Geometry2, default_strategy>
                 >::type
         >
 {};
+
+
+// Workaround for VS2015
+#if (_MSC_VER < 1910)
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct distance_result<Geometry1, Geometry2, Strategy, false>
+{
+    typedef int type;
+};
+template <typename Geometry1, typename Geometry2>
+struct distance_result<Geometry1, Geometry2, default_strategy, false>
+{
+    typedef int type;
+};
+#endif
+
 
 } // namespace resolve_strategy
 

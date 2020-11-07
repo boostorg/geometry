@@ -147,7 +147,11 @@ template
             int
         > = 0
 >
-constexpr inline ResultP cross_product(P1 const& p1, P2 const& p2)
+// workaround for VS2015
+#if (_MSC_VER >= 1910)
+constexpr
+#endif
+inline ResultP cross_product(P1 const& p1, P2 const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<ResultP>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P1>));
@@ -210,7 +214,11 @@ template
             int
         > = 0
 >
-constexpr inline P cross_product(P const& p1, P const& p2)
+// workaround for VS2015
+#if (_MSC_VER >= 1910)
+constexpr
+#endif
+inline P cross_product(P const& p1, P const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<P>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P>));
