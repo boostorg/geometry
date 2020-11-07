@@ -139,14 +139,13 @@ struct area_result<Geometry, default_strategy>
 
 template <typename ...Ts>
 struct area_result<boost::variant<Ts...>, default_strategy>
-    : geometry::area_result
+    : detail::area::default_area_result
         <
             typename util::select_pack_element
                 <
                     detail::area::more_precise_default_area_result,
                     Ts...
-                >::type,
-            default_strategy
+                >::type
         >
 {};
 
