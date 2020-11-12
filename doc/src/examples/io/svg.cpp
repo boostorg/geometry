@@ -37,7 +37,7 @@ int main()
     std::ofstream svg("my_map.svg");
     boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);
 
-    // Add geometries such that all these geometries fit on the map
+    // Add geometries such that all these geometries fit exactly on the map
     mapper.add(a);
     mapper.add(b);
     mapper.add(c);

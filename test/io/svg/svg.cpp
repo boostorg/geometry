@@ -131,6 +131,8 @@ void test_all()
         mapper.add(m_po);
         mapper.add(var);
 
+        mapper.scale(0.95);
+
         mapper.map(pt, style);
         mapper.map(b, style);
         mapper.map(s, style);
