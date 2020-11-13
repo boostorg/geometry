@@ -47,7 +47,7 @@ struct default_strategy<Geometry, cartesian_tag>
 template <typename CT>
 struct strategy_converter<strategy::area::cartesian<CT> >
 {
-    static auto get(strategy::area::cartesian<CT> const& strategy)
+    static auto get(strategy::area::cartesian<CT> const&)
     {
         return strategies::area::cartesian<CT>();
     }
