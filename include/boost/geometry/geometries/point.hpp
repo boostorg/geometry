@@ -90,7 +90,13 @@ public:
 
 #if !defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     /// \constructor_default_no_init
-    constexpr point() = default;
+    constexpr point()
+// Workaround for VS2015
+#if (_MSC_VER < 1910)
+        : m_values{} {}
+#else
+        = default;
+#endif
 #else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     point()
     {

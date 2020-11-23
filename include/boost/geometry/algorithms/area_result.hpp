@@ -26,6 +26,7 @@
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/variant/variant_fwd.hpp>
 
@@ -51,17 +52,18 @@ struct area_result
     typedef typename strategy_type::template result_type<Geometry>::type type;
 };
 
+template <typename Geometry, typename Strategy>
+struct area_result<Geometry, Strategy, false>
+{
+    typedef typename Strategy::template result_type<Geometry>::type type;
+};
+
+
 template
 <
     typename Geometry,
-    typename Strategy
+    bool IsGeometry = util::is_geometry<Geometry>::value
 >
-struct area_result<Geometry, Strategy, false>
-    : Strategy::template result_type<Geometry>
-{};
-
-
-template <typename Geometry>
 struct default_area_result
     : area_result
         <
@@ -73,15 +75,37 @@ struct default_area_result
         >
 {};
 
+// Workaround for VS2015
+#if (_MSC_VER < 1910)
+template
+<
+    typename Geometry,
+    bool IsGeometry = util::is_geometry<Geometry>::value
+>
+struct coordinate_type
+    : geometry::coordinate_type<Geometry>
+{};
+template <typename Geometry>
+struct coordinate_type<Geometry, false>
+{
+    typedef int type;
+};
+template <typename Geometry>
+struct default_area_result<Geometry, false>
+{
+    typedef int type;
+};
+#endif
+
 template <typename Curr, typename Next>
 struct more_precise_coordinate_type
     : std::is_same
         <
-            typename geometry::coordinate_type<Curr>::type,
+            typename coordinate_type<Curr>::type,
             typename geometry::select_most_precise
                 <
-                    typename geometry::coordinate_type<Curr>::type,
-                    typename geometry::coordinate_type<Next>::type
+                    typename coordinate_type<Curr>::type,
+                    typename coordinate_type<Next>::type
                 >::type
         >
 {};
