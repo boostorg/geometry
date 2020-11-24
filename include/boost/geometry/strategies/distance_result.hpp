@@ -140,8 +140,16 @@ struct distance_result
 {};
 
 
-template <typename Geometry1, typename ...Ts, typename Strategy>
-struct distance_result<Geometry1, boost::variant<Ts...>, Strategy>
+template
+<
+    typename Geometry1,
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Strategy
+>
+struct distance_result
+    <
+        Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+    >
 {
     // Select the most precise distance strategy result type
     //   for all variant type combinations.
@@ -150,7 +158,7 @@ struct distance_result<Geometry1, boost::variant<Ts...>, Strategy>
     typedef typename util::select_combination_element
         <
             util::type_sequence<Geometry1>,
-            util::type_sequence<Ts...>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>,
             detail::distance::more_precise_distance_result<Strategy>::template predicate
         >::type elements;
 
@@ -164,14 +172,35 @@ struct distance_result<Geometry1, boost::variant<Ts...>, Strategy>
 
 
 // Distance arguments are commutative
-template <typename ...Ts, typename Geometry2, typename Strategy>
-struct distance_result<boost::variant<Ts...>, Geometry2, Strategy>
-    : public distance_result<Geometry2, boost::variant<Ts...>, Strategy>
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Geometry2,
+    typename Strategy
+>
+struct distance_result
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy
+    >
+    : public distance_result
+        <
+            Geometry2, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+        >
 {};
 
 
-template <typename ...Ts, typename ...Us, typename Strategy>
-struct distance_result<boost::variant<Ts...>, boost::variant<Us...>, Strategy>
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    BOOST_VARIANT_ENUM_PARAMS(typename U),
+    typename Strategy
+>
+struct distance_result
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>,
+        Strategy
+    >
 {
     // Select the most precise distance strategy result type
     //   for all variant type combinations.
@@ -179,8 +208,8 @@ struct distance_result<boost::variant<Ts...>, boost::variant<Us...>, Strategy>
     //   but is_implemented is not ready for prime time.
     typedef typename util::select_combination_element
         <
-            util::type_sequence<Ts...>,
-            util::type_sequence<Us...>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(U)>,
             detail::distance::more_precise_distance_result<Strategy>::template predicate
         >::type elements;
 

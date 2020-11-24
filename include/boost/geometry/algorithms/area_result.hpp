@@ -143,14 +143,14 @@ struct area_result
     : detail::area::area_result<Geometry, Strategy>
 {};
 
-template <typename ...Ts, typename Strategy>
-struct area_result<boost::variant<Ts...>, Strategy>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
+struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
     : geometry::area_result
         <
             typename util::select_pack_element
                 <
                     detail::area::more_precise_coordinate_type,
-                    Ts...
+                    BOOST_VARIANT_ENUM_PARAMS(T)
                 >::type,
             Strategy
         >
@@ -161,14 +161,14 @@ struct area_result<Geometry, default_strategy>
     : detail::area::default_area_result<Geometry>
 {};
 
-template <typename ...Ts>
-struct area_result<boost::variant<Ts...>, default_strategy>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, default_strategy>
     : detail::area::default_area_result
         <
             typename util::select_pack_element
                 <
                     detail::area::more_precise_default_area_result,
-                    Ts...
+                    BOOST_VARIANT_ENUM_PARAMS(T)
                 >::type
         >
 {};
