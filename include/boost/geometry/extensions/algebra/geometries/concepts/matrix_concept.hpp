@@ -23,12 +23,13 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/extensions/algebra/core/access.hpp>
 #include <boost/geometry/extensions/algebra/core/coordinate_dimension.hpp>
 #include <boost/geometry/extensions/algebra/core/coordinate_system.hpp>
 #include <boost/geometry/extensions/algebra/core/coordinate_type.hpp>
-#include <boost/mpl/assert.hpp>
 
 namespace boost { namespace geometry { namespace concepts {
 
@@ -81,7 +82,11 @@ public:
     BOOST_CONCEPT_USAGE(Matrix)
     {
         static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
-        BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            cs_check,
+            "Not implemented for this coordinate system.",
+            csystem
+        );
 
         dimension_checker<Geometry, 0, ccount>::apply();
     }
@@ -139,7 +144,7 @@ public:
     BOOST_CONCEPT_USAGE(ConstMatrix)
     {
         //static const bool cs_check = std::is_same<csystem, cs::cartesian>::value;
-        //BOOST_MPL_ASSERT_MSG(cs_check, NOT_IMPLEMENTED_FOR_THIS_CS, (csystem));
+        //BOOST_GEOMETRY_STATIC_ASSERT(cs_check, "Not implemented for this coordinate system.", csystem);
 
         //dimension_checker<Geometry, 0, ccount>::apply();
     }

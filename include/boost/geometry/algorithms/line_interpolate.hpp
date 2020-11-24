@@ -22,6 +22,7 @@
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -174,11 +175,9 @@ template
 >
 struct line_interpolate
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Geometry type.",
+        Geometry, Pointlike);
 };
 
 

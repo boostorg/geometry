@@ -2,6 +2,7 @@
 # GitHub Actions Workflow for Boost.Geometry to build minimal tests with Clang
 #
 # Copyright (c) 2020 Mateusz Loskot <mateusz@loskot.net>
+# Copyright (c) 2020 Adam Wulkiewicz, Lodz, Poland
 #
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -61,12 +62,12 @@ jobs:
         id: setenv
         run: |
           if [[ "$GITHUB_REF" == *master ]]; then
-            echo "::set-env name=BOOST_BRANCH::master"
+            echo "BOOST_BRANCH=master" >> $GITHUB_ENV
           else
-            echo "::set-env name=BOOST_BRANCH::develop"
+            echo "BOOST_BRANCH=develop" >> $GITHUB_ENV
           fi
-          echo "::set-env name=BOOST_SELF::$(basename $GITHUB_WORKSPACE)"
-          echo "::set-env name=BOOST_ROOT::$GITHUB_WORKSPACE/boost-root"
+          echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
+          echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
           echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
           echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
 
@@ -91,6 +92,7 @@ jobs:
 
       - name: Install
         run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
           sudo add-apt-repository "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main"
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt -q -y update

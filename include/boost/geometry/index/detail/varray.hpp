@@ -22,15 +22,11 @@
 #include <boost/move/detail/fwd_macros.hpp>
 #endif
 
+#include <boost/concept_check.hpp>
 #include <boost/config.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/swap.hpp>
 #include <boost/integer.hpp>
-
-#include <boost/mpl/assert.hpp>
-
-#include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/aligned_storage.hpp>
 
 // TODO - use std::reverse_iterator and std::iterator_traits
 // instead Boost.Iterator to remove dependency?
@@ -38,12 +34,15 @@
 #include <boost/iterator/reverse_iterator.hpp>
 #include <boost/iterator/iterator_concepts.hpp>
 
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+
+#include <boost/geometry/core/static_assert.hpp>
+
 #include <boost/geometry/index/detail/assert.hpp>
 #include <boost/geometry/index/detail/exception.hpp>
 
 #include <boost/geometry/index/detail/varray_detail.hpp>
-
-#include <boost/concept_check.hpp>
 
 /*!
 \defgroup varray_non_member varray non-member functions
@@ -158,11 +157,11 @@ class varray
     typedef varray_detail::varray_traits<Value, Capacity> vt;
     typedef varray_detail::checker<varray> errh;
 
-    BOOST_MPL_ASSERT_MSG(
+    BOOST_GEOMETRY_STATIC_ASSERT(
         ( std::is_unsigned<typename vt::size_type>::value &&
           sizeof(typename boost::uint_value_t<Capacity>::least) <= sizeof(typename vt::size_type) ),
-        SIZE_TYPE_IS_TOO_SMALL_FOR_SPECIFIED_CAPACITY,
-        (varray)
+        "Size type is too small for specified capacity.",
+        typename vt::size_type, std::integral_constant<std::size_t, Capacity>
     );
 
     typedef boost::aligned_storage<
@@ -1939,7 +1938,7 @@ public:
     template <typename Iterator>
     void insert(iterator, Iterator first, Iterator last)
     {
-        // TODO - add MPL_ASSERT, check if Iterator is really an iterator
+        // TODO - add BOOST_GEOMETRY_STATIC_ASSERT, check if Iterator is really an iterator
         errh::check_capacity(*this, std::distance(first, last));                    // may throw
     }
 
@@ -1962,7 +1961,7 @@ public:
     template <typename Iterator>
     void assign(Iterator first, Iterator last)
     {
-        // TODO - add MPL_ASSERT, check if Iterator is really an iterator
+        // TODO - add BOOST_GEOMETRY_STATIC_ASSERT, check if Iterator is really an iterator
         errh::check_capacity(*this, std::distance(first, last));                    // may throw
     }
 

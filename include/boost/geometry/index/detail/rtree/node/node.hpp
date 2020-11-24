@@ -18,6 +18,9 @@
 #include <type_traits>
 
 #include <boost/container/vector.hpp>
+
+#include <boost/geometry/core/static_assert.hpp>
+
 #include <boost/geometry/index/detail/varray.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
@@ -82,9 +85,9 @@ inline Box values_box(FwdIter first, FwdIter last, Translator const& tr,
                       Strategy const& strategy)
 {
     typedef typename std::iterator_traits<FwdIter>::value_type element_type;
-    BOOST_MPL_ASSERT_MSG((is_leaf_element<element_type>::value),
-                         SHOULD_BE_CALLED_ONLY_FOR_LEAF_ELEMENTS,
-                         (element_type));
+    BOOST_GEOMETRY_STATIC_ASSERT((is_leaf_element<element_type>::value),
+        "This function should be called only for elements of leaf nodes.",
+        element_type);
 
     Box result = elements_box<Box>(first, last, tr, strategy);
 

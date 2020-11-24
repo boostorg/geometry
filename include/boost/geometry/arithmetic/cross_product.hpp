@@ -19,11 +19,10 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/make.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
@@ -42,9 +41,9 @@ struct cross_product
     // In Math, it is also well-defined for 7-dimension.
     // Generalisation of cross product to n-dimension is defined as
     // wedge product but it is not direct analogue to binary cross product.
-    BOOST_MPL_ASSERT_MSG((false),
-                         NOT_IMPLEMENTED_FOR_THIS_DIMENSION,
-                         (std::integral_constant<std::size_t, Dimension>));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Dimension.",
+        std::integral_constant<std::size_t, Dimension>);
 };
 
 template <>
@@ -138,7 +137,11 @@ template
             int
         > = 0
 >
-constexpr inline ResultP cross_product(P1 const& p1, P2 const& p2)
+// workaround for VS2015
+#if (_MSC_VER >= 1910)
+constexpr
+#endif
+inline ResultP cross_product(P1 const& p1, P2 const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<ResultP>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P1>));
@@ -189,7 +192,11 @@ template
             int
         > = 0
 >
-constexpr inline P cross_product(P const& p1, P const& p2)
+// workaround for VS2015
+#if (_MSC_VER >= 1910)
+constexpr
+#endif
+inline P cross_product(P const& p1, P const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<P>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P>));

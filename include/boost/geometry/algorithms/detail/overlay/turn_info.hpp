@@ -34,6 +34,7 @@ enum method_type
     method_touch_interior,
     method_collinear,
     method_equal,
+    method_start,
     method_error
 };
 

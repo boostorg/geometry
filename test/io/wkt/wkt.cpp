@@ -118,24 +118,8 @@ void test_wrong_wkt(std::string const& wkt, std::string const& start)
         e = "other exception";
     }
 
-    bool check = true;
-
-#if defined(HAVE_TTMATH)
-    // For ttmath we skip bad lexical casts
-    typedef typename bg::coordinate_type<G>::type ct;
-
-    if (boost::is_same<ct, ttmath_big>::type::value
-        && boost::starts_with(start, "bad lexical cast"))
-    {
-        check = false;
-    }
-#endif
-
-    if (check)
-    {
-        BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
+    BOOST_CHECK_MESSAGE(boost::starts_with(e, start), "  Expected:"
                     << start << " Got:" << e << " with WKT: " << wkt);
-    }
 }
 
 template <typename G>
@@ -261,10 +245,6 @@ int test_main(int, char* [])
 {
     test_all<double>();
     test_all<int>();
-
-#if defined(HAVE_TTMATH)
-    test_all<ttmath_big>();
-#endif
 
     return 0;
 }

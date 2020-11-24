@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
-// Unit Test
+// Robustness Test
 
-// Copyright (c) 2009-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -11,12 +11,14 @@
 
 #include <test_overlay_p_q.hpp>
 
-#include <boost/program_options.hpp>
-#include <boost/timer.hpp>
+#include <sstream>
+#include <chrono>
 
-template <typename Polygon>
+#include <boost/program_options.hpp>
+
+template <typename Polygon, typename T>
 inline void make_pie(Polygon& polygon,
-    int count, int offset, int offset_y, double factor1, int total_segment_count = 36)
+    int count, int offset, int offset_y, T factor1, int total_segment_count = 36)
 {
     typedef typename bg::point_type<Polygon>::type p;
     typedef typename bg::select_most_precise
@@ -131,7 +133,7 @@ template <typename T, bool Clockwise, bool Closed>
 void test_pie(int total_segment_count, T factor_p, T factor_q,
             bool multi, bool single_selftangent, p_q_settings const& settings)
 {
-    boost::timer t;
+    auto const t0 = std::chrono::high_resolution_clock::now();
     typedef bg::model::d2::point_xy<T> point_type;
     typedef bg::model::polygon<point_type, Clockwise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
@@ -221,8 +223,10 @@ void test_pie(int total_segment_count, T factor_p, T factor_q,
             }
         }
     }
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
     std::cout
-        << "Time: " << t.elapsed()  << std::endl
+        << " time: " << elapsed_ms / 1000.0 << std::endl
         << "Good: " << good_count << std::endl
         << "Bad: " << bad_count << std::endl;
 }
@@ -271,21 +275,20 @@ int main(int argc, char** argv)
         // template par's are: CoordinateType, Clockwise, Closed
         if (ccw && open)
         {
-            test_all<double, false, false>(multi, single_selftangent, settings);
+            test_all<default_test_type, false, false>(multi, single_selftangent, settings);
         }
         else if (ccw)
         {
-            test_all<double, false, true>(multi, single_selftangent, settings);
+            test_all<default_test_type, false, true>(multi, single_selftangent, settings);
         }
         else if (open)
         {
-            test_all<double, true, false>(multi, single_selftangent, settings);
+            test_all<default_test_type, true, false>(multi, single_selftangent, settings);
         }
         else
         {
-            test_all<double, true, true>(multi, single_selftangent, settings);
+            test_all<default_test_type, true, true>(multi, single_selftangent, settings);
         }
-        //test_all<long double>();
     }
     catch(std::exception const& e)
     {

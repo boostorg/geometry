@@ -26,9 +26,8 @@
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/assert.hpp>
 
-#include <boost/geometry/util/parameter_type_of.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/segment.hpp>
@@ -36,6 +35,8 @@
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
+
+#include <boost/geometry/util/parameter_type_of.hpp>
 
 
 namespace boost { namespace geometry { namespace concepts
@@ -91,10 +92,10 @@ private :
                 || std::is_same<tag, strategy_tag_distance_point_box>::value
                 || std::is_same<tag, strategy_tag_distance_box_box>::value;
 
-            BOOST_MPL_ASSERT_MSG
-                ((is_correct_strategy_tag),
-                 INCORRECT_STRATEGY_TAG,
-                 (types<tag>));
+            BOOST_GEOMETRY_STATIC_ASSERT(
+                 is_correct_strategy_tag,
+                 "Incorrect Strategy tag.",
+                 Strategy, tag);
 
             // 5) must implement apply with arguments
             Strategy* str = 0;
@@ -161,13 +162,13 @@ private :
             // 2) must define meta-function "tag"
             typedef typename services::tag<Strategy>::type tag;
 
-            BOOST_MPL_ASSERT_MSG
-                ((std::is_same
-                      <
-                          tag, strategy_tag_distance_point_segment
-                      >::value),
-                 INCORRECT_STRATEGY_TAG,
-                 (types<tag>));
+            BOOST_GEOMETRY_STATIC_ASSERT(
+                (std::is_same
+                    <
+                        tag, strategy_tag_distance_point_segment
+                    >::value),
+                "Incorrect Strategy tag.",
+                Strategy, tag);
 
             // 3) must define meta-function "return_type"
             typedef typename services::return_type

@@ -909,7 +909,7 @@ static std::string ggl_list_20110716_enrico[2] =
 
 
 // Send on ggl-list by Christoph/Angus at 2011-08-19/20
-// This polygon combination fails to union in <float> but do in <double> or <ttmath>
+// This polygon combination fails to union in <float> but do in <double>
 // It had previosly an error which has been fixed at 2011-08-30
 static std::string ggl_list_20110820_christophe[2] =
 {

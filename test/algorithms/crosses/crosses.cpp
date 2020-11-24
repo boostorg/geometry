@@ -97,10 +97,6 @@ int test_main( int , char* [] )
     test_2d<bg::model::d2::point_xy<int> >();
     test_2d<bg::model::d2::point_xy<double> >();
 
-#if defined(HAVE_TTMATH)
-    test_2d<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
    //test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;

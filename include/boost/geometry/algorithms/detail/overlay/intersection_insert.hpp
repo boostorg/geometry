@@ -17,23 +17,33 @@
 
 
 #include <cstddef>
+#include <deque>
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/range/metafunctions.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
-#include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/core/reverse_dispatch.hpp>
-#include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_areal.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
+
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/reverse_dispatch.hpp>
+#include <boost/geometry/core/static_assert.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -41,12 +51,6 @@
 
 #include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/views/detail/boundary_view.hpp>
-
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
-#include <boost/geometry/algorithms/detail/overlay/pointlike_areal.hpp>
-#include <boost/geometry/algorithms/detail/overlay/pointlike_linear.hpp>
-#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -553,11 +557,10 @@ template
 >
 struct intersection_insert
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPES_OR_ORIENTATIONS
-            , (types<Geometry1, Geometry2, GeometryOut>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for these Geometry types or their order.",
+        Geometry1, Geometry2, GeometryOut,
+        std::integral_constant<overlay_type, OverlayType>);
 };
 
 

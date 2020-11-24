@@ -120,10 +120,5 @@ int test_main( int , char* [] )
     test_cs<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
     test_cs<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
-#if defined(HAVE_TTMATH)
-    test_cs<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-    test_cs<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
-#endif
-
     return 0;
 }

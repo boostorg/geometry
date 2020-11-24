@@ -40,7 +40,7 @@ struct default_integral
 /*!
 \details Selects the most appropriate:
     - if calculation type is specified (not void), that one is used
-    - else if type is non-fundamental (user defined e.g. ttmath), that one
+    - else if type is non-fundamental (user defined e.g. Boost.Multiprecision), that one
     - else if type is floating point, the specified default FP is used
     - else it is integral and the specified default integral is used
  */

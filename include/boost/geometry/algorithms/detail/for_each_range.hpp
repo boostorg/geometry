@@ -24,10 +24,10 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/core/addressof.hpp>
-#include <boost/mpl/assert.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -138,11 +138,9 @@ template
 >
 struct for_each_range
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        Geometry, Tag);
 };
 
 

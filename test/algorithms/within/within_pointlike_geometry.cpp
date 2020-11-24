@@ -450,12 +450,6 @@ int test_main( int , char* [] )
     test_spherical_geographic<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
     test_spherical_geographic<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
 
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-    test_spherical_geographic<bg::model::point<ttmath_big, 2, bg::cs::spherical_equatorial<bg::degree> > >();
-    test_spherical_geographic<bg::model::point<ttmath_big, 2, bg::cs::geographic<bg::degree> > >();
-#endif
-
     test_tickets();
 
     return 0;

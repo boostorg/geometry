@@ -19,10 +19,6 @@
 
 #include <test_common/test_point.hpp>
 
-#ifdef HAVE_TTMATH
-#  include <boost/geometry/extensions/contrib/ttmath_stub.hpp>
-#endif
-
 typedef bg::srs::spheroid<double> stype;
 
 typedef bg::strategy::andoyer andoyer_formula;

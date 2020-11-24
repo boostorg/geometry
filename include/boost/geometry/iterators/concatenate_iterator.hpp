@@ -13,9 +13,10 @@
 
 #include <type_traits>
 
-#include <boost/mpl/assert.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
+
+#include <boost/geometry/core/static_assert.hpp>
 
 
 namespace boost { namespace geometry
@@ -84,9 +85,9 @@ public:
             = std::is_convertible<OtherIt1, Iterator1>::value
            && std::is_convertible<OtherIt2, Iterator2>::value;
 
-        BOOST_MPL_ASSERT_MSG((are_conv),
-                             NOT_CONVERTIBLE,
-                             (types<OtherIt1, OtherIt2>));
+        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
+            "Other iterators have to be convertible to member iterators.",
+            OtherIt1, OtherIt2);
     }
 
 private:

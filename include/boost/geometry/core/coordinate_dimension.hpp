@@ -21,10 +21,8 @@
 
 #include <cstddef>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry
@@ -44,10 +42,9 @@ namespace traits
 template <typename Point, typename Enable = void>
 struct dimension
 {
-   BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_POINT_TYPE, (types<Point>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this Point type.",
+        Point);
 };
 
 } // namespace traits
@@ -70,10 +67,10 @@ struct dimension<point_tag, P>
             traits::dimension<util::remove_cptrref_t<P>>::value
         >
 {
-    BOOST_MPL_ASSERT_MSG(
+    BOOST_GEOMETRY_STATIC_ASSERT(
         (traits::dimension<util::remove_cptrref_t<P>>::value > 0),
-        INVALID_DIMENSION_VALUE,
-        (traits::dimension<util::remove_cptrref_t<P>>)
+        "Dimension has to be greater than 0.",
+        traits::dimension<util::remove_cptrref_t<P>>
     );
 };
 
@@ -100,26 +97,26 @@ struct dimension
 \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
 \ingroup utility
 */
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension()
 {
-    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::value) == Dimensions ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::value == Dimensions ));
 }
 
 /*!
 \brief assert_dimension, enables compile-time checking if coordinate dimensions are as expected
 \ingroup utility
 */
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension_less_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::value) <= Dimensions ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::value <= Dimensions ));
 }
 
-template <typename Geometry, int Dimensions>
+template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension_greater_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<int>(dimension<Geometry>::value) >= Dimensions ));
+    BOOST_STATIC_ASSERT(( dimension<Geometry>::value >= Dimensions ));
 }
 
 /*!
@@ -129,7 +126,7 @@ constexpr inline void assert_dimension_greater_equal()
 template <typename G1, typename G2>
 constexpr inline void assert_dimension_equal()
 {
-    BOOST_STATIC_ASSERT(( static_cast<size_t>(dimension<G1>::value) == static_cast<size_t>(dimension<G2>::value) ));
+    BOOST_STATIC_ASSERT(( dimension<G1>::value == dimension<G2>::value ));
 }
 
 }} // namespace boost::geometry

@@ -24,8 +24,10 @@
 #include <type_traits>
 
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/range.hpp>
-
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>

@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013, 2014.
-// Modifications copyright (c) 2013-2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -209,8 +209,15 @@ void test_all()
     // Unequal (but same area)
     test_geometry<ring, ring>("poly_uneq", case_p1, "POLYGON((1 1,1 3,3 3,1 1))", false);
 
+    // Note that POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))
+    // below is invalid. equals() returns different result than
+    // relate() with equals mask in this case because for areal
+    // geometries different algorithms is used, i.e. collect_vectors.
+
     // One having hole
-    test_geometry<polygon, polygon>("poly_hole", "POLYGON((0 0,0 4,4 4,0 0))", "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))", false);
+    test_geometry<polygon, polygon>("poly_hole",
+            "POLYGON((0 0,0 4,4 4,0 0))",
+            "POLYGON((0 0,0 4,4 4,0 0),(1 1,2 1,2 2,1 2,1 1))", false);
 
     // Both having holes
     test_geometry<polygon, polygon>("poly_holes",
@@ -303,16 +310,9 @@ void verify()
 int test_main( int , char* [] )
 {
     //verify<double>();
-#if defined(HAVE_TTMATH)
-    verify<ttmath_big>();
-#endif
 
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
-
-#if defined(HAVE_TTMATH)
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
 
     return 0;
 }

@@ -50,6 +50,11 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
 
+#define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
+    { ut_settings ignore_validity; ignore_validity.set_test_validity(false); \
+    (test_one<Polygon, Polygon, Polygon>) \
+    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
+
 #define TEST_INTERSECTION_WITH(caseid, index1, index2, \
      clips, points, area, settings) \
     (test_one<Polygon, Polygon, Polygon>) \
@@ -59,10 +64,6 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
-    typedef typename bg::coordinate_type<Polygon>::type ct;
-    bool const ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
-    bool const open = bg::closure<Polygon>::value == bg::open;
-
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -151,7 +152,7 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
-        1, 0 /* f: 4, other: 5 */, 0.29516139, ut_settings(0.01));
+        1, 0, 0.29516139);
 
     test_one<Polygon, Polygon, Polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
@@ -176,53 +177,19 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
-    {
-        ut_settings settings(if_typed_tt<ct>(0.01, 0.1));
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+    TEST_INTERSECTION(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
 
-        // SQL Server gives: 88.1920416352664
-        // PostGIS gives:    88.19203677911
-        test_one<Polygon, Polygon, Polygon>("isovist",
-            isovist1[0], isovist1[1],
-            1, 19, 88.192037,
-            settings);
-    }
+    TEST_INTERSECTION_IGNORE(geos_1, 1, -1, expectation_limits(3455, 3462));
 
-    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<ct, float>::value)) )
-    {
-        test_one<Polygon, Polygon, Polygon>("geos_1",
-            geos_1[0], geos_1[1],
-                1, -1, BG_IF_RESCALED(3461.12321694, BG_IF_KRAMER(3461.02336, 3461.105448)), // MSVC 14 reports 3461.025390625
-                ut_settings(0.01, false));
-    }
-
-    // Expectations:
-    // In most cases: 0 (no intersection)
+    // Can, in some cases, create small slivers
     // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
     // In some cases: 5.6022983000000002e-05 (powerpc64le-gcc-6-0)
-    test_one<Polygon, Polygon, Polygon>("geos_2", geos_2[0], geos_2[1],
-            0, 0, 6.0e-5, ut_settings(-1.0)); // -1 denotes: compare with <=
+    TEST_INTERSECTION(geos_2, count_set(0, 1, 2), 0, optional_sliver(6.0e-5));
 
-    test_one<Polygon, Polygon, Polygon>("geos_3",
-        geos_3[0], geos_3[1],
-            0, 0, 0.0);
-    test_one<Polygon, Polygon, Polygon>("geos_4",
-        geos_4[0], geos_4[1],
-            1, -1, 0.08368849, ut_settings(0.01));
+    TEST_INTERSECTION(geos_3, optional(), 0, optional_sliver(3.0e-7));
+    TEST_INTERSECTION(geos_4, 1, -1, expectation_limits(0.08368, 0.08370));
 
-
-    if ( BOOST_GEOMETRY_CONDITION(! ccw && open) )
-    {
-        // Pointcount for ttmath/double (both 5) or float (4)
-        // double returns 5 (since method append_no_dups_or_spikes)
-        // but not for ccw/open. Those cases has to be adapted once, anyway,
-        // because for open always one point too much is generated...
-        test_one<Polygon, Polygon, Polygon>("ggl_list_20110306_javier",
-            ggl_list_20110306_javier[0], ggl_list_20110306_javier[1],
-            1, if_typed<ct, float>(4, 5),
-            0.6649875,
-            ut_settings(if_typed<ct, float>(1.0, 0.01)));
-    }
+    TEST_INTERSECTION(ggl_list_20110306_javier, 1, -1, expectation_limits(0.6649, 0.6670));
 
     // SQL Server reports: 0.400390625
     // PostGIS reports 0.4
@@ -230,11 +197,11 @@ void test_areal()
     // when selecting other IP closer at endpoint or if segment B is smaller than A
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110307_javier",
         ggl_list_20110307_javier[0], ggl_list_20110307_javier[1],
-        1, 4, BG_IF_RESCALED(0.397162651, 0.40), ut_settings(0.01));
+        1, 4, {0.397162651, 0.40});
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
-        1, if_typed_tt<ct>(6, 5), 11151.6618);
+        1, -1, 11151.6618);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20110716_enrico",
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
@@ -242,31 +209,31 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20131119_james",
         ggl_list_20131119_james[0], ggl_list_20131119_james[1],
-        1, 4, 6.6125873045, ut_settings(0.1));
+        1, 4, 6.6125873045);
 
     test_one<Polygon, Polygon, Polygon>("ggl_list_20140223_shalabuda",
         ggl_list_20140223_shalabuda[0], ggl_list_20140223_shalabuda[1],
-        1, 4, 3.77106, ut_settings(0.001));
+        1, 4, {3.771058, 3.771066});
 
     // Mailed to the Boost.Geometry list on 2014/03/21 by 7415963@gmail.com
     test_one<Polygon, Polygon, Polygon>("ggl_list_20140321_7415963",
         ggl_list_20140321_7415963[0], ggl_list_20140321_7415963[1],
-        0, 0, 0, ut_settings(0.1));
+        0, 0, 0);
 
     TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
     TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
-                1, 4,  0.00029437899183903937, ut_settings(0.01));
+                1, 4, expectation_limits(0.00029437, 0.000294380));
 #endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
 
     test_one<Polygon, Polygon, Polygon>("ticket_8254", ticket_8254[0], ticket_8254[1],
-                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 3.635930e-08), ut_settings(0.01));
+                optional(), -1, optional_sliver(1e-07));
     test_one<Polygon, Polygon, Polygon>("ticket_6958", ticket_6958[0], ticket_6958[1],
-                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 4.34355e-05), ut_settings(0.01));
+                optional(), -1, optional_sliver());
     test_one<Polygon, Polygon, Polygon>("ticket_8652", ticket_8652[0], ticket_8652[1],
                 1, 4, 0.0003);
 
@@ -289,7 +256,7 @@ void test_areal()
     // mingw 5.6022954e-5
     test_one<Polygon, Polygon, Polygon>("ticket_10108_b",
                 ticket_10108_b[0], ticket_10108_b[1],
-            0, 0, 5.6022983e-5, ut_settings(-1.0));
+            optional(), 0, optional_sliver(1.0e-4));
 
     test_one<Polygon, Polygon, Polygon>("ticket_10747_a",
                 ticket_10747_a[0], ticket_10747_a[1],
@@ -307,11 +274,11 @@ void test_areal()
     // Delivers very small triangle < 1.0e-13, or zero
     test_one<Polygon, Polygon, Polygon>("ticket_10747_e",
                 ticket_10747_e[0], ticket_10747_e[1],
-                BG_IF_RESCALED(1, 0), -1, 1.0e-13, ut_settings(-1.0));
+                optional(), -1, optional_sliver(1.0e-13));
 
     test_one<Polygon, Polygon, Polygon>("ticket_11576",
                 ticket_11576[0], ticket_11576[1],
-                if_typed<ct, float>(0, 1), -1, if_typed<ct, float>(0.0, 5.585617332907136e-07));
+                1, -1, expectation_limits(5.5856173e-07, 5.5856175e-07));
 
     {
         // Not yet valid when rescaling is turned off
@@ -323,7 +290,7 @@ void test_areal()
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // With rescaling the output is empty
-    TEST_INTERSECTION(issue_548, 1, -1, 1958824415.2151);
+    TEST_INTERSECTION(issue_548, 1, -1, expectation_limits(1958821942, 1958824416));
 #endif
 
     TEST_INTERSECTION(issue_566_a, 1, -1, 70.7107);
@@ -340,18 +307,18 @@ void test_areal()
 
     test_one<Polygon, Polygon, Polygon>("case_80",
         case_80[0], case_80[1],
-        0, -1, 0.0);
+        0, 0, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("case_81",
         case_81[0], case_81[1],
-        0, -1, 0.0);
+        0, 0, 0.0);
 
     test_one<Polygon, Polygon, Polygon>("case_101",
         case_101[0], case_101[1],
-        0, -1, 6.25);
+        1, -1, 6.25);
     test_one<Polygon, Polygon, Polygon>("case_102",
         case_102[0], case_102[1],
-        0, -1, 3.1875);
+        count_set(1, 2), -1, 3.1875);
 
     test_one<Polygon, Polygon, Polygon>("case_103",
         case_103[0], case_103[1],
@@ -364,11 +331,11 @@ void test_areal()
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
 
-    TEST_INTERSECTION(case_precision_1, 0, 0, 0.0);
-    TEST_INTERSECTION(case_precision_2, 0, 0, 0.0);
-    TEST_INTERSECTION(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_1, optional(), 0, optional_sliver(1.0e-4));
+    TEST_INTERSECTION(case_precision_2, optional(), 0, optional_sliver(1.0e-5));
+    TEST_INTERSECTION(case_precision_3, optional(), 0, optional_sliver(1.0e-7));
     TEST_INTERSECTION(case_precision_4, 0, 0, 0.0);
-    TEST_INTERSECTION(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION(case_precision_5, optional(), 0, optional_sliver(1.0e-6));
     TEST_INTERSECTION(case_precision_6, 1, -1, 14.0);
     TEST_INTERSECTION(case_precision_7, 0, -1, 0.0);
     TEST_INTERSECTION(case_precision_8, 1, -1, 14.0);
@@ -391,11 +358,11 @@ void test_areal()
     TEST_INTERSECTION(case_precision_25, 0, 0, 0.0);
     TEST_INTERSECTION(case_precision_26, 1, -1, 14.0);
 
-    TEST_INTERSECTION_REV(case_precision_1, 0, 0, 0.0);
-    TEST_INTERSECTION_REV(case_precision_2, 0, 0, 0.0);
-    TEST_INTERSECTION_REV(case_precision_3, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_1, optional(), 0, optional_sliver(1.0e-4));
+    TEST_INTERSECTION_REV(case_precision_2, optional(), 0, optional_sliver(1.0e-5));
+    TEST_INTERSECTION_REV(case_precision_3, optional(), 0, optional_sliver(1.0e-7));
     TEST_INTERSECTION_REV(case_precision_4, 0, 0, 0.0);
-    TEST_INTERSECTION_REV(case_precision_5, 0, 0, 0.0);
+    TEST_INTERSECTION_REV(case_precision_5, optional(), 0, optional_sliver(1.0e-6));
     TEST_INTERSECTION_REV(case_precision_6, 1, -1, 14.0);
     TEST_INTERSECTION_REV(case_precision_7, 0, -1, 0.0);
     TEST_INTERSECTION_REV(case_precision_8, 1, -1, 14.0);
@@ -433,13 +400,15 @@ void test_areal()
 
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
 
+    // Formation of an interior ring is optional
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
         mysql_23023665_10[0], mysql_23023665_10[1],
-        1, 0, -1, 54.701340543162523);
+        1, optional(), -1, 54.701340543162523);
 
+    // Formation of an interior ring is optional
     test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
         mysql_23023665_11[0], mysql_23023665_11[1],
-        1, 0, -1, 35.933385462482065);
+        1, optional(), -1, 35.933385462482065);
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",
@@ -719,9 +688,6 @@ void test_all()
     typedef bg::model::polygon<P, false, false> polygon_ccw_open;
     boost::ignore_unused<polygon_ccw, polygon_open, polygon_ccw_open>();
 
-    ut_settings ignore_validity;
-    ignore_validity.set_test_validity(false);
-
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
@@ -774,7 +740,8 @@ void test_all()
     test_one<linestring, linestring, box>("llbo", "LINESTRING(9 9,10 10)", clip, 0, 0, 0.0);
 
     // Touching with point (-> output linestring with ONE point)
-    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0, ignore_validity);
+    test_one<linestring, linestring, box>("llb_touch", "LINESTRING(8 8,10 10)", clip, 1, 1, 0.0,
+                                          ut_settings(0.0001, false));
 
     // Along border
     test_one<linestring, linestring, box>("llb_along", "LINESTRING(2 2,2 8)", clip, 1, 2, 6.0);
@@ -935,12 +902,6 @@ int test_main(int, char* [])
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();
 
-#if defined(HAVE_TTMATH)
-    std::cout << "Testing TTMATH" << std::endl;
-    test_all<bg::model::d2::point_xy<ttmath_big> >();
-#endif
-
-
     // Commented, because exception is now disabled:
     // test_exception<bg::model::d2::point_xy<double> >();
 
@@ -955,7 +916,7 @@ int test_main(int, char* [])
     // ticket #10868 still fails for 32-bit integers
     test_ticket_10868<int32_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 
-#if !defined(BOOST_NO_INT64) || defined(BOOST_HAS_INT64_T) || defined(BOOST_HAS_MS_INT64)
+#if !defined(BOOST_NO_INT64_T) || defined(BOOST_HAS_MS_INT64)
     test_ticket_10868<int64_t>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 
@@ -973,7 +934,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
     // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(4, 3);
+    BoostGeometryWriteExpectedFailures(4, 3, 3, 1);
 #endif
 
     return 0;

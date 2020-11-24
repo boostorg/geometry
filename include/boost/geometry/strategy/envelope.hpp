@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_ENVELOPE_HPP
 #define BOOST_GEOMETRY_STRATEGY_ENVELOPE_HPP
 
-#include <boost/mpl/assert.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,11 +30,9 @@ namespace strategy { namespace envelope { namespace services
 template <typename Tag, typename CSTag, typename CalculationType = void>
 struct default_strategy
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_IMPLEMENTED_FOR_THIS_TYPE
-            , (types<Tag, CSTag>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not implemented for this type.",
+        Tag, CSTag);
 };
 
 }}} // namespace strategy::envelope::services

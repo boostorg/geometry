@@ -137,7 +137,7 @@ void test_rectangle_properties()
                         "piece should not be empty");
 
     // Check border-properties functionality (envelope, radius)
-    double const area = bg::area(border.m_envelope);
+    auto const area = bg::area(border.m_envelope);
     BOOST_CHECK_MESSAGE(area > 1.0 && area < 1.01,
                         "detected: " << area);
 

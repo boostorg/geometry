@@ -18,14 +18,6 @@
 
 #include <cstddef>
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/point_order.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
@@ -33,7 +25,13 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 

@@ -20,6 +20,8 @@
 
 #include <boost/core/ignore_unused.hpp>
 
+#include <boost/geometry/core/static_assert.hpp>
+
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 #include <boost/geometry/index/detail/bounded_view.hpp>
@@ -49,7 +51,9 @@ inline R difference_dispatch(T const& from, T const& to, std::true_type /*is_uns
 template <typename R, typename T>
 inline R difference(T const& from, T const& to)
 {
-    BOOST_MPL_ASSERT_MSG((! std::is_unsigned<R>::value), RESULT_CANT_BE_UNSIGNED, (R));
+    BOOST_GEOMETRY_STATIC_ASSERT((! std::is_unsigned<R>::value),
+        "Result can not be an unsigned type.",
+        R);
 
     return difference_dispatch<R>(from, to, std::is_unsigned<T>());
 }

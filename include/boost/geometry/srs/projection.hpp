@@ -17,10 +17,14 @@
 #include <string>
 #include <type_traits>
 
+#include <boost/smart_ptr/shared_ptr.hpp>
+#include <boost/throw_exception.hpp>
+
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/srs/projections/dpar.hpp>
 #include <boost/geometry/srs/projections/exception.hpp>
@@ -33,10 +37,6 @@
 #include <boost/geometry/srs/projections/spar.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/smart_ptr/shared_ptr.hpp>
-#include <boost/throw_exception.hpp>
 
 
 namespace boost { namespace geometry
@@ -75,9 +75,9 @@ inline void copy_higher_dimensions(Point1 const& point1, Point2 & point2)
     static const std::size_t dim1 = geometry::dimension<Point1>::value;
     static const std::size_t dim2 = geometry::dimension<Point2>::value;
     static const std::size_t lesser_dim = dim1 < dim2 ? dim1 : dim2;
-    BOOST_MPL_ASSERT_MSG((lesser_dim >= MinDim),
-                         THE_DIMENSION_OF_POINTS_IS_TOO_SMALL,
-                         (Point1, Point2));
+    BOOST_GEOMETRY_STATIC_ASSERT((lesser_dim >= MinDim),
+        "The dimension of Point1 or Point2 is too small.",
+        Point1, Point2);
 
     geometry::detail::conversion::point_to_point
         <
@@ -322,9 +322,9 @@ struct dynamic_parameters<srs::dpar::parameters<T> >
 template <typename Proj, typename CT>
 class proj_wrapper
 {
-    BOOST_MPL_ASSERT_MSG((false),
-                         UNKNOWN_PROJECTION_DEFINITION,
-                         (Proj));
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Unknown projection definition.",
+        Proj);
 };
 
 template <typename CT>
@@ -416,11 +416,11 @@ private:
     projection_type m_proj;
 };
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename CT>
-class proj_wrapper<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
-    : public static_proj_wrapper_base<srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, CT>
+template <typename ...Ps, typename CT>
+class proj_wrapper<srs::spar::parameters<Ps...>, CT>
+    : public static_proj_wrapper_base<srs::spar::parameters<Ps...>, CT>
 {
-    typedef srs::spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>
+    typedef srs::spar::parameters<Ps...>
         static_parameters_type;
     typedef static_proj_wrapper_base
         <
@@ -459,9 +459,10 @@ public:
     template <typename LL, typename XY>
     inline bool forward(LL const& ll, XY& xy) const
     {
-        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<LL, XY>::value),
-                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
-                             (LL, XY));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (projections::detail::same_tags<LL, XY>::value),
+            "Not supported combination of Geometries.",
+            LL, XY);
 
         concepts::check_concepts_and_equal_dimensions<LL const, XY>();
 
@@ -476,9 +477,10 @@ public:
     template <typename XY, typename LL>
     inline bool inverse(XY const& xy, LL& ll) const
     {
-        BOOST_MPL_ASSERT_MSG((projections::detail::same_tags<XY, LL>::value),
-                             NOT_SUPPORTED_COMBINATION_OF_GEOMETRIES,
-                             (XY, LL));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (projections::detail::same_tags<XY, LL>::value),
+            "Not supported combination of Geometries.",
+            XY, LL);
 
         concepts::check_concepts_and_equal_dimensions<XY const, LL>();
 

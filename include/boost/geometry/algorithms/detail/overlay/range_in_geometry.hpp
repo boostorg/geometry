@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
+// Copyright (c) 2017-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,8 +16,6 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/iterators/point_iterator.hpp>
-
-#include <boost/range.hpp>
 
 
 namespace boost { namespace geometry
