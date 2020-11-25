@@ -179,6 +179,39 @@ struct base_turn_handler
         ti.operations[1].fraction = info.fractions[index].robust_rb;
     }
 
+    template <typename TurnInfo, typename IntersectionInfo, typename DirInfo>
+    static inline void assign_point_and_correct(TurnInfo& ti,
+                method_type method,
+                IntersectionInfo const& info, DirInfo const& dir_info)
+    {
+        ti.method = method;
+
+        // For touch/touch interior always take the intersection point 0 (there is only one).
+        static int const index = 0;
+
+        geometry::convert(info.intersections[index], ti.point);
+
+        for (int i = 0; i < 2; i++)
+        {
+            if (dir_info.arrival[i] == 1)
+            {
+                // The segment arrives at the intersection point, its fraction should be 1
+                // (due to precision it might be nearly so, but not completely, in rare cases)
+                ti.operations[i].fraction = {1, 1};
+            }
+            else if (dir_info.arrival[i] == -1)
+            {
+                // The segment leaves from the intersection point, likewise its fraction should be 0
+                ti.operations[i].fraction = {0, 1};
+            }
+            else
+            {
+                ti.operations[i].fraction = i == 0 ? info.fractions[index].robust_ra
+                                                   : info.fractions[index].robust_rb;
+            }
+        }
+    }
+
     template <typename IntersectionInfo>
     static inline unsigned int non_opposite_to_index(IntersectionInfo const& info)
     {
@@ -344,7 +377,7 @@ struct touch_interior : public base_turn_handler
                 SidePolicy const& side,
                 UmbrellaStrategy const& umbrella_strategy)
     {
-        assign_point(ti, method_touch_interior, intersection_info, 0);
+        assign_point_and_correct(ti, method_touch_interior, intersection_info, dir_info);
 
         // Both segments of q touch segment p somewhere in its interior
         // 1) We know: if q comes from LEFT or RIGHT
@@ -443,7 +476,6 @@ struct touch_interior : public base_turn_handler
             if (side_qk_q == side_qi_p)
             {
                 both_collinear<index_p, index_q>(range_p, range_q, umbrella_strategy, 1, 2, ti);
-                return;
             }
             else
             {
@@ -568,7 +600,7 @@ struct touch : public base_turn_handler
                 SideCalculator const& side,
                 UmbrellaStrategy const& umbrella_strategy)
     {
-        assign_point(ti, method_touch, intersection_info, 0);
+        assign_point_and_correct(ti, method_touch, intersection_info, dir_info);
 
         bool const has_pk = ! range_p.is_last_segment();
         bool const has_qk = ! range_q.is_last_segment();
@@ -760,7 +792,7 @@ struct equal : public base_turn_handler
                 UniqueSubRange2 const& range_q,
                 TurnInfo& ti,
                 IntersectionInfo const& info,
-                DirInfo const&  ,
+                DirInfo const& ,
                 SideCalculator const& side,
                 UmbrellaStrategy const& umbrella_strategy)
     {
@@ -882,7 +914,7 @@ struct start : public base_turn_handler
         }
 
         // Copy intersection point
-        assign_point(ti, method_start, info, 0);
+        assign_point_and_correct(ti, method_start, info, dir_info);
         return true;
     }
 
@@ -1060,23 +1092,15 @@ private :
          1         -1         -1               CXO3    ux
     */
 
-    template
-    <
-        unsigned int Index,
-        typename IntersectionInfo
-    >
-    static inline bool set_tp(int side_rk_r, bool handle_robustness,
-                int side_rk_s,
-                TurnInfo& tp, IntersectionInfo const& intersection_info)
+    template <unsigned int Index, typename IntersectionInfo>
+    static inline bool set_tp(int side_rk_r, TurnInfo& tp,
+                              IntersectionInfo const& intersection_info)
     {
         BOOST_STATIC_ASSERT(Index <= 1);
-
-        boost::ignore_unused(handle_robustness, side_rk_s);
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)
         {
-
             case 1 :
                 // Turning left on opposite collinear: intersection
                 tp.operations[Index].operation = operation_intersection;
@@ -1168,7 +1192,7 @@ public:
         // If P arrives within Q, there is a turn dependent on P
         if ( p_arrival == 1
           && ! range_p.is_last_segment()
-          && set_tp<0>(side.pk_wrt_p1(), true, side.pk_wrt_q1(), tp, info.i_info()) )
+          && set_tp<0>(side.pk_wrt_p1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
@@ -1178,7 +1202,7 @@ public:
         // If Q arrives within P, there is a turn dependent on Q
         if ( q_arrival == 1
           && ! range_q.is_last_segment()
-          && set_tp<1>(side.qk_wrt_q1(), false, side.qk_wrt_p1(), tp, info.i_info()) )
+          && set_tp<1>(side.qk_wrt_q1(), tp, info.i_info()) )
         {
             turn_transformer(tp);
 
@@ -1237,7 +1261,7 @@ struct only_convert : public base_turn_handler
     template<typename TurnInfo, typename IntersectionInfo>
     static inline void apply(TurnInfo& ti, IntersectionInfo const& intersection_info)
     {
-        assign_point(ti, method_none, intersection_info, 0); // was collinear
+        assign_point(ti, method_none, intersection_info, 0);
         ti.operations[0].operation = operation_continue;
         ti.operations[1].operation = operation_continue;
     }

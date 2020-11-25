@@ -79,9 +79,9 @@ struct default_length_result
     : resolve_strategy::default_length_result<Geometry>
 {};
 
-template <typename ...Ts>
-struct default_length_result<boost::variant<Ts...> >
-    : resolve_strategy::default_length_result<Ts...>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct default_length_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    : resolve_strategy::default_length_result<BOOST_VARIANT_ENUM_PARAMS(T)>
 {};
 
 } // namespace resolve_variant
