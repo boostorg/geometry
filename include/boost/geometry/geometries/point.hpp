@@ -82,6 +82,11 @@ class point
     // passed for non-Cartesian coordinate systems.
     enum { cs_check = sizeof(CoordinateSystem) };
 
+    template <typename DT, bool Condition, typename T = void>
+    struct enable_ctor_if
+        : std::enable_if<Condition, T>
+    {};
+
 public:
 
     // TODO: constexpr requires LiteralType and until C++20
@@ -124,6 +129,11 @@ public:
     }
 
     /// @brief Constructor to set two values
+    template
+    <
+        typename T = CoordinateType,
+        typename enable_ctor_if<T, (DimensionCount >= 2), int>::type = 0
+    >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
@@ -137,6 +147,11 @@ public:
     }
 
     /// @brief Constructor to set three values
+    template
+    <
+        typename T = CoordinateType,
+        typename enable_ctor_if<T, (DimensionCount >= 3), int>::type = 0
+    >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
