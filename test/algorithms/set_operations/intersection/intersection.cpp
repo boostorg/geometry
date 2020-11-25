@@ -179,7 +179,7 @@ void test_areal()
 
     TEST_INTERSECTION(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
 
-    TEST_INTERSECTION_IGNORE(geos_1, 1, -1, expectation_limits(3455, 3462));
+    TEST_INTERSECTION_IGNORE(geos_1, 1, -1, expectation_limits(3454, 3462));
 
     // Can, in some cases, create small slivers
     // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
@@ -934,7 +934,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
     // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(4, 3, 3, 1);
+    BoostGeometryWriteExpectedFailures(4, 2, 3, 1);
 #endif
 
     return 0;
