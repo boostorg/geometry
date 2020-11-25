@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -39,6 +43,15 @@ void test_all()
     BOOST_CHECK(bg::dot_product(p1, p2) == 1*4 + 2*5 + 3*6);
 }
 
+template <typename P>
+void test_constexpr()
+{
+    constexpr P p1 = P(1, 2, 3);
+    constexpr P p2 = P(4, 5, 6);
+    constexpr auto d = bg::dot_product(p1, p2);
+    BOOST_CHECK(d == 1 * 4 + 2 * 5 + 3 * 6);
+}
+
 int test_main(int, char* [])
 {
     test_all<int[3]>();
@@ -48,6 +61,8 @@ int test_main(int, char* [])
     test_all<bg::model::point<int, 3, bg::cs::cartesian> >();
     test_all<bg::model::point<float, 3, bg::cs::cartesian> >();
     test_all<bg::model::point<double, 3, bg::cs::cartesian> >();
+
+    test_constexpr<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

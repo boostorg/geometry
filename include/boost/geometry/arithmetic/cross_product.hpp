@@ -20,6 +20,7 @@
 #include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/make.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -84,9 +85,10 @@ struct cross_product<3>
         assert_dimension<P2, 3>();
         assert_dimension<ResultP, 3>();
 
-        return ResultP(get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2),
-                       get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2),
-                       get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
+        return traits::make<ResultP>::apply(
+                get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2),
+                get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2),
+                get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
     }
 };
 
@@ -110,13 +112,7 @@ template
     std::enable_if_t
         <
             dimension<ResultP>::value != 3
-         || ! std::is_constructible
-                <
-                    ResultP,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&
-                >::value,
+         || ! traits::make<ResultP>::is_specialized,
             int
         > = 0
 >
@@ -137,13 +133,7 @@ template
     std::enable_if_t
         <
             dimension<ResultP>::value == 3
-         && std::is_constructible
-                <
-                    ResultP,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&
-                >::value,
+         && traits::make<ResultP>::is_specialized,
             int
         > = 0
 >
@@ -177,13 +167,7 @@ template
     std::enable_if_t
         <
             dimension<P>::value != 3
-         || ! std::is_constructible
-                <
-                    P,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&
-                >::value,
+         || ! traits::make<P>::is_specialized,
             int
         > = 0
 >
@@ -204,13 +188,7 @@ template
     std::enable_if_t
         <
             dimension<P>::value == 3
-         && std::is_constructible
-                <
-                    P,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&
-                >::value,
+         && traits::make<P>::is_specialized,
             int
         > = 0
 >
