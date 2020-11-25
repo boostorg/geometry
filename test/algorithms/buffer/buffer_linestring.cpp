@@ -418,7 +418,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(2, 2, 15, 2);
+    BoostGeometryWriteExpectedFailures(2, 4, 17, 4);
 #endif
 
     return 0;
