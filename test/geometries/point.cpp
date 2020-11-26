@@ -3,6 +3,10 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -73,12 +77,27 @@ void test_concept()
 }
 
 template <typename T, typename CS>
+void test_constexpr()
+{
+    typedef bg::model::point<T, 3, CS> P;
+    constexpr P p1 = P(1, 2, 3);
+    constexpr P p2 = P(4, 5);
+    constexpr T c1 = bg::get<0>(p1);
+    constexpr T c2 = bg::get<2>(p2);
+    BOOST_CHECK_EQUAL(c1, 1);
+    BOOST_CHECK_EQUAL(c2, 0);
+    check_point(p1, 1, 2, 3);
+    check_point(p2, 4, 5, 0);
+}
+
+template <typename T, typename CS>
 void test_all()
 {
     test_default_constructor<T, CS>();
     test_copy_constructor<T, CS>();
     test_copy_assignment<T, CS>();
     test_concept<T, CS>();
+    test_constexpr<T, CS>();
 }
 
 template <typename CS>
@@ -88,7 +107,6 @@ void test_cs()
     test_all<float, CS>();
     test_all<double, CS>();
 }
-
 
 int test_main(int, char* [])
 {   

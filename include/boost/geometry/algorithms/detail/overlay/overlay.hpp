@@ -306,7 +306,7 @@ std::cout << "get turns" << std::endl;
         geometry::get_turns
             <
                 Reverse1, Reverse2,
-                detail::overlay::assign_null_policy
+                assign_policy_only_start_turns
             >(geometry1, geometry2, strategy, robust_policy, turns, policy);
 
         visitor.visit_turns(1, turns);
@@ -318,12 +318,12 @@ std::cout << "get turns" << std::endl;
             // and if necessary (e.g.: multi-geometry, polygon with interior rings)
             if (needs_self_turns<Geometry1>::apply(geometry1))
             {
-                self_get_turn_points::self_turns<Reverse1, assign_null_policy>(geometry1,
+                self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
                     strategy, robust_policy, turns, policy, 0);
             }
             if (needs_self_turns<Geometry2>::apply(geometry2))
             {
-                self_get_turn_points::self_turns<Reverse2, assign_null_policy>(geometry2,
+                self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
                     strategy, robust_policy, turns, policy, 1);
             }
         }

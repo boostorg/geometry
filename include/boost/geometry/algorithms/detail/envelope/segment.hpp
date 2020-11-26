@@ -57,7 +57,7 @@ struct envelope_segment_call_strategy<Strategy, false>
 {
     template <typename Point, typename Segment, typename Box>
     static inline void apply(Point const& p1, Point const& p2,
-                             Segment const& segment, Box& mbr,
+                             Segment const&, Box& mbr,
                              Strategy const& strategy)
     {
         strategy.apply(p1, p2, mbr);

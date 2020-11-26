@@ -74,7 +74,11 @@ struct dot_product_maker<P1, P2, DimensionCount, DimensionCount>
 
  */
 template <typename Point1, typename Point2>
-constexpr inline typename select_coordinate_type<Point1, Point2>::type dot_product(
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
+inline typename select_coordinate_type<Point1, Point2>::type dot_product(
         Point1 const& p1, Point2 const& p2)
 {
     BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point1>) );

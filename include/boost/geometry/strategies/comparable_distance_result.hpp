@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -27,8 +28,13 @@ namespace boost { namespace geometry
 
 namespace resolve_strategy
 {
-
-template <typename Geometry1, typename Geometry2, typename Strategy>
+    
+template
+<
+    typename Geometry1, typename Geometry2, typename Strategy,
+    bool AreGeometries = (util::is_geometry<Geometry1>::value
+                       && util::is_geometry<Geometry2>::value)
+>
 struct comparable_distance_result
     : strategy::distance::services::return_type
         <
@@ -41,8 +47,8 @@ struct comparable_distance_result
         >
 {};
 
-template <typename Geometry1, typename Geometry2>
-struct comparable_distance_result<Geometry1, Geometry2, default_strategy>
+template <typename Geometry1, typename Geometry2, bool AreGeometries>
+struct comparable_distance_result<Geometry1, Geometry2, default_strategy, AreGeometries>
     : comparable_distance_result
         <
             Geometry1,
@@ -53,6 +59,21 @@ struct comparable_distance_result<Geometry1, Geometry2, default_strategy>
                 >::type
         >
 {};
+
+// Workaround for VS2015
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct comparable_distance_result<Geometry1, Geometry2, Strategy, false>
+{
+    typedef int type;
+};
+template <typename Geometry1, typename Geometry2>
+struct comparable_distance_result<Geometry1, Geometry2, default_strategy, false>
+{
+    typedef int type;
+};
+#endif
+
 
 } // namespace resolve_strategy
 
@@ -111,8 +132,16 @@ struct comparable_distance_result
 {};
 
 
-template <typename Geometry1, typename ...Ts, typename Strategy>
-struct comparable_distance_result<Geometry1, boost::variant<Ts...>, Strategy>
+template
+<
+    typename Geometry1,
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Strategy
+>
+struct comparable_distance_result
+    <
+        Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
+    >
 {
     // Select the most precise distance strategy result type
     //   for all variant type combinations.
@@ -121,7 +150,7 @@ struct comparable_distance_result<Geometry1, boost::variant<Ts...>, Strategy>
     typedef typename util::select_combination_element
         <
             util::type_sequence<Geometry1>,
-            util::type_sequence<Ts...>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>,
             detail::distance::more_precise_comparable_distance_result
                 <
                     Strategy
@@ -138,19 +167,34 @@ struct comparable_distance_result<Geometry1, boost::variant<Ts...>, Strategy>
 
 
 // Distance arguments are commutative
-template <typename ...Ts, typename Geometry2, typename Strategy>
-struct comparable_distance_result<boost::variant<Ts...>, Geometry2, Strategy>
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    typename Geometry2,
+    typename Strategy
+>
+struct comparable_distance_result
+    <
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2, Strategy
+    >
     : public comparable_distance_result
         <
-            Geometry2, boost::variant<Ts...>, Strategy
+            Geometry2, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy
         >
 {};
 
 
-template <typename ...Ts, typename ...Us, typename Strategy>
+template
+<
+    BOOST_VARIANT_ENUM_PARAMS(typename T),
+    BOOST_VARIANT_ENUM_PARAMS(typename U),
+    typename Strategy
+>
 struct comparable_distance_result
     <
-        boost::variant<Ts...>, boost::variant<Us...>, Strategy
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
+        boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>,
+        Strategy
     >
 {
     // Select the most precise distance strategy result type
@@ -159,8 +203,8 @@ struct comparable_distance_result
     //   but is_implemented is not ready for prime time.
     typedef typename util::select_combination_element
         <
-            util::type_sequence<Ts...>,
-            util::type_sequence<Us...>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>,
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(U)>,
             detail::distance::more_precise_comparable_distance_result
                 <
                     Strategy

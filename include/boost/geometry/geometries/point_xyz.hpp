@@ -124,6 +124,22 @@ struct access<model::d3::point_xyz<CoordinateType, CoordinateSystem>, Dimension>
     }
 };
 
+template<typename CoordinateType, typename CoordinateSystem>
+struct make<model::d3::point_xyz<CoordinateType, CoordinateSystem> >
+{
+    typedef model::d3::point_xyz<CoordinateType, CoordinateSystem> point_type;
+
+    static const bool is_specialized = true;
+
+    static constexpr point_type apply(CoordinateType const& x,
+                                      CoordinateType const& y,
+                                      CoordinateType const& z)
+    {
+        return point_type(x, y, z);
+    }
+};
+
+
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
