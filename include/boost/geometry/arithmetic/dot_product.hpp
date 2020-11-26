@@ -75,7 +75,7 @@ struct dot_product_maker<P1, P2, DimensionCount, DimensionCount>
  */
 template <typename Point1, typename Point2>
 // workaround for VS2015
-#if (_MSC_VER >= 1910)
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
 constexpr
 #endif
 inline typename select_coordinate_type<Point1, Point2>::type dot_product(

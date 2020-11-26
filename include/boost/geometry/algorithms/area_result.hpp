@@ -76,7 +76,7 @@ struct default_area_result
 {};
 
 // Workaround for VS2015
-#if (_MSC_VER < 1910)
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
 template
 <
     typename Geometry,

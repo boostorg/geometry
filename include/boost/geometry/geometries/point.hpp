@@ -112,7 +112,7 @@ public:
     /// \constructor_default_no_init
     constexpr point()
 // Workaround for VS2015
-#if (_MSC_VER < 1910)
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
         : m_values{} {}
 #else
         = default;

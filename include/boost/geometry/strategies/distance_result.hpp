@@ -69,7 +69,7 @@ struct distance_result<Geometry1, Geometry2, default_strategy, AreGeometries>
 
 
 // Workaround for VS2015
-#if (_MSC_VER < 1910)
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
 template <typename Geometry1, typename Geometry2, typename Strategy>
 struct distance_result<Geometry1, Geometry2, Strategy, false>
 {
