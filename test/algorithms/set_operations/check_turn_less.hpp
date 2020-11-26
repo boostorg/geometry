@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -11,7 +11,9 @@
 #ifndef BOOST_GEOMETRY_TEST_CHECK_TURN_LESS_HPP
 #define BOOST_GEOMETRY_TEST_CHECK_TURN_LESS_HPP
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
 #include "test_set_ops_linear_linear.hpp"
 
