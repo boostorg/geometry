@@ -121,6 +121,21 @@ struct access<model::d2::point_xy<CoordinateType, CoordinateSystem>, Dimension >
     }
 };
 
+template<typename CoordinateType, typename CoordinateSystem>
+struct make<model::d2::point_xy<CoordinateType, CoordinateSystem> >
+{
+    typedef model::d2::point_xy<CoordinateType, CoordinateSystem> point_type;
+
+    static const bool is_specialized = true;
+
+    static constexpr point_type apply(CoordinateType const& x,
+                                      CoordinateType const& y)
+    {
+        return point_type(x, y);
+    }
+};
+
+
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 

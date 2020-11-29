@@ -266,7 +266,7 @@ class piece_turn_visitor
 
                 typedef detail::overlay::get_turn_info
                     <
-                        detail::overlay::assign_null_policy
+                        detail::overlay::assign_policy_only_start_turns
                     > turn_policy;
 
                 turn_policy::apply(unique_sub_range1, unique_sub_range2,

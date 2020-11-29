@@ -24,6 +24,13 @@
 #include <boost/concept/assert.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
+
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/make.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
@@ -84,18 +91,14 @@ public:
     */
     template
     <
-        typename P1 = Point,
-        typename P2 = Point,
+        typename P = Point,
         std::enable_if_t
             <
-                ! std::is_copy_constructible<P1>::value
-             || ! std::is_copy_constructible<P2>::value
-             || ! std::is_convertible<P1 const&, Point>::value
-             || ! std::is_convertible<P2 const&, Point>::value,
+                ! std::is_copy_constructible<P>::value,
                 int
             > = 0
     >
-    box(P1 const& min_corner, P2 const& max_corner)
+    box(Point const& min_corner, Point const& max_corner)
     {
         geometry::convert(min_corner, m_min_corner);
         geometry::convert(max_corner, m_max_corner);
@@ -110,21 +113,17 @@ public:
     */
     template
     <
-        typename P1 = Point,
-        typename P2 = Point,
+        typename P = Point,
         std::enable_if_t
             <
-                std::is_copy_constructible<P1>::value
-             && std::is_copy_constructible<P2>::value
-             && std::is_convertible<P1 const&, Point>::value
-             && std::is_convertible<P2 const&, Point>::value,
+                std::is_copy_constructible<P>::value,
                 int
             > = 0
     >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
-    box(P1 const& min_corner, P2 const& max_corner)
+    box(Point const& min_corner, Point const& max_corner)
         : m_min_corner(min_corner)
         , m_max_corner(max_corner)
     {
@@ -233,6 +232,20 @@ struct indexed_access<model::box<Point>, max_corner, Dimension>
         geometry::set<Dimension>(b.max_corner(), value);
     }
 };
+
+template <typename Point>
+struct make<model::box<Point> >
+{
+    typedef model::box<Point> box_type;
+
+    static const bool is_specialized = true;
+
+    static constexpr box_type apply(Point const& min_corner, Point const& max_corner)
+    {
+        return box_type(min_corner, max_corner);
+    }
+};
+
 
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS

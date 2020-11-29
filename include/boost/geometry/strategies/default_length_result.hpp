@@ -24,6 +24,7 @@
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,6 +40,23 @@ namespace resolve_strategy
 // It would probably be enough to use distance_result and
 //   default_distance_result here.
 
+
+// Workaround for VS2015
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
+template
+<
+    typename Geometry,
+    bool IsGeometry = util::is_geometry<Geometry>::value
+>
+struct coordinate_type
+    : geometry::coordinate_type<Geometry>
+{};
+template <typename Geometry>
+struct coordinate_type<Geometry, false>
+{
+    typedef long double type;
+};
+#endif
 
 template <typename ...Geometries>
 struct default_length_result
@@ -61,9 +79,9 @@ struct default_length_result
     : resolve_strategy::default_length_result<Geometry>
 {};
 
-template <typename ...Ts>
-struct default_length_result<boost::variant<Ts...> >
-    : resolve_strategy::default_length_result<Ts...>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct default_length_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    : resolve_strategy::default_length_result<BOOST_VARIANT_ENUM_PARAMS(T)>
 {};
 
 } // namespace resolve_variant
