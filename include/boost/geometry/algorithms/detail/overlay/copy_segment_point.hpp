@@ -29,7 +29,6 @@
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
@@ -48,7 +47,7 @@ template <typename Range, bool Reverse, typename SegmentIdentifier, typename Poi
 struct copy_segment_point_range
 {
     static inline bool apply(Range const& range,
-            SegmentIdentifier const& seg_id, int offset,
+            SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
         typedef typename closeable_view
@@ -66,15 +65,14 @@ struct copy_segment_point_range
         cview_type cview(range);
         rview_type view(cview);
 
-        typedef typename boost::range_iterator<rview_type>::type iterator;
-        geometry::ever_circling_iterator<iterator> it(boost::begin(view), boost::end(view),
-                    boost::begin(view) + seg_id.segment_index, true);
+        std::size_t const segment_count = boost::size(view) - 1;
 
-        for (signed_size_type i = 0; i < offset; ++i, ++it)
-        {
-        }
+        while (offset < 0) { offset += segment_count; }
 
-        geometry::convert(*it, point);
+        signed_size_type const target = (seg_id.segment_index + offset) % segment_count;
+
+        geometry::convert(*(boost::begin(view) + target), point);
+
         return true;
     }
 };
@@ -84,7 +82,7 @@ template <typename Polygon, bool Reverse, typename SegmentIdentifier, typename P
 struct copy_segment_point_polygon
 {
     static inline bool apply(Polygon const& polygon,
-            SegmentIdentifier const& seg_id, int offset,
+            SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
         // Call ring-version with the right ring
@@ -110,7 +108,7 @@ template <typename Box, bool Reverse, typename SegmentIdentifier, typename Point
 struct copy_segment_point_box
 {
     static inline bool apply(Box const& box,
-            SegmentIdentifier const& seg_id, int offset,
+            SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
         signed_size_type index = seg_id.segment_index;
@@ -137,7 +135,7 @@ template
 struct copy_segment_point_multi
 {
     static inline bool apply(MultiGeometry const& multi,
-                             SegmentIdentifier const& seg_id, int offset,
+                             SegmentIdentifier const& seg_id, signed_size_type offset,
                              PointOut& point)
     {
 
@@ -287,7 +285,7 @@ struct copy_segment_point
  */
 template<bool Reverse, typename Geometry, typename SegmentIdentifier, typename PointOut>
 inline bool copy_segment_point(Geometry const& geometry,
-            SegmentIdentifier const& seg_id, int offset,
+            SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point_out)
 {
     concepts::check<Geometry const>();
@@ -316,7 +314,7 @@ template
     typename PointOut
 >
 inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            SegmentIdentifier const& seg_id, int offset,
+            SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point_out)
 {
     concepts::check<Geometry1 const>();
