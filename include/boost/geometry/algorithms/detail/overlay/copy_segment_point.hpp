@@ -397,7 +397,6 @@ inline bool copy_segment_points(Geometry1 const& geometry1, Geometry2 const& geo
 }
 
 
-
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENT_POINT_HPP

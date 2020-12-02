@@ -558,23 +558,17 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_mt_6", nores_mt_6, join_round32, end_flat, 16.9018, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_et_1", nores_et_1, join_round32, end_flat, 18.9866, 1.0);
-
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("nores_et_2", nores_et_2, join_round32, end_flat, 23.8389, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_et_3", nores_et_3, join_round32, end_flat, 26.9030, 1.0);
-#endif
-
     test_one<multi_polygon_type, polygon_type>("nores_et_4", nores_et_4, join_round32, end_flat, 19.9626, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_et_5", nores_et_5, join_round32, end_flat, 19.9615, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_et_6", nores_et_6, join_round32, end_flat, 96.1795, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_et_7", nores_et_7, join_round32, end_flat, 105.9577, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_wn_1", nores_wn_1, join_round32, end_flat, 23.7659, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_wn_2", nores_wn_2, join_round32, end_flat, 18.2669, 1.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    test_one<multi_polygon_type, polygon_type>("nores_et_6", nores_et_6, join_round32, end_flat, 96.1795, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_et_7", nores_et_7, join_round32, end_flat, 105.9577, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_wt_1", nores_wt_1, join_round32, end_flat, 80.1609, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
         neighbouring,
@@ -619,7 +613,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 8, 2, 7);
+    BoostGeometryWriteExpectedFailures(1, 1, 2, 3);
 #endif
 
     return 0;
