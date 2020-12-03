@@ -24,19 +24,13 @@ int main()
     using polygon_type = boost::geometry::model::polygon<point_type>;
     using linestring_type = boost::geometry::model::linestring<point_type>;
 
-    point_type a;
-    box_type d;
-    segment_type e;
-    polygon_type c;
-    linestring_type b;
-    a = boost::geometry::from_wkt<point_type>("POINT(1 2)");
-    d = boost::geometry::from_wkt<box_type>("BOX(0 0,3 3)");
-    e = boost::geometry::from_wkt<segment_type>("SEGMENT(1 0,3 4)");
-    c = boost::geometry::from_wkt<polygon_type>("POLYGON((0 0,0 7,4 2,2 0,0 0))");
-    b = boost::geometry::from_wkt<linestring_type>("LINESTRING(0 0,2 2,3 1)");
+    auto const a = boost::geometry::from_wkt<point_type>("POINT(1 2)");
+    auto const d = boost::geometry::from_wkt<box_type>("BOX(0 0,3 3)");
+    auto const e = boost::geometry::from_wkt<segment_type>("SEGMENT(1 0,3 4)");
+    auto const c = boost::geometry::from_wkt<polygon_type>("POLYGON((0 0,0 7,4 2,2 0,0 0))");
+    auto const b = boost::geometry::from_wkt<linestring_type>("LINESTRING(0 0,2 2,3 1)");
 
     return 0;
 }
 
 //]
-
