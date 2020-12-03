@@ -18,11 +18,11 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::box<point_type> box_type;
-    typedef boost::geometry::model::segment<point_type> segment_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
-    typedef boost::geometry::model::linestring<point_type> linestring_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using box_type = boost::geometry::model::box<point_type>;
+    using segment_type = boost::geometry::model::segment<point_type>;
+    using polygon_type = boost::geometry::model::polygon<point_type>;
+    using linestring_type = boost::geometry::model::linestring<point_type>;
 
     point_type a;
     box_type d;
