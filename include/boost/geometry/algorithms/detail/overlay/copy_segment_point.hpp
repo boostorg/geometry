@@ -42,6 +42,16 @@ namespace boost { namespace geometry
 namespace detail { namespace copy_segments
 {
 
+inline signed_size_type circular_offset(signed_size_type segment_count, signed_size_type index,
+                                        signed_size_type offset)
+{
+    signed_size_type result = (index + offset) % segment_count;
+    if (result < 0)
+    {
+       result += segment_count;
+    }
+    return result;
+}
 
 template <typename Range, bool Reverse, typename SegmentIdentifier, typename PointOut>
 struct copy_segment_point_range
@@ -66,12 +76,11 @@ struct copy_segment_point_range
         rview_type view(cview);
 
         std::size_t const segment_count = boost::size(view) - 1;
+        signed_size_type const target = circular_offset(segment_count, seg_id.segment_index, offset);
 
-        while (offset < 0) { offset += segment_count; }
-
-        signed_size_type const target = (seg_id.segment_index + offset) % segment_count;
-
-        geometry::convert(*(boost::begin(view) + target), point);
+        BOOST_GEOMETRY_ASSERT(target >= 0);
+        BOOST_GEOMETRY_ASSERT(target < boost::size(view));
+        geometry::convert(range::at(view, target), point);
 
         return true;
     }
@@ -111,15 +120,14 @@ struct copy_segment_point_box
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
-        signed_size_type index = seg_id.segment_index;
-        for (int i = 0; i < offset; i++)
-        {
-            index++;
-        }
-
         boost::array<typename point_type<Box>::type, 4> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
-        point = bp[index % 4];
+
+        signed_size_type const target = circular_offset(4, seg_id.segment_index, offset);
+        BOOST_GEOMETRY_ASSERT(target >= 0);
+        BOOST_GEOMETRY_ASSERT(target < bp.size());
+
+        point = bp[target];
         return true;
     }
 };
@@ -138,7 +146,6 @@ struct copy_segment_point_multi
                              SegmentIdentifier const& seg_id, signed_size_type offset,
                              PointOut& point)
     {
-
         BOOST_GEOMETRY_ASSERT
             (
                 seg_id.multi_index >= 0
@@ -274,9 +281,6 @@ struct copy_segment_point
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
-
-
-
 
 
 /*!

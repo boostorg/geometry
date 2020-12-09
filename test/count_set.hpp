@@ -29,10 +29,6 @@ struct count_set
         {
             m_values.insert(static_cast<std::size_t>(value));
         }
-        else
-        {
-            std::cout << "EMPTY" << std::endl;
-        }
     }
 
     count_set(std::size_t value1, std::size_t value2)
