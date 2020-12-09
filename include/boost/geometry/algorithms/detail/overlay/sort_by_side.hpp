@@ -25,6 +25,9 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
 {
@@ -287,14 +290,29 @@ public :
         add_segment_to(turn_index, op_index, point_to, op);
     }
 
+    // Returns true if two points are approximately equal, tuned by a giga-epsilon constant
+    // (if constant is 1.0, for type double, the boundary is about 1.0e-7)
     template <typename Point1, typename Point2, typename T>
     static inline bool approximately_equals(Point1 const& a, Point2 const& b,
-                                            T const& limit)
+                                            T const& limit_giga_epsilon)
     {
         // Including distance would introduce cyclic dependencies.
-        // This simple code works and is efficient for all coordinate systems.
-        return std::abs(geometry::get<0>(a) - geometry::get<0>(b)) <= limit
-                && std::abs(geometry::get<1>(a) - geometry::get<1>(b)) <= limit;
+        using coor_t = typename select_coordinate_type<Point1, Point2>::type;
+        using calc_t = typename geometry::select_most_precise <coor_t, T>::type;
+        constexpr calc_t machine_giga_epsilon = 1.0e9 * std::numeric_limits<calc_t>::epsilon();
+
+        calc_t const& a0 = geometry::get<0>(a);
+        calc_t const& b0 = geometry::get<0>(b);
+        calc_t const& a1 = geometry::get<1>(a);
+        calc_t const& b1 = geometry::get<1>(b);
+        calc_t const one = 1.0;
+        calc_t const c = math::detail::greatest(a0, b0, a1, b1, one);
+
+        // The maximum limit is avoid, for floating point, large limits like 400
+        // (which are be calculated using eps)
+        constexpr calc_t maxlimit = 1.0e-3;
+        auto const limit = (std::min)(maxlimit, limit_giga_epsilon * machine_giga_epsilon * c);
+        return std::abs(a0 - b0) <= limit && std::abs(a1 - b1) <= limit;
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
@@ -324,7 +342,7 @@ public :
         // then take a point (or more) further back.
         // The limit of offset avoids theoretical infinite loops. In practice it currently
         // walks max 1 point back in all cases.
-        while (approximately_equals(point1, turn.point, 1.0e-6) && offset > -10)
+        while (approximately_equals(point1, turn.point, 1.0) && offset > -10)
         {
             point1 = walk_back(op, --offset, geometry1, geometry2);
         }
