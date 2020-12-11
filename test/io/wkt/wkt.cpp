@@ -175,6 +175,7 @@ void test_all()
 {
     using namespace boost::geometry;
     typedef bg::model::point<T, 2, bg::cs::cartesian> P;
+    typedef bg::model::point<T, 3, bg::cs::cartesian> PZ;
 
     test_wkt<P>("POINT(1 2)", 1);
     test_wkt<bg::model::linestring<P> >("LINESTRING(1 1,2 2,3 3)", 3, 2 * sqrt(2.0));
@@ -200,6 +201,7 @@ void test_all()
                 "LINESTRING(1 0,2 0,3 0)");
     test_relaxed_wkt<P>("POINT  ( 1 2)   ", "POINT(1 2)");
     test_relaxed_wkt<P>("POINT  M ( 1 2)", "POINT(1 2)");
+    test_relaxed_wkt<PZ>("POINT (1 2 3)", "Point Z(1 2 3)");
     test_relaxed_wkt<bg::model::box<P> >("BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))");
 
     test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING EMPTY", "LINESTRING()");
