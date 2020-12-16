@@ -346,7 +346,8 @@ static std::string const nores_wn_2
 // Other cases with wrong turn information
 static std::string const nores_wt_1
     = "MULTIPOLYGON(((0 4,0 5,1 4,0 4)),((9 3,9 4,10 4,9 3)),((9 7,10 8,10 7,9 7)),((6 7,7 8,7 7,6 7)),((0 7,0 8,1 8,0 7)),((3 6,4 6,4 5,3 4,3 6)),((3 7,2 6,2 7,3 7)),((3 7,3 8,4 8,4 7,3 7)),((3 3,4 4,4 3,3 3)),((3 3,3 2,2 2,2 3,3 3)),((2 6,2 5,1 5,1 6,2 6)),((6 4,6 3,5 3,5 4,6 4)),((6 4,7 5,7 4,6 4)),((5 1,4 0,4 1,5 1)),((5 1,5 2,6 2,6 1,5 1)))";
-
+static std::string const nores_wt_2
+    = "MULTIPOLYGON(((1 1,2 2,2 1,1 1)),((0 2,0 3,1 3,0 2)),((4 3,5 4,5 3,4 3)),((4 3,3 3,4 4,4 3)))";
 
 static std::string const neighbouring
     = "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((10 10,10 20,20 20,20 10,10 10)))";
@@ -569,6 +570,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_wn_2", nores_wn_2, join_round32, end_flat, 18.2669, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_wt_1", nores_wt_1, join_round32, end_flat, 80.1609, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_wt_2", nores_wt_2, join_round32, end_flat, 22.1102, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
         neighbouring,

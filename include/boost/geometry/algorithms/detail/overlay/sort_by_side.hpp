@@ -316,7 +316,7 @@ public :
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    static Point walk_back(Operation const& op, int offset,
+    static Point walk_over_ring(Operation const& op, int offset,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2)
     {
@@ -331,25 +331,32 @@ public :
             Geometry2 const& geometry2,
             bool is_origin)
     {
-        Point point1, point2, point3;
+        Point point_from, point2, point3;
         geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
-                op.seg_id, point1, point2, point3);
-        Point const& point_to = op.fraction.is_one() ? point3 : point2;
+                op.seg_id, point_from, point2, point3);
+        Point point_to = op.fraction.is_one() ? point3 : point2;
 
-        int offset = 0;
 
         // If the point is in the neighbourhood (the limit itself is not important),
         // then take a point (or more) further back.
         // The limit of offset avoids theoretical infinite loops. In practice it currently
         // walks max 1 point back in all cases.
-        while (approximately_equals(point1, turn.point, 1.0) && offset > -10)
+        int offset = 0;
+        while (approximately_equals(point_from, turn.point, 1.0) && offset > -10)
         {
-            point1 = walk_back(op, --offset, geometry1, geometry2);
+            point_from = walk_over_ring(op, --offset, geometry1, geometry2);
         }
 
-        add_segment(turn_index, op_index, point1, point_to, op, is_origin);
+        // Similarly for the point to, walk forward
+        offset = 0;
+        while (approximately_equals(point_to, turn.point, 1.0) && offset < 10)
+        {
+            point_to = walk_over_ring(op, ++offset, geometry1, geometry2);
+        }
 
-        return point1;
+        add_segment(turn_index, op_index, point_from, point_to, op, is_origin);
+
+        return point_from;
     }
 
     template <typename Turn, typename Operation, typename Geometry1, typename Geometry2>
