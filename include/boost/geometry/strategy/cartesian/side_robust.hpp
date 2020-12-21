@@ -9,8 +9,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_SIDE_ROBUST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_SIDE_ROBUST_HPP
+#ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
+#define BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -92,4 +92,4 @@ public:
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_SIDE_ROBUST_HPP
+#endif // BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP

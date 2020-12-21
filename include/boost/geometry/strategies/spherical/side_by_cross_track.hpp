@@ -50,6 +50,15 @@ public :
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
+        typedef strategy::within::spherical_point_point
+            equals_point_point_strategy_type;
+        if (geometry::equals(p, p1, equals_point_point_strategy_type())
+                || geometry::equals(p, p2, equals_point_point_strategy_type())
+                || geometry::equals(p1, p2, equals_point_point_strategy_type()))
+        {
+            return 0;
+        }
+
         typedef typename promote_floating_point
             <
                 typename select_calculation_type_alt

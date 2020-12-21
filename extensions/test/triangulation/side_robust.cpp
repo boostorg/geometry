@@ -13,7 +13,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/extensions/triangulation/strategies/cartesian/side_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 template <typename P>
 void test_all()
