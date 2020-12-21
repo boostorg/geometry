@@ -15,7 +15,7 @@
 
 #include <type_traits>
 
-#include <boost/range.hpp>
+//#include <boost/range/value_type.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 

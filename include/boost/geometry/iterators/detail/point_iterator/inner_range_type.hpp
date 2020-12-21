@@ -13,7 +13,7 @@
 
 #include <type_traits>
 
-#include <boost/range.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>

@@ -15,7 +15,10 @@
 #include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/rbegin.hpp>
+#include <boost/range/rend.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>

@@ -1,13 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2019, Oracle and/or its affiliates.
-
-// Licensed under the Boost Software License version 1.0.
-// http://www.boost.org/users/license.html
-
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_LINEAR_LINEAR_HPP
@@ -15,7 +13,8 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -139,6 +138,7 @@ protected:
         static bool const include_no_turn = false;
         static bool const include_degenerate = EnableDegenerateTurns;
         static bool const include_opposite = false;
+        static bool const include_start_turn = false;
     };
 
 

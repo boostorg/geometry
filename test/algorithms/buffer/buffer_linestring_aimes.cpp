@@ -455,10 +455,6 @@ void test_aimes()
         double aimes_width = static_cast<double>(width) / 1000000.0;
         for (int i = 0; i < n; i++)
         {
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-            // Without rescaling, several cases are still reported as invalid
-            settings.set_test_validity(i <= 10);
-#endif
             std::ostringstream name;
             try
             {
@@ -492,8 +488,8 @@ int test_main(int, char* [])
     test_aimes<bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Non-rescaled reports failures, but in validity only
-    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, 4);
+    // Type float is not supported for these cases
+    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, BG_NO_FAILURES);
 #endif
 
     return 0;

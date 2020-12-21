@@ -27,9 +27,9 @@
 #include <boost/geometry/srs/sphere.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 
+#include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/tuples.hpp>
 
-#include <boost/tuple/tuple.hpp>
 #include <boost/variant/variant.hpp>
 
 
@@ -41,195 +41,104 @@ namespace spar
 
 // Static parameters holder
 
-#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX \
-typename P0, typename P1, typename P2, typename P3, typename P4, \
-typename P5, typename P6, typename P7, typename P8, typename P9, \
-typename P10, typename P11, typename P12, typename P13, typename P14
+template <typename ...>
+class parameters {};
 
-#define BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX \
-P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14
-
-#ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
 
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX>
-struct map_params_to_cons
-{
-  typedef boost::tuples::cons
-    <
-        P0,
-        typename map_params_to_cons
-            <
-                P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14,
-                boost::tuples::null_type
-            >::type
-    > type;
-};
-
-template <>
-struct map_params_to_cons
-<
-    boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type,
-    boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type,
-    boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type, boost::tuples::null_type
->
-{
-  typedef boost::tuples::null_type type;
-};
-
-} // namespace detail
-#endif // DOXYGEN_NO_DETAIL
-
-template
-<
-    // null_type -> void?
-    typename P0 = boost::tuples::null_type,
-    typename P1 = boost::tuples::null_type,
-    typename P2 = boost::tuples::null_type,
-    typename P3 = boost::tuples::null_type,
-    typename P4 = boost::tuples::null_type,
-    typename P5 = boost::tuples::null_type,
-    typename P6 = boost::tuples::null_type,
-    typename P7 = boost::tuples::null_type,
-    typename P8 = boost::tuples::null_type,
-    typename P9 = boost::tuples::null_type,
-    typename P10 = boost::tuples::null_type,
-    typename P11 = boost::tuples::null_type,
-    typename P12 = boost::tuples::null_type,
-    typename P13 = boost::tuples::null_type,
-    typename P14 = boost::tuples::null_type
->
-struct parameters
-    : detail::map_params_to_cons<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>::type
-{
-private:
-    typedef typename detail::map_params_to_cons<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>::type base_type;
-    
-public:
-    typedef typename base_type::tail_type tail_type;
-
-    parameters()
-        : base_type()
-    {}
-
-    explicit parameters(P0 const& p0)
-        : base_type(p0, cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1)
-        : base_type(p0, p1, cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2)
-        : base_type(p0, p1, p2, cnull(), cnull(), cnull(), cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3)
-        : base_type(p0, p1, p2, p3, cnull(), cnull(), cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4)
-        : base_type(p0, p1, p2, p3, p4, cnull(), cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5)
-        : base_type(p0, p1, p2, p3, p4, p5, cnull(), cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, cnull(), cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7, cnull(), cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7, p8, cnull())
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9)
-        : base_type(p0, p1, p2, p3, p4, p5, p6, p7, p8, p9)
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9, P10 const& p10)
-        : base_type(p0,
-            tail_type(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10))
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9, P10 const& p10, P11 const& p11)
-        : base_type(p0,
-            tail_type(p1,
-                typename tail_type::tail_type(p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)))
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9, P10 const& p10, P11 const& p11, P12 const& p12)
-        : base_type(p0,
-            tail_type(p1,
-                typename tail_type::tail_type(p2,
-                    typename tail_type::tail_type::tail_type(p3, p4, p5, p6, p7, p8, p9, p10, p11, p12))))
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9, P10 const& p10, P11 const& p11, P12 const& p12, P13 const& p13)
-        : base_type(p0,
-            tail_type(p1,
-                typename tail_type::tail_type(p2,
-                    typename tail_type::tail_type::tail_type(p3,
-                        typename tail_type::tail_type::tail_type::tail_type(p4, p5, p6, p7, p8, p9, p10, p11, p12, p13)))))
-    {}
-
-    parameters(P0 const& p0, P1 const& p1, P2 const& p2, P3 const& p3, P4 const& p4, P5 const& p5, P6 const& p6, P7 const& p7, P8 const& p8, P9 const& p9, P10 const& p10, P11 const& p11, P12 const& p12, P13 const& p13, P14 const& p14)
-        : base_type(p0,
-            tail_type(p1,
-                typename tail_type::tail_type(p2,
-                    typename tail_type::tail_type::tail_type(p3,
-                        typename tail_type::tail_type::tail_type::tail_type(p4,
-                            typename tail_type::tail_type::tail_type::tail_type::tail_type(p5, p6, p7, p8, p9, p10, p11, p12, p13, p14))))))
-    {}
-
-private:
-    static inline const boost::tuples::null_type cnull()
-    {
-        return boost::tuples::null_type();
-    }
-};
-
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
-template <typename Parameters, typename Parameter>
-struct add_parameter
+// TODO: implement this as a sequence utility
+template <std::size_t I, typename ...>
+struct parameters_base
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
-        "Invalid Parameters argument.",
-        Parameters);
+        "I out of bounds.",
+        std::integral_constant<size_t, I>);
 };
 
-// NOTE: parameters has to be convertible to tuples::cons
-template <BOOST_GEOMETRY_PROJECTIONS_DETAIL_TYPENAME_PX, typename Parameter>
-struct add_parameter<spar::parameters<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>, Parameter>
-    : geometry::tuples::push_back
-        <
-            typename detail::map_params_to_cons<BOOST_GEOMETRY_PROJECTIONS_DETAIL_PX>::type,
-            Parameter
-        >
-{};
+template <std::size_t I, typename P, typename ...Ps>
+struct parameters_base<I, P, Ps...>
+{
+    typedef typename parameters_base<I - 1, Ps...>::type type;
+};
 
-template <typename Head, typename Tail, typename Parameter>
-struct add_parameter<boost::tuples::cons<Head, Tail>, Parameter>
-    : geometry::tuples::push_back
-        <
-            boost::tuples::cons<Head, Tail>,
-            Parameter
-        >
-{};
+template <typename P, typename ...Ps>
+struct parameters_base<0, P, Ps...>
+{
+    typedef parameters<P, Ps...> type;
+};
 
 } // namespace detail
-#endif // DOXYGEN_NO_DETAIL
 
+template <typename P, typename ...Ps>
+class parameters<P, Ps...>
+    : private parameters<Ps...>
+{
+public:
+    parameters() = default;
+    parameters(parameters const&) = default;
+    parameters(parameters&&) = default;
+    parameters & operator=(parameters const&) = default;
+    parameters & operator=(parameters&&) = default;
+
+    template
+    <
+        typename R, typename ...Rs,
+        std::enable_if_t<std::is_constructible<P, R>::value, int> = 0
+    >
+    explicit parameters(R&& r, Rs&&... rs)
+        : parameters<Ps...>(std::forward<Rs>(rs)...)
+        , m_p(std::forward<R>(r))
+    {}
+
+    template <std::size_t I>
+    auto const& get() const
+    {
+        typedef typename detail::parameters_base<I, P, Ps...>::type base_t;
+        return static_cast<base_t const&>(*this).m_p;
+    }
+
+private:
+    P m_p;
+
+    template <typename ...>
+    friend class parameters;
+};
+
+} // namespace spar
+
+}}} // namespace boost::geometry::srs
+
+
+namespace boost { namespace geometry { namespace tuples
+{
+
+template <std::size_t I, typename ...Ts>
+struct element<I, srs::spar::parameters<Ts...> >
+    : util::sequence_element<I, util::type_sequence<Ts...> >
+{};
+
+template <typename ...Ts>
+struct size<srs::spar::parameters<Ts...> >
+    : std::integral_constant<std::size_t, sizeof...(Ts)>
+{};
+
+template <int I, typename ...Ts>
+inline typename element<I, srs::spar::parameters<Ts...> >::type const&
+get(srs::spar::parameters<Ts...> const& tup)
+{
+    return tup.template get<I>();
+}
+
+
+}}} // namespace boost::geometry::tuples
+
+
+namespace boost { namespace geometry { namespace srs
+{
+
+namespace spar
+{
 
 // Static parameters values
 

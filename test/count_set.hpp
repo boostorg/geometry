@@ -41,6 +41,13 @@ struct count_set
         m_values.insert(value2);
     }
 
+    count_set(std::size_t value1, std::size_t value2, std::size_t value3)
+    {
+        m_values.insert(value1);
+        m_values.insert(value2);
+        m_values.insert(value3);
+    }
+
     bool empty() const { return m_values.empty(); }
 
     bool has(std::size_t value) const

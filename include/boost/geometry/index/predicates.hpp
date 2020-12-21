@@ -396,34 +396,26 @@ operator!(spatial_predicate<Geometry, Tag, Negated> const& p)
 // operator&& generators
 
 template <typename Pred1, typename Pred2> inline
-boost::tuples::cons<
-    Pred1,
-    boost::tuples::cons<Pred2, boost::tuples::null_type>
->
+std::tuple<Pred1, Pred2>
 operator&&(Pred1 const& p1, Pred2 const& p2)
 {
     /*typedef std::conditional_t<is_predicate<Pred1>::value, Pred1, Pred1 const&> stored1;
     typedef std::conditional_t<is_predicate<Pred2>::value, Pred2, Pred2 const&> stored2;*/
-    namespace bt = boost::tuples;
-
-    return
-    bt::cons< Pred1, bt::cons<Pred2, bt::null_type> >
-        ( p1, bt::cons<Pred2, bt::null_type>(p2, bt::null_type()) );
+    return std::tuple<Pred1, Pred2>(p1, p2);
 }
 
-template <typename Head, typename Tail, typename Pred> inline
-typename geometry::tuples::push_back<
-    boost::tuples::cons<Head, Tail>, Pred
->::type
-operator&&(boost::tuples::cons<Head, Tail> const& t, Pred const& p)
+template <typename ...Preds, typename Pred> inline
+typename geometry::tuples::push_back
+    <
+        std::tuple<Preds...>, Pred
+    >::type
+operator&&(std::tuple<Preds...> const& t, Pred const& p)
 {
     //typedef std::conditional_t<is_predicate<Pred>::value, Pred, Pred const&> stored;
-    namespace bt = boost::tuples;
-
-    return
-    geometry::tuples::push_back<
-        bt::cons<Head, Tail>, Pred
-    >::apply(t, p);
+    return geometry::tuples::push_back
+            <
+                std::tuple<Preds...>, Pred
+            >::apply(t, p);
 }
     
 }} // namespace detail::predicates

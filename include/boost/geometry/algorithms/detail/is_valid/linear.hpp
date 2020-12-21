@@ -13,14 +13,10 @@
 
 #include <cstddef>
 
-#include <boost/range.hpp>
-
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/point_type.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/util/condition.hpp>
-#include <boost/geometry/util/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/empty.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
@@ -30,6 +26,12 @@
 #include <boost/geometry/algorithms/detail/num_distinct_consecutive_points.hpp>
 
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
+
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 
 namespace boost { namespace geometry

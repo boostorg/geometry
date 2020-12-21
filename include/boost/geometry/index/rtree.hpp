@@ -118,7 +118,7 @@ algorithm with specific parameters like min and max number of elements in node.
 
 \par
 Predefined algorithms with compile-time parameters are:
-\li <tt>boost::geometry::index::linear</tt>,
+ \li <tt>boost::geometry::index::linear</tt>,
  \li <tt>boost::geometry::index::quadratic</tt>,
  \li <tt>boost::geometry::index::rstar</tt>.
 
@@ -135,8 +135,8 @@ access. Therefore the IndexableGetter should return the Indexable by
 a reference type. The Indexable should not be calculated since it could harm
 the performance. The default IndexableGetter can translate all types adapted
 to Point, Box or Segment concepts (called Indexables). Furthermore, it can
-handle <tt>std::pair<Indexable, T></tt>, <tt>boost::tuple<Indexable, ...></tt>
-and <tt>std::tuple<Indexable, ...></tt> when possible. For example, for Value
+handle <tt>std::pair<Indexable, T></tt>, <tt>std::tuple<Indexable, ...></tt>
+and <tt>boost::tuple<Indexable, ...></tt>. For example, for Value
 of type <tt>std::pair<Box, int></tt>, the default IndexableGetter translates
 from <tt>std::pair<Box, int> const&</tt> to <tt>Box const&</tt>.
 

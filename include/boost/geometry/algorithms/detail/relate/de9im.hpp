@@ -14,8 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_DE9IM_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_DE9IM_HPP
 
-#include <boost/static_assert.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/core/topological_dimension.hpp>
@@ -153,33 +152,20 @@ class static_mask
 
 
 inline
-boost::tuples::cons
-    <
-        mask,
-        boost::tuples::cons<mask, boost::tuples::null_type>
-    >
+std::tuple<mask, mask>
 operator||(mask const& m1, mask const& m2)
 {
-    namespace bt = boost::tuples;
-
-    return bt::cons<mask, bt::cons<mask, bt::null_type> >
-        ( m1, bt::cons<mask, bt::null_type>(m2, bt::null_type()) );
+    return std::tuple<mask, mask>(m1, m2);
 }
 
-template <typename Tail>
+template <typename ...Masks>
 inline
-typename geometry::tuples::push_back
-    <
-        boost::tuples::cons<mask, Tail>,
-        mask
-    >::type
-operator||(boost::tuples::cons<mask, Tail> const& t, mask const& m)
+std::tuple<Masks..., mask>
+operator||(std::tuple<Masks...> const& t, mask const& m)
 {
-    namespace bt = boost::tuples;
-
     return geometry::tuples::push_back
             <
-                bt::cons<mask, Tail>,
+                std::tuple<Masks...>,
                 mask
             >::apply(t, m);
 }

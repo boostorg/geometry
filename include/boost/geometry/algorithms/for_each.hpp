@@ -24,7 +24,10 @@
 
 #include <algorithm>
 
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/reference.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>

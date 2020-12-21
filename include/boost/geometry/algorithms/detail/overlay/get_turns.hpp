@@ -22,7 +22,10 @@
 #include <boost/array.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>

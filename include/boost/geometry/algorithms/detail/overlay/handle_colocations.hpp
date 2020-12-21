@@ -3,8 +3,8 @@
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,7 +21,10 @@
 #include <vector>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/range.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/value_type.hpp>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
@@ -504,6 +507,46 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
     }
 }
 
+template<typename Turns, typename Clusters>
+inline void discard_start_turns(Turns& turns, Clusters& clusters)
+{
+    for (auto& nv : clusters)
+    {
+        cluster_info& cinfo = nv.second;
+        auto& indices = cinfo.turn_indices;
+        std::size_t start_count{0};
+        for (signed_size_type index : indices)
+        {
+            auto const& turn = turns[index];
+            if (turn.method == method_start)
+            {
+               start_count++;
+            }
+        }
+        if (start_count == 0 && start_count == indices.size())
+        {
+            // There are no start turns, or all turns in the cluster are start turns.
+            continue;
+        }
+
+        // Discard the start turns and simultaneously erase them from the indices
+        for (auto it = indices.begin(); it != indices.end();)
+        {
+          auto& turn = turns[*it];
+          if (turn.method == method_start)
+          {
+              turn.discarded = true;
+              turn.cluster_id = -1;
+              it = indices.erase(it);
+          }
+          else
+          {
+              ++it;
+          }
+        }
+    }
+}
+
 template <typename Geometry0, typename Geometry1>
 inline segment_identifier get_preceding_segment_id(segment_identifier const& id,
         Geometry0 const& geometry0, Geometry1 const& geometry1)
@@ -697,6 +740,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
 
+    discard_start_turns(turns, clusters);
+
     if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
     {
         discard_interior_exterior_turns
@@ -780,7 +825,7 @@ inline bool fill_sbs(Sbs& sbs, Point& turn_point,
     {
         signed_size_type turn_index = *sit;
         turn_type const& turn = turns[turn_index];
-        if (first )
+        if (first)
         {
             turn_point = turn.point;
         }
