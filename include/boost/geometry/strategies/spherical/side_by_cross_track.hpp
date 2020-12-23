@@ -15,11 +15,15 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_SIDE_BY_CROSS_TRACK_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_SIDE_BY_CROSS_TRACK_HPP
 
+#include <boost/geometry/algorithms/equals.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/formulas/spherical.hpp>
+
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
