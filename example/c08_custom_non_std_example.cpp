@@ -281,7 +281,7 @@ int main()
 
     // Create (as an example) a regular polygon
     const int n = 5;
-    const double d = (360 / n) * boost::geometry::math::d2r;
+    const double d = (360 / n) * boost::geometry::math::d2r<double>();
     double a = 0;
     for (int i = 0; i < n + 1; i++, a += d)
     {
