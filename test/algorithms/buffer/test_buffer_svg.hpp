@@ -207,7 +207,7 @@ private :
             }
 #endif
 
-            bg::model::ring<point_type> const& corner = piece.m_piece_border.get_full_ring();
+            auto const& corner = piece.m_piece_border.get_full_ring();
 
             if (m_zoom && do_pieces)
             {
