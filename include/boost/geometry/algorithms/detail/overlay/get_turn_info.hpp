@@ -15,7 +15,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 
-
 #include <boost/core/ignore_unused.hpp>
 #include <boost/throw_exception.hpp>
 
@@ -28,9 +27,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/geometries/segment.hpp>
-
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
 
 // Silence warning C4127: conditional expression is constant
@@ -131,15 +127,7 @@ struct base_turn_handler
             return 0;
         }
 
-        typedef typename select_coordinate_type
-            <
-                typename UniqueSubRange1::point_type,
-                typename UniqueSubRange2::point_type
-            >::type coordinate_type;
-
-        typedef detail::distance_measure<coordinate_type> dm_type;
-
-        dm_type const dm = get_distance_measure(range_p.at(range_index), range_p.at(range_index + 1), range_q.at(point_index));
+        auto const dm = get_distance_measure(range_p.at(range_index), range_p.at(range_index + 1), range_q.at(point_index));
         return dm.measure == 0 ? 0 : dm.measure > 0 ? 1 : -1;
     }
 
@@ -226,9 +214,8 @@ struct base_turn_handler
     {
         // TODO: use comparable distance for point-point instead - but that
         // causes currently cycling include problems
-        typedef typename geometry::coordinate_type<Point1>::type ctype;
-        ctype const dx = get<0>(a) - get<0>(b);
-        ctype const dy = get<1>(a) - get<1>(b);
+        auto const dx = get<0>(a) - get<0>(b);
+        auto const dy = get<1>(a) - get<1>(b);
         return dx * dx + dy * dy;
     }
 
@@ -260,19 +247,10 @@ struct base_turn_handler
         // pk/q2 is considered as collinear, but there might be
         // a tiny measurable difference. If so, use that.
         // Calculate pk // qj-qk
-        typedef detail::distance_measure
-            <
-                typename select_coordinate_type
-                <
-                    typename UniqueSubRange1::point_type,
-                    typename UniqueSubRange2::point_type
-                >::type
-            > dm_type;
-
-        const bool p_closer =
+        bool const p_closer =
                 ti.operations[IndexP].remaining_distance
                 <  ti.operations[IndexQ].remaining_distance;
-        dm_type const dm
+        auto const dm
                 = p_closer
                 ? get_distance_measure(range_q.at(index_q - 1),
                     range_q.at(index_q), range_p.at(index_p))
@@ -283,8 +261,7 @@ struct base_turn_handler
         {
             // Not truely collinear, distinguish for union/intersection
             // If p goes left (positive), take that for a union
-
-            bool p_left = p_closer ? dm.is_positive() : dm.is_negative();
+            bool const p_left = p_closer ? dm.is_positive() : dm.is_negative();
 
             ti.operations[IndexP].operation = p_left
                         ? operation_union : operation_intersection;
@@ -348,14 +325,9 @@ struct touch_interior : public base_turn_handler
         // Therefore handle it as a normal touch (two segments arrive at the
         // intersection point). It currently checks for zero, but even a
         // distance a little bit larger would do.
-        typedef typename geometry::coordinate_type
-            <
-                typename UniqueSubRange::point_type
-            >::type coor_t;
-
-        coor_t const location = distance_measure(info.intersections[0], non_touching_range.at(1));
-        coor_t const zero = 0;
-        bool const result = math::equals(location, zero);
+        auto const dm = distance_measure(info.intersections[0], non_touching_range.at(1));
+        decltype(dm) const zero = 0;
+        bool const result = math::equals(dm, zero);
         return result;
     }
 
@@ -541,16 +513,8 @@ struct touch : public base_turn_handler
         // >----->P     qj is LEFT of P1 and pi is LEFT of Q2
         //              (the other way round is also possible)
 
-        typedef typename select_coordinate_type
-            <
-                typename UniqueSubRange1::point_type,
-                typename UniqueSubRange2::point_type
-            >::type coordinate_type;
-
-        typedef detail::distance_measure<coordinate_type> dm_type;
-
-        dm_type const dm_qj_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(1));
-        dm_type const dm_pi_q2 = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(0));
+        auto const dm_qj_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(1));
+        auto const dm_pi_q2 = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(0));
 
         if (dm_qj_p1.measure > 0 && dm_pi_q2.measure > 0)
         {
@@ -565,8 +529,8 @@ struct touch : public base_turn_handler
             return true;
         }
 
-        dm_type const dm_pj_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(1));
-        dm_type const dm_qi_p2 = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(0));
+        auto const dm_pj_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(1));
+        auto const dm_qi_p2 = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(0));
 
         if (dm_pj_q1.measure > 0 && dm_qi_p2.measure > 0)
         {
@@ -814,17 +778,9 @@ struct equal : public base_turn_handler
             // They turn to the same side, or continue both collinearly
             // Without rescaling, to check for union/intersection,
             // try to check side values (without any thresholds)
-            typedef typename select_coordinate_type
-                <
-                    typename UniqueSubRange1::point_type,
-                    typename UniqueSubRange2::point_type
-                >::type coordinate_type;
-
-            typedef detail::distance_measure<coordinate_type> dm_type;
-
-            dm_type const dm_pk_q2
+            auto const dm_pk_q2
                = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(2));
-            dm_type const dm_qk_p2
+            auto const dm_qk_p2
                = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(2));
 
             if (dm_qk_p2.measure != dm_pk_q2.measure)
@@ -989,10 +945,10 @@ struct collinear : public base_turn_handler
             return false;
         }
 
-        auto const location = distance_measure(info.intersections[1],
+        auto const dm = distance_measure(info.intersections[1],
                 arrival_p == 1 ? range_q.at(1) : range_p.at(1));
-        decltype(location) const zero = 0;
-        return math::equals(location, zero);
+        decltype(dm) const zero = 0;
+        return math::equals(dm, zero);
     }
 
     /*
