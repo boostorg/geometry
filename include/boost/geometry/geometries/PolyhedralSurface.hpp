@@ -75,7 +75,7 @@ template
     template<typename> class PointAlloc,
     template<typename> class RingAlloc
 >
-/*struct tag
+struct tag
 <
     model::polyhedron
         <
@@ -87,12 +87,12 @@ template
 >
 {
 	typedef polyhedron_tag type;
-};*/
-using tag < model::PolyhedralSurface <
+};
+/*using tag < model::PolyhedralSurface <
             Point, 
             ClockWise, Closed,
             PointList, RingList, 
-            PointAlloc, RingAlloc  > > = PolyhedralSurface_tag;
+            PointAlloc, RingAlloc  > > = PolyhedralSurface_tag;*/
 
 
 } // namespace traits
