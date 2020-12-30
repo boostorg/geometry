@@ -77,7 +77,7 @@ template
 >
 struct tag
 <
-    model::polyhedron
+    model::PolyhedralSurface
         <
             Point, 
             ClockWise, Closed,
@@ -86,7 +86,7 @@ struct tag
         > 
 >
 {
-	typedef polyhedron_tag type;
+	typedef PolyhedralSurface_tag type;
 };
 /*using tag < model::PolyhedralSurface <
             Point, 
