@@ -106,7 +106,7 @@ struct box_tag : single_tag, areal_tag {};
 struct segment_tag : single_tag, linear_tag {};
 
 /// OGC Polyhedral surface identifying tag
-struct polyhedron_tag : single_tag, volumetric_tag {};
+struct PolyhedralSurface_tag : single_tag, volumetric_tag {};
 
 
 /// OGC Multi point identifying tag
