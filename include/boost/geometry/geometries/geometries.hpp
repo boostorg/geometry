@@ -29,6 +29,6 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/polyhedron.hpp>
+#include <boost/geometry/geometries/PolyhedralSurfaces.hpp>
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_HPP

@@ -1,5 +1,5 @@
-#ifndef BOOST_GEOMETRY_GEOMETRIES_POLYHEDRON_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_POLYHEDRON_HPP
+#ifndef BOOST_GEOMETRY_GEOMETRIES_POLYHEDRALSURFACE_HPP
+#define BOOST_GEOMETRY_GEOMETRIES_POLYHEDRALSURFACE_HPP
 
 #include <memory>
 #include <vector>
@@ -32,27 +32,28 @@ template
     template<typename> class PointAlloc = std::allocator,
     template<typename> class RingAlloc = std::allocator
 >
-class polyhedron : public PointList<ring<Point>, RingAlloc<ring<Point> > >
+class PolyhedralSurface : public PointList<ring<Point>, RingAlloc<ring<Point> > >
 {
 	BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
 public :
 
-	typedef Point point_type;
-    typedef ring<Point, ClockWise, Closed, PointList, PointAlloc> ring_type;
-    typedef RingList<ring_type, RingAlloc<ring_type > > polyhedron_type;
+	//typedef Point point_type;
+    using point_type = Point;
+    using ring_type =  ring<Point, ClockWise, Closed, PointList, PointAlloc>;
+    using PolyhedralSurface_type = RingList<ring_type, RingAlloc<ring_type > >;
     //typedef RingList<Point, RingAlloc<Point> > base_type;
 
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_default{polyhedron}
-    inline polyhedron()
-	    : polyhedron_type()
+    inline PolyhedralSurface()
+	    : PolyhedralSurface_type()
 	{}
 
     /// \constructor_initialized_list{polyhedron}
-	inline polyhedron(std::initializer_list<ring_type> l)
-	    : polyhedron_type(l.begin(), l.end())
+	inline PolyhedralSurface(std::initializer_list<ring_type> l)
+	    : PolyhedralSurface_type(l.begin(), l.end())
 	{}
 
 #endif
@@ -74,7 +75,7 @@ template
     template<typename> class PointAlloc,
     template<typename> class RingAlloc
 >
-struct tag
+/*struct tag
 <
     model::polyhedron
         <
@@ -86,7 +87,12 @@ struct tag
 >
 {
 	typedef polyhedron_tag type;
-};
+};*/
+using tag < model::PolyhedralSurface <
+            Point, 
+            ClockWise, Closed,
+            PointList, RingList, 
+            PointAlloc, RingAlloc  > > = PolyhedralSurface_tag;
 
 
 } // namespace traits
