@@ -99,7 +99,7 @@
 #include <boost/geometry/strategies/geographic/distance_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance_thomas.hpp>
 #include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
-//#include <boost/geometry/strategies/geographic/distance_karney.hpp>
+#include <boost/geometry/strategies/geographic/distance_karney.hpp>
 #include <boost/geometry/strategies/geographic/index.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 //#include <boost/geometry/strategies/geographic/intersection_elliptic.hpp>

@@ -18,8 +18,8 @@
 #include <boost/geometry/formulas/thomas_inverse.hpp>
 #include <boost/geometry/formulas/vincenty_direct.hpp>
 #include <boost/geometry/formulas/vincenty_inverse.hpp>
-//#include <boost/geometry/formulas/karney_direct.hpp>
-//#include <boost/geometry/formulas/karney_inverse.hpp>
+#include <boost/geometry/formulas/karney_direct.hpp>
+#include <boost/geometry/formulas/karney_inverse.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy
@@ -137,7 +137,7 @@ struct vincenty
             >
     {};
 };
-/*
+
 struct karney
 {
     template
@@ -178,7 +178,7 @@ struct karney
             >
     {};
 };
-*/
+
 template <typename FormulaPolicy>
 struct default_order
 {
@@ -201,12 +201,12 @@ template<>
 struct default_order<vincenty>
     : std::integral_constant<unsigned int, 4>
 {};
-/*
+
 template<>
 struct default_order<karney>
     : std::integral_constant<unsigned int, 8>
 {};
-*/
+
 
 }}} // namespace boost::geometry::strategy
 

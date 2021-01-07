@@ -122,11 +122,11 @@ public:
 
         result_type result;
 
-        CT lat1 = la1;
-        CT lat2 = la2;
+        CT lat1 = la1 * r2d;
+        CT lat2 = la2 * r2d;
 
-        CT lon1 = lo1;
-        CT lon2 = lo2;
+        CT lon1 = lo1 * r2d;
+        CT lon2 = lo2 * r2d;
 
         CT const a = CT(get_radius<0>(spheroid));
         CT const b = CT(get_radius<2>(spheroid));
@@ -465,12 +465,12 @@ public:
         {
             if (BOOST_GEOMETRY_CONDITION(CalcFwdAzimuth))
             {
-                result.azimuth = atan2(sin_alpha1, cos_alpha1) * r2d;
+                result.azimuth = atan2(sin_alpha1, cos_alpha1);
             }
 
             if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
             {
-                result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2) * r2d;
+                result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2);
             }
         }
 
