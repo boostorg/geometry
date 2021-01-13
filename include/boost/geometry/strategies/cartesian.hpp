@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/azimuth/cartesian.hpp>
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/expand/cartesian.hpp>
@@ -34,6 +35,13 @@ struct cartesian : strategies::detail::cartesian_base
     static auto area(Geometry const&)
     {
         return strategy::area::cartesian<CalculationType>();
+    }
+
+    // azimuth
+
+    static auto azimuth()
+    {
+        return strategy::azimuth::cartesian<CalculationType>();
     }
 
     // envelope

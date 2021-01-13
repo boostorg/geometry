@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/azimuth/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/expand/geographic.hpp>
@@ -53,6 +54,16 @@ public:
         return strategy::area::geographic
             <
                 FormulaPolicy, SeriesOrder, Spheroid, CalculationType
+            >(base_t::m_spheroid);
+    }
+
+    // azimuth
+
+    auto azimuth() const
+    {
+        return strategy::azimuth::geographic
+            <
+                FormulaPolicy, Spheroid, CalculationType
             >(base_t::m_spheroid);
     }
 
