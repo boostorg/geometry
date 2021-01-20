@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <string>
 #include <type_traits>
 
 #include <boost/throw_exception.hpp>
