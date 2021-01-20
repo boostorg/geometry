@@ -160,6 +160,23 @@ namespace resolve_variant
 } // namespace resolve_variant
 
 
+/*!
+\brief Calculate azimuth of a segment defined by a pair of points.
+\ingroup azimuth
+\tparam Point1 Type of the first point of a segment.
+\tparam Point2 Type of the second point of a segment.
+\param point1 First point of a segment.
+\param point2 Second point of a segment.
+\return Azimuth in radians.
+
+\qbk{[include reference/algorithms/azimuth.qbk]}
+
+\qbk{
+[heading Example]
+[azimuth]
+[azimuth_output]
+}
+*/
 template <typename Point1, typename Point2>
 inline auto azimuth(Point1 const& point1, Point2 const& point2)
 {
@@ -173,6 +190,26 @@ inline auto azimuth(Point1 const& point1, Point2 const& point2)
 }
 
 
+/*!
+\brief Calculate azimuth of a segment defined by a pair of points.
+\ingroup azimuth
+\tparam Point1 Type of the first point of a segment.
+\tparam Point2 Type of the second point of a segment.
+\tparam Strategy Type of an umbrella strategy defining azimuth strategy.
+\param point1 First point of a segment.
+\param point2 Second point of a segment.
+\param strategy Umbrella strategy defining azimuth strategy.
+\return Azimuth in radians.
+
+\qbk{distinguish,with strategy}
+\qbk{[include reference/algorithms/azimuth.qbk]}
+
+\qbk{
+[heading Example]
+[azimuth_strategy]
+[azimuth_strategy_output]
+}
+*/
 template <typename Point1, typename Point2, typename Strategy>
 inline auto azimuth(Point1 const& point1, Point2 const& point2, Strategy const& strategy)
 {
