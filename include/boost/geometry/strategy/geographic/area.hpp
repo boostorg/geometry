@@ -182,7 +182,7 @@ public :
                 > area_formulas;
 
             typename area_formulas::return_type_ellipsoidal result =
-                     area_formulas::template ellipsoidal<FormulaPolicy::template inverse>
+                     area_formulas::template ellipsoidal<FormulaPolicy>
                                              (p1, p2, m_spheroid_constants);
 
             st.m_excess_sum += result.spherical_term;
