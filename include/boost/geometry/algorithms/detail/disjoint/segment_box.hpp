@@ -34,6 +34,7 @@
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
@@ -44,7 +45,6 @@
 
 namespace boost { namespace geometry
 {
-
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace disjoint
@@ -251,6 +251,110 @@ struct disjoint_segment_box
     }
 };
 
+
+struct disjoint_segment_box_with_info_compute
+{
+    template <typename Segment, typename Box, typename Strategy, typename Result>
+    static inline void apply(Segment const& segment,
+                             Box const& box,
+                             Strategy const& strategy,
+                             Result& result)
+    {
+        assert_dimension_equal<Segment, Box>();
+
+        typedef typename geometry::point_type<Segment>::type segment_point;
+
+        segment_point p[2];
+        detail::assign_point_from_index<0>(segment, p[0]);
+        detail::assign_point_from_index<1>(segment, p[1]);
+
+        if (geometry::covered_by(p[0], box,
+                                 strategy.get_disjoint_point_box_strategy()))
+        {
+            result.count = 1;
+            result.intersections[0] = p[0];
+            return;
+        }
+        if (geometry::covered_by(p[1], box,
+                                 strategy.get_disjoint_point_box_strategy()))
+        {
+            result.count = 1;
+            result.intersections[0] = p[1];
+            return;
+        }
+
+        typedef typename geometry::point_type<Box>::type box_point;
+        box_point top_left, top_right, bottom_left, bottom_right;
+        detail::assign_box_corners(box, bottom_left, bottom_right,
+                                   top_left, top_right);
+
+        // check segment intersection with box meridians
+        // which are (geodesic) segments on all coordinate systems
+        geometry::model::segment<segment_point> s
+                = geometry::model::segment<segment_point>(p[0], p[1]);
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(s, bottom_left, top_left,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+        if (result.count > 0)
+        {
+            return;
+        }
+
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(s, bottom_right, top_right,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+        if (result.count > 0)
+        {
+            return;
+        }
+
+        // CS-related check
+        strategy.get_disjoint_segment_box_with_info_strategy()
+                .apply(segment,
+                       box,
+                       strategy.get_relate_segment_segment_strategy(),
+                       result);
+    }
+};
+
+template <typename Segment, typename Box>
+struct disjoint_segment_box_with_info
+{
+    typedef typename geometry::select_most_precise
+                    <
+                        typename coordinate_type<Segment>::type,
+                        typename coordinate_type<Box>::type
+                    >::type most_precise_type;
+
+    typedef typename boost::mpl::if_c
+            <
+                boost::is_same
+                <
+                    most_precise_type,
+                    typename coordinate_type<Segment>::type
+                >::value,
+                typename point_type<Segment>::type,
+                typename point_type<Box>::type
+            >::type point_type;
+
+    typedef segment_intersection_points<point_type> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Segment const& segment,
+          Box const& box,
+          Strategy const& strategy)
+    {
+        intersection_return_type result;
+        disjoint_segment_box_with_info_compute::apply(segment, box,
+                                                      strategy, result);
+        return result;
+    }
+};
+
+
 }} // namespace detail::disjoint
 #endif // DOXYGEN_NO_DETAIL
 
@@ -263,6 +367,11 @@ namespace dispatch
 template <typename Segment, typename Box, std::size_t DimensionCount>
 struct disjoint<Segment, Box, DimensionCount, segment_tag, box_tag, false>
         : detail::disjoint::disjoint_segment_box
+{};
+
+template <typename Segment, typename Box, std::size_t DimensionCount>
+struct disjoint_with_info<Segment, Box, DimensionCount, segment_tag, box_tag, false>
+        : detail::disjoint::disjoint_segment_box_with_info<Segment, Box>
 {};
 
 

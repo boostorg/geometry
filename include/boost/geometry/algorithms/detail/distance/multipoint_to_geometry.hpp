@@ -22,12 +22,11 @@
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -54,7 +53,7 @@ struct multipoint_to_multipoint
         if (boost::size(multipoint2) < boost::size(multipoint1))
 
         {
-            return point_or_segment_range_to_geometry_rtree
+            return_type res = point_or_segment_range_to_geometry_rtree
                 <
                     typename boost::range_iterator<MultiPoint2 const>::type,
                     MultiPoint1,
@@ -63,6 +62,8 @@ struct multipoint_to_multipoint
                          boost::end(multipoint2),
                          multipoint1,
                          strategy);
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
+            return res;
         }
 
         return point_or_segment_range_to_geometry_rtree
@@ -92,7 +93,7 @@ struct multipoint_to_linear
                                     Linear const& linear,
                                     Strategy const& strategy)
     {
-        return detail::distance::point_or_segment_range_to_geometry_rtree
+        return_type res = detail::distance::point_or_segment_range_to_geometry_rtree
             <
                 typename boost::range_iterator<MultiPoint const>::type,
                 Linear,
@@ -101,6 +102,12 @@ struct multipoint_to_linear
                      boost::end(multipoint),
                      linear,
                      strategy);
+
+        if (!is_multi_linestring<Linear>::value)
+        {
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
+        }
+        return res;
     }
 
     static inline return_type apply(Linear const& linear,
@@ -108,6 +115,40 @@ struct multipoint_to_linear
                                     Strategy const& strategy)
     {
         return apply(multipoint, linear, strategy);
+    }
+};
+
+template <typename MultiPoint, typename MultiLinestring, typename Strategy>
+struct multipoint_to_multilinestring
+{
+    typedef typename strategy::distance::services::return_type
+        <
+            Strategy,
+            typename point_type<MultiPoint>::type,
+            typename point_type<MultiLinestring>::type
+        >::type return_type;
+
+    static inline return_type apply(MultiPoint const& multipoint,
+                                    MultiLinestring const& multilinestring,
+                                    Strategy const& strategy)
+    {
+        return_type res = detail::distance::point_or_segment_range_to_geometry_rtree
+            <
+                typename boost::range_iterator<MultiPoint const>::type,
+                MultiLinestring,
+                Strategy
+            >::apply(boost::begin(multipoint),
+                     boost::end(multipoint),
+                     multilinestring,
+                     strategy);
+        return res;
+    }
+
+    static inline return_type apply(MultiLinestring const& multilinestring,
+                                    MultiPoint const& multipoint,
+                                    Strategy const& strategy)
+    {
+        return apply(multipoint, multilinestring, strategy);
     }
 };
 
@@ -153,14 +194,16 @@ public:
         pg_strategy_type pg_strategy = strategy.get_point_in_geometry_strategy();
         predicate_type predicate(areal, pg_strategy);
 
-        if (check_iterator_range
+        int check = check_iterator_range_with_index
                 <
-                    predicate_type, false
+                    predicate_type
                 >::apply(boost::begin(multipoint),
                          boost::end(multipoint),
-                         predicate))
+                         predicate);
+
+        if (check < 0)
         {
-            return detail::distance::point_or_segment_range_to_geometry_rtree
+            return_type res= detail::distance::point_or_segment_range_to_geometry_rtree
                 <
                     typename boost::range_iterator<MultiPoint const>::type,
                     Areal,
@@ -169,8 +212,17 @@ public:
                          boost::end(multipoint),
                          areal,
                          strategy);
+
+            if (!is_ring<Areal>::value && !is_multi_polygon<Areal>::value)
+            {
+                strategy::distance::services::swap_result_points<Strategy>::apply(res);
+            }
+            return res;
         }
-        return 0;
+        return_type res;
+        strategy::distance::services::result_set_unique_point<Strategy>
+                ::apply(res, multipoint[check]);
+        return res;
     }
 
     static inline return_type apply(Areal const& areal,
@@ -203,7 +255,6 @@ struct distance
             MultiPoint1, MultiPoint2, Strategy
         >
 {};
-
 
 template <typename MultiPoint, typename Linear, typename Strategy>
 struct distance

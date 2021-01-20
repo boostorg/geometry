@@ -26,6 +26,7 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 
 // For backward compatibility
 #include <boost/geometry/strategies/disjoint.hpp>
@@ -71,6 +72,26 @@ struct disjoint<Point1, Point2, DimensionCount, point_tag, point_tag, false>
                              Strategy const& )
     {
         return ! Strategy::apply(point1, point2);
+    }
+};
+
+template <typename Point1, typename Point2, std::size_t DimensionCount>
+struct disjoint_with_info<Point1, Point2, DimensionCount, point_tag, point_tag, false>
+{
+    typedef segment_intersection_points<Point1> intersection_return_type;
+
+    template <typename Strategy>
+    static inline intersection_return_type
+    apply(Point1 const& point1, Point2 const& point2, Strategy const& )
+    {
+        intersection_return_type res;
+        if (Strategy::apply(point1, point2))
+        {
+            res.count = 1;
+            res.intersections[0] = point1;
+            return res;
+        }
+        return res;
     }
 };
 

@@ -27,6 +27,7 @@
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/closest_points.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/convex_hull.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
@@ -103,6 +104,7 @@ DECLARE_UNARY_ALGORITHM(area)
 DECLARE_BINARY_ALGORITHM(buffer)
 DECLARE_UNARY_ALGORITHM(centroid)
 DECLARE_UNARY_ALGORITHM(clear)
+DECLARE_BINARY_ALGORITHM(closest_points)
 DECLARE_BINARY_ALGORITHM(convert)
 DECLARE_UNARY_ALGORITHM(convex_hull)
 DECLARE_UNARY_ALGORITHM(correct)
@@ -244,6 +246,7 @@ void support_status()
     test_binary_algorithm<buffer, all_types, all_types, OutputFactory>("buffer");
     test_unary_algorithm<centroid, all_types, OutputFactory>("centroid");
     test_unary_algorithm<clear, all_types, OutputFactory>("clear");
+    test_binary_algorithm<closest_points, all_types, all_types, OutputFactory>("closest_points");
     test_binary_algorithm<convert, all_types, all_types, OutputFactory>("convert");
     test_unary_algorithm<convex_hull, all_types, OutputFactory>("convex_hull");
     test_unary_algorithm<correct, all_types, OutputFactory>("correct");

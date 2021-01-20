@@ -16,8 +16,10 @@
 #include <boost/geometry/strategies/distance.hpp>
 
 #include <boost/geometry/algorithms/intersects.hpp>
-
 #include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/interface_with_info.hpp>
+
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -41,16 +43,35 @@ struct linear_to_areal
                                     Areal const& areal,
                                     Strategy const& strategy)
     {
-        if ( geometry::intersects(linear, areal,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        typedef typename point_type<Linear>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res = geometry::detail::disjoint
+                       ::disjoint_with_info<Linear,Areal>
+                       ::apply(linear, areal,
+                               strategy.get_relate_segment_segment_strategy());
+
+        if ( dis_res.count > 0 )
         {
-            return 0;
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
         }
 
-        return linear_to_linear
+        return_type res = linear_to_linear
             <
                 Linear, Areal, Strategy
             >::apply(linear, areal, strategy, false);
+
+        if (!is_ring<Areal>::value &&
+            !is_multi_polygon<Areal>::value &&
+            is_multi_linestring<Linear>::value)
+        {
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
+        }
+        return res;
     }
 
 
@@ -76,10 +97,21 @@ struct areal_to_areal
                                     Areal2 const& areal2,
                                     Strategy const& strategy)
     {
-        if ( geometry::intersects(areal1, areal2,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        typedef typename point_type<Areal1>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type dis_res = geometry::detail::disjoint
+                       ::disjoint_with_info<Areal1,Areal2>
+                       ::apply(areal1, areal2,
+                               strategy.get_relate_segment_segment_strategy());
+
+        if ( dis_res.count > 0 )
         {
-            return 0;
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, dis_res.intersections[0]);
+            return result;
         }
 
         return linear_to_linear

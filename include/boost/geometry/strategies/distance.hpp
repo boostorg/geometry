@@ -66,7 +66,55 @@ struct result_from_distance
         Strategy, P1, P2);
 };
 
+template <typename StrategyType>
+struct swap_result_points
+{
+    template <typename T>
+    static inline void apply(T&)
+    {}
+};
 
+template <typename StrategyType>
+struct mirror_points
+{
+    template <typename T>
+    static inline void apply(T&)
+    {}
+};
+
+template <typename StrategyType>
+struct result_set_unique_point
+{
+    template <typename T, typename Point>
+    static inline void apply(T& result, Point const& point)
+    {
+        boost::ignore_unused(point);
+        result = T();
+    }
+};
+
+template <typename StrategyType>
+struct closest_points_seg_box
+{
+    template
+    <
+        typename T,
+        typename SegmentPoint,
+        typename BoxPoint,
+        typename DistancePointSegmentStrategy
+    >
+    static inline void apply(SegmentPoint const&,
+                             SegmentPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             BoxPoint const&,
+                             DistancePointSegmentStrategy const&,
+                             T & result)
+    {
+        result = T();
+    }
+};
 
 
 // Default strategy

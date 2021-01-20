@@ -1,7 +1,13 @@
-// Boost.Geometry
+// Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2014-2019.
+// Modifications copyright (c) 2014-2019, Oracle and/or its affiliates.
 // Copyright (c) 2016-2020, Oracle and/or its affiliates.
+
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -10,6 +16,8 @@
 
 #ifndef BOOST_GEOMETRY_FORMULAS_SPHERICAL_HPP
 #define BOOST_GEOMETRY_FORMULAS_SPHERICAL_HPP
+
+#include <boost/geometry/srs/sphere.hpp>
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -27,6 +35,9 @@
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/formulas/result_direct.hpp>
+
+//#define BOOST_GEOMETRY_DEBUG_PT_SEG
+#include <iostream>
 
 namespace boost { namespace geometry {
     
@@ -277,6 +288,53 @@ inline result_direct<CT> spherical_direct(CT const& lon1,
 
     return result;
 }
+
+
+template <typename CT>
+bool crossing_parallel(CT const& lon1,
+                       CT const& lat1,
+                       CT const& lon2,
+                       CT const& lat2,
+                       CT const& lat3,
+                       CT& lon3_1,
+                       CT& lon3_2)
+{
+    CT const pi = math::pi<CT>();
+    CT const sin_lat1 = sin(lat1);
+    CT const sin_lat2 = sin(lat2);
+    CT const sin_lat3 = sin(lat3);
+    CT const cos_lat1 = cos(lat1);
+    CT const cos_lat2 = cos(lat2);
+    CT const cos_lat3 = cos(lat3);
+
+    CT const l12 = lon1 - lon2;
+    CT const sin_l12 = sin(l12);
+    CT const cos_l12 = cos(l12);
+
+    CT const A = sin_lat1 * cos_lat2 * cos_lat3 * sin_l12;
+    CT const B = sin_lat1 * cos_lat2 * cos_lat3 * cos_l12
+            - cos_lat1 * sin_lat2 * cos_lat3;
+    CT const C = cos_lat1 * cos_lat2 * sin_lat3 * sin_l12;
+    CT const lon = atan2(B,A);
+    CT const powA2 = pow(A,2);
+    CT const powB2 = pow(B,2);
+    CT const sqrt_powA2_powB2 = sqrt(powA2 + powB2);
+
+    if (std::abs(C) > sqrt_powA2_powB2)
+    {
+        return false;
+    }
+    else
+    {
+        CT const dlon = acos( C / sqrt_powA2_powB2);
+        CT const sum = lon1+lon+pi;
+        CT const two_pi = 2 * pi;
+        lon3_1 = std::fmod(sum+dlon, two_pi) - pi;
+        lon3_2 = std::fmod(sum-dlon, two_pi) - pi;
+        return true;
+    }
+}
+
 
 } // namespace formula
 

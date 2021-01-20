@@ -35,11 +35,24 @@
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/intersection.hpp>
 
 
-namespace boost { namespace geometry { namespace strategy { namespace disjoint
+
+namespace boost { namespace geometry
+{
+/*
+namespace strategy { namespace intersection
+{
+template <typename CalculationType>
+struct cartesian_segments;
+}}
+*/
+namespace strategy { namespace disjoint
 {
 
 namespace detail
@@ -245,6 +258,10 @@ struct disjoint_segment_box_impl
 // It seems to be more appropriate to implement the opposite of it
 // e.g. intersection::segment_box because in disjoint() algorithm
 // other strategies that are used are intersection and covered_by strategies.
+template
+<
+    typename CalculationType = void
+>
 struct segment_box
 {
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
@@ -252,6 +269,25 @@ struct segment_box
     static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
     {
         return disjoint_point_box_strategy_type();
+    }
+/*
+    typedef intersection::cartesian_segments
+        <
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    static inline relate_segment_segment_strategy_type
+    get_relate_segment_segment_strategy()
+    {
+        return relate_segment_segment_strategy_type();
+    }
+*/
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
+    {
+        return disjoint_segment_box_with_info_strategy_type();
     }
 
     template <typename Segment, typename Box>
@@ -278,6 +314,7 @@ struct segment_box
 };
 
 
+
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
@@ -287,13 +324,13 @@ namespace services
 template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2, cartesian_tag, cartesian_tag>
 {
-    typedef disjoint::segment_box type;
+    typedef disjoint::segment_box<> type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1, cartesian_tag, cartesian_tag>
 {
-    typedef disjoint::segment_box type;
+    typedef disjoint::segment_box<> type;
 };
 
 

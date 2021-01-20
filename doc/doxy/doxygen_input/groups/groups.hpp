@@ -23,6 +23,7 @@
 \defgroup buffer buffer: calculate buffer of a geometry
 \defgroup centroid centroid: calculate centroid (center of gravity) of a geometry
 \defgroup clear clear: clear geometries
+\defgroup closest_points closest points: compute closest points between two geometries
 \defgroup compare compare: define compare functors for points
 \defgroup concepts geometry concepts: defines and checks concepts for geometries
 \defgroup convert convert: convert geometries from one type to another

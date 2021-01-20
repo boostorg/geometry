@@ -23,6 +23,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
+#include <boost/geometry/algorithms/detail/disjoint/interface_with_info.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
@@ -31,14 +32,13 @@
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 #include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
 #include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
-
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
 
 #include <boost/geometry/util/condition.hpp>
-
+#include <boost/geometry/util/is_geometry_type.hpp>
 
 namespace boost { namespace geometry
 {
@@ -174,18 +174,34 @@ private:
     >
     struct intersects
     {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const&)
+        typedef typename point_type<SegOrBox>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        static inline intersection_return_type
+        apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
         {
-            return geometry::intersects(g1, g2);
+            return geometry::detail::disjoint::disjoint_with_info
+                <
+                    Geometry,
+                    SegOrBox
+                >::apply(g1, g2, s.get_relate_segment_segment_strategy());
         }
     };
 
     template <typename SegOrBox>
     struct intersects<SegOrBox, segment_tag>
     {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
+        typedef typename point_type<SegOrBox>::type point_type;
+
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        static inline intersection_return_type
+        apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
         {
-            return geometry::intersects(g1, g2, s.get_relate_segment_segment_strategy());
+            return geometry::detail::disjoint::disjoint_with_info
+                       <Geometry, SegOrBox>::apply(
+                        g1, g2, s.get_relate_segment_segment_strategy());
         }
     };
 
@@ -215,11 +231,19 @@ public:
 
         typedef assign_new_min_iterator<SegmentOrBox> assign_new_value;
 
+        typedef typename point_type<SegmentOrBox>::type point_type;
 
-        if (check_intersection
-            && intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy))
+        typedef segment_intersection_points<point_type> intersection_return_type;
+
+        intersection_return_type res_int = intersects<SegmentOrBox>
+                                   ::apply(geometry, segment_or_box, strategy);
+
+        if (check_intersection && res_int.count > 0)
         {
-            return 0;
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, res_int.intersections[0]);
+            return result;
         }
 
         comparable_strategy cstrategy =
@@ -240,7 +264,7 @@ public:
 
         // consider all distances of the points in the geometry to the
         // segment or box
-        comparable_return_type cd_min1(0);
+        comparable_return_type cr_min1;
         point_iterator_type pit_min;
         seg_or_box_const_iterator it_min1 = boost::const_begin(seg_or_box_points);
         seg_or_box_const_iterator it_min2 = it_min1;
@@ -250,7 +274,7 @@ public:
         for (point_iterator_type pit = points_begin(geometry);
              pit != points_end(geometry); ++pit, first = false)
         {
-            comparable_return_type cd;
+            comparable_return_type cr;
             std::pair
                 <
                     seg_or_box_const_iterator, seg_or_box_const_iterator
@@ -259,11 +283,11 @@ public:
                                               boost::const_begin(seg_or_box_points),
                                               boost::const_end(seg_or_box_points),
                                               cstrategy,
-                                              cd);
+                                              cr);
 
-            if (first || cd < cd_min1)
+            if (first || cr < cr_min1)
             {
-                cd_min1 = cd;
+                cr_min1 = cr;
                 pit_min = pit;
                 assign_new_value::apply(it_min1, it_pair.first);
                 assign_new_value::apply(it_min2, it_pair.second);
@@ -272,7 +296,7 @@ public:
 
         // consider all distances of the points in the segment or box to the
         // segments of the geometry
-        comparable_return_type cd_min2(0);
+        comparable_return_type cr_min2;
         segment_iterator_type sit_min;
         seg_or_box_const_iterator it_min;
 
@@ -280,34 +304,36 @@ public:
         for (seg_or_box_const_iterator it = boost::const_begin(seg_or_box_points);
              it != boost::const_end(seg_or_box_points); ++it, first = false)
         {
-            comparable_return_type cd;
+            comparable_return_type cr;
             segment_iterator_type sit
                 = geometry_to_range::apply(*it,
                                            segments_begin(geometry),
                                            segments_end(geometry),
                                            cstrategy,
-                                           cd);
+                                           cr);
 
-            if (first || cd < cd_min2)
+            if (first || cr < cr_min2)
             {
-                cd_min2 = cd;
+                cr_min2 = cr;
                 it_min = it;
                 sit_min = sit;
             }
         }
 
+        return_type res;
+
         if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
         {
-            return (std::min)(cd_min1, cd_min2);
+            return (std::min)(cr_min1, cr_min2);
         }
 
-        if (cd_min1 < cd_min2)
+        if (cr_min1 < cr_min2)
         {
-            return strategy.apply(*pit_min, *it_min1, *it_min2);
+            res = strategy.apply(*pit_min, *it_min1, *it_min2);
         }
         else
         {
-            return dispatch::distance
+            res = dispatch::distance
                 <
                     segment_or_box_point,
                     typename std::iterator_traits
@@ -317,6 +343,13 @@ public:
                     Strategy
                 >::apply(*it_min, *sit_min, strategy);
         }
+
+        if (((is_polygon<Geometry>::value || is_multi_polygon<Geometry>::value) &&
+            is_box<Geometry>::value) || is_ring<Geometry>::value)
+        {
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
+        }
+        return res;
     }
 
 
@@ -376,6 +409,8 @@ public:
                                                Strategy
                                            >::apply(strategy),
                                        cd_min);
+
+        strategy::distance::services::swap_result_points<Strategy>::apply(cd_min);
 
         return
             is_comparable<Strategy>::value

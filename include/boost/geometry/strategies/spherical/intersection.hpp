@@ -48,7 +48,7 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
-#include <boost/geometry/strategies/spherical/disjoint_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/spherical/distance_haversine.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
@@ -95,6 +95,12 @@ template
 struct ecef_segments
 {
     typedef spherical_tag cs_tag;
+
+    static inline ecef_segments<CalcPolicy, CalculationType>
+    get_relate_segment_segment_strategy()
+    {
+        return ecef_segments<CalcPolicy, CalculationType>();
+    }
 
     typedef side::spherical_side_formula<CalculationType> side_strategy_type;
 
@@ -196,20 +202,37 @@ struct ecef_segments
         return disjoint_box_box_strategy_type();
     }
 
-    typedef disjoint::segment_box_spherical disjoint_segment_box_strategy_type;
+    typedef disjoint::spherical_segment_box disjoint_segment_box_strategy_type;
 
     static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
     {
         return disjoint_segment_box_strategy_type();
     }
 
+    typedef disjoint::spherical_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
+    {
+        return disjoint_segment_box_with_info_strategy_type();
+    }
+
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
     typedef covered_by::spherical_point_box covered_by_point_box_strategy_type;
+
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef within::spherical_point_box within_point_box_strategy_type;
     typedef envelope::spherical_box envelope_box_strategy_type;
     typedef expand::spherical_box expand_box_strategy_type;
 
-    enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
+    enum intersection_point_flag { ipi_inters = 0,
+                                   ipi_at_a1, ipi_at_a2,
+                                   ipi_at_b1, ipi_at_b2 };
 
     // segment_intersection_info cannot outlive relate_ecef_segments
     template <typename CoordinateType, typename SegmentRatio, typename Vector3d>

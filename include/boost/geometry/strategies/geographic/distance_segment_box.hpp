@@ -13,7 +13,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
@@ -101,6 +101,25 @@ struct geographic_segment_box
         return typename distance_pb_strategy::type(m_spheroid);
     }
 
+    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
+    typedef intersection::geographic_segments
+        <
+            FormulaPolicy,
+            strategy::default_order<FormulaPolicy>::value,
+            Spheroid,
+            CalculationType
+        > relate_segment_segment_strategy_type;
+
+    inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy() const
+    {
+        return relate_segment_segment_strategy_type(m_spheroid);
+    }
+
     typedef side::geographic
             <
                 FormulaPolicy,
@@ -118,6 +137,39 @@ struct geographic_segment_box
     static inline equals_point_point_strategy_type get_equals_point_point_strategy()
     {
         return equals_point_point_strategy_type();
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    struct point_in_geometry_strategy
+    {
+        typedef strategy::within::spherical_winding
+            <
+                typename point_type<Geometry1>::type,
+                typename point_type<Geometry2>::type,
+                CalculationType
+            > type;
+    };
+
+    template <typename Geometry1, typename Geometry2>
+    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
+        get_point_in_geometry_strategy()
+    {
+        typedef typename point_in_geometry_strategy
+            <
+                Geometry1, Geometry2
+            >::type strategy_type;
+        return strategy_type();
+    }
+
+    typedef disjoint::geographic_segment_box_with_info
+    <
+        FormulaPolicy, Spheroid, CalculationType
+    > disjoint_segment_box_with_info_strategy_type;
+
+    inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy() const
+    {
+        return disjoint_segment_box_with_info_strategy_type(m_spheroid);
     }
 
     //constructor
@@ -166,7 +218,7 @@ struct geographic_segment_box
     }
 
     template <typename SPoint, typename BPoint>
-    static void mirror(SPoint& p0,
+    static bool mirror(SPoint& p0,
                        SPoint& p1,
                        BPoint& bottom_left,
                        BPoint& bottom_right,
@@ -174,9 +226,9 @@ struct geographic_segment_box
                        BPoint& top_right)
     {
 
-       generic_segment_box::mirror(p0, p1,
-                                   bottom_left, bottom_right,
-                                   top_left, top_right);
+       return generic_segment_box::mirror(p0, p1,
+                                          bottom_left, bottom_right,
+                                          top_left, top_right);
     }
 
 private :

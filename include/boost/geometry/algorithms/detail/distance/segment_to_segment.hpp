@@ -31,6 +31,7 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
+#include <boost/type_traits/is_same.hpp>
 
 namespace boost { namespace geometry
 {
@@ -71,9 +72,20 @@ public:
     apply(Segment1 const& segment1, Segment2 const& segment2,
           Strategy const& strategy)
     {
-        if (geometry::intersects(segment1, segment2, strategy.get_relate_segment_segment_strategy()))
+        typedef typename geometry::detail::disjoint
+                         ::disjoint_segment_with_info<Segment1, Segment2>
+                ds_info;
+
+        typename ds_info::intersection_return_type disjoint_result =
+                 ds_info::apply(segment1, segment2,
+                                strategy.get_relate_segment_segment_strategy());
+
+        if (disjoint_result.count > 0)
         {
-            return 0;
+            return_type res;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(res, disjoint_result.intersections[0]);
+            return res;
         }
 
         typename point_type<Segment1>::type p[2];
@@ -104,17 +116,11 @@ public:
             return d[imin];
         }
 
-        switch (imin)
+        if (imin < 2)
         {
-        case 0:
-            return strategy.apply(q[0], p[0], p[1]);
-        case 1:
-            return strategy.apply(q[1], p[0], p[1]);
-        case 2:
-            return strategy.apply(p[0], q[0], q[1]);
-        default:
-            return strategy.apply(p[1], q[0], q[1]);
+            strategy::distance::services::swap_result_points<Strategy>::apply(d[imin]);
         }
+        return strategy.apply(d[imin]);
     }
 };
 

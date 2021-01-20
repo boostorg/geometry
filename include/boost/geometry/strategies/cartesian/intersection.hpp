@@ -41,6 +41,7 @@
 
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
+#include <boost/geometry/strategies/cartesian/disjoint_segment_box_with_info.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
@@ -64,7 +65,6 @@
 namespace boost { namespace geometry
 {
 
-
 namespace strategy { namespace intersection
 {
 
@@ -79,6 +79,12 @@ template
 struct cartesian_segments
 {
     typedef cartesian_tag cs_tag;
+
+    static inline cartesian_segments<CalculationType>
+    get_relate_segment_segment_strategy()
+    {
+        return cartesian_segments<CalculationType>();
+    }
 
     typedef side::side_by_triangle<CalculationType> side_strategy_type;
 
@@ -100,7 +106,7 @@ struct cartesian_segments
 
     template <typename Geometry1, typename Geometry2>
     static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
+    get_point_in_geometry_strategy()
     {
         typedef typename point_in_geometry_strategy
             <
@@ -176,14 +182,32 @@ struct cartesian_segments
         return disjoint_box_box_strategy_type();
     }
 
-    typedef disjoint::segment_box disjoint_segment_box_strategy_type;
+    typedef disjoint::segment_box
+    <
+        CalculationType
+    > disjoint_segment_box_strategy_type;
 
-    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
+    static inline disjoint_segment_box_strategy_type
+    get_disjoint_segment_box_strategy()
     {
         return disjoint_segment_box_strategy_type();
     }
 
+    typedef disjoint::cartesian_segment_box_with_info
+            disjoint_segment_box_with_info_strategy_type;
+    static inline disjoint_segment_box_with_info_strategy_type
+    get_disjoint_segment_box_with_info_strategy()
+    {
+        return disjoint_segment_box_with_info_strategy_type();
+    }
+
     typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
+    static inline disjoint_point_box_strategy_type
+    get_disjoint_point_box_strategy()
+    {
+        return disjoint_point_box_strategy_type();
+    }
+
     typedef covered_by::cartesian_point_box covered_by_point_box_strategy_type;
     typedef within::cartesian_point_box within_point_box_strategy_type;
     typedef envelope::cartesian_box envelope_box_strategy_type;

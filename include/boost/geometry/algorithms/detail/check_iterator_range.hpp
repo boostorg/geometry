@@ -12,7 +12,6 @@
 
 #include <boost/core/ignore_unused.hpp>
 
-
 namespace boost { namespace geometry
 {
 
@@ -59,7 +58,67 @@ struct check_iterator_range
                 return false;
             }
         }
+
         return AllowEmptyRange || first != beyond;
+    }
+};
+
+// As check_iterator_range but the index of the element that
+// satisfies the predicate is returned otherwise -1 is returned
+template <typename Predicate>
+struct check_iterator_range_with_index
+{
+
+    // version where we can pass a predicate object
+    template <typename InputIterator>
+    static inline typename std::iterator_traits<InputIterator>::difference_type
+    apply(InputIterator first,
+          InputIterator beyond,
+          Predicate const& predicate)
+    {
+        // in case predicate's apply method is static, MSVC will
+        // complain that predicate is not used
+        boost::ignore_unused(predicate);
+
+        for (InputIterator it = first; it != beyond; ++it)
+        {
+            if (! predicate.apply(*it))
+            {
+                return it - first;
+            }
+        }
+
+        return -1;
+    }
+};
+
+
+// As check_iterator_range but the index of the element that
+// satisfies the predicate is returned otherwise -1 is returned
+template <typename ResturnType, typename Geometry, typename Construction>
+struct check_iterator_range_with_info
+{
+    // version where we can pass a predicate object
+    template <typename InputIterator>
+    static inline ResturnType
+    apply(InputIterator first,
+          InputIterator beyond,
+          Construction const& construction)
+    {
+        // in case predicate's apply method is static, MSVC will
+        // complain that predicate is not used
+        boost::ignore_unused(construction);
+
+        for (InputIterator it = first; it != beyond; ++it)
+        {
+            ResturnType res = construction.apply(*it);
+            if (res.count != 0)
+            {
+                return res;
+            }
+        }
+
+        return ResturnType();
     }
 };
 

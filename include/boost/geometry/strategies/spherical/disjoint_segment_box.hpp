@@ -44,7 +44,7 @@ namespace boost { namespace geometry { namespace strategy { namespace disjoint
 // It seems to be more appropriate to implement the opposite of it
 // e.g. intersection::segment_box because in disjoint() algorithm
 // other strategies that are used are intersection and covered_by strategies.
-struct segment_box_spherical
+struct spherical_segment_box
 {
     typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
 
@@ -71,7 +71,6 @@ struct segment_box_spherical
     }
 };
 
-
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 
@@ -82,14 +81,14 @@ template <typename Linear, typename Box, typename LinearTag>
 struct default_strategy<Linear, Box, LinearTag, box_tag, 1, 2,
                         spherical_equatorial_tag, spherical_equatorial_tag>
 {
-    typedef segment_box_spherical type;
+    typedef spherical_segment_box type;
 };
 
 template <typename Box, typename Linear, typename LinearTag>
 struct default_strategy<Box, Linear, box_tag, LinearTag, 2, 1,
                         spherical_equatorial_tag, spherical_equatorial_tag>
 {
-    typedef segment_box_spherical type;
+    typedef spherical_segment_box type;
 };
 
 } // namespace services

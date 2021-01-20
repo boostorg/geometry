@@ -32,12 +32,15 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
+//#include <boost/geometry/strategies/geographic/closest_points.hpp>
+//#include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
+//#include <boost/geometry/strategies/geographic/closest_points_cross_track_point_box.hpp>
+//#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -46,7 +49,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
 
 // If reversal is needed, perform it
 template
@@ -74,12 +76,15 @@ struct distance
         Geometry2 const& g2,
         Strategy const& strategy)
     {
-        return distance
+        return_type res = distance
             <
                 Geometry2, Geometry1, Strategy,
                 Tag2, Tag1, StrategyTag,
                 false
             >::apply(g2, g1, strategy);
+
+        strategy::distance::services::swap_result_points<Strategy>::apply(res);
+        return res;
     }
 };
 

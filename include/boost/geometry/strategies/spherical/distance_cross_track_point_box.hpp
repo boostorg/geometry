@@ -72,16 +72,18 @@ public :
                                              bottom_left, bottom_right,
                                              top_left, top_right);
 
-        ReturnType const plon = geometry::get_as_radian<0>(point);
-        ReturnType const plat = geometry::get_as_radian<1>(point);
+        typedef typename coordinate_type<Point>::type CT;
 
-        ReturnType const lon_min = geometry::get_as_radian<0>(bottom_left);
-        ReturnType const lat_min = geometry::get_as_radian<1>(bottom_left);
-        ReturnType const lon_max = geometry::get_as_radian<0>(top_right);
-        ReturnType const lat_max = geometry::get_as_radian<1>(top_right);
+        CT const plon = geometry::get_as_radian<0>(point);
+        CT const plat = geometry::get_as_radian<1>(point);
 
-        ReturnType const pi = math::pi<ReturnType>();
-        ReturnType const two_pi = math::two_pi<ReturnType>();
+        CT const lon_min = geometry::get_as_radian<0>(bottom_left);
+        CT const lat_min = geometry::get_as_radian<1>(bottom_left);
+        CT const lon_max = geometry::get_as_radian<0>(top_right);
+        CT const lat_max = geometry::get_as_radian<1>(top_right);
+
+        CT const pi = math::pi<CT>();
+        CT const two_pi = math::two_pi<CT>();
 
         typedef typename point_type<Box>::type box_point_type;
 
@@ -98,24 +100,29 @@ public :
         {
             if (plat > lat_max)
             {
-                return geometry::strategy::distance::services::result_from_distance
-                        <
-                            Strategy, Point, box_point_type
-                        >::apply(ps_strategy, ps_strategy
-                                 .vertical_or_meridian(plat, lat_max));
+                return ps_strategy.vertical_or_meridian(plat, lat_max, plon);
+                //return geometry::strategy::distance::services::result_from_distance
+                //        <
+                //            Strategy, Point, box_point_type
+                //        >::apply(ps_strategy, ps_strategy
+                //                 .vertical_or_meridian(plat, lat_max));
             }
             else if (plat < lat_min)
             {
-                return geometry::strategy::distance::services::result_from_distance
-                        <
-                            Strategy, Point, box_point_type
-                        >::apply(ps_strategy, ps_strategy
-                                 .vertical_or_meridian(lat_min, plat));
+                return ps_strategy.vertical_or_meridian(plat, lat_min, plon);
+                //return geometry::strategy::distance::services::result_from_distance
+                //        <
+                //            Strategy, Point, box_point_type
+                //        >::apply(ps_strategy, ps_strategy
+                //                 .vertical_or_meridian(lat_min, plat));
             }
             else
             {
                 BOOST_GEOMETRY_ASSERT(plat >= lat_min && plat <= lat_max);
-                return ReturnType(0);
+                ReturnType res;
+                strategy::distance::services::result_set_unique_point<Strategy>
+                        ::apply(res, point);
+                return res;
             }
         }
 
@@ -127,14 +134,14 @@ public :
         // (1) is midway between the meridians of the left and right
         //     meridians of the box, and
         // (2) does not intersect the box
-        ReturnType const two = 2.0;
+        CT const two = 2.0;
         bool use_left_segment;
         if (lon_max > pi)
         {
             // the box crosses the antimeridian
 
             // midway longitude = lon_min - (lon_min + (lon_max - 2 * pi)) / 2;
-            ReturnType const lon_midway = (lon_min - lon_max) / two + pi;
+            CT const lon_midway = (lon_min - lon_max) / two + pi;
             BOOST_GEOMETRY_ASSERT(lon_midway >= -pi && lon_midway <= pi);
 
             use_left_segment = plon > lon_midway;
@@ -143,8 +150,8 @@ public :
         {
             // the box does not cross the antimeridian
 
-            ReturnType const lon_sum = lon_min + lon_max;
-            if (math::equals(lon_sum, ReturnType(0)))
+            CT const lon_sum = lon_min + lon_max;
+            if (math::equals(lon_sum, CT(0)))
             {
                 // special case: the box is symmetric with respect to
                 // the prime meridian; the midway meridian is the antimeridian
@@ -154,7 +161,7 @@ public :
             else
             {
                 // midway long. = lon_min - (2 * pi - (lon_max - lon_min)) / 2;
-                ReturnType lon_midway = (lon_min + lon_max) / two - pi;
+                CT lon_midway = (lon_min + lon_max) / two - pi;
 
                 // normalize the midway longitude
                 if (lon_midway > pi)

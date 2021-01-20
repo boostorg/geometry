@@ -80,17 +80,27 @@ public :
         return envelope_strategy_type();
     }
 
-    typedef strategy::disjoint::segment_box disjoint_strategy_type;
+    typedef disjoint::segment_box
+    <
+        CalculationType
+    > disjoint_segment_box_strategy_type;
 
-    static inline disjoint_strategy_type get_disjoint_strategy()
+    static inline disjoint_segment_box_strategy_type
+    get_disjoint_segment_box_strategy()
     {
-        return disjoint_strategy_type();
+        return disjoint_segment_box_strategy_type();
     }
 
     typedef strategy::within::cartesian_point_point equals_point_point_strategy_type;
     static inline equals_point_point_strategy_type get_equals_point_point_strategy()
     {
         return equals_point_point_strategy_type();
+    }
+
+    typedef disjoint_segment_box_strategy_type disjoint_strategy_type;
+    static inline disjoint_segment_box_strategy_type get_disjoint_strategy()
+    {
+        return disjoint_segment_box_strategy_type();
     }
 
     // Template member function, because it is not always trivial

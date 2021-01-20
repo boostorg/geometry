@@ -292,6 +292,17 @@ struct spherical_point_box
 namespace services
 {
 
+template <typename Point, typename Box>
+struct default_strategy
+    <
+        Point, Box,
+        point_tag, box_tag,
+        pointlike_tag, areal_tag,
+        cs_undefined_tag, cs_undefined_tag
+    >
+{
+    typedef covered_by::cartesian_point_box type;
+};
 
 template <typename Point, typename Box>
 struct default_strategy

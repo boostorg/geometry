@@ -82,7 +82,7 @@ public:
         return envelope_strategy_type(m_model);
     }
 
-    typedef strategy::disjoint::segment_box_geographic
+    typedef strategy::disjoint::geographic_segment_box
         <
             FormulaPolicy,
             Spheroid,

@@ -52,6 +52,8 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
+//#include <boost/geometry/formulas/geographic_point_segment_distance.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -105,6 +107,7 @@ public:
     static inline return_type apply(Point const& point, Range const& range,
                                     Strategy const& strategy)
     {
+
         return_type const zero = return_type(0);
 
         if (boost::size(range) == 0)
@@ -134,7 +137,6 @@ public:
                                                   Strategy
                                               >::apply(strategy),
                                           cd_min);
-
         return
             is_comparable<Strategy>::value
             ?
@@ -167,7 +169,10 @@ struct point_to_ring
         if (within::within_point_geometry(point, ring,
                                           strategy.get_point_in_geometry_strategy()))
         {
-            return return_type(0);
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, point);
+            return result;
         }
 
         return point_to_range
@@ -219,7 +224,10 @@ private:
                     return per_ring::apply(point, *it, strategy);
                 }
             }
-            return 0;
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, point);
+            return result;
         }
 
         template <typename InteriorRings>
@@ -343,7 +351,10 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategy, true>
         if (within::covered_by_point_geometry(point, multipolygon,
                                               strategy.get_point_in_geometry_strategy()))
         {
-            return 0;
+            return_type result;
+            strategy::distance::services::result_set_unique_point<Strategy>
+                    ::apply(result, point);
+            return result;
         }
 
         return point_to_multigeometry
@@ -434,7 +445,6 @@ struct distance
         return strategy.apply(point, p[0], p[1]);
     }
 };
-
 
 template <typename Point, typename Box, typename Strategy>
 struct distance

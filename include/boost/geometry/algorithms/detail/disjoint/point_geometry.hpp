@@ -26,7 +26,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-
+#include <boost/geometry/algorithms/dispatch/disjoint_with_info.hpp>
 
 namespace boost { namespace geometry
 {
@@ -45,6 +45,28 @@ struct reverse_covered_by
                              Strategy const& strategy)
     {
         return ! geometry::covered_by(geometry1, geometry2, strategy);
+    }
+};
+
+template <typename Point>
+struct reverse_covered_by_with_info
+{
+    typedef segment_intersection_points<Point> intersection_return_type;
+
+    template <typename Geometry2, typename Strategy>
+    static inline intersection_return_type
+    apply(Point const& point,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        intersection_return_type res;
+        if (geometry::covered_by(point, geometry2, strategy))
+        {
+            res.count = 1;
+            res.intersections[0] = point;
+            return res;
+        }
+        return res;
     }
 };
 
@@ -76,6 +98,25 @@ template<typename Point, typename Segment, std::size_t DimensionCount>
 struct disjoint<Point, Segment, DimensionCount, point_tag, segment_tag, false>
     : detail::disjoint::reverse_covered_by
 {};
+
+
+template<typename Point, typename Linear, std::size_t DimensionCount>
+struct disjoint_with_info<Point, Linear, DimensionCount, point_tag, linear_tag, false>
+    : detail::disjoint::reverse_covered_by_with_info<Point>
+{};
+
+
+template <typename Point, typename Areal, std::size_t DimensionCount>
+struct disjoint_with_info<Point, Areal, DimensionCount, point_tag, areal_tag, false>
+    : detail::disjoint::reverse_covered_by_with_info<Point>
+{};
+
+
+template<typename Point, typename Segment, std::size_t DimensionCount>
+struct disjoint_with_info<Point, Segment, DimensionCount, point_tag, segment_tag, false>
+    : detail::disjoint::reverse_covered_by_with_info<Point>
+{};
+
 
 
 } // namespace dispatch

@@ -50,6 +50,11 @@
 #include <boost/geometry/strategies/cartesian/buffer_point_circle.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_point_square.hpp>
 #include <boost/geometry/strategies/cartesian/buffer_side_straight.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_box_box.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_point_box.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_point_segment.hpp>
+#include <boost/geometry/strategies/cartesian/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_average.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_bashein_detmer.hpp>
 #include <boost/geometry/strategies/cartesian/centroid_weighted_length.hpp>
@@ -79,6 +84,11 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/compare.hpp>
 #include <boost/geometry/strategies/spherical/index.hpp>
 #include <boost/geometry/strategies/spherical/intersection.hpp>
@@ -89,6 +99,11 @@
 
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/buffer_point_circle.hpp>
+#include <boost/geometry/strategies/geographic/closest_points.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track_point_box.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_cross_track_box_box.hpp>
+#include <boost/geometry/strategies/geographic/closest_points_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/densify.hpp>
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/geographic/distance.hpp>

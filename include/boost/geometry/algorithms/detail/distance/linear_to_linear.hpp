@@ -24,7 +24,6 @@
 
 #include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
-
 namespace boost { namespace geometry
 {
 
@@ -70,7 +69,7 @@ struct linear_to_linear
 
         if (geometry::num_segments(linear2) < geometry::num_segments(linear1))
         {
-            return point_or_segment_range_to_geometry_rtree
+            return_type res = point_or_segment_range_to_geometry_rtree
                 <
                     geometry::segment_iterator<Linear2 const>,
                     Linear1,
@@ -79,6 +78,8 @@ struct linear_to_linear
                          geometry::segments_end(linear2),
                          linear1,
                          strategy);
+            strategy::distance::services::swap_result_points<Strategy>::apply(res);
+            return res;
 
         }
 

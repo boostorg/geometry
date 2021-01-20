@@ -119,21 +119,21 @@ void disjoint_tests_4(bool expected_result)
 template <typename P, typename CT>
 void disjoint_tests_with_strategy(bool expected_result)
 {
-    bg::strategy::disjoint::segment_box_geographic
+    bg::strategy::disjoint::geographic_segment_box
     <
         bg::strategy::andoyer,
         bg::srs::spheroid<CT>,
         CT
     > geographic_andoyer;
 
-    bg::strategy::disjoint::segment_box_geographic
+    bg::strategy::disjoint::geographic_segment_box
     <
         bg::strategy::thomas,
         bg::srs::spheroid<CT>,
         CT
     > geographic_thomas;
 
-    bg::strategy::disjoint::segment_box_geographic
+    bg::strategy::disjoint::geographic_segment_box
     <
         bg::strategy::vincenty,
         bg::srs::spheroid<CT>,

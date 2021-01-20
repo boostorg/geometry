@@ -12,6 +12,8 @@
 #define BOOST_TEST_MODULE test_disjoint_coverage
 #endif
 
+#define BOOST_GEOMETRY_TEST_DEBUG
+
 // unit test to test disjoint for all geometry combinations
 
 #include <iostream>
