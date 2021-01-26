@@ -175,15 +175,18 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
+            //
+            constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
+
             typedef geometry::formula::area_formulas
                 <
                     typename result_type<Geometry>::type,
-                    SeriesOrder, ExpandEpsN
+                    SeriesOrderNorm, ExpandEpsN
                 > area_formulas;
 
             typename area_formulas::return_type_ellipsoidal result =
-                     area_formulas::template ellipsoidal<FormulaPolicy>
-                                             (p1, p2, m_spheroid_constants);
+                area_formulas::template ellipsoidal<FormulaPolicy>
+                (p1, p2, m_spheroid_constants);
 
             st.m_excess_sum += result.spherical_term;
             st.m_correction_sum += result.ellipsoidal_term;

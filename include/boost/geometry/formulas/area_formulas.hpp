@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2020 Oracle and/or its affiliates.
+// Copyright (c) 2015-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -14,6 +14,7 @@
 
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
+#include <boost/geometry/formulas/karney_inverse.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 
@@ -421,14 +422,17 @@ public:
     {
         return_type_ellipsoidal result;
 
+        CT const lon1r = get_as_radian<0>(p1);
+        CT const lat1r = get_as_radian<1>(p1);
+        CT const lon2r = get_as_radian<0>(p2);
+        CT const lat2r = get_as_radian<1>(p2);
+
         // Azimuth Approximation
 
         auto const i_res = FormulaPolicy::template inverse
             <
                 CT, false, true, true, false, false
-            >::apply(get_as_radian<0>(p1), get_as_radian<1>(p1),
-                     get_as_radian<0>(p2), get_as_radian<1>(p2),
-                     spheroid_const.m_spheroid);
+            >::apply(lon1r, lat1r, lon2r, lat2r, spheroid_const.m_spheroid);
 
         CT const alp1 = i_res.azimuth;
         CT const alp2 = i_res.reverse_azimuth;
@@ -443,8 +447,8 @@ public:
 
         // Basic trigonometric computations
 
-        CT const tan_bet1 = tan(get_as_radian<1>(p1)) * one_minus_f;
-        CT const tan_bet2 = tan(get_as_radian<1>(p2)) * one_minus_f;
+        CT const tan_bet1 = tan(lat1r) * one_minus_f;
+        CT const tan_bet2 = tan(lat2r) * one_minus_f;
         CT const cos_bet1 = cos(atan(tan_bet1));
         CT const cos_bet2 = cos(atan(tan_bet2));
         CT const sin_bet1 = tan_bet1 * cos_bet1;
@@ -460,35 +464,29 @@ public:
         CT const cos_omg1 = cos_alp1 * cos_bet1;
         CT const sin_omg2 = sin_alp0 * sin_bet2;
         CT const cos_omg2 = cos_alp2 * cos_bet2;
-        CT cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
+        CT const cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
         CT excess;
 
-        bool const meridian = get<0>(p2) - get<0>(p1) == CT(0)
-            || get<1>(p1) == CT(90) || get<1>(p1) == -CT(90)
-            || get<1>(p2) == CT(90) || get<1>(p2) == -CT(90);
+        bool meridian = get<0>(p2) - get<0>(p1) == CT(0)
+              || get<1>(p1) == CT(90) || get<1>(p1) == -CT(90)
+              || get<1>(p2) == CT(90) || get<1>(p2) == -CT(90);
 
-        if (!meridian && cos_omg12 > -CT(0.7)
-            && sin_bet2 - sin_bet1 < CT(1.75)) // short segment
+        if (!meridian && cos_omg12 > -CT(0.7071)
+            && std::abs(sin_bet2 - sin_bet1) < CT(0.01)) // short segment
         {
-            CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
-            normalize(sin_omg12, cos_omg12);
+            CT tan_lat1 = tan(lat1r / 2.0);
+            CT tan_lat2 = tan(lat2r / 2.0);
 
-            CT const cos_omg12p1 = CT(1) + cos_omg12;
-            CT const cos_bet1p1 = CT(1) + cos_bet1;
-            CT const cos_bet2p1 = CT(1) + cos_bet2;
-            excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2
-                * cos_bet1p1), cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 *
-                cos_bet2p1));
+            excess = CT(2.0)
+                * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
+                * tan((lon2r - lon1r) / 2));
+
+            result.spherical_term = spherical<false>(p1, p2);
+
         }
         else
         {
-            /*
-                    CT sin_alp2 = sin(alp2);
-                    CT sin_alp12 = sin_alp2 * cos_alp1 - cos_alp2 * sin_alp1;
-                    CT cos_alp12 = cos_alp2 * cos_alp1 + sin_alp2 * sin_alp1;
-                    excess = atan2(sin_alp12, cos_alp12);
-            */
-                    excess = alp2 - alp1;
+            excess = alp2 - alp1;
         }
 
         result.spherical_term = excess;

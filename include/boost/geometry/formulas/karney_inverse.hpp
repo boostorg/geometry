@@ -44,8 +44,6 @@
 
 namespace boost { namespace geometry { namespace math {
 
-// TODO: Moved temporarily because of C++11 is used
-
 /*!
 \brief The exact difference of two angles reduced to (-180deg, 180deg].
 */
