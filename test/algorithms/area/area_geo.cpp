@@ -81,20 +81,21 @@ void test_geo_strategies()
     CT err = 0.0000001;
 
     CT area_default = bg::area(geometry_geo);
-    BOOST_CHECK_CLOSE(area_default, 63316309346280.18, err);
+    BOOST_CHECK_CLOSE(area_default, 63316423532570.688, err);
     area = bg::area(geometry_geo, geographic_default);
-    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
+    BOOST_CHECK_CLOSE(area, 63316423532570.688, err);
+
 
     CT area_less_accurate = bg::area(geometry_geo, geographic_andoyer1);
-    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
+    BOOST_CHECK_CLOSE(area, 63316423532570.688, err);
     area = bg::area(geometry_geo, geographic_andoyer2);
-    BOOST_CHECK_CLOSE(area, 63316309224306.5, err);
+    BOOST_CHECK_CLOSE(area, 63316423410597.016, err);
     area = bg::area(geometry_geo, geographic_andoyer3);
-    BOOST_CHECK_CLOSE(area, 63316309224411.195, err);
+    BOOST_CHECK_CLOSE(area, 63316423410701.703, err);
     area = bg::area(geometry_geo, geographic_andoyer4);
-    BOOST_CHECK_CLOSE(area, 63316309224411.094, err);
+    BOOST_CHECK_CLOSE(area, 63316423410701.602, err);
     area = bg::area(geometry_geo, geographic_andoyer5);
-    BOOST_CHECK_CLOSE(area, 63316309224411.094, err);
+    BOOST_CHECK_CLOSE(area, 63316423410701.602, err);
 
     area = bg::area(geometry_geo, geographic_thomas1);
     BOOST_CHECK_CLOSE(area, 63316536214315.32, err);
@@ -119,7 +120,7 @@ void test_geo_strategies()
     BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
 
     area = bg::area(geometry_geo, geographic_andoyer_default);
-    BOOST_CHECK_CLOSE(area, 63316309346280.18, err);
+    BOOST_CHECK_CLOSE(area, 63316423532570.688, err);
     area = bg::area(geometry_geo, geographic_thomas_default);
     BOOST_CHECK_CLOSE(area, 63316536092341.266, err);
     area = bg::area(geometry_geo, geographic_vincenty_default);

@@ -175,7 +175,7 @@ public :
     {
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
-            //
+            // Area formula is implemented for a maximum series order 5
             constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
 
             typedef geometry::formula::area_formulas

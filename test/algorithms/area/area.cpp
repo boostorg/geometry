@@ -284,11 +284,11 @@ int test_main(int, char* [])
 
     test_open<pt_crt>(2.0);
     test_open<pt_sph>(24726179921.523518 / r2);
-    test_open<pt_geo >(24615492936.977146);
+    test_open<pt_geo >(24615770547.825359);
 
     test_open_ccw<pt_crt>(2.0);
     test_open_ccw<pt_sph>(24726179921.523518 / r2);
-    test_open_ccw<pt_geo >(24615492936.977146);
+    test_open_ccw<pt_geo >(24615770547.825359);
 
     test_poles_ccw<pt_crt>();
     test_poles_ccw<pt_sph>();
