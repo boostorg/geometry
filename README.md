@@ -1,6 +1,6 @@
 # ![Boost.Geometry](doc/other/logo/logo_bkg.png)
 
-Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), defines concepts, primitives and algorithms for solving geometry problems.
+Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.com/boostorg), defines concepts, primitives and algorithms for solving geometry problems. Boost.Geometry is a C++14 header-only library.
 
 [![Licence](https://img.shields.io/badge/license-boost-4480cc.png)](http://www.boost.org/LICENSE_1_0.txt)
 [![Documentation](https://img.shields.io/badge/-documentation-4480cc.png)](http://boost.org/libs/geometry)
