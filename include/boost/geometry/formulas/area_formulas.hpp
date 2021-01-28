@@ -482,7 +482,6 @@ public:
                 * tan((lon2r - lon1r) / 2));
 
             result.spherical_term = spherical<false>(p1, p2);
-
         }
         else
         {

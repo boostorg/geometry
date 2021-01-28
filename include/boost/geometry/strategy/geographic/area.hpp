@@ -127,8 +127,14 @@ public:
         {
             return_type result;
 
-            return_type sum = spheroid_const.m_c2 * m_excess_sum
-                   + spheroid_const.m_e2 * spheroid_const.m_a2 * m_correction_sum;
+            return_type spherical_term = spheroid_const.m_c2 * m_excess_sum;
+            return_type ellipsoidal_term = spheroid_const.m_e2
+                * spheroid_const.m_a2 * m_correction_sum;
+
+            // ignore ellipsoidal term if is large (probably from an azimuth
+            // inaccuracy)
+            return_type sum = math::abs(ellipsoidal_term/spherical_term) > 0.01
+                ? spherical_term : spherical_term + ellipsoidal_term;
 
             // If encircles some pole
             if (m_crosses_prime_meridian % 2 == 1)
