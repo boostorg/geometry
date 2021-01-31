@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2017.
-// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -15,23 +15,19 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_SPHERICAL_SIDE_BY_CROSS_TRACK_HPP
 #define BOOST_GEOMETRY_STRATEGIES_SPHERICAL_SIDE_BY_CROSS_TRACK_HPP
 
-#include <boost/geometry/algorithms/equals.hpp>
-
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
 #include <boost/geometry/formulas/spherical.hpp>
 
+//#include <boost/geometry/strategies/concepts/side_concept.hpp>
+#include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
-
-#include <boost/geometry/strategies/side.hpp>
-//#include <boost/geometry/strategies/concepts/side_concept.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -56,9 +52,9 @@ public :
     {
         typedef strategy::within::spherical_point_point
             equals_point_point_strategy_type;
-        if (geometry::equals(p, p1, equals_point_point_strategy_type())
-                || geometry::equals(p, p2, equals_point_point_strategy_type())
-                || geometry::equals(p1, p2, equals_point_point_strategy_type()))
+        if (equals_point_point_strategy_type::apply(p, p1)
+            || equals_point_point_strategy_type::apply(p, p2)
+            || equals_point_point_strategy_type::apply(p1, p2))
         {
             return 0;
         }
