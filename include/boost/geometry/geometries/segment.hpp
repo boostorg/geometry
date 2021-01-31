@@ -24,6 +24,12 @@
 
 #include <boost/concept/assert.hpp>
 
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/make.hpp>
+#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 namespace boost { namespace geometry
@@ -161,6 +167,21 @@ struct indexed_access<model::segment<Point>, 1, Dimension>
         geometry::set<Dimension>(s.second, value);
     }
 };
+
+
+template <typename Point>
+struct make<model::segment<Point> >
+{
+    typedef model::segment<Point> segment_type;
+
+    static const bool is_specialized = true;
+
+    static constexpr segment_type apply(Point const& p1, Point const& p2)
+    {
+        return segment_type(p1, p2);
+    }
+};
+
 
 
 template <typename ConstOrNonConstPoint>

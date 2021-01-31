@@ -20,6 +20,7 @@
 #include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/make.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -84,9 +85,10 @@ struct cross_product<3>
         assert_dimension<P2, 3>();
         assert_dimension<ResultP, 3>();
 
-        return ResultP(get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2),
-                       get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2),
-                       get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
+        return traits::make<ResultP>::apply(
+                get<1>(p1) * get<2>(p2) - get<2>(p1) * get<1>(p2),
+                get<2>(p1) * get<0>(p2) - get<0>(p1) * get<2>(p2),
+                get<0>(p1) * get<1>(p2) - get<1>(p1) * get<0>(p2));
     }
 };
 
@@ -110,13 +112,7 @@ template
     std::enable_if_t
         <
             dimension<ResultP>::value != 3
-         || ! std::is_constructible
-                <
-                    ResultP,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&
-                >::value,
+         || ! traits::make<ResultP>::is_specialized,
             int
         > = 0
 >
@@ -137,17 +133,15 @@ template
     std::enable_if_t
         <
             dimension<ResultP>::value == 3
-         && std::is_constructible
-                <
-                    ResultP,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&,
-                    typename coordinate_type<ResultP>::type const&
-                >::value,
+         && traits::make<ResultP>::is_specialized,
             int
         > = 0
 >
-constexpr inline ResultP cross_product(P1 const& p1, P2 const& p2)
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
+inline ResultP cross_product(P1 const& p1, P2 const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<ResultP>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P1>));
@@ -173,13 +167,7 @@ template
     std::enable_if_t
         <
             dimension<P>::value != 3
-         || ! std::is_constructible
-                <
-                    P,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&
-                >::value,
+         || ! traits::make<P>::is_specialized,
             int
         > = 0
 >
@@ -200,17 +188,15 @@ template
     std::enable_if_t
         <
             dimension<P>::value == 3
-         && std::is_constructible
-                <
-                    P,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&,
-                    typename coordinate_type<P>::type const&
-                >::value,
+         && traits::make<P>::is_specialized,
             int
         > = 0
 >
-constexpr inline P cross_product(P const& p1, P const& p2)
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
+inline P cross_product(P const& p1, P const& p2)
 {
     BOOST_CONCEPT_ASSERT((concepts::Point<P>));
     BOOST_CONCEPT_ASSERT((concepts::ConstPoint<P>));

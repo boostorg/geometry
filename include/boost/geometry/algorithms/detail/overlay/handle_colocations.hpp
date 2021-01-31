@@ -507,6 +507,46 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
     }
 }
 
+template<typename Turns, typename Clusters>
+inline void discard_start_turns(Turns& turns, Clusters& clusters)
+{
+    for (auto& nv : clusters)
+    {
+        cluster_info& cinfo = nv.second;
+        auto& indices = cinfo.turn_indices;
+        std::size_t start_count{0};
+        for (signed_size_type index : indices)
+        {
+            auto const& turn = turns[index];
+            if (turn.method == method_start)
+            {
+               start_count++;
+            }
+        }
+        if (start_count == 0 && start_count == indices.size())
+        {
+            // There are no start turns, or all turns in the cluster are start turns.
+            continue;
+        }
+
+        // Discard the start turns and simultaneously erase them from the indices
+        for (auto it = indices.begin(); it != indices.end();)
+        {
+          auto& turn = turns[*it];
+          if (turn.method == method_start)
+          {
+              turn.discarded = true;
+              turn.cluster_id = -1;
+              it = indices.erase(it);
+          }
+          else
+          {
+              ++it;
+          }
+        }
+    }
+}
+
 template <typename Geometry0, typename Geometry1>
 inline segment_identifier get_preceding_segment_id(segment_identifier const& id,
         Geometry0 const& geometry0, Geometry1 const& geometry1)
@@ -700,6 +740,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
 
+    discard_start_turns(turns, clusters);
+
     if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
     {
         discard_interior_exterior_turns
@@ -783,13 +825,13 @@ inline bool fill_sbs(Sbs& sbs, Point& turn_point,
     {
         signed_size_type turn_index = *sit;
         turn_type const& turn = turns[turn_index];
-        if (first )
+        if (first)
         {
             turn_point = turn.point;
         }
         for (int i = 0; i < 2; i++)
         {
-            sbs.add(turn.operations[i], turn_index, i, geometry1, geometry2, first);
+            sbs.add(turn, turn.operations[i], turn_index, i, geometry1, geometry2, first);
             first = false;
         }
     }

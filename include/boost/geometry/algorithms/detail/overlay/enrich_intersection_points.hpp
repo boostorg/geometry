@@ -491,8 +491,8 @@ inline void enrich_intersection_points(Turns& turns,
     {
         detail::overlay::discard_closed_turns
             <
-            OverlayType,
-            target_operation
+                OverlayType,
+                target_operation
             >::apply(turns, clusters, geometry1, geometry2,
                      strategy);
         detail::overlay::discard_open_turns

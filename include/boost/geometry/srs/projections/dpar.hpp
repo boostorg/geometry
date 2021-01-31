@@ -65,9 +65,9 @@ template <typename Variant, typename T>
 struct find_type_index
 {};
 
-template <typename ...Types, typename T>
-struct find_type_index<boost::variant<Types...>, T>
-    : find_type_index_impl<T, 0, Types...>
+template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename T>
+struct find_type_index<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, T>
+    : find_type_index_impl<T, 0, BOOST_VARIANT_ENUM_PARAMS(T)>
 {};
 
 

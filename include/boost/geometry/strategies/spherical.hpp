@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/spherical.hpp>
+#include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
 #include <boost/geometry/strategies/io/spherical.hpp>

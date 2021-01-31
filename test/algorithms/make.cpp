@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -115,6 +119,23 @@ void test_3d()
     test_3d_t<double, P>();
 }
 
+template <typename P>
+void test_2d_constexpr()
+{
+    constexpr P p = bg::make<P>(1, 2);
+    BOOST_CHECK_EQUAL((bg::get<0>(p)), 1);
+    BOOST_CHECK_EQUAL((bg::get<1>(p)), 2);
+}
+
+template <typename P>
+void test_3d_constexpr()
+{
+    constexpr P p = bg::make<P>(1, 2, 3);
+    BOOST_CHECK_EQUAL((bg::get<0>(p)), 1);
+    BOOST_CHECK_EQUAL((bg::get<1>(p)), 2);
+    BOOST_CHECK_EQUAL((bg::get<2>(p)), 3);
+}
+
 int test_main(int, char* [])
 {
     //test_2d<int[2]>();
@@ -125,6 +146,10 @@ int test_main(int, char* [])
     test_2d<bg::model::point<double, 2, bg::cs::cartesian> >();
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
+
+    test_2d_constexpr<bg::model::point<double, 2, bg::cs::cartesian> >();
+
+    test_3d_constexpr<bg::model::point<double, 3, bg::cs::cartesian> >();
 
     return 0;
 }

@@ -9,10 +9,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_IN_CIRCLE_ROBUST_HPP
-#define BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_IN_CIRCLE_ROBUST_HPP
+#ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_IN_CIRCLE_ROBUST_HPP
+#define BOOST_GEOMETRY_STRATEGY_CARTESIAN_IN_CIRCLE_ROBUST_HPP
 
-#include<boost/geometry/extensions/triangulation/strategies/cartesian/detail/precise_math.hpp>
+#include<boost/geometry/util/precise_math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -61,4 +61,4 @@ public:
 
 }} // namespace boost::geometry::strategy
 
-#endif // BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_IN_CIRCLE_ROBUST_HPP
+#endif // BOOST_GEOMETRY_STRATEGY_CARTESIAN_IN_CIRCLE_ROBUST_HPP

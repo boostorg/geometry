@@ -119,13 +119,12 @@ struct get_ring<multi_polygon_tag>
 
 
 template <typename Geometry>
-inline std::size_t segment_count_on_ring(Geometry const& geometry,
-                                         segment_identifier const& seg_id)
+inline std::size_t segment_count_on_ring(Geometry const& geometry, segment_identifier const& seg_id)
 {
     typedef typename geometry::tag<Geometry>::type tag;
     ring_identifier const rid(0, seg_id.multi_index, seg_id.ring_index);
     // A closed polygon, a triangle of 4 points, including starting point,
-    // contains 3 segments. So handle as if closed and subtract one.
+    // contains 3 segments. So handle as if it is closed, and subtract one.
     return geometry::num_points(detail::overlay::get_ring<tag>::apply(rid, geometry), true) - 1;
 }
 

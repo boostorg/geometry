@@ -30,6 +30,9 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/make.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
 #include <algorithm>
@@ -44,6 +47,23 @@ namespace boost { namespace geometry
 #pragma warning(push)
 #pragma warning(disable : 4127)
 #endif
+
+namespace detail
+{
+
+template <typename Dummy, std::size_t N, std::size_t DimensionCount>
+struct is_coordinates_number_leq
+{
+    static const bool value = (N <= DimensionCount);
+};
+
+template <typename Dummy, std::size_t N, std::size_t DimensionCount>
+struct is_coordinates_number_eq
+{
+    static const bool value = (N == DimensionCount);
+};
+
+} // namespace detail
 
 
 namespace model
@@ -90,7 +110,13 @@ public:
 
 #if !defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     /// \constructor_default_no_init
-    constexpr point() = default;
+    constexpr point()
+// Workaround for VS2015
+#if defined(_MSC_VER) && (_MSC_VER < 1910)
+        : m_values{} {}
+#else
+        = default;
+#endif
 #else // defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     point()
     {
@@ -105,6 +131,11 @@ public:
 #endif
 
     /// @brief Constructor to set one value
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_leq<C, 1, DimensionCount>::value, int> = 0
+    >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
@@ -113,11 +144,16 @@ public:
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
-        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+        std::fill_n(m_values_initialized, DimensionCount, 1);
 #endif
     }
 
     /// @brief Constructor to set two values
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_leq<C, 2, DimensionCount>::value, int> = 0
+    >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
@@ -126,21 +162,25 @@ public:
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
-        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+        std::fill_n(m_values_initialized, DimensionCount, 1);
 #endif
     }
 
     /// @brief Constructor to set three values
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_leq<C, 3, DimensionCount>::value, int> = 0
+    >
 #if ! defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
     constexpr
 #endif
-    point(CoordinateType const& v0, CoordinateType const& v1,
-          CoordinateType const& v2)
+    point(CoordinateType const& v0, CoordinateType const& v1, CoordinateType const& v2)
         : m_values{ v0, v1, v2 }
     {
 #if defined(BOOST_GEOMETRY_ENABLE_ACCESS_DEBUGGING)
         m_created = 1;
-        std::fill_n(m_values_initialized, (std::min)(std::size_t(3), DimensionCount), 1);
+        std::fill_n(m_values_initialized, DimensionCount, 1);
 #endif
     }
 
@@ -257,6 +297,53 @@ struct access<model::point<CoordinateType, DimensionCount, CoordinateSystem>, Di
         p.template set<Dimension>(value);
     }
 };
+
+template
+<
+    typename CoordinateType,
+    std::size_t DimensionCount,
+    typename CoordinateSystem
+>
+struct make<model::point<CoordinateType, DimensionCount, CoordinateSystem> >
+{
+    typedef model::point<CoordinateType, DimensionCount, CoordinateSystem> point_type;
+
+    static const bool is_specialized = true;
+
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_eq<C, 1, DimensionCount>::value, int> = 0
+    >
+    static constexpr point_type apply(CoordinateType const& v0)
+    {
+        return point_type(v0);
+    }
+
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_eq<C, 2, DimensionCount>::value, int> = 0
+    >
+    static constexpr point_type apply(CoordinateType const& v0,
+                                      CoordinateType const& v1)
+    {
+        return point_type(v0, v1);
+    }
+
+    template
+    <
+        typename C = CoordinateType,
+        std::enable_if_t<geometry::detail::is_coordinates_number_eq<C, 3, DimensionCount>::value, int> = 0
+    >
+    static constexpr point_type apply(CoordinateType const& v0,
+                                      CoordinateType const& v1,
+                                      CoordinateType const& v2)
+    {
+        return point_type(v0, v1, v2);
+    }
+};
+
 
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS

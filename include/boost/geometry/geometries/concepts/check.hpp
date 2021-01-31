@@ -219,6 +219,10 @@ struct checker<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const>
     \ingroup concepts
 */
 template <typename Geometry>
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
 inline void check()
 {
     detail::checker<Geometry> c;
@@ -232,6 +236,10 @@ inline void check()
     \ingroup concepts
 */
 template <typename Geometry1, typename Geometry2>
+// workaround for VS2015
+#if !defined(_MSC_VER) || (_MSC_VER >= 1910)
+constexpr
+#endif
 inline void check_concepts_and_equal_dimensions()
 {
     check<Geometry1>();

@@ -25,8 +25,6 @@ test-suite boost-geometry-algorithms
     [ run comparable_distance.cpp      : : : : algorithms_comparable_distance ]
     [ run convert.cpp                  : : : : algorithms_convert ]
     [ run convert_multi.cpp            : : : : algorithms_convert_multi ]
-    [ run convex_hull.cpp              : : : : algorithms_convex_hull ]
-    [ run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ]
     [ run correct.cpp                  : : : : algorithms_correct ]
     [ run correct_multi.cpp            : : : : algorithms_correct_multi ]
     [ run correct_closure.cpp          : : : : algorithms_correct_closure ]
@@ -67,6 +65,7 @@ test-suite boost-geometry-algorithms
 build-project area ;
 build-project buffer ;
 build-project covered_by ;
+build-project convex_hull ;
 build-project crosses ;
 build-project detail ;
 build-project disjoint ;

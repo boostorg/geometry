@@ -181,6 +181,7 @@ struct areal_interrupt_policy
                         return true;
                     }
                     break;
+                case overlay::method_start :
                 case overlay::method_none :
                 case overlay::method_disjoint :
                 case overlay::method_error :

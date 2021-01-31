@@ -120,7 +120,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
                     has_origin = true;
                 }
 
-                sbs.add(turn.operations[i], turn_index, i,
+                sbs.add(turn, turn.operations[i], turn_index, i,
                         geometry1, geometry2, is_origin);
 
             }

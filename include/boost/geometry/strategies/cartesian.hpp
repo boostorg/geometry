@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/expand/cartesian.hpp>
 #include <boost/geometry/strategies/io/cartesian.hpp>

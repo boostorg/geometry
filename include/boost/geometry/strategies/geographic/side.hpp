@@ -27,6 +27,8 @@
 #include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
+
 #include <boost/geometry/strategy/geographic/envelope.hpp>
 
 #include <boost/geometry/strategies/geographic/disjoint_segment_box.hpp>
@@ -108,6 +110,13 @@ public:
     template <typename P1, typename P2, typename P>
     inline int apply(P1 const& p1, P2 const& p2, P const& p) const
     {
+        if (geometry::equals(p, p1, equals_point_point_strategy_type())
+                || geometry::equals(p, p2, equals_point_point_strategy_type())
+                || geometry::equals(p1, p2, equals_point_point_strategy_type()))
+        {
+            return 0;
+        }
+
         typedef typename promote_floating_point
             <
                 typename select_calculation_type_alt

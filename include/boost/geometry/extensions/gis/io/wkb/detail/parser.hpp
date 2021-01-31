@@ -116,6 +116,8 @@ struct byte_order_parser
             if (byte_order_type::unknown > value)
             {
                 order = byte_order_type::enum_t(value);
+            }else{
+                order = byte_order_type::unknown;
             }
             return true;
         }

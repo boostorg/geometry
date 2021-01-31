@@ -55,6 +55,7 @@ struct check_turn_less
         static bool const include_no_turn = false;
         static bool const include_degenerate = EnableDegenerateTurns;
         static bool const include_opposite = false;
+        static bool const include_start_turn = false;
 
         template
         <

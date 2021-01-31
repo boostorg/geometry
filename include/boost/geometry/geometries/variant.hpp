@@ -27,10 +27,30 @@
 namespace boost { namespace geometry
 {
 
+namespace detail
+{
 
-template <typename T, typename ...Ts>
-struct point_type<boost::variant<T, Ts...> >
-    : point_type<T>
+template <typename ...>
+struct parameter_pack_first_type {};
+
+template <typename T, typename ... Ts>
+struct parameter_pack_first_type<T, Ts...>
+{
+    typedef T type;
+};
+
+} // namespace detail
+
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct point_type<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+    : point_type
+        <
+            typename detail::parameter_pack_first_type
+                <
+                    BOOST_VARIANT_ENUM_PARAMS(T)
+                >::type
+        >
 {};
 
 

@@ -624,7 +624,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
-    BoostGeometryWriteExpectedFailures(10, 11, 24, 14);
+    BoostGeometryWriteExpectedFailures(10, 11, 24, 15);
 #endif
 
     return 0;

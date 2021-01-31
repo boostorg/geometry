@@ -101,7 +101,7 @@ std::vector<std::size_t> gather_cluster_properties(
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type const& op = turn.operations[i];
-                sbs.add(op, turn_index, i, geometry1, geometry2, first);
+                sbs.add(turn, op, turn_index, i, geometry1, geometry2, first);
                 first = false;
             }
         }
