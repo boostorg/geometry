@@ -85,7 +85,6 @@ void test_geo_strategies()
     area = bg::area(geometry_geo, geographic_default);
     BOOST_CHECK_CLOSE(area, 63316423532570.688, err);
 
-
     CT area_less_accurate = bg::area(geometry_geo, geographic_andoyer1);
     BOOST_CHECK_CLOSE(area, 63316423532570.688, err);
     area = bg::area(geometry_geo, geographic_andoyer2);
