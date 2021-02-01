@@ -27,9 +27,6 @@ public:
 	BOOST_CONCEPT_USAGE(PolyhedralSurface)
 	{
 
-		Geometry* polyhedralSurface = 0;
-		ring_type* ring = 0;
-
 	}
 #endif
 	

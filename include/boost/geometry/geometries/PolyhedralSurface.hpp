@@ -102,28 +102,7 @@ struct Poly_ring_type
 	    >::ring_type& type;
 };
 
-/*template 
-<
-    typename Ring,
-    template<typename, typename> class Container,
-    template<typename> class Allocator
->
-struct ring_type
-<
-    model::PolyhedralSurface
-        < 
-            Ring,
-            Container, Allocator
-        >
->
-{
-    typedef typename model::PolyhedralSurface
-        <
-            Ring,
-            Container, Allocator
-        >::ring_type& type;
 
-};*/
 
 
 } // namespace traits

@@ -123,6 +123,11 @@ struct clear<Geometry, ring_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
+// Clear for Polyhedral surface
+template <typename Geometry>
+struct clear<Geometry, polyhedral_surface_tag>
+    : detail::clear::no_action<Geometry>
+{};
 
 // Polygon can (indirectly) use std for clear
 template <typename Polygon>

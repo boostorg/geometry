@@ -462,13 +462,18 @@ struct polyhderal_surface_parser
     static inline void apply(tokenizer::iterator& it,
                              tokenizer::iterator const& end,
                              std::string const& wkt,
-                             PolyhedralSurface& ring)
+                             PolyhedralSurface& Poly)
     {
         handle_open_parenthesis(it, end, wkt);
-        int i = 0;
+        typename ring_type<PolyhedralSurface>::type ring;
         while(it != end && *it != ")"){
-            //appender::apply(it, end, wkt, ring);
-            i++;
+            appender::apply(it, end, wkt, ring);
+            if(it!=end && *it == ",")
+            {
+                //skip after ring is parsed
+                ++it;
+            }
+
         }
         handle_close_parenthesis(it, end, wkt);
     }
@@ -584,7 +589,7 @@ struct geometry_parser
 {
     static inline void apply(std::string const& wkt, Geometry& geometry)
     {
-        //geometry::clear(geometry);
+        geometry::clear(geometry);
 
         tokenizer tokens(wkt, boost::char_separator<char>(" ", ",()"));
         tokenizer::iterator it, end;
@@ -933,7 +938,7 @@ struct read_wkt<segment_tag, Segment>
 template <typename Geometry>
 inline void read_wkt(std::string const& wkt, Geometry& geometry)
 {
-    //geometry::concepts::check<Geometry>();
+    geometry::concepts::check<Geometry>();
     dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
 }
 
