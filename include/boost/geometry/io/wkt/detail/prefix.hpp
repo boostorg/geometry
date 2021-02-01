@@ -42,9 +42,9 @@ struct prefix_linestring
     static inline const char* apply() { return "LINESTRING"; }
 };
 
-struct prefix_polyhedron
+struct prefix_polyhedral_surface
 {
-	static inline const char* apply() { return "POLYHEDRON"; }
+	static inline const char* apply() { return "POLYHEDRALSURFACE Z"; }
 };
 
 struct prefix_multipoint

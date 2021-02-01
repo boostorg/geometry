@@ -92,6 +92,16 @@ struct point_type<ring_tag, Ring>
     typedef typename boost::range_value<Ring>::type type;
 };
 
+// Specialization for PolyhedralSurface: the point-type is the point-type of its rings
+template <typename PolyhedralSurface>
+struct point_type<polyhedral_surface_tag, PolyhedralSurface>
+{
+    typedef typename point_type
+        <
+            ring_tag,
+            typename ring_type<polyhedral_surface_tag, PolyhedralSurface>::type
+        >::type type;
+};
 
 // Specialization for polygon: the point-type is the point-type of its rings
 template <typename Polygon>

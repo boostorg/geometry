@@ -107,6 +107,29 @@ int main()
 
 
     // Some ways of getting point values
+    typedef model::point<double, 3, cs::cartesian> point_t;
+    typedef model::ring<point_t> ring_t;
+    typedef model::PolyhedralSurface<ring_t> poly_t;
+
+    poly_t polyhedron1;
+    poly_t polyhedron2 = {{{0,0,0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}},
+    {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}, {{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}, {{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}, 
+    {{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}} };
+
+    //append(polyhedron1[0], point_t{1, 0, 0});
+    //append(polyhedron1[0], point_t{0, 0, 0});
+    //append(polyhedron1[0], point_t{0, 1, 0});
+    //append(polyhedron1[0], point_t{1, 1, 0});
+    //append(polyhedron1[0], point_t{0, 0, 0});
+    read_wkt("POLYHEDRALSURFACE Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)), ((0 0 0, 0 1 0, 0 1 1, 0 0 1, 0 0 0)), ((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)), ((1 1 1, 1 0 1, 0 0 1, 0 1 1, 1 1 1)), ((1 1 1, 1 0 1, 1 0 0, 1 1 0, 1 1 1)), ((1 1 1, 1 1 0, 0 1 0, 0 1 1, 1 1 1)))", polyhedron1);
+
+    typedef model::polygon<point_2d> poly;
+    poly polygon1;
+    read_wkt("POLYGON((0 0, 0 7, 4 2, 2 0, 0 0))", polygon1); 
+
+    typedef model::linestring<point_2d> lines;
+    lines line;
+    read_wkt("LINESTRING(0 0, 2 2, 3 1)", line);
 
     // 1: using the "get" function following the concepts behind
     std::cout << get<0>(p2) << "," << get<1>(p2) << std::endl;

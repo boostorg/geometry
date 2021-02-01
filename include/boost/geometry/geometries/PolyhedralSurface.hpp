@@ -25,35 +25,31 @@ namespace model
 
 template 
 <
-    typename Point,
-    bool ClockWise = true, bool Closed = true,
-    template<typename, typename> class PointList = std::vector,
-    template<typename, typename> class RingList = std::vector,
-    template<typename> class PointAlloc = std::allocator,
-    template<typename> class RingAlloc = std::allocator
+    typename Ring,
+    template<typename, typename> class Container = std::vector,
+    template<typename> class Allocator = std::allocator
+
 >
-class PolyhedralSurface : public PointList<ring<Point>, RingAlloc<ring<Point> > >
+class PolyhedralSurface : public Container<Ring, Allocator<Ring> >
 {
-	BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
+	BOOST_CONCEPT_ASSERT( (concepts::Ring<Ring>) );
 
 public :
 
-	//typedef Point point_type;
-    using point_type = Point;
-    using ring_type =  ring<Point, ClockWise, Closed, PointList, PointAlloc>;
-    using PolyhedralSurface_type = RingList<ring_type, RingAlloc<ring_type > >;
-    //typedef RingList<Point, RingAlloc<Point> > base_type;
+    using point_type = model::point<double, 3, boost::geometry::cs::cartesian>;
+    using ring_type = ring<point_type, true, true>;
+    using ph = Container<ring_type, Allocator<ring_type> >;
 
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_default{polyhedron}
     inline PolyhedralSurface()
-	    : PolyhedralSurface_type()
+	    : ph()
 	{}
 
     /// \constructor_initialized_list{polyhedron}
 	inline PolyhedralSurface(std::initializer_list<ring_type> l)
-	    : PolyhedralSurface_type(l.begin(), l.end())
+	    : ph(l.begin(), l.end())
 	{}
 
 #endif
@@ -68,31 +64,66 @@ namespace traits
 
 template
 <
-    typename Point,
-    bool ClockWise, bool Closed,
-    template<typename, typename> class PointList,
-    template<typename, typename> class RingList,
-    template<typename> class PointAlloc,
-    template<typename> class RingAlloc
+    typename Ring,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
 >
 struct tag
 <
     model::PolyhedralSurface
         <
-            Point, 
-            ClockWise, Closed,
-            PointList, RingList, 
-            PointAlloc, RingAlloc
+            Ring, 
+            Container, Allocator
         > 
 >
 {
-	typedef PolyhedralSurface_tag type;
+	typedef polyhedral_surface_tag type;
 };
-/*using tag < model::PolyhedralSurface <
-            Point, 
-            ClockWise, Closed,
-            PointList, RingList, 
-            PointAlloc, RingAlloc  > > = PolyhedralSurface_tag;*/
+
+template
+<
+    typename Ring,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
+>
+struct Poly_ring_type
+<
+    model::PolyhedralSurface
+        <
+           Ring, 
+           Container, Allocator
+        >
+>
+{
+	typedef typename model::PolyhedralSurface
+	    <
+	        Ring, 
+	        Container, Allocator
+	    >::ring_type& type;
+};
+
+/*template 
+<
+    typename Ring,
+    template<typename, typename> class Container,
+    template<typename> class Allocator
+>
+struct ring_type
+<
+    model::PolyhedralSurface
+        < 
+            Ring,
+            Container, Allocator
+        >
+>
+{
+    typedef typename model::PolyhedralSurface
+        <
+            Ring,
+            Container, Allocator
+        >::ring_type& type;
+
+};*/
 
 
 } // namespace traits
