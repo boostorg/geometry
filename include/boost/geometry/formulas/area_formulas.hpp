@@ -431,7 +431,7 @@ public:
 
         auto const i_res = FormulaPolicy::template inverse
             <
-                CT, false, true, true, false, false
+                CT, true, true, true, false, false
             >::apply(lon1r, lat1r, lon2r, lat2r, spheroid_const.m_spheroid);
 
         CT const alp1 = i_res.azimuth;
@@ -460,19 +460,20 @@ public:
 
         // Spherical term computation
 
-        CT const sin_omg1 = sin_alp0 * sin_bet1;
-        CT const cos_omg1 = cos_alp1 * cos_bet1;
-        CT const sin_omg2 = sin_alp0 * sin_bet2;
-        CT const cos_omg2 = cos_alp2 * cos_bet2;
-        CT const cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
+        //CT const sin_omg1 = sin_alp0 * sin_bet1;
+        //CT const cos_omg1 = cos_alp1 * cos_bet1;
+        //CT const sin_omg2 = sin_alp0 * sin_bet2;
+        //CT const cos_omg2 = cos_alp2 * cos_bet2;
+        //CT cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
         CT excess;
 
         bool meridian = get<0>(p2) - get<0>(p1) == CT(0)
               || get<1>(p1) == CT(90) || get<1>(p1) == -CT(90)
               || get<1>(p2) == CT(90) || get<1>(p2) == -CT(90);
 
-        if (!meridian && cos_omg12 > -CT(0.7071)
-            && std::abs(sin_bet2 - sin_bet1) < CT(0.01)) // short segment
+        //std::cout << cos_omg12 << " " << std::abs(sin_bet2 - sin_bet1) << std::endl;
+
+        if (!meridian && i_res.distance < 10000)  // short segment
         {
             CT tan_lat1 = tan(lat1r / 2.0);
             CT tan_lat2 = tan(lat2r / 2.0);
@@ -480,11 +481,21 @@ public:
             excess = CT(2.0)
                 * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
                 * tan((lon2r - lon1r) / 2));
-
-            result.spherical_term = spherical<false>(p1, p2);
         }
         else
         {
+            /* in some cases this formula gives more accurate results
+             *
+             *             CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
+            normalize(sin_omg12, cos_omg12);
+
+            CT cos_omg12p1 = CT(1) + cos_omg12;
+            CT cos_bet1p1 = CT(1) + cos_bet1;
+            CT cos_bet2p1 = CT(1) + cos_bet2;
+            excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2 * cos_bet1p1),
+                                   cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
+            */
+
             excess = alp2 - alp1;
         }
 
