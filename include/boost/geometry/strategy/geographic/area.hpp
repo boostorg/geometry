@@ -179,7 +179,10 @@ public :
                       PointOfSegment const& p2,
                       state<Geometry>& st) const
     {
-        if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
+        // if the segment in not on a meridian or equator
+        if (! geometry::math::equals(get<0>(p1), get<0>(p2))
+            && ! (geometry::math::equals(get<1>(p1), 0)
+            && geometry::math::equals(get<1>(p2), 0)))
         {
             // Area formula is implemented for a maximum series order 5
             constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;

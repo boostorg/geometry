@@ -172,7 +172,6 @@ public:
 
     static inline void evaluate_coeffs_n(CT const& n, CT coeffs_n[])
     {
-
         switch (SeriesOrder) {
         case 0:
             coeffs_n[0] = CT(2)/CT(3);
@@ -446,13 +445,19 @@ public:
         std::size_t const series_order_plus_two = SeriesOrder + 2;
 
         // Basic trigonometric computations
+        // the compiler could optimize here using sincos function
+        // TODO: optimization: those quantities are already computed in inverse formula
+        // at least in some inverse formulas, so do not compute them again here
+        CT sin_bet1 = sin(lat1r);
+        CT cos_bet1 = cos(lat1r);
+        CT sin_bet2 = sin(lat2r);
+        CT cos_bet2 = cos(lat2r);
 
-        CT const tan_bet1 = tan(lat1r) * one_minus_f;
-        CT const tan_bet2 = tan(lat2r) * one_minus_f;
-        CT const cos_bet1 = cos(atan(tan_bet1));
-        CT const cos_bet2 = cos(atan(tan_bet2));
-        CT const sin_bet1 = tan_bet1 * cos_bet1;
-        CT const sin_bet2 = tan_bet2 * cos_bet2;
+        sin_bet1 *= one_minus_f;
+        sin_bet2 *= one_minus_f;
+        normalize(sin_bet1, cos_bet1);
+        normalize(sin_bet2, cos_bet2);
+
         CT const sin_alp1 = sin(alp1);
         CT const cos_alp1 = cos(alp1);
         CT const cos_alp2 = cos(alp2);
@@ -460,18 +465,12 @@ public:
 
         // Spherical term computation
 
-        //CT const sin_omg1 = sin_alp0 * sin_bet1;
-        //CT const cos_omg1 = cos_alp1 * cos_bet1;
-        //CT const sin_omg2 = sin_alp0 * sin_bet2;
-        //CT const cos_omg2 = cos_alp2 * cos_bet2;
-        //CT cos_omg12 =  cos_omg1 * cos_omg2 + sin_omg1 * sin_omg2;
         CT excess;
 
-        bool meridian = get<0>(p2) - get<0>(p1) == CT(0)
-              || get<1>(p1) == CT(90) || get<1>(p1) == -CT(90)
-              || get<1>(p2) == CT(90) || get<1>(p2) == -CT(90);
-
-        //std::cout << cos_omg12 << " " << std::abs(sin_bet2 - sin_bet1) << std::endl;
+        auto const half_pi = math::pi<CT>() / 2;
+        bool meridian = lon2r - lon1r == CT(0)
+            || lat1r == half_pi || lat1r == -half_pi
+            || lat2r == half_pi || lat2r == -half_pi;
 
         if (!meridian && i_res.distance < 10000)  // short segment
         {
@@ -504,6 +503,7 @@ public:
         // Ellipsoidal term computation (uses integral approximation)
 
         CT const cos_alp0 = math::sqrt(CT(1) - math::sqr(sin_alp0));
+        //CT const cos_alp0 = hypot(cos_alp1, sin_alp1 * sin_bet1);
         CT cos_sig1 = cos_alp1 * cos_bet1;
         CT cos_sig2 = cos_alp2 * cos_bet2;
         CT sin_sig1 = sin_bet1;
