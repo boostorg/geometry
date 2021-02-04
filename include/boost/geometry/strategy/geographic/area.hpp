@@ -80,6 +80,9 @@ public:
 protected :
     struct spheroid_constants
     {
+        // Area formula is implemented for a maximum series order 5
+        static constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
+
         typedef std::conditional_t
             <
                 std::is_void<CalculationType>::value,
@@ -93,6 +96,8 @@ protected :
         calc_t const m_ep2; // squared second eccentricity
         calc_t const m_ep;  // second eccentricity
         calc_t const m_c2;  // squared authalic radius
+        calc_t const m_f;   // the flattening
+        calc_t m_coeffs_var[((SeriesOrderNorm+2)*(SeriesOrderNorm+1))/2];
 
         inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
@@ -104,7 +109,19 @@ protected :
                     <
                         calc_t, Spheroid, srs_spheroid_tag
                     >::apply(m_a2, m_e2))
-        {}
+            , m_f(formula::flattening<calc_t>(spheroid))
+        {
+            typedef geometry::formula::area_formulas
+                <
+                    calc_t, SeriesOrderNorm, ExpandEpsN
+                > area_formulas;
+
+            calc_t const n = m_f / (calc_t(2) - m_f);
+
+            // Generate and evaluate the polynomials on n
+            // to get the series coefficients (that depend on eps)
+            area_formulas::evaluate_coeffs_n(n, m_coeffs_var);
+        }
     };
 
 public:
@@ -187,14 +204,14 @@ public :
             // Area formula is implemented for a maximum series order 5
             constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
 
+            using CT = typename result_type<Geometry>::type;
+
             typedef geometry::formula::area_formulas
                 <
-                    typename result_type<Geometry>::type,
-                    SeriesOrderNorm, ExpandEpsN
+                    CT, SeriesOrderNorm, ExpandEpsN
                 > area_formulas;
 
-            typename area_formulas::return_type_ellipsoidal result =
-                area_formulas::template ellipsoidal<FormulaPolicy>
+            auto result = area_formulas::template ellipsoidal<FormulaPolicy>
                 (p1, p2, m_spheroid_constants);
 
             st.m_excess_sum += result.spherical_term;

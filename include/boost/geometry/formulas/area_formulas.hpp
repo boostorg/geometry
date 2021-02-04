@@ -439,10 +439,7 @@ public:
         // Constants
 
         CT const ep = spheroid_const.m_ep;
-        CT const f = formula::flattening<CT>(spheroid_const.m_spheroid);
-        CT const one_minus_f = CT(1) - f;
-        std::size_t const series_order_plus_one = SeriesOrder + 1;
-        std::size_t const series_order_plus_two = SeriesOrder + 2;
+        CT const one_minus_f = CT(1) - spheroid_const.m_f;
 
         // Basic trigonometric computations
         // the compiler could optimize here using sincos function
@@ -513,40 +510,34 @@ public:
         normalize(sin_sig2, cos_sig2);
 
         CT coeffs[SeriesOrder + 1];
-        std::size_t const coeffs_var_size = (series_order_plus_two
-            * series_order_plus_one) / 2;
 
-        CT coeffs_var[coeffs_var_size];
-
-        if (ExpandEpsN){ // expand by eps and n
-
+        if (ExpandEpsN) // expand by eps and n
+        {
             CT const k2 = math::sqr(ep * cos_alp0);
             CT const sqrt_k2_plus_one = math::sqrt(CT(1) + k2);
             CT const eps = (sqrt_k2_plus_one - CT(1)) / (sqrt_k2_plus_one + CT(1));
-            CT const n = f / (CT(2) - f);
-
-            // Generate and evaluate the polynomials on n
-            // to get the series coefficients (that depend on eps)
-            evaluate_coeffs_n(n, coeffs_var);
 
             // Generate and evaluate the polynomials on eps (i.e. var2 = eps)
             // to get the final series coefficients
-            evaluate_coeffs_var2(eps, coeffs_var, coeffs);
-
-        }else{ // expand by k2 and ep
+            evaluate_coeffs_var2(eps, spheroid_const.m_coeffs_var, coeffs);
+        }
+        else
+        { // expand by k2 and ep
 
             CT const k2 = math::sqr(ep * cos_alp0);
             CT const ep2 = math::sqr(ep);
+
+            CT coeffs_var[((SeriesOrder+2)*(SeriesOrder+1))/2];
 
             // Generate and evaluate the polynomials on ep2
             evaluate_coeffs_ep(ep2, coeffs_var);
 
             // Generate and evaluate the polynomials on k2 (i.e. var2 = k2)
             evaluate_coeffs_var2(k2, coeffs_var, coeffs);
-
         }
 
         // Evaluate the trigonometric sum
+        constexpr auto series_order_plus_one = SeriesOrder + 1;
         CT const I12 = clenshaw_sum(cos_sig2, coeffs, coeffs + series_order_plus_one)
             - clenshaw_sum(cos_sig1, coeffs, coeffs + series_order_plus_one);
 
