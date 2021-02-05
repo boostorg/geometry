@@ -144,8 +144,8 @@ public:
         {
             return_type result;
 
-            return_type spherical_term = spheroid_const.m_c2 * m_excess_sum;
-            return_type ellipsoidal_term = spheroid_const.m_e2
+            return_type const spherical_term = spheroid_const.m_c2 * m_excess_sum;
+            return_type const ellipsoidal_term = spheroid_const.m_e2
                 * spheroid_const.m_a2 * m_correction_sum;
 
             // ignore ellipsoidal term if is large (probably from an azimuth
@@ -196,31 +196,32 @@ public :
                       PointOfSegment const& p2,
                       state<Geometry>& st) const
     {
-        // if the segment in not on a meridian or equator
-        if (! geometry::math::equals(get<0>(p1), get<0>(p2))
-            && ! (geometry::math::equals(get<1>(p1), 0)
-            && geometry::math::equals(get<1>(p2), 0)))
+        // if the segment in not on a meridian
+        if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
             // Area formula is implemented for a maximum series order 5
             constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
-
             using CT = typename result_type<Geometry>::type;
-
             typedef geometry::formula::area_formulas
                 <
                     CT, SeriesOrderNorm, ExpandEpsN
                 > area_formulas;
 
-            auto result = area_formulas::template ellipsoidal<FormulaPolicy>
-                (p1, p2, m_spheroid_constants);
-
-            st.m_excess_sum += result.spherical_term;
-            st.m_correction_sum += result.ellipsoidal_term;
-
             // Keep track whenever a segment crosses the prime meridian
             if (area_formulas::crosses_prime_meridian(p1, p2))
             {
                 st.m_crosses_prime_meridian++;
+            }
+
+            // if the segment in not on equator
+            if (! (geometry::math::equals(get<1>(p1), 0)
+                && geometry::math::equals(get<1>(p2), 0)))
+            {
+                auto result = area_formulas::template ellipsoidal<FormulaPolicy>
+                    (p1, p2, m_spheroid_constants);
+
+                st.m_excess_sum += result.spherical_term;
+                st.m_correction_sum += result.ellipsoidal_term;
             }
         }
     }

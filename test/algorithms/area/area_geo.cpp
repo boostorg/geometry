@@ -128,6 +128,7 @@ void test_geo_strategies()
     BOOST_CHECK_CLOSE(area_most_accurate, area_less_accurate, .001);
     BOOST_CHECK_CLOSE(area_most_accurate, area_default, .001);
 
+/*
     // timings and accuracy
     std::cout.precision(25);
     std::size_t exp_times = 100000;
@@ -191,7 +192,7 @@ void test_geo_strategies()
         for (int j=0; j < exp_times; j++) area = bg::area(geometry_geo, geographic_vincenty5);
         std::cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " ";
         std::cout  << area << std::endl;}
-
+*/
 }
 
 int test_main(int, char* [])

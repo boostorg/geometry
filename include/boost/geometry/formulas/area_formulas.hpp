@@ -326,9 +326,9 @@ public:
         Given the set of coefficients coeffs1[] evaluate on var2 and return
         the set of coefficients coeffs2[]
     */
-
+    template <typename CoeffsType>
     static inline void evaluate_coeffs_var2(CT const& var2,
-                                            CT const coeffs1[],
+                                            CoeffsType const coeffs1[],
                                             CT coeffs2[])
     {
         std::size_t begin(0), end(0);

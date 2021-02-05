@@ -292,7 +292,7 @@ int test_main(int, char* [])
 
     test_poles_ccw<pt_crt>();
     test_poles_ccw<pt_sph>();
-    test_poles_ccw<pt_geo >();
+    test_poles_ccw<pt_geo>();
 
     test_large_integers();
 
