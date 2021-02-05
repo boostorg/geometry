@@ -445,6 +445,7 @@ public:
         // the compiler could optimize here using sincos function
         // TODO: optimization: those quantities are already computed in inverse formula
         // at least in some inverse formulas, so do not compute them again here
+        /*
         CT sin_bet1 = sin(lat1r);
         CT cos_bet1 = cos(lat1r);
         CT sin_bet2 = sin(lat2r);
@@ -454,6 +455,14 @@ public:
         sin_bet2 *= one_minus_f;
         normalize(sin_bet1, cos_bet1);
         normalize(sin_bet2, cos_bet2);
+        */
+
+        CT const tan_bet1 = tan(lat1r) * one_minus_f;
+        CT const tan_bet2 = tan(lat2r) * one_minus_f;
+        CT const cos_bet1 = cos(atan(tan_bet1));
+        CT const cos_bet2 = cos(atan(tan_bet2));
+        CT const sin_bet1 = tan_bet1 * cos_bet1;
+        CT const sin_bet2 = tan_bet2 * cos_bet2;
 
         CT const sin_alp1 = sin(alp1);
         CT const cos_alp1 = cos(alp1);

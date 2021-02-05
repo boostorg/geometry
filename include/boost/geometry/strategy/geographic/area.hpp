@@ -196,12 +196,14 @@ public :
                       PointOfSegment const& p2,
                       state<Geometry>& st) const
     {
+        using CT = typename result_type<Geometry>::type;
+
         // if the segment in not on a meridian
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
             // Area formula is implemented for a maximum series order 5
             constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
-            using CT = typename result_type<Geometry>::type;
+
             typedef geometry::formula::area_formulas
                 <
                     CT, SeriesOrderNorm, ExpandEpsN
