@@ -517,7 +517,7 @@ void test_spherical_geo()
 
         bg::read_wkt(wkt, geometry_geo_ld);
         area = bg::area(geometry_geo_ld, area_a);
-        BOOST_CHECK_CLOSE(area, -25.57978, 0.001);
+        BOOST_CHECK_CLOSE(area, -25.57978, 0.01);
         area = bg::area(geometry_geo_ld, area_t);
         BOOST_CHECK_CLOSE(area, -25.57359, 0.001);
         area = bg::area(geometry_geo_ld, area_v);

@@ -478,7 +478,7 @@ public:
             || lat1r == half_pi || lat1r == -half_pi
             || lat2r == half_pi || lat2r == -half_pi;
 
-        if (!meridian && i_res.distance < 10000)  // short segment
+        if (!meridian && (i_res.distance) < 10000)  // short segment
         {
             CT tan_lat1 = tan(lat1r / 2.0);
             CT tan_lat2 = tan(lat2r / 2.0);
