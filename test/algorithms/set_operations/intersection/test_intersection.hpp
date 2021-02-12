@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016, 2017.
-// Modifications copyright (c) 2016-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2020.
+// Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +18,7 @@
 #include <iomanip>
 
 #include <boost/foreach.hpp>
+#include <boost/range/value_type.hpp>
 #include <boost/variant/variant.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
