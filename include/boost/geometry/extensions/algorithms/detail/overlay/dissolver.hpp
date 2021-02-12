@@ -433,7 +433,7 @@ struct dissolver_generic
 
         // There are less then 16 elements, handle them quadraticly
 
-        int n = boost::size(output_collection);
+        std::size_t n = boost::size(output_collection);
 
         for(iterator_type it1 = boost::begin(index_vector);
             it1 != boost::end(index_vector);
@@ -520,7 +520,7 @@ struct dissolver_generic
                                    boost::end(output_collection)),
                     helper_vector,
                     strategy,
-                    n, 1);
+                    static_cast<int>(n), 1);
 
         return changed;
     }
@@ -577,8 +577,8 @@ struct dissolver_generic
 
         std::vector<output_type> unioned_collection;
 
-        int size = 0, previous_size = 0;
-        int n = 0;
+        std::size_t size = 0, previous_size = 0;
+        std::size_t n = 0;
 
         bool changed = false;
         while(divide_and_conquer<1>
