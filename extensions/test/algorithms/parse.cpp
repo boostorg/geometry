@@ -17,6 +17,7 @@
 
 #include <test_common/test_point.hpp>
 
+
 using namespace boost::geometry;
 
 template <typename P>
