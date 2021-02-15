@@ -58,7 +58,7 @@ template <typename P, bool as_radian>
 void test_all_complex_dms_strategy()
 {
 	typedef typename coordinate_type<P>::type coord_t;
-	typedef typename projections::detail::dms_parser<coord_t, as_radian, 'w', 'e', 'n', 's'> parser_t;
+	using parser_t = projections::detail::dms_parser<coord_t, as_radian, 'w', 'e', 'n', 's'>;
 
 	// with minutes
 	double expected_dms_result1 = as_radian ? 5.166666666 * bg::math::d2r<double>() : 5.166666666;
@@ -108,7 +108,7 @@ void test_all_complex_dms_strategy()
 		expected_dms_result9, expected_dms_result10, parser_t());
 
 	// test with random characters in strategy(for generality check)
-	typedef bg::projections::detail::dms_parser<coord_t, true, 'A', 'B', 'C', 'D', 'm', 's', 'o', 'p'> parser_t1;
+	using parser_t1 = bg::projections::detail::dms_parser<coord_t, true, 'A', 'B', 'C', 'D', 'm', 's', 'o', 'p'>;
 
 
 	test_parse_with_point_and_parse_strategy<P, parser_t1>(std::string("45o 30m 30s A"), std::string("120o 30m 45s D"),
@@ -118,7 +118,7 @@ void test_all_complex_dms_strategy()
 		0.0991686810, -1.7500000000, parser_t1());
 
 	// creating another strategy with returning value as degree
-	typedef bg::projections::detail::dms_parser<coord_t, false> parser_t2; // return value in degree and rest parameters as default value.
+	using parser_t2 = bg::projections::detail::dms_parser<coord_t, false>; // return value in degree and rest parameters as default value.
 
 
 	test_parse_with_point_and_parse_strategy<P, parser_t2>(std::string("80d 45' 30\"S"), std::string("150d 30' 30\"E"),
@@ -131,12 +131,12 @@ void test_all_complex_dms_strategy()
 template <typename P, bool as_radian>
 void test_all_with_simple_dms_strategy()
 {
-	typedef typename coordinate_type<P>::type coord_t;
+	using coord_t = typename coordinate_type<P>::type;
 
 	double generic_expected_result1 = as_radian ? 2 * bg::math::d2r<double>() : 2;
 	double generic_expected_result2 = as_radian ? -4 * bg::math::d2r<double>() : -4;
 
-	typedef typename projections::detail::dms_parser<coord_t, as_radian, 'w', 'e', 'n', 's'> parser_t1;
+	using parser_t1 = projections::detail::dms_parser<coord_t, as_radian, 'w', 'e', 'n', 's'>;
 	test_parse_with_point_and_parse_strategy<P, parser_t1>(std::string("2e"), std::string("4n"),
 		generic_expected_result1, generic_expected_result2, parser_t1());
 
@@ -152,11 +152,11 @@ void test_all_with_simple_dms_strategy()
 	test_parse_with_point_and_parse_strategy<P, parser_t1>(std::string("4n"), std::string("2s"),
 		-(generic_expected_result1), generic_expected_result2, parser_t1());
 
-	typedef typename projections::detail::dms_parser<coord_t, as_radian, 'n', 'o', 'z', 'w'> parser_t2;
+	using parser_t2 = projections::detail::dms_parser<coord_t, as_radian, 'n', 'o', 'z', 'w'>;
 	test_parse_with_point_and_parse_strategy<P, parser_t2>(std::string("2o"), std::string("4z"),
 		generic_expected_result1, generic_expected_result2, parser_t2());
 
-	typedef typename projections::detail::dms_parser<coord_t, as_radian, 'W', 'E', 'N', 'S'> parser_t3;
+	using parser_t3 = projections::detail::dms_parser<coord_t, as_radian, 'W', 'E', 'N', 'S'>;
 	test_parse_with_point_and_parse_strategy<P, parser_t3>(std::string("4N"), std::string("2S"),
 		-(generic_expected_result1), generic_expected_result2, parser_t3());
 
@@ -168,7 +168,7 @@ void test_all_with_simple_dms_strategy()
 template<typename Geometry>
 void test_all_without_strategy()
 {
-	typedef typename bg::coordinate_type<Geometry>::type T;
+	using T = typename bg::coordinate_type<Geometry>::type;
 	T const d2r = math::d2r<T>();
 
 	test_parse<Geometry, T>(std::string("1E"), std::string("2N"), 1 * d2r, 2 * d2r);
