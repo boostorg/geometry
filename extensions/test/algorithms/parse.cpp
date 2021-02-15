@@ -180,13 +180,13 @@ void test_all_without_strategy()
 	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
 	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
 
-	// tests for dms strings, values returned in radian(default strategy) .
+	// tests for dms strings, values returned in radian(default strategy).
 	test_parse<Geometry, T>(std::string("45d 30' 30\" N"), std::string("120D 30'45\"W"), -2.1033408163, 0.7942705942);
 	test_parse<Geometry, T>(std::string("32D45' 57\"n"), std::string("170d 10' 25\"E"), 2.9700910868, 0.5718719189);
 	test_parse<Geometry, T>(std::string("5d38'40\"S"), std::string("168D 10' 20\"w"), -2.9351602461, -0.0985141822);
 	test_parse<Geometry, T>(std::string("72D 20'45\"s"), std::string("5d 40' 55\"e"), 0.0991686810, -1.2626735329);
 
-	// test for radian and dms strings combined.
+	// test for radian and dms strings combined returning values in degree.
 	test_parse<Geometry, T>(std::string("2.5r N"), std::string("0.75r E"), 0.7500000000, 2.5000000000);
 	test_parse<Geometry, T>(std::string("1.25r S"), std::string("120D 30' 45\"w"), -2.1033408163, -1.2500000000);
 }
