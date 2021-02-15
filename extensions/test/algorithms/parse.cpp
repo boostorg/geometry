@@ -2,36 +2,38 @@
 // Unit Test
 
 // Copyright (c) 2021 Joni Kerkelä, Oulu, Finland.
+// Copyright (c) 2021 Ayush Gupta, Gujarat, India
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <string>
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/extensions/algorithms/parse.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/srs/projections/impl/dms_parser.hpp>
 
 #include <test_common/test_point.hpp>
 
-
 using namespace boost::geometry;
 
-template <typename P>
-void test_parse(std::string const& coordinate_1, std::string const& coordinate_2,
-	double expected_result_coord_1, double expected_result_coord_2)
+template <typename Geometry, typename T>
+void test_parse(std::string const& coordinate_1,
+	std::string const& coordinate_2,
+	T expected_result_coord_1,
+	T expected_result_coord_2)
 {
-	auto geo_point_result = parse<P>(coordinate_1, coordinate_2);
-	BOOST_CHECK_CLOSE(((double)bg::get<0>(geo_point_result)), expected_result_coord_1, 1.0e-6);
-	BOOST_CHECK_CLOSE(((double)bg::get<1>(geo_point_result)), expected_result_coord_2, 1.0e-6);
+	Geometry geometry;
+	geometry = parse<Geometry>(coordinate_1, coordinate_2);
+	BOOST_CHECK_CLOSE(((double)bg::get<0>(geometry)), expected_result_coord_1, 1.0e-4);
+	BOOST_CHECK_CLOSE(((double)bg::get<1>(geometry)), expected_result_coord_2, 1.0e-4);
 
-	P p;
-	parse(p, coordinate_1, coordinate_2);
-	BOOST_CHECK_CLOSE(((double)bg::get<0>(p)), expected_result_coord_1, 1.0e-6);
-	BOOST_CHECK_CLOSE(((double)bg::get<1>(p)), expected_result_coord_2, 1.0e-6);
+	parse(geometry, coordinate_1, coordinate_2);
+	BOOST_CHECK_CLOSE(((double)bg::get<0>(geometry)), expected_result_coord_1, 1.0e-4);
+	BOOST_CHECK_CLOSE(((double)bg::get<1>(geometry)), expected_result_coord_2, 1.0e-4);
 }
 
 template <typename P, typename S>
@@ -40,8 +42,8 @@ void test_parse_with_parse_strategy(std::string const& coordinate_1, std::string
 {
 	P p;
 	parse<P, S>(p, coordinate_1, coordinate_2, strategy);
-	BOOST_CHECK_CLOSE(((double)bg::get<0>(p)), expected_result_coord_1, 1.0e-6);
-	BOOST_CHECK_CLOSE(((double)bg::get<1>(p)), expected_result_coord_2, 1.0e-6);
+	BOOST_CHECK_CLOSE(((double)bg::get<0>(p)), expected_result_coord_1, 1.0e-4);
+	BOOST_CHECK_CLOSE(((double)bg::get<1>(p)), expected_result_coord_2, 1.0e-4);
 }
 
 template <typename P, typename T>
@@ -104,6 +106,26 @@ void test_all_complex_dms_strategy()
 
 	test_parse_with_point_and_parse_strategy<P, parser_t>(std::string("5.15R E"), std::string("5.15R N"),
 		expected_dms_result9, expected_dms_result10, parser_t());
+
+	// test with random characters in strategy(for generality check)
+	typedef bg::projections::detail::dms_parser<coord_t, true, 'A', 'B', 'C', 'D', 'm', 's', 'o', 'p'> parser_t1;
+
+
+	test_parse_with_point_and_parse_strategy<P, parser_t1>(std::string("45o 30m 30s A"), std::string("120o 30m 45s D"),
+		-2.1033408163, 0.7942705942, parser_t1());
+
+	test_parse_with_point_and_parse_strategy<P, parser_t1>(std::string("1.75p c"), std::string("5o 40m 55s b"),
+		0.0991686810, -1.7500000000, parser_t1());
+
+	// creating another strategy with returning value as degree
+	typedef bg::projections::detail::dms_parser<coord_t, false> parser_t2; // return value in degree and rest parameters as default value.
+
+
+	test_parse_with_point_and_parse_strategy<P, parser_t2>(std::string("80d 45' 30\"S"), std::string("150d 30' 30\"E"),
+		150.5083333333, -80.7583333333, parser_t2());
+	test_parse_with_point_and_parse_strategy<P, parser_t2>(std::string("15d 10' 20\"N"), std::string("2.75r W"),
+		-157.5633261332, 15.1722222222, parser_t2());
+
 }
 
 template <typename P, bool as_radian>
@@ -140,32 +162,49 @@ void test_all_with_simple_dms_strategy()
 
 	test_parse_with_point_and_parse_strategy<P, parser_t3>(std::string("4n"), std::string("2s"),
 		-(generic_expected_result1), generic_expected_result2, parser_t3());
+
 }
 
-
+template<typename Geometry>
 void test_all_without_strategy()
 {
-	test_parse<bg::model::point<double, 2, bg::cs::geographic<bg::radian> > >(std::string("1E"),
-		std::string("2N"), 1 * bg::math::d2r<double>(), 2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::geographic<bg::radian> > >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >(std::string("1E"),
-		std::string("2N"), 1 * bg::math::d2r<double>(), 2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::spherical<bg::radian> > >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::radian> > >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::undefined> >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
-	test_parse<bg::model::point<double, 2, bg::cs::cartesian> >(std::string("1W"),
-		std::string("2S"), -1 * bg::math::d2r<double>(), -2 * bg::math::d2r<double>());
+	typedef typename bg::coordinate_type<Geometry>::type T;
+	T const d2r = math::d2r<T>();
+
+	test_parse<Geometry, T>(std::string("1E"), std::string("2N"), 1 * d2r, 2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+	test_parse<Geometry, T>(std::string("1E"), std::string("2N"), 1 * d2r, 2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+	test_parse<Geometry, T>(std::string("1W"), std::string("2S"), -1 * d2r, -2 * d2r);
+
+	// tests for dms strings, values returned in radian(default strategy) .
+	test_parse<Geometry, T>(std::string("45d 30' 30\" N"), std::string("120D 30'45\"W"), -2.1033408163, 0.7942705942);
+	test_parse<Geometry, T>(std::string("32D45' 57\"n"), std::string("170d 10' 25\"E"), 2.9700910868, 0.5718719189);
+	test_parse<Geometry, T>(std::string("5d38'40\"S"), std::string("168D 10' 20\"w"), -2.9351602461, -0.0985141822);
+	test_parse<Geometry, T>(std::string("72D 20'45\"s"), std::string("5d 40' 55\"e"), 0.0991686810, -1.2626735329);
+
+	// test for radian and dms strings combined.
+	test_parse<Geometry, T>(std::string("2.5r N"), std::string("0.75r E"), 0.7500000000, 2.5000000000);
+	test_parse<Geometry, T>(std::string("1.25r S"), std::string("120D 30' 45\"w"), -2.1033408163, -1.2500000000);
 }
 
+void test_without_strategy()
+{
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::spherical<bg::degree>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::spherical<bg::radian>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::radian>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::geographic<bg::degree>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::geographic<bg::radian>>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::undefined>>();
+	test_all_without_strategy<bg::model::point<double, 2, bg::cs::cartesian>>();
+}
 void test_all()
 {
-	test_all_without_strategy();
+	test_without_strategy();
 	test_all_with_simple_dms_strategy<bg::model::point<double, 2, bg::cs::geographic<bg::degree> >, false>();
 	test_all_with_simple_dms_strategy<bg::model::point<double, 2, bg::cs::geographic<bg::radian> >, true>();
 	test_all_complex_dms_strategy<bg::model::point<double, 2, bg::cs::geographic<bg::degree> >, false>();
@@ -177,3 +216,4 @@ int test_main(int, char* [])
 	test_all();
 	return 0;
 }
+
