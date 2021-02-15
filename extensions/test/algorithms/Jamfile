@@ -12,7 +12,6 @@ test-suite boost-geometry-extensions-algorithms
     :
 #    [ run dissolve.cpp ]
     [ run distance_info.cpp ]
-    [ run parse.cpp]
     [ run connect.cpp ]
 #    [ run offset.cpp ]
     [ run parse.cpp ]
