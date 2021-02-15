@@ -1,12 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2020, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
-
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_intersection_linear_linear_areal
@@ -18,8 +19,6 @@
 #endif
 
 #include <boost/test/included/unit_test.hpp>
-
-#include <boost/range.hpp>
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>

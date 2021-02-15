@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -14,7 +15,6 @@
 #define BOOST_TEST_MODULE test_distance_geographic_linear_linear
 #endif
 
-#include <boost/range.hpp>
 #include <boost/type_traits/is_same.hpp>
 
 #include <boost/test/included/unit_test.hpp>
