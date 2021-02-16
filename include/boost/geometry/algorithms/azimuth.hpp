@@ -70,10 +70,10 @@ struct azimuth<Point1, Point2, point_tag, point_tag>
             >::type calc_t;
 
         calc_t result = 0;
-        calc_t x1 = geometry::get_as_radian<0>(p1);
-        calc_t y1 = geometry::get_as_radian<1>(p1);
-        calc_t x2 = geometry::get_as_radian<0>(p2);
-        calc_t y2 = geometry::get_as_radian<1>(p2);
+        calc_t const x1 = geometry::get_as_radian<0>(p1);
+        calc_t const y1 = geometry::get_as_radian<1>(p1);
+        calc_t const x2 = geometry::get_as_radian<0>(p2);
+        calc_t const y2 = geometry::get_as_radian<1>(p2);
 
         strategy.azimuth().apply(x1, y1, x2, y2, result);
 
