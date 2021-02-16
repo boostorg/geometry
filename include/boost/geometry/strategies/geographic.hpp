@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -51,8 +51,6 @@ public:
         : base_t(spheroid)
     {}
 
-    // azimuth
-
     auto azimuth() const
     {
         return strategy::azimuth::geographic
@@ -60,8 +58,6 @@ public:
                 FormulaPolicy, Spheroid, CalculationType
             >(base_t::m_spheroid);
     }
-
-    // point_order
 
     auto point_order() const
     {

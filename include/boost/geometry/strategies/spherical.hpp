@@ -54,14 +54,10 @@ public:
             >::apply(radius_or_sphere);
     }
 
-    // azimuth
-
     static auto azimuth()
     {
         return strategy::azimuth::spherical<CalculationType>();
     }
-
-    // point_order
 
     static auto point_order()
     {
