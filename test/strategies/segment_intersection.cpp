@@ -24,18 +24,18 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
-
-#include <boost/geometry/strategies/cartesian/intersection.hpp>
-#include <boost/geometry/strategies/intersection_result.hpp>
-
-#include <boost/geometry/policies/relate/intersection_policy.hpp>
-
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+#include <boost/geometry/policies/relate/intersection_policy.hpp>
+
+#include <boost/geometry/strategies/intersection_result.hpp>
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian);
 

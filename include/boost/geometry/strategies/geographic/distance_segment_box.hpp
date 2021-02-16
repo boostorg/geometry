@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2019 Oracle and/or its affiliates.
+// Copyright (c) 2018-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,6 +18,7 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/geographic/azimuth.hpp>
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/geographic/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/normalize.hpp>

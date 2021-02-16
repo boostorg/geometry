@@ -76,9 +76,9 @@ struct check_turn_less
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2)
     {
-        typedef typename bg::strategy::intersection::services::default_strategy
+        typedef typename bg::strategies::relate::services::default_strategy
             <
-                typename bg::cs_tag<Geometry1>::type
+                Geometry1, Geometry2
             >::type strategy_type;
 
         typedef bg::detail::no_rescale_policy robust_policy_type;

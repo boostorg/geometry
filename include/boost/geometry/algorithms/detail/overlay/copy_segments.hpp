@@ -61,14 +61,14 @@ struct copy_segments_ring
     <
         typename Ring,
         typename SegmentIdentifier,
-        typename SideStrategy,
+        typename Strategy,
         typename RobustPolicy,
         typename RangeOut
     >
     static inline void apply(Ring const& ring,
             SegmentIdentifier const& seg_id,
             signed_size_type to_index,
-            SideStrategy const& strategy,
+            Strategy const& strategy,
             RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
@@ -125,10 +125,10 @@ class copy_segments_linestring
 {
 private:
     // remove spikes
-    template <typename RangeOut, typename Point, typename SideStrategy, typename RobustPolicy>
+    template <typename RangeOut, typename Point, typename Strategy, typename RobustPolicy>
     static inline void append_to_output(RangeOut& current_output,
                                         Point const& point,
-                                        SideStrategy const& strategy,
+                                        Strategy const& strategy,
                                         RobustPolicy const& robust_policy,
                                         std::true_type const&)
     {
@@ -138,14 +138,14 @@ private:
     }
 
     // keep spikes
-    template <typename RangeOut, typename Point, typename SideStrategy, typename RobustPolicy>
+    template <typename RangeOut, typename Point, typename Strategy, typename RobustPolicy>
     static inline void append_to_output(RangeOut& current_output,
                                         Point const& point,
-                                        SideStrategy const& strategy,
+                                        Strategy const& strategy,
                                         RobustPolicy const&,
                                         std::false_type const&)
     {
-        detail::overlay::append_no_duplicates(current_output, point, strategy.get_equals_point_point_strategy());
+        detail::overlay::append_no_duplicates(current_output, point, strategy);
     }
 
 public:

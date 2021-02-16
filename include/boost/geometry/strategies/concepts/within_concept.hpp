@@ -33,11 +33,55 @@
 #include <boost/geometry/geometries/concepts/box_concept.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#include <boost/geometry/strategies/detail.hpp>
+
 #include <boost/geometry/util/parameter_type_of.hpp>
 
 
 namespace boost { namespace geometry { namespace concepts
 {
+
+
+namespace detail
+{
+
+
+template
+<
+    typename Point, typename Geometry, typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
+struct relate_strategy_dispatch
+{
+    using type = decltype(std::declval<Strategy>().relate(
+                    std::declval<Point>(), std::declval<Geometry>()));
+};
+
+template <typename Point, typename Geometry, typename Strategy>
+struct relate_strategy_dispatch<Point, Geometry, Strategy, false>
+{
+    using type = Strategy;
+};
+
+template
+<
+    typename Point, typename Geometry, typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
+struct within_strategy_dispatch
+{
+    using type = decltype(std::declval<Strategy>().within(
+                    std::declval<Point>(), std::declval<Geometry>()));
+};
+
+template <typename Point, typename Geometry, typename Strategy>
+struct within_strategy_dispatch<Point, Geometry, Strategy, false>
+{
+    using type = Strategy;
+};
+
+
+} // namespace detail
 
 
 /*!
@@ -51,8 +95,14 @@ class WithinStrategyPolygonal
 
     typedef typename geometry::point_type<Polygonal>::type point_of_segment;
 
+    // 0)
+    typedef typename concepts::detail::relate_strategy_dispatch
+        <
+            Point, Polygonal, Strategy
+        >::type strategy_type;
+
     // 1) must define state_type
-    typedef typename Strategy::state_type state_type;
+    typedef typename strategy_type::state_type state_type;
 
     struct checker
     {
@@ -101,7 +151,7 @@ class WithinStrategyPolygonal
 
 
             // CHECK: calling method apply and result
-            Strategy const* str = 0;
+            strategy_type const* str = 0;
             state_type* st = 0;
             point_type const* p = 0;
             segment_point_type const* sp = 0;
@@ -117,8 +167,8 @@ class WithinStrategyPolygonal
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyPolygonal)
     {
-        checker::apply(&Strategy::template apply<Point, point_of_segment>,
-                       &Strategy::result);
+        checker::apply(&strategy_type::template apply<Point, point_of_segment>,
+                       &strategy_type::result);
     }
 #endif
 };
@@ -127,6 +177,12 @@ template <typename Point, typename Box, typename Strategy>
 class WithinStrategyPointBox
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
+
+    // 0)
+    typedef typename concepts::detail::within_strategy_dispatch
+        <
+            Point, Box, Strategy
+        >::type strategy_type;
 
     struct checker
     {
@@ -167,7 +223,7 @@ class WithinStrategyPointBox
 
 
             // CHECK: calling method apply
-            Strategy const* str = 0;
+            strategy_type const* str = 0;
             point_type const* p = 0;
             box_type const* bx = 0;
 
@@ -181,7 +237,7 @@ class WithinStrategyPointBox
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyPointBox)
     {
-        checker::apply(&Strategy::template apply<Point, Box>);
+        checker::apply(&strategy_type::template apply<Point, Box>);
     }
 #endif
 };
@@ -190,6 +246,12 @@ template <typename Box1, typename Box2, typename Strategy>
 class WithinStrategyBoxBox
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
+
+    // 0)
+    typedef typename concepts::detail::within_strategy_dispatch
+        <
+            Box1, Box2, Strategy
+        >::type strategy_type;
 
     struct checker
     {
@@ -230,7 +292,7 @@ class WithinStrategyBoxBox
 
 
             // CHECK: calling method apply
-            Strategy const* str = 0;
+            strategy_type const* str = 0;
             box_type1 const* b1 = 0;
             box_type2 const* b2 = 0;
 
@@ -244,7 +306,7 @@ class WithinStrategyBoxBox
 public :
     BOOST_CONCEPT_USAGE(WithinStrategyBoxBox)
     {
-        checker::apply(&Strategy::template apply<Box1, Box2>);
+        checker::apply(&strategy_type::template apply<Box1, Box2>);
     }
 #endif
 };

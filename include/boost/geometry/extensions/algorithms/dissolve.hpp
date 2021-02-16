@@ -418,6 +418,72 @@ struct dissolve<Polygon, PolygonOut, Reverse, polygon_tag, polygon_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy
+{
+
+template
+<
+    typename GeometryOut,
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
+struct dissolve
+{
+    template
+    <
+        typename Geometry, typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Geometry const& geometry,
+                                       RescalePolicy const& rescale_policy,
+                                       OutputIterator out,
+                                       Strategy const& strategy,
+                                       Visitor& visitor)
+    {
+        dispatch::dissolve
+            <
+                Geometry,
+                GeometryOut,
+                detail::overlay::do_reverse
+                    <
+                        geometry::point_order<Geometry>::value
+                    >::value
+            >::apply(geometry, rescale_policy, out, strategy, visitor);
+    }
+};
+
+template <typename GeometryOut, typename Strategy>
+struct dissolve<GeometryOut, Strategy, false>
+{
+    template
+    <
+        typename Geometry, typename RescalePolicy, typename OutputIterator,
+        typename Strategy, typename Visitor
+    >
+    static inline OutputIterator apply(Geometry const& geometry,
+                                       RescalePolicy const& rescale_policy,
+                                       OutputIterator out,
+                                       Strategy const& strategy,
+                                       Visitor& visitor)
+    {
+        using strategies::relate::services::strategy_converter;
+
+        dispatch::dissolve
+            <
+                Geometry,
+                GeometryOut,
+                detail::overlay::do_reverse
+                    <
+                        geometry::point_order<Geometry>::value
+                    >::value
+            >::apply(geometry, rescale_policy, out,
+                     strategy_converter<Strategy>::get(strategy),
+                     visitor);
+    }
+};
+
+} // namespace resolve_strategy
+
 
 /*!
     \brief Removes self intersections from a geometry
@@ -449,9 +515,10 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry,
     concepts::check<GeometryOut>();
 
     typedef typename geometry::rescale_policy_type
-    <
-        typename geometry::point_type<Geometry>::type
-    >::type rescale_policy_type;
+        <
+            typename geometry::point_type<Geometry>::type,
+            typename Strategy::cs_tag
+        >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(
@@ -459,15 +526,10 @@ inline OutputIterator dissolve_inserter(Geometry const& geometry,
 
     detail::overlay::overlay_null_visitor visitor;
 
-    return dispatch::dissolve
-    <
-        Geometry,
-        GeometryOut,
-        detail::overlay::do_reverse
+    return resolve_strategy::dissolve
         <
-            geometry::point_order<Geometry>::value
-        >::value
-    >::apply(geometry, robust_policy, out, strategy, visitor);
+            GeometryOut, Strategy
+        >::apply(geometry, robust_policy, out, strategy, visitor);
 }
 
 /*!
@@ -492,9 +554,9 @@ template
 inline OutputIterator dissolve_inserter(Geometry const& geometry,
                                         OutputIterator out)
 {
-    typedef typename strategy::intersection::services::default_strategy
+    typedef typename strategies::relate::services::default_strategy
         <
-            typename cs_tag<Geometry>::type
+            Geometry, Geometry
         >::type strategy_type;
 
     return dissolve_inserter<GeometryOut>(geometry, out, strategy_type());
@@ -517,9 +579,10 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection,
     concepts::check<geometry_out>();
 
     typedef typename geometry::rescale_policy_type
-    <
-        typename geometry::point_type<Geometry>::type
-    >::type rescale_policy_type;
+        <
+            typename geometry::point_type<Geometry>::type,
+            typename Strategy::cs_tag
+        >::type rescale_policy_type;
 
     rescale_policy_type robust_policy
         = geometry::get_rescale_policy<rescale_policy_type>(
@@ -527,17 +590,12 @@ inline void dissolve(Geometry const& geometry, Collection& output_collection,
 
     detail::overlay::overlay_null_visitor visitor;
 
-    dispatch::dissolve
-    <
-        Geometry,
-        geometry_out,
-        detail::overlay::do_reverse
+    return resolve_strategy::dissolve
         <
-            geometry::point_order<Geometry>::value
-        >::value
-    >::apply(geometry, robust_policy,
-             std::back_inserter(output_collection),
-             strategy, visitor);
+            geometry_out, Strategy
+        >::apply(geometry, robust_policy,
+                 std::back_inserter(output_collection),
+                 strategy, visitor);
 }
 
 template
@@ -547,9 +605,9 @@ template
 >
 inline void dissolve(Geometry const& geometry, Collection& output_collection)
 {
-    typedef typename strategy::intersection::services::default_strategy
+    typedef typename strategies::relate::services::default_strategy
         <
-            typename cs_tag<Geometry>::type
+            Geometry, Geometry
         >::type strategy_type;
 
     dissolve(geometry, output_collection, strategy_type());

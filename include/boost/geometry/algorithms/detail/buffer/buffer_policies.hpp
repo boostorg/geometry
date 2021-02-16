@@ -193,30 +193,37 @@ struct buffer_less
     }
 };
 
+template <typename Strategy>
 struct piece_get_box
 {
+    explicit piece_get_box(Strategy const& strategy)
+        : m_strategy(strategy)
+    {}
+
     template <typename Box, typename Piece>
-    static inline void apply(Box& total, Piece const& piece)
+    inline void apply(Box& total, Piece const& piece) const
     {
         assert_coordinate_type_equal(total, piece.m_piece_border.m_envelope);
-        typedef typename strategy::expand::services::default_strategy
-            <
-                box_tag, typename cs_tag<Box>::type
-            >::type expand_strategy_type;
 
         if (piece.m_piece_border.m_has_envelope)
         {
             geometry::expand(total, piece.m_piece_border.m_envelope,
-                             expand_strategy_type());
+                             m_strategy);
         }
     }
+
+    Strategy const& m_strategy;
 };
 
-template <typename DisjointBoxBoxStrategy>
+template <typename Strategy>
 struct piece_overlaps_box
 {
+    explicit piece_overlaps_box(Strategy const& strategy)
+        : m_strategy(strategy)
+    {}
+
     template <typename Box, typename Piece>
-    static inline bool apply(Box const& box, Piece const& piece)
+    inline bool apply(Box const& box, Piece const& piece) const
     {
         assert_coordinate_type_equal(box, piece.m_piece_border.m_envelope);
 
@@ -235,34 +242,45 @@ struct piece_overlaps_box
         }
 
         return ! geometry::detail::disjoint::disjoint_box_box(box, piece.m_piece_border.m_envelope,
-                                                              DisjointBoxBoxStrategy());
+                                                              m_strategy);
     }
+
+    Strategy const& m_strategy;
 };
 
+template <typename Strategy>
 struct turn_get_box
 {
+    explicit turn_get_box(Strategy const& strategy)
+        : m_strategy(strategy)
+    {}
+
     template <typename Box, typename Turn>
-    static inline void apply(Box& total, Turn const& turn)
+    inline void apply(Box& total, Turn const& turn) const
     {
-        typedef typename strategy::expand::services::default_strategy
-            <
-                point_tag, typename cs_tag<Box>::type
-            >::type expand_strategy_type;
         assert_coordinate_type_equal(total, turn.point);
-        geometry::expand(total, turn.point, expand_strategy_type());
+        geometry::expand(total, turn.point, m_strategy);
     }
+
+    Strategy const& m_strategy;
 };
 
-template <typename DisjointPointBoxStrategy>
+template <typename Strategy>
 struct turn_overlaps_box
 {
+    explicit turn_overlaps_box(Strategy const& strategy)
+        : m_strategy(strategy)
+    {}
+
     template <typename Box, typename Turn>
-    static inline bool apply(Box const& box, Turn const& turn)
+    inline bool apply(Box const& box, Turn const& turn) const
     {
         assert_coordinate_type_equal(turn.point, box);
         return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box,
-                                                                DisjointPointBoxStrategy());
+                                                                m_strategy);
     }
+
+    Strategy const& m_strategy;
 };
 
 struct enriched_map_buffer_include_policy

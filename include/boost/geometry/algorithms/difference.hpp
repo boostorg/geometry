@@ -2,7 +2,7 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2019, 2020.
+// This file was modified by Oracle on 2017-2020.
 // Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -23,6 +23,8 @@
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/util/range.hpp>
 
 
@@ -253,7 +255,7 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
                                         Geometry2 const& geometry2,
                                         OutputIterator out)
 {
-    typedef typename strategy::relate::services::default_strategy
+    typedef typename strategies::relate::services::default_strategy
         <
             Geometry1,
             Geometry2
@@ -270,15 +272,14 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
 
 namespace resolve_strategy {
 
+template
+<
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
 struct difference
 {
-    template
-    <
-        typename Geometry1,
-        typename Geometry2,
-        typename Collection,
-        typename Strategy
-    >
+    template <typename Geometry1, typename Geometry2, typename Collection>
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Collection & output_collection,
@@ -294,25 +295,46 @@ struct difference
             geometry::detail::output_geometry_back_inserter(output_collection),
             strategy);
     }
+};
 
-    template
-    <
-        typename Geometry1,
-        typename Geometry2,
-        typename Collection
-    >
+template <typename Strategy>
+struct difference<Strategy, false>
+{
+    template <typename Geometry1, typename Geometry2, typename Collection>
+    static inline void apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Collection & output_collection,
+                             Strategy const& strategy)
+    {
+        using strategies::relate::services::strategy_converter;
+        
+        difference
+            <
+                decltype(strategy_converter<Strategy>::get(strategy))
+            >::apply(geometry1, geometry2, output_collection,
+                     strategy_converter<Strategy>::get(strategy));
+    }
+};
+
+template <>
+struct difference<default_strategy, false>
+{
+    template <typename Geometry1, typename Geometry2, typename Collection>
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Collection & output_collection,
                              default_strategy)
     {
-        typedef typename strategy::relate::services::default_strategy
+        typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1,
                 Geometry2
             >::type strategy_type;
         
-        apply(geometry1, geometry2, output_collection, strategy_type());
+        difference
+            <
+                strategy_type
+            >::apply(geometry1, geometry2, output_collection, strategy_type());
     }
 };
 
@@ -331,9 +353,10 @@ struct difference
                              Collection& output_collection,
                              Strategy const& strategy)
     {
-        resolve_strategy::difference::apply(geometry1, geometry2,
-                                            output_collection,
-                                            strategy);
+        resolve_strategy::difference
+            <
+                Strategy
+            >::apply(geometry1, geometry2, output_collection, strategy);
     }
 };
 

@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2019 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -29,6 +33,8 @@
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 #include <boost/geometry/extensions/nsphere/algorithms/assign.hpp>
 
+#include <boost/geometry/extensions/nsphere/strategies/relate/cartesian.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -43,22 +49,24 @@ namespace detail { namespace within
 //   on the boudary
 
 template<typename B, typename C, typename S>
-inline bool box_in_circle(B const& b, C const& c, S const& s)
+inline bool box_in_circle(B const& b, C const& c, S const& strategy)
 {
     typedef typename point_type<B>::type point_type;
 
     // Currently only implemented for 2d geometries
     assert_dimension<point_type, 2>();
     assert_dimension<C, 2>();
-    ::boost::ignore_unused(s);
-
-    // Box: all four points must lie within circle
     
+    // Box: all four points must lie within circle
+    point_type const p0 = geometry::make<point_type>(get<min_corner, 0>(b), get<min_corner, 1>(b));
+    point_type const p1 = geometry::make<point_type>(get<max_corner, 0>(b), get<max_corner, 1>(b));
+    point_type const p2 = geometry::make<point_type>(get<min_corner, 0>(b), get<max_corner, 1>(b));
+    point_type const p3 = geometry::make<point_type>(get<max_corner, 0>(b), get<min_corner, 1>(b));
+
+    auto const s = strategy.within(p0, c);
+
     // Check points lower-left and upper-right, then lower-right and upper-left
-    return s.apply(geometry::make<point_type>(get<min_corner, 0>(b), get<min_corner, 1>(b)), c)
-        && s.apply(geometry::make<point_type>(get<max_corner, 0>(b), get<max_corner, 1>(b)), c)
-        && s.apply(geometry::make<point_type>(get<min_corner, 0>(b), get<max_corner, 1>(b)), c)
-        && s.apply(geometry::make<point_type>(get<max_corner, 0>(b), get<min_corner, 1>(b)), c);
+    return s.apply(p0, c) && s.apply(p1, c) && s.apply(p2, c) && s.apply(p3, c);
 }
 
 // Generic "range-in-circle", true if all points within circle
@@ -70,7 +78,10 @@ inline bool range_in_circle(R const& range, C const& c, S const& s)
     for (typename boost::range_iterator<R const>::type it = boost::begin(range);
          it != boost::end(range); ++it)
     {
-        if (! s.apply(*it, c))
+        auto const& p = *it;
+
+        // TODO: This is not fully correct since some of the points can lie on the boundary
+        if (! s.within(p, c).apply(p, c))
         {
             return false;
         }
@@ -117,8 +128,7 @@ struct within<P, Circle, point_tag, nsphere_tag>
     template <typename Strategy>
     static inline bool apply(P const& p, Circle const& c, Strategy const& strategy)
     {
-        ::boost::ignore_unused(strategy);
-        return strategy.apply(p, c);
+        return strategy.within(p, c).apply(p, c);
     }
 };
 
@@ -181,8 +191,8 @@ struct within<NSphere, Box, nsphere_tag, box_tag>
     static inline bool apply(NSphere const& nsphere, Box const& box, Strategy const& strategy)
     {
         assert_dimension_equal<NSphere, Box>();
-        boost::ignore_unused(strategy);
-        return strategy.apply(nsphere, box);
+
+        return strategy.within(nsphere, box).apply(nsphere, box);
     }
 };
 

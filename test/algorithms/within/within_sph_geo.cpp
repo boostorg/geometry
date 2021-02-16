@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
+// Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,7 +19,12 @@ void test_point_box_by_side()
     // Test spherical boxes
     // See also http://www.gcmap.com/mapui?P=1E45N-19E45N-19E55N-1E55N-1E45N,10E55.1N,10E45.1N
     typedef bg::model::box<Point> box_t;
-    bg::strategy::within::point_in_box_by_side<> by_side;
+    std::conditional_t
+        <
+            std::is_same<typename bg::cs_tag<Point>::type, bg::geographic_tag>::value,
+            bg::strategy::within::geographic_point_box_by_side<>,
+            bg::strategy::within::spherical_point_box_by_side<>
+        > by_side;
     box_t box;
     bg::read_wkt("POLYGON((1 45,19 55))", box);
     BOOST_CHECK_EQUAL(bg::within(Point(10, 55.1), box, by_side), true);
@@ -31,6 +36,14 @@ void test_point_box_by_side()
     BOOST_CHECK_EQUAL(bg::within(Point(10, 45.2), box, by_side), false);
     BOOST_CHECK_EQUAL(bg::within(Point(10, 45.3), box, by_side), false);
     BOOST_CHECK_EQUAL(bg::within(Point(10, 45.4), box, by_side), true);
+
+    bg::strategy::within::spherical_point_box s;
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 44.9), box, s), false);
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 45.0), box, s), false);
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 45.1), box, s), true);
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 49.9), box, s), true);
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 55.0), box, s), false);
+    BOOST_CHECK_EQUAL(bg::within(Point(10, 55.1), box, s), false);    
 
     // By default Box is not a polygon in spherical CS, edges are defined by small circles
     BOOST_CHECK_EQUAL(bg::within(Point(10, 45.1), box), true);

@@ -53,6 +53,10 @@
 
 #include <boost/geometry/io/wkt/detail/prefix.hpp>
 
+#include <boost/geometry/strategies/io/cartesian.hpp>
+#include <boost/geometry/strategies/io/geographic.hpp>
+#include <boost/geometry/strategies/io/spherical.hpp>
+
 #include <boost/geometry/util/coordinate_cast.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -303,9 +307,9 @@ private:
     static inline bool disjoint(point_type const& p1, point_type const& p2)
     {
         // TODO: pass strategy
-        typedef typename strategy::disjoint::services::default_strategy
+        typedef typename strategies::io::services::default_strategy
             <
-                point_type, point_type
+                point_type
             >::type strategy_type;
 
         return detail::disjoint::disjoint_point_point(p1, p2, strategy_type());

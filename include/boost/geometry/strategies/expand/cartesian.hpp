@@ -30,7 +30,8 @@ namespace strategies { namespace expand
 
 
 template <typename CalculationType = void>
-struct cartesian : strategies::detail::cartesian_base
+struct cartesian
+    : strategies::detail::cartesian_base
 {
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,

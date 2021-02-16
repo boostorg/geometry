@@ -49,6 +49,10 @@
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
+
 #include <boost/geometry/views/segment_view.hpp>
 #include <boost/geometry/views/detail/boundary_view.hpp>
 
@@ -100,7 +104,7 @@ struct intersection_segment_segment_point
         detail::segment_as_subrange<Segment2> sub_range2(segment2);
 
         intersection_return_type
-            is = strategy.apply(sub_range1, sub_range2, policy_type());
+            is = strategy.relate().apply(sub_range1, sub_range2, policy_type());
 
         for (std::size_t i = 0; i < is.count; i++)
         {
@@ -1535,9 +1539,9 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
 
-    typedef typename strategy::intersection::services::default_strategy
+    typedef typename strategies::relate::services::default_strategy
         <
-            typename cs_tag<GeometryOut>::type
+            Geometry1, Geometry2
         >::type strategy_type;
     
     return intersection_insert<GeometryOut>(geometry1, geometry2, out,
