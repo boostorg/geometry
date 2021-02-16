@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -79,6 +79,7 @@ private:
                                      Strategy const& strategy)
     {
         turns.clear();
+        bg_detail::get_turns::no_interrupt_policy interrupt_policy;
         bg_detail::relate::turns::get_turns
             <
                 LinearGeometry1,
@@ -90,7 +91,7 @@ private:
                         assign_policy
                     >
             >::apply(turns, linear1, linear2,
-                     bg_detail::get_turns::no_interrupt_policy(),
+                     interrupt_policy,
                      strategy);
     }
 
