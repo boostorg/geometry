@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -89,7 +89,6 @@ struct covered_by<Strategy, false>
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        //using strategies::covered_by::services::strategy_converter;
         using strategies::relate::services::strategy_converter;
 
         return covered_by
@@ -108,7 +107,6 @@ struct covered_by<default_strategy, false>
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        //typedef typename strategies::covered_by::services::default_strategy
         typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1,

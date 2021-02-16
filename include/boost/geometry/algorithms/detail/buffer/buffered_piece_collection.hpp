@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -1027,16 +1027,13 @@ struct buffered_piece_collection
             {
                 continue;
             }
-            if (detail::disjoint::disjoint_point_box(point,
-                                                     original.m_box,
-                                                     m_strategy))
+            if (detail::disjoint::disjoint_point_box(point, original.m_box,m_strategy))
             {
                 continue;
             }
 
             int const geometry_code
-                = detail::within::point_in_geometry(point, original.m_ring,
-                                                    m_strategy);
+                = detail::within::point_in_geometry(point, original.m_ring, m_strategy);
 
             if (geometry_code == -1)
             {

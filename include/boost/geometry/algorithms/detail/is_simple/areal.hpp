@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -54,8 +54,10 @@ inline bool are_simple_interior_rings(InteriorRings const& interior_rings,
 {
     auto const end = boost::end(interior_rings);
     return std::find_if(boost::begin(interior_rings), end,
-                [&](auto const& r) { return ! is_simple_ring(r, strategy); })
-           == end; // non-simple ring not found
+                        [&](auto const& r)
+                        {
+                            return ! is_simple_ring(r, strategy);
+                        }) == end; // non-simple ring not found
     // allow empty ring
 }
 

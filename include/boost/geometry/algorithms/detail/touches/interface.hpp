@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -112,7 +112,6 @@ struct touches<Strategy, false>
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        //using strategies::touches::services::strategy_converter;
         using strategies::relate::services::strategy_converter;
 
         return dispatch::touches

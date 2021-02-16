@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -187,9 +187,9 @@ private :
         // So advance to the "non duplicate next"
         // (the check is defensive, to avoid endless loops)
         std::size_t check = 0;
-        while(! detail::disjoint::disjoint_point_point(
+        while (! detail::disjoint::disjoint_point_point(
                     current_robust_point, next_robust_point, m_strategy)
-            && check++ < m_section.range_count)
+               && check++ < m_section.range_count)
         {
             circular_iterator++;
             geometry::recalculate(next_robust_point, *circular_iterator, m_robust_policy);

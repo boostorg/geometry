@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -92,7 +92,6 @@ struct overlaps<Strategy, false>
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        //using strategies::overlaps::services::strategy_converter;
         using strategies::relate::services::strategy_converter;
         return dispatch::overlaps
             <
@@ -110,7 +109,6 @@ struct overlaps<default_strategy, false>
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        //typedef typename strategies::overlaps::services::default_strategy
         typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2

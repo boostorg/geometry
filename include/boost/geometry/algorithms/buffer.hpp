@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -245,11 +245,11 @@ inline void buffer(GeometryIn const& geometry_in,
     typename strategies::relate::services::default_strategy
         <
             GeometryIn, GeometryIn
-        >::type strategy;
+        >::type strategies;
 
     rescale_policy_type rescale_policy
             = boost::geometry::get_rescale_policy<rescale_policy_type>(
-                box, strategy);
+                box, strategies);
 
     detail::buffer::buffer_inserter<polygon_type>(geometry_in,
                 range::back_inserter(geometry_out),
@@ -258,7 +258,7 @@ inline void buffer(GeometryIn const& geometry_in,
                 join_strategy,
                 end_strategy,
                 point_strategy,
-                strategy,
+                strategies,
                 rescale_policy);
 }
 
