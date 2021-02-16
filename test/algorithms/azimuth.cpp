@@ -15,10 +15,23 @@
 
 #include <boost/geometry/algorithms/azimuth.hpp>
 
-template <typename P>
-void test_one(P const& p1, P const& p2, double expected)
+
+template <typename P, typename S>
+auto call_azimuth(P const& p1, P const& p2, S const& s)
 {
-    double const result = bg::azimuth(p1, p2) * bg::math::r2d<double>();
+    return bg::azimuth(p1, p2, s);
+}
+
+template <typename P>
+auto call_azimuth(P const& p1, P const& p2, bg::default_strategy const&)
+{
+    return bg::azimuth(p1, p2);
+}
+
+template <typename P, typename S = bg::default_strategy>
+void test_one(P const& p1, P const& p2, double expected, S const& s = S())
+{
+    double const result = call_azimuth(p1, p2, s) * bg::math::r2d<double>();
     BOOST_CHECK_CLOSE(result, expected, 0.0001);
 }
 
@@ -52,11 +65,24 @@ void test_geo()
     test_one(P(0, 0), P(-100, 1), -88.986933066023497);
 }
 
+template <typename P>
+void test_geo_v()
+{
+    bg::strategies::azimuth::geographic<bg::strategy::vincenty> s;
+
+    test_one(P(0, 0), P(0, 0), 0, s);
+    test_one(P(0, 0), P(1, 1), 45.188040229339755, s);
+    test_one(P(0, 0), P(100, 1), 88.986914518230208, s);
+    test_one(P(0, 0), P(-1, 1), -45.188040229339755, s);
+    test_one(P(0, 0), P(-100, 1), -88.986914518230208, s);
+}
+
 int test_main(int, char* [])
 {
     test_car< bg::model::point<double, 2, bg::cs::cartesian> >();
     test_sph< bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
     test_geo< bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
+    test_geo_v< bg::model::point<double, 2, bg::cs::geographic<bg::degree> > >();
     
     return 0;
 }
