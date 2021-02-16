@@ -28,15 +28,16 @@ namespace boost { namespace geometry
 namespace strategies { namespace expand
 {
 
-template
-<
-    typename CalculationType = void
->
-class spherical : strategies::detail::spherical_base<void>
-{
-    using base_t = strategies::detail::spherical_base<void>;
 
-public:
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
+
+template <typename RadiusTypeOrSphere, typename CalculationType>
+struct spherical
+    : strategies::detail::spherical_base<RadiusTypeOrSphere>
+{
     template <typename Box, typename Geometry>
     static auto expand(Box const&, Geometry const&,
                        typename util::enable_if_point_t<Geometry> * = nullptr)
@@ -58,6 +59,16 @@ public:
         return strategy::expand::spherical_segment<CalculationType>();
     }
 };
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+template <typename CalculationType = void>
+class spherical
+    : public strategies::expand::detail::spherical<void, CalculationType>
+{};
 
 
 namespace services

@@ -72,7 +72,7 @@ namespace strategy { namespace intersection
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    unsigned int Order = strategy::default_order<FormulaPolicy>::value,
+    std::size_t Order = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
@@ -246,6 +246,11 @@ struct geographic_segments
     explicit geographic_segments(Spheroid const& spheroid = Spheroid())
         : m_spheroid(spheroid)
     {}
+
+    Spheroid model() const
+    {
+        return m_spheroid;
+    }
 
     // Relate segments a and b
     template
@@ -992,8 +997,7 @@ private:
     template <typename Point1, typename Point2>
     static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
     {
-        return detail::equals::equals_point_point(point1, point2,
-                                                  point_in_point_strategy_type());
+        return strategy::within::spherical_point_point::apply(point1, point2);
     }
 
 private:

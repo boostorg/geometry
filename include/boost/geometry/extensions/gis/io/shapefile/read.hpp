@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
+// Copyright (c) 2019-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -32,9 +32,9 @@
 #include <boost/geometry/util/range.hpp>
 
 // TEMP - only here for convenience, for now
-#include <boost/geometry/strategies/cartesian/io.hpp>
-#include <boost/geometry/strategies/geographic/io.hpp>
-#include <boost/geometry/strategies/spherical/io.hpp>
+#include <boost/geometry/strategies/io/cartesian.hpp>
+#include <boost/geometry/strategies/io/geographic.hpp>
+#include <boost/geometry/strategies/io/spherical.hpp>
 
 
 namespace boost { namespace geometry
@@ -924,9 +924,9 @@ template <typename IStream, typename RangeOfGeometries>
 inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries)
 {
     typedef typename boost::range_value<RangeOfGeometries>::type geometry_type;
-    typedef typename strategy::io::services::default_strategy
+    typedef typename strategies::io::services::default_strategy
         <
-            typename cs_tag<geometry_type>::type
+            geometry_type
         >::type strategy_type;
 
     geometry::concepts::check<geometry_type>();

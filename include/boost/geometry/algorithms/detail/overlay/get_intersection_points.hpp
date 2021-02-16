@@ -73,7 +73,7 @@ struct get_turn_without_info
             > policy_type;
 
         typename policy_type::return_type const result
-            = strategy.apply(range_p, range_q, policy_type());
+            = strategy.relate().apply(range_p, range_q, policy_type());
 
         for (std::size_t i = 0; i < result.count; i++)
         {

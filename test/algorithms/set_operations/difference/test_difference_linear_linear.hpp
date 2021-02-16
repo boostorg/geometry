@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +12,8 @@
 #define BOOST_GEOMETRY_TEST_DIFFERENCE_LINEAR_LINEAR_HPP
 
 #include <limits>
+
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"

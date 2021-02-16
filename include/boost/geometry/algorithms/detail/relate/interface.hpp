@@ -29,7 +29,8 @@
 #include <boost/geometry/core/topological_dimension.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/relate.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -161,9 +162,15 @@ struct result_handler_type<Geometry1, Geometry2, util::type_sequence<StaticMasks
 
 namespace resolve_strategy {
 
+
+template
+<
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
 struct relate
 {
-    template <typename Geometry1, typename Geometry2, typename ResultHandler, typename Strategy>
+    template <typename Geometry1, typename Geometry2, typename ResultHandler>
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              ResultHandler & handler,
@@ -175,14 +182,37 @@ struct relate
                 Geometry2
             >::apply(geometry1, geometry2, handler, strategy);
     }
+};
 
+template <typename Strategy>
+struct relate<Strategy, false>
+{
+    template <typename Geometry1, typename Geometry2, typename ResultHandler>
+    static inline void apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             ResultHandler & handler,
+                             Strategy const& strategy)
+    {
+        using strategies::relate::services::strategy_converter;
+        dispatch::relate
+            <
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, handler,
+                     strategy_converter<Strategy>::get(strategy));
+    }
+};
+
+template <>
+struct relate<default_strategy, false>
+{
     template <typename Geometry1, typename Geometry2, typename ResultHandler>
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              ResultHandler & handler,
                              default_strategy)
     {
-        typedef typename strategy::relate::services::default_strategy
+        typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1,
                 Geometry2
@@ -220,7 +250,7 @@ struct relate
                 Mask
             >::type handler(mask);
 
-        resolve_strategy::relate::apply(geometry1, geometry2, handler, strategy);
+        resolve_strategy::relate<Strategy>::apply(geometry1, geometry2, handler, strategy);
 
         return handler.result();
     }

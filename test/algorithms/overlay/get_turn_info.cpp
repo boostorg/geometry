@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -24,6 +24,9 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+
+// TEMP
+#include <boost/geometry/strategies/cartesian.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
@@ -74,9 +77,9 @@ void test_with_point(std::string const& caseid,
     P qj = bg::make<P>(qj_x, qj_y);
     P qk = bg::make<P>(qk_x, qk_y);
 
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<P>::type
+            P, P
         >::type strategy_type;
 
     typedef typename bg::detail::no_rescale_policy rescale_policy_type;

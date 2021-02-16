@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -55,9 +55,9 @@ static void test_self_intersection_points(std::string const& case_id,
 {
     typedef typename bg::point_type<Geometry>::type point_type;
     //typedef typename bg::rescale_policy_type<point_type>::type rescale_policy_type;
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<Geometry>::type
+            Geometry, Geometry
         >::type strategy_type;
     typedef bg::detail::no_rescale_policy rescale_policy_type;
     typedef bg::detail::overlay::turn_info<point_type> turn_info;
@@ -91,6 +91,12 @@ static void test_self_intersection_points(std::string const& case_id,
 
     BOOST_CHECK_EQUAL(expected_count, n);
 
+    typedef typename bg::rescale_policy_type<point_type>::type
+        default_rescale_policy_type;
+
+    default_rescale_policy_type default_robust_policy
+        = bg::get_rescale_policy<default_rescale_policy_type>(geometry, strategy);
+
     if (expected_count > 0)
     {
         BOOST_CHECK_EQUAL(bg::intersects(geometry), true);
@@ -99,7 +105,7 @@ static void test_self_intersection_points(std::string const& case_id,
         {
             try
             {
-                boost::geometry::detail::overlay::has_self_intersections(geometry);
+                bg::detail::overlay::has_self_intersections(geometry, strategy, default_robust_policy);
                 BOOST_CHECK_MESSAGE(false, "Case " << case_id << " there are no self-intersections detected!");
             }
             catch(...)
@@ -113,7 +119,7 @@ static void test_self_intersection_points(std::string const& case_id,
         {
             try
             {
-                boost::geometry::detail::overlay::has_self_intersections(geometry);
+                bg::detail::overlay::has_self_intersections(geometry, strategy, default_robust_policy);
             }
             catch(...)
             {
