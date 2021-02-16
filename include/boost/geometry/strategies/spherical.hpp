@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/spherical.hpp>
+#include <boost/geometry/strategies/azimuth/spherical.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
@@ -53,7 +54,10 @@ public:
             >::apply(radius_or_sphere);
     }
 
-    // point_order
+    static auto azimuth()
+    {
+        return strategy::azimuth::spherical<CalculationType>();
+    }
 
     static auto point_order()
     {

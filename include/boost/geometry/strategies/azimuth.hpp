@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016-2020 Oracle and/or its affiliates.
+// Copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -26,7 +26,7 @@ namespace strategy { namespace azimuth { namespace services
 \tparam CSTag tag of coordinate system
 \tparam CalculationType \tparam_calculation
 */
-template <typename CSTag, typename CalculationType = void>
+template <typename CSTag>
 struct default_strategy
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/azimuth/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/expand/geographic.hpp>
@@ -49,6 +50,14 @@ public:
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)
     {}
+
+    auto azimuth() const
+    {
+        return strategy::azimuth::geographic
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(base_t::m_spheroid);
+    }
 
     auto point_order() const
     {
