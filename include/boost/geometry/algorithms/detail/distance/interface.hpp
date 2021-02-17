@@ -6,8 +6,8 @@
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -28,10 +28,11 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/distance.hpp>
+// TODO: move these to algorithms
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
+
+#include <boost/geometry/strategies/distance/services.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
@@ -62,17 +63,8 @@ struct distance
 >
     : distance<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
 {
-    typedef typename strategy::distance::services::return_type
-                     <
-                         Strategy,
-                         typename point_type<Geometry2>::type,
-                         typename point_type<Geometry1>::type
-                     >::type return_type;
-
-    static inline return_type apply(
-        Geometry1 const& g1,
-        Geometry2 const& g2,
-        Strategy const& strategy)
+    static inline auto apply(Geometry1 const& g1, Geometry2 const& g2,
+                             Strategy const& strategy)
     {
         return distance
             <
@@ -91,7 +83,11 @@ struct distance
 namespace resolve_strategy
 {
 
-template <typename Strategy>
+template
+<
+    typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
 struct distance
 {
     template <typename Geometry1, typename Geometry2>
@@ -107,8 +103,29 @@ struct distance
     }
 };
 
+template <typename Strategy>
+struct distance<Strategy, false>
+{
+    template <typename Geometry1, typename Geometry2>
+    static inline
+    typename distance_result<Geometry1, Geometry2, Strategy>::type
+    apply(Geometry1 const& geometry1,
+          Geometry2 const& geometry2,
+          Strategy const& strategy)
+    {
+        using strategies::distance::services::strategy_converter;
+        typedef decltype(strategy_converter<Strategy>::get(strategy)) strategy_type;
+
+        return dispatch::distance
+            <
+                Geometry1, Geometry2, strategy_type
+            >::apply(geometry1, geometry2,
+                     strategy_converter<Strategy>::get(strategy));
+    }
+};
+
 template <>
-struct distance<default_strategy>
+struct distance<default_strategy, false>
 {
     template <typename Geometry1, typename Geometry2>
     static inline
@@ -117,7 +134,7 @@ struct distance<default_strategy>
           Geometry2 const& geometry2,
           default_strategy)
     {
-        typedef typename detail::distance::default_strategy
+        typedef typename strategies::distance::services::default_strategy
             <
                 Geometry1, Geometry2
             >::type strategy_type;

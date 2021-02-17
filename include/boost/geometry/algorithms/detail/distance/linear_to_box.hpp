@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2018-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -21,12 +22,15 @@ namespace boost { namespace geometry
 namespace detail { namespace distance
 {
 
-template <typename Linear, typename Box, typename Strategy>
+template <typename Linear, typename Box, typename Strategies>
 struct linear_to_box
 {
+    typedef decltype(std::declval<Strategies>().distance(
+        std::declval<Linear>(), std::declval<Box>())) strategy_type;
+
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<Linear>::type,
             typename point_type<Box>::type
         >::type return_type;
@@ -35,7 +39,7 @@ struct linear_to_box
     static inline return_type apply(Box const& box,
                                     Iterator begin,
                                     Iterator end,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
         bool first = true;
         return_type d_min(0);
@@ -44,8 +48,8 @@ struct linear_to_box
             typedef typename std::iterator_traits<Iterator>::value_type
                     Segment;
 
-            return_type d = dispatch::distance<Segment, Box, Strategy>
-                                    ::apply(*it, box, strategy);
+            return_type d = dispatch::distance<Segment, Box, Strategies>
+                                    ::apply(*it, box, strategies);
 
             if ( first || d < d_min )
             {
@@ -57,7 +61,7 @@ struct linear_to_box
 
     static inline return_type apply(Linear const& linear,
                                     Box const& box,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
         if ( geometry::intersects(linear, box) )
         {
@@ -67,15 +71,15 @@ struct linear_to_box
         return apply(box,
                      geometry::segments_begin(linear),
                      geometry::segments_end(linear),
-                     strategy);
+                     strategies);
     }
 
 
     static inline return_type apply(Box const& box,
                                     Linear const& linear,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
-        return apply(linear, box, strategy);
+        return apply(linear, box, strategies);
     }
 };
 

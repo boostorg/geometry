@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -17,7 +17,9 @@
 #include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/strategies/distance/services.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
@@ -28,6 +30,50 @@ namespace boost { namespace geometry
 
 namespace resolve_strategy
 {
+
+
+// TODO: This utility could be entirely implemented as:
+//       decltype(geometry::comparable_distance(std::declval<Geometry1>(), std::declval<Geometry2>(), std::declval<Strategy>()))
+//       however then the algorithm would have to be compiled.
+
+
+template
+<
+    typename Geometry1, typename Geometry2, typename Strategy,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
+>
+struct comparable_distance_strategy2_type
+{
+    typedef decltype(std::declval<Strategy>().distance(
+        std::declval<Geometry1>(), std::declval<Geometry2>())) type;
+};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct comparable_distance_strategy2_type<Geometry1, Geometry2, Strategy, false>
+{
+    typedef Strategy type;
+};
+
+template
+<
+    typename Geometry1, typename Geometry2, typename Strategy,
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
+>
+struct comparable_distance_strategy_type
+    : strategy::distance::services::comparable_type
+        <
+            typename comparable_distance_strategy2_type
+                <
+                    Geometry1, Geometry2, Strategy
+                >::type
+        >
+{};
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+struct comparable_distance_strategy_type<Geometry1, Geometry2, Strategy, true>
+    : comparable_distance_strategy_type<Geometry2, Geometry1, Strategy, false>
+{};
+
     
 template
 <
@@ -38,10 +84,7 @@ template
 struct comparable_distance_result
     : strategy::distance::services::return_type
         <
-            typename strategy::distance::services::comparable_type
-                <
-                    Strategy
-                >::type,
+            typename comparable_distance_strategy_type<Geometry1, Geometry2, Strategy>::type,
             typename point_type<Geometry1>::type,
             typename point_type<Geometry2>::type
         >
@@ -53,7 +96,7 @@ struct comparable_distance_result<Geometry1, Geometry2, default_strategy, AreGeo
         <
             Geometry1,
             Geometry2,
-            typename detail::distance::default_strategy
+            typename strategies::distance::services::default_strategy
                 <
                     Geometry1, Geometry2
                 >::type

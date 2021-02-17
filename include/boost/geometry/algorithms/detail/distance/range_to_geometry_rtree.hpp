@@ -40,7 +40,7 @@ template
 <
     typename PointOrSegmentIterator,
     typename Geometry,
-    typename Strategy
+    typename Strategies
 >
 class point_or_segment_range_to_geometry_rtree
 {
@@ -54,10 +54,13 @@ private:
 
     typedef detail::closest_feature::range_to_range_rtree range_to_range;
 
+    typedef decltype(std::declval<Strategies>().distance(
+        std::declval<point_or_segment_type>(), std::declval<Geometry>())) strategy_type;
+
 public:
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<point_or_segment_type>::type,
             typename point_type<Geometry>::type
         >::type return_type;
@@ -65,7 +68,7 @@ public:
     static inline return_type apply(PointOrSegmentIterator first,
                                     PointOrSegmentIterator last,
                                     Geometry const& geometry,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
         namespace sds = strategy::distance::services;
 
@@ -75,13 +78,13 @@ public:
         {
             return dispatch::distance
                 <
-                    point_or_segment_type, Geometry, Strategy
-                >::apply(*first, geometry, strategy);
+                    point_or_segment_type, Geometry, Strategies
+                >::apply(*first, geometry, strategies);
         }
 
         typename sds::return_type
             <
-                typename sds::comparable_type<Strategy>::type,
+                typename sds::comparable_type<strategy_type>::type,
                 typename point_type<point_or_segment_type>::type,
                 typename point_type<Geometry>::type
             >::type cd_min;
@@ -95,14 +98,11 @@ public:
                                     last,
                                     selector_type::begin(geometry),
                                     selector_type::end(geometry),
-                                    sds::get_comparable
-                                        <
-                                            Strategy
-                                        >::apply(strategy),
+                                    strategies,
                                     cd_min);
 
         return
-            is_comparable<Strategy>::value
+            is_comparable<strategy_type>::value
             ?
             cd_min
             :
@@ -113,10 +113,10 @@ public:
                         <
                             typename selector_type::iterator_type
                         >::value_type,
-                    Strategy
+                    Strategies
                 >::apply(closest_features.first,
                          *closest_features.second,
-                         strategy);
+                         strategies);
     }
 };
 

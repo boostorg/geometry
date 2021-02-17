@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -27,65 +27,63 @@ namespace detail { namespace distance
 {
 
 
-template <typename Linear, typename Areal, typename Strategy>
+template <typename Linear, typename Areal, typename Strategies>
 struct linear_to_areal
 {
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            decltype(std::declval<Strategies>().distance(std::declval<Linear>(), std::declval<Areal>())),
             typename point_type<Linear>::type,
             typename point_type<Areal>::type
         >::type return_type;
 
     static inline return_type apply(Linear const& linear,
                                     Areal const& areal,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
-        if ( geometry::intersects(linear, areal,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        if ( geometry::intersects(linear, areal, strategies) )
         {
             return 0;
         }
 
         return linear_to_linear
             <
-                Linear, Areal, Strategy
-            >::apply(linear, areal, strategy, false);
+                Linear, Areal, Strategies
+            >::apply(linear, areal, strategies, false);
     }
 
 
     static inline return_type apply(Areal const& areal,
                                     Linear const& linear,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
-        return apply(linear, areal, strategy);
+        return apply(linear, areal, strategies);
     }
 };
 
-template <typename Areal1, typename Areal2, typename Strategy>
+template <typename Areal1, typename Areal2, typename Strategies>
 struct areal_to_areal
 {
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            decltype(std::declval<Strategies>().distance(std::declval<Areal1>(), std::declval<Areal2>())),
             typename point_type<Areal1>::type,
             typename point_type<Areal2>::type
         >::type return_type;
 
     static inline return_type apply(Areal1 const& areal1,
                                     Areal2 const& areal2,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
-        if ( geometry::intersects(areal1, areal2,
-                                  strategy.get_relate_segment_segment_strategy()) )
+        if ( geometry::intersects(areal1, areal2, strategies) )
         {
             return 0;
         }
 
         return linear_to_linear
             <
-                Areal1, Areal2, Strategy
-            >::apply(areal1, areal2, strategy, false);
+                Areal1, Areal2, Strategies
+            >::apply(areal1, areal2, strategies, false);
     }
 };
 

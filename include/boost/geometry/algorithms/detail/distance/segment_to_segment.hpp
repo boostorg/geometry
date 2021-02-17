@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, 2019, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -43,13 +43,16 @@ namespace detail { namespace distance
 
 
 // compute segment-segment distance
-template<typename Segment1, typename Segment2, typename Strategy>
+template<typename Segment1, typename Segment2, typename Strategies>
 class segment_to_segment
 {
 private:
+    typedef decltype(std::declval<Strategies>().distance(
+        std::declval<Segment1>(), std::declval<Segment2>())) strategy_type;
+
     typedef typename strategy::distance::services::comparable_type
         <
-            Strategy
+            strategy_type
         >::type comparable_strategy;
 
     typedef typename strategy::distance::services::return_type
@@ -62,16 +65,16 @@ private:
 public:
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<Segment1>::type,
             typename point_type<Segment2>::type
         >::type return_type;
 
     static inline return_type
     apply(Segment1 const& segment1, Segment2 const& segment2,
-          Strategy const& strategy)
+          Strategies const& strategies)
     {
-        if (geometry::intersects(segment1, segment2, strategy.get_relate_segment_segment_strategy()))
+        if (geometry::intersects(segment1, segment2, strategies))
         {
             return 0;
         }
@@ -84,10 +87,12 @@ public:
         detail::assign_point_from_index<0>(segment2, q[0]);
         detail::assign_point_from_index<1>(segment2, q[1]);
 
+        strategy_type strategy = strategies.distance(segment1, segment2);
+
         comparable_strategy cstrategy =
             strategy::distance::services::get_comparable
                 <
-                    Strategy
+                    strategy_type
                 >::apply(strategy);
 
         comparable_return_type d[4];
@@ -99,7 +104,7 @@ public:
         std::size_t imin = std::distance(boost::addressof(d[0]),
                                          std::min_element(d, d + 4));
 
-        if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
+        if (BOOST_GEOMETRY_CONDITION(is_comparable<strategy_type>::value))
         {
             return d[imin];
         }

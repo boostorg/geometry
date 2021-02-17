@@ -33,19 +33,22 @@ namespace detail { namespace distance
 {
 
 
-template <typename Linear1, typename Linear2, typename Strategy>
+template <typename Linear1, typename Linear2, typename Strategies>
 struct linear_to_linear
 {
+    typedef decltype(std::declval<Strategies>().distance(
+        std::declval<Linear1>(), std::declval<Linear2>())) strategy_type;
+
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<Linear1>::type,
             typename point_type<Linear2>::type
         >::type return_type;
 
     static inline return_type apply(Linear1 const& linear1,
                                     Linear2 const& linear2,
-                                    Strategy const& strategy,
+                                    Strategies const& strategies,
                                     bool = false)
     {
         if (geometry::num_points(linear1) == 1)
@@ -54,8 +57,8 @@ struct linear_to_linear
                 <
                     typename point_type<Linear1>::type,
                     Linear2,
-                    Strategy
-                >::apply(*points_begin(linear1), linear2, strategy);
+                    Strategies
+                >::apply(*points_begin(linear1), linear2, strategies);
         }
 
         if (geometry::num_points(linear2) == 1)
@@ -64,8 +67,8 @@ struct linear_to_linear
                 <
                     typename point_type<Linear2>::type,
                     Linear1,
-                    Strategy
-                >::apply(*points_begin(linear2), linear1, strategy);
+                    Strategies
+                >::apply(*points_begin(linear2), linear1, strategies);
         }
 
         if (geometry::num_segments(linear2) < geometry::num_segments(linear1))
@@ -74,11 +77,11 @@ struct linear_to_linear
                 <
                     geometry::segment_iterator<Linear2 const>,
                     Linear1,
-                    Strategy
+                    Strategies
                 >::apply(geometry::segments_begin(linear2),
                          geometry::segments_end(linear2),
                          linear1,
-                         strategy);
+                         strategies);
 
         }
 
@@ -86,11 +89,11 @@ struct linear_to_linear
             <
                 geometry::segment_iterator<Linear1 const>,
                 Linear2,
-                Strategy
+                Strategies
             >::apply(geometry::segments_begin(linear1),
                      geometry::segments_end(linear1),
                      linear2,
-                     strategy);
+                     strategies);
     }
 };
 
@@ -103,12 +106,12 @@ struct linear_to_linear
 namespace dispatch
 {
 
-template <typename Linear1, typename Linear2, typename Strategy>
+template <typename Linear1, typename Linear2, typename Strategy, typename StrategyTag>
 struct distance
     <
         Linear1, Linear2, Strategy,
         linear_tag, linear_tag, 
-        strategy_tag_distance_point_segment, false
+        StrategyTag, false
     > : detail::distance::linear_to_linear
         <
             Linear1, Linear2, Strategy

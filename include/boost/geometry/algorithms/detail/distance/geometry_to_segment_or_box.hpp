@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -76,7 +76,7 @@ template
 <
     typename Geometry,
     typename SegmentOrBox,
-    typename Strategy,
+    typename Strategies,
     typename Tag = typename tag<Geometry>::type
 >
 class geometry_to_segment_or_box
@@ -84,10 +84,13 @@ class geometry_to_segment_or_box
 private:
     typedef typename point_type<SegmentOrBox>::type segment_or_box_point;
 
+    typedef decltype(std::declval<Strategies>().distance(
+        std::declval<Geometry>(), std::declval<SegmentOrBox>())) strategy_type;
+
     typedef typename strategy::distance::services::comparable_type
-       <
-           Strategy
-       >::type comparable_strategy;
+        <
+            strategy_type
+        >::type comparable_strategy;
 
     typedef detail::closest_feature::point_to_point_range
         <
@@ -167,39 +170,17 @@ private:
         }
     };
 
-    template
-    <
-        typename SegOrBox,
-        typename SegOrBoxTag = typename tag<SegOrBox>::type
-    >
-    struct intersects
-    {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const&)
-        {
-            return geometry::intersects(g1, g2);
-        }
-    };
-
-    template <typename SegOrBox>
-    struct intersects<SegOrBox, segment_tag>
-    {
-        static inline bool apply(Geometry const& g1, SegOrBox const& g2, Strategy const& s)
-        {
-            return geometry::intersects(g1, g2, s.get_relate_segment_segment_strategy());
-        }
-    };
-
 public:
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<Geometry>::type,
             segment_or_box_point
         >::type return_type;
 
     static inline return_type apply(Geometry const& geometry,
                                     SegmentOrBox const& segment_or_box,
-                                    Strategy const& strategy,
+                                    Strategies const& strategies,
                                     bool check_intersection = true)
     {
         typedef geometry::point_iterator<Geometry const> point_iterator_type;
@@ -217,15 +198,17 @@ public:
 
 
         if (check_intersection
-            && intersects<SegmentOrBox>::apply(geometry, segment_or_box, strategy))
+            && geometry::intersects(geometry, segment_or_box, strategies))
         {
             return 0;
         }
 
+        strategy_type strategy = strategies.distance(geometry, segment_or_box);
+
         comparable_strategy cstrategy =
             strategy::distance::services::get_comparable
                 <
-                    Strategy
+                    strategy_type
                 >::apply(strategy);
 
         // get all points of the segment or the box
@@ -296,7 +279,7 @@ public:
             }
         }
 
-        if (BOOST_GEOMETRY_CONDITION(is_comparable<Strategy>::value))
+        if (BOOST_GEOMETRY_CONDITION(is_comparable<strategy_type>::value))
         {
             return (std::min)(cd_min1, cd_min2);
         }
@@ -314,26 +297,26 @@ public:
                         <
                             segment_iterator_type
                         >::value_type,
-                    Strategy
-                >::apply(*it_min, *sit_min, strategy);
+                    Strategies
+                >::apply(*it_min, *sit_min, strategies);
         }
     }
 
 
     static inline return_type
     apply(SegmentOrBox const& segment_or_box, Geometry const& geometry, 
-          Strategy const& strategy, bool check_intersection = true)
+          Strategies const& strategies, bool check_intersection = true)
     {
-        return apply(geometry, segment_or_box, strategy, check_intersection);
+        return apply(geometry, segment_or_box, strategies, check_intersection);
     }
 };
 
 
 
-template <typename MultiPoint, typename SegmentOrBox, typename Strategy>
+template <typename MultiPoint, typename SegmentOrBox, typename Strategies>
 class geometry_to_segment_or_box
     <
-        MultiPoint, SegmentOrBox, Strategy, multi_point_tag
+        MultiPoint, SegmentOrBox, Strategies, multi_point_tag
     >
 {
 private:
@@ -346,23 +329,25 @@ private:
 
     typedef detail::closest_feature::geometry_to_range geometry_to_range;
 
+    typedef decltype(std::declval<Strategies>().distance(std::declval<MultiPoint>(), std::declval<SegmentOrBox>())) strategy_type;
+
 public:
     typedef typename strategy::distance::services::return_type
         <
-            Strategy,
+            strategy_type,
             typename point_type<SegmentOrBox>::type,
             typename point_type<MultiPoint>::type
         >::type return_type;
 
     static inline return_type apply(MultiPoint const& multipoint,
                                     SegmentOrBox const& segment_or_box,
-                                    Strategy const& strategy)
+                                    Strategies const& strategies)
     {
         namespace sds = strategy::distance::services;
 
         typename sds::return_type
             <
-                typename sds::comparable_type<Strategy>::type,
+                typename sds::comparable_type<strategy_type>::type,
                 typename point_type<SegmentOrBox>::type,
                 typename point_type<MultiPoint>::type
             >::type cd_min;
@@ -373,12 +358,12 @@ public:
                                        boost::end(multipoint),
                                        sds::get_comparable
                                            <
-                                               Strategy
-                                           >::apply(strategy),
+                                               strategy_type
+                                           >::apply(strategies.distance(multipoint, segment_or_box)),
                                        cd_min);
 
         return
-            is_comparable<Strategy>::value
+            is_comparable<strategy_type>::value
             ?
             cd_min
             :
@@ -386,8 +371,8 @@ public:
                 <
                     typename point_type<MultiPoint>::type,
                     SegmentOrBox,
-                    Strategy
-                >::apply(*it_min, segment_or_box, strategy);
+                    Strategies
+                >::apply(*it_min, segment_or_box, strategies);
     }
 };
 
