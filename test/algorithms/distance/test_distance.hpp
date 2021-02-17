@@ -84,6 +84,46 @@ struct result_from_distance<taxicab_distance, P1, P2>
 }}}}} // namespace bg::strategy::distance::services
 
 
+struct taxicab_distance_umbrella
+    : bg::strategies::distance::cartesian<>
+{
+    template <typename Geometry1, typename Geometry2>
+    static auto distance(Geometry1 const&, Geometry2 const&,
+                         std::enable_if_t
+                            <
+                                bg::util::is_pointlike<Geometry1>::value
+                             && bg::util::is_pointlike<Geometry2>::value
+                            > * = nullptr)
+    {
+        return taxicab_distance();
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static auto distance(Geometry1 const&, Geometry2 const&,
+                         std::enable_if_t
+                            <
+                                bg::util::is_pointlike<Geometry1>::value
+                             && bg::util::is_linear<Geometry2>::value
+                            > * = nullptr)
+    {
+        return bg::strategy::distance::projected_point<void, taxicab_distance>();
+    }
+};
+
+namespace boost { namespace geometry { namespace strategies { namespace distance { namespace services
+{
+
+template <>
+struct strategy_converter<taxicab_distance>
+{
+    static auto get(taxicab_distance const&)
+    {
+        return taxicab_distance_umbrella();
+    }
+};
+
+}}}}} // namespace bg::strategies::distance::services
+
 
 
 
