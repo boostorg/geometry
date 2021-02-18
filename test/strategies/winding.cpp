@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -24,7 +24,7 @@ void test_cartesian()
     std::string const triangle = "POLYGON((0 0,0 4,6 0,0 0))";
     std::string const with_hole = "POLYGON((0 0,0 3,3 3,3 0,0 0),(1 1,2 1,2 2,1 2,1 1))";
 
-    bg::strategy::within::winding<Point> s;
+    bg::strategy::within::cartesian_winding<> s;
 
 
     test_geometry<Point, polygon>("b1", "POINT(1 1)", box, s, true);
@@ -78,7 +78,7 @@ void test_spherical()
     typedef bg::model::point<T, 2, bg::cs::spherical_equatorial<bg::degree> > point;
     typedef bg::model::polygon<point> polygon;
 
-    bg::strategy::within::winding<point> s;
+    bg::strategy::within::spherical_winding<> s;
 
 
     // Ticket #9354

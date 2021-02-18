@@ -3,6 +3,10 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -80,10 +84,10 @@ void test_all()
             115057490003226.125, ut_settings(1.0));
 
     {
-        typename bg::strategy::area::services::default_strategy
+        typename bg::strategies::relate::services::default_strategy
             <
-                typename bg::cs_tag<P>::type
-            >::type area_strategy;
+                multi_point_type, multi_point_type
+            >::type strategy;
 
         multi_point_type g;
         bg::read_wkt(mysql_report_3, g);
@@ -94,7 +98,7 @@ void test_all()
             distance_strategy(1),
             side_strategy,
             bg::strategy::buffer::point_circle(36),
-            area_strategy,
+            strategy,
             1, 0, 3.12566719800474635, ut_settings(1.0));
     }
 }

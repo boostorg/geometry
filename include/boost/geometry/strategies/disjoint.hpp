@@ -18,7 +18,8 @@
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/relate.hpp>
+
+#include <boost/geometry/strategy/relate.hpp>
 
 
 namespace boost { namespace geometry { namespace strategy { namespace disjoint

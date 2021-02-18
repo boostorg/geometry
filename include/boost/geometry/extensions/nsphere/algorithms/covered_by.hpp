@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,8 +23,7 @@
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 
-#include <boost/geometry/extensions/nsphere/strategies/cartesian/nsphere_in_box.hpp>
-#include <boost/geometry/extensions/nsphere/strategies/cartesian/point_in_nsphere.hpp>
+#include <boost/geometry/extensions/nsphere/strategies/relate/cartesian.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,8 +40,8 @@ struct covered_by<NSphere, Box, nsphere_tag, box_tag>
     static inline bool apply(NSphere const& nsphere, Box const& box, Strategy const& strategy)
     {
         assert_dimension_equal<NSphere, Box>();
-        boost::ignore_unused(strategy);
-        return strategy.apply(nsphere, box);
+
+        return strategy.covered_by(nsphere, box).apply(nsphere, box);
     }
 };
 
@@ -49,8 +52,8 @@ struct covered_by<Point, NSphere, point_tag, nsphere_tag>
     static inline bool apply(Point const& point, NSphere const& nsphere, Strategy const& strategy)
     {
         assert_dimension_equal<Point, NSphere>();
-        boost::ignore_unused(strategy);
-        return strategy.apply(point, nsphere);
+
+        return strategy.covered_by(point, nsphere).apply(point, nsphere);
     }
 };
 

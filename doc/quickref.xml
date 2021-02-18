@@ -364,6 +364,10 @@
         coordinate values)
      </member>
     </simplelist>
+    <bridgehead renderas="sect3">Azimuth</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.algorithms.azimuth">azimuth</link></member>    
+    </simplelist>
     <bridgehead renderas="sect3">Buffer</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.buffer">buffer</link></member>

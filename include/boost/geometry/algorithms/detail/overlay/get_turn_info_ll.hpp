@@ -75,7 +75,7 @@ struct get_turn_info_linear_linear
                 get_turn_info_for_endpoint<true, true>
                     ::apply(range_p, range_q,
                             tp_model, inters, method_none, out,
-                            umbrella_strategy.get_point_in_point_strategy());
+                            umbrella_strategy);
                 break;
 
             case 'd' : // disjoint: never do anything
@@ -86,7 +86,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_touch_interior, out,
-                                umbrella_strategy.get_point_in_point_strategy()) )
+                                umbrella_strategy) )
                 {
                     // do nothing
                 }
@@ -110,7 +110,7 @@ struct get_turn_info_linear_linear
                         // Swap p/q
                         policy::template apply<1>(range_q, range_p, tp,
                                                   inters.i_info(), inters.d_info(),
-                                                  inters.get_swapped_sides(),
+                                                  inters.swapped_sides(),
                                                   umbrella_strategy);
                     }
                     
@@ -146,7 +146,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_touch, out,
-                                umbrella_strategy.get_point_in_point_strategy()) )
+                                umbrella_strategy) )
                 {
                     // do nothing
                 }
@@ -278,7 +278,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_equal, out,
-                                umbrella_strategy.get_point_in_point_strategy()) )
+                                umbrella_strategy) )
                 {
                     // do nothing
                 }
@@ -333,7 +333,7 @@ struct get_turn_info_linear_linear
                 if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters,  method_collinear, out,
-                                umbrella_strategy.get_point_in_point_strategy()) )
+                                umbrella_strategy) )
                 {
                     // do nothing
                 }
@@ -416,29 +416,26 @@ struct get_turn_info_linear_linear
                 // degenerate points
                 if ( BOOST_GEOMETRY_CONDITION(AssignPolicy::include_degenerate) )
                 {
-                    typedef typename UmbrellaStrategy::point_in_point_strategy_type
-                        equals_strategy_type;
-
                     only_convert::apply(tp, inters.i_info());
 
                     // if any, only one of those should be true
                     if ( range_p.is_first_segment()
-                      && equals::equals_point_point(range_p.at(0), tp.point, equals_strategy_type()) )
+                      && equals::equals_point_point(range_p.at(0), tp.point, umbrella_strategy) )
                     {
                         tp.operations[0].position = position_front;
                     }
                     else if ( range_p.is_last_segment()
-                           && equals::equals_point_point(range_p.at(1), tp.point, equals_strategy_type()) )
+                           && equals::equals_point_point(range_p.at(1), tp.point, umbrella_strategy) )
                     {
                         tp.operations[0].position = position_back;
                     }
                     else if ( range_q.is_first_segment()
-                           && equals::equals_point_point(range_q.at(0), tp.point, equals_strategy_type()) )
+                           && equals::equals_point_point(range_q.at(0), tp.point, umbrella_strategy) )
                     {
                         tp.operations[1].position = position_front;
                     }
                     else if ( range_q.is_last_segment()
-                           && equals::equals_point_point(range_q.at(1), tp.point, equals_strategy_type()) )
+                           && equals::equals_point_point(range_q.at(1), tp.point, umbrella_strategy) )
                     {
                         tp.operations[1].position = position_back;
                     }

@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2017, 2018, 2019.
-// Modifications copyright (c) 2015-2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -1393,7 +1393,7 @@ struct get_turn_info
                 else
                 {
                     handler::template apply<1>(range_q, range_p, tp, inters.i_info(), inters.d_info(),
-                                inters.get_swapped_sides(), umbrella_strategy);
+                                inters.swapped_sides(), umbrella_strategy);
                     *out++ = tp;
                 }
             }

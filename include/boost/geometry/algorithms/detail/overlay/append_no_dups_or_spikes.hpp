@@ -41,11 +41,11 @@ namespace detail { namespace overlay
 {
 
 // TODO: move this / rename this
-template <typename Point1, typename Point2, typename EqualsStrategy, typename RobustPolicy>
+template <typename Point1, typename Point2, typename Strategy, typename RobustPolicy>
 inline bool points_equal_or_close(Point1 const& point1,
-        Point2 const& point2,
-        EqualsStrategy const& strategy,
-        RobustPolicy const& robust_policy)
+                                  Point2 const& point2,
+                                  Strategy const& strategy,
+                                  RobustPolicy const& robust_policy)
 {
     if (detail::equals::equals_point_point(point1, point2, strategy))
     {
@@ -79,10 +79,10 @@ inline bool points_equal_or_close(Point1 const& point1,
 }
 
 
-template <typename Range, typename Point, typename SideStrategy, typename RobustPolicy>
+template <typename Range, typename Point, typename Strategy, typename RobustPolicy>
 inline void append_no_dups_or_spikes(Range& range, Point const& point,
-        SideStrategy const& strategy,
-        RobustPolicy const& robust_policy)
+                                     Strategy const& strategy,
+                                     RobustPolicy const& robust_policy)
 {
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     std::cout << "  add: ("
@@ -93,8 +93,7 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
     // for geometries >= 3 points.
     // So we have to check the first potential duplicate differently
     if ( boost::size(range) == 1
-      && points_equal_or_close(*(boost::begin(range)), point,
-                               strategy.get_equals_point_point_strategy(),
+      && points_equal_or_close(*(boost::begin(range)), point, strategy,
                                robust_policy) )
     {
         return;
@@ -111,7 +110,7 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
             && point_is_spike_or_equal(point,
                 *(boost::end(range) - 3),
                 *(boost::end(range) - 2),
-                strategy,
+                strategy.side(), // TODO: Pass strategy?
                 robust_policy))
     {
         // Use the Concept/traits, so resize and append again
@@ -120,10 +119,10 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
     }
 }
 
-template <typename Range, typename Point, typename SideStrategy, typename RobustPolicy>
+template <typename Range, typename Point, typename Strategy, typename RobustPolicy>
 inline void append_no_collinear(Range& range, Point const& point,
-        SideStrategy const& strategy,
-        RobustPolicy const& robust_policy)
+                                Strategy const& strategy,
+                                RobustPolicy const& robust_policy)
 {
     // Stricter version, not allowing any point in a linear row
     // (spike, continuation or same point)
@@ -133,7 +132,7 @@ inline void append_no_collinear(Range& range, Point const& point,
     // So we have to check the first potential duplicate differently
     if ( boost::size(range) == 1
       && points_equal_or_close(*(boost::begin(range)), point,
-                               strategy.get_equals_point_point_strategy(),
+                               strategy,
                                robust_policy) )
     {
         return;
@@ -150,7 +149,7 @@ inline void append_no_collinear(Range& range, Point const& point,
             && point_is_collinear(point,
                 *(boost::end(range) - 3),
                 *(boost::end(range) - 2),
-                strategy,
+                strategy.side(), // TODO: Pass strategy?
                 robust_policy))
     {
         // Use the Concept/traits, so resize and append again
@@ -159,10 +158,10 @@ inline void append_no_collinear(Range& range, Point const& point,
     }
 }
 
-template <typename Range, typename SideStrategy, typename RobustPolicy>
+template <typename Range, typename Strategy, typename RobustPolicy>
 inline void clean_closing_dups_and_spikes(Range& range,
-                SideStrategy const& strategy,
-                RobustPolicy const& robust_policy)
+                                          Strategy const& strategy,
+                                          RobustPolicy const& robust_policy)
 {
     std::size_t const minsize
         = core_detail::closure::minimum_ring_size
@@ -195,7 +194,9 @@ inline void clean_closing_dups_and_spikes(Range& range,
 
         // Check if closing point is a spike (this is so if the second point is
         // considered as collinear w.r.t. the last segment)
-        if (point_is_collinear(*second, *ultimate, *first, strategy, robust_policy))
+        if (point_is_collinear(*second, *ultimate, *first,
+                               strategy.side(), // TODO: Pass strategy?
+                               robust_policy))
         {
             range::erase(range, first);
             if (BOOST_GEOMETRY_CONDITION(closed))

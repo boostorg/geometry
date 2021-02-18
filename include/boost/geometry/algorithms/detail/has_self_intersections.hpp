@@ -136,27 +136,6 @@ inline bool has_self_intersections(Geometry const& geometry,
     return false;
 }
 
-// For backward compatibility
-template <typename Geometry>
-inline bool has_self_intersections(Geometry const& geometry,
-                    bool throw_on_self_intersection = true)
-{
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef typename geometry::rescale_policy_type<point_type>::type
-        rescale_policy_type;
-
-    typename strategy::intersection::services::default_strategy
-        <
-            typename cs_tag<Geometry>::type
-        >::type strategy;
-
-    rescale_policy_type robust_policy
-        = geometry::get_rescale_policy<rescale_policy_type>(geometry, strategy);
-
-    return has_self_intersections(geometry, strategy, robust_policy,
-                                  throw_on_self_intersection);
-}
-
 
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL

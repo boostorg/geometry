@@ -87,22 +87,17 @@ template
     typename Geometry2,
     typename RingCollection,
     typename OutputIterator,
-    typename AreaStrategy
+    typename Strategy
 >
 inline OutputIterator add_rings(SelectionMap const& map,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
             OutputIterator out,
-            AreaStrategy const& area_strategy,
+            Strategy const& strategy,
             add_rings_error_handling error_handling = add_rings_ignore_unordered)
 {
     typedef typename SelectionMap::const_iterator iterator;
-    typedef typename AreaStrategy::template result_type
-        <
-            GeometryOut
-        >::type area_type;
 
-    area_type const zero = 0;
     std::size_t const min_num_points = core_detail::closure::minimum_ring_size
         <
             geometry::closure
@@ -146,7 +141,9 @@ inline OutputIterator add_rings(SelectionMap const& map,
             // everything is figured out yet (sum of positive/negative rings)
             if (geometry::num_points(result) >= min_num_points)
             {
-                area_type const area = geometry::area(result, area_strategy);
+                typedef typename geometry::area_result<GeometryOut, Strategy>::type area_type;
+                area_type const area = geometry::area(result, strategy);
+                area_type const zero = 0;
                 // Ignore if area is 0
                 if (! math::equals(area, zero))
                 {
@@ -174,16 +171,16 @@ template
     typename Geometry,
     typename RingCollection,
     typename OutputIterator,
-    typename AreaStrategy
+    typename Strategy
 >
 inline OutputIterator add_rings(SelectionMap const& map,
             Geometry const& geometry,
             RingCollection const& collection,
             OutputIterator out,
-            AreaStrategy const& area_strategy)
+            Strategy const& strategy)
 {
     Geometry empty;
-    return add_rings<GeometryOut>(map, geometry, empty, collection, out, area_strategy);
+    return add_rings<GeometryOut>(map, geometry, empty, collection, out, strategy);
 }
 
 

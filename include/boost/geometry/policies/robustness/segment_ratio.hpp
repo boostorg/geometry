@@ -118,19 +118,63 @@ public :
         , m_approximation(0)
     {}
 
-    inline segment_ratio(const Type& nominator, const Type& denominator)
-        : m_numerator(nominator)
+    inline segment_ratio(const Type& numerator, const Type& denominator)
+        : m_numerator(numerator)
         , m_denominator(denominator)
     {
         initialize();
     }
 
+    segment_ratio(segment_ratio const&) = default;
+    segment_ratio& operator=(segment_ratio const&) = default;
+    segment_ratio(segment_ratio&&) = default;
+    segment_ratio& operator=(segment_ratio&&) = default;
+    
+    // These are needed because in intersection strategies ratios are assigned
+    // in fractions and if a user passes CalculationType then ratio Type in
+    // turns is taken from geometry coordinate_type and the one used in
+    // a strategy uses Type selected using CalculationType.
+    // See: detail::overlay::intersection_info_base
+    // and  policies::relate::segments_intersection_points
+    //      in particular segments_collinear() where ratios are assigned.
+    template<typename T> friend class segment_ratio;
+    template <typename T>
+    segment_ratio(segment_ratio<T> const& r)
+        : m_numerator(r.m_numerator)
+        , m_denominator(r.m_denominator)
+    {
+        initialize();
+    }
+    template <typename T>
+    segment_ratio& operator=(segment_ratio<T> const& r)
+    {
+        m_numerator = r.m_numerator;
+        m_denominator = r.m_denominator;
+        initialize();
+        return *this;
+    }
+    template <typename T>
+    segment_ratio(segment_ratio<T> && r)
+        : m_numerator(std::move(r.m_numerator))
+        , m_denominator(std::move(r.m_denominator))
+    {
+        initialize();
+    }
+    template <typename T>
+    segment_ratio& operator=(segment_ratio<T> && r)
+    {
+        m_numerator = std::move(r.m_numerator);
+        m_denominator = std::move(r.m_denominator);
+        initialize();
+        return *this;
+    }
+
     inline Type const& numerator() const { return m_numerator; }
     inline Type const& denominator() const { return m_denominator; }
 
-    inline void assign(const Type& nominator, const Type& denominator)
+    inline void assign(const Type& numerator, const Type& denominator)
     {
-        m_numerator = nominator;
+        m_numerator = numerator;
         m_denominator = denominator;
         initialize();
     }
