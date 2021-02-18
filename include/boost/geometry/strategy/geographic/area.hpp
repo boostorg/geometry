@@ -64,6 +64,8 @@ class geographic
     static const bool ExpandEpsN = true;
     // LongSegment Enables special handling of long segments
     static const bool LongSegment = false;
+    // Area formula is implemented for a maximum series order 5
+    static constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
 
     //Select default types in case they are not set
 
@@ -80,9 +82,6 @@ public:
 protected :
     struct spheroid_constants
     {
-        // Area formula is implemented for a maximum series order 5
-        static constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
-
         typedef std::conditional_t
             <
                 std::is_void<CalculationType>::value,
@@ -201,9 +200,6 @@ public :
         // if the segment in not on a meridian
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
-            // Area formula is implemented for a maximum series order 5
-            constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
-
             typedef geometry::formula::area_formulas
                 <
                     CT, SeriesOrderNorm, ExpandEpsN
