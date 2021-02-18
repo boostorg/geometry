@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2020.
+// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -80,9 +80,9 @@ struct expand<Bounds, Geometry, box_tag, point_tag>
     }
 
     template <typename Strategy>
-    static inline void apply(Bounds & b, Geometry const& g, Strategy const& )
+    static inline void apply(Bounds & b, Geometry const& g, Strategy const& s)
     {
-        geometry::expand(b, g, typename Strategy::expand_point_strategy_type());
+        geometry::expand(b, g, s);
     }
 };
 
@@ -95,9 +95,9 @@ struct expand<Bounds, Geometry, box_tag, box_tag>
     }
 
     template <typename Strategy>
-    static inline void apply(Bounds & b, Geometry const& g, Strategy const& )
+    static inline void apply(Bounds & b, Geometry const& g, Strategy const& s)
     {
-        geometry::expand(b, g, typename Strategy::expand_box_strategy_type());
+        geometry::expand(b, g, s);
     }
 };
 
@@ -112,8 +112,9 @@ struct expand<Bounds, Geometry, box_tag, segment_tag>
     template <typename Strategy>
     static inline void apply(Bounds & b, Geometry const& g, Strategy const& s)
     {
-        index::detail::bounded_view<Geometry, Bounds, Strategy> v(g, s);
-        geometry::expand(b, v, typename Strategy::expand_box_strategy_type());
+        geometry::expand(b, geometry::return_envelope<Bounds>(g, s), s);
+        // requires additional strategy
+        //geometry::expand(b, g, s);
     }
 };
 
@@ -154,9 +155,9 @@ struct covered_by_bounds<Geometry, Bounds, point_tag, box_tag>
     }
 
     template <typename Strategy>
-    static inline bool apply(Geometry const& g, Bounds & b, Strategy const&)
+    static inline bool apply(Geometry const& g, Bounds & b, Strategy const& s)
     {
-        return geometry::covered_by(g, b, typename Strategy::covered_by_point_box_strategy_type());
+        return geometry::covered_by(g, b, s);
     }
 };
 
@@ -169,9 +170,9 @@ struct covered_by_bounds<Geometry, Bounds, box_tag, box_tag>
     }
 
     template <typename Strategy>
-    static inline bool apply(Geometry const& g, Bounds & b, Strategy const&)
+    static inline bool apply(Geometry const& g, Bounds & b, Strategy const& s)
     {
-        return geometry::covered_by(g, b, typename Strategy::covered_by_box_box_strategy_type());
+        return geometry::covered_by(g, b, s);
     }
 };
 
@@ -194,8 +195,7 @@ struct covered_by_bounds<Geometry, Bounds, segment_tag, box_tag>
         typedef geometry::model::box<point_type> bounds_type;
         typedef index::detail::bounded_view<Geometry, bounds_type, Strategy> view_type;
 
-        return geometry::covered_by(view_type(g, strategy), b,
-                                    typename Strategy::covered_by_box_box_strategy_type());
+        return geometry::covered_by(view_type(g, strategy), b, strategy);
     }
 };
 

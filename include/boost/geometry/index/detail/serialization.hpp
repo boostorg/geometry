@@ -396,7 +396,7 @@ private:
 
         if ( current_level < leafs_level )
         {
-            node_pointer n = rtree::create_node<Allocators, internal_node>::apply(allocators);              // MAY THROW (A)
+            node_pointer n = rtree::create_node<allocators_type, internal_node>::apply(allocators);         // MAY THROW (A)
             subtree_destroyer auto_remover(n, allocators);    
             internal_node & in = rtree::get<internal_node>(*n);
 
@@ -419,7 +419,7 @@ private:
         {
             BOOST_GEOMETRY_INDEX_ASSERT(current_level == leafs_level, "unexpected value");
 
-            node_pointer n = rtree::create_node<Allocators, leaf>::apply(allocators);                       // MAY THROW (A)
+            node_pointer n = rtree::create_node<allocators_type, leaf>::apply(allocators);                  // MAY THROW (A)
             subtree_destroyer auto_remover(n, allocators);
             leaf & l = rtree::get<leaf>(*n);
 
@@ -546,10 +546,11 @@ void load(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> & rt, unsig
     typedef typename view::options_type options_type;
     typedef typename view::box_type box_type;
     typedef typename view::allocators_type allocators_type;
+    typedef typename view::members_holder members_holder;
 
     typedef typename options_type::parameters_type parameters_type;
     typedef typename allocators_type::node_pointer node_pointer;
-    typedef detail::rtree::subtree_destroyer<value_type, options_type, translator_type, box_type, allocators_type> subtree_destroyer;
+    typedef detail::rtree::subtree_destroyer<members_holder> subtree_destroyer;
 
     view tree(rt);
 
@@ -563,7 +564,7 @@ void load(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> & rt, unsig
     if ( 0 < values_count )
     {
         size_type loaded_values_count = 0;
-        n = detail::rtree::load<value_type, options_type, translator_type, box_type, allocators_type>
+        n = detail::rtree::load<members_holder>
             ::apply(ar, version, leafs_level, loaded_values_count, params, tree.members().translator(), tree.members().allocators());                                        // MAY THROW
 
         subtree_destroyer remover(n, tree.members().allocators());

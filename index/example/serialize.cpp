@@ -1,7 +1,7 @@
 // Boost.Geometry Index
 // Additional tests
 
-// Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2021 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -25,13 +25,13 @@
 #include <boost/foreach.hpp>
 #include <boost/timer.hpp>
 
-template <typename T, size_t I = 0, size_t S = boost::tuples::length<T>::value>
+template <typename T, size_t I = 0, size_t S = std::tuple_size<T>::value>
 struct print_tuple
 {
     template <typename Os>
     static inline Os & apply(Os & os, T const& t)
     {
-        os << boost::get<I>(t) << ", ";
+        os << std::get<I>(t) << ", ";
         return print_tuple<T, I+1>::apply(os, t);
     }
 };
@@ -51,7 +51,7 @@ int main()
     namespace bg = boost::geometry;
     namespace bgi = bg::index;
 
-    typedef boost::tuple<std::size_t, std::size_t, std::size_t, std::size_t, std::size_t, std::size_t> S;
+    typedef std::tuple<std::size_t, std::size_t, std::size_t, std::size_t, std::size_t, std::size_t> S;
 
     typedef bg::model::point<double, 2, bg::cs::cartesian> P;
     typedef bg::model::box<P> B;
@@ -81,7 +81,7 @@ int main()
     std::cout << "vector and tree created in: " << t.elapsed() << std::endl;
 
     print_tuple<S>::apply(std::cout, bgi::detail::rtree::utilities::statistics(tree)) << std::endl;
-    std::cout << boost::get<0>(s) << std::endl;
+    std::cout << std::get<0>(s) << std::endl;
     BOOST_FOREACH(V const& v, tree | bgi::adaptors::queried(bgi::intersects(q)))
         std::cout << bg::wkt<V>(v) << std::endl;
 

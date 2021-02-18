@@ -61,18 +61,23 @@ void test_sectionalize_part()
     sections_type sections;
     section_type section;
 
-
     Geometry geometry;
     geometry.push_back(bg::make<point_type>(1, 1));
 
     bg::detail::no_rescale_policy rescale_policy;
+    typename bg::strategies::relate::services::default_strategy
+        <
+            Geometry, Geometry
+        >::type strategy;
 
     bg::ring_identifier ring_id;
-    sectionalize_part::apply(sections, geometry.begin(), geometry.end(), rescale_policy, ring_id, 10);
+    sectionalize_part::apply(sections, geometry.begin(), geometry.end(),
+                             rescale_policy, strategy, ring_id, 10);
     // There should not yet be anything generated, because it is only ONE point
 
     geometry.push_back(bg::make<point_type>(2, 2));
-    sectionalize_part::apply(sections, geometry.begin(), geometry.end(), rescale_policy, ring_id, 10);
+    sectionalize_part::apply(sections, geometry.begin(), geometry.end(),
+                             rescale_policy, strategy, ring_id, 10);
 }
 
 

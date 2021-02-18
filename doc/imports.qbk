@@ -5,7 +5,7 @@
   Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
   Copyright (c) 2009-2012 Bruno Lalande, Paris, France.
 
-  Copyright (c) 2018, Oracle and/or its affiliates.
+  Copyright (c) 2018-2021, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,6 +24,8 @@
 [import src/examples/algorithms/assign_3d_point.cpp]
 [import src/examples/algorithms/assign_inverse.cpp]
 [import src/examples/algorithms/assign_points.cpp]
+[import src/examples/algorithms/azimuth.cpp]
+[import src/examples/algorithms/azimuth_strategy.cpp]
 [import src/examples/algorithms/buffer_with_strategies.cpp]
 [import src/examples/algorithms/clear.cpp]
 [import src/examples/algorithms/centroid.cpp]

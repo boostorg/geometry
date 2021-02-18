@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2021.
+// Modifications copyright (c) 2018-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -20,6 +20,7 @@
 \defgroup area area: calculate area of a Geometry
 \defgroup arithmetic arithmetic: arithmetic operations on points
 \defgroup assign assign: assign values to geometries
+\defgroup azimuth azimuth: calculate azimuth of a segment defined by a pair of points
 \defgroup buffer buffer: calculate buffer of a geometry
 \defgroup centroid centroid: calculate centroid (center of gravity) of a geometry
 \defgroup clear clear: clear geometries

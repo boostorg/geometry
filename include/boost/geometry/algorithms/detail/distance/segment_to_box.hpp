@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020 Oracle and/or its affiliates.
+// Copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -48,6 +48,9 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
+// TEMP - remove when distance umbrella strategies are implemented
+#include <boost/geometry/strategies/relate/services.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -58,17 +61,20 @@ namespace detail { namespace distance
 {
 
 
-// TODO: Take strategy
-template <typename Segment, typename Box>
-inline bool intersects_segment_box(Segment const& segment, Box const& box)
+template <typename Segment, typename Box, typename Strategy>
+inline bool intersects_segment_box(Segment const& segment, Box const& box,
+                                   Strategy const& strategy)
 {
-    typedef typename strategy::disjoint::services::default_strategy
+    // TODO: pass strategy
+    auto const s = strategies::relate::services::strategy_converter
         <
-            Segment, Box
-        >::type strategy_type;
+            // This is the only strategy defined in distance segment/box
+            // strategies that carries the information about the spheroid
+            // so use it for now.
+            decltype(strategy.get_side_strategy())
+        >::get(strategy.get_side_strategy());
 
-    return ! detail::disjoint::disjoint_segment_box::apply(segment, box,
-                                                           strategy_type());
+    return ! detail::disjoint::disjoint_segment_box::apply(segment, box, s);
 }
 
 
@@ -114,7 +120,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if (check_intersection && intersects_segment_box(segment, box))
+        if (check_intersection && intersects_segment_box(segment, box, strategy))
         {
             return 0;
         }
@@ -229,7 +235,7 @@ public:
                                     Strategy const& strategy,
                                     bool check_intersection = true)
     {
-        if (check_intersection && intersects_segment_box(segment, box))
+        if (check_intersection && intersects_segment_box(segment, box, strategy))
         {
             return 0;
         }

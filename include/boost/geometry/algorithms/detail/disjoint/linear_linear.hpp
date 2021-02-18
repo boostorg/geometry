@@ -65,8 +65,8 @@ struct disjoint_segment
 
         detail::segment_as_subrange<Segment1> sub_range1(segment1);
         detail::segment_as_subrange<Segment2> sub_range2(segment2);
-        intersection_return_type is = strategy.apply(sub_range1, sub_range2,
-                                                     intersection_policy());
+        intersection_return_type is = strategy.relate().apply(sub_range1, sub_range2,
+                                                              intersection_policy());
 
         return is.count == 0;
     }

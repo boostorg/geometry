@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -77,9 +77,9 @@ struct copy_segment_point_range
 
         std::size_t const segment_count = boost::size(view) - 1;
         signed_size_type const target = circular_offset(segment_count, seg_id.segment_index, offset);
+        BOOST_GEOMETRY_ASSERT(target >= 0
+                           && std::size_t(target) < boost::size(view));
 
-        BOOST_GEOMETRY_ASSERT(target >= 0);
-        BOOST_GEOMETRY_ASSERT(target < boost::size(view));
         geometry::convert(range::at(view, target), point);
 
         return true;
@@ -124,8 +124,8 @@ struct copy_segment_point_box
         assign_box_corners_oriented<Reverse>(box, bp);
 
         signed_size_type const target = circular_offset(4, seg_id.segment_index, offset);
-        BOOST_GEOMETRY_ASSERT(target >= 0);
-        BOOST_GEOMETRY_ASSERT(target < bp.size());
+        BOOST_GEOMETRY_ASSERT(target >= 0
+                           && std::size_t(target) < bp.size());
 
         point = bp[target];
         return true;
@@ -146,11 +146,8 @@ struct copy_segment_point_multi
                              SegmentIdentifier const& seg_id, signed_size_type offset,
                              PointOut& point)
     {
-        BOOST_GEOMETRY_ASSERT
-            (
-                seg_id.multi_index >= 0
-                && seg_id.multi_index < int(boost::size(multi))
-            );
+        BOOST_GEOMETRY_ASSERT(seg_id.multi_index >= 0
+               && std::size_t(seg_id.multi_index) < boost::size(multi));
 
         // Call the single-version
         return Policy::apply(range::at(multi, seg_id.multi_index), seg_id, offset, point);

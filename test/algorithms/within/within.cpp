@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2016, 2018.
-// Modifications copyright (c) 2014-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2020.
+// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -112,16 +112,12 @@ void test_strategy()
         bg::strategy::within::cartesian_point_box());
     BOOST_CHECK_EQUAL(r, true);
 
-    r = bg::within(b, b,
-        bg::strategy::within::box_in_box<box_type, box_type>());
-    BOOST_CHECK_EQUAL(r, true);
-
     r = bg::within(b0, b0,
-        bg::strategy::within::box_in_box<box_type, box_type>());
+        bg::strategy::within::cartesian_box_box());
     BOOST_CHECK_EQUAL(r, false);
 
     r = bg::within(p, b,
-        bg::strategy::within::point_in_box_by_side<>());
+        bg::strategy::within::cartesian_point_box_by_side<>());
     BOOST_CHECK_EQUAL(r, true);
 }
 

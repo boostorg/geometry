@@ -84,43 +84,28 @@ struct get_turns
             > type;
     };
 
-    template <typename Turns>
-    static inline void apply(Turns & turns,
-                             Geometry1 const& geometry1,
-                             Geometry2 const& geometry2)
-    {
-        detail::get_turns::no_interrupt_policy interrupt_policy;
-
-        typename strategy::intersection::services::default_strategy
-            <
-                typename cs_tag<Geometry1>::type
-            >::type intersection_strategy;
-
-        apply(turns, geometry1, geometry2, interrupt_policy, intersection_strategy);
-    }
-
-    template <typename Turns, typename InterruptPolicy, typename IntersectionStrategy>
+    template <typename Turns, typename InterruptPolicy, typename Strategy>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy,
-                             IntersectionStrategy const& intersection_strategy)
+                             Strategy const& strategy)
     {
-        typedef typename robust_policy_type<IntersectionStrategy>::type robust_policy_t;
+        typedef typename robust_policy_type<Strategy>::type robust_policy_t;
 
         robust_policy_t robust_policy
                 = geometry::get_rescale_policy<robust_policy_t>(
-                    geometry1, geometry2, intersection_strategy);
+                    geometry1, geometry2, strategy);
 
-        apply(turns, geometry1, geometry2, interrupt_policy, intersection_strategy, robust_policy);
+        apply(turns, geometry1, geometry2, interrupt_policy, strategy, robust_policy);
     }
 
-    template <typename Turns, typename InterruptPolicy, typename IntersectionStrategy, typename RobustPolicy>
+    template <typename Turns, typename InterruptPolicy, typename Strategy, typename RobustPolicy>
     static inline void apply(Turns & turns,
                              Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy,
-                             IntersectionStrategy const& intersection_strategy,
+                             Strategy const& strategy,
                              RobustPolicy const& robust_policy)
     {
         static const bool reverse1 = detail::overlay::do_reverse
@@ -143,7 +128,7 @@ struct get_turns
                 reverse2,
                 GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2,
-                     intersection_strategy, robust_policy,
+                     strategy, robust_policy,
                      turns, interrupt_policy);
     }
 };

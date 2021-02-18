@@ -57,7 +57,10 @@ struct relation
                 Matrix
             >::type handler;
 
-        resolve_strategy::relate::apply(geometry1, geometry2, handler, strategy);
+        resolve_strategy::relate
+            <
+                Strategy
+            >::apply(geometry1, geometry2, handler, strategy);
 
         return handler.result();
     }
