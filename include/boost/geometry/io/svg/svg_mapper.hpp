@@ -369,6 +369,35 @@ public :
     }
 
     /*!
+    \brief Optional step, zoom in or zoom out, and forces writing the header. After writing the
+      transformation, geometries should not be added, and mapping can begin. After writing the
+      header, other SVG elements can be streamed (for example defs) which can later be used
+      in styles.
+      Call this function after add and before map or text.
+    \param scale A value larger than 1.0 zooms in, a value smaller than 1.0 zooms out.
+      A scale of 1.0 doesn't change any scaling, but still writes the SVG header.
+    */
+    void scale(double scale = 1.0)
+    {
+        if (scale != 1.0 && scale > 0)
+        {
+            // Zoom out (scale < 1) or zoom in (scale > 1).
+            // Typically, users might specify 0.95, to have a small margin around their geometries.
+            auto& b = m_bounding_box;
+            auto const w = geometry::get<1, 0>(b) - geometry::get<0, 0>(b);
+            auto const h = geometry::get<1, 1>(b) - geometry::get<0, 1>(b);
+
+            auto const& m = std::max(w, h) * (1.0 - scale);
+            geometry::set<0, 0>(b, geometry::get<0, 0>(b) - m);
+            geometry::set<0, 1>(b, geometry::get<0, 1>(b) - m);
+            geometry::set<1, 0>(b, geometry::get<1, 0>(b) + m);
+            geometry::set<1, 1>(b, geometry::get<1, 1>(b) + m);
+        }
+
+        init_matrix();
+    }
+
+    /*!
     \brief Maps a geometry into the SVG map using the specified style
     \tparam Geometry \tparam_geometry
     \param geometry \param_geometry

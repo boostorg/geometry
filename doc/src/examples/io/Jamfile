@@ -15,5 +15,6 @@ project boost-geometry-doc-example-io
     ;
 
 exe svg : svg.cpp ;
+exe svg_mapper_scale : svg_mapper_scale.cpp ;
 exe wkt : wkt.cpp ;
 exe read_wkt : read_wkt.cpp ;
