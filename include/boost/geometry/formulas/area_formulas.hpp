@@ -412,7 +412,7 @@ public:
     */
     template
     <
-        typename FormulaPolicy,
+        template <typename, bool, bool, bool, bool, bool> class Inverse,
         typename PointOfSegment,
         typename SpheroidConst
     >
@@ -429,10 +429,8 @@ public:
 
         // Azimuth Approximation
 
-        auto const i_res = FormulaPolicy::template inverse
-            <
-                CT, true, true, true, false, false
-            >::apply(lon1r, lat1r, lon2r, lat2r, spheroid_const.m_spheroid);
+        using inverse_type = Inverse<CT, true, true, true, false, false>;
+        auto i_res = inverse_type::apply(lon1r, lat1r, lon2r, lat2r, spheroid_const.m_spheroid);
 
         CT const alp1 = i_res.azimuth;
         CT const alp2 = i_res.reverse_azimuth;

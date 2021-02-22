@@ -71,13 +71,9 @@ namespace boost { namespace geometry { namespace formula
 
 namespace se = series_expansion;
 
-/*!
-\brief The solution of the inverse problem of geodesics on latlong coordinates,
-       after Karney (2011).
-\author See
-- Charles F.F Karney, Algorithms for geodesics, 2011
-https://arxiv.org/pdf/1109.4448.pdf
-*/
+namespace detail
+{
+
 template <
     typename CT,
     bool EnableDistance,
@@ -953,6 +949,36 @@ public:
     }
 
 };
+
+} // namespace detail
+
+/*!
+\brief The solution of the inverse problem of geodesics on latlong coordinates,
+       after Karney (2011).
+\author See
+- Charles F.F Karney, Algorithms for geodesics, 2011
+https://arxiv.org/pdf/1109.4448.pdf
+*/
+
+template <
+    typename CT,
+    bool EnableDistance,
+    bool EnableAzimuth,
+    bool EnableReverseAzimuth = false,
+    bool EnableReducedLength = false,
+    bool EnableGeodesicScale = false
+>
+struct karney_inverse
+    : detail::karney_inverse
+        <
+            CT,
+            EnableDistance,
+            EnableAzimuth,
+            EnableReverseAzimuth,
+            EnableReducedLength,
+            EnableGeodesicScale
+        >
+{};
 
 }}} // namespace boost::geometry::formula
 

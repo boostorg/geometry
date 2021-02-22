@@ -146,15 +146,13 @@ struct karney
         bool EnableCoordinates = true,
         bool EnableReverseAzimuth = false,
         bool EnableReducedLength = false,
-        bool EnableGeodesicScale = false,
-        size_t SeriesOrder = 8
+        bool EnableGeodesicScale = false
     >
     struct direct
             : formula::karney_direct
               <
                   CT, EnableCoordinates, EnableReverseAzimuth,
-                  EnableReducedLength, EnableGeodesicScale,
-                  SeriesOrder
+                  EnableReducedLength, EnableGeodesicScale
               >
     {};
 
@@ -165,16 +163,14 @@ struct karney
         bool EnableAzimuth,
         bool EnableReverseAzimuth = false,
         bool EnableReducedLength = false,
-        bool EnableGeodesicScale = false,
-        size_t SeriesOrder = 8
+        bool EnableGeodesicScale = false
     >
     struct inverse
         : formula::karney_inverse
             <
                 CT, EnableDistance,
                 EnableAzimuth, EnableReverseAzimuth,
-                EnableReducedLength, EnableGeodesicScale,
-                SeriesOrder
+                EnableReducedLength, EnableGeodesicScale
             >
     {};
 };

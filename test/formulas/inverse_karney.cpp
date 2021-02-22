@@ -63,7 +63,7 @@ void test_all(expected_results const& results)
 
     bg::formula::result_inverse<double> result_k;
 
-    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true> ka_t;
     result_k = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
     result_k.azimuth *= bg::math::r2d<double>();
     result_k.reverse_azimuth *= bg::math::r2d<double>();
@@ -84,7 +84,7 @@ void test_karney(ExpectedResults const& results)
 
     bg::formula::result_inverse<double> result;
 
-    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true> ka_t;
     result = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
     result.azimuth *= bg::math::r2d<double>();
     result.reverse_azimuth *= bg::math::r2d<double>();

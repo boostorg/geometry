@@ -20,6 +20,28 @@
 
 namespace bg = boost::geometry;
 
+struct custom_karney
+{
+    template
+    <
+        typename CT,
+        bool EnableDistance,
+        bool EnableAzimuth,
+        bool EnableReverseAzimuth = false,
+        bool EnableReducedLength = false,
+        bool EnableGeodesicScale = false
+    >
+    struct inverse
+        : bg::formula::detail::karney_inverse
+            <
+                CT, EnableDistance,
+                EnableAzimuth, EnableReverseAzimuth,
+                EnableReducedLength, EnableGeodesicScale,
+                4
+            >
+    {};
+};
+
 //Testing geographic strategies
 template <typename CT>
 void test_geo_strategies()
@@ -62,6 +84,20 @@ void test_geo_strategies()
         geographic_vincenty4;
     bg::strategy::area::geographic<bg::strategy::vincenty, 5>
         geographic_vincenty5;
+
+    bg::strategy::area::geographic<bg::strategy::karney, 1>
+        geographic_karney1;
+    bg::strategy::area::geographic<bg::strategy::karney, 2>
+        geographic_karney2;
+    bg::strategy::area::geographic<bg::strategy::karney, 3>
+        geographic_karney3;
+    bg::strategy::area::geographic<bg::strategy::karney, 4>
+        geographic_karney4;
+    bg::strategy::area::geographic<bg::strategy::karney, 5>
+        geographic_karney5;
+
+    bg::strategy::area::geographic<custom_karney, 3>
+        geographic_custom_karney3;
 
     bg::strategy::area::geographic<bg::strategy::andoyer>
         geographic_andoyer_default;
@@ -115,8 +151,21 @@ void test_geo_strategies()
     BOOST_CHECK_CLOSE(area, 63316536351929.625, err);
     area = bg::area(geometry_geo, geographic_vincenty4);
     BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
-    CT area_most_accurate = bg::area(geometry_geo, geographic_vincenty5);
+    area = bg::area(geometry_geo, geographic_vincenty5);
     BOOST_CHECK_CLOSE(area, 63316536351929.523, err);
+
+    area = bg::area(geometry_geo, geographic_karney1);
+    BOOST_CHECK_CLOSE(area, 63316536473703.75, err);
+    area = bg::area(geometry_geo, geographic_karney2);
+    BOOST_CHECK_CLOSE(area, 63316536351729.695, err);
+    area = bg::area(geometry_geo, geographic_karney3);
+    BOOST_CHECK_CLOSE(area, 63316536351834.383, err);
+    area = bg::area(geometry_geo, geographic_custom_karney3);
+    BOOST_CHECK_CLOSE(area, 63316536351834.352, err);
+    area = bg::area(geometry_geo, geographic_karney4);
+    BOOST_CHECK_CLOSE(area, 63316536351834.281, err);
+    CT area_most_accurate = bg::area(geometry_geo, geographic_karney5);
+    BOOST_CHECK_CLOSE(area, 63316536351834.281, err);
 
     area = bg::area(geometry_geo, geographic_andoyer_default);
     BOOST_CHECK_CLOSE(area, 63316423532570.688, err);

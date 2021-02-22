@@ -215,8 +215,10 @@ public :
             if (! (geometry::math::equals(get<1>(p1), 0)
                 && geometry::math::equals(get<1>(p2), 0)))
             {
-                auto result = area_formulas::template ellipsoidal<FormulaPolicy>
-                    (p1, p2, m_spheroid_constants);
+                auto result = area_formulas::template ellipsoidal
+                    <
+                        FormulaPolicy::template inverse
+                    >(p1, p2, m_spheroid_constants);
 
                 st.m_excess_sum += result.spherical_term;
                 st.m_correction_sum += result.ellipsoidal_term;
