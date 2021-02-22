@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -47,6 +47,9 @@
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
 
+#include <boost/geometry/strategies/length/cartesian.hpp>
+#include <boost/geometry/strategies/length/geographic.hpp>
+#include <boost/geometry/strategies/length/spherical.hpp>
 
 namespace boost { namespace geometry
 {
@@ -60,16 +63,15 @@ namespace detail { namespace length
 template<typename Segment>
 struct segment_length
 {
-    template <typename Strategy>
-    static inline typename default_length_result<Segment>::type apply(
-            Segment const& segment, Strategy const& strategy)
+    template <typename Strategies>
+    static inline typename default_length_result<Segment>::type
+    apply(Segment const& segment, Strategies const& strategies)
     {
-        boost::ignore_unused(strategy);
         typedef typename point_type<Segment>::type point_type;
         point_type p1, p2;
         geometry::detail::assign_point_from_index<0>(segment, p1);
         geometry::detail::assign_point_from_index<1>(segment, p2);
-        return strategy.apply(p1, p2);
+        return strategies.distance(p1, p2).apply(p1, p2);
     }
 };
 
@@ -84,11 +86,10 @@ struct range_length
 {
     typedef typename default_length_result<Range>::type return_type;
 
-    template <typename Strategy>
-    static inline return_type apply(
-            Range const& range, Strategy const& strategy)
+    template <typename Strategies>
+    static inline return_type
+    apply(Range const& range, Strategies const& strategies)
     {
-        boost::ignore_unused(strategy);
         typedef typename closeable_view<Range const, Closure>::type view_type;
         typedef typename boost::range_iterator
             <
@@ -98,8 +99,10 @@ struct range_length
         return_type sum = return_type();
         view_type view(range);
         iterator_type it = boost::begin(view), end = boost::end(view);
-        if(it != end)
+        if (it != end)
         {
+            auto const strategy = strategies.distance(*it, *it);
+
             for(iterator_type previous = it++;
                     it != end;
                     ++previous, ++it)
@@ -179,25 +182,47 @@ struct length<MultiLinestring, multi_linestring_tag> : detail::multi_sum
 
 namespace resolve_strategy {
 
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
 struct length
 {
-    template <typename Geometry, typename Strategy>
+    template <typename Geometry>
+    static inline typename default_length_result<Geometry>::type
+    apply(Geometry const& geometry, Strategies const& strategies)
+    {
+        return dispatch::length<Geometry>::apply(geometry, strategies);
+    }
+};
+
+template <typename Strategy>
+struct length<Strategy, false>
+{
+    template <typename Geometry>
     static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
-        return dispatch::length<Geometry>::apply(geometry, strategy);
+        using strategies::length::services::strategy_converter;
+        return dispatch::length<Geometry>::apply(
+                geometry, strategy_converter<Strategy>::get(strategy));
     }
+};
 
+template <>
+struct length<default_strategy, false>
+{
     template <typename Geometry>
     static inline typename default_length_result<Geometry>::type
-    apply(Geometry const& geometry, default_strategy)
+    apply(Geometry const& geometry, default_strategy const&)
     {
-        typedef typename strategy::distance::services::default_strategy
+        typedef typename strategies::length::services::default_strategy
             <
-                point_tag, point_tag, typename point_type<Geometry>::type
-            >::type strategy_type;
+                Geometry
+            >::type strategies_type;
 
-        return dispatch::length<Geometry>::apply(geometry, strategy_type());
+        return dispatch::length<Geometry>::apply(geometry, strategies_type());
     }
 };
 
@@ -213,7 +238,7 @@ struct length
     static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
-        return resolve_strategy::length::apply(geometry, strategy);
+        return resolve_strategy::length<Strategy>::apply(geometry, strategy);
     }
 };
 
