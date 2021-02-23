@@ -32,6 +32,28 @@ public:
 	
 };
 
+//polyhedral surface(constant version)
+template <typename Geometry>
+class ConstPolyhedral
+{
+#ifndef DOXYGEN_NO_CONCEPT_MEMBERS
+
+	typedef typename std::remove_const<Geometry>::type const_polyhedral_type;
+
+	typedef typename ring_type<const_polyhedral_type>::type ring_type;
+
+	BOOST_CONCEPT_ASSERT( (concepts::ConstRing<ring_type>) );
+
+public:
+
+	BOOST_CONCEPT_USAGE(ConstPolyhedral)
+	{
+
+	}
+
+#endif
+};
+
 } // namepspace concepts
 
 } // namespace geometry

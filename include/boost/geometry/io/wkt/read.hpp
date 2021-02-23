@@ -465,12 +465,23 @@ struct polyhderal_surface_parser
                              PolyhedralSurface& Poly)
     {
         handle_open_parenthesis(it, end, wkt);
-        typename ring_type<PolyhedralSurface>::type ring;
         while(it != end && *it != ")"){
+            handle_open_parenthesis(it, end, wkt);
+
+            typename ring_type<PolyhedralSurface>::type ring;
+            
             appender::apply(it, end, wkt, ring);
+            traits::push_back
+                <
+                    typename std::remove_reference
+                    <
+                        PolyhedralSurface
+                    >::type
+                >::apply(Poly, ring);
+            handle_close_parenthesis(it, end, wkt);
             if(it!=end && *it == ",")
             {
-                //skip after ring is parsed
+                //skip "," after ring is parsed
                 ++it;
             }
 
@@ -549,6 +560,7 @@ inline bool initialize(tokenizer const& tokens,
     it = tokens.begin();
     end = tokens.end();
 
+    //std::cout<<*it<<" "<<geometry_name<<std::endl;
     if (it == end || ! boost::iequals(*it++, geometry_name))
     {
         BOOST_THROW_EXCEPTION(read_wkt_exception(std::string("Should start with '") + geometry_name + "'", wkt));

@@ -127,6 +127,11 @@ struct check<Geometry, polyhedral_surface_tag, false>
 {};
 
 template <typename Geometry>
+struct check<Geometry, polyhedral_surface_tag, true>
+    : detail::concept_check::check<concepts::ConstPolyhedral<Geometry> >
+{};
+
+template <typename Geometry>
 struct check<Geometry, box_tag, true>
     : detail::concept_check::check<concepts::ConstBox<Geometry> >
 {};

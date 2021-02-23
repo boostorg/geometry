@@ -115,18 +115,22 @@ int main()
     poly_t polyhedron2 = {{{0,0,0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}, {{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}},
     {{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}, {{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}, {{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}, 
     {{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}} };
+    
+    std::cout<<wkt(polyhedron2)<<std::endl;
 
     //append(polyhedron1[0], point_t{1, 0, 0});
     //append(polyhedron1[0], point_t{0, 0, 0});
     //append(polyhedron1[0], point_t{0, 1, 0});
     //append(polyhedron1[0], point_t{1, 1, 0});
     //append(polyhedron1[0], point_t{0, 0, 0});
-    read_wkt("POLYHEDRALSURFACE Z(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)), ((0 0 0, 0 1 0, 0 1 1, 0 0 1, 0 0 0)), ((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)), ((1 1 1, 1 0 1, 0 0 1, 0 1 1, 1 1 1)), ((1 1 1, 1 0 1, 1 0 0, 1 1 0, 1 1 1)), ((1 1 1, 1 1 0, 0 1 0, 0 1 1, 1 1 1)))", polyhedron1);
+    read_wkt("POLYHEDRALSURFACE(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),((0 0 0, 0 1 0, 0 1 1, 0 0 1, 0 0 0)),((0 0 0, 1 0 0, 1 0 1, 0 0 1, 0 0 0)),((1 1 1, 1 0 1, 0 0 1, 0 1 1, 1 1 1)),((1 1 1, 1 0 1, 1 0 0, 1 1 0, 1 1 1)),((1 1 1, 1 1 0, 0 1 0, 0 1 1, 1 1 1)))", polyhedron1);
+
+    std::cout<<wkt(polyhedron1)<<std::endl;
 
     typedef model::polygon<point_2d> poly;
     poly polygon1;
     read_wkt("POLYGON((0 0, 0 7, 4 2, 2 0, 0 0))", polygon1); 
-
+    std::cout<<wkt(polygon1)<<std::endl;
     typedef model::linestring<point_2d> lines;
     lines line;
     read_wkt("LINESTRING(0 0, 2 2, 3 1)", line);
