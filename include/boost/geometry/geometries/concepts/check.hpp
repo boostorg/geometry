@@ -123,12 +123,12 @@ struct check<Geometry, polygon_tag, false>
 
 template <typename Geometry>
 struct check<Geometry, polyhedral_surface_tag, false>
-    : detail::concept_check::check<concepts::PolyhedralSurface<Geometry> >
+    : detail::concept_check::check<concepts::PolyhedralSurface<Geometry>>
 {};
 
 template <typename Geometry>
 struct check<Geometry, polyhedral_surface_tag, true>
-    : detail::concept_check::check<concepts::ConstPolyhedral<Geometry> >
+    : detail::concept_check::check<concepts::ConstPolyhedral<Geometry>>
 {};
 
 template <typename Geometry>
