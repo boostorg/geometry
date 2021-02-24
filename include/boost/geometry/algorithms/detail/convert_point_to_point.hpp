@@ -22,6 +22,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 
 namespace boost { namespace geometry
@@ -39,8 +40,51 @@ struct point_to_point
     {
         typedef typename coordinate_type<Destination>::type coordinate_type;
 
-        set<Dimension>(destination, boost::numeric_cast<coordinate_type>(get<Dimension>(source)));
+        double conversion_factor = getfactor<coordinate_system<Source>::type, coordinate_system<Destination>::type>();
+        set<Dimension>(destination,conversion_factor * boost::numeric_cast<coordinate_type>(get<Dimension>(source)));
         point_to_point<Source, Destination, Dimension + 1, DimensionCount>::apply(source, destination);
+    }
+
+    template<typename Tag1, typename Tag2>
+    static inline double getfactor()
+    {
+        return 1.0;
+    }
+    
+    template<>
+    static inline double getfactor<cs::geographic<degree>, cs::geographic<radian>>()
+    {
+        return math::d2r<double>();
+    }
+    
+    template<>
+    static inline double getfactor<cs::geographic<radian>, cs::geographic<degree>>()
+    {
+        return math::r2d<double>();
+    }
+    
+    template<>
+    static inline double getfactor<cs::spherical_equatorial<degree>, cs::spherical_equatorial<radian>>()
+    {
+        return math::d2r<double>();
+    }
+    
+    template<>
+    static inline double getfactor<cs::spherical_equatorial<radian>, cs::spherical_equatorial<degree>>()
+    {
+        return math::r2d<double>();
+    }
+    
+    template<>
+    static inline double getfactor<cs::spherical<degree>, cs::spherical<radian>>()
+    {
+        return math::d2r<double>();
+    }
+    
+    template<>
+    static inline double getfactor<cs::spherical<radian>, cs::spherical<degree>>()
+    {
+        return math::r2d<double>();
     }
 };
 
