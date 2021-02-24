@@ -107,6 +107,7 @@ static std::string const mysql_25662426 = "LINESTRING(170 4756, 168 4756, 168 47
 static std::string const mysql_25662426a = "LINESTRING(170 4756, 168 4756, 168 4759, 168 4764, 171 4764, 171 4750)";
 
 static std::string const issue_596 = "LINESTRING(292979.660 6688731.370, 292979.600 6688733.420, 292979.540 6688735.440, 292979.540 6688735.500)";
+static std::string const issue_803 = "LINESTRING(2773.6899360413681 -17.493356405074767,2767.9084041267429 -9.0288291122330797,2765.7403296587586 -1.6929054585683376,2765.3273630934282 6.6613381477509392e-16,2762.8495637014462 10.157432751410026,2759.9587977441333 24.829280059133669,2756.3453402974928 38.372523727680374,2752.0091913615238 45.708447381345117)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -294,6 +295,13 @@ void test_all()
         using bg::strategy::buffer::end_round;
         test_one<linestring, polygon>("issue_596", issue_596, join_round(12), end_round(12), 0.12462779, 0.015);
         test_one<linestring, polygon>("issue_596", issue_596, join_miter, end_round(12), 0.12462807, 0.015);
+    }
+
+    {
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::end_round;
+        test_one<linestring, polygon>("issue_803", issue_803, join_miter, end_round(36), 1664.3714, 10.0);
+        test_one<linestring, polygon>("issue_803", issue_803, join_round(36), end_round(36), 1664.0528, 10.0);
     }
 
     test_one<linestring, polygon>("mysql_report_2015_06_11",
