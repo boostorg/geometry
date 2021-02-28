@@ -886,8 +886,7 @@ private:
     template <typename Point1, typename Point2>
     static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
     {
-        return detail::equals::equals_point_point(point1, point2,
-                                                  point_in_point_strategy_type());
+        return strategy::within::spherical_point_point::apply(point1, point2);
     }
 };
 

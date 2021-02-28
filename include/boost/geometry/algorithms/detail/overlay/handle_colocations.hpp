@@ -831,7 +831,7 @@ inline bool fill_sbs(Sbs& sbs, Point& turn_point,
         }
         for (int i = 0; i < 2; i++)
         {
-            sbs.add(turn.operations[i], turn_index, i, geometry1, geometry2, first);
+            sbs.add(turn, turn.operations[i], turn_index, i, geometry1, geometry2, first);
             first = false;
         }
     }

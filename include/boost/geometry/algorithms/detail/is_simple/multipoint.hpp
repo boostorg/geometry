@@ -42,7 +42,7 @@ template <typename MultiPoint>
 struct is_simple_multipoint
 {
     template <typename Strategy>
-    static inline bool apply(MultiPoint const& multipoint, Strategy const&)
+    static inline bool apply(MultiPoint const& multipoint, Strategy const& strategy)
     {
         typedef typename Strategy::cs_tag cs_tag;
         typedef geometry::less
@@ -61,10 +61,10 @@ struct is_simple_multipoint
         std::sort(boost::begin(mp), boost::end(mp), less_type());
 
         simplicity_failure_policy policy;
-        return !detail::is_valid::has_duplicates
+        return ! detail::is_valid::has_duplicates
             <
-                MultiPoint, closed, cs_tag
-            >::apply(mp, policy);
+                MultiPoint, closed
+            >::apply(mp, policy, strategy);
     }
 };
 

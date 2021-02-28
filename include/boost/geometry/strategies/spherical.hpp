@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,8 +12,13 @@
 
 
 #include <boost/geometry/strategies/area/spherical.hpp>
+#include <boost/geometry/strategies/azimuth/spherical.hpp>
+#include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
+#include <boost/geometry/strategies/io/spherical.hpp>
+#include <boost/geometry/strategies/index/spherical.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
 
 
 namespace boost { namespace geometry
@@ -29,89 +34,34 @@ template
     typename RadiusTypeOrSphere = double,
     typename CalculationType = void
 >
-class spherical : strategies::detail::spherical_base<RadiusTypeOrSphere>
+class spherical
+    // derived from the umbrella strategy defining the most strategies
+    : public strategies::index::detail::spherical<RadiusTypeOrSphere, CalculationType>
 {
-    using base_t = strategies::detail::spherical_base<RadiusTypeOrSphere>;
+    using base_t = strategies::index::detail::spherical<RadiusTypeOrSphere, CalculationType>;
 
 public:
-    spherical()
-        : base_t()
-    {}
+    spherical() = default;
 
     template <typename RadiusOrSphere>
     explicit spherical(RadiusOrSphere const& radius_or_sphere)
-        : base_t(radius_or_sphere)
-    {}
-
-    // area
-
-    template <typename Geometry>
-    auto area(Geometry const&) const
+        //: base_t(radius_or_sphere)
     {
-        return strategy::area::spherical
+        // TODO: pass into the constructor
+        base_t::m_radius = strategy_detail::get_radius
             <
-                typename base_t::radius_type, CalculationType
-            >(base_t::m_radius);
+                RadiusOrSphere
+            >::apply(radius_or_sphere);
     }
 
-    // envelope
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_point_t<Geometry> * = nullptr)
+    static auto azimuth()
     {
-        return strategy::envelope::spherical_point();
+        return strategy::azimuth::spherical<CalculationType>();
     }
 
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
+    static auto point_order()
     {
-        return strategy::envelope::spherical_multipoint();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical_box();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical_segment<CalculationType>();
-    }
-
-    template <typename Geometry, typename Box>
-    static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
-    {
-        return strategy::envelope::spherical<CalculationType>();
-    }
-
-    // expand
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::spherical_point();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::spherical_box();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::spherical_segment<CalculationType>();
+        return strategy::point_order::spherical<CalculationType>();
     }
 };
 

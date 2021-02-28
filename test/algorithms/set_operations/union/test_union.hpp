@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2020.
+// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -26,6 +26,9 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/range/begin.hpp>
+#include <boost/range/end.hpp>
+#include <boost/range/iterator.hpp>
 
 #include <boost/geometry/algorithms/union.hpp>
 

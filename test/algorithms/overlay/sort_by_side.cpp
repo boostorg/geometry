@@ -4,8 +4,8 @@
 // Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017, 2019.
-// Modifications copyright (c) 2017, 2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -101,7 +101,7 @@ std::vector<std::size_t> gather_cluster_properties(
             for (int i = 0; i < 2; i++)
             {
                 turn_operation_type const& op = turn.operations[i];
-                sbs.add(op, turn_index, i, geometry1, geometry2, first);
+                sbs.add(turn, op, turn_index, i, geometry1, geometry2, first);
                 first = false;
             }
         }
@@ -165,7 +165,7 @@ std::vector<std::size_t> apply_overlay(
     // Gather cluster properties, with test option
     return ::gather_cluster_properties<Reverse1, Reverse2, OverlayType>(
             clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
-                geometry1, geometry2, strategy.get_side_strategy());
+                geometry1, geometry2, strategy.side());
 }
 
 
@@ -197,9 +197,9 @@ void test_sort_by_side(std::string const& case_id,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<Geometry>::type
+            Geometry, Geometry
         >::type strategy_type;
 
     strategy_type strategy;

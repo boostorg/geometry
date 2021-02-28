@@ -225,9 +225,9 @@ struct spatial_predicate_intersects<G1, G2, box_tag, point_tag>
     }
 
     template <typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const& )
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::intersects(g1, g2, typename S::covered_by_point_box_strategy_type());
+        return geometry::intersects(g1, g2, s);
     }
 };
 

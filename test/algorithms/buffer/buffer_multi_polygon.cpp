@@ -346,6 +346,35 @@ static std::string const nores_wn_2
 // Other cases with wrong turn information
 static std::string const nores_wt_1
     = "MULTIPOLYGON(((0 4,0 5,1 4,0 4)),((9 3,9 4,10 4,9 3)),((9 7,10 8,10 7,9 7)),((6 7,7 8,7 7,6 7)),((0 7,0 8,1 8,0 7)),((3 6,4 6,4 5,3 4,3 6)),((3 7,2 6,2 7,3 7)),((3 7,3 8,4 8,4 7,3 7)),((3 3,4 4,4 3,3 3)),((3 3,3 2,2 2,2 3,3 3)),((2 6,2 5,1 5,1 6,2 6)),((6 4,6 3,5 3,5 4,6 4)),((6 4,7 5,7 4,6 4)),((5 1,4 0,4 1,5 1)),((5 1,5 2,6 2,6 1,5 1)))";
+static std::string const nores_wt_2
+    = "MULTIPOLYGON(((1 1,2 2,2 1,1 1)),((0 2,0 3,1 3,0 2)),((4 3,5 4,5 3,4 3)),((4 3,3 3,4 4,4 3)))";
+
+static std::string const nores_b8e6
+    = "MULTIPOLYGON(((4 4,5 5,5 4,4 4)),((4 2,5 2,5 1,3 1,4 2)),((3 1,4 0,3 0,3 1)))";
+static std::string const nores_2881
+    = "MULTIPOLYGON(((2 5,2 6,3 5,2 5)),((1 7,0 7,0 8,1 8,1 7)),((1 7,1 6,0 6,1 7)))";
+static std::string const nores_3af0
+    = "MULTIPOLYGON(((1 8,0 8,0 9,1 9,1 8)),((1 8,1 7,0 7,1 8)),((2 4,3 5,3 4,2 4)),((2 6,2 7,3 6,2 6)))";
+static std::string const nores_6061
+    = "MULTIPOLYGON(((2 8,2 9,3 8,2 8)),((4 3,4 4,5 4,4 3)),((7 2,7 3,8 2,7 2)),((5 3,6 4,6 3,5 3)),((2 6,3 7,3 6,2 6)),((2 3,3 2,3 1,2 1,2 3)),((2 3,3 4,3 3,2 3)))";
+
+static std::string const nores_1ea1
+    = "MULTIPOLYGON(((2 0,2 1,3 0,2 0)),((7 5,6 4,5 3,5 4,5 5,7 5)),((2 3,1 3,1 4,2 3)),((2 3,2 4,3 3,2 3)))";
+static std::string const nores_804e
+    = "MULTIPOLYGON(((4 8,4 9,5 8,4 8)),((3 9,3 10,4 10,3 9)),((0 7,0 8,1 7,0 7)),((4 6,3 6,3 7,4 6)),((4 6,4 7,5 7,4 6)))";
+static std::string const nores_37f6
+    = "MULTIPOLYGON(((4 1,5 2,5 1,4 1)),((1 0,1 1,2 1,2 0,1 0)),((0 3,0 4,1 4,1 3,0 3)),((2 2,2 3,3 2,2 2)))";
+
+static std::string const nores_495d
+    = "MULTIPOLYGON(((2 0,2 1,3 0,2 0)),((2 3,3 4,3 3,2 3)),((5 1,5 2,6 2,5 1)),((4 3,4 2,3 2,4 3)))";
+
+// rescaled
+static std::string const res_ebc4
+    = "MULTIPOLYGON(((3 9,3 10,4 9,3 9)),((9 5,9 6,10 6,10 5,9 5)),((8 8,8 9,9 9,8 8)),((4 8,3 7,3 8,4 8)),((4 8,5 9,6 9,6 8,4 8)),((4 5,3 4,3 5,4 5)),((4 5,5 6,5 5,4 5)))";
+static std::string const res_8618
+    = "MULTIPOLYGON(((6 2,7 3,7 2,6 2)),((4 3,5 4,5 3,4 3)),((3 0,3 1,4 0,3 0)),((8 7,8 8,9 8,8 7)),((0 7,0 8,1 8,1 7,0 7)),((2 2,1 2,1 3,1 4,2 4,2 2)),((2 2,2 1,1 1,2 2)))";
+static std::string const res_3b4d
+    = "MULTIPOLYGON(((8 0,9 1,9 0,8 0)),((3 4,2 4,2 5,2 6,3 6,3 4)),((3 4,4 3,3 3,3 4)),((3 8,3 9,4 9,3 8)),((0 5,0 6,1 6,0 5)),((7 3,8 4,8 3,7 3)),((5 5,6 6,6 5,5 5)))";
 
 
 static std::string const neighbouring
@@ -482,7 +511,6 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p3", rt_p3, join_miter, end_flat, 22.3995, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p4", rt_p4, join_miter, end_flat, 33.0563, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p5", rt_p5, join_miter, end_flat, 17.0, 1.0);
-
     test_one<multi_polygon_type, polygon_type>("rt_p6", rt_p6, join_miter, end_flat, 18.4853, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p7", rt_p7, join_miter, end_flat, 26.2279, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p8", rt_p8, join_miter, end_flat, 29.0563, 1.0);
@@ -558,22 +586,37 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_mt_6", nores_mt_6, join_round32, end_flat, 16.9018, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_et_1", nores_et_1, join_round32, end_flat, 18.9866, 1.0);
-
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<multi_polygon_type, polygon_type>("nores_et_2", nores_et_2, join_round32, end_flat, 23.8389, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_et_3", nores_et_3, join_round32, end_flat, 26.9030, 1.0);
-#endif
-
     test_one<multi_polygon_type, polygon_type>("nores_et_4", nores_et_4, join_round32, end_flat, 19.9626, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_et_5", nores_et_5, join_round32, end_flat, 19.9615, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_et_6", nores_et_6, join_round32, end_flat, 96.1795, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_et_7", nores_et_7, join_round32, end_flat, 105.9577, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_wn_1", nores_wn_1, join_round32, end_flat, 23.7659, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_wn_2", nores_wn_2, join_round32, end_flat, 18.2669, 1.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    test_one<multi_polygon_type, polygon_type>("nores_et_6", nores_et_6, join_round32, end_flat, 96.1795, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_et_7", nores_et_7, join_round32, end_flat, 105.9577, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_wt_1", nores_wt_1, join_round32, end_flat, 80.1609, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_wt_2", nores_wt_2, join_round32, end_flat, 22.1102, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_b8e6", nores_b8e6, join_round32, end_flat, 19.8528, 1.0);
+
+    test_one<multi_polygon_type, polygon_type>("nores_2881", nores_2881, join_round32, end_flat, 16.5517, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_6061", nores_6061, join_round32, end_flat, 39.7371, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_37f6", nores_37f6, join_round32, end_flat, 26.5339, 1.0);
+
+#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Cases not yet solved without rescaling (out of 241)
+    test_one<multi_polygon_type, polygon_type>("nores_1ea1", nores_1ea1, join_round32, end_flat, 28.9755, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_804e", nores_804e, join_round32, end_flat, 26.4503, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_3af0", nores_3af0, join_round32, end_flat, 22.1008, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_495d", nores_495d, join_round32, end_flat, 23.4376, 1.0);
+#endif
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Erroneous cases with rescaling (out of 8)
+    test_one<multi_polygon_type, polygon_type>("res_ebc4", res_ebc4, join_round32, end_flat, 43.8877, 1.0);
+    test_one<multi_polygon_type, polygon_type>("res_8618", res_8618, join_round32, end_flat, 48.1085, 1.0);
+    test_one<multi_polygon_type, polygon_type>("res_3b4d", res_3b4d, join_round32, end_flat, 48.4739, 1.0);
 #endif
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
@@ -619,7 +662,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 8, 2, 7);
+    BoostGeometryWriteExpectedFailures(4, 6, 3, 8);
 #endif
 
     return 0;

@@ -20,6 +20,7 @@
       "The Boost.Geometry library provides geometric algorithms, primitives and spatial index.",
     "category": [
       "Algorithms", "Data", "Math"
-    ]
+    ],
+    "cxxstd": "14"
   }
 ]

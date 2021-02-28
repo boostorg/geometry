@@ -64,9 +64,9 @@ struct test_get_turns
     {
         typedef typename bg::point_type<G2>::type point_type;
         
-        typedef typename bg::strategy::intersection::services::default_strategy
+        typedef typename bg::strategies::relate::services::default_strategy
             <
-                typename bg::cs_tag<G1>::type
+                G1, G2
             >::type strategy_type;
         
         typedef typename bg::rescale_policy_type<point_type>::type

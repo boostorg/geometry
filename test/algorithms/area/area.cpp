@@ -27,10 +27,13 @@
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
 
+#include <boost/geometry/strategy/cartesian/precise_area.hpp>
+
 #include <test_geometries/all_custom_ring.hpp>
 #include <test_geometries/all_custom_polygon.hpp>
 //#define BOOST_GEOMETRY_TEST_DEBUG
 
+#include <boost/multiprecision/cpp_dec_float.hpp>
 #include <boost/variant/variant.hpp>
 
 template <typename Polygon>
@@ -175,6 +178,70 @@ void test_large_integers()
     BOOST_CHECK_CLOSE(int_area, double_area, 0.0001);
 }
 
+struct precise_cartesian : bg::strategies::detail::cartesian_base
+{
+    template <typename Geometry>
+    static auto area(Geometry const&)
+    {
+        return bg::strategy::area::precise_cartesian<>();
+    }
+};
+
+void test_accurate_sum_strategy()
+{
+    typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
+    typedef bg::model::point
+        <
+            boost::multiprecision::cpp_dec_float_50,
+            2,
+            bg::cs::cartesian
+        > mp_point_type;
+
+    auto const poly0_string = "POLYGON((0 0,0 1,1 0,0 0))";
+
+    bg::model::polygon<point_type> poly0;
+    bg::read_wkt(poly0_string, poly0);
+
+    BOOST_CHECK_CLOSE(bg::area(poly0), 0.5, 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(poly0, precise_cartesian()), 0.5, 0.0001);
+
+    bg::model::polygon<mp_point_type> mp_poly0;
+    bg::read_wkt(poly0_string, mp_poly0);
+
+    BOOST_CHECK_CLOSE(bg::area(mp_poly0), 0.5, 0.0001);
+
+    auto const poly1_string = "POLYGON((0.10000000000000001 0.10000000000000001,\
+            0.20000000000000001 0.20000000000000004,\
+            0.79999999999999993 0.80000000000000004,\
+            1.267650600228229e30 1.2676506002282291e30,\
+            0.10000000000000001 0.10000000000000001))";
+
+    bg::model::polygon<point_type> poly1;
+    bg::read_wkt(poly1_string, poly1);
+
+    BOOST_CHECK_CLOSE(bg::area(poly1), 0, 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(poly1, precise_cartesian()), -0.315, 0.0001);
+
+    bg::model::polygon<mp_point_type> mp_poly1;
+    bg::read_wkt(poly1_string, mp_poly1);
+
+    BOOST_CHECK_CLOSE(bg::area(mp_poly1), 34720783012552.6, 0.0001);
+
+    auto const poly2_string = "POLYGON((1.267650600228229e30 1.2676506002282291e30,\
+            0.8 0.8,0.2 0.2,0.1 0.1,1.267650600228229e30 1.2676506002282291e30))";
+
+    bg::model::polygon<point_type> poly2;
+    bg::read_wkt(poly2_string, poly2);
+
+    BOOST_CHECK_CLOSE(bg::area(poly2), 0, 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(poly2, precise_cartesian()), 0.315, 0.0001);
+
+    bg::model::polygon<mp_point_type> mp_poly2;
+    bg::read_wkt(poly2_string, mp_poly2);
+
+    BOOST_CHECK_CLOSE(bg::area(mp_poly2), 35000000000000, 0.0001);
+}
+
 void test_variant()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
@@ -230,6 +297,8 @@ int test_main(int, char* [])
     test_large_integers();
 
     test_variant();
+
+    test_accurate_sum_strategy();
 
     // test_empty_input<bg::model::d2::point_xy<int> >();
 

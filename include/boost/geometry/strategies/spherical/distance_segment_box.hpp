@@ -19,6 +19,7 @@
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_cross_track_point_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp> // spherical
 #include <boost/geometry/strategies/spherical/ssf.hpp>
@@ -223,9 +224,9 @@ struct spherical_segment_box
         typedef Strategy type;
     };
 
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
+    inline Strategy get_distance_pp_strategy() const
     {
-        return typename distance_pp_strategy::type();
+        return m_strategy;
     }
     // point-segment strategy getters
     struct distance_ps_strategy
@@ -235,7 +236,7 @@ struct spherical_segment_box
 
     inline typename distance_ps_strategy::type get_distance_ps_strategy() const
     {
-        return typename distance_ps_strategy::type();
+        return typename distance_ps_strategy::type(m_strategy.radius());
     }
 
     struct distance_pb_strategy
@@ -245,7 +246,7 @@ struct spherical_segment_box
 
     inline typename distance_pb_strategy::type get_distance_pb_strategy() const
     {
-        return typename distance_pb_strategy::type();
+        return typename distance_pb_strategy::type(m_strategy.radius());
     }
 
     // TODO: why is the Radius not propagated above?
@@ -263,6 +264,19 @@ struct spherical_segment_box
     {
         return equals_point_point_strategy_type();
     }
+
+    // constructors
+
+    inline spherical_segment_box()
+    {}
+
+    explicit inline spherical_segment_box(typename Strategy::radius_type const& r)
+        : m_strategy(r)
+    {}
+
+    inline spherical_segment_box(Strategy const& s)
+        : m_strategy(s)
+    {}
 
     // methods
 
@@ -308,6 +322,8 @@ struct spherical_segment_box
                                    top_left, top_right);
     }
 
+private:
+    Strategy m_strategy;
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
