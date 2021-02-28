@@ -28,7 +28,8 @@ template
     typename RadiusTypeOrSphere = double,
     typename CalculationType = void
 >
-class spherical : strategies::detail::spherical_base<RadiusTypeOrSphere>
+class spherical
+    : public strategies::detail::spherical_base<RadiusTypeOrSphere>
 {
     using base_t = strategies::detail::spherical_base<RadiusTypeOrSphere>;
 

@@ -67,12 +67,13 @@ int main(void)
 #endif
 
     // Calculate intersection points (turn points)
-    typedef bg::segment_ratio_type<point_2d, bg::detail::no_rescale_policy>::type segment_ratio;
+    typedef bg::detail::segment_ratio_type<point_2d, bg::detail::no_rescale_policy>::type segment_ratio;
     typedef bg::detail::overlay::turn_info<point_2d, segment_ratio> turn_info;
     std::vector<turn_info> turns;
     bg::detail::get_turns::no_interrupt_policy policy;
     bg::detail::no_rescale_policy rescale_policy;
-    bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(ls, p, rescale_policy, turns, policy);
+    bg::strategy::intersection::services::default_strategy<typename bg::cs_tag<point_2d>::type>::type intersection_strategy;
+    bg::get_turns<false, false, bg::detail::overlay::assign_null_policy>(ls, p, intersection_strategy, rescale_policy, turns, policy);
 
     std::cout << "Intersection of linestring/polygon" << std::endl;
     BOOST_FOREACH(turn_info const& turn, turns)

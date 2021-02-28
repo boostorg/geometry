@@ -5,8 +5,8 @@
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 # Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
 #
-# This file was modified by Oracle on 2014, 2015, 2016, 2017.
-# Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014-2021.
+# Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -20,13 +20,12 @@ test-suite boost-geometry-algorithms
     :
     [ run append.cpp                   : : : : algorithms_append ]
     [ run assign.cpp                   : : : : algorithms_assign ]
+    [ run azimuth.cpp                  : : : : algorithms_azimuth ]
     [ run centroid.cpp                 : : : : algorithms_centroid ]
     [ run centroid_multi.cpp           : : : : algorithms_centroid_multi ]
     [ run comparable_distance.cpp      : : : : algorithms_comparable_distance ]
     [ run convert.cpp                  : : : : algorithms_convert ]
     [ run convert_multi.cpp            : : : : algorithms_convert_multi ]
-    [ run convex_hull.cpp              : : : : algorithms_convex_hull ]
-    [ run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ]
     [ run correct.cpp                  : : : : algorithms_correct ]
     [ run correct_multi.cpp            : : : : algorithms_correct_multi ]
     [ run correct_closure.cpp          : : : : algorithms_correct_closure ]
@@ -67,6 +66,7 @@ test-suite boost-geometry-algorithms
 build-project area ;
 build-project buffer ;
 build-project covered_by ;
+build-project convex_hull ;
 build-project crosses ;
 build-project detail ;
 build-project disjoint ;

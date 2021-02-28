@@ -3,6 +3,10 @@
 
 // Copyright (c) 2018-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -44,11 +48,11 @@ void test_one_geo(std::string const& caseid,
 
     // Use Thomas strategy to calculate geographic area, because it is
     // the most precise (unless scale of buffer is only around 1 meter)
-    bg::strategy::area::geographic
-    <
-        bg::strategy::thomas, 5,
-        bg::srs::spheroid<long double>, long double
-    > area_strategy;
+    bg::strategies::relate::geographic
+        <
+            bg::strategy::thomas, 5,
+            bg::srs::spheroid<long double>, long double
+        > strategy;
 
     bg::model::multi_polygon<GeometryOut> buffer;
 
@@ -56,7 +60,7 @@ void test_one_geo(std::string const& caseid,
             (caseid, buffer, input_geometry,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
-            area_strategy,
+            strategy,
             expected_count, expected_holes_count, expected_area,
             settings);
 }

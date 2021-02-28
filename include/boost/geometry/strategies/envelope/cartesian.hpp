@@ -19,12 +19,9 @@
 #include <boost/geometry/strategy/cartesian/envelope_multipoint.hpp>
 #include <boost/geometry/strategy/cartesian/envelope_segment.hpp>
 
-#include <boost/geometry/strategy/cartesian/expand_box.hpp> // TEMP
-#include <boost/geometry/strategy/cartesian/expand_point.hpp>
-#include <boost/geometry/strategy/cartesian/expand_segment.hpp> // TEMP
-
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/envelope/services.hpp>
+#include <boost/geometry/strategies/expand/cartesian.hpp>
 
 
 namespace boost { namespace geometry
@@ -34,7 +31,8 @@ namespace strategies { namespace envelope
 {
 
 template <typename CalculationType = void>
-struct cartesian : strategies::detail::cartesian_base
+struct cartesian
+    : strategies::expand::cartesian<CalculationType>
 {
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
@@ -69,28 +67,6 @@ struct cartesian : strategies::detail::cartesian_base
                          typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
     {
         return strategy::envelope::cartesian<CalculationType>();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_point_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_point();
-    }
-
-    // TEMP
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_box_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_box();
-    }
-
-    template <typename Box, typename Geometry>
-    static auto expand(Box const&, Geometry const&,
-                       typename util::enable_if_segment_t<Geometry> * = nullptr)
-    {
-        return strategy::expand::cartesian_segment();
     }
 };
 

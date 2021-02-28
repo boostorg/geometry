@@ -47,6 +47,11 @@
 
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
+// TEMP
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
+
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/copy_on_dereference_geometries.hpp>
 

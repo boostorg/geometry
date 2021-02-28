@@ -14,7 +14,6 @@
 #include <boost/geometry/algorithms/sym_difference.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/strategies/cartesian/area.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>

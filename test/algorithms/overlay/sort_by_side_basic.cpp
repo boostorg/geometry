@@ -4,8 +4,8 @@
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2020.
+// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -90,14 +90,14 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
 
     // Define sorter, sorting counter-clockwise such that polygons are on the
     // right side
-    typedef typename Strategy::side_strategy_type side_strategy;
+    typedef decltype(strategy.side()) side_strategy;
     typedef bg::detail::overlay::sort_by_side::side_sorter
         <
             false, false, overlay_union,
             point_type, side_strategy, std::less<int>
         > sbs_type;
 
-    sbs_type sbs(strategy.get_side_strategy());
+    sbs_type sbs(strategy.side());
 
     std::cout << "Case: " << case_id << std::endl;
 
@@ -120,7 +120,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
                     has_origin = true;
                 }
 
-                sbs.add(turn.operations[i], turn_index, i,
+                sbs.add(turn, turn.operations[i], turn_index, i,
                         geometry1, geometry2, is_origin);
 
             }
@@ -256,9 +256,9 @@ void test_basic(std::string const& case_id,
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
 
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<point_type>::type
+            multi_polygon, multi_polygon
         >::type strategy_type;
 
     strategy_type strategy;

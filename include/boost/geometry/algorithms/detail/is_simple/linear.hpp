@@ -221,8 +221,7 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
 
     typedef is_acceptable_turn
         <
-            Linear,
-            typename Strategy::equals_point_point_strategy_type
+            Linear, Strategy
         > is_acceptable_turn_type;
 
     is_acceptable_turn_type predicate(linear);
@@ -259,12 +258,12 @@ struct is_simple_linestring
         return ! boost::empty(linestring)
             && ! detail::is_valid::has_duplicates
                     <
-                        Linestring, closed, typename Strategy::cs_tag
-                    >::apply(linestring, policy)
+                        Linestring, closed
+                    >::apply(linestring, policy, strategy)
             && ! detail::is_valid::has_spikes
                     <
                         Linestring, closed
-                    >::apply(linestring, policy, strategy.get_side_strategy());
+                    >::apply(linestring, policy, strategy);
     }
 };
 

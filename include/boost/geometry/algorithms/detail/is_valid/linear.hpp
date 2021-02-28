@@ -64,15 +64,8 @@ struct is_valid_linestring
 
         std::size_t num_distinct = detail::num_distinct_consecutive_points
             <
-                Linestring,
-                3u,
-                true,
-                not_equal_to
-                    <
-                        typename point_type<Linestring>::type,
-                        typename Strategy::equals_point_point_strategy_type
-                    >
-            >::apply(linestring);
+                Linestring, 3u, true
+            >::apply(linestring, strategy);
 
         if (num_distinct < 2u)
         {
@@ -93,8 +86,7 @@ struct is_valid_linestring
         return ! has_spikes
                     <
                         Linestring, closed
-                    >::apply(linestring, visitor,
-                             strategy.get_side_strategy());
+                    >::apply(linestring, visitor, strategy);
     }
 };
 

@@ -25,6 +25,9 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry
 {
@@ -65,6 +68,8 @@ struct ranked_point
         , operation(op)
         , seg_id(si)
     {}
+
+    using point_type = Point;
 
     Point point;
     rank_type rank;
@@ -252,12 +257,14 @@ public :
         , m_strategy(strategy)
     {}
 
+    template <typename Operation>
     void add_segment_from(signed_size_type turn_index, int op_index,
             Point const& point_from,
-            operation_type op, segment_identifier const& si,
+            Operation const& op,
             bool is_origin)
     {
-        m_ranked_points.push_back(rp(point_from, turn_index, op_index, dir_from, op, si));
+        m_ranked_points.push_back(rp(point_from, turn_index, op_index,
+                                     dir_from, op.operation, op.seg_id));
         if (is_origin)
         {
             m_origin = point_from;
@@ -265,46 +272,104 @@ public :
         }
     }
 
+    template <typename Operation>
     void add_segment_to(signed_size_type turn_index, int op_index,
             Point const& point_to,
-            operation_type op, segment_identifier const& si)
+            Operation const& op)
     {
-        m_ranked_points.push_back(rp(point_to, turn_index, op_index, dir_to, op, si));
+        m_ranked_points.push_back(rp(point_to, turn_index, op_index,
+                                     dir_to, op.operation, op.seg_id));
     }
 
+    template <typename Operation>
     void add_segment(signed_size_type turn_index, int op_index,
             Point const& point_from, Point const& point_to,
-            operation_type op, segment_identifier const& si,
-            bool is_origin)
+            Operation const& op, bool is_origin)
     {
-        add_segment_from(turn_index, op_index, point_from, op, si, is_origin);
-        add_segment_to(turn_index, op_index, point_to, op, si);
+        add_segment_from(turn_index, op_index, point_from, op, is_origin);
+        add_segment_to(turn_index, op_index, point_to, op);
+    }
+
+    // Returns true if two points are approximately equal, tuned by a giga-epsilon constant
+    // (if constant is 1.0, for type double, the boundary is about 1.0e-7)
+    template <typename Point1, typename Point2, typename T>
+    static inline bool approximately_equals(Point1 const& a, Point2 const& b,
+                                            T const& limit_giga_epsilon)
+    {
+        // Including distance would introduce cyclic dependencies.
+        using coor_t = typename select_coordinate_type<Point1, Point2>::type;
+        using calc_t = typename geometry::select_most_precise <coor_t, T>::type;
+        constexpr calc_t machine_giga_epsilon = 1.0e9 * std::numeric_limits<calc_t>::epsilon();
+
+        calc_t const& a0 = geometry::get<0>(a);
+        calc_t const& b0 = geometry::get<0>(b);
+        calc_t const& a1 = geometry::get<1>(a);
+        calc_t const& b1 = geometry::get<1>(b);
+        calc_t const one = 1.0;
+        calc_t const c = math::detail::greatest(a0, b0, a1, b1, one);
+
+        // The maximum limit is avoid, for floating point, large limits like 400
+        // (which are be calculated using eps)
+        constexpr calc_t maxlimit = 1.0e-3;
+        auto const limit = (std::min)(maxlimit, limit_giga_epsilon * machine_giga_epsilon * c);
+        return std::abs(a0 - b0) <= limit && std::abs(a1 - b1) <= limit;
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
-    Point add(Operation const& op, signed_size_type turn_index, int op_index,
+    static Point walk_over_ring(Operation const& op, int offset,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2)
+    {
+        Point point;
+        geometry::copy_segment_point<Reverse1, Reverse2>(geometry1, geometry2, op.seg_id, offset, point);
+        return point;
+    }
+
+    template <typename Turn, typename Operation, typename Geometry1, typename Geometry2>
+    Point add(Turn const& turn, Operation const& op, signed_size_type turn_index, int op_index,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             bool is_origin)
     {
-        Point point1, point2, point3;
+        Point point_from, point2, point3;
         geometry::copy_segment_points<Reverse1, Reverse2>(geometry1, geometry2,
-                op.seg_id, point1, point2, point3);
-        Point const& point_to = op.fraction.is_one() ? point3 : point2;
-        add_segment(turn_index, op_index, point1, point_to, op.operation, op.seg_id, is_origin);
-        return point1;
+                op.seg_id, point_from, point2, point3);
+        Point point_to = op.fraction.is_one() ? point3 : point2;
+
+
+        // If the point is in the neighbourhood (the limit itself is not important),
+        // then take a point (or more) further back.
+        // The limit of offset avoids theoretical infinite loops. In practice it currently
+        // walks max 1 point back in all cases.
+        int offset = 0;
+        while (approximately_equals(point_from, turn.point, 1.0) && offset > -10)
+        {
+            point_from = walk_over_ring(op, --offset, geometry1, geometry2);
+        }
+
+        // Similarly for the point to, walk forward
+        offset = 0;
+        while (approximately_equals(point_to, turn.point, 1.0) && offset < 10)
+        {
+            point_to = walk_over_ring(op, ++offset, geometry1, geometry2);
+        }
+
+        add_segment(turn_index, op_index, point_from, point_to, op, is_origin);
+
+        return point_from;
     }
 
-    template <typename Operation, typename Geometry1, typename Geometry2>
-    void add(Operation const& op, signed_size_type turn_index, int op_index,
+    template <typename Turn, typename Operation, typename Geometry1, typename Geometry2>
+    void add(Turn const& turn,
+             Operation const& op, signed_size_type turn_index, int op_index,
             segment_identifier const& departure_seg_id,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            bool check_origin)
+            bool is_departure)
     {
-        Point const point1 = add(op, turn_index, op_index, geometry1, geometry2, false);
+        Point potential_origin = add(turn, op, turn_index, op_index, geometry1, geometry2, false);
 
-        if (check_origin)
+        if (is_departure)
         {
             bool const is_origin
                     = op.seg_id.source_index == departure_seg_id.source_index
@@ -317,7 +382,7 @@ public :
                 if (m_origin_count == 0 ||
                         segment_distance < m_origin_segment_distance)
                 {
-                    m_origin = point1;
+                    m_origin = potential_origin;
                     m_origin_segment_distance = segment_distance;
                 }
                 m_origin_count++;
@@ -326,24 +391,32 @@ public :
     }
 
     template <typename Operation, typename Geometry1, typename Geometry2>
+    static signed_size_type segment_count_on_ring(Operation const& op,
+            Geometry1 const& geometry1,
+            Geometry2 const& geometry2)
+    {
+        // Take wrap into account
+        // Suppose point_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2,
+        // then distance=9-7+2=4, being segments 7,8,0,1
+        return op.seg_id.source_index == 0
+            ? detail::overlay::segment_count_on_ring(geometry1, op.seg_id)
+            : detail::overlay::segment_count_on_ring(geometry2, op.seg_id);
+    }
+
+    template <typename Operation, typename Geometry1, typename Geometry2>
     static signed_size_type calculate_segment_distance(Operation const& op,
             segment_identifier const& departure_seg_id,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2)
     {
+        BOOST_ASSERT(op.seg_id.source_index == departure_seg_id.source_index);
+        signed_size_type result = op.seg_id.segment_index - departure_seg_id.segment_index;
         if (op.seg_id.segment_index >= departure_seg_id.segment_index)
         {
             // dep.seg_id=5, op.seg_id=7, distance=2, being segments 5,6
-            return op.seg_id.segment_index - departure_seg_id.segment_index;
+            return result;
         }
-        // Take wrap into account
-        // Suppose point_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2,
-        // then distance=9-7+2=4, being segments 7,8,0,1
-        std::size_t const segment_count
-                    = op.seg_id.source_index == 0
-                    ? segment_count_on_ring(geometry1, op.seg_id)
-                    : segment_count_on_ring(geometry2, op.seg_id);
-        return segment_count - departure_seg_id.segment_index + op.seg_id.segment_index;
+        return segment_count_on_ring(op, geometry1, geometry2) + result;
     }
 
     void apply(Point const& turn_point)
