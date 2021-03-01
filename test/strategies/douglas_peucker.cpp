@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -37,6 +38,7 @@
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/simplify.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
@@ -74,7 +76,7 @@ struct default_simplify_strategy
             bg::point_tag, bg::segment_tag, point_type
         >::type default_distance_strategy_type;
 
-    typedef bg::strategy::simplify::douglas_peucker
+    typedef bg::detail::simplify::douglas_peucker
         <
             point_type, default_distance_strategy_type
         > type;
@@ -85,7 +87,7 @@ template <typename CoordinateType>
 struct simplify_regular_distance_strategy
 {
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef bg::strategy::simplify::douglas_peucker
+    typedef bg::detail::simplify::douglas_peucker
         <
             point_type, distance_strategy_type
         > type;
@@ -95,7 +97,7 @@ template <typename CoordinateType>
 struct simplify_comparable_distance_strategy
 {
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef bg::strategy::simplify::douglas_peucker
+    typedef bg::detail::simplify::douglas_peucker
         <
             point_type, comparable_distance_strategy_type
         > type;

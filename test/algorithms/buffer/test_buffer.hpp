@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -367,14 +367,14 @@ void test_buffer(std::string const& caseid, bg::model::multi_polygon<GeometryOut
             expectation_limits const& expected_area,
             ut_settings const& settings = ut_settings())
 {
-    typename bg::strategies::relate::services::default_strategy
+    typename bg::strategies::buffer::services::default_strategy
         <
-            Geometry, Geometry
-        >::type strategy;
+            Geometry
+        >::type strategies;
 
     test_buffer<GeometryOut>(caseid, buffered, geometry,
         join_strategy, end_strategy, distance_strategy, side_strategy, point_strategy,
-        strategy,
+        strategies,
         -1, -1, expected_area, settings);
 }
 
@@ -423,17 +423,17 @@ void test_one(std::string const& caseid, std::string const& wkt,
                         bg::math::equals(distance_right, same_distance)
                         ? distance_left : distance_right);
 
-    typename bg::strategies::relate::services::default_strategy
+    typename bg::strategies::buffer::services::default_strategy
         <
-            Geometry, Geometry
-        >::type strategy;
+            Geometry
+        >::type strategies;
 
     bg::model::multi_polygon<GeometryOut> buffered;
     test_buffer<GeometryOut>
             (caseid, buffered, g,
             join_strategy, end_strategy,
             distance_strategy, side_strategy, circle_strategy,
-            strategy,
+            strategies,
             expected_count, expected_holes_count, expected_area,
             settings);
 
@@ -454,7 +454,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
                 (caseid + "_sym", buffered, g,
                 join_strategy, end_strategy,
                 sym_distance_strategy, side_strategy, circle_strategy,
-                strategy,
+                strategies,
                 expected_count, expected_holes_count, expected_area,
                 settings);
 
