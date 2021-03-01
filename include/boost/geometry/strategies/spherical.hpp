@@ -13,6 +13,7 @@
 
 #include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/azimuth/spherical.hpp>
+#include <boost/geometry/strategies/buffer/spherical.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/strategies/distance/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
@@ -20,6 +21,7 @@
 #include <boost/geometry/strategies/io/spherical.hpp>
 #include <boost/geometry/strategies/index/spherical.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
+#include <boost/geometry/strategies/simplify/spherical.hpp>
 
 
 namespace boost { namespace geometry
