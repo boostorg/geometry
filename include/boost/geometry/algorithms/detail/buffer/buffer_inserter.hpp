@@ -71,16 +71,10 @@ inline void simplify_input(Range const& range,
     // It also gets rid of duplicate points
 
     typedef typename geometry::point_type<Range>::type point_type;
-    typedef typename model::segment<point_type> segment_type;
 
     geometry::detail::simplify::simplify_range<2>::apply(range,
         simplified, distance.simplify_distance(),
-        detail::simplify::douglas_peucker
-            <
-                point_type,
-                decltype(strategies.distance(std::declval<point_type>(),
-                                             std::declval<segment_type>()))
-            >(),
+        detail::simplify::douglas_peucker(),
         strategies);
 
 }

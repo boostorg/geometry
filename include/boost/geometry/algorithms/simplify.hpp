@@ -25,6 +25,7 @@
 #include <set>
 #include <vector>
 
+#include <boost/core/addressof.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -49,6 +50,7 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -77,193 +79,19 @@ namespace detail { namespace simplify
     It has a const-reference to the original point (so no copy here)
 \tparam the enclosed point type
 */
-template<typename Point>
+template <typename Point>
 struct douglas_peucker_point
 {
-    Point const& p;
+    typedef Point point_type;
+
+    Point const* p;
     bool included;
 
     inline douglas_peucker_point(Point const& ap)
-        : p(ap)
+        : p(boost::addressof(ap))
         , included(false)
     {}
-
-    // Necessary for proper compilation
-    inline douglas_peucker_point<Point> operator=(douglas_peucker_point<Point> const& )
-    {
-        return douglas_peucker_point<Point>(*this);
-    }
 };
-
-template
-<
-    typename Point,
-    typename PointDistanceStrategy,
-    typename LessCompare
-        = std::less
-            <
-                typename strategy::distance::services::return_type
-                    <
-                        PointDistanceStrategy,
-                        Point, Point
-                    >::type
-            >
->
-class douglas_peucker_
-    : LessCompare // for empty base optimization
-{
-public :
-
-    // See also ticket 5954 https://svn.boost.org/trac/boost/ticket/5954
-    // Comparable is currently not possible here because it has to be compared to the squared of max_distance, and more.
-    // For now we have to take the real distance.
-    typedef PointDistanceStrategy distance_strategy_type;
-    // typedef typename strategy::distance::services::comparable_type<PointDistanceStrategy>::type distance_strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-                     <
-                         distance_strategy_type,
-                         Point, Point
-                     >::type distance_type;
-
-    douglas_peucker_()
-    {}
-
-    douglas_peucker_(LessCompare const& less_compare)
-        : LessCompare(less_compare)
-    {}
-
-private :
-    typedef douglas_peucker_point<Point> dp_point_type;
-    typedef typename std::vector<dp_point_type>::iterator iterator_type;
-
-
-    LessCompare const& less() const
-    {
-        return *this;
-    }
-
-    inline void consider(iterator_type begin,
-                         iterator_type end,
-                         distance_type const& max_dist,
-                         int& n,
-                         distance_strategy_type const& ps_distance_strategy) const
-    {
-        std::size_t size = end - begin;
-
-        // size must be at least 3
-        // because we want to consider a candidate point in between
-        if (size <= 2)
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
-            if (begin != end)
-            {
-                std::cout << "ignore between " << dsv(begin->p)
-                    << " and " << dsv((end - 1)->p)
-                    << " size=" << size << std::endl;
-            }
-            std::cout << "return because size=" << size << std::endl;
-#endif
-            return;
-        }
-
-        iterator_type last = end - 1;
-
-#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
-        std::cout << "find between " << dsv(begin->p)
-            << " and " << dsv(last->p)
-            << " size=" << size << std::endl;
-#endif
-
-
-        // Find most far point, compare to the current segment
-        //geometry::segment<Point const> s(begin->p, last->p);
-        distance_type md(-1.0); // any value < 0
-        iterator_type candidate;
-        for(iterator_type it = begin + 1; it != last; ++it)
-        {
-            distance_type dist = ps_distance_strategy.apply(it->p, begin->p, last->p);
-
-#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
-            std::cout << "consider " << dsv(it->p)
-                << " at " << double(dist)
-                << ((dist > max_dist) ? " maybe" : " no")
-                << std::endl;
-
-#endif
-            if ( less()(md, dist) )
-            {
-                md = dist;
-                candidate = it;
-            }
-        }
-
-        // If a point is found, set the include flag
-        // and handle segments in between recursively
-        if ( less()(max_dist, md) )
-        {
-#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
-            std::cout << "use " << dsv(candidate->p) << std::endl;
-#endif
-
-            candidate->included = true;
-            n++;
-
-            consider(begin, candidate + 1, max_dist, n, ps_distance_strategy);
-            consider(candidate, end, max_dist, n, ps_distance_strategy);
-        }
-    }
-
-
-public :
-
-    template <typename Range, typename OutputIterator>
-    inline OutputIterator apply(Range const& range,
-                                OutputIterator out,
-                                distance_type max_distance) const
-    {
-#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
-            std::cout << "max distance: " << max_distance
-                      << std::endl << std::endl;
-#endif
-
-        // TODO: get strategy from Strategies
-
-        distance_strategy_type strategy;
-
-        // Copy coordinates, a vector of references to all points
-        std::vector<dp_point_type> ref_candidates(boost::begin(range),
-                        boost::end(range));
-
-        // Include first and last point of line,
-        // they are always part of the line
-        int n = 2;
-        ref_candidates.front().included = true;
-        ref_candidates.back().included = true;
-
-        // Get points, recursively, including them if they are further away
-        // than the specified distance
-        consider(boost::begin(ref_candidates), boost::end(ref_candidates), max_distance, n, strategy);
-
-        // Copy included elements to the output
-        for(typename std::vector<dp_point_type>::const_iterator it
-                        = boost::begin(ref_candidates);
-            it != boost::end(ref_candidates);
-            ++it)
-        {
-            if (it->included)
-            {
-                // copy-coordinates does not work because OutputIterator
-                // does not model Point (??)
-                //geometry::convert(it->p, *out);
-                *out = it->p;
-                out++;
-            }
-        }
-        return out;
-    }
-};
-
 
 /*!
 \brief Implements the simplify algorithm.
@@ -282,47 +110,159 @@ For the algorithm, see for example:
  - http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
  - http://www2.dcs.hull.ac.uk/CISRG/projects/Royal-Inst/demos/dp.html
 */
-template
-<
-    typename Point,
-    typename PointDistanceStrategy
->
 class douglas_peucker
 {
-public :
-
-    typedef PointDistanceStrategy distance_strategy_type;
-
-    typedef typename douglas_peucker_
-        <
-            Point,
-            PointDistanceStrategy
-        >::distance_type distance_type;
-
-    template <typename Range, typename OutputIterator>
-    static inline OutputIterator apply(Range const& range,
-                                       OutputIterator out,
-                                       distance_type const& max_distance)
+    template <typename Iterator, typename Distance, typename PSDistanceStrategy>
+    static inline void consider(Iterator begin,
+                                Iterator end,
+                                Distance const& max_dist,
+                                int& n,
+                                PSDistanceStrategy const& ps_distance_strategy)
     {
-        namespace services = strategy::distance::services;
+        typedef typename std::iterator_traits<Iterator>::value_type::point_type point_type;
+        using distance_type = decltype(ps_distance_strategy.apply(
+            std::declval<point_type>(), std::declval<point_type>(), std::declval<point_type>()));
 
-        typedef typename services::comparable_type
-            <
-                PointDistanceStrategy
-            >::type comparable_distance_strategy_type;
+        std::size_t size = end - begin;
 
-        return douglas_peucker_
-            <
-                Point, comparable_distance_strategy_type
-            >().apply(range, out,
-                      services::result_from_distance
-                          <
-                              comparable_distance_strategy_type, Point, Point
-                          >::apply(comparable_distance_strategy_type(),
-                                   max_distance)
-                      );
+        // size must be at least 3
+        // because we want to consider a candidate point in between
+        if (size <= 2)
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
+            if (begin != end)
+            {
+                std::cout << "ignore between " << dsv(*(begin->p))
+                    << " and " << dsv(*((end - 1)->p))
+                    << " size=" << size << std::endl;
+            }
+            std::cout << "return because size=" << size << std::endl;
+#endif
+            return;
+        }
+
+        Iterator last = end - 1;
+
+#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
+        std::cout << "find between " << dsv(*(begin->p))
+            << " and " << dsv(*(last->p))
+            << " size=" << size << std::endl;
+#endif
+
+
+        // Find most far point, compare to the current segment
+        //geometry::segment<Point const> s(begin->p, last->p);
+        distance_type md(-1.0); // any value < 0
+        Iterator candidate;
+        for (Iterator it = begin + 1; it != last; ++it)
+        {
+            distance_type dist = ps_distance_strategy.apply(*(it->p), *(begin->p), *(last->p));
+
+#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
+            std::cout << "consider " << dsv(*(it->p))
+                << " at " << double(dist)
+                << ((dist > max_dist) ? " maybe" : " no")
+                << std::endl;
+
+#endif
+            if (md < dist)
+            {
+                md = dist;
+                candidate = it;
+            }
+        }
+
+        // If a point is found, set the include flag
+        // and handle segments in between recursively
+        if (max_dist < md)
+        {
+#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
+            std::cout << "use " << dsv(candidate->p) << std::endl;
+#endif
+
+            candidate->included = true;
+            n++;
+
+            consider(begin, candidate + 1, max_dist, n, ps_distance_strategy);
+            consider(candidate, end, max_dist, n, ps_distance_strategy);
+        }
     }
 
+    template
+    <
+        typename Range, typename OutputIterator, typename Distance,
+        typename PSDistanceStrategy
+    >
+    static inline OutputIterator apply_(Range const& range,
+                                        OutputIterator out,
+                                        Distance const& max_distance,
+                                        PSDistanceStrategy const& ps_distance_strategy)
+    {
+#ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
+            std::cout << "max distance: " << max_distance
+                      << std::endl << std::endl;
+#endif
+
+        typedef typename boost::range_value<Range>::type point_type;
+        typedef douglas_peucker_point<point_type> dp_point_type;
+
+        // Copy coordinates, a vector of references to all points
+        std::vector<dp_point_type> ref_candidates(boost::begin(range),
+                                                  boost::end(range));
+
+        // Include first and last point of line,
+        // they are always part of the line
+        int n = 2;
+        ref_candidates.front().included = true;
+        ref_candidates.back().included = true;
+
+        // Get points, recursively, including them if they are further away
+        // than the specified distance
+        consider(boost::begin(ref_candidates), boost::end(ref_candidates), max_distance, n,
+                 ps_distance_strategy);
+
+        // Copy included elements to the output
+        for (auto it = boost::begin(ref_candidates); it != boost::end(ref_candidates); ++it)
+        {
+            if (it->included)
+            {
+                // copy-coordinates does not work because OutputIterator
+                // does not model Point (??)
+                //geometry::convert(*(it->p), *out);
+                *out = *(it->p);
+                ++out;
+            }
+        }
+        return out;
+    }
+
+public:
+    template <typename Range, typename OutputIterator, typename Distance, typename Strategies>
+    static inline OutputIterator apply(Range const& range,
+                                       OutputIterator out,
+                                       Distance const& max_distance,
+                                       Strategies const& strategies)
+    {
+        typedef typename boost::range_value<Range>::type point_type;
+        typedef decltype(strategies.distance(detail::dummy_point(), detail::dummy_segment())) distance_strategy_type;
+
+        typedef typename strategy::distance::services::comparable_type
+            <
+                distance_strategy_type
+            >::type comparable_distance_strategy_type;
+
+        comparable_distance_strategy_type cstrategy = strategy::distance::services::get_comparable
+            <
+                distance_strategy_type
+            >::apply(strategies.distance(detail::dummy_point(), detail::dummy_segment()));
+
+        return apply_(range, out,
+                      strategy::distance::services::result_from_distance
+                          <
+                              comparable_distance_strategy_type, point_type, point_type
+                          >::apply(cstrategy, max_distance),
+                      cstrategy);
+    }
 };
 
 
@@ -357,7 +297,7 @@ struct simplify_range_insert
         }
         else
         {
-            impl.apply(range, out, max_distance); // TODO: pass strategies
+            impl.apply(range, out, max_distance, strategies);
         }
     }
 };
@@ -427,26 +367,30 @@ private :
         return area > 0 ? 1 : area < 0 ? -1 : 0;
     }
 
-    template <typename Ring, typename Impl, typename Strategies>
+    template <typename Ring, typename Strategies>
     static std::size_t get_opposite(std::size_t index, Ring const& ring,
-                                    Impl const& , Strategies const& strategies)
+                                    Strategies const& strategies)
     {
-        // TODO: get strategy from Strategies
+        // TODO: Use Pt-Pt distance strategy instead?
+        // TODO: Use comparable distance strategy
 
-        typename Impl::distance_strategy_type distance_strategy;
+        auto distance_strategy = strategies.distance(detail::dummy_point(), detail::dummy_segment());
+
+        typedef typename geometry::point_type<Ring>::type point_type;
+        typedef decltype(distance_strategy.apply(std::declval<point_type>(),
+            std::declval<point_type>(), std::declval<point_type>())) distance_type;
 
         // Verify if it is NOT the case that all points are less than the
         // simplifying distance. If so, output is empty.
-        typename Impl::distance_type max_distance(-1);
+        distance_type max_distance(-1);
 
-        typename geometry::point_type<Ring>::type point = range::at(ring, index);
+        point_type const& point = range::at(ring, index);
         std::size_t i = 0;
-        for (typename boost::range_iterator<Ring const>::type
-                it = boost::begin(ring); it != boost::end(ring); ++it, ++i)
+        for (auto it = boost::begin(ring); it != boost::end(ring); ++it, ++i)
         {
             // This actually is point-segment distance but will result
             // in point-point distance
-            typename Impl::distance_type dist = distance_strategy.apply(*it, point, point);
+            distance_type dist = distance_strategy.apply(*it, point, point);
             if (dist > max_distance)
             {
                 max_distance = dist;
@@ -504,7 +448,7 @@ public :
                 case 2 : index = (index + size / 8) % size; break;
                 case 3 : index = (index + size / 4) % size; break;
             }
-            index = get_opposite(index, ring, impl, strategies);
+            index = get_opposite(index, ring, strategies);
 
             if (visited_indexes.count(index) > 0)
             {
@@ -752,18 +696,12 @@ struct simplify
                              Strategies const& strategies)
     {
         typedef typename point_type<Geometry>::type point_type;
-        typedef model::segment<point_type> segment_type; // dummy
 
         dispatch::simplify
             <
                 Geometry
             >::apply(geometry, out, max_distance,
-                     detail::simplify::douglas_peucker
-                        <
-                            point_type,
-                            decltype(strategies.distance(std::declval<point_type>(),
-                                                         std::declval<segment_type>()))
-                        >(),
+                     detail::simplify::douglas_peucker(),
                      strategies);
     }
 };
@@ -771,7 +709,7 @@ struct simplify
 template <typename Strategy>
 struct simplify<Strategy, false>
 {
-    template <typename Geometry, typename Distance, typename Strategy>
+    template <typename Geometry, typename Distance>
     static inline void apply(Geometry const& geometry,
                              Geometry& out,
                              Distance const& max_distance,
@@ -822,18 +760,12 @@ struct simplify_insert
                              Strategies const& strategies)
     {
         typedef typename point_type<Geometry>::type point_type;
-        typedef model::segment<point_type> segment_type; // dummy
 
         dispatch::simplify_insert
             <
                 Geometry
             >::apply(geometry, out, max_distance,
-                     detail::simplify::douglas_peucker
-                        <
-                            point_type,
-                            decltype(strategies.distance(std::declval<point_type>(),
-                                                         std::declval<segment_type>()))
-                        >(),
+                     detail::simplify::douglas_peucker(),
                      strategies);
     }
 };
@@ -853,7 +785,7 @@ struct simplify_insert<Strategy, false>
             <
                 decltype(strategy_converter<Strategy>::get(strategy))
             >::apply(geometry, out, max_distance,
-                     decltype(strategy_converter<Strategy>::get(strategy)));
+                     strategy_converter<Strategy>::get(strategy));
     }
 };
 
