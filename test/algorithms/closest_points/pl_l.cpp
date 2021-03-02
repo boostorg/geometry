@@ -14,6 +14,7 @@
 
 #include "test_closest_points_common.hpp"
 #include "test_empty_geometry.hpp"
+#include <boost/geometry/algorithms/length.hpp>
 
 namespace bg = boost::geometry;
 
@@ -69,7 +70,7 @@ void test_closest_points_point_segment_diff_spheroid(Strategy const& strategy)
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
-                  "SEGMENT(1 1,0.31099 0.67425)",
+                  "SEGMENT(1 1,0.311318 0.673915)",
                   strategy);
 
     tester::apply("POINT(0 1)",
@@ -287,4 +288,92 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 
     test_closest_points_point_segment_diff_spheroid<geo_point>
             (andoyer_ps(stype(5000000,6000000)));
+}
+
+// tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747
+
+using point_type = boost::geometry::model::point
+    <
+        double,
+        2,
+        boost::geometry::cs::geographic<boost::geometry::degree>
+    >;
+using segment_type = boost::geometry::model::segment<point_type>;
+
+boost::geometry::strategy::closest_points::geographic_cross_track<> closest_point_strategy;
+boost::geometry::strategy::distance::geographic_cross_track<> cross_track_strategy;
+boost::geometry::strategy::distance::geographic<> distance_strategy;
+
+BOOST_AUTO_TEST_CASE(closest_path_test)
+{
+    point_type point{11.845747600604916272,
+                     50.303247769986953131};
+    segment_type segment{{11.8449176, 50.3030635},
+                         {11.8458063, 50.3032608}};
+
+    const auto distance = boost::geometry::distance(point, segment, cross_track_strategy);
+
+    segment_type projection;
+    boost::geometry::closest_points(point, segment, projection, closest_point_strategy);
+    const auto length = boost::geometry::length(projection, distance_strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::setprecision(20)
+              << "Point: " << boost::geometry::wkt(point) << "\n"
+              << "Segment: " << boost::geometry::wkt(segment) << "\n"
+              << "Distance: " << distance << "\n"
+              << "Projection: " << boost::geometry::wkt(projection) << "\n"
+              << "Length: " << length << std::endl;
+#endif
+    BOOST_CHECK_CLOSE_FRACTION(distance, length, 1e-20);
+}
+
+BOOST_AUTO_TEST_CASE(clostest_path_test_2)
+{
+    point_type point{11.921418190002441406,
+                     50.316425323486328125};
+    segment_type segment{{11.9214920, 50.3161678},
+                         {11.9212341, 50.3161381}};
+
+    const auto distance = boost::geometry::distance(point, segment, cross_track_strategy);
+
+    segment_type projection;
+    boost::geometry::closest_points(point, segment, projection, closest_point_strategy);
+    const auto length = boost::geometry::length(projection, distance_strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::setprecision(20)
+              << "Point: " << boost::geometry::wkt(point) << "\n"
+              << "Segment: " << boost::geometry::wkt(segment) << "\n"
+              << "Distance: " << distance << "\n"
+              << "Projection: " << boost::geometry::wkt(projection) << "\n"
+              << "Length: " << length << std::endl;
+#endif
+
+    BOOST_CHECK_CLOSE_FRACTION(distance, length, 1e-20);
+}
+
+BOOST_AUTO_TEST_CASE(clostest_path_test_3)
+{
+    point_type point{11.904624124918561169L,
+                     50.317349861000025692L};
+    segment_type segment{{11.9046808, 50.3173523},
+                         {11.9045925, 50.3173485}};
+
+    const auto distance = boost::geometry::distance(point, segment, cross_track_strategy);
+
+    segment_type projection;
+    boost::geometry::closest_points(point, segment, projection, closest_point_strategy);
+    const auto length = boost::geometry::length(projection, distance_strategy);
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::setprecision(20)
+              << "Point: " << boost::geometry::wkt(point) << "\n"
+              << "Segment: " << boost::geometry::wkt(segment) << "\n"
+              << "Distance: " << distance << "\n"
+              << "Projection: " << boost::geometry::wkt(projection) << "\n"
+              << "Length: " << length << std::endl;
+#endif
+
+    BOOST_CHECK_CLOSE_FRACTION(distance, length, 1e-20);
 }

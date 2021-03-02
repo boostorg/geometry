@@ -242,7 +242,6 @@ private :
                 direct_distance_type;
 
         CT const half_pi = math::pi<CT>() / CT(2);
-        CT prev_distance;
         geometry::formula::result_direct<CT> res14;
         geometry::formula::result_inverse<CT> res34;
         res34.distance = -1;
@@ -254,7 +253,8 @@ private :
         CT s14 = s14_start;
 
         do{
-            prev_distance = res34.distance;
+            auto prev_distance = res34.distance;
+            auto prev_res = res14;
 
             // Solve the direct problem to find p4 (GEO)
             res14 = direct_distance_type::apply(lon1, lat1, s14, a12, spheroid);
@@ -280,12 +280,15 @@ private :
                 s14 -= der != 0 ? delta_g4 / der : 0;
             }
 
-            set_result(res34.distance, res14, result);
-
             dist_improve = prev_distance > res34.distance || prev_distance == -1;
-            if (!dist_improve)
+
+            if (dist_improve)
             {
-                set_result(prev_distance, res14, result);
+                set_result(res34.distance, res14, result);
+            }
+            else
+            {
+                set_result(prev_distance, prev_res, result);
             }
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
