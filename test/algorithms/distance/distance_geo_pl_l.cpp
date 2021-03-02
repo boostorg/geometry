@@ -713,6 +713,7 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
     test_all_pl_l(vincenty_pp(), vincenty_ps());
     test_all_pl_l(thomas_pp(), thomas_ps());
     test_all_pl_l(andoyer_pp(), andoyer_ps());
+    //test_all_pl_l(karney_pp(), karney_ps());
 
     // test with different spheroid
     stype spheroid(6372000, 6370000);
@@ -721,8 +722,10 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
     test_distance_point_segment_no_thomas(vincenty_pp(), vincenty_ps());
     //test_distance_point_segment_no_thomas(thomas_pp(), thomas_ps());
     test_distance_point_segment_no_thomas(andoyer_pp(), andoyer_ps());
+    //test_distance_point_segment_no_thomas(karney_pp(), karney_ps());
 
     test_distance_point_segment_rad_mix(vincenty_pp(), vincenty_ps());
     test_distance_point_segment_rad_mix(thomas_pp(), thomas_ps());
     test_distance_point_segment_rad_mix(andoyer_pp(), andoyer_ps());
+    //test_distance_point_segment_rad_mix(karney_pp(), karney_ps());
 }
