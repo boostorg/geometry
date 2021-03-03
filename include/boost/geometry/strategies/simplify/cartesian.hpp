@@ -19,6 +19,8 @@
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/simplify/services.hpp>
 
+#include <boost/geometry/strategy/cartesian/area.hpp>
+
 #include <boost/geometry/util/type_traits.hpp>
 
 
@@ -32,6 +34,26 @@ template <typename CalculationType = void>
 struct cartesian
     : public strategies::detail::cartesian_base
 {
+    // TODO: Replace this if calculate_point_order() is used in simplify
+    template <typename Geometry>
+    static auto area(Geometry const&)
+    {
+        return strategy::area::cartesian<CalculationType>();
+    }
+
+    // For perimeter()
+    template <typename Geometry1, typename Geometry2>
+    static auto distance(Geometry1 const&, Geometry2 const&,
+                         std::enable_if_t
+                            <
+                                util::is_pointlike<Geometry1>::value
+                             && util::is_pointlike<Geometry2>::value
+                            > * = nullptr)
+    {
+        return strategy::distance::pythagoras<CalculationType>();
+    }
+
+    // For douglas_peucker
     template <typename Geometry1, typename Geometry2>
     static auto distance(Geometry1 const&, Geometry2 const&,
                          std::enable_if_t
@@ -51,6 +73,7 @@ struct cartesian
             >();
     }
 
+    // For equals()
     template <typename Geometry1, typename Geometry2>
     static auto relate(Geometry1 const&, Geometry2 const&,
                        std::enable_if_t

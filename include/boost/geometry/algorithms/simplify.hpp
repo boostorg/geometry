@@ -120,8 +120,8 @@ class douglas_peucker
                                 PSDistanceStrategy const& ps_distance_strategy)
     {
         typedef typename std::iterator_traits<Iterator>::value_type::point_type point_type;
-        using distance_type = decltype(ps_distance_strategy.apply(
-            std::declval<point_type>(), std::declval<point_type>(), std::declval<point_type>()));
+        typedef decltype(ps_distance_strategy.apply(std::declval<point_type>(),
+                            std::declval<point_type>(), std::declval<point_type>())) distance_type;
 
         std::size_t size = end - begin;
 
@@ -153,7 +153,7 @@ class douglas_peucker
         // Find most far point, compare to the current segment
         //geometry::segment<Point const> s(begin->p, last->p);
         distance_type md(-1.0); // any value < 0
-        Iterator candidate;
+        Iterator candidate = end;
         for (Iterator it = begin + 1; it != last; ++it)
         {
             distance_type dist = ps_distance_strategy.apply(*(it->p), *(begin->p), *(last->p));
@@ -174,7 +174,7 @@ class douglas_peucker
 
         // If a point is found, set the include flag
         // and handle segments in between recursively
-        if (max_dist < md)
+        if (max_dist < md && candidate != end)
         {
 #ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
             std::cout << "use " << dsv(candidate->p) << std::endl;
@@ -411,10 +411,9 @@ public :
             return;
         }
 
-        // TODO: use calculate_point_order
-        // TODO: pass strategies
+        // TODO: instead of area() use calculate_point_order() ?
 
-        int const input_sign = area_sign(geometry::area(ring));
+        int const input_sign = area_sign(geometry::area(ring, strategies));
 
         std::set<std::size_t> visited_indexes;
 
@@ -464,12 +463,11 @@ public :
 
             simplify_range<0>::apply(rotated, out, max_distance, impl, strategies);
 
-            // TODO: use calculate_point_order
-            // TODO: pass strategies
+            // TODO: instead of area() use calculate_point_order() ?
 
             // Verify that what was positive, stays positive (or goes to 0)
             // and what was negative stays negative (or goes to 0)
-            int const output_sign = area_sign(geometry::area(out));
+            int const output_sign = area_sign(geometry::area(out, strategies));
             if (output_sign == input_sign)
             {
                 // Result is considered as satisfactory (usually this is the
@@ -482,10 +480,8 @@ public :
             // when another starting point is used
             geometry::clear(out);
 
-            // TODO: pass strategies
-
             if (iteration == 0
-                && geometry::perimeter(ring) < 3 * max_distance)
+                && geometry::perimeter(ring, strategies) < 3 * max_distance)
             {
                 // Check if it is useful to iterate. A minimal triangle has a
                 // perimeter of a bit more than 3 times the simplify distance

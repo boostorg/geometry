@@ -18,6 +18,8 @@
 #include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
+#include <boost/geometry/strategy/geographic/area.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -43,6 +45,35 @@ public:
         : base_t(spheroid)
     {}
 
+    // TODO: Replace this if calculate_point_order() is used in simplify
+    template <typename Geometry>
+    auto area(Geometry const&) const
+    {
+        return strategy::area::geographic
+            <
+                FormulaPolicy,
+                strategy::default_order<FormulaPolicy>::value,
+                Spheroid,
+                CalculationType
+            >(base_t::m_spheroid);
+    }
+
+    // For perimeter()
+    template <typename Geometry1, typename Geometry2>
+    auto distance(Geometry1 const&, Geometry2 const&,
+                  std::enable_if_t
+                  <
+                        util::is_pointlike<Geometry1>::value
+                     && util::is_pointlike<Geometry2>::value
+                  > * = nullptr) const
+    {
+        return strategy::distance::geographic
+                <
+                    FormulaPolicy, Spheroid, CalculationType
+                >(base_t::m_spheroid);
+    }
+
+    // For douglas_peucker
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
                   std::enable_if_t
@@ -61,6 +92,7 @@ public:
             >(base_t::m_spheroid);
     }
 
+    // For equals()
     template <typename Geometry1, typename Geometry2>
     static auto relate(Geometry1 const&, Geometry2 const&,
                        std::enable_if_t

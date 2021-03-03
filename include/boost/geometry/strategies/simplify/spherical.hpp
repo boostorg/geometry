@@ -19,6 +19,8 @@
 #include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
+#include <boost/geometry/strategy/spherical/area.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -44,6 +46,32 @@ public:
         : base_t(radius_or_sphere)
     {}
 
+    // TODO: Replace this if calculate_point_order() is used in simplify
+    template <typename Geometry>
+    auto area(Geometry const&) const
+    {
+        return strategy::area::spherical
+            <
+                typename base_t::radius_type, CalculationType
+            >(base_t::radius());
+    }
+
+    // For perimeter()
+    template <typename Geometry1, typename Geometry2>
+    auto distance(Geometry1 const&, Geometry2 const&,
+                  std::enable_if_t
+                  <
+                        util::is_pointlike<Geometry1>::value
+                     && util::is_pointlike<Geometry2>::value
+                  > * = nullptr) const
+    {
+        return strategy::distance::haversine
+                <
+                    typename base_t::radius_type, CalculationType
+                >(base_t::radius());
+    }
+
+    // For douglas_peucker
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
                   std::enable_if_t
@@ -63,6 +91,7 @@ public:
             >(base_t::radius());
     }
 
+    // For equals()
     template <typename Geometry1, typename Geometry2>
     static auto relate(Geometry1 const&, Geometry2 const&,
                        std::enable_if_t
