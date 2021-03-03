@@ -35,7 +35,7 @@ void test_all()
             bg::model::polygon<SphericalPoint>,
             bg::model::polygon<GeoPoint>
         >("polygon((0 0,1 1,0 1,0 0))", 4, 4,
-          0.00015229324228191774, 6153992621.4098225);
+          0.00015229324228191774, 6153921163.326375);
 
     //polygon crossing antimeridian
     test_geometry_sph_geo

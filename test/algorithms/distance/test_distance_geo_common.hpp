@@ -55,6 +55,7 @@ typedef bg::strategy::distance::haversine<double> spherical_pp;
 typedef bg::strategy::distance::andoyer<stype> andoyer_pp;
 typedef bg::strategy::distance::thomas<stype> thomas_pp;
 typedef bg::strategy::distance::vincenty<stype> vincenty_pp;
+typedef bg::strategy::distance::karney<stype> karney_pp;
 
 // Spherical strategy  for point-segment distance
 
@@ -71,10 +72,13 @@ typedef bg::strategy::distance::geographic_cross_track<bg::strategy::thomas, sty
 typedef bg::strategy::distance::geographic_cross_track<bg::strategy::vincenty, stype, double>
         vincenty_ps;
 
+typedef bg::strategy::distance::geographic_cross_track<bg::strategy::karney, stype, double>
+        karney_ps;
+
 typedef bg::strategy::distance::detail::geographic_cross_track<bg::strategy::vincenty, stype, double, true>
         vincenty_ps_bisection;
 
-// Spherical strategy  for point-box distance
+// Spherical strategy for point-box distance
 
 typedef bg::strategy::distance::cross_track_point_box<> spherical_pb;
 
@@ -101,6 +105,13 @@ typedef bg::strategy::distance::geographic_cross_track_point_box
     double
 > vincenty_pb;
 
+typedef bg::strategy::distance::geographic_cross_track_point_box
+<
+    bg::strategy::karney,
+    stype,
+    double
+> karney_pb;
+
 // Spherical strategy  for segment-box distance
 
 typedef bg::strategy::distance::spherical_segment_box<> spherical_sb;
@@ -115,6 +126,9 @@ typedef bg::strategy::distance::geographic_segment_box<bg::strategy::thomas, sty
 
 typedef bg::strategy::distance::geographic_segment_box<bg::strategy::vincenty, stype, double>
         vincenty_sb;
+
+typedef bg::strategy::distance::geographic_segment_box<bg::strategy::karney, stype, double>
+        karney_sb;
 
 // Strategies for box-box distance
 
@@ -140,6 +154,13 @@ typedef bg::strategy::distance::geographic_cross_track_box_box
             stype,
             double
         > vincenty_bb;
+
+typedef bg::strategy::distance::geographic_cross_track_box_box
+        <
+            bg::strategy::karney,
+            stype,
+            double
+        > karney_bb;
 
 //===========================================================================
 

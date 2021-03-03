@@ -378,45 +378,19 @@ public :
 
             if (is_origin)
             {
-                signed_size_type const segment_distance = calculate_segment_distance(op, departure_seg_id, geometry1, geometry2);
-                if (m_origin_count == 0 ||
-                        segment_distance < m_origin_segment_distance)
+                signed_size_type const sd
+                        = departure_seg_id.source_index == 0
+                          ? segment_distance(geometry1, departure_seg_id, op.seg_id)
+                          : segment_distance(geometry2, departure_seg_id, op.seg_id);
+
+                if (m_origin_count == 0 || sd < m_origin_segment_distance)
                 {
                     m_origin = potential_origin;
-                    m_origin_segment_distance = segment_distance;
+                    m_origin_segment_distance = sd;
                 }
                 m_origin_count++;
             }
         }
-    }
-
-    template <typename Operation, typename Geometry1, typename Geometry2>
-    static signed_size_type segment_count_on_ring(Operation const& op,
-            Geometry1 const& geometry1,
-            Geometry2 const& geometry2)
-    {
-        // Take wrap into account
-        // Suppose point_count=10 (10 points, 9 segments), dep.seg_id=7, op.seg_id=2,
-        // then distance=9-7+2=4, being segments 7,8,0,1
-        return op.seg_id.source_index == 0
-            ? detail::overlay::segment_count_on_ring(geometry1, op.seg_id)
-            : detail::overlay::segment_count_on_ring(geometry2, op.seg_id);
-    }
-
-    template <typename Operation, typename Geometry1, typename Geometry2>
-    static signed_size_type calculate_segment_distance(Operation const& op,
-            segment_identifier const& departure_seg_id,
-            Geometry1 const& geometry1,
-            Geometry2 const& geometry2)
-    {
-        BOOST_ASSERT(op.seg_id.source_index == departure_seg_id.source_index);
-        signed_size_type result = op.seg_id.segment_index - departure_seg_id.segment_index;
-        if (op.seg_id.segment_index >= departure_seg_id.segment_index)
-        {
-            // dep.seg_id=5, op.seg_id=7, distance=2, being segments 5,6
-            return result;
-        }
-        return segment_count_on_ring(op, geometry1, geometry2) + result;
     }
 
     void apply(Point const& turn_point)

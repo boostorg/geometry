@@ -283,4 +283,5 @@ BOOST_AUTO_TEST_CASE( test_all_linear_linear )
     test_all_l_l<geo_point>(vincenty_ps());
     test_all_l_l<geo_point>(thomas_ps());
     test_all_l_l<geo_point>(andoyer_ps());
+    //test_all_l_l<geo_point>(karney_ps());
 }

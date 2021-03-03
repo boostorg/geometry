@@ -12,5 +12,9 @@
 [svg_mapper]
 [svg_mapper_output]
 
+[heading Example with arrows and groups]
+[svg_mapper_custom]
+[svg_mapper_custom_output]
+
 [heading See also]
 * [link geometry.reference.io.svg.svg The SVG manipulator]

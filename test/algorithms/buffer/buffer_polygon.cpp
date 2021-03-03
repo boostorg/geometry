@@ -199,6 +199,13 @@ static std::string const mysql_report_2015_07_05_5_wi
 class buffer_custom_side_strategy
 {
 public :
+
+    static bool equidistant()
+    {
+        // There is an adapted distance
+        return false;
+    }
+
     template
     <
         typename Point,

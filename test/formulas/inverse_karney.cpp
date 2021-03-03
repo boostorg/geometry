@@ -1,8 +1,9 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2019 Oracle and/or its affiliates.
+// Copyright (c) 2016-2021 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Copyright (c) 2018 Adeel Ahmad, Islamabad, Pakistan.
@@ -24,6 +25,8 @@
 #include <boost/geometry/formulas/karney_inverse.hpp>
 
 #include <boost/geometry/srs/spheroid.hpp>
+
+#include <boost/geometry/util/math.hpp>
 
 template <typename Result>
 void check_inverse(std::string const& name,
@@ -50,36 +53,41 @@ void check_inverse(std::string const& name,
 
 void test_all(expected_results const& results)
 {
-    double lon1d = results.p1.lon;
-    double lat1d = results.p1.lat;
-    double lon2d = results.p2.lon;
-    double lat2d = results.p2.lat;
+    double lon1d = results.p1.lon * bg::math::d2r<double>();
+    double lat1d = results.p1.lat * bg::math::d2r<double>();
+    double lon2d = results.p2.lon * bg::math::d2r<double>();
+    double lat2d = results.p2.lat * bg::math::d2r<double>();
 
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
 
     bg::formula::result_inverse<double> result_k;
 
-    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true> ka_t;
     result_k = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
+    result_k.azimuth *= bg::math::r2d<double>();
+    result_k.reverse_azimuth *= bg::math::r2d<double>();
     check_inverse("karney", results, result_k, results.vincenty, results.reference, 0.0000001);
 }
 
 template <typename ExpectedResults>
 void test_karney(ExpectedResults const& results)
 {
-    double lon1d = results.p1.lon;
-    double lat1d = results.p1.lat;
-    double lon2d = results.p2.lon;
-    double lat2d = results.p2.lat;
+    double lon1d = results.p1.lon * bg::math::d2r<double>();
+    double lat1d = results.p1.lat * bg::math::d2r<double>();
+    double lon2d = results.p2.lon * bg::math::d2r<double>();
+    double lat2d = results.p2.lat * bg::math::d2r<double>();
+
 
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
 
     bg::formula::result_inverse<double> result;
 
-    typedef bg::formula::karney_inverse<double, true, true, true, true, true, 8> ka_t;
+    typedef bg::formula::karney_inverse<double, true, true, true, true, true> ka_t;
     result = ka_t::apply(lon1d, lat1d, lon2d, lat2d, spheroid);
+    result.azimuth *= bg::math::r2d<double>();
+    result.reverse_azimuth *= bg::math::r2d<double>();
     check_inverse("karney", results, result, results.karney, results.karney, 0.0000001);
 }
 

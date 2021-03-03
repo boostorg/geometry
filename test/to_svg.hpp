@@ -259,11 +259,11 @@ inline void geom_to_svg(std::string const& wkt1, std::string const& wkt2, std::s
 }
 
 struct to_svg_assign_policy
-    : boost::geometry::detail::overlay::assign_null_policy
 {
     static bool const include_no_turn = false;
     static bool const include_degenerate = false;
     static bool const include_opposite = false;
+    static bool const include_start_turn = false;
 };
 
 template <typename G>

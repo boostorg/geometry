@@ -19,4 +19,6 @@ is reserved for future usage, which will then have an indication of the used tex
 [read_wkt]
 
 [heading See also]
+* [link geometry.reference.io.wkt.from_wkt From WKT]
+* [link geometry.reference.io.wkt.to_wkt To WKT]
 * [link geometry.reference.io.wkt.wkt WKT streaming manipulator]
