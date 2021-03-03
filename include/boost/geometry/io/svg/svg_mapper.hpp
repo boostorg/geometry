@@ -2,7 +2,7 @@
 
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2020.
+// This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -307,7 +307,7 @@ class svg_mapper : boost::noncopyable
             auto const w = geometry::get<1, 0>(b) - geometry::get<0, 0>(b);
             auto const h = geometry::get<1, 1>(b) - geometry::get<0, 1>(b);
 
-            auto const& m = std::max(w, h) * (1.0 - m_scale);
+            auto const& m = (std::max)(w, h) * (1.0 - m_scale);
             geometry::set<0, 0>(b, geometry::get<0, 0>(b) - m);
             geometry::set<0, 1>(b, geometry::get<0, 1>(b) - m);
             geometry::set<1, 0>(b, geometry::get<1, 0>(b) + m);

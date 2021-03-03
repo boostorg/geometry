@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016-2017 Oracle and/or its affiliates.
+// Copyright (c) 2016-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -131,8 +131,6 @@ void test_all()
         mapper.add(m_po);
         mapper.add(var);
 
-        mapper.scale(0.95);
-
         mapper.map(pt, style);
         mapper.map(b, style);
         mapper.map(s, style);
@@ -143,6 +141,9 @@ void test_all()
         mapper.map(m_ls, m_style);
         mapper.map(m_po, m_style);
         mapper.map(var, m_style);
+
+        bg::svg_mapper<P> mapper2(os, 500, 500, 0.95);
+        mapper2.add(pt);
     }
 }
 
