@@ -7,8 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-//[svg_mapper_scale
-//` Shows the usage of svg_mapper with the scale function
+//[svg_mapper_custom
+//` Shows the usage of svg_mapper with arrows, groups and a larger margin
 
 #include <iostream>
 #include <fstream>
@@ -33,17 +33,9 @@ int main()
     c.push_back({3, 4});
 
     // Declare a stream and an SVG mapper
+    // The factor of 0.95 zooms out to give a convenient margin
     std::ofstream svg("my_map.svg");
-    boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);
-
-    // Add geometries such that all these geometries fit exactly on the map
-    mapper.add(a);
-    mapper.add(b);
-    mapper.add(c);
-
-    // Zoom out 5% to have a bit margin around the geometries
-    // This also forces writing the SVG header.
-    mapper.scale(0.95);
+    boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400, 0.95);
 
     // Write a marker definition.
     svg << "<defs>";
@@ -51,6 +43,11 @@ int main()
            " refX=\"0\" refY=\"1.75\" orient=\"auto\">"
            " <polygon points=\"0 0, 5 1.75, 0 3.5\"/></marker>";
     svg << "</defs>";
+
+    // Add geometries such that all these geometries fit exactly on the map
+    mapper.add(a);
+    mapper.add(b);
+    mapper.add(c);
 
     // Group the first two geometries
     svg << "<g>";
@@ -66,10 +63,10 @@ int main()
 //]
 
 
-//[svg_mapper_scale_output
+//[svg_mapper_custom_output
 /*`
 Output:
 
-[$img/io/svg_mapper_scale.png]
+[$img/io/svg_mapper_custom.png]
 */
 //]

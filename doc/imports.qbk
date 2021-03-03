@@ -153,7 +153,7 @@
 [import src/examples/geometries/register/multi_polygon.cpp]
 
 [import src/examples/io/svg.cpp]
-[import src/examples/io/svg_mapper_scale.cpp]
+[import src/examples/io/svg_mapper_custom.cpp]
 [import src/examples/io/wkt.cpp]
 [import src/examples/io/read_wkt.cpp]
 
