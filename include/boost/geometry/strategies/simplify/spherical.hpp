@@ -131,6 +131,26 @@ struct strategy_converter
     }
 };
 
+template <typename P, typename CT, typename S>
+struct strategy_converter
+    <
+        strategy::simplify::douglas_peucker
+            <
+                P,
+                strategy::distance::comparable::cross_track<CT, S>
+            >
+    >
+{
+    template <typename Strategy>
+    static auto get(Strategy const& )
+    {
+        return strategies::distance::detail::comparable
+            <
+                strategies::simplify::spherical<typename S::radius_type, CT>
+            >();
+    }
+};
+
 
 } // namespace services
 

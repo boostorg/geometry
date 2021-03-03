@@ -17,6 +17,7 @@
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/distance/comparable.hpp>
 #include <boost/geometry/strategies/simplify/services.hpp>
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
@@ -110,7 +111,17 @@ struct strategy_converter
     template <typename Strategy>
     static auto get(Strategy const& )
     {
-        return strategies::simplify::cartesian<CT>();
+        typedef strategies::simplify::cartesian<CT> strategy_type;
+        return std::conditional_t
+            <
+                std::is_same
+                    <
+                        S,
+                        typename strategy::distance::services::comparable_type<S>::type
+                    >::value,
+                strategies::distance::detail::comparable<strategy_type>,
+                strategy_type
+            >();
     }
 };
 
