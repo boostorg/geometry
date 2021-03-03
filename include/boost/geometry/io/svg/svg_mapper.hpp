@@ -2,7 +2,7 @@
 
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2020.
+// This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -292,37 +292,87 @@ class svg_mapper : boost::noncopyable
     model::box<Point> m_bounding_box;
     boost::scoped_ptr<transformer_type> m_matrix;
     std::ostream& m_stream;
-    SvgCoordinateType m_width, m_height;
-    std::string m_width_height; // for <svg> tag only, defaults to 2x 100%
+
+    SvgCoordinateType const m_width;
+    SvgCoordinateType const m_height;
+    calculation_type const m_scale{1.0};
+
+    void scale_bounding_box()
+    {
+        if (m_scale != 1.0 && m_scale > 0)
+        {
+            // Zoom out (scale < 1) or zoom in (scale > 1).
+            // The default is 0.95, giving a small margin around geometries.
+            auto& b = m_bounding_box;
+            auto const w = geometry::get<1, 0>(b) - geometry::get<0, 0>(b);
+            auto const h = geometry::get<1, 1>(b) - geometry::get<0, 1>(b);
+
+            auto const& m = (std::max)(w, h) * (1.0 - m_scale);
+            geometry::set<0, 0>(b, geometry::get<0, 0>(b) - m);
+            geometry::set<0, 1>(b, geometry::get<0, 1>(b) - m);
+            geometry::set<1, 0>(b, geometry::get<1, 0>(b) + m);
+            geometry::set<1, 1>(b, geometry::get<1, 1>(b) + m);
+        }
+    }
 
     void init_matrix()
     {
         if (! m_matrix)
         {
+            scale_bounding_box();
             m_matrix.reset(new transformer_type(m_bounding_box,
                             m_width, m_height));
-
-
-            m_stream << "<?xml version=\"1.0\" standalone=\"no\"?>"
-                << std::endl
-                << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\""
-                << std::endl
-                << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
-                << std::endl
-                << "<svg " << m_width_height << " version=\"1.1\""
-                << std::endl
-                << "xmlns=\"http://www.w3.org/2000/svg\""
-                << std::endl
-                << "xmlns:xlink=\"http://www.w3.org/1999/xlink\""
-                << ">"
-                << std::endl;
         }
+    }
+
+    void write_header(std::string const& width_height)
+    {
+        m_stream << "<?xml version=\"1.0\" standalone=\"no\"?>"
+            << std::endl
+            << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\""
+            << std::endl
+            << "\"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"
+            << std::endl
+            << "<svg " << width_height << " version=\"1.1\""
+            << std::endl
+            << "xmlns=\"http://www.w3.org/2000/svg\""
+            << std::endl
+            << "xmlns:xlink=\"http://www.w3.org/1999/xlink\""
+            << ">"
+            << std::endl;
     }
 
 public :
     
     /*!
-    \brief Constructor, initializing the SVG map. Opens and initializes the SVG. 
+    \brief Constructor, initializing the SVG map. Opens and initializes the SVG.
+         Should be called explicitly.
+    \param stream Output stream, should be a stream already open
+    \param width Width of the SVG map (in SVG pixels)
+    \param height Height of the SVG map (in SVG pixels)
+    \param scale Scale factor of the automatically determined bounding box.
+            If the factor is less than 1.0, there will be a margin around the
+            geometries. A factor of 0.95 is often a convenient margin. If the
+            factor is more than 1.0, the SVG map is zoomed and not all
+            geometries will be visible.
+    \param width_height Optional information to increase width and/or height
+    */
+    svg_mapper(std::ostream& stream
+        , SvgCoordinateType width
+        , SvgCoordinateType height
+        , calculation_type scale
+        , std::string const& width_height = "width=\"100%\" height=\"100%\"")
+        : m_stream(stream)
+        , m_width(width)
+        , m_height(height)
+        , m_scale(scale)
+    {
+        assign_inverse(m_bounding_box);
+        write_header(width_height);
+    }
+
+    /*!
+    \brief Constructor, initializing the SVG map. Opens and initializes the SVG.
          Should be called explicitly.
     \param stream Output stream, should be a stream already open
     \param width Width of the SVG map (in SVG pixels)
@@ -336,9 +386,9 @@ public :
         : m_stream(stream)
         , m_width(width)
         , m_height(height)
-        , m_width_height(width_height)
     {
         assign_inverse(m_bounding_box);
+        write_header(width_height);
     }
 
     /*!

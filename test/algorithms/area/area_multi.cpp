@@ -40,7 +40,7 @@ void test_all()
     std::string poly = "MULTIPOLYGON(((0 0,0 7,4 2,2 0,0 0)))";
     test_geometry<mp_crt>(poly, 16.0);
     test_geometry<mp_sph>(poly, 197897454752.69489 / r2);
-    test_geometry<mp_geo>(poly, 197018888665.8331);
+    test_geometry<mp_geo>(poly, 197022195785.33771);
 }
 
 int test_main( int , char* [] )

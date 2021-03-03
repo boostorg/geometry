@@ -220,6 +220,9 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/strategies/spherical \
                          ../../../../boost/geometry/strategies/geographic \
                          ../../../../boost/geometry/strategies/transform \
+                         ../../../../boost/geometry/strategy/cartesian \
+                         ../../../../boost/geometry/strategy/geographic \
+                         ../../../../boost/geometry/strategy/spherical \
                          ../../../../boost/geometry/util \
                          ../../../../boost/geometry/views \
                          ./doxygen_input/pages \

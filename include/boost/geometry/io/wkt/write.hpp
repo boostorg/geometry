@@ -4,6 +4,7 @@
 // Copyright (c) 2008-2017 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2020 Baidyanath Kundu, Haldia, India.
 
 // This file was modified by Oracle on 2015-2020.
 // Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
@@ -556,6 +557,31 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
     concepts::check<Geometry const>();
 
     return wkt_manipulator<Geometry>(geometry);
+}
+
+/*!
+\brief WKT-string formulating function
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\param significant_digits Specifies the no of significant digits to use in the output wkt
+\ingroup wkt
+\qbk{[include reference/io/to_wkt.qbk]}
+*/
+template <typename Geometry>
+inline std::string to_wkt(Geometry const& geometry)
+{
+    std::stringstream ss;
+    ss << boost::geometry::wkt(geometry);
+    return ss.str();
+}
+
+template <typename Geometry>
+inline std::string to_wkt(Geometry const& geometry, int significant_digits)
+{
+    std::stringstream ss;
+    ss.precision(significant_digits);
+    ss << boost::geometry::wkt(geometry);
+    return ss.str();
 }
 
 #if defined(_MSC_VER)

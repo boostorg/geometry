@@ -4,6 +4,7 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2020 Baidyanath Kundu, Haldia, India
 
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
@@ -909,6 +910,23 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
 {
     geometry::concepts::check<Geometry>();
     dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
+}
+
+/*!
+\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry) and returns it
+\ingroup wkt
+\tparam Geometry \tparam_geometry
+\param wkt string containing \ref WKT
+\ingroup wkt
+\qbk{[include reference/io/from_wkt.qbk]}
+*/
+template <typename Geometry>
+inline Geometry from_wkt(std::string const& wkt)
+{
+    Geometry geometry;
+    geometry::concepts::check<Geometry>();
+    dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
+    return geometry;
 }
 
 }} // namespace boost::geometry
