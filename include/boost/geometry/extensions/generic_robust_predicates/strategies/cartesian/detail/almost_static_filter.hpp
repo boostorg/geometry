@@ -24,28 +24,6 @@ namespace boost { namespace geometry
 namespace detail { namespace generic_robust_predicates
 {
 
-template <typename Filter, std::size_t N, std::size_t End>
-struct make_filter_impl
-{
-    template <typename ExtremaArray, typename ...Reals>
-    static Filter apply(ExtremaArray const& extrema, Reals const&... args)
-    {
-        return make_filter_impl<Filter, N + 1, End>
-            ::apply(extrema, args..., extrema[N]);
-    }
-};
-
-template <typename Filter, std::size_t End>
-struct make_filter_impl<Filter, End, End>
-{
-    template <typename ExtremaArray, typename ...Reals>
-    static Filter apply(ExtremaArray const& extrema, Reals const&... args)
-    {
-        Filter f(args...);
-        return f;
-    }
-};
-
 //The almost static filter holds an instance of a static filter and applies it
 //when it is called. Its static filter can be updated and applied like this:
 //
@@ -69,14 +47,15 @@ template
 class almost_static_filter
 {
 private:
-    using expression_max_argn = max_argn<Expression>;
     using ct = CalculationType;
-    using extrema_array = std::array<ct, 2 * expression_max_argn::value>;
+    using extrema_array = std::array<ct, 2 * max_argn<Expression>>;
     extrema_array m_extrema;
     StaticFilter m_filter;
 public:
-    static constexpr std::size_t arg_count = StaticFilter::arg_count;
-    const StaticFilter& filter() const { return m_filter; }
+    static constexpr bool stateful = true;
+    static constexpr bool updates = true;
+
+    StaticFilter const& filter() const { return m_filter; }
     inline almost_static_filter()
     {
         std::fill(m_extrema.begin(),
@@ -86,42 +65,42 @@ public:
                   m_extrema.end(),
                   std::numeric_limits<ct>::infinity());
     }
-    template <typename ...Reals>
-    int apply(Reals const&... args) const
+    template <typename ...CTs>
+    int apply(CTs const&... args) const
     {
         return m_filter.apply(args...);
     }
 
-    template <typename ...Reals>
-    inline void update_extrema(Reals const&... args)
+    template <typename ...CTs>
+    inline void update_extrema(CTs const&... args)
     {
-        std::array<ct, sizeof...(Reals)> input {{ static_cast<ct>(args)... }};
-        for(int i = 0; i < m_extrema.size() / 2; ++i)
+        std::array<ct, sizeof...(CTs)> input {{ static_cast<ct>(args)... }};
+        for(unsigned int i = 0; i < m_extrema.size() / 2; ++i)
         {
             m_extrema[i] = std::max(m_extrema[i], input[i]);
         }
-        for(int i = m_extrema.size() / 2; i < m_extrema.size(); ++i)
+        for(unsigned int i = m_extrema.size() / 2; i < m_extrema.size(); ++i)
         {
             m_extrema[i] = std::min(m_extrema[i], input[i]);
         }
     }
 
-    template <typename ...Reals>
-    inline bool update_extrema_check(Reals const&... args)
+    template <typename ...CTs>
+    inline bool update_extrema_check(CTs const&... args)
     {
         bool changed = false;
-        std::array<ct, sizeof...(Reals)> input {{ static_cast<ct>(args)... }};
-        for(int i = 0; i < m_extrema.size() / 2; ++i)
+        std::array<ct, sizeof...(CTs)> input {{ static_cast<ct>(args)... }};
+        for(unsigned int i = 0; i < m_extrema.size() / 2; ++i)
         {
-            if(input[i] > m_extrema[i])
+            if (input[i] > m_extrema[i])
             {
                 changed = true;
                 m_extrema[i] = input[i];
             }
         }
-        for(int i = m_extrema.size() / 2; i < m_extrema.size(); ++i)
+        for(unsigned int i = m_extrema.size() / 2; i < m_extrema.size(); ++i)
         {
-            if(input[i] < m_extrema[i])
+            if (input[i] < m_extrema[i])
             {
                 changed = true;
                 m_extrema[i] = input[i];
@@ -130,14 +109,16 @@ public:
         return changed;
     }
 
+    template <typename ...CTs>
+    inline void update(CTs const&... args)
+    {
+        update_extrema(args...);
+        update_filter();
+    }
+
     inline void update_filter()
     {
-        m_filter = make_filter_impl
-                <
-                    StaticFilter,
-                    0,
-                    2 * expression_max_argn::value
-                >::apply(m_extrema);
+        m_filter = StaticFilter(m_extrema);
     }
 };
 

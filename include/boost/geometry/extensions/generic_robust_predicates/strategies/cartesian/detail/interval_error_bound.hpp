@@ -27,66 +27,66 @@ namespace detail { namespace generic_robust_predicates
 //expressions for static filters that compute error bounds for upper and lower
 //bounds on input values.
 
-template <typename Expression, std::size_t max_argn>
+template <typename Expression, std::size_t MaxArgn>
 struct interval_min_impl
 {
     using type = Expression;
 };
 
-template <typename Expression, std::size_t max_argn>
+template <typename Expression, std::size_t MaxArgn>
 struct interval_max_impl
 {
     using type = Expression;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_min_impl<difference<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_min_impl<difference<Left, Right>, MaxArgn>
 {
 private:
-    using min_left = typename interval_min_impl<Left, max_argn>::type;
-    using max_right = typename interval_max_impl<Right, max_argn>::type;
+    using min_left = typename interval_min_impl<Left, MaxArgn>::type;
+    using max_right = typename interval_max_impl<Right, MaxArgn>::type;
 public:
     using type = difference<min_left, max_right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_min_impl<sum<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_min_impl<sum<Left, Right>, MaxArgn>
 {
 private:
-    using min_left = typename interval_min_impl<Left, max_argn>::type;
-    using min_right = typename interval_min_impl<Right, max_argn>::type;
+    using min_left = typename interval_min_impl<Left, MaxArgn>::type;
+    using min_right = typename interval_min_impl<Right, MaxArgn>::type;
 public:
     using type = sum<min_left, min_right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_max_impl<difference<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_max_impl<difference<Left, Right>, MaxArgn>
 {
 private:
-    using max_left = typename interval_max_impl<Left, max_argn>::type;
-    using min_right = typename interval_min_impl<Right, max_argn>::type;
+    using max_left = typename interval_max_impl<Left, MaxArgn>::type;
+    using min_right = typename interval_min_impl<Right, MaxArgn>::type;
 public:
     using type = difference<max_left, min_right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_max_impl<sum<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_max_impl<sum<Left, Right>, MaxArgn>
 {
 private:
-    using max_left = typename interval_max_impl<Left, max_argn>::type;
-    using max_right = typename interval_max_impl<Right, max_argn>::type;
+    using max_left = typename interval_max_impl<Left, MaxArgn>::type;
+    using max_right = typename interval_max_impl<Right, MaxArgn>::type;
 public:
     using type = sum<max_left, max_right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_min_impl<product<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_min_impl<product<Left, Right>, MaxArgn>
 {
 private:
-    using min_left = typename interval_min_impl<Left, max_argn>::type;
-    using max_left = typename interval_max_impl<Left, max_argn>::type;
-    using min_right = typename interval_min_impl<Right, max_argn>::type;
-    using max_right = typename interval_max_impl<Right, max_argn>::type;
+    using min_left = typename interval_min_impl<Left, MaxArgn>::type;
+    using max_left = typename interval_max_impl<Left, MaxArgn>::type;
+    using min_right = typename interval_min_impl<Right, MaxArgn>::type;
+    using max_right = typename interval_max_impl<Right, MaxArgn>::type;
 public:
     using type = min
         <
@@ -103,12 +103,12 @@ public:
         >;
 };
 
-template <typename Child, std::size_t max_argn>
-struct interval_min_impl<product<Child, Child>, max_argn>
+template <typename Child, std::size_t MaxArgn>
+struct interval_min_impl<product<Child, Child>, MaxArgn>
 {
 private:
-    using min_child = typename interval_min_impl<Child, max_argn>::type;
-    using max_child = typename interval_max_impl<Child, max_argn>::type;
+    using min_child = typename interval_min_impl<Child, MaxArgn>::type;
+    using max_child = typename interval_max_impl<Child, MaxArgn>::type;
 public:
     using type = min
         <
@@ -117,14 +117,14 @@ public:
         >;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_max_impl<product<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_max_impl<product<Left, Right>, MaxArgn>
 {
 private:
-    using min_left = typename interval_min_impl<Left, max_argn>::type;
-    using max_left = typename interval_max_impl<Left, max_argn>::type;
-    using min_right = typename interval_min_impl<Right, max_argn>::type;
-    using max_right = typename interval_max_impl<Right, max_argn>::type;
+    using min_left = typename interval_min_impl<Left, MaxArgn>::type;
+    using max_left = typename interval_max_impl<Left, MaxArgn>::type;
+    using min_right = typename interval_min_impl<Right, MaxArgn>::type;
+    using max_right = typename interval_max_impl<Right, MaxArgn>::type;
 public:
     using type = max
         <
@@ -141,12 +141,12 @@ public:
         >;
 };
 
-template <typename Child, std::size_t max_argn>
-struct interval_max_impl<product<Child, Child>, max_argn>
+template <typename Child, std::size_t MaxArgn>
+struct interval_max_impl<product<Child, Child>, MaxArgn>
 {
 private:
-    using min_child = typename interval_min_impl<Child, max_argn>::type;
-    using max_child = typename interval_max_impl<Child, max_argn>::type;
+    using min_child = typename interval_min_impl<Child, MaxArgn>::type;
+    using max_child = typename interval_max_impl<Child, MaxArgn>::type;
 public:
     using type = max
         <
@@ -155,93 +155,103 @@ public:
         >;
 };
 
-template <typename Child, std::size_t max_argn>
-struct interval_min_impl<abs<Child>, max_argn>
+template <typename Child, std::size_t MaxArgn>
+struct interval_min_impl<abs<Child>, MaxArgn>
 {
 private:
-    using min_child = typename interval_min_impl<Child, max_argn>::type;
-    using max_child = typename interval_max_impl<Child, max_argn>::type;
+    using min_child = typename interval_min_impl<Child, MaxArgn>::type;
+    using max_child = typename interval_max_impl<Child, MaxArgn>::type;
 public:
     using type = min<abs<min_child>, abs<max_child>>;
 };
 
-template <typename Child, std::size_t max_argn>
-struct interval_max_impl<abs<Child>, max_argn>
+template <typename Child, std::size_t MaxArgn>
+struct interval_max_impl<abs<Child>, MaxArgn>
 {
 private:
-    using min_child = typename interval_min_impl<Child, max_argn>::type;
-    using max_child = typename interval_max_impl<Child, max_argn>::type;
+    using min_child = typename interval_min_impl<Child, MaxArgn>::type;
+    using max_child = typename interval_max_impl<Child, MaxArgn>::type;
 public:
     using type = max<abs<min_child>, abs<max_child>>;
 };
 
-template <std::size_t argn, std::size_t max_argn>
-struct interval_min_impl<argument<argn>, max_argn>
+template <std::size_t argn, std::size_t MaxArgn>
+struct interval_min_impl<argument<argn>, MaxArgn>
 {
-    using type = argument<argn + max_argn>;
+    using type = argument<argn + MaxArgn>;
 };
 
-template <std::size_t argn, std::size_t max_argn>
-struct interval_max_impl<argument<argn>, max_argn>
+template <std::size_t argn, std::size_t MaxArgn>
+struct interval_max_impl<argument<argn>, MaxArgn>
 {
     using type = argument<argn>;
 };
 
-template <typename Expression, std::size_t max_argn>
+template <typename Expression, std::size_t MaxArgn>
 struct interval_impl
 {
     using type = Expression;
 };
 
-template <typename Child, std::size_t max_argn>
-struct interval_impl<abs<Child>, max_argn>
+template <typename Child, std::size_t MaxArgn>
+struct interval_impl<abs<Child>, MaxArgn>
 {
 private:
-    using min_child = typename interval_min_impl<Child, max_argn>::type;
-    using max_child = typename interval_max_impl<Child, max_argn>::type;
+    using min_child = typename interval_min_impl<Child, MaxArgn>::type;
+    using max_child = typename interval_max_impl<Child, MaxArgn>::type;
 public:
     using type = max<abs<min_child>, abs<max_child>>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_impl<difference<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_impl<max<Left, Right>, MaxArgn>
 {
 private:
-    using left = typename interval_impl<Left, max_argn>::type;
-    using right = typename interval_impl<Right, max_argn>::type;
+    using left = typename interval_impl<Left, MaxArgn>::type;
+    using right = typename interval_impl<Right, MaxArgn>::type;
+public:
+    using type = max<left, right>;
+};
+
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_impl<difference<Left, Right>, MaxArgn>
+{
+private:
+    using left = typename interval_impl<Left, MaxArgn>::type;
+    using right = typename interval_impl<Right, MaxArgn>::type;
 public:
     using type = difference<left, right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_impl<sum<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_impl<sum<Left, Right>, MaxArgn>
 {
 private:
-    using left = typename interval_impl<Left, max_argn>::type;
-    using right = typename interval_impl<Right, max_argn>::type;
+    using left = typename interval_impl<Left, MaxArgn>::type;
+    using right = typename interval_impl<Right, MaxArgn>::type;
 public:
     using type = sum<left, right>;
 };
 
-template <typename Left, typename Right, std::size_t max_argn>
-struct interval_impl<product<Left, Right>, max_argn>
+template <typename Left, typename Right, std::size_t MaxArgn>
+struct interval_impl<product<Left, Right>, MaxArgn>
 {
 private:
-    using left = typename interval_impl<Left, max_argn>::type;
-    using right = typename interval_impl<Right, max_argn>::type;
+    using left = typename interval_impl<Left, MaxArgn>::type;
+    using right = typename interval_impl<Right, MaxArgn>::type;
 public:
     using type = product<left, right>;
 };
 
-template <typename Expression, std::size_t max_argn>
-using interval_min = typename interval_min_impl<Expression, max_argn>::type;
+template <typename Expression, std::size_t MaxArgn>
+using interval_min = typename interval_min_impl<Expression, MaxArgn>::type;
 
-template <typename Expression, std::size_t max_argn>
-using interval_max = typename interval_max_impl<Expression, max_argn>::type;
+template <typename Expression, std::size_t MaxArgn>
+using interval_max = typename interval_max_impl<Expression, MaxArgn>::type;
 
 template <typename Expression>
 using interval =
-    typename interval_impl<Expression, max_argn<Expression>::value>::type;
+    typename interval_impl<Expression, max_argn<Expression>>::type;
 
 }} // namespace detail::generic_robust_predicates
 

@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <algorithm>
 
 #include <boost/mp11/algorithm.hpp>
 #include <boost/mp11/integral.hpp>
@@ -63,7 +64,8 @@ struct internal_binary_node : internal_node<Left, Right>
 {
     using left  = Left;
     using right = Right;
-    static constexpr operator_arities operator_arity = operator_arities::binary;
+    static constexpr operator_arities operator_arity =
+        operator_arities::binary;
 };
 
 template <typename Child>
@@ -76,8 +78,12 @@ struct internal_unary_node : internal_node<Child>
 template <typename Left, typename Right>
 struct sum : public internal_binary_node<Left, Right>
 {
-    static constexpr bool sign_exact = Left::is_leaf && Right::is_leaf;
-    static constexpr bool non_negative = Left::non_negative && Right::non_negative;
+    static constexpr bool sign_exact =
+           (Left::is_leaf && Right::is_leaf)
+        || (   Left::sign_exact && Right::sign_exact
+            && Left::non_negative && Right::non_negative);
+    static constexpr bool non_negative =    Left::non_negative
+                                         && Right::non_negative;
     static constexpr operator_types operator_type = operator_types::sum;
     using error_type = sum_error_type;
 };
@@ -223,46 +229,21 @@ template <typename In, template <typename> class Anchor = is_leaf>
 using post_order =
     typename post_order_impl<In, boost::mp11::mp_list<>, Anchor>::type;
 
-template <typename Node, typename IsLeaf = is_leaf<Node>>
-struct max_argn_impl;
+template <typename Expression, operator_arities = Expression::operator_arity>
+constexpr std::size_t max_argn = 0;
 
-template <typename Node> using max_argn = typename max_argn_impl<Node>::type;
+template <typename Expression>
+constexpr std::size_t max_argn<Expression, operator_arities::binary> =
+    std::max(max_argn<typename Expression::left>,
+             max_argn<typename Expression::right>);
 
-template <typename Node>
-struct max_argn_impl<Node, boost::mp11::mp_false>
-{
-private:
-    using children_list = boost::mp11::mp_rename<Node, boost::mp11::mp_list>;
-    using children_max_argn =
-        boost::mp11::mp_transform<max_argn, children_list>;
-public:
-    using type = boost::mp11::mp_max_element
-        <
-            children_max_argn,
-            boost::mp11::mp_less
-        >;
-};
+template <typename Expression>
+constexpr std::size_t max_argn<Expression, operator_arities::unary> =
+    max_argn<typename Expression::child>;
 
-template <typename Node>
-struct max_argn_impl<Node, boost::mp11::mp_true>
-{
-    using type = boost::mp11::mp_size_t<Node::argn>;
-};
-
-template <typename Node, typename IsLeaf = is_leaf<Node>>
-struct is_static_constant_impl
-{
-    using type = boost::mp11::mp_false;   
-};
-  
-template <typename Node>
-struct is_static_constant_impl<Node, boost::mp11::mp_true>
-{
-    using type = boost::mp11::mp_bool<Node::argn == 0>;
-};
-        
-template <typename Node>
-using is_static_constant = typename is_static_constant_impl<Node>::type;
+template <typename Expression>
+constexpr std::size_t max_argn<Expression, operator_arities::nullary> =
+    Expression::argn;
 
 using  _1 = argument<1>;
 using  _2 = argument<2>;
@@ -276,6 +257,9 @@ using  _9 = argument<9>;
 using _10 = argument<10>;
 using _11 = argument<11>;
 using _12 = argument<12>;
+using _13 = argument<13>;
+using _14 = argument<14>;
+using _15 = argument<15>;
 
 }} // namespace detail::generic_robust_predicates
 

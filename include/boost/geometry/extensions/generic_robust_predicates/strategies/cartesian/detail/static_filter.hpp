@@ -12,14 +12,14 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_GENERIC_ROBUST_PREDICATES_STRATEGIES_CARTESIAN_DETAIL_STATIC_FILTER_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_GENERIC_ROBUST_PREDICATES_STRATEGIES_CARTESIAN_DETAIL_STATIC_FILTER_HPP
 
+#include <limits>
 #include <array>
 
 #include <boost/mp11/list.hpp>
 #include <boost/mp11/algorithm.hpp>
 
 #include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/expression_tree.hpp>
-#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/approximate.hpp>
-#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/result_propagation.hpp>
+#include <boost/geometry/extensions/generic_robust_predicates/strategies/cartesian/detail/expression_eval.hpp>
 
 namespace boost { namespace geometry
 {
@@ -47,46 +47,36 @@ class static_filter
 {
 private:
     using ct = CalculationType;
-    using stack = typename boost::mp11::mp_unique<post_order<Expression>>;
-    using evals = typename boost::mp11::mp_remove_if<stack, is_leaf>;
-    using error_eval_stack = boost::mp11::mp_unique
-        <
-            post_order<ErrorExpression>
-        >;
     ct m_error_bound;
-    static constexpr std::size_t extrema_count =
-        max_argn<ErrorExpression>::value;
+    static constexpr std::size_t extrema_count = max_argn<ErrorExpression>;
 public:
-    static constexpr std::size_t arg_count = max_argn<Expression>::value;
+    static constexpr bool stateful = true;
+    static constexpr bool updates = false;
 
-    inline static_filter() {}
+    inline static_filter() : m_error_bound(std::numeric_limits<ct>::max()) {}
 
-    ct error_bound() const { return m_error_bound; }
+    inline ct error_bound() const { return m_error_bound; }
 
-    template <typename ...Reals>
-    inline static_filter(const Reals&... args)
-        : m_error_bound(approximate_value<ErrorExpression, ct>(
+    template <typename ...CTs>
+    inline static_filter(CTs const&... args)
+        : m_error_bound(evaluate_expression<ErrorExpression>(
                 std::array<ct, extrema_count>
                     {static_cast<ct>(args)...}))
     {
-        static_assert(sizeof...(Reals) == extrema_count,
+        static_assert(sizeof...(CTs) == extrema_count,
                       "Number of constructor arguments is incompatible with error expression.");
     }
 
-    inline static_filter(const std::array<ct, extrema_count>& extrema)
-        : m_error_bound(approximate_value<ErrorExpression, ct>(extrema)) {}
+    inline static_filter(std::array<ct, extrema_count> const& extrema)
+        : m_error_bound(evaluate_expression<ErrorExpression>(extrema)) {}
 
-    inline static_filter(const ct& b) : m_error_bound(b) {}
+    inline static_filter(ct const& b) : m_error_bound(b) {}
 
-    template <typename ...Reals>
-    inline int apply(const Reals&... args) const
+    template <typename ...CTs>
+    inline int apply(CTs const&... args) const
     {
-        using arg_list_input = argument_list<sizeof...(Reals)>;
-        using arg_list = boost::mp11::mp_list<evals, arg_list_input>;
-        std::array<ct, sizeof...(Reals)> input {static_cast<ct>(args)...};
-        std::array<ct, boost::mp11::mp_size<evals>::value> results;
-        approximate_interim<evals, arg_list, ct>(results, input);
-        const ct det = get_approx<Expression, arg_list, ct>(results, input);
+        std::array<ct, sizeof...(CTs)> input {static_cast<ct>(args)...};
+        const ct det = evaluate_expression<Expression>(input);
         if (det > m_error_bound)
         {
             return 1;
@@ -105,8 +95,8 @@ public:
         }
     }
 
-    template <typename ...Reals>
-    inline int operator()(Reals const&... args) const
+    template <typename ...CTs>
+    inline int operator()(CTs const&... args) const
     {
         return apply(args...);
     }
