@@ -12,8 +12,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGY_DEFAULT_AREA_RESULT_HPP
-#define BOOST_GEOMETRY_STRATEGY_DEFAULT_AREA_RESULT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DEFAULT_AREA_RESULT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DEFAULT_AREA_RESULT_HPP
 
 
 #include <boost/geometry/algorithms/area_result.hpp>
