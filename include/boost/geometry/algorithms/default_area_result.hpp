@@ -38,4 +38,4 @@ struct default_area_result
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGY_DEFAULT_AREA_RESULT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DEFAULT_AREA_RESULT_HPP

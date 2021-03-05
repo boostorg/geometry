@@ -177,4 +177,4 @@ struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, default_strateg
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_STRATEGY_AREA_RESULT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_AREA_RESULT_HPP
