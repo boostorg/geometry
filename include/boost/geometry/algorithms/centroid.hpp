@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -42,24 +42,28 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/geometries/concepts/check.hpp>
-
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/strategies/centroid.hpp>
+#include <boost/geometry/strategies/centroid/cartesian.hpp>
+#include <boost/geometry/strategies/centroid/geographic.hpp>
+#include <boost/geometry/strategies/centroid/spherical.hpp>
 #include <boost/geometry/strategies/concepts/centroid_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 
 #include <boost/geometry/util/for_each_coordinate.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
-#include <boost/geometry/algorithms/is_empty.hpp>
-
-#include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
+#include <boost/geometry/views/closeable_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -399,15 +403,27 @@ struct centroid_multi
 template <typename Algorithm>
 struct centroid_linear_areal
 {
-    template <typename Geometry, typename Point, typename Strategy>
+    template <typename Geometry, typename Point, typename Strategies>
     static inline void apply(Geometry const& geom,
                              Point& centroid,
-                             Strategy const& strategy)
+                             Strategies const& strategies)
     {
-        if ( ! Algorithm::apply(geom, centroid, strategy) )
+        if ( ! Algorithm::apply(geom, centroid, strategies.centroid(geom, centroid)) )
         {
             geometry::point_on_border(centroid, geom);
         }
+    }
+};
+
+template <typename Algorithm>
+struct centroid_pointlike
+{
+    template <typename Geometry, typename Point, typename Strategies>
+    static inline void apply(Geometry const& geom,
+                             Point& centroid,
+                             Strategies const& strategies)
+    {
+        Algorithm::apply(geom, centroid, strategies.centroid(geom, centroid));
     }
 };
 
@@ -491,9 +507,12 @@ struct centroid<MultiPolygon, multi_polygon_tag>
 
 template <typename MultiPoint>
 struct centroid<MultiPoint, multi_point_tag>
-    : detail::centroid::centroid_multi
+    : detail::centroid::centroid_pointlike
         <
-            detail::centroid::centroid_multi_point_state
+            detail::centroid::centroid_multi
+            <
+                detail::centroid::centroid_multi_point_state
+            >
         >
 {};
 
@@ -504,34 +523,46 @@ struct centroid<MultiPoint, multi_point_tag>
 
 namespace resolve_strategy {
 
-template <typename Geometry>
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
 struct centroid
 {
-    template <typename Point, typename Strategy>
+    template <typename Geometry, typename Point>
+    static inline void apply(Geometry const& geometry, Point& out, Strategies const& strategies)
+    {
+        dispatch::centroid<Geometry>::apply(geometry, out, strategies);
+    }
+};
+
+template <typename Strategy>
+struct centroid<Strategy, false>
+{
+    template <typename Geometry, typename Point>
     static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
     {
-        dispatch::centroid<Geometry>::apply(geometry, out, strategy);
+        using strategies::centroid::services::strategy_converter;
+        dispatch::centroid
+            <
+                Geometry
+            >::apply(geometry, out, strategy_converter<Strategy>::get(strategy));
     }
+};
 
-    template <typename Point>
+template <>
+struct centroid<default_strategy, false>
+{
+    template <typename Geometry, typename Point>
     static inline void apply(Geometry const& geometry, Point& out, default_strategy)
     {
-        typedef typename strategy::centroid::services::default_strategy
-        <
-            typename cs_tag<Geometry>::type,
-            typename tag_cast
-                <
-                    typename tag<Geometry>::type,
-                    pointlike_tag,
-                    linear_tag,
-                    areal_tag
-                >::type,
-            dimension<Geometry>::type::value,
-            Point,
-            Geometry
-        >::type strategy_type;
+        typedef typename strategies::centroid::services::default_strategy
+            <
+                Geometry
+            >::type strategies_type;
 
-        dispatch::centroid<Geometry>::apply(geometry, out, strategy_type());
+        dispatch::centroid<Geometry>::apply(geometry, out, strategies_type());
     }
 };
 
@@ -547,7 +578,7 @@ struct centroid
     static inline void apply(Geometry const& geometry, Point& out, Strategy const& strategy)
     {
         concepts::check_concepts_and_equal_dimensions<Point, Geometry const>();
-        resolve_strategy::centroid<Geometry>::apply(geometry, out, strategy);
+        resolve_strategy::centroid<Strategy>::apply(geometry, out, strategy);
     }
 };
 
