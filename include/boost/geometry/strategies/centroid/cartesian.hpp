@@ -31,52 +31,36 @@ template <typename CalculationType = void>
 struct cartesian
     : public strategies::detail::cartesian_base
 {
-    // TODO: remove Point
-    template <typename Geometry, typename Point>
-    static auto centroid(Geometry const&, Point const&,
+    template <typename Geometry>
+    static auto centroid(Geometry const&,
                          std::enable_if_t
                             <
                                 util::is_pointlike<Geometry>::value
                             > * = nullptr)
     {
-        return strategy::centroid::average
-            <
-                Point,
-                typename geometry::point_type<Geometry>::type
-            >();
+        return strategy::centroid::average<>();
     }
 
-    // TODO: remove Point
-    template <typename Geometry, typename Point>
-    static auto centroid(Geometry const&, Point const&,
+    template <typename Geometry>
+    static auto centroid(Geometry const&,
                          std::enable_if_t
                             <
                                 util::is_polylinear<Geometry>::value
                             > * = nullptr)
     {
-        return strategy::centroid::weighted_length
-            <
-                Point,
-                typename geometry::point_type<Geometry>::type
-            >();
+        return strategy::centroid::weighted_length<>();
     }
 
-    // TODO: remove Point
-    template <typename Geometry, typename Point>
-    static auto centroid(Geometry const&, Point const&,
+    template <typename Geometry>
+    static auto centroid(Geometry const&,
                          std::enable_if_t
                             <
                                 util::is_polygonal<Geometry>::value
                              // TODO: This condition was used for the legacy default strategy
-                             //&& geometry::dimension<Geometry>::value == 2
+                             // && geometry::dimension<Geometry>::value == 2
                             > * = nullptr)
     {
-        return strategy::centroid::bashein_detmer
-            <
-                Point,
-                typename geometry::point_type<Geometry>::type,
-                CalculationType
-            >();
+        return strategy::centroid::bashein_detmer<void, void, CalculationType>();
     }
 
     // TODO: Box and Segment should have proper strategies.

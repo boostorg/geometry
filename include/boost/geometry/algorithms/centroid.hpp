@@ -208,11 +208,11 @@ inline bool range_ok(Range const& range, Point& centroid)
 template <closure_selector Closure>
 struct centroid_range_state
 {
-    template<typename Ring, typename PointTransformer, typename Strategy>
+    template<typename Ring, typename PointTransformer, typename Strategy, typename State>
     static inline void apply(Ring const& ring,
                              PointTransformer const& transformer,
                              Strategy const& strategy,
-                             typename Strategy::state_type& state)
+                             State& state)
     {
         boost::ignore_unused(strategy);
 
@@ -257,7 +257,12 @@ struct centroid_range
             // prepare translation transformer
             translating_transformer<Range> transformer(*boost::begin(range));
             
-            typename Strategy::state_type state;
+            typename Strategy::template state_type
+                <
+                    typename geometry::point_type<Range>::type,
+                    Point
+                >::type state;
+
             centroid_range_state<Closure>::apply(range, transformer,
                                                  strategy, state);
             
@@ -281,11 +286,11 @@ struct centroid_range
 */
 struct centroid_polygon_state
 {
-    template<typename Polygon, typename PointTransformer, typename Strategy>
+    template<typename Polygon, typename PointTransformer, typename Strategy, typename State>
     static inline void apply(Polygon const& poly,
                              PointTransformer const& transformer,
                              Strategy const& strategy,
-                             typename Strategy::state_type& state)
+                             State& state)
     {
         typedef typename ring_type<Polygon>::type ring_type;
         typedef centroid_range_state<geometry::closure<ring_type>::value> per_ring;
@@ -315,7 +320,12 @@ struct centroid_polygon
             translating_transformer<Polygon>
                 transformer(*boost::begin(exterior_ring(poly)));
             
-            typename Strategy::state_type state;
+            typename Strategy::template state_type
+                <
+                    typename geometry::point_type<Polygon>::type,
+                    Point
+                >::type state;
+
             centroid_polygon_state::apply(poly, transformer, strategy, state);
             
             if ( strategy.result(state, centroid) )
@@ -337,11 +347,11 @@ struct centroid_polygon
 */
 struct centroid_multi_point_state
 {
-    template <typename Point, typename PointTransformer, typename Strategy>
+    template <typename Point, typename PointTransformer, typename Strategy, typename State>
     static inline void apply(Point const& point,
                              PointTransformer const& transformer,
                              Strategy const& strategy,
-                             typename Strategy::state_type& state)
+                             State& state)
     {
         boost::ignore_unused(strategy);
         strategy.apply(static_cast<Point const&>(transformer.apply(point)),
@@ -378,7 +388,11 @@ struct centroid_multi
         // prepare translation transformer
         translating_transformer<Multi> transformer(multi);
 
-        typename Strategy::state_type state;
+        typename Strategy::template state_type
+            <
+                typename geometry::point_type<Multi>::type,
+                Point
+            >::type state;
 
         for (typename boost::range_iterator<Multi const>::type
                 it = boost::begin(multi);
@@ -408,7 +422,7 @@ struct centroid_linear_areal
                              Point& centroid,
                              Strategies const& strategies)
     {
-        if ( ! Algorithm::apply(geom, centroid, strategies.centroid(geom, centroid)) )
+        if ( ! Algorithm::apply(geom, centroid, strategies.centroid(geom)) )
         {
             geometry::point_on_border(centroid, geom);
         }
@@ -423,7 +437,7 @@ struct centroid_pointlike
                              Point& centroid,
                              Strategies const& strategies)
     {
-        Algorithm::apply(geom, centroid, strategies.centroid(geom, centroid));
+        Algorithm::apply(geom, centroid, strategies.centroid(geom));
     }
 };
 
