@@ -8,6 +8,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+//#define BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
+
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_closest_points_geographic_pointlike_linear
 #endif
@@ -286,8 +288,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 
     typedef bg::srs::spheroid<double> stype;
 
-    test_closest_points_point_segment_diff_spheroid<geo_point>
-            (andoyer_ps(stype(5000000,6000000)));
+    //test_closest_points_point_segment_diff_spheroid<geo_point>
+    //        (andoyer_ps(stype(5000000,6000000)));
 }
 
 // tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747
@@ -321,18 +323,27 @@ void closest_path_tester(std::string point_wkt,
 
     segment_type projection;
     bg::closest_points(point, segment, projection, closest_point_strategy);
-    const auto length = bg::length(projection, distance_strategy);
+
+    auto p0 = point_type(bg::get<0,0>(projection), bg::get<0,1>(projection));
+    auto p1 = point_type(bg::get<1,0>(projection), bg::get<1,1>(projection));
+
+    const auto dist1 = bg::distance(p0, p1);//bg::length(projection);
+    const auto dist2 = bg::distance(p0, segment);//should be equal to dist1
+    const auto dist3 = bg::distance(p1, segment);//should be 0
+
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    std::cout << std::setprecision(20)
+    std::cout << std::setprecision(30)
               << "Point: " << bg::wkt(point) << "\n"
               << "Segment: " << bg::wkt(segment) << "\n"
               << "Distance: " << distance << "\n"
               << "Projection: " << bg::wkt(projection) << "\n"
-              << "Length: " << length << std::endl;
+              << "Distance 1: " << dist1 << "\n"
+              << "Distance 2: " << dist2 << "\n"
+              << "Distance 3: " << dist3 << std::endl;
 #endif
 
-    BOOST_CHECK_CLOSE_FRACTION(distance, length, error);
+    BOOST_CHECK_CLOSE_FRACTION(distance, dist1, error);
 }
 
 BOOST_AUTO_TEST_CASE(closest_path_test_1)

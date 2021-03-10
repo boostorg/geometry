@@ -336,8 +336,8 @@ private :
                   << inverse_distance_azimuth_quantities_type
                      ::apply(res14.lon2, res14.lat2,
                              lon3, lat3, spheroid).distance
-                  << ", p4=(" << res14.lon2 * math::r2d<double>() << ","
-                              << res14.lat2 * math::r2d<double>() << ")"
+                  << ", p4=(" << res14.lon2 * math::r2d<CT>() << ","
+                              << res14.lat2 * math::r2d<CT>() << ")"
                   << std::endl;
 
         CT s31 = inverse_distance_azimuth_quantities_type
@@ -359,11 +359,11 @@ private :
 
         std::cout << "s31=" << s31 << "\ns32=" << s32
                   << "\np4_plus=" << p4_plus << ", p4=("
-                  << res4.lon2 * math::r2d<double>() << ","
-                  << res4.lat2 * math::r2d<double>() << ")"
+                  << res4.lon2 * math::r2d<CT>() << ","
+                  << res4.lat2 * math::r2d<CT>() << ")"
                   << "\np4_minus=" << p4_minus << ", p4=("
-                  << res1.lon2 * math::r2d<double>() << ","
-                  << res1.lat2 * math::r2d<double>() << ")"
+                  << res1.lon2 * math::r2d<CT>() << ","
+                  << res1.lat2 * math::r2d<CT>() << ")"
                   << std::endl;
 
         if (res34.distance <= p4_plus && res34.distance <= p4_minus)
@@ -393,8 +393,8 @@ public :
                                                          true, false, false>
                 inverse_dist_azimuth_reverse_type;
 
-        double const earth_radius = geometry::formula
-                                    ::mean_radius<double>(spheroid);
+        CT const earth_radius = geometry::formula
+                                    ::mean_radius<CT>(spheroid);
 
         result_type result;
 
