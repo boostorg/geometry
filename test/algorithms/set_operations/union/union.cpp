@@ -367,10 +367,11 @@ void test_areal()
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-     // Either 1 or 2, depending if the intersection/turn point (eps.region) is missed
-    TEST_UNION(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
-#endif
+    {
+        ut_settings settings;
+        settings.set_test_validity(BG_IF_RESCALED(true, BG_IF_TEST_FAILURES));
+        TEST_UNION_WITH(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
+    }
 
     {
         // SQL Server gives: 313.360374193241
@@ -593,7 +594,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(3, 3, 1, 0);
+    BoostGeometryWriteExpectedFailures(3, 2, 3, 0);
 #endif
 
     return 0;

@@ -195,14 +195,16 @@ void test_areal()
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, expectation_limits(0.0), 1, (expectation_limits(2.023, 2.2004)), 1);
 #endif
-        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
 
-#if defined(BOOST_GEOMETRY_USE_KRAMER) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Only succeeds with Kramer rule and no rescaling
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
 #endif
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Symmetrical difference fails without get_clusters
+        settings.sym_difference = BG_IF_TEST_FAILURES;
         TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, expectation_limits(76.5385), optional(), optional_sliver(1.0e-6), 1);
 #endif
     }
@@ -391,9 +393,7 @@ void test_areal()
 
     {
         ut_settings sym_settings;
-    #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        sym_settings.sym_difference = false;
-    #endif
+        sym_settings.sym_difference = BG_IF_RESCALED(true, BG_IF_TEST_FAILURES);
         test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
             mysql_21965285_b[0],
             mysql_21965285_b[1],
@@ -445,13 +445,6 @@ void test_specific_areal()
         TEST_DIFFERENCE_WITH(0, 1, ticket_12751, 1,
                              expectation_limits(2781964, 2782115), 1,
                              expectation_limits(597.0, 598.0), 2);
-
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER)
-        // Fails with general line form intersection, symmetric version misses one outcut
-        // TODO GENERAL FORM
-        settings.set_test_validity(false);
-        settings.sym_difference = false;
-#endif
 
         TEST_DIFFERENCE_WITH(2, 3, ticket_12751,
                              2, expectation_limits(2537992, 2538306),
@@ -524,7 +517,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float.
     // The difference algorithm can generate (additional) slivers
-    BoostGeometryWriteExpectedFailures(22, 9, 20, 7);
+    BoostGeometryWriteExpectedFailures(22, 7, 21, 9);
 #endif
 
     return 0;

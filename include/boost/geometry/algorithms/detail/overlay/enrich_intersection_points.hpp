@@ -192,7 +192,7 @@ inline void enrich_assign(Operations& operations, Turns& turns,
                 << " nxt=" << op.enriched.next_ip_index
                 << " / " << op.enriched.travels_to_ip_index
                 << " [vx " << op.enriched.travels_to_vertex_index << "]"
-                << std::boolalpha << turns[it->turn_index].discarded
+                << (turns[it->turn_index].discarded ? " discarded" : "")
                 << std::endl;
                 ;
         }
@@ -443,12 +443,12 @@ inline void enrich_intersection_points(Turns& turns,
         > mapped_vector_type;
 
     // From here on, turn indexes are used (in clusters, next_index, etc)
-    // and may only be flagged as discarded
+    // and may not be DELETED - they may only be flagged as discarded
 
     bool has_cc = false;
     bool const has_colocations
         = detail::overlay::handle_colocations<Reverse1, Reverse2, OverlayType>(turns,
-        clusters, geometry1, geometry2);
+        clusters, geometry1, geometry2, robust_policy);
 
     // Discard turns not part of target overlay
     for (typename boost::range_iterator<Turns>::type
@@ -517,14 +517,17 @@ inline void enrich_intersection_points(Turns& turns,
         mit != mapped_vector.end();
         ++mit)
     {
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-    std::cout << "ENRICH-sort Ring "
-        << mit->first << std::endl;
-#endif
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
                     mit->second, turns,
                     geometry1, geometry2,
                     robust_policy, strategy.side()); // TODO: pass strategy
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+        std::cout << "ENRICH-sort Ring " << mit->first << std::endl;
+        for (auto const& op : mit->second)
+        {
+            std::cout << op.turn_index << " " << op.operation_index << std::endl;
+        }
+#endif
     }
 
     for (typename mapped_vector_type::iterator mit
@@ -533,8 +536,7 @@ inline void enrich_intersection_points(Turns& turns,
         ++mit)
     {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-    std::cout << "ENRICH-assign Ring "
-        << mit->first << std::endl;
+    std::cout << "ENRICH-assign Ring " << mit->first << std::endl;
 #endif
         if (is_dissolve)
         {
