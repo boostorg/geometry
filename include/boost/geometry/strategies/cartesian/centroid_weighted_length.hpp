@@ -21,16 +21,16 @@
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/interface.hpp>
-#include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/util/for_each_coordinate.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
-#include <boost/geometry/strategies/centroid.hpp>
-#include <boost/geometry/strategies/default_distance_result.hpp>
 
 // Helper geometry
 #include <boost/geometry/geometries/point.hpp>
+
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/strategies/centroid.hpp>
+
+#include <boost/geometry/util/for_each_coordinate.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 
 namespace boost { namespace geometry
@@ -42,19 +42,24 @@ namespace strategy { namespace centroid
 template
 <
     typename Ignored1 = void,
-    typename Ignored2 = void
+    typename Ignored2 = void,
+    typename CalculationType = void
 >
 class weighted_length
 {
 private :
+    typedef geometry::strategy::distance::pythagoras<CalculationType> pythagoras_strategy;
+
     template <typename GeometryPoint, typename ResultPoint>
     struct calculation_type
-        : select_most_precise
+    {
+        // Below the distance between two GeometryPoints is calculated.
+        // ResultPoint is taken into account by passing them together here.
+        typedef typename pythagoras_strategy::template calculation_type
             <
-                typename default_distance_result<GeometryPoint>::type,
-                typename default_distance_result<ResultPoint>::type
-            >
-    {};
+                GeometryPoint, ResultPoint
+            >::type type;
+    };
 
     template <typename GeometryPoint, typename ResultPoint>
     class sums
@@ -94,7 +99,7 @@ public :
     {
         typedef typename calculation_type<GeometryPoint, ResultPoint>::type distance_type;
 
-        distance_type const d = geometry::distance(p1, p2);
+        distance_type const d = pythagoras_strategy::apply(p1, p2);
         state.length += d;
 
         typename sums<GeometryPoint, ResultPoint>::work_point weighted_median;

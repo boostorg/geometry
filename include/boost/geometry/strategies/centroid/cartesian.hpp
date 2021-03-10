@@ -48,7 +48,7 @@ struct cartesian
                                 util::is_polylinear<Geometry>::value
                             > * = nullptr)
     {
-        return strategy::centroid::weighted_length<>();
+        return strategy::centroid::weighted_length<void, void, CalculationType>();
     }
 
     template <typename Geometry>
