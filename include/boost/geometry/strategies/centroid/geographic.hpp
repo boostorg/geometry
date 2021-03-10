@@ -12,13 +12,8 @@
 
 
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategies/length/services.hpp>
-
-#include <boost/geometry/strategies/geographic/distance.hpp>
-// TODO - for backwards compatibility, remove?
-#include <boost/geometry/strategies/geographic/distance_andoyer.hpp>
-#include <boost/geometry/strategies/geographic/distance_thomas.hpp>
-#include <boost/geometry/strategies/geographic/distance_vincenty.hpp>
+#include <boost/geometry/strategies/centroid.hpp>
+#include <boost/geometry/strategies/centroid/services.hpp>
 
 
 namespace boost { namespace geometry
@@ -27,7 +22,6 @@ namespace boost { namespace geometry
 namespace strategies { namespace centroid
 {
 
-/*
 template
 <
     typename FormulaPolicy = strategy::andoyer,
@@ -45,11 +39,28 @@ public:
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)
     {}
+
+    // TODO: Box and Segment should have proper strategies.
+    template <typename Geometry, typename Point>
+    static auto centroid(Geometry const&, Point const&,
+                         std::enable_if_t
+                            <
+                                util::is_segment<Geometry>::value
+                             || util::is_box<Geometry>::value
+                            > * = nullptr)
+    {
+        return strategy::centroid::not_applicable_strategy();
+    }
 };
-*/
 
 namespace services
 {
+
+template <typename Geometry>
+struct default_strategy<Geometry, geographic_tag>
+{
+    using type = strategies::centroid::geographic<>;
+};
 
 } // namespace services
 
