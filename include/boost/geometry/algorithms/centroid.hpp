@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -54,7 +54,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
-#include <boost/geometry/util/for_each_coordinate.hpp>
+#include <boost/geometry/util/for_each_dimension.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -116,56 +116,24 @@ struct centroid_point
     }
 };
 
-template
-<
-    typename Indexed,
-    typename Point,
-    std::size_t Dimension = 0,
-    std::size_t DimensionCount = dimension<Indexed>::type::value
->
-struct centroid_indexed_calculator
-{
-    typedef typename select_coordinate_type
-        <
-            Indexed, Point
-        >::type coordinate_type;
-    static inline void apply(Indexed const& indexed, Point& centroid)
-    {
-        coordinate_type const c1 = get<min_corner, Dimension>(indexed);
-        coordinate_type const c2 = get<max_corner, Dimension>(indexed);
-        coordinate_type m = c1 + c2;
-        coordinate_type const two = 2;
-        m /= two;
-
-        set<Dimension>(centroid, m);
-
-        centroid_indexed_calculator
-            <
-                Indexed, Point, Dimension + 1
-            >::apply(indexed, centroid);
-    }
-};
-
-
-template<typename Indexed, typename Point, std::size_t DimensionCount>
-struct centroid_indexed_calculator<Indexed, Point, DimensionCount, DimensionCount>
-{
-    static inline void apply(Indexed const& , Point& )
-    {
-    }
-};
-
-
 struct centroid_indexed
 {
     template<typename Indexed, typename Point, typename Strategy>
     static inline void apply(Indexed const& indexed, Point& centroid,
             Strategy const&)
     {
-        centroid_indexed_calculator
+        typedef typename select_coordinate_type
             <
                 Indexed, Point
-            >::apply(indexed, centroid);
+            >::type coordinate_type;
+
+        detail::for_each_dimension<Indexed>([&](auto dimension)
+        {
+            coordinate_type const c1 = get<min_corner, dimension>(indexed);
+            coordinate_type const c2 = get<max_corner, dimension>(indexed);
+            coordinate_type const two = 2;
+            set<dimension>(centroid, (c1 + c2) / two);
+        });
     }
 };
 

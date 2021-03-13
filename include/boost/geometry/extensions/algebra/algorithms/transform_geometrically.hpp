@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018-2020.
-// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2021.
+// Modifications copyright (c) 2018-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -88,7 +88,7 @@ struct transform_geometrically<Point, Vector, point_tag, vector_tag>
 
     static inline void apply(Point & point, Vector const& vector, std::true_type /*is_cartesian*/)
     {
-        for_each_coordinate(point, detail::point_operation<Vector, std::plus>(vector));
+        geometry::add_point(point, vector);
     }
 
     static inline void apply(Point & point, Vector const& vector, std::false_type /*is_cartesian*/)

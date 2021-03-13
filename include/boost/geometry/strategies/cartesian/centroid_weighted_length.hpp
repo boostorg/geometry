@@ -3,8 +3,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/util/for_each_coordinate.hpp>
+#include <boost/geometry/util/for_each_dimension.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>
@@ -80,7 +80,7 @@ public :
     typedef detail::weighted_length_sums
         <
             distance_type,
-            geometry::dimension<Point>::type::value
+            geometry::dimension<Point>::value
         > state_type;
 
     static inline void apply(PointOfSegment const& p1,
@@ -89,12 +89,14 @@ public :
         distance_type const d = geometry::distance(p1, p2);
         state.length += d;
 
-        typename state_type::work_point weighted_median;
-        geometry::assign_zero(weighted_median);
-        geometry::add_point(weighted_median, p1);
-        geometry::add_point(weighted_median, p2);
-        geometry::multiply_value(weighted_median, d/2);
-        geometry::add_point(state.average_sum, weighted_median);
+        distance_type const d_half = d / distance_type(2);
+        geometry::detail::for_each_dimension<Point>([&](auto dimension)
+        {
+            distance_type const coord1 = get<dimension>(p1);
+            distance_type const coord2 = get<dimension>(p2);
+            distance_type const wm = (coord1 + coord2) * d_half; // weighted median
+            set<dimension>(state.average_sum, get<dimension>(state.average_sum) + wm);
+        });
     }
 
     static inline bool result(state_type const& state, Point& centroid)
@@ -106,31 +108,21 @@ public :
             // NOTE: above distance_type is checked, not the centroid coordinate_type
             // which means that the centroid can still be filled with INF
             // if e.g. distance_type is double and centroid contains floats
-            geometry::for_each_coordinate(centroid, set_sum_div_length(state));
+            geometry::detail::for_each_dimension<Point>([&](auto dimension)
+            {
+                typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+                geometry::set<dimension>(
+                    centroid,
+                    boost::numeric_cast<coordinate_type>(
+                        geometry::get<dimension>(state.average_sum) / state.length
+                    )
+                );
+            });
             return true;
         }
 
         return false;
     }
-
-    struct set_sum_div_length
-    {
-        state_type const& m_state;
-        set_sum_div_length(state_type const& state)
-            : m_state(state)
-        {}
-        template <typename Pt, std::size_t Dimension>
-        void apply(Pt & centroid) const
-        {
-            typedef typename geometry::coordinate_type<Pt>::type coordinate_type;
-            geometry::set<Dimension>(
-                centroid,
-                boost::numeric_cast<coordinate_type>(
-                    geometry::get<Dimension>(m_state.average_sum) / m_state.length
-                )
-            );
-        }
-    };
 };
 
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
