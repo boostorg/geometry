@@ -24,8 +24,8 @@
 
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance.hpp>

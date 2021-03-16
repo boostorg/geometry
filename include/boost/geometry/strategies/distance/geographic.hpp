@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/distance/comparable.hpp>
+#include <boost/geometry/strategies/distance/detail.hpp>
 #include <boost/geometry/strategies/distance/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 
@@ -73,11 +74,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                  <
-                        util::is_pointlike<Geometry1>::value
-                     && util::is_pointlike<Geometry2>::value
-                  > * = nullptr) const
+                  detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic
                 <
@@ -87,15 +84,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                  <
-                        util::is_pointlike<Geometry1>::value
-                            && util::is_segmental<Geometry2>::value
-                     || util::is_segmental<Geometry1>::value
-                            && util::is_pointlike<Geometry2>::value
-                     || util::is_segmental<Geometry1>::value
-                            && util::is_segmental<Geometry2>::value
-                  > * = nullptr) const
+                  detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic_cross_track
             <
@@ -105,11 +94,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                  <
-                        util::is_pointlike<Geometry1>::value
-                     && util::is_box<Geometry2>::value
-                  > * = nullptr) const
+                  detail::enable_if_pb_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic_cross_track_point_box
             <
@@ -119,11 +104,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                  <
-                        util::is_segmental<Geometry1>::value
-                     && util::is_box<Geometry2>::value
-                  > * = nullptr) const
+                  detail::enable_if_sb_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic_segment_box
             <
@@ -133,11 +114,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                    <
-                        util::is_box<Geometry1>::value
-                     && util::is_box<Geometry2>::value
-                    > * = nullptr) const
+                  detail::enable_if_bb_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic_cross_track_box_box
             <

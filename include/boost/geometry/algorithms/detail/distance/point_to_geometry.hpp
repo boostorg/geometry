@@ -456,7 +456,6 @@ namespace dispatch
 {
 
 
-// Point-Point
 template <typename P1, typename P2, typename Strategy>
 struct distance
     <
@@ -466,7 +465,6 @@ struct distance
 {};
 
 
-// Point-line version 2, where point-segment strategy is specified
 template <typename Point, typename Linestring, typename Strategy>
 struct distance
     <
@@ -476,7 +474,6 @@ struct distance
 {};
 
 
-// Point-ring , where point-segment strategy is specified
 template <typename Point, typename Ring, typename Strategy>
 struct distance
     <
@@ -489,7 +486,6 @@ struct distance
 {};
 
 
-// Point-polygon , where point-segment strategy is specified
 template <typename Point, typename Polygon, typename Strategy>
 struct distance
     <
@@ -502,7 +498,6 @@ struct distance
 {};
 
 
-// Point-segment version 2, with point-segment strategy
 template <typename Point, typename Segment, typename Strategy>
 struct distance
     <
@@ -512,7 +507,6 @@ struct distance
 {};
 
 
-// Point-Box
 template <typename Point, typename Box, typename Strategy>
 struct distance
     <

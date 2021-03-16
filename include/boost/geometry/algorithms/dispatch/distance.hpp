@@ -26,7 +26,6 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance/services.hpp>

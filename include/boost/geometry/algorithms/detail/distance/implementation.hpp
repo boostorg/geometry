@@ -32,9 +32,7 @@
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 #include <boost/geometry/algorithms/detail/distance/box_to_box.hpp>
 
-// TODO: should this be supported?
-//#include <boost/geometry/algorithms/detail/distance/backward_compatibility.hpp>
-
+#include <boost/geometry/strategies/distance/backward_compatibility.hpp>
 #include <boost/geometry/strategies/distance/cartesian.hpp>
 #include <boost/geometry/strategies/distance/geographic.hpp>
 #include <boost/geometry/strategies/distance/spherical.hpp>
