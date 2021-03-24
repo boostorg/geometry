@@ -242,14 +242,13 @@ struct wkt_polyhedral
     static inline void apply(std::basic_ostream<Char, Traits>& os, 
             Polyhedral_surface const& polyhedral, bool force_closure)
     {
-        typedef typename std::remove_const<Polyhedral_surface>::type const_polyhedral_type;
-        typedef typename ring_type<const_polyhedral_type>::type ring;
+        using const_polyhedral_type = typename std::remove_const<Polyhedral_surface>::type;
+        using ring = typename ring_type<const_polyhedral_type>::type;
 
         os << PrefixPolicy::apply();
 
         os << "(";
-        for( typename boost::range_iterator<Polyhedral_surface const>::type 
-            it = boost::begin(polyhedral); it != boost::end(polyhedral); ++it)
+        for(auto it = boost::begin(polyhedral); it != boost::end(polyhedral); ++it)
         {
             if(it != boost::begin(polyhedral))
             {

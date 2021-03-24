@@ -61,7 +61,7 @@ struct ring_mutable_type
 };
 
 template <typename Geometry>
-struct Poly_ring_type
+struct poly_ring_type
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
         "Not implemented for this Geometry type.",
@@ -96,7 +96,7 @@ struct ring_return_type<ring_tag, Ring>
 template <typename PolyhedralSurface>
 struct ring_return_type<polyhedral_surface_tag, PolyhedralSurface>
 {
-    typedef typename traits::Poly_ring_type<PolyhedralSurface>::type type;
+    using type = typename traits::poly_ring_type<PolyhedralSurface>::type;
 };
 
 template <typename Polygon>
@@ -159,10 +159,7 @@ struct ring_type<ring_tag, Ring>
 template <typename PolyhedralSurface>
 struct ring_type<polyhedral_surface_tag, PolyhedralSurface>
 {
-    typedef typename std::remove_reference
-        <
-            typename ring_return_type<polyhedral_surface_tag, PolyhedralSurface>::type
-        >::type type;
+    using type = typename std::remove_reference<typename ring_return_type<polyhedral_surface_tag, PolyhedralSurface>::type>::type;
 };
 
 

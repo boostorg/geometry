@@ -456,8 +456,8 @@ struct polygon_parser
 template<typename PolyhedralSurface>
 struct polyhderal_surface_parser
 {
-    typedef typename ring_return_type<PolyhedralSurface>::type ring_return_type;
-    typedef container_appender<ring_return_type> appender;
+    using ring_return_type = typename ring_return_type<PolyhedralSurface>::type;
+    using appender = container_appender<ring_return_type>;
 
     static inline void apply(tokenizer::iterator& it,
                              tokenizer::iterator const& end,
@@ -465,7 +465,8 @@ struct polyhderal_surface_parser
                              PolyhedralSurface& Poly)
     {
         handle_open_parenthesis(it, end, wkt);
-        while(it != end && *it != ")"){
+        while(it != end && *it != ")")
+        {
             handle_open_parenthesis(it, end, wkt);
 
             typename ring_type<PolyhedralSurface>::type ring;
@@ -473,11 +474,9 @@ struct polyhderal_surface_parser
             appender::apply(it, end, wkt, ring);
             traits::push_back
                 <
-                    typename std::remove_reference
-                    <
-                        PolyhedralSurface
-                    >::type
+                    typename std::remove_reference<PolyhedralSurface>::type
                 >::apply(Poly, ring);
+                
             handle_close_parenthesis(it, end, wkt);
             if(it!=end && *it == ",")
             {
@@ -560,7 +559,6 @@ inline bool initialize(tokenizer const& tokens,
     it = tokens.begin();
     end = tokens.end();
 
-    //std::cout<<*it<<" "<<geometry_name<<std::endl;
     if (it == end || ! boost::iequals(*it++, geometry_name))
     {
         BOOST_THROW_EXCEPTION(read_wkt_exception(std::string("Should start with '") + geometry_name + "'", wkt));

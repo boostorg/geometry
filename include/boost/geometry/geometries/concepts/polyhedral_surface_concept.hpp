@@ -25,9 +25,9 @@ public:
 #endif
 };
 
-//polyhedral surface(constant version)
+// polyhedral surface(constant version)
 template <typename Geometry>
-class ConstPolyhedral
+class ConstPolyhedralSurface
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 	using const_polyhedral_type = typename std::remove_const<Geometry>::type;
@@ -37,7 +37,7 @@ class ConstPolyhedral
 
 public:
 
-	BOOST_CONCEPT_USAGE(ConstPolyhedral)
+	BOOST_CONCEPT_USAGE(ConstPolyhedralSurface)
 	{
 	}
 

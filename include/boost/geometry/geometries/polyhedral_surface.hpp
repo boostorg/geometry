@@ -3,14 +3,11 @@
 
 #include <memory>
 #include <vector>
-
 #include <boost/concept/assert.hpp>
-
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-
 #include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
@@ -18,11 +15,9 @@
 
 namespace boost { namespace geometry 
 {
-
 namespace model
 {
-
-
+    
 template 
 <
     typename Ring,
@@ -30,7 +25,7 @@ template
     template<typename> class Allocator = std::allocator
 
 >
-class PolyhedralSurface : public Container<Ring, Allocator<Ring> >
+class polyhedral_surface : public Container<Ring, Allocator<Ring> >
 {
 	BOOST_CONCEPT_ASSERT( (concepts::Ring<Ring>) );
 
@@ -43,19 +38,18 @@ public :
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_default{polyhedron}
-    inline PolyhedralSurface()
-	    : ph()
-	{}
+    inline polyhedral_surface()
+        : ph()
+    {}
 
     /// \constructor_initialized_list{polyhedron}
-	inline PolyhedralSurface(std::initializer_list<ring_type> l)
+    inline polyhedral_surface(std::initializer_list<ring_type> l)
 	    : ph(l.begin(), l.end())
-	{}
+    {}
 
 #endif
-	
-};
 
+};
 } // namespace model
 
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -70,14 +64,14 @@ template
 >
 struct tag
 <
-    model::PolyhedralSurface
+    model::polyhedral_surface
         <
             Ring, 
             Container, Allocator
         > 
 >
 {
-	typedef polyhedral_surface_tag type;
+    using type = polyhedral_surface_tag;
 };
 
 template
@@ -86,24 +80,21 @@ template
     template<typename, typename> class Container,
     template<typename> class Allocator
 >
-struct Poly_ring_type
+struct poly_ring_type
 <
-    model::PolyhedralSurface
+    model::polyhedral_surface
         <
            Ring, 
            Container, Allocator
         >
 >
 {
-	typedef typename model::PolyhedralSurface
-	    <
-	        Ring, 
-	        Container, Allocator
-	    >::ring_type& type;
+    using type = typename model::polyhedral_surface
+        <
+            Ring,
+            Container, Allocator
+        >::ring_type&;
 };
-
-
-
 
 } // namespace traits
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS

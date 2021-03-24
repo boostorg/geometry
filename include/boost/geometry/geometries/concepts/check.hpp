@@ -39,7 +39,7 @@
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 #include <boost/geometry/geometries/concepts/ring_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
-#include <boost/geometry/geometries/concepts/PolyhedralSurface_concept.hpp>
+#include <boost/geometry/geometries/concepts/polyhedral_surface_concept.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 namespace boost { namespace geometry
@@ -128,7 +128,7 @@ struct check<Geometry, polyhedral_surface_tag, false>
 
 template <typename Geometry>
 struct check<Geometry, polyhedral_surface_tag, true>
-    : detail::concept_check::check<concepts::ConstPolyhedral<Geometry>>
+    : detail::concept_check::check<concepts::ConstPolyhedralSurface<Geometry>>
 {};
 
 template <typename Geometry>
