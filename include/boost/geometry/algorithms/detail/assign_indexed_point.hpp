@@ -57,7 +57,8 @@ inline void assign_point_to_index(Point const& point, Geometry& geometry)
     concepts::check<Point const>();
     concepts::check<Geometry>();
 
-    detail::for_each_dimension<Geometry>([&](auto dimension){
+    detail::for_each_dimension<Geometry>([&](auto dimension)
+    {
         geometry::set<Index, dimension>(geometry,
             boost::numeric_cast
                 <
@@ -88,7 +89,8 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
     concepts::check<Geometry const>();
     concepts::check<Point>();
 
-    detail::for_each_dimension<Geometry>([&](auto dimension){
+    detail::for_each_dimension<Geometry>([&](auto dimension)
+    {
         geometry::set<dimension>(point,
             boost::numeric_cast
                 <
