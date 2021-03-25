@@ -27,40 +27,33 @@ namespace detail
 template <typename Geometry1, typename Geometry2>
 using enable_if_pp_t = std::enable_if_t
     <
-        util::is_pointlike<Geometry1>::value
-        && util::is_pointlike<Geometry2>::value
+        util::is_pointlike<Geometry1>::value && util::is_pointlike<Geometry2>::value
     >;
 
 template <typename Geometry1, typename Geometry2>
 using enable_if_ps_t = std::enable_if_t
     <
-        util::is_pointlike<Geometry1>::value
-        && util::is_segmental<Geometry2>::value
-     || util::is_segmental<Geometry1>::value
-        && util::is_pointlike<Geometry2>::value
-     || util::is_segmental<Geometry1>::value
-        && util::is_segmental<Geometry2>::value
+        (util::is_pointlike<Geometry1>::value && util::is_segmental<Geometry2>::value)
+     || (util::is_segmental<Geometry1>::value && util::is_pointlike<Geometry2>::value)
+     || (util::is_segmental<Geometry1>::value && util::is_segmental<Geometry2>::value)
     >;
 
 template <typename Geometry1, typename Geometry2>
 using enable_if_pb_t = std::enable_if_t
     <
-        util::is_pointlike<Geometry1>::value
-        && util::is_box<Geometry2>::value
+        util::is_pointlike<Geometry1>::value && util::is_box<Geometry2>::value
     >;
 
 template <typename Geometry1, typename Geometry2>
 using enable_if_sb_t = std::enable_if_t
     <
-        util::is_segmental<Geometry1>::value
-        && util::is_box<Geometry2>::value
+        util::is_segmental<Geometry1>::value && util::is_box<Geometry2>::value
     >;
 
 template <typename Geometry1, typename Geometry2>
 using enable_if_bb_t = std::enable_if_t
     <
-        util::is_box<Geometry1>::value
-        && util::is_box<Geometry2>::value
+        util::is_box<Geometry1>::value && util::is_box<Geometry2>::value
     >;
 
 } // namespace detail
