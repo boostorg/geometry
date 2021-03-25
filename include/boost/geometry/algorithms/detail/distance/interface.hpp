@@ -24,8 +24,9 @@
 
 #include <boost/concept_check.hpp>
 
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/core/point_type.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 // TODO: move these to algorithms
@@ -34,9 +35,6 @@
 
 #include <boost/geometry/strategies/distance/services.hpp>
 
-#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 
 namespace boost { namespace geometry

@@ -15,18 +15,17 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 
+#include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
-
-#include <boost/geometry/algorithms/covered_by.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
-
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
-#include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,12 +39,7 @@ namespace detail { namespace distance
 template <typename MultiPoint1, typename MultiPoint2, typename Strategies>
 struct multipoint_to_multipoint
 {
-    typedef typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<MultiPoint1>(), std::declval<MultiPoint2>())),
-            typename point_type<MultiPoint1>::type,
-            typename point_type<MultiPoint2>::type
-        >::type return_type;   
+    typedef distance::return_t<MultiPoint1, MultiPoint2, Strategies> return_type;
 
     static inline return_type apply(MultiPoint1 const& multipoint1,
                                     MultiPoint2 const& multipoint2,
@@ -81,16 +75,9 @@ struct multipoint_to_multipoint
 template <typename MultiPoint, typename Linear, typename Strategies>
 struct multipoint_to_linear
 {
-    typedef typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<MultiPoint>(), std::declval<Linear>())),
-            typename point_type<MultiPoint>::type,
-            typename point_type<Linear>::type
-        >::type return_type;
-
-    static inline return_type apply(MultiPoint const& multipoint,
-                                    Linear const& linear,
-                                    Strategies const& strategies)
+    static inline auto apply(MultiPoint const& multipoint,
+                             Linear const& linear,
+                             Strategies const& strategies)
     {
         return detail::distance::point_or_segment_range_to_geometry_rtree
             <
@@ -103,9 +90,9 @@ struct multipoint_to_linear
                      strategies);
     }
 
-    static inline return_type apply(Linear const& linear,
-                                    MultiPoint const& multipoint,
-                                    Strategies const& strategies)
+    static inline auto apply(Linear const& linear,
+                             MultiPoint const& multipoint,
+                             Strategies const& strategies)
     {
         return apply(multipoint, linear, strategies);
     }
@@ -133,12 +120,7 @@ private:
     };
 
 public:
-    typedef typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<MultiPoint>(), std::declval<Areal>())),
-            typename point_type<MultiPoint>::type,
-            typename point_type<Areal>::type
-        >::type return_type;
+    typedef distance::return_t<MultiPoint, Areal, Strategies> return_type;
 
     static inline return_type apply(MultiPoint const& multipoint,
                                     Areal const& areal,
@@ -163,7 +145,7 @@ public:
                          areal,
                          strategies);
         }
-        return 0;
+        return return_type(0);
     }
 
     static inline return_type apply(Areal const& areal,

@@ -11,9 +11,16 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_TO_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_TO_BOX_HPP
 
-#include <boost/geometry/core/point_type.hpp>
+#include <iterator>
 
 #include <boost/geometry/algorithms/intersects.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+
+#include <boost/geometry/iterators/segment_iterator.hpp>
+
+#include <boost/geometry/core/point_type.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -25,15 +32,7 @@ namespace detail { namespace distance
 template <typename Linear, typename Box, typename Strategies>
 struct linear_to_box
 {
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Linear>(), std::declval<Box>())) strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type,
-            typename point_type<Linear>::type,
-            typename point_type<Box>::type
-        >::type return_type;
+    typedef distance::return_t<Linear, Box, Strategies> return_type;
 
     template <typename Iterator>
     static inline return_type apply(Box const& box,
@@ -65,7 +64,7 @@ struct linear_to_box
     {
         if ( geometry::intersects(linear, box) )
         {
-            return 0;
+            return return_type(0);
         }
 
         return apply(box,

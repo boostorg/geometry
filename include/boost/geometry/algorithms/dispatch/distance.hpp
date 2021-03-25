@@ -22,11 +22,14 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DISPATCH_DISTANCE_HPP
 
 
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
+
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance/services.hpp>
 

@@ -16,20 +16,19 @@
 
 #include <boost/core/addressof.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/util/condition.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/intersects.hpp>
-
-#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/util/condition.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,33 +45,13 @@ namespace detail { namespace distance
 template<typename Segment1, typename Segment2, typename Strategies>
 class segment_to_segment
 {
-private:
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Segment1>(), std::declval<Segment2>())) strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            strategy_type
-        >::type comparable_strategy;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            comparable_strategy,
-            typename point_type<Segment1>::type,
-            typename point_type<Segment2>::type
-        >::type comparable_return_type;
+    typedef distance::strategy_t<Segment1, Segment2, Strategies> strategy_type;
 
 public:
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type,
-            typename point_type<Segment1>::type,
-            typename point_type<Segment2>::type
-        >::type return_type;
+    typedef distance::return_t<Segment1, Segment2, Strategies> return_type;
 
-    static inline return_type
-    apply(Segment1 const& segment1, Segment2 const& segment2,
-          Strategies const& strategies)
+    static inline return_type apply(Segment1 const& segment1, Segment2 const& segment2,
+                                    Strategies const& strategies)
     {
         if (geometry::intersects(segment1, segment2, strategies))
         {
@@ -87,15 +66,14 @@ public:
         detail::assign_point_from_index<0>(segment2, q[0]);
         detail::assign_point_from_index<1>(segment2, q[1]);
 
-        strategy_type strategy = strategies.distance(segment1, segment2);
+        strategy_type const strategy = strategies.distance(segment1, segment2);
 
-        comparable_strategy cstrategy =
-            strategy::distance::services::get_comparable
-                <
-                    strategy_type
-                >::apply(strategy);
+        auto const cstrategy = strategy::distance::services::get_comparable
+                                <
+                                    strategy_type
+                                >::apply(strategy);
 
-        comparable_return_type d[4];
+        distance::creturn_t<Segment1, Segment2, Strategies> d[4];
         d[0] = cstrategy.apply(q[0], p[0], p[1]);
         d[1] = cstrategy.apply(q[1], p[0], p[1]);
         d[2] = cstrategy.apply(p[0], q[0], q[1]);

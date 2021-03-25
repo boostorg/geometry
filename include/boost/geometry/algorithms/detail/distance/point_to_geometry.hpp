@@ -30,6 +30,15 @@
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
+#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/distance/iterator_selector.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -37,21 +46,11 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/strategies/distance.hpp>
-#include <boost/geometry/strategies/tags.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
+#include <boost/geometry/strategies/tags.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
-
-#include <boost/geometry/algorithms/detail/closest_feature/geometry_to_range.hpp>
-#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
-#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
-#include <boost/geometry/algorithms/detail/distance/iterator_selector.hpp>
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -167,45 +166,25 @@ template
 class point_to_range
 {
 private:
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Point>(), std::declval<Range>())) strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            strategy_type
-        >::type comparable_strategy;
+    typedef distance::strategy_t<Point, Range, Strategies> strategy_type;
 
     typedef detail::closest_feature::point_to_point_range
         <
-            Point, Range, Closure, comparable_strategy
+            Point, Range, Closure
         > point_to_point_range;
 
 public:
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type,
-            Point,
-            typename boost::range_value<Range>::type
-        >::type return_type;
+    typedef distance::return_t<Point, Range, Strategies> return_type;
 
     static inline return_type apply(Point const& point, Range const& range,
                                     Strategies const& strategies)
     {
-        return_type const zero = return_type(0);
-
         if (boost::size(range) == 0)
         {
-            return zero;
+            return return_type(0);
         }
 
-        namespace sds = strategy::distance::services;
-
-        typename sds::return_type
-            <
-                comparable_strategy,
-                Point,
-                typename point_type<Range>::type
-            >::type cd_min;
+        distance::creturn_t<Point, Range, Strategies> cd_min;
 
         std::pair
             <
@@ -215,7 +194,7 @@ public:
             = point_to_point_range::apply(point,
                                           boost::begin(range),
                                           boost::end(range),
-                                          sds::get_comparable
+                                          strategy::distance::services::get_comparable
                                               <
                                                   strategy_type
                                               >::apply(strategies.distance(point, range)),
@@ -240,13 +219,7 @@ template
 >
 struct point_to_ring
 {
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Point>(), std::declval<Ring>())) strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type, Point, typename point_type<Ring>::type
-        >::type return_type;
+    typedef distance::return_t<Point, Ring, Strategies> return_type;
 
     static inline return_type apply(Point const& point,
                                     Ring const& ring,
@@ -275,13 +248,7 @@ template
 class point_to_polygon
 {
 public:
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Point>(), std::declval<Polygon>())) strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type, Point, typename point_type<Polygon>::type
-        >::type return_type;
+    typedef distance::return_t<Point, Polygon, Strategies> return_type;
 
 private:
     typedef point_to_range
@@ -307,12 +274,11 @@ private:
                     return per_ring::apply(point, *it, strategies);
                 }
             }
-            return 0;
+            return return_type(0);
         }
 
         template <typename InteriorRings>
-        static inline return_type apply(Point const& point,
-                                        InteriorRings const& interior_rings,
+        static inline return_type apply(Point const& point, InteriorRings const& interior_rings,
                                         Strategies const& strategies)
         {
             return apply(point,
@@ -358,13 +324,11 @@ class point_to_multigeometry
 {
 private:
     typedef detail::closest_feature::geometry_to_range geometry_to_range;
-    typedef decltype(std::declval<Strategies>().distance(std::declval<Point>(), std::declval<MultiGeometry>())) strategy_type;
+
+    typedef distance::strategy_t<Point, MultiGeometry, Strategies> strategy_type;
 
 public:
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type, Point, typename point_type<MultiGeometry>::type
-        >::type return_type;
+    typedef distance::return_t<Point, MultiGeometry, Strategies> return_type;
 
     static inline return_type apply(Point const& point,
                                     MultiGeometry const& multigeometry,
@@ -372,20 +336,13 @@ public:
     {
         typedef iterator_selector<MultiGeometry const> selector_type;
 
-        namespace sds = strategy::distance::services;
-
-        typename sds::return_type
-            <
-                typename sds::comparable_type<strategy_type>::type,
-                Point,
-                typename point_type<MultiGeometry>::type
-            >::type cd;
+        distance::creturn_t<Point, MultiGeometry, Strategies> cd;
 
         typename selector_type::iterator_type it_min
             = geometry_to_range::apply(point,
                                        selector_type::begin(multigeometry),
                                        selector_type::end(multigeometry),
-                                       sds::get_comparable
+                                       strategy::distance::services::get_comparable
                                            <
                                                strategy_type
                                            >::apply(strategies.distance(point, multigeometry)),
@@ -418,23 +375,15 @@ public:
 template <typename Point, typename MultiPolygon, typename Strategies>
 struct point_to_multigeometry<Point, MultiPolygon, Strategies, true>
 {
-    typedef decltype(std::declval<Strategies>().distance(std::declval<Point>(), std::declval<MultiPolygon>())) strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type,
-            Point,
-            typename point_type<MultiPolygon>::type
-        >::type return_type;
+    typedef distance::return_t<Point, MultiPolygon, Strategies> return_type;
 
     static inline return_type apply(Point const& point,
                                     MultiPolygon const& multipolygon,
                                     Strategies const& strategies)
     {
-        // TODO: pass strategy
         if (within::covered_by_point_geometry(point, multipolygon, strategies))
         {
-            return 0;
+            return return_type(0);
         }
 
         return point_to_multigeometry

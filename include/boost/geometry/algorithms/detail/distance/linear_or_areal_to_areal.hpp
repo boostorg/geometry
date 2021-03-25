@@ -11,13 +11,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_OR_AREAL_TO_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_OR_AREAL_TO_AREAL_HPP
 
+#include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 
-#include <boost/geometry/algorithms/intersects.hpp>
-
-#include <boost/geometry/algorithms/detail/distance/linear_to_linear.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,12 +31,7 @@ namespace detail { namespace distance
 template <typename Linear, typename Areal, typename Strategies>
 struct linear_to_areal
 {
-    typedef typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<Linear>(), std::declval<Areal>())),
-            typename point_type<Linear>::type,
-            typename point_type<Areal>::type
-        >::type return_type;
+    typedef distance::return_t<Linear, Areal, Strategies> return_type;
 
     static inline return_type apply(Linear const& linear,
                                     Areal const& areal,
@@ -43,7 +39,7 @@ struct linear_to_areal
     {
         if ( geometry::intersects(linear, areal, strategies) )
         {
-            return 0;
+            return return_type(0);
         }
 
         return linear_to_linear
@@ -64,12 +60,7 @@ struct linear_to_areal
 template <typename Areal1, typename Areal2, typename Strategies>
 struct areal_to_areal
 {
-    typedef typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<Areal1>(), std::declval<Areal2>())),
-            typename point_type<Areal1>::type,
-            typename point_type<Areal2>::type
-        >::type return_type;
+    typedef distance::return_t<Areal1, Areal2, Strategies> return_type;
 
     static inline return_type apply(Areal1 const& areal1,
                                     Areal2 const& areal2,
@@ -77,7 +68,7 @@ struct areal_to_areal
     {
         if ( geometry::intersects(areal1, areal2, strategies) )
         {
-            return 0;
+            return return_type(0);
         }
 
         return linear_to_linear

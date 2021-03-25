@@ -37,13 +37,7 @@ struct distance
         strategy_tag_distance_box_box, false
     >
 {
-    static inline typename strategy::distance::services::return_type
-        <
-            decltype(std::declval<Strategies>().distance(std::declval<Box1>(), std::declval<Box2>())),
-            typename point_type<Box1>::type,
-            typename point_type<Box2>::type
-        >::type
-    apply(Box1 const& box1, Box2 const& box2, Strategies const& strategies)
+    static inline auto apply(Box1 const& box1, Box2 const& box2, Strategies const& strategies)
     {
         boost::ignore_unused(strategies);
         return strategies.distance(box1, box2).apply(box1, box2);
