@@ -38,6 +38,10 @@
 * [@https://github.com/boostorg/geometry/pull/815 815] Fixed issue in buffer().
 * Various fixes in set operations and buffer.
 
+[*Breaking changes]
+
+* Removed strategy convex_hull::graham_andrew.
+
 [/=================]
 [heading Boost 1.75]
 [/=================]
