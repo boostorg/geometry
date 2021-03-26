@@ -315,6 +315,21 @@ struct convex_hull_insert<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 } // namespace resolve_variant
 
 
+/*!
+\brief \brief_calc{convex hull} \brief_strategy
+\ingroup convex_hull
+\details \details_calc{convex_hull,convex hull} \brief_strategy.
+\tparam Geometry the input geometry type
+\tparam OutputGeometry the output geometry type
+\tparam Strategy the strategy type
+\param geometry \param_geometry,  input geometry
+\param out \param_geometry \param_set{convex hull}
+\param strategy \param_strategy{area}
+
+\qbk{distinguish,with strategy}
+
+\qbk{[include reference/algorithms/convex_hull.qbk]}
+ */
 template<typename Geometry, typename OutputGeometry, typename Strategy>
 inline void convex_hull(Geometry const& geometry,
             OutputGeometry& out, Strategy const& strategy)
