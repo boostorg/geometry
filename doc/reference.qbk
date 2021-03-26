@@ -94,7 +94,10 @@
 
 [include generated/clear.qbk]
 [include generated/convert.qbk]
+
+[section:convex_hull convex_hull]
 [include generated/convex_hull.qbk]
+[endsect]
 
 [section:correct correct]
 [include generated/correct.qbk]
