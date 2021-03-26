@@ -379,7 +379,6 @@
 [include generated/buffer_side_straight.qbk]
 [include generated/centroid_average.qbk]
 [include generated/centroid_bashein_detmer.qbk]
-[include generated/convex_hull_graham_andrew.qbk]
 [include generated/densify_cartesian.qbk]
 [include generated/densify_geographic.qbk]
 [include generated/densify_spherical.qbk]
