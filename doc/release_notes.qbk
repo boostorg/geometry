@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015-2020.
-  Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015-2021.
+  Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -18,6 +18,25 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.76]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/670 670] New IOs to_wkt() and from_wkt() (thanks to Baidyanath Kundu).
+* [@https://github.com/boostorg/geometry/pull/756 756] Non cartesian and robust convex hulls.
+* [@https://github.com/boostorg/geometry/pull/768 768] Umbrella strategies for relops, setops, index, buffer and more (undocumented for now).
+* [@https://github.com/boostorg/geometry/pull/797 797] New azimuth() algorithm.
+* [@https://github.com/boostorg/geometry/pull/801 801] Improved accuracy in geographic area computations.
+* [@https://github.com/boostorg/geometry/pull/820 820] Parameter scale added to svg_mapper.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/808 808] Fixed compilation error with rtree serialization enabled (thanks to Tristan Carel).
+* [@https://github.com/boostorg/geometry/pull/815 815] Fixed issue in buffer().
+* Various fixes in set operations and buffer.
 
 [/=================]
 [heading Boost 1.75]
