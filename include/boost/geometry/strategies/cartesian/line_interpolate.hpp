@@ -16,7 +16,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/line_interpolate.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 

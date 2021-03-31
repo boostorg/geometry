@@ -26,7 +26,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 
 
 namespace boost { namespace geometry

@@ -38,7 +38,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 
 

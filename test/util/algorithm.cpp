@@ -16,7 +16,7 @@
 
 #include <boost/geometry/geometries/point.hpp>
 
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 
 
 void test_dimension(bg::util::index_constant<0> index)

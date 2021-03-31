@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/detail/distance/interface.hpp>
 #include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/default_distance_result.hpp>

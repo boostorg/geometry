@@ -7,11 +7,9 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_UTIL_FOR_EACH_DIMENSION_HPP
-#define BOOST_GEOMETRY_UTIL_FOR_EACH_DIMENSION_HPP
+#ifndef BOOST_GEOMETRY_UTIL_ALGORITHM_HPP
+#define BOOST_GEOMETRY_UTIL_ALGORITHM_HPP
 
-
-#include <boost/config.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
@@ -286,4 +284,4 @@ constexpr inline bool none_dimension_of(UnaryPredicate predicate)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_UTIL_FOR_EACH_DIMENSION_HPP
+#endif // BOOST_GEOMETRY_UTIL_ALGORITHM_HPP

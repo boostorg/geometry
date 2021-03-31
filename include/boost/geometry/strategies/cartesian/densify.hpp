@@ -20,7 +20,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/strategies/densify.hpp>
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 

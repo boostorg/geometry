@@ -54,7 +54,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
-#include <boost/geometry/util/for_each_dimension.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/is_empty.hpp>
