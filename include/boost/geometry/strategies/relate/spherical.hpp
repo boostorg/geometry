@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -45,6 +45,13 @@ class spherical
     using base_t = strategies::envelope::detail::spherical<RadiusTypeOrSphere, CalculationType>;
 
 public:
+
+    spherical() = default;
+
+    template <typename RadiusOrSphere>
+    explicit spherical(RadiusOrSphere const& radius_or_sphere)
+        : strategies::envelope::detail::spherical<RadiusTypeOrSphere, CalculationType>(radius_or_sphere)
+    {}
 
     // area
 

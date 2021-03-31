@@ -535,24 +535,46 @@ struct test_distance_of_geometries
         base::apply(segment, box, expected_distance,
                     expected_comparable_distance, strategy, is_finite);
 
-        comparable_strategy cstrategy =
-            bg::strategy::distance::services::get_comparable
-                <
-                    Strategy
-                >::apply(strategy);
+        auto strategies = bg::strategies::distance::services::strategy_converter<Strategy>::get(strategy);
+        auto cstrategies = bg::strategies::distance::detail::make_comparable(strategies);
+
+        // TODO: these algorithms are used only here. Remove them?
 
         distance_result_type distance_generic =
             bg::detail::distance::segment_to_box_2D_generic
                 <
-                    Segment, Box, Strategy
-                >::apply(segment, box, strategy);
+                    Segment, Box, decltype(strategies), false
+                >::apply(segment, box, strategies);
 
         comparable_distance_result_type comparable_distance_generic =
             bg::detail::distance::segment_to_box_2D_generic
                 <
-                    Segment, Box, comparable_strategy
-                >::apply(segment, box, cstrategy);
+                    Segment, Box, decltype(cstrategies), false
+                >::apply(segment, box, cstrategies);
 
+        check_equal
+            <
+                distance_result_type
+            >::apply(distance_generic, expected_distance, is_finite);
+
+        check_equal
+            <
+                comparable_distance_result_type
+            >::apply(comparable_distance_generic,
+                     expected_comparable_distance,
+                     is_finite);
+
+        distance_generic =
+            bg::detail::distance::segment_to_box_2D_generic
+                <
+                    Segment, Box, decltype(strategies), true
+                >::apply(segment, box, strategies);
+
+        comparable_distance_generic =
+            bg::detail::distance::segment_to_box_2D_generic
+                <
+                    Segment, Box, decltype(cstrategies), true
+                >::apply(segment, box, cstrategies);
 
         check_equal
             <

@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2020.
-// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -33,14 +33,12 @@ struct comparable_distance
 {
     typedef typename geometry::comparable_distance_result
         <
-            Point1, Point2, 
-            decltype(std::declval<Strategy>().comparable_distance(
-                        std::declval<Point1>(), std::declval<Point2>()))
+            Point1, Point2, Strategy
         >::type result_type;
 
     static inline result_type call(Point1 const& p1, Point2 const& p2, Strategy const& s)
     {
-        return geometry::comparable_distance(p1, p2, s.comparable_distance(p1, p2));
+        return geometry::comparable_distance(p1, p2, s);
     }
 };
 

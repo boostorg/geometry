@@ -14,6 +14,7 @@
 #include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/azimuth/spherical.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
+#include <boost/geometry/strategies/distance/spherical.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
 #include <boost/geometry/strategies/io/spherical.hpp>
@@ -45,14 +46,8 @@ public:
 
     template <typename RadiusOrSphere>
     explicit spherical(RadiusOrSphere const& radius_or_sphere)
-        //: base_t(radius_or_sphere)
-    {
-        // TODO: pass into the constructor
-        base_t::m_radius = strategy_detail::get_radius
-            <
-                RadiusOrSphere
-            >::apply(radius_or_sphere);
-    }
+        : base_t(radius_or_sphere)
+    {}
 
     static auto azimuth()
     {

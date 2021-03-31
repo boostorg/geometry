@@ -108,14 +108,12 @@ struct comparable_distance_call
 {
     typedef typename geometry::comparable_distance_result
         <
-            G1, G2,
-            decltype(std::declval<Strategy>().comparable_distance(std::declval<G1>(),
-                                                                  std::declval<G2>()))
+            G1, G2, Strategy
         >::type result_type;
 
     static inline result_type apply(G1 const& g1, G2 const& g2, Strategy const& s)
     {
-        return geometry::comparable_distance(g1, g2, s.comparable_distance(g1, g2));
+        return geometry::comparable_distance(g1, g2, s);
     }
 };
 

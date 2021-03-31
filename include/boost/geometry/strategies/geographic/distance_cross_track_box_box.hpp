@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2017-2020, Oracle and/or its affiliates.
+// Copyright (c) 2017-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -117,6 +117,12 @@ public:
                                                             typename distance_pp_strategy::type(m_spheroid),
                                                             typename distance_ps_strategy::type(m_spheroid));
     }
+
+    Spheroid model() const
+    {
+        return m_spheroid;
+    }
+
 private :
     Spheroid m_spheroid;
 };

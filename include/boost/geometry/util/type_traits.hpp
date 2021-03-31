@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -106,6 +106,11 @@ struct is_areal
     : std::is_base_of<areal_tag, typename tag<T>::type>
 {};
 
+
+template <typename T>
+struct is_segmental
+    : bool_constant<is_linear<T>::value || is_polygonal<T>::value>
+{};
 
 template <typename T>
 struct is_polysegmental

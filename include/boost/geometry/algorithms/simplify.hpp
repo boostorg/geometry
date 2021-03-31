@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018-2020.
-// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2021.
+// Modifications copyright (c) 2018-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -50,8 +50,6 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
-
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
 
 namespace boost { namespace geometry
 {
