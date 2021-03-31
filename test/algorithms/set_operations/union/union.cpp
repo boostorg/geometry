@@ -431,6 +431,13 @@ void test_areal()
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
     {
+        // Without rescaling, the result is invalid
+        ut_settings settings;
+        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        TEST_UNION_WITH(issue_838, 1, 0, -1, 1.3333);
+    }
+
+    {
         // Rescaling produces an invalid result
         ut_settings settings;
         settings.set_test_validity(BG_IF_RESCALED(false, true));
