@@ -32,17 +32,18 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
+#include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/detail/calculate_null.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
+#include <boost/geometry/algorithms/detail/multi_sum.hpp>
+// #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/detail/calculate_null.hpp>
-#include <boost/geometry/algorithms/detail/multi_sum.hpp>
-// #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/default_length_result.hpp>
@@ -50,6 +51,8 @@
 #include <boost/geometry/strategies/length/cartesian.hpp>
 #include <boost/geometry/strategies/length/geographic.hpp>
 #include <boost/geometry/strategies/length/spherical.hpp>
+
+#include <boost/geometry/views/closeable_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -101,7 +104,7 @@ struct range_length
         iterator_type it = boost::begin(view), end = boost::end(view);
         if (it != end)
         {
-            auto const strategy = strategies.distance(*it, *it);
+            auto const strategy = strategies.distance(dummy_point(), dummy_point());
 
             for(iterator_type previous = it++;
                     it != end;

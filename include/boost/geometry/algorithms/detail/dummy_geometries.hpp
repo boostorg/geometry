@@ -39,15 +39,15 @@ struct dummy_multi_polygon {};
 namespace traits
 {
 
-template <> struct tag<detail::dummy_point> { typedef point_tag type; };
-template <> struct tag<detail::dummy_segment> { typedef segment_tag type; };
-template <> struct tag<detail::dummy_box> { typedef box_tag type; };
-template <> struct tag<detail::dummy_linestring> { typedef linestring_tag type; };
-template <> struct tag<detail::dummy_ring> { typedef ring_tag type; };
-template <> struct tag<detail::dummy_polygon> { typedef polygon_tag type; };
-template <> struct tag<detail::dummy_multi_point> { typedef multi_point_tag type; };
-template <> struct tag<detail::dummy_multi_linestring> { typedef multi_linestring_tag type; };
-template <> struct tag<detail::dummy_multi_polygon> { typedef multi_polygon_tag type; };
+template <> struct tag<geometry::detail::dummy_point> { typedef point_tag type; };
+template <> struct tag<geometry::detail::dummy_segment> { typedef segment_tag type; };
+template <> struct tag<geometry::detail::dummy_box> { typedef box_tag type; };
+template <> struct tag<geometry::detail::dummy_linestring> { typedef linestring_tag type; };
+template <> struct tag<geometry::detail::dummy_ring> { typedef ring_tag type; };
+template <> struct tag<geometry::detail::dummy_polygon> { typedef polygon_tag type; };
+template <> struct tag<geometry::detail::dummy_multi_point> { typedef multi_point_tag type; };
+template <> struct tag<geometry::detail::dummy_multi_linestring> { typedef multi_linestring_tag type; };
+template <> struct tag<geometry::detail::dummy_multi_polygon> { typedef multi_polygon_tag type; };
 
 } // namespace traits
 

@@ -26,6 +26,7 @@
 #include <vector>
 #include <limits>
 
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -70,8 +71,7 @@ struct point_range
 
         boost::geometry::detail::throw_on_empty_input(rng);
 
-        // Technically rng point should've been passed here but pnt is ok too
-        auto const strategy = strategies.distance(pnt, pnt);
+        auto const strategy = strategies.distance(dummy_point(), dummy_point());
 
         size_type const n = boost::size(rng);
         result_type dis_min = 0;

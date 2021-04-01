@@ -26,6 +26,7 @@
 #include <vector>
 #include <limits>
 
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -88,7 +89,7 @@ struct linestring_linestring
         boost::geometry::detail::throw_on_empty_input(ls2);
 
         // We can assume the inputs are not empty
-        auto const strategy = strategies.distance(range::front(ls1), range::front(ls2));
+        auto const strategy = strategies.distance(dummy_point(), dummy_point());
 
         size_type1 const a = boost::size(ls1);
         size_type2 const b = boost::size(ls2);
