@@ -22,6 +22,33 @@
 #include <boost/geometry.hpp>
 #include <geometry_test_common.hpp>
 
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+#include <GeographicLib/Constants.hpp>
+#include <GeographicLib/Geodesic.hpp>
+#include <GeographicLib/PolygonArea.hpp>
+
+template <typename polygon>
+auto geographiclib_area(polygon p) {
+
+    using namespace GeographicLib;
+
+    //Geodesic geod(6371008.8, 0.0);//Constants::WGS84_f());
+    const Geodesic& geod = Geodesic::WGS84();
+    PolygonArea poly(geod);
+    for (auto it = boost::begin(boost::geometry::exterior_ring(p));
+        it != boost::end(boost::geometry::exterior_ring(p)); ++it)
+    {
+        double x = bg::get_as_radian<0>(*it) * bg::math::r2d<double>();
+        double y = bg::get_as_radian<1>(*it) * bg::math::r2d<double>();
+        poly.AddPoint( y,  x);
+    }
+    double perimeter, area;
+    poly.Compute(false, true, perimeter, area);
+    // geographiclib has different orientation than BG
+    return -area;
+}
+#endif // BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+
 namespace bg = boost::geometry;
 
 //Testing spherical and geographic strategies
@@ -104,8 +131,10 @@ void test_spherical_geo()
 
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 4537929936.5349159, 0.0001);
-
+    BOOST_CHECK_CLOSE(area, 4537929936.5883484, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.1);
+#endif
     // Wrangel, more in detail
     poly = "POLYGON((-178.568604 71.564148,-178.017548 71.449692,-177.833313 71.3461,\
             -177.502838 71.277466 ,-177.439453 71.226929,-177.620026 71.116638,\
@@ -144,15 +173,16 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 14136.09946, 0.001); // SQL Server gives: 14064.1902284513
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 14064129044.674297, 0.0001);
+    BOOST_CHECK_CLOSE(area, 14064129044.677765, 0.0001);
 
     poly = "POLYGON((-178.7858 10.7852, 177.4758 11.2333, 179.7436 11.5733, -178.7858 10.7852))";
+    // Geographiclib 1.51 :13696308940.35794067382812
     bg::read_wkt(poly, geometry);
     area = bg::area(geometry, spherical_earth);
     BOOST_CHECK_CLOSE(area, 13760.2456, 0.001); // SQL Server gives: 13697.0941155193
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 13696308940.315653, 0.0001);
+    BOOST_CHECK_CLOSE(area, 13696308940.342197, 0.0001);
 
     poly = "POLYGON((-178.7858 20.7852, 177.4758 21.2333, 179.7436 21.5733, -178.7858 20.7852))";
     bg::read_wkt(poly, geometry);
@@ -160,7 +190,10 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 12987.8682, 0.001); // SQL Server gives: 12944.3970990317 -> -39m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 12943176284.560806, 0.0001);
+    BOOST_CHECK_CLOSE(area, 12943176284.489822, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.00001);
+#endif
 
     poly = "POLYGON((-178.7858 30.7852, 177.4758 31.2333, 179.7436 31.5733, -178.7858 30.7852))";
     bg::read_wkt(poly, geometry);
@@ -168,7 +201,11 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 11856.3935, 0.001); // SQL Server gives: 11838.5338423574 -> -18m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 11837280445.349375, 0.0001);
+    BOOST_CHECK_CLOSE(area, 11837280445.394035, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    // GEOGRAPHICLIB 1.51: 11837280466.204895
+    BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.000001);
+#endif
 
     poly = "POLYGON((-178.7858 40.7852, 177.4758 41.2333, 179.7436 41.5733, -178.7858 40.7852))";
     bg::read_wkt(poly, geometry);
@@ -177,7 +214,11 @@ void test_spherical_geo()
     // SQL Server gives: 10412.0607137119, -> +8m^2
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 10411098789.39222, 0.0001);
+    BOOST_CHECK_CLOSE(area, 10411098789.387386, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    // GEOGRAPHICLIB 1.51: 10411098790.577026
+    BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.000001);
+#endif
 
     // Concave
     poly = "POLYGON((0 40,1 42,0 44,2 43,4 44,3 42,4 40,2 41,0 40))";
@@ -186,7 +227,11 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 73538.2958, 0.001); // SQL Server gives: 73604.2047689719
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 73604208172.719223, 0.0001);
+    BOOST_CHECK_CLOSE(area, 73604163095.545319, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    // GEOGRAPHICLIB 1.51: 73604163091.274048
+    BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.000001);
+#endif
 
     // With hole POLYGON((0 40,4 40,4 44,0 44,0 40),(1 41,2 43,3 42,1 41))
     poly = "POLYGON((0 40,0 44,4 44,4 40,0 40),(1 41,3 42,2 43,1 41))";
@@ -195,7 +240,11 @@ void test_spherical_geo()
     BOOST_CHECK_CLOSE(area, 133233.844876, 0.001); // SQL Server gives: 133353.335
     bg::read_wkt(poly, geometry_geo);
     area = bg::area(geometry_geo, area_geographic);
-    BOOST_CHECK_CLOSE(area, 133353077343.10347, 0.0001);
+    BOOST_CHECK_CLOSE(area, 133353077343.26692, 0.0001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+    // GEOGRAPHICLIB 1.51: 147189206350.20142
+    //BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area, 0.9);
+#endif
 
     // mean Earth's radius^2
     double r2 = bg::math::sqr(bg::get_radius<0>(bg::srs::sphere<double>()));
@@ -223,7 +272,11 @@ void test_spherical_geo()
         area3 = bg::area(geometry_geo, area_geographic);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1227877191611.2805, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1227877191611.3574, 0.001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+        // GEOGRAPHICLIB 1.51: 1227877191609.6267
+        BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area3, 0.000001);
+#endif
     }
     {
         std::string poly1 = "POLYGON((-10 -5,-10 5,0 5,0 -5,-10 -5))";
@@ -247,7 +300,11 @@ void test_spherical_geo()
         area3 = bg::area(geometry_geo, area_geographic);
         BOOST_CHECK_CLOSE(area1, area2, 0.001);
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1232514639151.6477, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1232514639151.7168, 0.001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+        // GEOGRAPHICLIB 1.51: 1232514639151.6357
+        BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area3, 0.000001);
+#endif
     }
     // around 180 meridian
     {
@@ -286,7 +343,11 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1227877191611.2805, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1227877191611.3574, 0.001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+        // GEOGRAPHICLIB 1.51: 1227877191609.6267
+        BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area5, 0.000001);
+#endif
     }
     {
         std::string poly1 = "POLYGON((-180 -5,-180 5,-170 5,-170 -5,-180 -5))";
@@ -324,7 +385,11 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area2, area3, 0.001);
         BOOST_CHECK_CLOSE(area3, area4, 0.001);
         BOOST_CHECK_CLOSE(area4, area5, 0.001);
-        BOOST_CHECK_CLOSE(area1, 1232514639151.6477, 0.001);
+        BOOST_CHECK_CLOSE(area1, 1232514639151.7168, 0.001);
+#ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
+        // GEOGRAPHICLIB 1.51: 1232514639151.6357
+        BOOST_CHECK_CLOSE(geographiclib_area(geometry_geo), area5, 0.000001);
+#endif
     }
     // around poles
     {
@@ -394,13 +459,130 @@ void test_spherical_geo()
 
         area = bg::area(geometry_sph, bg::strategy::area::spherical<>(6371228.0));
         BOOST_CHECK_CLOSE(area, 308932296103.83051, 0.0001);
-        
+
         bg::model::polygon<pt_geo, false> geometry_geo;
         bg::read_wkt(wkt, geometry_geo);
 
         area = bg::area(geometry_geo, bg::strategy::area::geographic<>(bg::srs::spheroid<double>(6371228.0, 6371228.0)));
         BOOST_CHECK_CLOSE(area, 308932296103.82574, 0.001);
     }
+
+    {
+        // small areas: ~20m^2
+        // see https://github.com/boostorg/geometry/issues/799
+        // geographiclib 1.50.1 returns: 25.5736
+
+        bg::model::polygon<pt> geometry;
+        std::string wkt ="POLYGON((-0.020000 51.470027,-0.020031 51.470019,-0.020043 51.470000,\
+                 -0.020031 51.469981,-0.020000 51.469973,-0.019969 51.469981,\
+                 -0.019957 51.470000,-0.019969 51.470019,-0.020000 51.470027))";
+        bg::read_wkt(wkt, geometry);
+
+        bg::strategy::area::spherical
+            <
+                ct
+            > area_spherical(6371228.0);
+        area = bg::area(geometry, area_spherical);
+        BOOST_CHECK_CLOSE(area, -25.48014, 0.0001);
+
+        //geographic
+
+        using pt_geo_d = bg::model::point
+            <
+                double, 2, bg::cs::geographic<bg::degree>
+            >;
+        using pt_geo_ld = bg::model::point
+            <
+                long double, 2, bg::cs::geographic<bg::degree>
+            >;
+
+        bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
+        bg::strategy::area::geographic<bg::strategy::thomas> area_t;
+        bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
+        bg::strategy::area::geographic<bg::strategy::karney> area_k;
+
+        bg::model::polygon<pt_geo_d> geometry_geo_d;
+
+        bg::read_wkt(wkt, geometry_geo_d);
+        area = bg::area(geometry_geo_d, area_a);
+        BOOST_CHECK_CLOSE(area, -25.47837, 0.001);
+        area = bg::area(geometry_geo_d, area_t);
+        BOOST_CHECK_CLOSE(area, -25.57355, 0.001);
+        area = bg::area(geometry_geo_d, area_v);
+        BOOST_CHECK_CLOSE(area, -25.55881, 0.001);
+        area = bg::area(geometry_geo_d, area_k);
+        BOOST_CHECK_CLOSE(area, -25.57357, 0.001);
+
+        bg::model::polygon<pt_geo_ld> geometry_geo_ld;
+
+        bg::read_wkt(wkt, geometry_geo_ld);
+        area = bg::area(geometry_geo_ld, area_a);
+        BOOST_CHECK_CLOSE(area, -25.57978, 0.4); // -25.478374 with vc-14.1
+        area = bg::area(geometry_geo_ld, area_t);
+        BOOST_CHECK_CLOSE(area, -25.57359, 0.001);
+        area = bg::area(geometry_geo_ld, area_v);
+        BOOST_CHECK_CLOSE(area, -25.57394, 0.06); // -25.558816 with vc-14.1
+        area = bg::area(geometry_geo_ld, area_k);
+        BOOST_CHECK_CLOSE(area, -25.57359, 0.001);
+    }
+
+    {
+        // very small areas: ~2m^2
+        // geographiclib 1.50.1 returns: 2.24581
+
+        bg::model::polygon<pt> geometry;
+        std::string wkt ="POLYGON((0.020000 51.470027,0.020005 51.470027,\
+            0.020005 51.470000,0.020007 51.4699,0.020000 51.470027))";
+        bg::read_wkt(wkt, geometry);
+
+        bg::strategy::area::spherical
+            <
+                ct
+            > area_spherical(6371228.0);
+        area = bg::area(geometry, area_spherical);
+        BOOST_CHECK_CLOSE(area, 2.2375981058307093, 0.001);
+
+        //geographic
+
+        using pt_geo_d = bg::model::point
+            <
+                double, 2, bg::cs::geographic<bg::degree>
+            >;
+        using pt_geo_ld = bg::model::point
+            <
+                long double, 2, bg::cs::geographic<bg::degree>
+            >;
+
+        bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
+        bg::strategy::area::geographic<bg::strategy::thomas> area_t;
+        bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
+        bg::strategy::area::geographic<bg::strategy::karney> area_k;
+
+        bg::model::polygon<pt_geo_d> geometry_geo_d;
+
+        bg::read_wkt(wkt, geometry_geo_d);
+        area = bg::area(geometry_geo_d, area_a);
+        BOOST_CHECK_CLOSE(area, 2.2374430036130444, 0.001);
+        area = bg::area(geometry_geo_d, area_t);
+        BOOST_CHECK_CLOSE(area, 2.245814319435655, 0.001);
+        area = bg::area(geometry_geo_d, area_v);
+        BOOST_CHECK_CLOSE(area, 2.2374430036130444, 0.001);
+        area = bg::area(geometry_geo_d, area_k);
+        BOOST_CHECK_CLOSE(area, 2.2458140167194878, 0.001);
+
+        bg::model::polygon<pt_geo_ld> geometry_geo_ld;
+
+        bg::read_wkt(wkt, geometry_geo_ld);
+        area = bg::area(geometry_geo_ld, area_a);
+        BOOST_CHECK_CLOSE(area, 2.2374430039839437, 0.001);
+        area = bg::area(geometry_geo_ld, area_t);
+        BOOST_CHECK_CLOSE(area, 2.2457934740573235, 0.001);
+        area = bg::area(geometry_geo_ld, area_v);
+        BOOST_CHECK_CLOSE(area, 2.2374430039839437, 0.001);
+        area = bg::area(geometry_geo_ld, area_k);
+        BOOST_CHECK_CLOSE(area, 2.2458050314935392, 0.001);
+    }
+
 }
 
 int test_main(int, char* [])

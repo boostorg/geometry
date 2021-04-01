@@ -56,8 +56,6 @@
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>

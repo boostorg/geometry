@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2021.
+// Modifications copyright (c) 2018-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,7 +17,6 @@
 #include <boost/geometry/extensions/algebra/geometries/concepts/vector_concept.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 //#include <boost/geometry/geometries/concepts/point_concept.hpp>
-//#include <boost/geometry/util/for_each_coordinate.hpp>
 
 namespace boost { namespace geometry
 {
@@ -31,8 +30,10 @@ inline void translation(Point1 const& p1, Point2 const& p2, Vector & v)
     // TODO - replace the following by check_equal_dimensions
     concepts::check_concepts_and_equal_dimensions<Point1 const, Vector>();
 
-    for_each_coordinate(v, detail::point_assignment<Point2>(p2));
-    for_each_coordinate(v, detail::point_operation<Point1, std::minus>(p1));
+    detail::for_each_dimension<Point1>([&](auto index)
+    {
+        set<index>(v, get<index>(p2) - get<index>(p1));
+    });
 }
 
 template <typename Vector, typename Point1, typename Point2>

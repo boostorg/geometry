@@ -24,8 +24,9 @@
 
 #include <boost/concept_check.hpp>
 
+#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/core/point_type.hpp>
-
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 // TODO: move these to algorithms
@@ -34,10 +35,6 @@
 
 #include <boost/geometry/strategies/distance/services.hpp>
 
-#include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 
 namespace boost { namespace geometry
@@ -104,23 +101,60 @@ struct distance
 };
 
 template <typename Strategy>
+struct is_strategy_converter_specialized
+{
+    typedef strategies::distance::services::strategy_converter<Strategy> converter;
+    static const bool value = ! std::is_same
+        <
+            decltype(converter::get(std::declval<Strategy>())),
+            strategies::detail::not_implemented
+        >::value;
+};
+
+template <typename Strategy>
 struct distance<Strategy, false>
 {
-    template <typename Geometry1, typename Geometry2>
+    template
+    <
+        typename Geometry1, typename Geometry2, typename S,
+        std::enable_if_t<is_strategy_converter_specialized<S>::value, int> = 0
+    >
     static inline
-    typename distance_result<Geometry1, Geometry2, Strategy>::type
+    typename distance_result<Geometry1, Geometry2, S>::type
     apply(Geometry1 const& geometry1,
           Geometry2 const& geometry2,
-          Strategy const& strategy)
+          S const& strategy)
     {
-        using strategies::distance::services::strategy_converter;
-        typedef decltype(strategy_converter<Strategy>::get(strategy)) strategy_type;
+        typedef strategies::distance::services::strategy_converter<Strategy> converter;
+        typedef decltype(converter::get(strategy)) strategy_type;
 
         return dispatch::distance
             <
                 Geometry1, Geometry2, strategy_type
-            >::apply(geometry1, geometry2,
-                     strategy_converter<Strategy>::get(strategy));
+            >::apply(geometry1, geometry2, converter::get(strategy));
+    }
+
+    template
+    <
+        typename Geometry1, typename Geometry2, typename S,
+        std::enable_if_t<! is_strategy_converter_specialized<S>::value, int> = 0
+    >
+    static inline
+    typename distance_result<Geometry1, Geometry2, S>::type
+    apply(Geometry1 const& geometry1,
+          Geometry2 const& geometry2,
+          S const& strategy)
+    {
+        typedef strategies::distance::services::custom_strategy_converter
+            <
+                Geometry1, Geometry2, Strategy
+            > converter;
+        typedef decltype(converter::get(strategy)) strategy_type;
+
+        return dispatch::distance
+            <
+                Geometry1, Geometry2, strategy_type
+            >::apply(geometry1, geometry2, converter::get(strategy));
     }
 };
 

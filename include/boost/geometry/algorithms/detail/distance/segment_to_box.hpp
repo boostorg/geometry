@@ -20,22 +20,22 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
+#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
+#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
-#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-#include <boost/geometry/algorithms/detail/closest_feature/point_to_range.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
-#include <boost/geometry/algorithms/detail/distance/default_strategies.hpp>
-#include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
-#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 
@@ -82,32 +82,18 @@ private:
     typedef typename point_type<Segment>::type segment_point;
     typedef typename point_type<Box>::type box_point;
 
-    typedef decltype(std::declval<Strategies>().distance(std::declval<box_point>(), std::declval<Segment>())) ps_strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            ps_strategy_type
-        >::type ps_comparable_strategy_type;
+    typedef distance::strategy_t<box_point, Segment, Strategies> ps_strategy_type;
 
     typedef detail::closest_feature::point_to_point_range
         <
             segment_point,
             std::vector<box_point>,
-            open,
-            ps_comparable_strategy_type
+            open
         > point_to_point_range;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            ps_comparable_strategy_type, segment_point, box_point
-        >::type comparable_return_type;
     
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
-    typedef typename strategy::distance::services::return_type
-        <
-            ps_strategy_type, segment_point, box_point
-        >::type return_type;
+    typedef distance::return_t<box_point, Segment, Strategies> return_type;
 
     static inline return_type apply(Segment const& segment,
                                     Box const& box,
@@ -116,7 +102,7 @@ public:
     {
         if (check_intersection && intersects_segment_box(segment, box, strategies))
         {
-            return 0;
+            return return_type(0);
         }
 
         // get segment points
@@ -128,15 +114,14 @@ public:
         std::vector<box_point> box_points(4);
         detail::assign_box_corners_oriented<true>(box, box_points);
  
-        ps_strategy_type strategy = strategies.distance(box_points.front(), segment);
+        ps_strategy_type const strategy = strategies.distance(box_points.front(), segment);
 
-        ps_comparable_strategy_type cstrategy =
-            strategy::distance::services::get_comparable
-                <
-                    ps_strategy_type
-                >::apply(strategy);
+        auto const cstrategy = strategy::distance::services::get_comparable
+                                <
+                                    ps_strategy_type
+                                >::apply(strategy);
 
-        comparable_return_type cd[6];
+        distance::creturn_t<box_point, Segment, Strategies> cd[6];
         for (unsigned int i = 0; i < 4; ++i)
         {
             cd[i] = cstrategy.apply(box_points[i], p[0], p[1]);
@@ -200,31 +185,13 @@ private:
     typedef typename point_type<Segment>::type segment_point;
     typedef typename point_type<Box>::type box_point;
 
-    typedef decltype(std::declval<Strategies>().distance(std::declval<box_point>(), std::declval<Segment>())) ps_strategy_type;
-    typedef decltype(std::declval<Strategies>().distance(std::declval<segment_point>(), std::declval<Box>())) pb_strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            ps_strategy_type
-        >::type ps_comparable_strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            pb_strategy_type
-        >::type pb_comparable_strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            ps_comparable_strategy_type, segment_point, box_point
-        >::type comparable_return_type;
+    typedef distance::strategy_t<box_point, Segment, Strategies> ps_strategy_type;
+    typedef distance::strategy_t<segment_point, Box, Strategies> pb_strategy_type;
 
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
-    typedef typename strategy::distance::services::return_type
-        <
-            ps_strategy_type, segment_point, box_point
-        >::type return_type;
-
+    typedef distance::return_t<box_point, Segment, Strategies> return_type;
+    
     static inline return_type apply(Segment const& segment,
                                     Box const& box,
                                     Strategies const& strategies,
@@ -232,7 +199,7 @@ public:
     {
         if (check_intersection && intersects_segment_box(segment, box, strategies))
         {
-            return 0;
+            return return_type(0);
         }
 
         // get segment points
@@ -244,14 +211,13 @@ public:
         std::vector<box_point> box_points(4);
         detail::assign_box_corners_oriented<true>(box, box_points);
 
-        comparable_return_type cd[6];
+        distance::creturn_t<box_point, Segment, Strategies> cd[6];
 
         ps_strategy_type ps_strategy = strategies.distance(box_points.front(), segment);
-        ps_comparable_strategy_type ps_cstrategy =
-            strategy::distance::services::get_comparable
-                <
-                    ps_strategy_type
-                >::apply(ps_strategy);
+        auto const ps_cstrategy = strategy::distance::services::get_comparable
+                                    <
+                                        ps_strategy_type
+                                    >::apply(ps_strategy);
         boost::ignore_unused(ps_strategy, ps_cstrategy);
 
         for (unsigned int i = 0; i < 4; ++i)
@@ -259,12 +225,11 @@ public:
             cd[i] = ps_cstrategy.apply(box_points[i], p[0], p[1]);
         }
 
-        pb_strategy_type pb_strategy = strategies.distance(p[0], box);
-        pb_comparable_strategy_type pb_cstrategy =
-            strategy::distance::services::get_comparable
-                <
-                    pb_strategy_type
-                >::apply(pb_strategy);
+        pb_strategy_type const pb_strategy = strategies.distance(p[0], box);
+        auto const pb_cstrategy = strategy::distance::services::get_comparable
+                                    <
+                                        pb_strategy_type
+                                    >::apply(pb_strategy);
         boost::ignore_unused(pb_strategy, pb_cstrategy);
 
         cd[4] = pb_cstrategy.apply(p[0], box);
@@ -759,32 +724,18 @@ template
 >
 class segment_to_box<Segment, Box, 2, Strategies>
 {
-private:
-    typedef typename point_type<Segment>::type segment_point;
-    typedef typename point_type<Box>::type box_point;
+    typedef distance::strategy_t<Segment, Box, Strategies> strategy_type;
 
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Segment>(), std::declval<Box>())) strategy_type;
-
-    typedef typename strategy::distance::services::comparable_type
-        <
-            strategy_type
-        >::type ps_comparable_strategy;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            ps_comparable_strategy, segment_point, box_point
-        >::type comparable_return_type;
 public:
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type, segment_point, box_point
-        >::type return_type;
+    typedef distance::return_t<Segment, Box, Strategies> return_type;
 
     static inline return_type apply(Segment const& segment,
                                     Box const& box,
                                     Strategies const& strategies)
     {
+        typedef typename point_type<Segment>::type segment_point;
+        typedef typename point_type<Box>::type box_point;
+
         segment_point p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);

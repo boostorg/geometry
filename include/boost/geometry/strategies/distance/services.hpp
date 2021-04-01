@@ -41,6 +41,22 @@ struct default_strategy
 template <typename Strategy>
 struct strategy_converter
 {
+    static auto get(Strategy const&)
+    {
+        return strategies::detail::not_implemented();
+    }
+};
+
+template
+<
+    typename Geometry1,
+    typename Geometry2,
+    typename Strategy,
+    typename CSTag1 = typename geometry::cs_tag<Geometry1>::type,
+    typename CSTag2 = typename geometry::cs_tag<Geometry2>::type
+>
+struct custom_strategy_converter
+{
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
         "Not implemented for this Strategy.",
         Strategy);

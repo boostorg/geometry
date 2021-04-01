@@ -1,6 +1,6 @@
 # Boost.Geometry
 #
-# Copyright (c) 2019, Oracle and/or its affiliates.
+# Copyright (c) 2019-2021, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 #
@@ -17,5 +17,6 @@ test-suite boost-geometry-cs_undefined
 	[ compile other.cpp           : : csundef_other ]
 	[ compile relops1.cpp         : : csundef_relops1 ]
 	[ compile relops2.cpp         : : csundef_relops2 ]
-	[ compile setops.cpp          : : csundef_setops ]
+	[ compile setops1.cpp         : : csundef_setops1 ]
+    [ compile setops2.cpp         : : csundef_setops2 ]
     ;

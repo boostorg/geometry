@@ -20,3 +20,5 @@ also supports other textformats (svg, dsv)]
 
 [heading See also]
 * [link geometry.reference.io.wkt.read_wkt Read WKT]
+* [link geometry.reference.io.wkt.from_wkt From WKT]
+* [link geometry.reference.io.wkt.from_wkt To WKT]

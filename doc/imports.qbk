@@ -153,8 +153,11 @@
 [import src/examples/geometries/register/multi_polygon.cpp]
 
 [import src/examples/io/svg.cpp]
+[import src/examples/io/svg_mapper_custom.cpp]
 [import src/examples/io/wkt.cpp]
 [import src/examples/io/read_wkt.cpp]
+[import src/examples/io/to_wkt.cpp]
+[import src/examples/io/from_wkt.cpp]
 
 [import src/examples/strategies/buffer_join_round.cpp]
 [import src/examples/strategies/buffer_join_miter.cpp]

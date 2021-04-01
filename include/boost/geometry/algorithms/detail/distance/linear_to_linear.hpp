@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -10,19 +11,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_TO_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_LINEAR_TO_LINEAR_HPP
 
-#include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
+#include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/dispatch/distance.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
+#include <boost/geometry/algorithms/num_segments.hpp>
 
-#include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
-#include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/algorithms/num_segments.hpp>
-
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
-
-#include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
+#include <boost/geometry/strategies/distance.hpp>
 
 
 namespace boost { namespace geometry
@@ -36,15 +36,7 @@ namespace detail { namespace distance
 template <typename Linear1, typename Linear2, typename Strategies>
 struct linear_to_linear
 {
-    typedef decltype(std::declval<Strategies>().distance(
-        std::declval<Linear1>(), std::declval<Linear2>())) strategy_type;
-
-    typedef typename strategy::distance::services::return_type
-        <
-            strategy_type,
-            typename point_type<Linear1>::type,
-            typename point_type<Linear2>::type
-        >::type return_type;
+    typedef distance::return_t<Linear1, Linear2, Strategies> return_type;
 
     static inline return_type apply(Linear1 const& linear1,
                                     Linear2 const& linear2,

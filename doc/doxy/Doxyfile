@@ -183,6 +183,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/algorithms/detail \
                          ../../../../boost/geometry/algorithms/detail/buffer \
                          ../../../../boost/geometry/algorithms/detail/comparable_distance \
+                         ../../../../boost/geometry/algorithms/detail/convex_hull \
                          ../../../../boost/geometry/algorithms/detail/covered_by \
                          ../../../../boost/geometry/algorithms/detail/disjoint \
                          ../../../../boost/geometry/algorithms/detail/distance \
@@ -220,6 +221,9 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/strategies/spherical \
                          ../../../../boost/geometry/strategies/geographic \
                          ../../../../boost/geometry/strategies/transform \
+                         ../../../../boost/geometry/strategy/cartesian \
+                         ../../../../boost/geometry/strategy/geographic \
+                         ../../../../boost/geometry/strategy/spherical \
                          ../../../../boost/geometry/util \
                          ../../../../boost/geometry/views \
                          ./doxygen_input/pages \

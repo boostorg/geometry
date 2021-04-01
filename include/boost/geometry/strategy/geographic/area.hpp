@@ -64,6 +64,8 @@ class geographic
     static const bool ExpandEpsN = true;
     // LongSegment Enables special handling of long segments
     static const bool LongSegment = false;
+    // Area formula is implemented for a maximum series order 5
+    static constexpr auto SeriesOrderNorm = SeriesOrder > 5 ? 5 : SeriesOrder;
 
     //Select default types in case they are not set
 
@@ -93,6 +95,8 @@ protected :
         calc_t const m_ep2; // squared second eccentricity
         calc_t const m_ep;  // second eccentricity
         calc_t const m_c2;  // squared authalic radius
+        calc_t const m_f;   // the flattening
+        calc_t m_coeffs_var[((SeriesOrderNorm+2)*(SeriesOrderNorm+1))/2];
 
         inline spheroid_constants(Spheroid const& spheroid)
             : m_spheroid(spheroid)
@@ -104,7 +108,19 @@ protected :
                     <
                         calc_t, Spheroid, srs_spheroid_tag
                     >::apply(m_a2, m_e2))
-        {}
+            , m_f(formula::flattening<calc_t>(spheroid))
+        {
+            typedef geometry::formula::area_formulas
+                <
+                    calc_t, SeriesOrderNorm, ExpandEpsN
+                > area_formulas;
+
+            calc_t const n = m_f / (calc_t(2) - m_f);
+
+            // Generate and evaluate the polynomials on n
+            // to get the series coefficients (that depend on eps)
+            area_formulas::evaluate_coeffs_n(n, m_coeffs_var);
+        }
     };
 
 public:
@@ -127,8 +143,14 @@ public:
         {
             return_type result;
 
-            return_type sum = spheroid_const.m_c2 * m_excess_sum
-                   + spheroid_const.m_e2 * spheroid_const.m_a2 * m_correction_sum;
+            return_type const spherical_term = spheroid_const.m_c2 * m_excess_sum;
+            return_type const ellipsoidal_term = spheroid_const.m_e2
+                * spheroid_const.m_a2 * m_correction_sum;
+
+            // ignore ellipsoidal term if is large (probably from an azimuth
+            // inaccuracy)
+            return_type sum = math::abs(ellipsoidal_term/spherical_term) > 0.01
+                ? spherical_term : spherical_term + ellipsoidal_term;
 
             // If encircles some pole
             if (m_crosses_prime_meridian % 2 == 1)
@@ -173,25 +195,33 @@ public :
                       PointOfSegment const& p2,
                       state<Geometry>& st) const
     {
+        using CT = typename result_type<Geometry>::type;
+
+        // if the segment in not on a meridian
         if (! geometry::math::equals(get<0>(p1), get<0>(p2)))
         {
             typedef geometry::formula::area_formulas
                 <
-                    typename result_type<Geometry>::type,
-                    SeriesOrder, ExpandEpsN
+                    CT, SeriesOrderNorm, ExpandEpsN
                 > area_formulas;
-
-            typename area_formulas::return_type_ellipsoidal result =
-                     area_formulas::template ellipsoidal<FormulaPolicy::template inverse>
-                                             (p1, p2, m_spheroid_constants);
-
-            st.m_excess_sum += result.spherical_term;
-            st.m_correction_sum += result.ellipsoidal_term;
 
             // Keep track whenever a segment crosses the prime meridian
             if (area_formulas::crosses_prime_meridian(p1, p2))
             {
                 st.m_crosses_prime_meridian++;
+            }
+
+            // if the segment in not on equator
+            if (! (geometry::math::equals(get<1>(p1), 0)
+                && geometry::math::equals(get<1>(p2), 0)))
+            {
+                auto result = area_formulas::template ellipsoidal
+                    <
+                        FormulaPolicy::template inverse
+                    >(p1, p2, m_spheroid_constants);
+
+                st.m_excess_sum += result.spherical_term;
+                st.m_correction_sum += result.ellipsoidal_term;
             }
         }
     }

@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2018-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -15,6 +16,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/line_interpolate.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+#include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 
@@ -67,41 +69,22 @@ public:
     {
         typedef typename select_calculation_type_alt
             <
-                CalculationType,
-                Point
+                CalculationType, Point
             >::type calc_t;
-
-        typedef model::point
-            <
-                calc_t,
-                geometry::dimension<Point>::value,
-                cs::cartesian
-            > calc_point_t;
-
-        calc_point_t cp0, cp1;
-        geometry::detail::conversion::convert_point_to_point(p0, cp0);
-        geometry::detail::conversion::convert_point_to_point(p1, cp1);
+        typedef typename coordinate_type<Point>::type coord_t;
 
         //segment convex combination: p0*fraction + p1*(1-fraction)
         Fraction const one_minus_fraction = 1-fraction;
-        for_each_coordinate(cp1, detail::value_operation
-                                 <
-                                    Fraction,
-                                    std::multiplies
-                                 >(fraction));
-        for_each_coordinate(cp0, detail::value_operation
-                                 <
-                                    Fraction,
-                                    std::multiplies
-                                 >(one_minus_fraction));
-        for_each_coordinate(cp1, detail::point_operation
-                                 <
-                                    calc_point_t,
-                                    std::plus
-                                 >(cp0));
-
-        assert_dimension_equal<calc_point_t, Point>();
-        geometry::detail::conversion::convert_point_to_point(cp1, p);
+        geometry::detail::for_each_dimension<Point>([&](auto dimension)
+        {
+            // NOTE: numeric_cast is a leftover from convert, it could probably be ommited.
+            // NOTE: the order of points is different than in the formula above
+            //       this is also a leftover from the previous implementation
+            calc_t coord0 = boost::numeric_cast<calc_t>(get<dimension>(p0));
+            calc_t coord1 = boost::numeric_cast<calc_t>(get<dimension>(p1));
+            calc_t result = calc_t(coord1 * fraction) + calc_t(coord0 * one_minus_fraction);
+            set<dimension>(p, boost::numeric_cast<coord_t>(result));
+        });
     }
 };
 
