@@ -45,7 +45,7 @@ namespace detail { namespace line_interpolate
 struct convert_and_push_back
 {
     template <typename Range, typename Point>
-    inline void apply(Point const& p, Range& range)
+    static inline void apply(Point const& p, Range& range)
     {
         typename boost::range_value<Range>::type p2;
         geometry::detail::conversion::convert_point_to_point(p, p2);
@@ -56,7 +56,7 @@ struct convert_and_push_back
 struct convert_and_assign
 {
     template <typename Point1, typename Point2>
-    inline void apply(Point1 const& p1, Point2& p2)
+    static inline void apply(Point1 const& p1, Point2& p2)
     {
         geometry::detail::conversion::convert_point_to_point(p1, p2);
     }
@@ -83,8 +83,6 @@ struct interpolate_range
                              PointLike & pointlike,
                              Strategies const& strategies)
     {
-        Policy policy;
-
         typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
@@ -98,34 +96,37 @@ struct interpolate_range
         }
         if (max_distance <= 0) //non positive distance
         {
-            policy.apply(*it, pointlike);
+            Policy::apply(*it, pointlike);
             return;
         }
 
         auto const pp_strategy = strategies.distance(dummy_point(), dummy_point());
         auto const strategy = strategies.line_interpolate(range);
 
+        typedef decltype(pp_strategy.apply(
+                    std::declval<point_t>(), std::declval<point_t>())) distance_type;
+
         iterator_t prev = it++;
-        Distance repeated_distance = max_distance;
-        Distance prev_distance = 0;
-        Distance current_distance = 0;
+        distance_type repeated_distance = max_distance;
+        distance_type prev_distance = 0;
+        distance_type current_distance = 0;
         point_t start_p = *prev;
 
         for ( ; it != end ; ++it)
         {
-            Distance dist = pp_strategy.apply(*prev, *it);
+            distance_type dist = pp_strategy.apply(*prev, *it);
             current_distance = prev_distance + dist;
 
             while (current_distance >= repeated_distance)
             {
                 point_t p;
-                Distance diff_distance = current_distance - prev_distance;
-                BOOST_ASSERT(diff_distance != Distance(0));
+                distance_type diff_distance = current_distance - prev_distance;
+                BOOST_ASSERT(diff_distance != distance_type(0));
                 strategy.apply(start_p, *it,
                                (repeated_distance - prev_distance)/diff_distance,
                                p,
                                diff_distance);
-                policy.apply(p, pointlike);
+                Policy::apply(p, pointlike);
                 if (std::is_same<PointLike, point_t>::value)
                 {
                     return;
@@ -143,7 +144,7 @@ struct interpolate_range
         // return the last point in range (range is not empty)
         if (repeated_distance == max_distance)
         {
-            policy.apply(*(end-1), pointlike);
+            Policy::apply(*(end-1), pointlike);
         }
     }
 };
