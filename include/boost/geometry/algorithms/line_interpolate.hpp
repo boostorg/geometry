@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2020 Oracle and/or its affiliates.
+// Copyright (c) 2018-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -20,6 +20,9 @@
 #include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/static_assert.hpp>
@@ -27,10 +30,9 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
-#include <boost/geometry/algorithms/length.hpp>
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/line_interpolate.hpp>
+#include <boost/geometry/strategies/line_interpolate/cartesian.hpp>
+#include <boost/geometry/strategies/line_interpolate/geographic.hpp>
+#include <boost/geometry/strategies/line_interpolate/spherical.hpp>
 
 namespace boost { namespace geometry
 {
@@ -74,12 +76,12 @@ struct interpolate_range
         typename Range,
         typename Distance,
         typename PointLike,
-        typename Strategy
+        typename Strategies
     >
     static inline void apply(Range const& range,
                              Distance const& max_distance,
                              PointLike & pointlike,
-                             Strategy const& strategy)
+                             Strategies const& strategies)
     {
         Policy policy;
 
@@ -100,6 +102,9 @@ struct interpolate_range
             return;
         }
 
+        auto const pp_strategy = strategies.distance(dummy_point(), dummy_point());
+        auto const strategy = strategies.line_interpolate(range);
+
         iterator_t prev = it++;
         Distance repeated_distance = max_distance;
         Distance prev_distance = 0;
@@ -108,7 +113,7 @@ struct interpolate_range
 
         for ( ; it != end ; ++it)
         {
-            Distance dist = strategy.get_distance_pp_strategy().apply(*prev, *it);
+            Distance dist = pp_strategy.apply(*prev, *it);
             current_distance = prev_distance + dist;
 
             while (current_distance >= repeated_distance)
@@ -219,41 +224,63 @@ struct line_interpolate<Geometry, Pointlike, segment_tag, multi_point_tag>
 
 namespace resolve_strategy {
 
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
 struct line_interpolate
 {
-    template
-    <
-        typename Geometry,
-        typename Distance,
-        typename Pointlike,
-        typename Strategy
-    >
+    template <typename Geometry, typename Distance, typename Pointlike>
+    static inline void apply(Geometry const& geometry,
+                             Distance const& max_distance,
+                             Pointlike & pointlike,
+                             Strategies const& strategies)
+    {
+        dispatch::line_interpolate
+            <
+                Geometry, Pointlike
+            >::apply(geometry, max_distance, pointlike, strategies);
+    }
+};
+
+template <typename Strategy>
+struct line_interpolate<Strategy, false>
+{
+    template <typename Geometry, typename Distance, typename Pointlike>
     static inline void apply(Geometry const& geometry,
                              Distance const& max_distance,
                              Pointlike & pointlike,
                              Strategy const& strategy)
-    {
-        dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
-                                                               max_distance,
-                                                               pointlike,
-                                                               strategy);
-    }
+    {        
+        using strategies::line_interpolate::services::strategy_converter;
 
+        dispatch::line_interpolate
+            <
+                Geometry, Pointlike
+            >::apply(geometry, max_distance, pointlike,
+                     strategy_converter<Strategy>::get(strategy));
+    }
+};
+
+template <>
+struct line_interpolate<default_strategy, false>
+{
     template <typename Geometry, typename Distance, typename Pointlike>
     static inline void apply(Geometry const& geometry,
                              Distance const& max_distance,
                              Pointlike & pointlike,
                              default_strategy)
     {        
-        typedef typename strategy::line_interpolate::services::default_strategy
+        typedef typename strategies::line_interpolate::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
+                Geometry
             >::type strategy_type;
 
-        dispatch::line_interpolate<Geometry, Pointlike>::apply(geometry,
-                                                               max_distance,
-                                                               pointlike,
-                                                               strategy_type());
+        dispatch::line_interpolate
+            <
+                Geometry, Pointlike
+            >::apply(geometry, max_distance, pointlike, strategy_type());
     }
 };
 
@@ -271,10 +298,10 @@ struct line_interpolate
                              Pointlike & pointlike,
                              Strategy const& strategy)
     {
-        return resolve_strategy::line_interpolate::apply(geometry,
-                                                         max_distance,
-                                                         pointlike,
-                                                         strategy);
+        return resolve_strategy::line_interpolate
+                <
+                    Strategy
+                >::apply(geometry, max_distance, pointlike, strategy);
     }
 };
 
@@ -303,7 +330,7 @@ struct line_interpolate<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     template <typename Distance, typename Pointlike, typename Strategy>
     static inline void
     apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          double const& max_distance,
+          Distance const& max_distance,
           Pointlike & pointlike,
           Strategy const& strategy)
     {
@@ -318,7 +345,7 @@ struct line_interpolate<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 } // namespace resolve_variant
 
 /*!
-\brief 	Returns one or more points interpolated along a LineString \brief_strategy
+\brief     Returns one or more points interpolated along a LineString \brief_strategy
 \ingroup line_interpolate
 \tparam Geometry Any type fulfilling a LineString concept
 \tparam Distance A numerical distance measure
@@ -372,7 +399,7 @@ inline void line_interpolate(Geometry const& geometry,
 
 
 /*!
-\brief 	Returns one or more points interpolated along a LineString.
+\brief     Returns one or more points interpolated along a LineString.
 \ingroup line_interpolate
 \tparam Geometry Any type fulfilling a LineString concept
 \tparam Distance A numerical distance measure

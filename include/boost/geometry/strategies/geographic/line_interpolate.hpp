@@ -101,6 +101,11 @@ public:
         set_from_radian<1>(p, dir_r.lat2);
     }
 
+    inline Spheroid model() const
+    {
+        return m_spheroid;
+    }
+
 private:
     Spheroid m_spheroid;
 };
