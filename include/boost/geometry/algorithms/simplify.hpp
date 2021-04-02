@@ -689,8 +689,6 @@ struct simplify
                              Distance const& max_distance,
                              Strategies const& strategies)
     {
-        typedef typename point_type<Geometry>::type point_type;
-
         dispatch::simplify
             <
                 Geometry
@@ -753,8 +751,6 @@ struct simplify_insert
                              Distance const& max_distance,
                              Strategies const& strategies)
     {
-        typedef typename point_type<Geometry>::type point_type;
-
         dispatch::simplify_insert
             <
                 Geometry

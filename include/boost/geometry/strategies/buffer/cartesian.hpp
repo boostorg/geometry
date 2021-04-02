@@ -14,6 +14,9 @@
 #include <boost/geometry/strategies/buffer/services.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 
+#include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
+
 
 namespace boost { namespace geometry
 {

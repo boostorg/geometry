@@ -70,8 +70,6 @@ inline void simplify_input(Range const& range,
     // look better.
     // It also gets rid of duplicate points
 
-    typedef typename geometry::point_type<Range>::type point_type;
-
     geometry::detail::simplify::simplify_range<2>::apply(range,
         simplified, distance.simplify_distance(),
         detail::simplify::douglas_peucker(),

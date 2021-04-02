@@ -14,6 +14,9 @@
 #include <boost/geometry/strategies/buffer/services.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
 
+#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
+#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+
 
 namespace boost { namespace geometry
 {

@@ -14,6 +14,8 @@
 #include <boost/geometry/strategies/buffer/services.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 
+#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+
 
 namespace boost { namespace geometry
 {
