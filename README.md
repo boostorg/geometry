@@ -8,9 +8,6 @@ Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.co
 [![Mailing List](https://img.shields.io/badge/-mailing%20list-4eb899.png)](http://lists.boost.org/geometry/)
 [![Chat](https://badges.gitter.im/boostorg/geometry.png)](https://gitter.im/boostorg/geometry?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-| :warning: **CAUTION**: Boost.Geometry in Boost 1.73 deprecates support for the C++03 and will require C++14 from Boost 1.75 onwards (see issue [#590](https://github.com/boostorg/geometry/issues/590)). |
-| --- |
-
 ### Test results
 
  Branch     | Build         | Coverage       | Regression | Documentation
