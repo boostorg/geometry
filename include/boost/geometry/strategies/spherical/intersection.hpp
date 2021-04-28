@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2016-2020, Oracle and/or its affiliates.
+// Copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -953,10 +953,12 @@ struct spherical_segments_calc_policy
         //       not checked before this function is called the length
         //       should be checked here (math::equals(len, c0))
         coord_t const len = math::sqrt(dot_product(ip1, ip1));
-        divide_value(ip1, len); // normalize i1
-
-        ip2 = ip1;
-        multiply_value(ip2, coord_t(-1));
+        geometry::detail::for_each_dimension<Point3d>([&](auto index)
+        {
+            coord_t const coord = get<index>(ip1) / len; // normalize
+            set<index>(ip1, coord);
+            set<index>(ip2, -coord);
+        });
 
         return true;
     }    

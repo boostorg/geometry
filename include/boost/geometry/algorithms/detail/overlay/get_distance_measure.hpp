@@ -35,12 +35,6 @@ struct distance_measure
         : measure(T())
     {}
 
-    // Returns true if the distance measure is small.
-    // This is an arbitrary boundary, to enable some behaviour
-    // (for example include or exclude turns), which are checked later
-    // with other conditions.
-    bool is_small() const { return geometry::math::abs(measure) < 1.0e-3; }
-
     // Returns true if the distance measure is absolutely zero
     bool is_zero() const
     {
@@ -110,6 +104,9 @@ template <typename CalculationType>
 struct get_distance_measure<CalculationType, geographic_tag>
         : get_distance_measure<CalculationType, spherical_tag> {};
 
+template <typename CalculationType>
+struct get_distance_measure<CalculationType, spherical_equatorial_tag>
+        : get_distance_measure<CalculationType, spherical_tag> {};
 
 } // namespace detail_dispatch
 

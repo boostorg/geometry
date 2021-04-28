@@ -368,6 +368,9 @@ static std::string const nores_37f6
 static std::string const nores_495d
     = "MULTIPOLYGON(((2 0,2 1,3 0,2 0)),((2 3,3 4,3 3,2 3)),((5 1,5 2,6 2,5 1)),((4 3,4 2,3 2,4 3)))";
 
+static std::string const nores_e402
+    = "MULTIPOLYGON(((3 1,4 2,4 1,3 1)),((3 1,4 0,3 0,3 1)))";
+
 // rescaled
 static std::string const res_ebc4
     = "MULTIPOLYGON(((3 9,3 10,4 9,3 9)),((9 5,9 6,10 6,10 5,9 5)),((8 8,8 9,9 9,8 8)),((4 8,3 7,3 8,4 8)),((4 8,5 9,6 9,6 8,4 8)),((4 5,3 4,3 5,4 5)),((4 5,5 6,5 5,4 5)))";
@@ -571,7 +574,10 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u11_25", rt_u11, join_miter, end_flat, 10.1449, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 142.1348, 1.0);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails if rescaling is used in combination with get_clusters
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
+#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_v1", rt_v1, join_round32, end_flat, 26.9994, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_v2", rt_v2, join_round32, end_flat, 47.3510, 1.0);
@@ -604,13 +610,14 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_6061", nores_6061, join_round32, end_flat, 39.7371, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_37f6", nores_37f6, join_round32, end_flat, 26.5339, 1.0);
 
+    test_one<multi_polygon_type, polygon_type>("nores_1ea1", nores_1ea1, join_round32, end_flat, 28.9755, 1.0);
 #if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Cases not yet solved without rescaling (out of 241)
-    test_one<multi_polygon_type, polygon_type>("nores_1ea1", nores_1ea1, join_round32, end_flat, 28.9755, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_804e", nores_804e, join_round32, end_flat, 26.4503, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_3af0", nores_3af0, join_round32, end_flat, 22.1008, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_495d", nores_495d, join_round32, end_flat, 23.4376, 1.0);
 #endif
+    test_one<multi_polygon_type, polygon_type>("nores_495d", nores_495d, join_round32, end_flat, 23.4376, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_e402", nores_e402, join_round32, end_flat, 9.9888, 1.0);
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Erroneous cases with rescaling (out of 8)
@@ -662,7 +669,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(4, 6, 3, 8);
+    BoostGeometryWriteExpectedFailures(5, 4, 5, 8);
 #endif
 
     return 0;

@@ -14,6 +14,7 @@
 #include <boost/geometry/strategies/area/geographic.hpp>
 #include <boost/geometry/strategies/azimuth/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
+#include <boost/geometry/strategies/distance/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/expand/geographic.hpp>
 #include <boost/geometry/strategies/io/geographic.hpp>
@@ -43,9 +44,7 @@ class geographic
     using base_t = index::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>;
 
 public:
-    geographic()
-        : base_t()
-    {}
+    geographic() = default;
 
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)

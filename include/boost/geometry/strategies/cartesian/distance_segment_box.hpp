@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2019 Oracle and/or its affiliates.
+// Copyright (c) 2018-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -93,27 +93,31 @@ struct cartesian_segment_box
         return equals_point_point_strategy_type();
     }
 
-    template <typename LessEqual, typename ReturnType,
-              typename SegmentPoint, typename BoxPoint>
+    template
+    <
+        typename LessEqual, typename ReturnType,
+        typename SegmentPoint, typename BoxPoint,
+        typename Strategies
+    >
     inline ReturnType segment_below_of_box(SegmentPoint const& p0,
-                                   SegmentPoint const& p1,
-                                   BoxPoint const&,
-                                   BoxPoint const&,
-                                   BoxPoint const&,
-                                   BoxPoint const& bottom_right) const
+                                           SegmentPoint const& p1,
+                                           BoxPoint const&,
+                                           BoxPoint const&,
+                                           BoxPoint const&,
+                                           BoxPoint const& bottom_right,
+                                           Strategies const& strategies) const
     {
-
-
+        // TODO: The strategy should not call the algorithm like that
         return geometry::detail::distance::segment_to_box_2D
             <
                 ReturnType,
                 SegmentPoint,
                 BoxPoint,
-                cartesian_segment_box<CalculationType, Strategy>
+                Strategies
             >::template call_above_of_box
                 <
                     typename LessEqual::other
-                >(p1, p0, bottom_right, *this);
+                >(p1, p0, bottom_right, strategies);
     }
 
     template <typename SPoint, typename BPoint>

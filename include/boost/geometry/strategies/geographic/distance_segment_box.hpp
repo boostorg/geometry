@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2020 Oracle and/or its affiliates.
+// Copyright (c) 2018-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -127,43 +127,33 @@ struct geographic_segment_box
              : m_spheroid(spheroid)
     {}
 
+    Spheroid model() const
+    {
+        return m_spheroid;
+    }
+
     // methods
 
-    template <typename LessEqual, typename ReturnType,
-              typename SegmentPoint, typename BoxPoint>
+    template
+    <
+        typename LessEqual, typename ReturnType,
+        typename SegmentPoint, typename BoxPoint,
+        typename Strategies
+    >
     inline ReturnType segment_below_of_box(SegmentPoint const& p0,
-                                   SegmentPoint const& p1,
-                                   BoxPoint const& top_left,
-                                   BoxPoint const& top_right,
-                                   BoxPoint const& bottom_left,
-                                   BoxPoint const& bottom_right) const
+                                           SegmentPoint const& p1,
+                                           BoxPoint const& top_left,
+                                           BoxPoint const& top_right,
+                                           BoxPoint const& bottom_left,
+                                           BoxPoint const& bottom_right,
+                                           Strategies const& strategies) const
     {
-        typedef typename azimuth::geographic
-        <
-                FormulaPolicy,
-                Spheroid,
-                CalculationType
-        > azimuth_strategy_type;
-        azimuth_strategy_type az_strategy(m_spheroid);
-
-        typedef typename envelope::geographic_segment
-        <
-                FormulaPolicy,
-                Spheroid,
-                CalculationType
-        > envelope_segment_strategy_type;
-        envelope_segment_strategy_type es_strategy(m_spheroid);
-
         return generic_segment_box::segment_below_of_box
                <
                     LessEqual,
                     ReturnType
                >(p0,p1,top_left,top_right,bottom_left,bottom_right,
-                 geographic_segment_box<FormulaPolicy, Spheroid, CalculationType>(),
-                 az_strategy, es_strategy,
-                 normalize::spherical_point(),
-                 covered_by::spherical_point_box(),
-                 disjoint::spherical_box_box());
+                 strategies);
     }
 
     template <typename SPoint, typename BPoint>
