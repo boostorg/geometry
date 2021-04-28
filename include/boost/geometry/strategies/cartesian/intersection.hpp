@@ -220,7 +220,9 @@ struct cartesian_segments
         }
 
         template <typename Point, typename Segment>
-        void assign(Point& point, Segment const& segment, CoordinateType const& dx, CoordinateType const& dy, SegmentRatio const& ratio) const
+        void assign(Point& point, Segment const& segment,
+                    CoordinateType const& dx, CoordinateType const& dy,
+                    SegmentRatio const& ratio) const
         {
             // Calculate the intersection point based on segment_ratio
             // Up to now, division was postponed. Here we divide using numerator/
@@ -243,6 +245,44 @@ struct cartesian_segments
             set<1>(point, get<0, 1>(segment)
                    + boost::numeric_cast<CoordinateType>(numerator * dy_calc
                                                          / denominator));
+        }
+
+        template <int Index, int Dim, typename Point, typename Segment>
+        static bool exceeds_side_in_dimension(Point& p, Segment const& s)
+        {
+            // Situation a (positive)
+            //     0>-------------->1     segment
+            // *                          point left of segment<I> in D x or y
+            // Situation b (negative)
+            //     1<--------------<0     segment
+            // *                          point right of segment<I>
+            // Situation c (degenerate), return false (check other dimension)
+            auto const& c = get<Dim>(p);
+            auto const& c0 = get<Index, Dim>(s);
+            auto const& c1 = get<1 - Index, Dim>(s);
+            return c0 < c1 ? math::smaller(c, c0)
+                 : c0 > c1 ? math::larger(c, c0)
+                 : false;
+        }
+
+        template <int Index, typename Point, typename Segment>
+        static bool exceeds_side_of_segment(Point& p, Segment const& s)
+        {
+            return exceeds_side_in_dimension<Index, 0>(p, s)
+                || exceeds_side_in_dimension<Index, 1>(p, s);
+        }
+
+        template <typename Point, typename Segment>
+        static void assign_if_exceeds(Point& point, Segment const& s)
+        {
+            if (exceeds_side_of_segment<0>(point, s))
+            {
+                detail::assign_point_from_index<0>(s, point);
+            }
+            else if (exceeds_side_of_segment<1>(point, s))
+            {
+                detail::assign_point_from_index<1>(s, point);
+            }
         }
 
     public :
@@ -281,6 +321,25 @@ struct cartesian_segments
             else
             {
                 assign_b(point, a, b);
+            }
+
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+            return;
+#endif
+
+            // Verify nearly collinear cases (the threshold is arbitrary
+            // but influences performance). If the intersection is located
+            // outside the segments, then it should be moved.
+            if (robust_ra.possibly_collinear(1.0e-3)
+                && robust_rb.possibly_collinear(1.0e-3))
+            {
+                // The segments are nearly collinear and because of the calculation
+                // method with very small denominator, the IP appears outside the
+                // segment(s). Correct it to the end point.
+                // Because they are nearly collinear, it doesn't really matter to
+                // to which endpoint (or it is corrected twice).
+                assign_if_exceeds(point, a);
+                assign_if_exceeds(point, b);
             }
         }
 
@@ -379,17 +438,16 @@ struct cartesian_segments
     template
     <
         std::size_t Dimension,
-        typename CoordinateType,
         typename PointP,
         typename PointQ
     >
     static inline bool disjoint_by_range(PointP const& p1, PointP const& p2,
                                          PointQ const& q1, PointQ const& q2)
     {
-        CoordinateType minp = get<Dimension>(p1);
-        CoordinateType maxp = get<Dimension>(p2);
-        CoordinateType minq = get<Dimension>(q1);
-        CoordinateType maxq = get<Dimension>(q2);
+        auto minp = get<Dimension>(p1);
+        auto maxp = get<Dimension>(p2);
+        auto minq = get<Dimension>(q1);
+        auto maxq = get<Dimension>(q2);
         if (minp > maxp)
         {
             std::swap(minp, maxp);
@@ -447,8 +505,8 @@ struct cartesian_segments
                 ;
         }
 
-        if (disjoint_by_range<0, coordinate_type>(p1, p2, q1, q2)
-         || disjoint_by_range<1, coordinate_type>(p1, p2, q1, q2))
+        if (disjoint_by_range<0>(p1, p2, q1, q2)
+         || disjoint_by_range<1>(p1, p2, q1, q2))
         {
             return Policy::disjoint();
         }
