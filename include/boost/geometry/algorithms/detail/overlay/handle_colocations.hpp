@@ -30,7 +30,6 @@
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_clusters.hpp>
-#include <boost/geometry/algorithms/detail/overlay/discard_duplicate_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -226,46 +225,6 @@ inline void discard_interior_exterior_turns(Turns& turns, Clusters& clusters)
     }
 }
 
-template<typename Turns, typename Clusters>
-inline void discard_start_turns(Turns& turns, Clusters& clusters)
-{
-    for (auto& nv : clusters)
-    {
-        cluster_info& cinfo = nv.second;
-        auto& indices = cinfo.turn_indices;
-        std::size_t start_count{0};
-        for (signed_size_type index : indices)
-        {
-            auto const& turn = turns[index];
-            if (turn.method == method_start)
-            {
-               start_count++;
-            }
-        }
-        if (start_count == 0 && start_count == indices.size())
-        {
-            // There are no start turns, or all turns in the cluster are start turns.
-            continue;
-        }
-
-        // Discard the start turns and simultaneously erase them from the indices
-        for (auto it = indices.begin(); it != indices.end();)
-        {
-          auto& turn = turns[*it];
-          if (turn.method == method_start)
-          {
-              turn.discarded = true;
-              turn.cluster_id = -1;
-              it = indices.erase(it);
-          }
-          else
-          {
-              ++it;
-          }
-        }
-    }
-}
-
 template
 <
     overlay_type OverlayType,
@@ -368,18 +327,15 @@ template
 <
     bool Reverse1, bool Reverse2,
     overlay_type OverlayType,
-    typename Turns,
-    typename Clusters,
     typename Geometry0,
     typename Geometry1,
+    typename Turns,
+    typename Clusters,
     typename RobustPolicy
 >
 inline bool handle_colocations(Turns& turns, Clusters& clusters,
-                               Geometry0 const& geometry0, Geometry1 const& geometry1,
                                RobustPolicy const& robust_policy)
 {
-    discard_duplicate_start_turns(turns, geometry0, geometry1);
-
     static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
 
@@ -392,13 +348,9 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
 
     assign_cluster_ids(turns, clusters);
 
-    // Get colocated information here and not later, to keep information
+    // Get colocated information here, and not later, to keep information
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
-
-    // Discard start turns (which are extra and usually redundant, only added in case the
-    // companion turn is missing) from clusters
-    discard_start_turns(turns, clusters);
 
     if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
     {
@@ -409,8 +361,8 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
             >(turns, clusters);
     }
 
-    // Remove clusters which has only one turn
-    //TODO
+    // There might be clusters having only one turn, if the rest is discarded
+    // This is cleaned up later, after gathering the properties.
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
     std::cout << "*** Colocations " << map.size() << std::endl;
@@ -423,7 +375,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
             std::cout << std::endl;
         }
     }
-#endif // DEBUG
+#endif
 
     return true;
 }
