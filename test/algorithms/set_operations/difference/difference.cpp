@@ -574,12 +574,11 @@ void test_all()
                     optional(), optional_sliver(1.0e-5),
                     count_set(1, 2));
 
-    TEST_DIFFERENCE_WITH(issue_838, 2,
+    TEST_DIFFERENCE(issue_838, 2,
                          BG_IF_RESCALED(2.68771e-05,
-                                        2.68052e-05),
+                                        2.680517e-05),
                          1, 0.674982,
-                         BG_IF_RESCALED(3, 2),
-                         ut_settings(0.001, BG_IF_RESCALED(true, false)));
+                         BG_IF_RESCALED(3, 2));
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
@@ -637,7 +636,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
-    BoostGeometryWriteExpectedFailures(10, 11, 24, 15);
+    BoostGeometryWriteExpectedFailures(10, 7, 22, 8);
 #endif
 
     return 0;

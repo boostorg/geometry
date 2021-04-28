@@ -94,6 +94,35 @@ struct equal<Type, false>
     }
 };
 
+template
+<
+    typename Type,
+    bool IsFloatingPoint = std::is_floating_point<Type>::type::value
+>
+struct possibly_collinear {};
+
+template <typename Type>
+struct possibly_collinear<Type, true>
+{
+    template <typename Ratio, typename Threshold>
+    static inline bool apply(Ratio const& ratio, Threshold threshold)
+    {
+        return std::abs(ratio.denominator()) < threshold;
+    }
+};
+
+// Any ratio based on non-floating point (or user defined floating point)
+// is collinear if the denominator is exactly zero
+template <typename Type>
+struct possibly_collinear<Type, false>
+{
+    template <typename Ratio, typename Threshold>
+    static inline bool apply(Ratio const& ratio, Threshold)
+    {
+        return ratio.denominator() == 0;
+    }
+};
+
 }}
 
 //! Small class to keep a ratio (e.g. 1/4)
@@ -240,6 +269,12 @@ public :
     inline bool close_to(thistype const& other) const
     {
         return geometry::math::abs(m_approximation - other.m_approximation) < 50;
+    }
+
+    template <typename Threshold>
+    inline bool possibly_collinear(Threshold threshold) const
+    {
+        return detail::segment_ratio::possibly_collinear<Type>::apply(*this, threshold);
     }
 
     inline bool operator< (thistype const& other) const
