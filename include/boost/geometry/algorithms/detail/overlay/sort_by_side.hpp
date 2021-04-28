@@ -19,6 +19,7 @@
 #include <map>
 #include <vector>
 
+#include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
@@ -290,31 +291,6 @@ public :
         add_segment_to(turn_index, op_index, point_to, op);
     }
 
-    // Returns true if two points are approximately equal, tuned by a giga-epsilon constant
-    // (if constant is 1.0, for type double, the boundary is about 1.0e-7)
-    template <typename Point1, typename Point2, typename T>
-    static inline bool approximately_equals(Point1 const& a, Point2 const& b,
-                                            T const& limit_giga_epsilon)
-    {
-        // Including distance would introduce cyclic dependencies.
-        using coor_t = typename select_coordinate_type<Point1, Point2>::type;
-        using calc_t = typename geometry::select_most_precise <coor_t, T>::type;
-        constexpr calc_t machine_giga_epsilon = 1.0e9 * std::numeric_limits<calc_t>::epsilon();
-
-        calc_t const& a0 = geometry::get<0>(a);
-        calc_t const& b0 = geometry::get<0>(b);
-        calc_t const& a1 = geometry::get<1>(a);
-        calc_t const& b1 = geometry::get<1>(b);
-        calc_t const one = 1.0;
-        calc_t const c = math::detail::greatest(a0, b0, a1, b1, one);
-
-        // The maximum limit is avoid, for floating point, large limits like 400
-        // (which are be calculated using eps)
-        constexpr calc_t maxlimit = 1.0e-3;
-        auto const limit = (std::min)(maxlimit, limit_giga_epsilon * machine_giga_epsilon * c);
-        return std::abs(a0 - b0) <= limit && std::abs(a1 - b1) <= limit;
-    }
-
     template <typename Operation, typename Geometry1, typename Geometry2>
     static Point walk_over_ring(Operation const& op, int offset,
             Geometry1 const& geometry1,
@@ -336,20 +312,22 @@ public :
                 op.seg_id, point_from, point2, point3);
         Point point_to = op.fraction.is_one() ? point3 : point2;
 
-
-        // If the point is in the neighbourhood (the limit itself is not important),
+        // If the point is in the neighbourhood (the limit is arbitrary),
         // then take a point (or more) further back.
-        // The limit of offset avoids theoretical infinite loops. In practice it currently
-        // walks max 1 point back in all cases.
+        // The limit of offset avoids theoretical infinite loops.
+        // In practice it currently walks max 1 point back in all cases.
+        double const tolerance = 1.0e9;
         int offset = 0;
-        while (approximately_equals(point_from, turn.point, 1.0) && offset > -10)
+        while (approximately_equals(point_from, turn.point, tolerance)
+               && offset > -10)
         {
             point_from = walk_over_ring(op, --offset, geometry1, geometry2);
         }
 
-        // Similarly for the point to, walk forward
+        // Similarly for the point_to, walk forward
         offset = 0;
-        while (approximately_equals(point_to, turn.point, 1.0) && offset < 10)
+        while (approximately_equals(point_to, turn.point, tolerance)
+               && offset < 10)
         {
             point_to = walk_over_ring(op, ++offset, geometry1, geometry2);
         }

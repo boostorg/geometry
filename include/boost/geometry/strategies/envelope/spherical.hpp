@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -38,6 +38,13 @@ template <typename RadiusTypeOrSphere, typename CalculationType>
 struct spherical
     : strategies::expand::detail::spherical<RadiusTypeOrSphere, CalculationType>
 {
+    spherical() = default;
+
+    template <typename RadiusOrSphere>
+    explicit spherical(RadiusOrSphere const& radius_or_sphere)
+        : strategies::expand::detail::spherical<RadiusTypeOrSphere, CalculationType>(radius_or_sphere)
+    {}
+
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
                          typename util::enable_if_point_t<Geometry> * = nullptr)

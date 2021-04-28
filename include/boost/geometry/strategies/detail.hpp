@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -33,6 +33,9 @@ namespace detail
 
 
 struct umbrella_strategy {};
+
+
+struct not_implemented {};
 
 
 template <typename Strategy>
