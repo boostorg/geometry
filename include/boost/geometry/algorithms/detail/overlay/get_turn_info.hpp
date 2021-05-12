@@ -693,8 +693,6 @@ struct touch : public base_turn_handler
             // If p turns into direction of qi (1,2)
             if (side_pk_p == side_qi_p1)
             {
-                int const side_pk_q1 = has_pk ? side.pk_wrt_q1() : 0;
-
                 // Collinear opposite case -> block P
                 if (side_pk_q1 == 0)
                 {
