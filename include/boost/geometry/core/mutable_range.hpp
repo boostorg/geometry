@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <type_traits>
 
+#include <boost/range/size_type.hpp>
 #include <boost/range/value_type.hpp>
 
 
@@ -75,6 +76,12 @@ struct push_back
     {
         range.push_back(item);
     }
+
+    static inline void apply(typename rvalue_type<Range>::type range,
+                 item_type && item)
+    {
+        range.push_back(std::move(item));
+    }
 };
 
 
@@ -85,8 +92,13 @@ struct push_back
 template <typename Range>
 struct resize
 {
+    typedef typename boost::range_size
+        <
+            typename std::remove_reference<Range>::type
+        >::type size_type;
+
     static inline void apply(typename rvalue_type<Range>::type range,
-                std::size_t new_size)
+                size_type new_size)
     {
         range.resize(new_size);
     }

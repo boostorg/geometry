@@ -6,8 +6,8 @@
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Baidyanath Kundu, Haldia, India
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -59,6 +59,7 @@
 #include <boost/geometry/strategies/io/spherical.hpp>
 
 #include <boost/geometry/util/coordinate_cast.hpp>
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry
@@ -438,13 +439,7 @@ struct polygon_parser
             {
                 typename ring_type<Polygon>::type ring;
                 appender::apply(it, end, wkt, ring);
-                traits::push_back
-                    <
-                        typename std::remove_reference
-                        <
-                            typename traits::interior_mutable_type<Polygon>::type
-                        >::type
-                    >::apply(interior_rings(poly), ring);
+                range::push_back(interior_rings(poly), std::move(ring));
             }
 
             if (it != end && *it == ",")

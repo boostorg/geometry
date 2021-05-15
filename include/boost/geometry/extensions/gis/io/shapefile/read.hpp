@@ -614,18 +614,14 @@ struct read_polygon_policy
                 std::reverse(++b, is_open ? e : (--e));
             }
 
-            // TODO: support rval references in range::push_back()
-            //       and/or implement range::emplace_back()
-            //       implement and call move_or_copy(ring)
-
             // assume outer ring
             if (num_parts == 1)
-                range::push_back(outer_rings, ring); // order could be checked here too
+                range::push_back(outer_rings, std::move(ring)); // order could be checked here too
             // check order
             else if ( is_outer_ring(ring, order_strategy) )
-                range::push_back(outer_rings, ring);
+                range::push_back(outer_rings, std::move(ring));
             else
-                range::push_back(inner_rings, ring);
+                range::push_back(inner_rings, std::move(ring));
         }
 
         if (inner_rings.empty()) // no inner rings
@@ -633,8 +629,8 @@ struct read_polygon_policy
             for (size_t i = 0; i < outer_rings.size(); ++i)
             {
                 poly_type poly;
-                geometry::exterior_ring(poly) = outer_rings[i]; // TODO: move
-                range::push_back(polygons, poly); // TODO: move
+                geometry::exterior_ring(poly) = std::move(outer_rings[i]);
+                range::push_back(polygons, std::move(poly));
             }
         }
         else if (! outer_rings.empty()) // outer and inner rings
@@ -644,7 +640,7 @@ struct read_polygon_policy
             for (size_t i = 0; i < outer_rings.size(); ++i)
             {
                 poly_type poly;
-                geometry::exterior_ring(poly) = outer_rings[i]; // TODO: move
+                geometry::exterior_ring(poly) = std::move(outer_rings[i]);
                 for (size_t j = 0; j < inner_rings.size(); ++j)
                 {
                     if (! assigned[j])
@@ -653,7 +649,7 @@ struct read_polygon_policy
                                           geometry::exterior_ring(poly),
                                           within_strategy))
                         {
-                            range::push_back(geometry::interior_rings(poly), inner_rings[j]); // TODO: move
+                            range::push_back(geometry::interior_rings(poly), std::move(inner_rings[j]));
                             ++assigned_count;
                             assigned[j] = true;
                         }
@@ -665,7 +661,7 @@ struct read_polygon_policy
                         }
                     }
                 }
-                range::push_back(polygons, poly); // TODO: move
+                range::push_back(polygons, std::move(poly));
             }
 
             // check if all interior rings were assigned
