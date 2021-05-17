@@ -118,6 +118,9 @@ struct multi_polygon_tag : multi_tag, polygonal_tag {};
 /// OGC Geometry Collection identifying tag
 struct geometry_collection_tag : multi_tag {};
 
+/// Tag identifying dynamic geometries, e.g. variants
+struct dynamic_geometry_tag {};
+
 
 /*!
 \brief Meta-function to get for a tag of a multi-geometry

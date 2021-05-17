@@ -86,6 +86,25 @@ struct push_back
 
 
 /*!
+\brief Traits class to append an element of geometry collection
+\ingroup mutable_range
+ */
+template <typename Range>
+struct emplace_back
+{
+    // When specializing it'd be enough to only implement it for one argument
+    // because we'll use it to pass one object of type potentially different
+    // than range_value but which range_value can be constructed from.
+    template <typename ...Args>
+    static inline void apply(typename rvalue_type<Range>::type range,
+                             Args&&... args)
+    {
+        range.emplace_back(std::forward<Args>(args)...);
+    }
+};
+
+
+/*!
 \brief Traits class to append a point to a range (ring, linestring, multi*)
 \ingroup mutable_range
  */

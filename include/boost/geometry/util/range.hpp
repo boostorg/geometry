@@ -236,6 +236,17 @@ inline void push_back(Range & rng,
 }
 
 /*!
+\brief Short utility to conveniently insert a new element at the end of a mutable range.
+       It uses boost::geometry::traits::emplace_back<>.
+\ingroup utility
+*/
+template <typename Range, typename ...Args>
+inline void emplace_back(Range & rng, Args&&... args)
+{
+    geometry::traits::emplace_back<Range>::apply(rng, std::forward<Args>(args)...);
+}
+
+/*!
 \brief Short utility to conveniently resize a mutable range.
        It uses boost::geometry::traits::resize<>.
 \ingroup utility
@@ -246,7 +257,6 @@ inline void resize(Range & rng,
 {
     geometry::traits::resize<Range>::apply(rng, new_size);
 }
-
 
 /*!
 \brief Short utility to conveniently remove an element from the back of a mutable range.

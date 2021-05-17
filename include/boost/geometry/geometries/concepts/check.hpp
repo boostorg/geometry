@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -179,6 +179,16 @@ struct check<Geometry, multi_polygon_tag, true>
 template <typename Geometry>
 struct check<Geometry, multi_polygon_tag, false>
     : detail::concept_check::check<concepts::MultiPolygon<Geometry> >
+{};
+
+template <typename Geometry, bool IsConst>
+struct check<Geometry, dynamic_geometry_tag, IsConst>
+    // TODO traits::visit
+{};
+
+template <typename Geometry, bool IsConst>
+struct check<Geometry, geometry_collection_tag, IsConst>
+    // TODO range of dynamic geometries
 {};
 
 
