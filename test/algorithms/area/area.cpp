@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -21,11 +21,14 @@
 
 #include <algorithms/area/test_area.hpp>
 
+#include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/ring.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant2.hpp>
 
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
 
@@ -34,7 +37,6 @@
 //#define BOOST_GEOMETRY_TEST_DEBUG
 
 #include <boost/multiprecision/cpp_dec_float.hpp>
-#include <boost/variant/variant.hpp>
 
 template <typename Polygon>
 void test_polygon()
@@ -242,7 +244,7 @@ void test_accurate_sum_strategy()
     BOOST_CHECK_CLOSE(bg::area(mp_poly2), 35000000000000, 0.0001);
 }
 
-void test_variant()
+void test_dynamic()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
     typedef bg::model::polygon<double_point_type> polygon_type;
@@ -256,12 +258,25 @@ void test_variant()
     std::string const box_li = "BOX(0 0,2 2)";
     bg::read_wkt(box_li, box);
 
-    boost::variant<polygon_type, box_type> v;
+    auto apoly = bg::area(poly);
+    auto abox = bg::area(box);
 
+    boost::variant<polygon_type, box_type> v;
     v = poly;
-    BOOST_CHECK_CLOSE(bg::area(v), bg::area(poly), 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(v), apoly, 0.0001);
     v = box;
-    BOOST_CHECK_CLOSE(bg::area(v), bg::area(box), 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(v), abox, 0.0001);
+
+    boost::variant2::variant<polygon_type, box_type> v2;
+    v2 = poly;
+    BOOST_CHECK_CLOSE(bg::area(v2), apoly, 0.0001);
+    v2 = box;
+    BOOST_CHECK_CLOSE(bg::area(v2), abox, 0.0001);
+
+    bg::model::geometry_collection<boost::variant<polygon_type, box_type> > gc;
+    gc.push_back(poly);
+    gc.push_back(box);
+    BOOST_CHECK_CLOSE(bg::area(gc), apoly + abox, 0.0001);
 }
 
 int test_main(int, char* [])
@@ -296,7 +311,7 @@ int test_main(int, char* [])
 
     test_large_integers();
 
-    test_variant();
+    test_dynamic();
 
     test_accurate_sum_strategy();
 

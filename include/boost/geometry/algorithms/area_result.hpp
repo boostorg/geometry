@@ -2,8 +2,8 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +18,9 @@
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -27,9 +30,6 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
-
-#include <boost/variant/variant_fwd.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -125,6 +125,41 @@ struct more_precise_default_area_result
 {};
 
 
+template
+<
+    typename Geometry,
+    template <typename, typename> class LessPred,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
+struct select_element
+{
+    using type = Geometry;
+};
+
+template
+<
+    typename Geometry,
+    template <typename, typename> class LessPred
+>
+struct select_element<Geometry, LessPred, dynamic_geometry_tag>
+{
+    using type = typename util::select_element
+        <
+            typename traits::geometry_types<std::remove_const_t<Geometry>>::type,
+            LessPred
+        >::type;
+};
+
+template
+<
+    typename Geometry,
+    template <typename, typename> class LessPred
+>
+struct select_element<Geometry, LessPred, geometry_collection_tag>
+    : select_element<Geometry, LessPred, dynamic_geometry_tag>
+{};
+
+
 }} // namespace detail::area
 #endif //DOXYGEN_NO_DETAIL
 
@@ -140,17 +175,12 @@ template
     typename Strategy = default_strategy
 >
 struct area_result
-    : detail::area::area_result<Geometry, Strategy>
-{};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
-    : geometry::area_result
+    : detail::area::area_result
         <
-            typename util::select_pack_element
+            typename detail::area::select_element
                 <
-                    detail::area::more_precise_coordinate_type,
-                    BOOST_VARIANT_ENUM_PARAMS(T)
+                    Geometry,
+                    detail::area::more_precise_coordinate_type
                 >::type,
             Strategy
         >
@@ -158,17 +188,12 @@ struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 
 template <typename Geometry>
 struct area_result<Geometry, default_strategy>
-    : detail::area::default_area_result<Geometry>
-{};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, default_strategy>
     : detail::area::default_area_result
         <
-            typename util::select_pack_element
+            typename detail::area::select_element
                 <
-                    detail::area::more_precise_default_area_result,
-                    BOOST_VARIANT_ENUM_PARAMS(T)
+                    Geometry,
+                    detail::area::more_precise_default_area_result
                 >::type
         >
 {};
