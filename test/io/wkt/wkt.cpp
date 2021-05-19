@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -94,7 +94,10 @@ void test_wkt_read_write(std::string const& wkt, std::string const& expected,
     }
 
     check_wkt(geometry, expected);
-    check_wkt(boost::variant<G>(geometry), expected);
+
+    boost::variant<G> v;
+    bg::read_wkt(wkt, v);
+    check_wkt(v, expected);
 }
 
 template <typename G>
