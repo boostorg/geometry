@@ -98,6 +98,14 @@ void test_wkt_read_write(std::string const& wkt, std::string const& expected,
     boost::variant<G> v;
     bg::read_wkt(wkt, v);
     check_wkt(v, expected);
+
+    bg::model::geometry_collection<boost::variant<G>> gc1{v};
+    bg::read_wkt(std::string("GEOMETRYCOLLECTION(") + wkt + ')', gc1);
+    check_wkt(gc1, std::string("GEOMETRYCOLLECTION(") + expected + ')');
+
+    bg::model::geometry_collection<boost::variant<G>> gc2{v, v};
+    bg::read_wkt(std::string("GEOMETRYCOLLECTION(") + wkt + ',' + wkt + ')', gc2);
+    check_wkt(gc2, std::string("GEOMETRYCOLLECTION(") + expected + ',' + expected + ')');
 }
 
 template <typename G>

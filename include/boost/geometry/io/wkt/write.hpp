@@ -470,6 +470,55 @@ struct wkt<Geometry, dynamic_geometry_tag>
     }
 };
 
+// TODO: Implement non-recursive version
+template <typename Geometry>
+struct wkt<Geometry, geometry_collection_tag>
+{
+    template <typename OutputStream>
+    static inline void apply(OutputStream& os, Geometry const& geometry,
+                             bool force_closure)
+    {
+        output_or_recursive_call(os, geometry, force_closure);
+    }
+
+    template
+    <
+        typename OutputStream, typename Geom,
+        std::enable_if_t<util::is_geometry_collection<Geom>::value, int> = 0
+    >
+    static void output_or_recursive_call(OutputStream& os, Geom const& geom, bool force_closure)
+    {
+        os << "GEOMETRYCOLLECTION(";
+
+        bool first = true;
+        auto const end = boost::end(geom);
+        for (auto it = boost::begin(geom); it != end; ++it)
+        {
+            if (first)
+                first = false;
+            else
+                os << ',';
+
+            traits::visit_iterator<Geom>::apply([&](auto const& g)
+            {
+                output_or_recursive_call(os, g, force_closure);
+            }, it);
+        }
+
+        os << ')';
+    }
+
+    template
+    <
+        typename OutputStream, typename Geom,
+        std::enable_if_t<! util::is_geometry_collection<Geom>::value, int> = 0
+    >
+    static void output_or_recursive_call(OutputStream& os, Geom const& geom, bool force_closure)
+    {
+        wkt<Geom>::apply(os, geom, force_closure);
+    }
+};
+
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
