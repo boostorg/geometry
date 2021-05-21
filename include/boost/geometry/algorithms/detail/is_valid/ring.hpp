@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -61,8 +61,8 @@ namespace detail { namespace is_valid
 template <typename Ring, closure_selector Closure /* open */>
 struct is_topologically_closed
 {
-    template <typename VisitPolicy, typename EqPPStrategy>
-    static inline bool apply(Ring const&, VisitPolicy& visitor, EqPPStrategy const&)
+    template <typename VisitPolicy, typename Strategy>
+    static inline bool apply(Ring const&, VisitPolicy& visitor, Strategy const&)
     {
         boost::ignore_unused(visitor);
 
@@ -73,14 +73,13 @@ struct is_topologically_closed
 template <typename Ring>
 struct is_topologically_closed<Ring, closed>
 {
-    template <typename VisitPolicy, typename EqPPStrategy>
-    static inline bool apply(Ring const& ring, VisitPolicy& visitor, EqPPStrategy const&)
+    template <typename VisitPolicy, typename Strategy>
+    static inline bool apply(Ring const& ring, VisitPolicy& visitor, Strategy const& strategy)
     {
         boost::ignore_unused(visitor);
 
-        if (geometry::detail::equals::equals_point_point(range::front(ring),
-                                                         range::back(ring),
-                                                         EqPPStrategy()))
+        using geometry::detail::equals::equals_point_point;
+        if (equals_point_point(range::front(ring), range::back(ring), strategy))
         {
             return visitor.template apply<no_failure>();
         }
