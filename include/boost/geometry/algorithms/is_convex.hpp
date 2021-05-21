@@ -2,8 +2,8 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -31,6 +31,11 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
+// TEMP
+#include <type_traits>
+#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -45,8 +50,13 @@ struct ring_is_convex
     template <typename Ring, typename SideStrategy>
     static inline bool apply(Ring const& ring, SideStrategy const& strategy)
     {
-        typename SideStrategy::equals_point_point_strategy_type
-            eq_pp_strategy = strategy.get_equals_point_point_strategy();
+        // TEMP
+        std::conditional_t
+            <
+                std::is_same<typename SideStrategy::cs_tag, cartesian_tag>::value,
+                strategy::within::cartesian_point_point,
+                strategy::within::spherical_point_point
+            > eq_pp_strategy;
 
         std::size_t n = boost::size(ring);
         if (boost::size(ring) < core_detail::closure::minimum_ring_size

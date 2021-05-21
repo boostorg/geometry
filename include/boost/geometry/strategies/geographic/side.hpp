@@ -67,38 +67,7 @@ class geographic
 public:
     typedef geographic_tag cs_tag;
 
-    typedef strategy::envelope::geographic
-        <
-            FormulaPolicy,
-            Spheroid,
-            CalculationType
-        > envelope_strategy_type;
-
-    inline envelope_strategy_type get_envelope_strategy() const
-    {
-        return envelope_strategy_type(m_model);
-    }
-
-    typedef strategy::disjoint::segment_box_geographic
-        <
-            FormulaPolicy,
-            Spheroid,
-            CalculationType
-        > disjoint_strategy_type;
-
-    inline disjoint_strategy_type get_disjoint_strategy() const
-    {
-        return disjoint_strategy_type(m_model);
-    }
-
-    typedef strategy::within::spherical_point_point equals_point_point_strategy_type;
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
-    geographic()
-    {}
+    geographic() = default;
 
     explicit geographic(Spheroid const& model)
         : m_model(model)
@@ -107,6 +76,7 @@ public:
     template <typename P1, typename P2, typename P>
     inline int apply(P1 const& p1, P2 const& p2, P const& p) const
     {
+        typedef strategy::within::spherical_point_point equals_point_point_strategy_type;
         if (equals_point_point_strategy_type::apply(p, p1)
             || equals_point_point_strategy_type::apply(p, p2)
             || equals_point_point_strategy_type::apply(p1, p2))

@@ -73,26 +73,6 @@ class side_by_triangle
 public :
     typedef cartesian_tag cs_tag;
 
-    typedef strategy::envelope::cartesian<CalculationType> envelope_strategy_type;
-
-    static inline envelope_strategy_type get_envelope_strategy()
-    {
-        return envelope_strategy_type();
-    }
-
-    typedef strategy::disjoint::segment_box disjoint_strategy_type;
-
-    static inline disjoint_strategy_type get_disjoint_strategy()
-    {
-        return disjoint_strategy_type();
-    }
-
-    typedef strategy::within::cartesian_point_point equals_point_point_strategy_type;
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
     // Template member function, because it is not always trivial
     // or convenient to explicitly mention the typenames in the
     // strategy-struct itself.
