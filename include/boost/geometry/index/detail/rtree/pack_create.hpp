@@ -196,8 +196,10 @@ public:
 
         values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);
+
+        auto const& strategy = index::detail::get_strategy(parameters);
         
-        expandable_box<box_type, strategy_type> hint_box(detail::get_strategy(parameters));
+        expandable_box<box_type, strategy_type> hint_box(strategy);
         for ( ; first != last ; ++first )
         {
             // NOTE: support for iterators not returning true references adapted
@@ -214,7 +216,7 @@ public:
             hint_box.expand(indexable);
 
             point_type pt;
-            geometry::centroid(indexable, pt);
+            geometry::centroid(indexable, pt, strategy);
             entries.push_back(std::make_pair(pt, first));
         }
 
