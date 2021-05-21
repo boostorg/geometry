@@ -35,15 +35,14 @@ namespace strategies
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    std::size_t SeriesOrder = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class geographic
     // derived from the umbrella strategy defining the most strategies
-    : public index::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>
+    : public index::geographic<FormulaPolicy, Spheroid, CalculationType>
 {
-    using base_t = index::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>;
+    using base_t = index::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
     geographic() = default;

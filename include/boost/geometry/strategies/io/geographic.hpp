@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019-2020, Oracle and/or its affiliates.
+// Copyright (c) 2019-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -37,9 +37,7 @@ class geographic
     using base_t = strategies::detail::geographic_base<Spheroid>;
 
 public:
-    geographic()
-        : base_t()
-    {}
+    geographic() = default;
 
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)

@@ -21,15 +21,13 @@ namespace boost { namespace geometry { namespace strategies { namespace index
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    // TODO: Is SeriesOrder argument needed here?
-    std::size_t SeriesOrder = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class geographic
-    : public distance::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>
+    : public distance::geographic<FormulaPolicy, Spheroid, CalculationType>
 {
-    typedef distance::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType> base_t;
+    typedef distance::geographic<FormulaPolicy, Spheroid, CalculationType> base_t;
 
 public:
     geographic() = default;
