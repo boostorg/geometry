@@ -20,6 +20,7 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -28,13 +29,10 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/is_convex/cartesian.hpp>
+#include <boost/geometry/strategies/is_convex/geographic.hpp>
+#include <boost/geometry/strategies/is_convex/spherical.hpp>
 #include <boost/geometry/views/detail/normalized_view.hpp>
-
-// TEMP
-#include <type_traits>
-#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
-#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
 
 namespace boost { namespace geometry
@@ -47,17 +45,9 @@ namespace detail { namespace is_convex
 
 struct ring_is_convex
 {
-    template <typename Ring, typename SideStrategy>
-    static inline bool apply(Ring const& ring, SideStrategy const& strategy)
+    template <typename Ring, typename Strategies>
+    static inline bool apply(Ring const& ring, Strategies const& strategies)
     {
-        // TEMP
-        std::conditional_t
-            <
-                std::is_same<typename SideStrategy::cs_tag, cartesian_tag>::value,
-                strategy::within::cartesian_point_point,
-                strategy::within::spherical_point_point
-            > eq_pp_strategy;
-
         std::size_t n = boost::size(ring);
         if (boost::size(ring) < core_detail::closure::minimum_ring_size
                                     <
@@ -79,8 +69,10 @@ struct ring_is_convex
         it_type current(view);
         current++;
 
+        auto const equals_strategy = strategies.relate(dummy_point(), dummy_point());
+
         std::size_t index = 1;
-        while (equals::equals_point_point(*current, *previous, eq_pp_strategy)
+        while (equals::equals_point_point(*current, *previous, equals_strategy)
             && index < n)
         {
             current++;
@@ -95,17 +87,19 @@ struct ring_is_convex
 
         it_type next = current;
         next++;
-        while (equals::equals_point_point(*current, *next, eq_pp_strategy))
+        while (equals::equals_point_point(*current, *next, equals_strategy))
         {
             next++;
         }
+
+        auto const side_strategy = strategies.side();
 
         // We have now three different points on the ring
         // Walk through all points, use a counter because of the ever-circling
         // iterator
         for (std::size_t i = 0; i < n; i++)
         {
-            int const side = strategy.apply(*previous, *current, *next);
+            int const side = side_strategy.apply(*previous, *current, *next);
             if (side == 1)
             {
                 // Next is on the left side of clockwise ring:
@@ -119,7 +113,7 @@ struct ring_is_convex
             // Advance next to next different point
             // (because there are non-equal points, this loop is not infinite)
             next++;
-            while (equals::equals_point_point(*current, *next, eq_pp_strategy))
+            while (equals::equals_point_point(*current, *next, equals_strategy))
             {
                 next++;
             }
@@ -164,6 +158,53 @@ struct is_convex<Box, ring_tag> : detail::is_convex::ring_is_convex
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+namespace resolve_strategy {
+
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
+struct is_convex
+{
+    template <typename Geometry>
+    static bool apply(Geometry const& geometry, Strategies const& strategies)
+    {
+        return dispatch::is_convex<Geometry>::apply(geometry, strategies);
+    }
+};
+
+template <typename Strategy>
+struct is_convex<Strategy, false>
+{
+    template <typename Geometry>
+    static bool apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        using strategies::is_convex::services::strategy_converter;
+        return dispatch::is_convex
+            <
+                Geometry
+            >::apply(geometry, strategy_converter<Strategy>::get(strategy));
+    }
+};
+
+template <>
+struct is_convex<default_strategy, false>
+{
+    template <typename Geometry>
+    static bool apply(Geometry const& geometry, default_strategy const& )
+    {
+        typedef typename strategies::is_convex::services::default_strategy
+            <
+                Geometry
+            >::type strategy_type;
+
+        return dispatch::is_convex<Geometry>::apply(geometry, strategy_type());
+    }
+};
+
+} // namespace resolve_strategy
+
 namespace resolve_variant {
 
 template <typename Geometry>
@@ -173,17 +214,7 @@ struct is_convex
     static bool apply(Geometry const& geometry, Strategy const& strategy)
     {
         concepts::check<Geometry>();
-        return dispatch::is_convex<Geometry>::apply(geometry, strategy);
-    }
-
-    static bool apply(Geometry const& geometry, geometry::default_strategy const&)
-    {
-        typedef typename strategy::side::services::default_strategy
-            <
-                typename cs_tag<Geometry>::type
-            >::type side_strategy;
-
-        return apply(geometry, side_strategy());
+        return resolve_strategy::is_convex<Strategy>::apply(geometry, strategy);
     }
 };
 

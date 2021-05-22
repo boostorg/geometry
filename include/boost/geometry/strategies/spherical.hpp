@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/expand/spherical.hpp>
 #include <boost/geometry/strategies/io/spherical.hpp>
 #include <boost/geometry/strategies/index/spherical.hpp>
+#include <boost/geometry/strategies/is_convex/spherical.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>
 

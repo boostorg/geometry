@@ -33,9 +33,7 @@ class geographic : public strategies::detail::geographic_base<Spheroid>
     using base_t = strategies::detail::geographic_base<Spheroid>;
 
 public:
-    geographic()
-        : base_t()
-    {}
+    geographic() = default;
 
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)

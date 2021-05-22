@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/expand/geographic.hpp>
 #include <boost/geometry/strategies/io/geographic.hpp>
 #include <boost/geometry/strategies/index/geographic.hpp>
+#include <boost/geometry/strategies/is_convex/geographic.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 

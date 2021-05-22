@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/expand/cartesian.hpp>
 #include <boost/geometry/strategies/io/cartesian.hpp>
 #include <boost/geometry/strategies/index/cartesian.hpp>
+#include <boost/geometry/strategies/is_convex/cartesian.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 
