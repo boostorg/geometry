@@ -15,6 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_IS_CONVEX_HPP
 
 
+#include <boost/range/empty.hpp>
+
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
@@ -25,7 +27,9 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -123,6 +127,17 @@ struct ring_is_convex
 };
 
 
+struct polygon_is_convex
+{
+    template <typename Polygon, typename Strategies>
+    static inline bool apply(Polygon const& polygon, Strategies const& strategies)
+    {
+        return boost::empty(interior_rings(polygon))
+            && ring_is_convex::apply(exterior_ring(polygon), strategies);
+    }
+};
+
+
 }} // namespace detail::is_convex
 #endif // DOXYGEN_NO_DETAIL
 
@@ -146,12 +161,30 @@ struct is_convex<Box, box_tag>
     static inline bool apply(Box const& , Strategy const& )
     {
         // Any box is convex (TODO: consider spherical boxes)
+        // TODO: in spherical and geographic the answer would be "false" most of the time.
+        //   Assuming that:
+        //   - it even makes sense to consider Box in spherical and geographic in this context
+        //     because it's not a Polygon, e.g. it can degenerate to a Point.
+        //   - line segments are defined by geodesics and box edges by parallels and meridians
+        //   - we use this definition: A convex polygon is a simple polygon (not self-intersecting)
+        //     in which no line segment between two points on the boundary ever goes outside the
+        //     polygon.
+        //   Then a geodesic segment would go into the exterior of a Box for all horizontal edges
+        //   of a Box unless it was one of the poles (edge degenerated to a point) or equator and
+        //   longitude difference was lesser than 360 (otherwise depending on the CS there would be
+        //   no solution or there would be two possible solutions - segment going through one of
+        //   the poles, at least in case of oblate spheroid, either way the answer would probably
+        //   be "false").
         return true;
     }
 };
 
-template <typename Box>
-struct is_convex<Box, ring_tag> : detail::is_convex::ring_is_convex
+template <typename Ring>
+struct is_convex<Ring, ring_tag> : detail::is_convex::ring_is_convex
+{};
+
+template <typename Polygon>
+struct is_convex<Polygon, polygon_tag> : detail::is_convex::polygon_is_convex
 {};
 
 

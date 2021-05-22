@@ -3,6 +3,10 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -19,6 +23,7 @@
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/ring.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
 
 
 template <typename Geometry>
@@ -42,11 +47,18 @@ void test_all()
     // rectangular, with concavity
     std::string const concave1 = "polygon((1 1, 1 4, 3 4, 3 3, 4 3, 4 4, 5 4, 5 1, 1 1))";
     std::string const triangle = "polygon((1 1, 1 4, 5 1, 1 1))";
+    std::string const rectangle_without_holes = "polygon((1 1, 1 4, 4 4, 4 1, 1 1))";
+    std::string const rectangle_with_holes = "polygon((1 1, 1 4, 4 4, 4 1, 1 1),(2 2, 3 2, 3 3, 2 3, 2 2))";
 
     test_one<bg::model::ring<P> >("triangle", triangle, true);
     test_one<bg::model::ring<P> >("concave1", concave1, false);
     test_one<bg::model::ring<P, false, false> >("triangle", triangle, true);
     test_one<bg::model::ring<P, false, false> >("concave1", concave1, false);
+
+    test_one<bg::model::polygon<P> >("triangle", triangle, true);
+    test_one<bg::model::polygon<P> >("concave1", concave1, false);
+    test_one<bg::model::polygon<P> >("rectangle_without_holes", rectangle_without_holes, true);
+    test_one<bg::model::polygon<P> >("rectangle_with_holes", rectangle_with_holes, false);
 
     test_one<bg::model::box<P> >("box", "box(0 0,2 2)", true);
 }
