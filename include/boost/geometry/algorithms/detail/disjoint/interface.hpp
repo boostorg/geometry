@@ -34,7 +34,6 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 

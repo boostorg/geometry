@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -20,10 +20,16 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_IMPLEMENTATION_HPP
 
 #include <cstddef>
+#include <deque>
 
 #include <boost/core/ignore_unused.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/within/interface.hpp>
+#include <boost/geometry/algorithms/detail/within/multi_point.hpp>
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+#include <boost/geometry/algorithms/relate.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -35,17 +41,12 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
+
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
-
-#include <boost/geometry/algorithms/detail/within/multi_point.hpp>
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-#include <boost/geometry/algorithms/relate.hpp>
-
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
-#include <deque>
-
 
 namespace boost { namespace geometry
 {

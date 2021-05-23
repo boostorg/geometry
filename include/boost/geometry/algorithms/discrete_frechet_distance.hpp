@@ -33,10 +33,10 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/discrete_distance/cartesian.hpp>
 #include <boost/geometry/strategies/discrete_distance/geographic.hpp>
 #include <boost/geometry/strategies/discrete_distance/spherical.hpp>
-#include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
 #include <boost/geometry/util/range.hpp>
 

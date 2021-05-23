@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -31,19 +31,21 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-
-// For trivial checks
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/length.hpp>
-#include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/select_coordinate_type.hpp>
-#include <boost/geometry/util/select_most_precise.hpp>
-
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
 #include <boost/geometry/algorithms/detail/equals/interface.hpp>
 #include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
+
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
+
+#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/select_most_precise.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 

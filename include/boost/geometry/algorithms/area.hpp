@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -48,11 +48,11 @@
 #include <boost/geometry/algorithms/area_result.hpp>
 #include <boost/geometry/algorithms/default_area_result.hpp>
 
-#include <boost/geometry/strategies/area/services.hpp>
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategy/area.hpp>
-
+#include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>

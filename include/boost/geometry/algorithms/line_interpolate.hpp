@@ -30,6 +30,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/line_interpolate/cartesian.hpp>
 #include <boost/geometry/strategies/line_interpolate/geographic.hpp>
 #include <boost/geometry/strategies/line_interpolate/spherical.hpp>
