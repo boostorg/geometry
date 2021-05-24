@@ -202,13 +202,13 @@ void test_car()
     test<LS,P>(l1, 1,   "POINT(1 3)");
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
-    //(1 3) missing due to floating point round off errors
+    //(1 3) could be missing due to floating point round off errors
     test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-                                    (1.2 2)(1 2.2)(1 2.6))");
+                                    (1.2 2)(1 2.2)(1 2.6)(1 3))");
     //(1 3) is not missing if you directly pass the distance
     test_distance<LS,MP>(l1, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
                                              (1.2 2)(1 2.2)(1 2.6)(1 3))");
-    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
+    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2)(1 3))");
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
     test<LS,MP>(l1, 0.5, "MULTIPOINT((2 2)(1 3))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6 2))");
@@ -253,7 +253,7 @@ void test_sph()
                                     (2 1.5998477098527744)\
                                     (1.6000609543036084 2.0000730473928678)\
                                     (1 2.2001522994279883)\
-                                    )");//(1,3)
+                                    (1 3))");//(1,3)
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
     test<LS,MP>(l1, 0.5, "MULTIPOINT((2 1.9997715601385837)(1 3))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
