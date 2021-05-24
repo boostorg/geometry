@@ -186,7 +186,17 @@ struct disjoint_segment_box_sphere_or_spheroid
         bool b2 = formula::azimuth_side_value(alp1, a_b2) > 0;
         bool b3 = formula::azimuth_side_value(alp1, a_b3) > 0;
 
-        if (!(b0 && b1 && b2 && b3) && (b0 || b1 || b2 || b3))
+        bool all_ones = b0 && b1 && b2 && b3;
+        bool all_zeros = !(b0 || b1 || b2 || b3);
+        bool vertex_north = lat1 + lat2 > 0;
+
+        if ((all_ones && vertex_north) || (all_zeros && !vertex_north))
+        {
+            return disjoint_info::disjoint_no_vertex;
+        }
+
+        if ((!all_ones && (b0 || b1 || b2 || b3) && vertex_north) ||
+            (!all_zeros && !(b0 && b1 && b2 && b3) && !vertex_north))
         {
             return disjoint_info::intersect;
         }

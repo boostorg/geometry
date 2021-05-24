@@ -253,6 +253,55 @@ void disjoint_tests_sph_geo()
     test_disjoint<bg::model::box<P>, bg::model::segment<P> >("BOX(10 10,20 20)",
                                                              "SEGMENT(12 1,12 2)",
                                                              true);
+
+    //based on https://github.com/boostorg/geometry/issues/851
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(13.381347 50.625, 13.40332 50.646972)",
+      "SEGMENT(9.18 48.78,13.4 52.52)",
+      true);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(11.22802734375 50.972264889367494, 11.359863281250002 51.06211251399776)",
+      "SEGMENT(9.18 48.78,13.4 52.52)",
+      true);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(10.9423828125 50.527396813293024, 12.06298828125 50.65294336725708)",
+      "SEGMENT(9.18 48.78,13.4 52.52)",
+      false);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(13.238525390625 52.49448734004673, 13.3319091796875 52.549636074382306)",
+      "SEGMENT(9.18 48.78,13.4 52.52)",
+      true);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(13.40332 -50.646972, 13.381347 -50.625)",
+      "SEGMENT(9.18 -48.78,13.4 -52.52)",
+      true);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(11.359863281250002 -51.06211251399776,11.22802734375 -50.972264889367494)",
+      "SEGMENT(9.18 -48.78,13.4 -52.52)",
+      true);
 }
 
 template <typename CT>
