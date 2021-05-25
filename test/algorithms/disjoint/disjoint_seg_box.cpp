@@ -302,6 +302,38 @@ void disjoint_tests_sph_geo()
     >("BOX(11.359863281250002 -51.06211251399776,11.22802734375 -50.972264889367494)",
       "SEGMENT(9.18 -48.78,13.4 -52.52)",
       true);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(0 1,1 2)",
+      "SEGMENT(0 0,0 3)",
+      false);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(0 1,1 2)",
+      "SEGMENT(1 0,1 3)",
+      false);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(1 0,2 1)",
+      "SEGMENT(0 0,3 0)",
+      false);
+
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(1 0,2 1)",
+      "SEGMENT(0 1,3 1)",
+      true);
 }
 
 template <typename CT>

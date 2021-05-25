@@ -181,22 +181,31 @@ struct disjoint_segment_box_sphere_or_spheroid
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_max, a_b3);
 
-        bool b0 = formula::azimuth_side_value(alp1, a_b0) > 0;
-        bool b1 = formula::azimuth_side_value(alp1, a_b1) > 0;
-        bool b2 = formula::azimuth_side_value(alp1, a_b2) > 0;
-        bool b3 = formula::azimuth_side_value(alp1, a_b3) > 0;
+        auto b0 = formula::azimuth_side_value(alp1, a_b0);
+        auto b1 = formula::azimuth_side_value(alp1, a_b1);
+        auto b2 = formula::azimuth_side_value(alp1, a_b2);
+        auto b3 = formula::azimuth_side_value(alp1, a_b3);
 
-        bool all_ones = b0 && b1 && b2 && b3;
-        bool all_zeros = !(b0 || b1 || b2 || b3);
+        if (b0 == 0 || b1 == 0 || b2 == 0 || b3 == 0)
+        {
+            return disjoint_info::intersect;
+        }
+
+        bool b0_positive = b0 > 0;
+        bool b1_positive = b1 > 0;
+        bool b2_positive = b2 > 0;
+        bool b3_positive = b3 > 0;
+
+        bool all_positive = b0_positive && b1_positive && b2_positive && b3_positive;
+        bool all_non_positive = !(b0_positive || b1_positive || b2_positive || b3_positive);
         bool vertex_north = lat1 + lat2 > 0;
 
-        if ((all_ones && vertex_north) || (all_zeros && !vertex_north))
+        if ((all_positive && vertex_north) || (all_non_positive && !vertex_north))
         {
             return disjoint_info::disjoint_no_vertex;
         }
 
-        if ((!all_ones && (b0 || b1 || b2 || b3) && vertex_north) ||
-            (!all_zeros && !(b0 && b1 && b2 && b3) && !vertex_north))
+        if (!all_positive && !all_non_positive)
         {
             return disjoint_info::intersect;
         }
