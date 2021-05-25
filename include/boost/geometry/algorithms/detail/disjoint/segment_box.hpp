@@ -181,23 +181,23 @@ struct disjoint_segment_box_sphere_or_spheroid
         azimuth_strategy.apply(lon1, lat1, b_lon_min, b_lat_max, a_b2);
         azimuth_strategy.apply(lon1, lat1, b_lon_max, b_lat_max, a_b3);
 
-        auto b0 = formula::azimuth_side_value(alp1, a_b0);
-        auto b1 = formula::azimuth_side_value(alp1, a_b1);
-        auto b2 = formula::azimuth_side_value(alp1, a_b2);
-        auto b3 = formula::azimuth_side_value(alp1, a_b3);
+        int s0 = formula::azimuth_side_value(alp1, a_b0);
+        int s1 = formula::azimuth_side_value(alp1, a_b1);
+        int s2 = formula::azimuth_side_value(alp1, a_b2);
+        int s3 = formula::azimuth_side_value(alp1, a_b3);
 
-        if (b0 == 0 || b1 == 0 || b2 == 0 || b3 == 0)
+        if (s0 == 0 || s1 == 0 || s2 == 0 || s3 == 0)
         {
             return disjoint_info::intersect;
         }
 
-        bool b0_positive = b0 > 0;
-        bool b1_positive = b1 > 0;
-        bool b2_positive = b2 > 0;
-        bool b3_positive = b3 > 0;
+        bool s0_positive = s0 > 0;
+        bool s1_positive = s1 > 0;
+        bool s2_positive = s2 > 0;
+        bool s3_positive = s3 > 0;
 
-        bool all_positive = b0_positive && b1_positive && b2_positive && b3_positive;
-        bool all_non_positive = !(b0_positive || b1_positive || b2_positive || b3_positive);
+        bool all_positive = s0_positive && s1_positive && s2_positive && s3_positive;
+        bool all_non_positive = !(s0_positive || s1_positive || s2_positive || s3_positive);
         bool vertex_north = lat1 + lat2 > 0;
 
         if ((all_positive && vertex_north) || (all_non_positive && !vertex_north))
@@ -215,14 +215,13 @@ struct disjoint_segment_box_sphere_or_spheroid
         // hemisphere. Then we have to compute the vertex of the segment
 
         CT vertex_lat;
-        CT lat_sum = lat1 + lat2;
 
-        if ((lat1 < b_lat_min && lat_sum > CT(0))
-                || (lat1 > b_lat_max && lat_sum < CT(0)))
+        if ((lat1 < b_lat_min && vertex_north)
+                || (lat1 > b_lat_max && !vertex_north))
         {
             CT b_lat_below; //latitude of box closest to equator
 
-            if (lat_sum > CT(0))
+            if (vertex_north)
             {
                 vertex_lat = geometry::get_as_radian<geometry::max_corner, 1>(box_seg);
                 b_lat_below = b_lat_min;

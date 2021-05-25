@@ -334,6 +334,36 @@ void disjoint_tests_sph_geo()
     >("BOX(1 0,2 1)",
       "SEGMENT(0 1,3 1)",
       true);
+
+    // segment on the equator
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(1 1,2 2)",
+      "SEGMENT(0 0,3 0)",
+      true);
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(2 -2,1 -1)",
+      "SEGMENT(0 0,3 0)",
+      true);
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(1 -1,2 1)",
+      "SEGMENT(0 0,3 0)",
+      false);
+    test_disjoint
+    <
+        bg::model::box<P>,
+        bg::model::segment<P>
+    >("BOX(4 -1,5 1)",
+      "SEGMENT(0 0,3 0)",
+      true);
 }
 
 template <typename CT>
