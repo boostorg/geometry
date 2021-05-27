@@ -311,7 +311,7 @@ struct area<Geometry, geometry_collection_tag>
         apply(Geometry const& geometry, Strategy const& strategy)
     {
         typename area_result<Geometry, Strategy>::type result = 0;
-        geometry::visit_breadth_first([&](auto const& g)
+        detail::visit_breadth_first([&](auto const& g)
         {
             result += area<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
             return true;

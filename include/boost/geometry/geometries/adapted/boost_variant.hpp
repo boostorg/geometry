@@ -47,18 +47,6 @@ struct parameter_pack_first_type<T, Ts...>
     typedef T type;
 };
 
-// This utility could be used to get the return type of the visit trait in order to implement
-//   returning visit for types that don't support it by default like boost::variant or boost::any.
-// The return type is the return type of the Function
-//   with arguments being the first Variant types preserving constness and references.
-template <typename F, typename ...Vs>
-struct visit_return_type
-{
-    template <typename V>
-    using first_t = typename util::sequence_front<typename traits::geometry_types<util::remove_cref_t<V>>::type>::type;
-
-    using type = decltype(std::declval<F>()(std::declval<util::transcribe_cref_t<Vs, first_t<Vs>>>()...));
-};
 
 } // namespace detail
 
@@ -88,7 +76,7 @@ struct tag<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
 {
-    template <typename Function, typename Variant>
+    template <typename Function>
     struct visitor
         : boost::static_visitor<>
     {
@@ -97,26 +85,26 @@ struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
         {}
 
         template <typename Geometry>
-        void operator()(Geometry & geometry)
+        void operator()(Geometry && geometry)
         {
-            m_function(geometry);
+            m_function(std::forward<Geometry>(geometry));
         }
 
         Function m_function;
     };
 
     template <typename Function, typename Variant>
-    static void apply(Function function, Variant & variant)
+    static void apply(Function function, Variant && variant)
     {
-        visitor<Function, Variant &> visitor(function);
-        boost::apply_visitor(visitor, variant);
+        visitor<Function> visitor(function);
+        boost::apply_visitor(visitor, std::forward<Variant>(variant));
     }
 };
-
+/*
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), BOOST_VARIANT_ENUM_PARAMS(typename U)>
 struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>>
 {
-    template <typename Function, typename Variant1, typename Variant2>
+    template <typename Function>
     struct visitor
         : boost::static_visitor<>
     {
@@ -125,21 +113,24 @@ struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, boost::variant<BOOST_
         {}
 
         template <typename Geometry1, typename Geometry2>
-        void operator()(Geometry1 & geometry1, Geometry2 & geometry2)
+        void operator()(Geometry1 && geometry1, Geometry2 && geometry2)
         {
-            m_function(geometry1, geometry2);
+            m_function(std::forward<Geometry1>(geometry1),
+                       std::forward<Geometry2>(geometry2));
         }
 
         Function m_function;
     };
 
     template <typename Function, typename Variant1, typename Variant2>
-    static void apply(Function function, Variant1 & variant1, Variant2 & variant2)
+    static void apply(Function function, Variant1 && variant1, Variant2 && variant2)
     {
-        visitor<Function, Variant1 &, Variant2 &> visitor(function);
-        boost::apply_visitor(visitor, variant1, variant2);
+        visitor<Function> visitor(function);
+        boost::apply_visitor(visitor,
+                             std::forward<Variant1>(variant1),
+                             std::forward<Variant2>(variant2));
     }
-};
+};*/
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct geometry_types<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>

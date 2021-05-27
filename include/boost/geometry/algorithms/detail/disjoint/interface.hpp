@@ -139,7 +139,7 @@ struct disjoint<Geometry1, Geometry2, true, false>
                              Strategy const& strategy)
     {
         bool result = true;
-        geometry::visit([&](auto const& g1, auto const& g2)
+        detail::visit([&](auto const& g1, auto const& g2)
         {
             result = disjoint
                 <
@@ -160,9 +160,9 @@ struct disjoint<Geometry1, Geometry2, IsDynamic, true>
                              Strategy const& strategy)
     {
         bool result = true;
-        geometry::visit_breadth_first([&](auto const& g1)
+        detail::visit_breadth_first([&](auto const& g1)
         {
-            geometry::visit_breadth_first([&](auto const& g2)
+            detail::visit_breadth_first([&](auto const& g2)
             {
                 result = disjoint
                     <

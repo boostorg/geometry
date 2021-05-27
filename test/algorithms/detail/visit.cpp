@@ -9,12 +9,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
-#include <iterator>
-#include <vector>
-
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/core/visit.hpp>
+#include <boost/geometry/algorithms/visit.hpp>
 #include <boost/geometry/geometries/adapted/boost_any.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant2.hpp>
@@ -43,75 +40,75 @@ template <typename DynamicGeometry>
 void test_all()
 {
     DynamicGeometry dg = point_t(1, 2);
-    bg::traits::visit<DynamicGeometry>::apply([](auto g)
+    bg::detail::visit([](auto g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<decltype(g)>::value);
     }, dg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto const g)
+    bg::detail::visit([](auto const g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<decltype(g)>::value);
     }, dg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto & g)
+    bg::detail::visit([](auto & g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
     }, dg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto const& g)
+    bg::detail::visit([](auto const& g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
     }, dg);
 
     DynamicGeometry const cdg = point_t(3, 4);
-    bg::traits::visit<DynamicGeometry>::apply([](auto g)
+    bg::detail::visit([](auto g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<decltype(g)>::value);
     }, cdg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto const g)
+    bg::detail::visit([](auto const g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<decltype(g)>::value);
     }, cdg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto & g)
+    bg::detail::visit([](auto & g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
     }, cdg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto const& g)
+    bg::detail::visit([](auto const& g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
     }, cdg);
 
 
-    bg::traits::visit<DynamicGeometry>::apply([](auto && g)
+    bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
     }, dg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto && g)
+    bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
     }, cdg);
-    bg::traits::visit<DynamicGeometry>::apply([](auto && g)
+    bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
     }, std::move(dg));
-    bg::traits::visit<DynamicGeometry>::apply([](auto && g)
+    bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
     }, std::move(cdg));
-    bg::traits::visit<DynamicGeometry>::apply([](auto && g)
+    bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
@@ -119,7 +116,7 @@ void test_all()
     }, DynamicGeometry{ point_t(1, 2) });
 
 
-    bg::traits::visit<DynamicGeometry, DynamicGeometry>::apply([](auto && g1, auto && g2)
+    bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
@@ -129,7 +126,7 @@ void test_all()
         BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g2)>::value);
     }, dg, cdg);
 
-    bg::traits::visit<DynamicGeometry, DynamicGeometry>::apply([](auto && g1, auto && g2)
+    bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
@@ -139,7 +136,7 @@ void test_all()
         BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g2)>::value);
     }, std::move(dg), std::move(cdg));
 
-    bg::traits::visit<DynamicGeometry, DynamicGeometry>::apply([](auto && g1, auto && g2)
+    bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
@@ -149,7 +146,7 @@ void test_all()
         BOOST_STATIC_ASSERT(!std::is_rvalue_reference<decltype(g1)>::value);
     }, cdg, dg);
 
-    bg::traits::visit<DynamicGeometry, DynamicGeometry>::apply([](auto && g1, auto && g2)
+    bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
@@ -160,36 +157,40 @@ void test_all()
     }, std::move(cdg), std::move(dg));
 
 
-    std::vector<DynamicGeometry> v = { DynamicGeometry{ point_t(1, 2) } };
-    std::vector<DynamicGeometry> const cv = { DynamicGeometry{ point_t(1, 2) } };
+    bg::model::geometry_collection<DynamicGeometry> gc = { DynamicGeometry{ point_t(1, 2) } };
+    bg::model::geometry_collection<DynamicGeometry> const cgc = { DynamicGeometry{ point_t(1, 2) } };
 
-    bg::traits::iter_visit<std::vector<DynamicGeometry>>::apply([](auto && g)
+    bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
-    }, v.begin());
+        return true;
+    }, gc);
 
-    bg::traits::iter_visit<std::vector<DynamicGeometry>>::apply([](auto && g)
+    bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
-    }, cv.begin());
+        return true;
+    }, cgc);
 
-    bg::traits::iter_visit<std::vector<DynamicGeometry>>::apply([](auto && g)
+    bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
-    }, std::make_move_iterator(v.begin()));
+        return true;
+    }, std::move(gc));
 
-    bg::traits::iter_visit<std::vector<DynamicGeometry>>::apply([](auto && g)
+    bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
         BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
         BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
-    }, std::make_move_iterator(cv.begin()));
+        return true;
+    }, std::move(cgc));
 }
 
 int test_main(int, char* [])

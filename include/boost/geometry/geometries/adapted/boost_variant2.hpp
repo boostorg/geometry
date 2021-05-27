@@ -38,21 +38,24 @@ template <typename ...Ts>
 struct visit<boost::variant2::variant<Ts...>>
 {
     template <typename Function, typename Variant>
-    static void apply(Function && function, Variant & variant)
+    static void apply(Function && function, Variant && variant)
     {
-        boost::variant2::visit(std::forward<Function>(function), variant);
+        boost::variant2::visit(std::forward<Function>(function),
+                               std::forward<Variant>(variant));
     }
 };
-
+/*
 template <typename ...Ts, typename ...Us>
 struct visit<boost::variant2::variant<Ts...>, boost::variant2::variant<Us...>>
 {
     template <typename Function, typename Variant1, typename Variant2>
-    static void apply(Function && function, Variant1 & variant1, Variant2 & variant2)
+    static void apply(Function && function, Variant1 && variant1, Variant2 && variant2)
     {
-        boost::variant2::visit(std::forward<Function>(function), variant1, variant2);
+        boost::variant2::visit(std::forward<Function>(function),
+                               std::forward<Variant1>(variant1),
+                               std::forward<Variant2>(variant2));
     }
-};
+};*/
 
 template <typename ...Ts>
 struct geometry_types<boost::variant2::variant<Ts...>>

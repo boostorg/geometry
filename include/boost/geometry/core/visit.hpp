@@ -43,27 +43,31 @@ template <typename DynamicGeometry1, typename DynamicGeometry2>
 struct visit<DynamicGeometry1, DynamicGeometry2>
 {
     template <typename Function, typename Variant1, typename Variant2>
-    static void apply(Function && function, Variant1 & variant1, Variant2 & variant2)
+    static void apply(Function && function, Variant1 && variant1, Variant2 && variant2)
     {
-        visit<util::remove_cref_t<Variant1>>::apply([&](auto & g1)
+        visit<util::remove_cref_t<Variant1>>::apply([&](auto && g1)
         {
-            visit<util::remove_cref_t<Variant2>>::apply([&](auto & g2)
+            using ref1_t = decltype(g1);
+            visit<util::remove_cref_t<Variant2>>::apply([&](auto && g2)
             {
-                function(g1, g2);
-            }, variant1);
-        }, variant2);
+                function(std::forward<ref1_t>(g1),
+                         std::forward<decltype(g2)>(g2));
+            }, std::forward<Variant2>(variant2));
+        }, std::forward<Variant1>(variant1));
     }
 };
 
 // By default treat GeometryCollection as a range of DynamicGeometries
 template <typename GeometryCollection>
-struct visit_iterator
+struct iter_visit
 {
     template <typename Function, typename Iterator>
     static void apply(Function && function, Iterator iterator)
     {
         using value_t = typename boost::range_value<GeometryCollection>::type;
-        visit<value_t>::apply(std::forward<Function>(function), *iterator);
+        using reference_t = typename std::iterator_traits<Iterator>::reference;
+        visit<value_t>::apply(std::forward<Function>(function),
+                              std::forward<reference_t>(*iterator));
     }
 };
 

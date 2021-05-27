@@ -499,7 +499,7 @@ struct wkt<Geometry, geometry_collection_tag>
             else
                 os << ',';
 
-            traits::visit_iterator<Geom>::apply([&](auto const& g)
+            traits::iter_visit<Geom>::apply([&](auto const& g)
             {
                 output_or_recursive_call(os, g, force_closure);
             }, it);

@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_VISIT_HPP
 
 #include <deque>
+#include <iterator>
 #include <utility>
 
 #include <boost/range/begin.hpp>
@@ -33,9 +34,9 @@ template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct visit_one
 {
     template <typename F, typename G>
-    static void apply(F && f, G & g)
+    static void apply(F && f, G && g)
     {
-        f(g);
+        f(std::forward<G>(g));
     }
 };
 
@@ -51,23 +52,28 @@ template <typename Geometry>
 struct visit_one<Geometry, dynamic_geometry_tag>
 {
     template <typename F, typename Geom>
-    static void apply(F && function, Geom & geom)
+    static void apply(F && function, Geom && geom)
     {
         traits::visit
             <
                 util::remove_cref_t<Geom>
-            >::apply(std::forward<F>(function), geom);
+            >::apply(std::forward<F>(function), std::forward<Geom>(geom));
     }
 };
 
 
-template <typename Geometry1, typename Geometry2, typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type>
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1 = typename tag<Geometry1>::type,
+    typename Tag2 = typename tag<Geometry2>::type
+>
 struct visit_two
 {
     template <typename F, typename G1, typename G2>
-    static void apply(F && f, G1 & geom1, G2 & geom2)
+    static void apply(F && f, G1 && geom1, G2 && geom2)
     {
-        f(geom1, geom2);
+        f(std::forward<G1>(geom1), std::forward<G2>(geom2));
     }
 };
 
@@ -99,12 +105,12 @@ template <typename Geometry1, typename Geometry2, typename Tag2>
 struct visit_two<Geometry1, Geometry2, dynamic_geometry_tag, Tag2>
 {
     template <typename F, typename G1, typename G2>
-    static void apply(F && f, G1 & geom1, G2 & geom2)
+    static void apply(F && f, G1 && geom1, G2 && geom2)
     {
-        traits::visit<util::remove_cref_t<G1>>::apply([&](auto & g1)
+        traits::visit<util::remove_cref_t<G1>>::apply([&](auto && g1)
         {
-            f(g1, geom2);
-        }, geom1);
+            f(std::forward<decltype(g1)>(g1), std::forward<G2>(geom2));
+        }, std::forward<G1>(geom1));
     }
 };
 
@@ -112,12 +118,12 @@ template <typename Geometry1, typename Geometry2, typename Tag1>
 struct visit_two<Geometry1, Geometry2, Tag1, dynamic_geometry_tag>
 {
     template <typename F, typename G1, typename G2>
-    static void apply(F && f, G1 & geom1, G2 & geom2)
+    static void apply(F && f, G1 && geom1, G2 && geom2)
     {
-        traits::visit<util::remove_cref_t<G2>>::apply([&](auto & g2)
+        traits::visit<util::remove_cref_t<G2>>::apply([&](auto && g2)
         {
-            f(geom1, g2);
-        }, geom2);
+            f(std::forward<G1>(geom1), std::forward<decltype(g2)>(g2));
+        }, std::forward<G2>(geom2));
     }
 };
 
@@ -125,15 +131,15 @@ template <typename Geometry1, typename Geometry2>
 struct visit_two<Geometry1, Geometry2, dynamic_geometry_tag, dynamic_geometry_tag>
 {
     template <typename F, typename G1, typename G2>
-    static void apply(F && f, G1 & geom1, G2 & geom2)
+    static void apply(F && f, G1 && geom1, G2 && geom2)
     {
         traits::visit
             <
                 util::remove_cref_t<G1>, util::remove_cref_t<G2>
-            >::apply([&](auto & g1, auto & g2)
+            >::apply([&](auto && g1, auto && g2)
             {
-                f(g1, g2);
-            }, geom1, geom2);
+                f(std::forward<decltype(g1)>(g1), std::forward<decltype(g2)>(g2));
+            }, std::forward<G1>(geom1), std::forward<G2>(geom2));
     }
 };
 
@@ -142,9 +148,9 @@ template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct visit_breadth_first
 {
     template <typename F, typename G>
-    static bool apply(F f, G & g)
+    static bool apply(F f, G && g)
     {
-        return f(g);
+        return f(std::forward<G>(g));
     }
 };
 
@@ -160,13 +166,17 @@ template <typename Geometry>
 struct visit_breadth_first<Geometry, dynamic_geometry_tag>
 {
     template <typename Geom, typename F>
-    static bool apply(F function, Geom & geom)
+    static bool apply(F function, Geom && geom)
     {
         bool result = true;
-        traits::visit<util::remove_cref_t<Geom>>::apply([&](auto & g)
+        traits::visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
         {
-            result = visit_breadth_first<decltype(g)>::apply(function, g);
-        }, geom);
+            result = visit_breadth_first
+                <
+                    std::remove_reference_t<decltype(g)>
+                >::apply(function,
+                         std::forward<decltype(g)>(g));
+        }, std::forward<Geom>(geom));
         return result;
     }
 };
@@ -175,21 +185,27 @@ template <typename Geometry>
 struct visit_breadth_first<Geometry, geometry_collection_tag>
 {
     template <typename F, typename Geom>
-    static bool apply(F function, Geom & geom)
+    static bool apply(F function, Geom && geom)
     {
-        using iter_t = typename boost::range_iterator<Geom>::type;
+        using iter_t = std::conditional_t
+            <
+                std::is_rvalue_reference<decltype(geom)>::value,
+                std::move_iterator<typename boost::range_iterator<Geom>::type>,
+                typename boost::range_iterator<Geom>::type
+            >;
+
         std::deque<iter_t> queue;
 
-        iter_t it = boost::begin(geom);
-        iter_t end = boost::end(geom);
+        iter_t it = iter_t{ boost::begin(geom) };
+        iter_t end = iter_t{ boost::end(geom) };
         for(;;)
         {
             for (; it != end; ++it)
             {
                 bool result = true;
-                traits::visit_iterator<util::remove_cref_t<Geom>>::apply([&](auto & g)
+                traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
                 {
-                    result = visit_or_enqueue(function, g, queue, it);
+                    result = visit_or_enqueue(function, std::forward<decltype(g)>(g), queue, it);
                 }, it);
                 if (! result)
                     return false;
@@ -202,9 +218,9 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
 
             // Alternatively store a pointer to GeometryCollection
             // so this call can be avoided.
-            traits::visit_iterator<util::remove_cref_t<Geom>>::apply([&](auto & g)
+            traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
             {
-                set_iterators(g, it, end);
+                set_iterators(std::forward<decltype(g)>(g), it, end);
             }, queue.front());
             queue.pop_front();
         }
@@ -218,7 +234,7 @@ private:
         typename F, typename Geom, typename Iterator,
         std::enable_if_t<util::is_geometry_collection<Geom>::value, int> = 0
     >
-    static bool visit_or_enqueue(F &, Geom &, std::deque<Iterator> & queue, Iterator iter)
+    static bool visit_or_enqueue(F &, Geom &&, std::deque<Iterator> & queue, Iterator iter)
     {
         queue.push_back(iter);
         return true;
@@ -228,9 +244,9 @@ private:
         typename F, typename Geom, typename Iterator,
         std::enable_if_t<! util::is_geometry_collection<Geom>::value, int> = 0
     >
-    static bool visit_or_enqueue(F & f, Geom & g, std::deque<Iterator> & , Iterator)
+    static bool visit_or_enqueue(F & f, Geom && g, std::deque<Iterator> & , Iterator)
     {
-        return f(g);
+        return f(std::forward<Geom>(g));
     }
 
     template
@@ -238,17 +254,17 @@ private:
         typename Geom, typename Iterator,
         std::enable_if_t<util::is_geometry_collection<Geom>::value, int> = 0
     >
-    static void set_iterators(Geom & g, Iterator & first, Iterator & last)
+    static void set_iterators(Geom && g, Iterator & first, Iterator & last)
     {
-        first = boost::begin(g);
-        last = boost::end(g);
+        first = Iterator{ boost::begin(g) };
+        last = Iterator{ boost::end(g) };
     }
     template
     <
         typename Geom, typename Iterator,
         std::enable_if_t<!util::is_geometry_collection<Geom>::value, int> = 0
     >
-    static void set_iterators(Geom &, Iterator &, Iterator &)
+    static void set_iterators(Geom &&, Iterator &, Iterator &)
     {}
 };
 
@@ -257,50 +273,44 @@ private:
 #endif // DOXYGEN_NO_DISPATCH
 
 
-// This function mimics std::visit
-// This algorithm treats GeometryCollection as StaticGeometry and calls function
-//   for it.
-// TODO: We could change the order of the arguments but I'm not sure if that's a good idea.
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
 template <typename UnaryFunction, typename Geometry>
-inline void visit(UnaryFunction && function, Geometry & geometry)
+inline void visit(UnaryFunction && function, Geometry && geometry)
 {
     dispatch::visit_one
         <
-            Geometry
-        >::apply(std::forward<UnaryFunction>(function), geometry);
+            std::remove_reference_t<Geometry>
+        >::apply(std::forward<UnaryFunction>(function), std::forward<Geometry>(geometry));
 }
 
 
-// This function mimics std::visit
-// This algorithm treats GeometryCollection as StaticGeometry and calls function
-//   for it.
-// TODO: We could change the order of the arguments but I'm not sure if that's a good idea.
 template <typename UnaryFunction, typename Geometry1, typename Geometry2>
-inline void visit(UnaryFunction && function, Geometry1 & geometry1, Geometry2 & geometry2)
+inline void visit(UnaryFunction && function, Geometry1 && geometry1, Geometry2 && geometry2)
 {
     dispatch::visit_two
         <
-            Geometry1, Geometry2
-        >::apply(std::forward<UnaryFunction>(function), geometry1, geometry2);
+            std::remove_reference_t<Geometry1>,
+            std::remove_reference_t<Geometry2>
+        >::apply(std::forward<UnaryFunction>(function),
+                 std::forward<Geometry1>(geometry1),
+                 std::forward<Geometry2>(geometry2));
 }
 
 
-// This function works like combined std::visit and recursive std::for_each.
-// This algorithm works for all Geometries. It visits DynamicGeometries and calls function for
-//   StaticGeometries.
-// The number of elements visited may be different than the size of the top-most GeometryCollection
-//   if it's recursive.
-// TODO: This algorithm is similar to std::for_each so it could be called e.g. std::visit_each or
-//   std::for_each_visit but it doesn't work the same way, i.e. it traverses recursive
-//   GeometryCollections.
-// TODO: Should this algorithm work only for GeometryCollection?
-// TODO: We could change the order of the arguments but I'm not sure if that's a good idea.
 template <typename UnaryFunction, typename Geometry>
-inline void visit_breadth_first(UnaryFunction function, Geometry & geometry)
+inline void visit_breadth_first(UnaryFunction function, Geometry && geometry)
 {
-    dispatch::visit_breadth_first<Geometry>::apply(function, geometry);
+    dispatch::visit_breadth_first
+        <
+            std::remove_reference_t<Geometry>
+        >::apply(function, std::forward<Geometry>(geometry));
 }
 
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 
