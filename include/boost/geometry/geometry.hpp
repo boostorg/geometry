@@ -106,7 +106,6 @@ BOOST_PRAGMA_MESSAGE("CAUTION: Define BOOST_GEOMETRY_DISABLE_DEPRECATED_03_WARNI
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/unique.hpp>
-#include <boost/geometry/algorithms/visit.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
 // check includes all concepts

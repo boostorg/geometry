@@ -39,10 +39,10 @@
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 
 #include <boost/geometry/algorithms/area_result.hpp>
 #include <boost/geometry/algorithms/default_area_result.hpp>
-#include <boost/geometry/algorithms/visit.hpp>
 
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>

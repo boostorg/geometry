@@ -11,7 +11,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/visit.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/geometries/adapted/boost_any.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant2.hpp>

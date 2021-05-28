@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_VISIT_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_VISIT_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_VISIT_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_VISIT_HPP
 
 #include <deque>
 #include <iterator>
@@ -314,4 +314,4 @@ inline void visit_breadth_first(UnaryFunction function, Geometry && geometry)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_VISIT_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_VISIT_HPP

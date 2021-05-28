@@ -24,8 +24,8 @@
 #include <cstddef>
 
 #include <boost/geometry/algorithms/detail/relate/interface.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-#include <boost/geometry/algorithms/visit.hpp>
 
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>

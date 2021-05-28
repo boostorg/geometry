@@ -31,6 +31,7 @@
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // for backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/range.hpp>
