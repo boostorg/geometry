@@ -35,6 +35,7 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/discard_duplicate_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
@@ -444,11 +445,14 @@ inline void enrich_intersection_points(Turns& turns,
 
     // From here on, turn indexes are used (in clusters, next_index, etc)
     // and may not be DELETED - they may only be flagged as discarded
+    discard_duplicate_start_turns(turns, geometry1, geometry2);
 
     bool has_cc = false;
     bool const has_colocations
-        = detail::overlay::handle_colocations<Reverse1, Reverse2, OverlayType>(turns,
-        clusters, geometry1, geometry2, robust_policy);
+        = detail::overlay::handle_colocations
+            <
+                Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+            >(turns, clusters, robust_policy);
 
     // Discard turns not part of target overlay
     for (typename boost::range_iterator<Turns>::type
@@ -530,6 +534,23 @@ inline void enrich_intersection_points(Turns& turns,
 #endif
     }
 
+    if (has_colocations)
+    {
+        // First gather cluster properties (using even clusters with
+        // discarded turns - for open turns), then clean up clusters
+        detail::overlay::gather_cluster_properties
+            <
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, target_operation,
+              geometry1, geometry2, strategy.side()); // TODO: pass strategy
+
+        detail::overlay::cleanup_clusters(turns, clusters);
+    }
+
+    // After cleaning up clusters assign the next turns
+
     for (typename mapped_vector_type::iterator mit
         = mapped_vector.begin();
         mit != mapped_vector.end();
@@ -544,21 +565,6 @@ inline void enrich_intersection_points(Turns& turns,
         }
 
         detail::overlay::enrich_assign(mit->second, turns, ! is_dissolve);
-    }
-
-    if (has_colocations)
-    {
-        // First gather cluster properties (using even clusters with
-        // discarded turns - for open turns), then clean up clusters
-        detail::overlay::gather_cluster_properties
-            <
-                Reverse1,
-                Reverse2,
-                OverlayType
-            >(clusters, turns, target_operation,
-              geometry1, geometry2, strategy.side()); // TODO: pass strategy
-
-        detail::overlay::cleanup_clusters(turns, clusters);
     }
 
     if (has_cc)

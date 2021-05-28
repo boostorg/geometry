@@ -13,6 +13,7 @@
 
 #include <boost/geometry/strategies/area/geographic.hpp>
 #include <boost/geometry/strategies/azimuth/geographic.hpp>
+#include <boost/geometry/strategies/buffer/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/distance/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
@@ -20,6 +21,7 @@
 #include <boost/geometry/strategies/io/geographic.hpp>
 #include <boost/geometry/strategies/index/geographic.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/simplify/geographic.hpp>
 
 
 namespace boost { namespace geometry

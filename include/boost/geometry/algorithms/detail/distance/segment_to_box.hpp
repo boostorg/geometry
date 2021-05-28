@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 #include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -114,7 +115,7 @@ public:
         std::vector<box_point> box_points(4);
         detail::assign_box_corners_oriented<true>(box, box_points);
  
-        ps_strategy_type const strategy = strategies.distance(box_points.front(), segment);
+        ps_strategy_type const strategy = strategies.distance(dummy_point(), dummy_segment());
 
         auto const cstrategy = strategy::distance::services::get_comparable
                                 <
@@ -213,7 +214,7 @@ public:
 
         distance::creturn_t<box_point, Segment, Strategies> cd[6];
 
-        ps_strategy_type ps_strategy = strategies.distance(box_points.front(), segment);
+        ps_strategy_type ps_strategy = strategies.distance(dummy_point(), dummy_segment());
         auto const ps_cstrategy = strategy::distance::services::get_comparable
                                     <
                                         ps_strategy_type
@@ -225,7 +226,7 @@ public:
             cd[i] = ps_cstrategy.apply(box_points[i], p[0], p[1]);
         }
 
-        pb_strategy_type const pb_strategy = strategies.distance(p[0], box);
+        pb_strategy_type const pb_strategy = strategies.distance(dummy_point(), dummy_box());
         auto const pb_cstrategy = strategy::distance::services::get_comparable
                                     <
                                         pb_strategy_type
@@ -344,10 +345,7 @@ private:
 
             LessEqual less_equal;
 
-            // TODO: referring segment here is created only to get the correct strategy
-            //       could some different mechanism be used, e.g. the original segment passed?
-            auto const ps_strategy = strategies.distance(bottom_right,
-                                        model::referring_segment<SegmentPoint const>(p0, p1));
+            auto const ps_strategy = strategies.distance(dummy_point(), dummy_segment());
 
             if (less_equal(geometry::get<1>(bottom_right), geometry::get<1>(p0)))
             {
@@ -400,8 +398,7 @@ private:
                                        BoxPoint const& top_left,
                                        Strategies const& strategies)
         {
-            auto const ps_strategy = strategies.distance(top_left,
-                        model::referring_segment<SegmentPoint const>(p0, p1));
+            auto const ps_strategy = strategies.distance(dummy_point(), dummy_segment());
 
             typedef cast_to_result<ReturnType> cast;
             LessEqual less_equal;
@@ -483,8 +480,7 @@ private:
             // the segment lies below the box
             if (geometry::get<1>(p1) < geometry::get<1>(bottom_left))
             {
-                // TODO: think about a different mechanism without calling ctors
-                auto const sb_strategy = strategies.distance(model::segment<SegmentPoint>(), model::box<BoxPoint>());
+                auto const sb_strategy = strategies.distance(dummy_segment(), dummy_box());
 
                 // TODO: this strategy calls this algorithm's again, specifically:
                 //       geometry::detail::distance::segment_to_box_2D<>::call_above_of_box
@@ -528,8 +524,7 @@ private:
                                  ReturnType& result)
         {
             auto const side_strategy = strategies.side();
-            auto const ps_strategy = strategies.distance(corner1,
-                model::referring_segment<SegmentPoint const>(p0, p1));
+            auto const ps_strategy = strategies.distance(dummy_point(), dummy_segment());
 
             typedef cast_to_result<ReturnType> cast;
             ReturnType diff1 = cast::apply(geometry::get<1>(p1))

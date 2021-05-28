@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2018-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -95,6 +96,12 @@ public:
         calc_t a = angle01 * fraction;
         formula.compute_point(a, p);
     }
+
+    inline radius_type radius() const
+    {
+        return m_strategy.radius();
+    }
+
 private :
     DistanceStrategy m_strategy;
 };
