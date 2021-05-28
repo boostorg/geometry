@@ -100,7 +100,7 @@ struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
         boost::apply_visitor(visitor, std::forward<Variant>(variant));
     }
 };
-/*
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), BOOST_VARIANT_ENUM_PARAMS(typename U)>
 struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, boost::variant<BOOST_VARIANT_ENUM_PARAMS(U)>>
 {
@@ -130,7 +130,7 @@ struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, boost::variant<BOOST_
                              std::forward<Variant1>(variant1),
                              std::forward<Variant2>(variant2));
     }
-};*/
+};
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct geometry_types<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>

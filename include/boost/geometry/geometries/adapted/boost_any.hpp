@@ -16,6 +16,7 @@
 #include <boost/any.hpp>
 
 #include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/visit.hpp>
 #include <boost/geometry/util/sequence.hpp>

@@ -44,7 +44,7 @@ struct visit<boost::variant2::variant<Ts...>>
                                std::forward<Variant>(variant));
     }
 };
-/*
+
 template <typename ...Ts, typename ...Us>
 struct visit<boost::variant2::variant<Ts...>, boost::variant2::variant<Us...>>
 {
@@ -55,7 +55,7 @@ struct visit<boost::variant2::variant<Ts...>, boost::variant2::variant<Us...>>
                                std::forward<Variant1>(variant1),
                                std::forward<Variant2>(variant2));
     }
-};*/
+};
 
 template <typename ...Ts>
 struct geometry_types<boost::variant2::variant<Ts...>>
