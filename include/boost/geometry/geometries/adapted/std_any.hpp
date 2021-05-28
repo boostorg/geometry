@@ -7,13 +7,17 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_ANY_HPP
-#define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_ANY_HPP
+#ifndef BOOST_GEOMETRY_GEOMETRIES_ADAPTED_STD_ANY_HPP
+#define BOOST_GEOMETRY_GEOMETRIES_ADAPTED_STD_ANY_HPP
 
 
+#include <boost/config.hpp>
+
+#ifndef BOOST_NO_CXX17_HDR_ANY
+
+
+#include <any>
 #include <utility>
-
-#include <boost/any.hpp>
 
 #include <boost/geometry/geometries/adapted/detail/any.hpp>
 
@@ -30,12 +34,12 @@ namespace detail
 {
 
 
-struct boost_any_cast_policy
+struct std_any_cast_policy
 {
     template <typename T, typename Any>
     static inline T * apply(Any * any_ptr)
     {
-        return boost::any_cast<T>(any_ptr);
+        return std::any_cast<T>(any_ptr);
     }
 };
 
@@ -46,13 +50,13 @@ namespace traits
 {
 
 template <>
-struct tag<boost::any>
+struct tag<std::any>
 {
     typedef dynamic_geometry_tag type;
 };
 
 template <>
-struct visit<boost::any>
+struct visit<std::any>
 {
     template <typename Function, typename Any>
     static void apply(Function && function, Any && any)
@@ -60,7 +64,7 @@ struct visit<boost::any>
         using types_t = typename geometry_types<util::remove_cref_t<Any>>::type;
         geometry::detail::visit_any
             <
-                geometry::detail::boost_any_cast_policy, types_t
+                geometry::detail::std_any_cast_policy, types_t
             >::template apply<0>(std::forward<Function>(function), std::forward<Any>(any));
     }
 };
@@ -72,4 +76,7 @@ struct visit<boost::any>
 }} // namespace boost::geometry
 
 
-#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_BOOST_ANY_HPP
+#endif // BOOST_NO_CXX17_HDR_ANY
+
+
+#endif // BOOST_GEOMETRY_GEOMETRIES_ADAPTED_STD_ANY_HPP

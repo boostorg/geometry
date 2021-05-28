@@ -18,6 +18,8 @@
 #include <boost/geometry/geometries/adapted/boost_any.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant2.hpp>
+#include <boost/geometry/geometries/adapted/std_any.hpp>
+#include <boost/geometry/geometries/adapted/std_variant.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -35,6 +37,16 @@ struct geometry_types<boost::any>
 {
     typedef util::type_sequence<point_t, linestring_t, polygon_t> type;
 };
+
+#ifndef BOOST_NO_CXX17_HDR_ANY
+
+template <>
+struct geometry_types<std::any>
+{
+    typedef util::type_sequence<point_t, linestring_t, polygon_t> type;
+};
+
+#endif // BOOST_NO_CXX17_HDR_ANY
 
 }}}
 
@@ -197,6 +209,13 @@ int test_main(int, char* [])
     test_all<boost::any>();
     test_all<boost::variant<point_t, linestring_t, polygon_t>>();
     test_all<boost::variant2::variant<point_t, linestring_t, polygon_t>>();
+
+#ifndef BOOST_NO_CXX17_HDR_ANY
+    test_all<std::any>();
+#endif
+#ifndef BOOST_NO_CXX17_HDR_VARIANT
+    test_all<std::variant<point_t, linestring_t, polygon_t>>();
+#endif
 
     return 0;
 }
