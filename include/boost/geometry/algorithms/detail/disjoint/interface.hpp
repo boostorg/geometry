@@ -109,8 +109,8 @@ template
     typename Geometry1, typename Geometry2,
     bool IsDynamic = util::is_dynamic_geometry<Geometry1>::value
                   || util::is_dynamic_geometry<Geometry2>::value,
-    bool IsGC = util::is_geometry_collection<Geometry1>::value
-             || util::is_geometry_collection<Geometry2>::value
+    bool IsCollection = util::is_geometry_collection<Geometry1>::value
+                     || util::is_geometry_collection<Geometry2>::value
 >
 struct disjoint
 {
@@ -151,7 +151,7 @@ struct disjoint<Geometry1, Geometry2, true, false>
 };
 
 // TODO: The complexity is quadratic for two GCs
-//   Decrease e.g. with spatial index,
+//   Decrease e.g. with spatial index
 template <typename Geometry1, typename Geometry2, bool IsDynamic>
 struct disjoint<Geometry1, Geometry2, IsDynamic, true>
 {
@@ -169,7 +169,6 @@ struct disjoint<Geometry1, Geometry2, IsDynamic, true>
                         util::remove_cref_t<decltype(g1)>, util::remove_cref_t<decltype(g2)>
                     >::apply(g1, g2, strategy);
                 // If any of the combination intersects then the final result is not disjoint
-                //   so break testing.
                 return result;
             }, geometry2);
             return result;

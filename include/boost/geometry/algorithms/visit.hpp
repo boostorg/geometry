@@ -262,7 +262,7 @@ private:
     template
     <
         typename Geom, typename Iterator,
-        std::enable_if_t<!util::is_geometry_collection<Geom>::value, int> = 0
+        std::enable_if_t<! util::is_geometry_collection<Geom>::value, int> = 0
     >
     static void set_iterators(Geom &&, Iterator &, Iterator &)
     {}

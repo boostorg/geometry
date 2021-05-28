@@ -293,7 +293,6 @@ struct area<Geometry, dynamic_geometry_tag>
     static inline typename area_result<Geometry, Strategy>::type
         apply(Geometry const& geometry, Strategy const& strategy)
     {
-        // TODO: Technically value could be returned directly from visit
         typename area_result<Geometry, Strategy>::type result = 0;
         traits::visit<Geometry>::apply([&](auto const& g)
         {

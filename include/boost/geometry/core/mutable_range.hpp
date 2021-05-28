@@ -111,13 +111,13 @@ struct emplace_back
 template <typename Range>
 struct resize
 {
-    typedef typename boost::range_size
+    using size_type = typename boost::range_size
         <
             typename std::remove_reference<Range>::type
-        >::type size_type;
+        >::type;
 
     static inline void apply(typename rvalue_type<Range>::type range,
-                size_type new_size)
+                             size_type new_size)
     {
         range.resize(new_size);
     }

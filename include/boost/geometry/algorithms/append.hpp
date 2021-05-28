@@ -237,7 +237,6 @@ struct append<Geometry, RangeOrPoint, dynamic_geometry_tag, OtherTag>
     {
         traits::visit<Geometry>::apply([&](auto & g)
         {
-            // TODO: move this to bg::append()?
             concepts::check<std::remove_reference_t<decltype(g)>>();
 
             append
