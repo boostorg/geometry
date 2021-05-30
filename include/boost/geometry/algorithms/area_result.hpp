@@ -16,6 +16,8 @@
 
 #include <type_traits>
 
+#include <boost/geometry/algorithms/detail/select_geometry_type.hpp>
+
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/geometry_types.hpp>
@@ -59,11 +61,7 @@ struct area_result<Geometry, Strategy, false>
 };
 
 
-template
-<
-    typename Geometry,
-    bool IsGeometry = util::is_geometry<Geometry>::value
->
+template <typename Geometry>
 struct default_area_result
     : area_result
         <
@@ -75,37 +73,16 @@ struct default_area_result
         >
 {};
 
-// Workaround for VS2015
-#if defined(_MSC_VER) && (_MSC_VER < 1910)
-template
-<
-    typename Geometry,
-    bool IsGeometry = util::is_geometry<Geometry>::value
->
-struct coordinate_type
-    : geometry::coordinate_type<Geometry>
-{};
-template <typename Geometry>
-struct coordinate_type<Geometry, false>
-{
-    typedef int type;
-};
-template <typename Geometry>
-struct default_area_result<Geometry, false>
-{
-    typedef int type;
-};
-#endif
 
 template <typename Curr, typename Next>
 struct more_precise_coordinate_type
     : std::is_same
         <
-            typename coordinate_type<Curr>::type,
+            typename geometry::coordinate_type<Curr>::type,
             typename geometry::select_most_precise
                 <
-                    typename coordinate_type<Curr>::type,
-                    typename coordinate_type<Next>::type
+                    typename geometry::coordinate_type<Curr>::type,
+                    typename geometry::coordinate_type<Next>::type
                 >::type
         >
 {};
@@ -122,41 +99,6 @@ struct more_precise_default_area_result
                     typename default_area_result<Next>::type
                 >::type
         >
-{};
-
-
-template
-<
-    typename Geometry,
-    template <typename, typename> class LessPred,
-    typename Tag = typename geometry::tag<Geometry>::type
->
-struct select_element
-{
-    using type = Geometry;
-};
-
-template
-<
-    typename Geometry,
-    template <typename, typename> class LessPred
->
-struct select_element<Geometry, LessPred, dynamic_geometry_tag>
-{
-    using type = typename util::select_element
-        <
-            typename traits::geometry_types<std::remove_const_t<Geometry>>::type,
-            LessPred
-        >::type;
-};
-
-template
-<
-    typename Geometry,
-    template <typename, typename> class LessPred
->
-struct select_element<Geometry, LessPred, geometry_collection_tag>
-    : select_element<Geometry, LessPred, dynamic_geometry_tag>
 {};
 
 
@@ -177,7 +119,7 @@ template
 struct area_result
     : detail::area::area_result
         <
-            typename detail::area::select_element
+            typename detail::select_geometry_type
                 <
                     Geometry,
                     detail::area::more_precise_coordinate_type
@@ -190,7 +132,7 @@ template <typename Geometry>
 struct area_result<Geometry, default_strategy>
     : detail::area::default_area_result
         <
-            typename detail::area::select_element
+            typename detail::select_geometry_type
                 <
                     Geometry,
                     detail::area::more_precise_default_area_result

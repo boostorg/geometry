@@ -48,6 +48,28 @@ struct parameter_pack_first_type<T, Ts...>
 };
 
 
+template <typename Seq, typename ResultSeq = util::type_sequence<>>
+struct boost_variant_types;
+
+template <typename T, typename ...Ts, typename ...Rs>
+struct boost_variant_types<util::type_sequence<T, Ts...>, util::type_sequence<Rs...>>
+{
+    using type = typename boost_variant_types<util::type_sequence<Ts...>, util::type_sequence<Rs..., T>>::type;
+};
+
+template <typename ...Ts, typename ...Rs>
+struct boost_variant_types<util::type_sequence<boost::detail::variant::void_, Ts...>, util::type_sequence<Rs...>>
+{
+    using type = util::type_sequence<Rs...>;
+};
+
+template <typename ...Rs>
+struct boost_variant_types<util::type_sequence<>, util::type_sequence<Rs...>>
+{
+    using type = util::type_sequence<Rs...>;
+};
+
+
 } // namespace detail
 
 
@@ -132,12 +154,27 @@ struct visit<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, boost::variant<BOOST_
     }
 };
 
+
+#ifdef BOOST_VARIANT_DO_NOT_USE_VARIADIC_TEMPLATES
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct geometry_types<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
 {
-    // TODO: not correct, this will put here null_types in VS2015
-    typedef util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)> type;
+    using type = typename geometry::detail::boost_variant_types
+        <
+            util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>
+        >::type;
 };
+
+#else // BOOST_VARIANT_DO_NOT_USE_VARIADIC_TEMPLATES
+
+template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+struct geometry_types<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
+{
+    using type = util::type_sequence<BOOST_VARIANT_ENUM_PARAMS(T)>;
+};
+
+#endif // BOOST_VARIANT_DO_NOT_USE_VARIADIC_TEMPLATES
 
 } // namespace traits
 

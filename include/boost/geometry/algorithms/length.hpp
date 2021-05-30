@@ -28,9 +28,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
@@ -42,6 +39,7 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>

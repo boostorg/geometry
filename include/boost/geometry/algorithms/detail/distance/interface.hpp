@@ -26,7 +26,10 @@
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
+
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 // TODO: move these to algorithms
