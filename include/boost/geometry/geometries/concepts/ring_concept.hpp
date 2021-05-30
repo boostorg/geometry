@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -27,6 +27,7 @@
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/geometries/concepts/concept_type.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 
@@ -95,6 +96,20 @@ public :
     }
 #endif
 };
+
+
+template <typename Geometry>
+struct concept_type<Geometry, ring_tag>
+{
+    using type = Ring<Geometry>;
+};
+
+template <typename Geometry>
+struct concept_type<Geometry const, ring_tag>
+{
+    using type = ConstRing<Geometry>;
+};
+
 
 }}} // namespace boost::geometry::concepts
 

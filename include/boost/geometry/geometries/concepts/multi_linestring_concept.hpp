@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -24,6 +24,7 @@
 #include <boost/range/concepts.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/geometries/concepts/concept_type.hpp>
 #include <boost/geometry/geometries/concepts/linestring_concept.hpp>
 
 
@@ -87,6 +88,20 @@ public :
     }
 #endif
 };
+
+
+template <typename Geometry>
+struct concept_type<Geometry, multi_linestring_tag>
+{
+    using type = MultiLinestring<Geometry>;
+};
+
+template <typename Geometry>
+struct concept_type<Geometry const, multi_linestring_tag>
+{
+    using type = ConstMultiLinestring<Geometry>;
+};
+
 
 }}} // namespace boost::geometry::concepts
 
