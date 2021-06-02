@@ -359,6 +359,10 @@ static std::string const nores_2881b
 
 static std::string const nores_3af0
     = "MULTIPOLYGON(((1 8,0 8,0 9,1 9,1 8)),((1 8,1 7,0 7,1 8)),((2 4,3 5,3 4,2 4)),((2 6,2 7,3 6,2 6)))";
+
+static std::string const nores_5318
+    = "MULTIPOLYGON(((3 8,3 9,4 9,3 8)),((3 4,4 5,4 4,3 4)),((2 7,1 6,1 7,2 7)),((2 7,3 6,2 6,2 7)))";
+
 static std::string const nores_6061
     = "MULTIPOLYGON(((2 8,2 9,3 8,2 8)),((4 3,4 4,5 4,4 3)),((7 2,7 3,8 2,7 2)),((5 3,6 4,6 3,5 3)),((2 6,3 7,3 6,2 6)),((2 3,3 2,3 1,2 1,2 3)),((2 3,3 4,3 3,2 3)))";
 
@@ -567,7 +571,7 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round, end_flat, 35.6233, 1.0);
-    test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, 35.1675, 1.0);
+    test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, {35.1675, 35.2290}, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
@@ -611,7 +615,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_et_7", nores_et_7, join_round32, end_flat, 105.9577, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_wn_1", nores_wn_1, join_round32, end_flat, 23.7659, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_wn_2", nores_wn_2, join_round32, end_flat, 18.2669, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_wn_2", nores_wn_2, join_round32, end_flat, {18.2669, 18.2691}, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_wt_1", nores_wt_1, join_round32, end_flat, 80.1609, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_wt_2", nores_wt_2, join_round32, end_flat, 22.1102, 1.0);
@@ -624,14 +628,13 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_1ea1", nores_1ea1, join_round32, end_flat, 28.9755, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_804e", nores_804e, join_round32, end_flat, 26.4503, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_51c6", nores_51c6, join_round32, end_flat, 20.2419, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_e5f3", nores_e5f3, join_round32, end_flat, 14.5512, 1.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Cases not yet solved without rescaling
-    test_one<multi_polygon_type, polygon_type>("nores_3af0", nores_3af0, join_round32, end_flat, 22.1008, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_e5f3", nores_e5f3, join_round32, end_flat, 14.5503, 1.0);
+
+    test_one<multi_polygon_type, polygon_type>("nores_3af0", nores_3af0, join_round32, end_flat, {22.0991, 22.1008}, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_2881b", nores_2881b, join_round32, end_flat, 24.6731, 1.0);
-#endif
+    test_one<multi_polygon_type, polygon_type>("nores_5318", nores_5318, join_round32, end_flat, 22.7311, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_495d", nores_495d, join_round32, end_flat, 23.4376, 1.0);
-    test_one<multi_polygon_type, polygon_type>("nores_e402", nores_e402, join_round32, end_flat, 9.9888, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_e402", nores_e402, join_round32, end_flat, {9.9888, 9.9898}, 1.0);
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Erroneous cases with rescaling (out of 8)
@@ -683,7 +686,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(5, 4, 4, 9);
+    BoostGeometryWriteExpectedFailures(5, 1, 3, 4);
 #endif
 
     return 0;
