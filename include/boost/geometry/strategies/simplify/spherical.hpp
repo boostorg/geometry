@@ -76,12 +76,12 @@ public:
     auto distance(Geometry1 const&, Geometry2 const&,
                   std::enable_if_t
                   <
-                        util::is_pointlike<Geometry1>::value
-                            && util::is_segmental<Geometry2>::value
-                     || util::is_segmental<Geometry1>::value
-                            && util::is_pointlike<Geometry2>::value
-                     || util::is_segmental<Geometry1>::value
-                            && util::is_segmental<Geometry2>::value
+                        (util::is_pointlike<Geometry1>::value
+                            && util::is_segmental<Geometry2>::value)
+                     || (util::is_segmental<Geometry1>::value
+                            && util::is_pointlike<Geometry2>::value)
+                     || (util::is_segmental<Geometry1>::value
+                            && util::is_segmental<Geometry2>::value)
                   > * = nullptr) const
     {
         return strategy::distance::cross_track
