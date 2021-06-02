@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -32,7 +32,9 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategies/relate/services.hpp>
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
 
 
 namespace boost { namespace geometry

@@ -48,10 +48,12 @@ void test_one_geo(std::string const& caseid,
 
     // Use Thomas strategy to calculate geographic area, because it is
     // the most precise (unless scale of buffer is only around 1 meter)
+    // TODO: If area is for calculation of the orientation of points in a ring
+    //   and accuracy is an issue, then instead calculate_point_order should
+    //   probably be used instead of area.
     bg::strategies::relate::geographic
         <
-            bg::strategy::thomas, 5,
-            bg::srs::spheroid<long double>, long double
+            bg::strategy::thomas, bg::srs::spheroid<long double>, long double
         > strategy;
 
     bg::model::multi_polygon<GeometryOut> buffer;

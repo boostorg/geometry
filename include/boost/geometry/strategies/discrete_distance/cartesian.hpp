@@ -16,6 +16,7 @@
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/discrete_distance/services.hpp>
 #include <boost/geometry/strategies/distance/comparable.hpp>
+#include <boost/geometry/strategies/distance/detail.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -32,11 +33,7 @@ struct cartesian
 {
     template <typename Geometry1, typename Geometry2>
     static auto distance(Geometry1 const&, Geometry2 const&,
-                         std::enable_if_t
-                            <
-                                util::is_pointlike<Geometry1>::value
-                             && util::is_pointlike<Geometry2>::value
-                            > * = nullptr)
+                         distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
     {
         return strategy::distance::pythagoras<CalculationType>();
     }

@@ -52,7 +52,6 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/strategies/centroid.hpp>
 #include <boost/geometry/strategies/centroid/cartesian.hpp>
 #include <boost/geometry/strategies/centroid/geographic.hpp>
 #include <boost/geometry/strategies/centroid/spherical.hpp>

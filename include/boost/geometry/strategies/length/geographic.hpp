@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/distance/detail.hpp>
 #include <boost/geometry/strategies/length/services.hpp>
 
 #include <boost/geometry/strategies/geographic/distance.hpp>
@@ -47,11 +48,7 @@ public:
 
     template <typename Geometry1, typename Geometry2>
     auto distance(Geometry1 const&, Geometry2 const&,
-                  std::enable_if_t
-                  <
-                        util::is_pointlike<Geometry1>::value
-                     && util::is_pointlike<Geometry2>::value
-                  > * = nullptr) const
+                  distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::distance::geographic
                 <

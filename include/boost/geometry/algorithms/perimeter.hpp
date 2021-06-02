@@ -30,13 +30,16 @@
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/strategies/default_length_result.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/length/cartesian.hpp>
 #include <boost/geometry/strategies/length/geographic.hpp>
 #include <boost/geometry/strategies/length/spherical.hpp>
