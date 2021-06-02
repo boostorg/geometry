@@ -238,8 +238,6 @@ struct append<Geometry, RangeOrPoint, dynamic_geometry_tag, OtherTag>
     {
         traits::visit<Geometry>::apply([&](auto & g)
         {
-            concepts::check<std::remove_reference_t<decltype(g)>>();
-
             append
                 <
                     std::remove_reference_t<decltype(g)>, RangeOrPoint
@@ -273,6 +271,8 @@ template <typename Geometry, typename RangeOrPoint>
 inline void append(Geometry& geometry, RangeOrPoint const& range_or_point,
                    signed_size_type ring_index = -1, signed_size_type multi_index = 0)
 {
+    concepts::check<Geometry>();
+
     dispatch::append
         <
             Geometry, RangeOrPoint
