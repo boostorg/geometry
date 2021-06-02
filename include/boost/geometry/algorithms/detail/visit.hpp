@@ -219,8 +219,11 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
                 {
                     result = visit_or_enqueue(function, std::forward<decltype(g)>(g), queue, it);
                 }, it);
+
                 if (! result)
+                {
                     return false;
+                }
             }
 
             if (queue.empty())

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019-2020, Oracle and/or its affiliates.
+// Copyright (c) 2019-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -616,12 +616,18 @@ struct read_polygon_policy
 
             // assume outer ring
             if (num_parts == 1)
+            {
                 range::push_back(outer_rings, std::move(ring)); // order could be checked here too
+            }
             // check order
-            else if ( is_outer_ring(ring, order_strategy) )
+            else if (is_outer_ring(ring, order_strategy))
+            {
                 range::push_back(outer_rings, std::move(ring));
+            }
             else
+            {
                 range::push_back(inner_rings, std::move(ring));
+            }
         }
 
         if (inner_rings.empty()) // no inner rings

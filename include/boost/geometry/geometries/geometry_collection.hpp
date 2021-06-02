@@ -42,11 +42,6 @@ class geometry_collection
 public:
     geometry_collection() = default;
 
-//    template <typename Iterator>
-//    geometry_collection(Iterator begin, Iterator end)
-//        : base_type(begin, end)
-//    {}
-
     geometry_collection(std::initializer_list<DynamicGeometry> l)
         : base_type(l.begin(), l.end())
     {}
@@ -67,7 +62,7 @@ template
 >
 struct tag<model::geometry_collection<DynamicGeometry, Container, Allocator>>
 {
-    typedef geometry_collection_tag type;
+    using type = geometry_collection_tag;
 };
 
 } // namespace traits

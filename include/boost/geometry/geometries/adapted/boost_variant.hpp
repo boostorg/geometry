@@ -92,7 +92,7 @@ namespace traits
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct tag<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>>
 {
-    typedef dynamic_geometry_tag type;
+    using type = dynamic_geometry_tag;
 };
 
 template <BOOST_VARIANT_ENUM_PARAMS(typename T)>

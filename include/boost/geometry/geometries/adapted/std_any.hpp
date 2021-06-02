@@ -52,7 +52,7 @@ namespace traits
 template <>
 struct tag<std::any>
 {
-    typedef dynamic_geometry_tag type;
+    using type = dynamic_geometry_tag;
 };
 
 template <>

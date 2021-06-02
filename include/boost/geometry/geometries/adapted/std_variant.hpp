@@ -35,7 +35,7 @@ namespace traits
 template <typename ...Ts>
 struct tag<std::variant<Ts...>>
 {
-    typedef dynamic_geometry_tag type;
+    using type = dynamic_geometry_tag;
 };
 
 template <typename ...Ts>
@@ -64,7 +64,7 @@ struct visit<std::variant<Ts...>, std::variant<Us...>>
 template <typename ...Ts>
 struct geometry_types<std::variant<Ts...>>
 {
-    typedef util::type_sequence<Ts...> type;
+    using type = util::type_sequence<Ts...>;
 };
 
 

@@ -48,7 +48,7 @@ namespace traits
 template <>
 struct tag<boost::any>
 {
-    typedef dynamic_geometry_tag type;
+    using type = dynamic_geometry_tag;
 };
 
 template <>
