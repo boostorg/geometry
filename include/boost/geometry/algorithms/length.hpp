@@ -45,7 +45,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/default_length_result.hpp> // Move to algorithms
+#include <boost/geometry/strategies/default_length_result.hpp> // TODO: Move to algorithms
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/length/cartesian.hpp>
 #include <boost/geometry/strategies/length/geographic.hpp>
