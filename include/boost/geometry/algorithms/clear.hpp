@@ -148,6 +148,16 @@ struct clear<Geometry, dynamic_geometry_tag>
 };
 
 
+template <typename Geometry>
+struct clear<Geometry, geometry_collection_tag>
+{
+    static void apply(Geometry& geometry)
+    {
+        traits::clear<Geometry>::apply(geometry);
+    }
+};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
