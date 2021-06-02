@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -94,43 +94,6 @@ class cartesian_winding
 public:
     typedef cartesian_tag cs_tag;
 
-    typedef side::side_by_triangle<CalculationType> side_strategy_type;
-
-    static inline side_strategy_type get_side_strategy()
-    {
-        return side_strategy_type();
-    }
-
-    typedef expand::cartesian_point expand_point_strategy_type;
-
-    typedef typename side_strategy_type::envelope_strategy_type envelope_strategy_type;
-
-    static inline envelope_strategy_type get_envelope_strategy()
-    {
-        return side_strategy_type::get_envelope_strategy();
-    }
-
-    typedef typename side_strategy_type::disjoint_strategy_type disjoint_strategy_type;
-
-    static inline disjoint_strategy_type get_disjoint_strategy()
-    {
-        return side_strategy_type::get_disjoint_strategy();
-    }
-
-    typedef typename side_strategy_type::equals_point_point_strategy_type equals_point_point_strategy_type;
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return side_strategy_type::get_equals_point_point_strategy();
-    }
-
-    typedef disjoint::cartesian_box_box disjoint_box_box_strategy_type;
-    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
-    {
-        return disjoint_box_box_strategy_type();
-    }
-
-    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
-
     // Typedefs and static methods to fulfill the concept
     typedef counter state_type;
 
@@ -153,6 +116,7 @@ public:
             else // count == 2 || count == -2
             {
                 // 1 left, -1 right
+                typedef side::side_by_triangle<CalculationType> side_strategy_type;
                 side = side_strategy_type::apply(s1, s2, point);
             }
             

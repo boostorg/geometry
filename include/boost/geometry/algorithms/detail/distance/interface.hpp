@@ -36,8 +36,9 @@
 #include <boost/geometry/strategies/default_distance_result.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
 
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance/services.hpp>
-
 
 
 namespace boost { namespace geometry

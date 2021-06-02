@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -79,115 +79,6 @@ template
 struct cartesian_segments
 {
     typedef cartesian_tag cs_tag;
-
-    typedef side::side_by_triangle<CalculationType> side_strategy_type;
-
-    static inline side_strategy_type get_side_strategy()
-    {
-        return side_strategy_type();
-    }
-
-    template <typename Geometry1, typename Geometry2>
-    struct point_in_geometry_strategy
-    {
-        typedef strategy::within::cartesian_winding
-            <
-                typename point_type<Geometry1>::type,
-                typename point_type<Geometry2>::type,
-                CalculationType
-            > type;
-    };
-
-    template <typename Geometry1, typename Geometry2>
-    static inline typename point_in_geometry_strategy<Geometry1, Geometry2>::type
-        get_point_in_geometry_strategy()
-    {
-        typedef typename point_in_geometry_strategy
-            <
-                Geometry1, Geometry2
-            >::type strategy_type;
-        return strategy_type();
-    }
-
-    template <typename Geometry>
-    struct area_strategy
-    {
-        typedef area::cartesian
-            <
-                CalculationType
-            > type;
-    };
-
-    template <typename Geometry>
-    static inline typename area_strategy<Geometry>::type get_area_strategy()
-    {
-        typedef typename area_strategy<Geometry>::type strategy_type;
-        return strategy_type();
-    }
-
-    template <typename Geometry>
-    struct distance_strategy
-    {
-        typedef distance::pythagoras
-            <
-                CalculationType
-            > type;
-    };
-
-    template <typename Geometry>
-    static inline typename distance_strategy<Geometry>::type get_distance_strategy()
-    {
-        typedef typename distance_strategy<Geometry>::type strategy_type;
-        return strategy_type();
-    }
-
-    typedef envelope::cartesian<CalculationType> envelope_strategy_type;
-
-    static inline envelope_strategy_type get_envelope_strategy()
-    {
-        return envelope_strategy_type();
-    }
-
-    typedef expand::cartesian_segment expand_strategy_type;
-
-    static inline expand_strategy_type get_expand_strategy()
-    {
-        return expand_strategy_type();
-    }
-
-    typedef within::cartesian_point_point point_in_point_strategy_type;
-
-    static inline point_in_point_strategy_type get_point_in_point_strategy()
-    {
-        return point_in_point_strategy_type();
-    }
-
-    typedef within::cartesian_point_point equals_point_point_strategy_type;
-
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
-    typedef disjoint::cartesian_box_box disjoint_box_box_strategy_type;
-
-    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
-    {
-        return disjoint_box_box_strategy_type();
-    }
-
-    typedef disjoint::segment_box disjoint_segment_box_strategy_type;
-
-    static inline disjoint_segment_box_strategy_type get_disjoint_segment_box_strategy()
-    {
-        return disjoint_segment_box_strategy_type();
-    }
-
-    typedef covered_by::cartesian_point_box disjoint_point_box_strategy_type;
-    typedef covered_by::cartesian_point_box covered_by_point_box_strategy_type;
-    typedef within::cartesian_point_box within_point_box_strategy_type;
-    typedef envelope::cartesian_box envelope_box_strategy_type;
-    typedef expand::cartesian_box expand_box_strategy_type;
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
@@ -511,6 +402,7 @@ struct cartesian_segments
             return Policy::disjoint();
         }
 
+        typedef side::side_by_triangle<CalculationType> side_strategy_type;
         side_info sides;
         sides.set<0>(side_strategy_type::apply(q1, q2, p1),
                      side_strategy_type::apply(q1, q2, p2));

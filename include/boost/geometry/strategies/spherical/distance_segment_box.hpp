@@ -214,55 +214,6 @@ struct spherical_segment_box
 
     typedef spherical_tag cs_tag;
 
-    // strategy getters
-
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef Strategy type;
-    };
-
-    inline Strategy get_distance_pp_strategy() const
-    {
-        return m_strategy;
-    }
-    // point-segment strategy getters
-    struct distance_ps_strategy
-    {
-        typedef cross_track<CalculationType, Strategy> type;
-    };
-
-    inline typename distance_ps_strategy::type get_distance_ps_strategy() const
-    {
-        return typename distance_ps_strategy::type(m_strategy.radius());
-    }
-
-    struct distance_pb_strategy
-    {
-        typedef cross_track_point_box<CalculationType, Strategy> type;
-    };
-
-    inline typename distance_pb_strategy::type get_distance_pb_strategy() const
-    {
-        return typename distance_pb_strategy::type(m_strategy.radius());
-    }
-
-    // TODO: why is the Radius not propagated above?
-
-    typedef side::spherical_side_formula<CalculationType> side_strategy_type;
-
-    static inline side_strategy_type get_side_strategy()
-    {
-        return side_strategy_type();
-    }
-
-    typedef within::spherical_point_point equals_point_point_strategy_type;
-
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
     // constructors
 
     inline spherical_segment_box()

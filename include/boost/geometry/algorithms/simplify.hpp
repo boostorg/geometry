@@ -35,18 +35,6 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/mutable_range.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/concepts/check.hpp>
-#include <boost/geometry/strategies/concepts/simplify_concept.hpp>
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/distance.hpp>
-
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
@@ -56,6 +44,18 @@
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/mutable_range.hpp>
+#include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/strategies/concepts/simplify_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>

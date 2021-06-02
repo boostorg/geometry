@@ -18,6 +18,7 @@
 
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance/comparable.hpp>
+#include <boost/geometry/strategies/distance/detail.hpp>
 #include <boost/geometry/strategies/simplify/services.hpp>
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
@@ -45,11 +46,7 @@ struct cartesian
     // For perimeter()
     template <typename Geometry1, typename Geometry2>
     static auto distance(Geometry1 const&, Geometry2 const&,
-                         std::enable_if_t
-                            <
-                                util::is_pointlike<Geometry1>::value
-                             && util::is_pointlike<Geometry2>::value
-                            > * = nullptr)
+                         distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
     {
         return strategy::distance::pythagoras<CalculationType>();
     }
@@ -57,15 +54,7 @@ struct cartesian
     // For douglas_peucker
     template <typename Geometry1, typename Geometry2>
     static auto distance(Geometry1 const&, Geometry2 const&,
-                         std::enable_if_t
-                            <
-                                util::is_pointlike<Geometry1>::value
-                                    && util::is_segmental<Geometry2>::value
-                             || util::is_segmental<Geometry1>::value
-                                    && util::is_pointlike<Geometry2>::value
-                             || util::is_segmental<Geometry1>::value
-                                    && util::is_segmental<Geometry2>::value
-                            > * = nullptr)
+                         distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
     {
         return strategy::distance::projected_point
             <

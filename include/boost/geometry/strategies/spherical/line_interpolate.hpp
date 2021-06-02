@@ -52,8 +52,7 @@ public:
 
     typedef typename DistanceStrategy::radius_type radius_type;
 
-    inline spherical()
-    {}
+    spherical() = default;
 
     explicit inline spherical(typename DistanceStrategy::radius_type const& r)
         : m_strategy(r)
@@ -62,17 +61,6 @@ public:
     inline spherical(DistanceStrategy const& s)
         : m_strategy(s)
     {}
-
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef DistanceStrategy type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        return m_strategy;
-    }
 
     template <typename Point, typename Fraction, typename Distance>
     inline void apply(Point const& p0,

@@ -33,8 +33,9 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/policies/compare.hpp>
-#include <boost/geometry/strategies/convex_hull.hpp>
-#include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/convex_hull/cartesian.hpp>
+#include <boost/geometry/strategies/convex_hull/geographic.hpp>
+#include <boost/geometry/strategies/convex_hull/spherical.hpp>
 #include <boost/geometry/views/detail/range_type.hpp>
 
 

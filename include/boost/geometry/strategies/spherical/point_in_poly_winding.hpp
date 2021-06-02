@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -123,45 +123,7 @@ class spherical_winding_base
 public:
     typedef typename SideStrategy::cs_tag cs_tag;
 
-    typedef SideStrategy side_strategy_type;
-
-    inline side_strategy_type get_side_strategy() const
-    {
-        return m_side_strategy;
-    }
-
-    typedef expand::spherical_point expand_point_strategy_type;
-
-    typedef typename SideStrategy::envelope_strategy_type envelope_strategy_type;
-
-    inline envelope_strategy_type get_envelope_strategy() const
-    {
-        return m_side_strategy.get_envelope_strategy();
-    }
-
-    typedef typename SideStrategy::disjoint_strategy_type disjoint_strategy_type;
-
-    inline disjoint_strategy_type get_disjoint_strategy() const
-    {
-        return m_side_strategy.get_disjoint_strategy();
-    }
-
-    typedef typename SideStrategy::equals_point_point_strategy_type equals_point_point_strategy_type;
-    inline equals_point_point_strategy_type get_equals_point_point_strategy() const
-    {
-        return m_side_strategy.get_equals_point_point_strategy();
-    }
-
-    typedef disjoint::spherical_box_box disjoint_box_box_strategy_type;
-    static inline disjoint_box_box_strategy_type get_disjoint_box_box_strategy()
-    {
-        return disjoint_box_box_strategy_type();
-    }
-
-    typedef covered_by::spherical_point_box disjoint_point_box_strategy_type;
-
-    spherical_winding_base()
-    {}
+    spherical_winding_base() = default;
 
     template <typename Model>
     explicit spherical_winding_base(Model const& model)

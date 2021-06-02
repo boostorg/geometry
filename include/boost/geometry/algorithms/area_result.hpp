@@ -27,7 +27,6 @@
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategy/area.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>

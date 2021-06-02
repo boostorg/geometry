@@ -48,51 +48,6 @@ struct cartesian_segment_box
 
     typedef cartesian_tag cs_tag;
 
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef Strategy type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        return typename distance_pp_strategy::type();
-    }
-    // point-segment strategy getters
-    struct distance_ps_strategy
-    {
-        typedef projected_point<CalculationType, Strategy> type;
-    };
-
-    inline typename distance_ps_strategy::type get_distance_ps_strategy() const
-    {
-        return typename distance_ps_strategy::type();
-    }
-
-    struct distance_pb_strategy
-    {
-        typedef pythagoras_point_box<CalculationType> type;
-    };
-
-    inline typename distance_pb_strategy::type get_distance_pb_strategy() const
-    {
-        return typename distance_pb_strategy::type();
-    }
-
-    typedef side::side_by_triangle<CalculationType> side_strategy_type;
-
-    static inline side_strategy_type get_side_strategy()
-    {
-        return side_strategy_type();
-    }
-
-    typedef within::cartesian_point_point equals_point_point_strategy_type;
-
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
     template
     <
         typename LessEqual, typename ReturnType,

@@ -48,10 +48,11 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/area/services.hpp>
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategy/area.hpp>
-
+#include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>

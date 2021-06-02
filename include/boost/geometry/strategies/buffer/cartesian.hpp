@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/buffer/services.hpp>
+#include <boost/geometry/strategies/distance/detail.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
@@ -32,15 +33,7 @@ struct cartesian
 
     template <typename Geometry1, typename Geometry2>
     static auto distance(Geometry1 const&, Geometry2 const&,
-                         std::enable_if_t
-                            <
-                                util::is_pointlike<Geometry1>::value
-                                    && util::is_segmental<Geometry2>::value
-                             || util::is_segmental<Geometry1>::value
-                                    && util::is_pointlike<Geometry2>::value
-                             || util::is_segmental<Geometry1>::value
-                                    && util::is_segmental<Geometry2>::value
-                            > * = nullptr)
+                         distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
     {
         return strategy::distance::projected_point
             <
