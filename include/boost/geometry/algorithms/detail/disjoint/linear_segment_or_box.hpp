@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -104,7 +104,7 @@ struct disjoint_range_segment_or_box
                 point_type const
             > range_segment;
 
-        view_type view(range);
+        view_type const view(range);
 
         const size_type count = ::boost::size(view);
 
@@ -117,9 +117,7 @@ struct disjoint_range_segment_or_box
             return disjoint_point_segment_or_box
                 <
                     SegmentOrBox
-                >::apply(geometry::range::front<view_type const>(view),
-                         segment_or_box,
-                         strategy);
+                >::apply(range::front(view), segment_or_box, strategy);
         }
         else
         {
