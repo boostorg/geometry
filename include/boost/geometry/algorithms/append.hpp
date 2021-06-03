@@ -73,7 +73,7 @@ struct to_range_range
     static inline void apply(Geometry& geometry, Range const& range,
                              signed_size_type = -1, signed_size_type = 0)
     {
-        typedef typename boost::range_value<Range>::type point_type;
+        using point_type = typename boost::range_value<Range>::type;
 
         auto const end = boost::end(range);
         for (auto it = boost::begin(range); it != end; ++it)
@@ -90,9 +90,9 @@ struct to_polygon_point
     static inline void apply(Polygon& polygon, Point const& point,
                              signed_size_type ring_index, signed_size_type = 0)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
-        typedef typename ring_return_type<Polygon>::type exterior_ring_type;
-        typedef typename interior_return_type<Polygon>::type interior_ring_range_type;
+        using ring_type = typename ring_type<Polygon>::type;
+        using exterior_ring_type = typename ring_return_type<Polygon>::type;
+        using interior_ring_range_type = typename interior_return_type<Polygon>::type;
 
         if (ring_index == -1)
         {
@@ -114,9 +114,9 @@ struct to_polygon_range
     static inline void apply(Polygon& polygon, Range const& range,
                              signed_size_type ring_index, signed_size_type = 0)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
-        typedef typename ring_return_type<Polygon>::type exterior_ring_type;
-        typedef typename interior_return_type<Polygon>::type interior_ring_range_type;
+        using ring_type = typename ring_type<Polygon>::type;
+        using exterior_ring_type = typename ring_return_type<Polygon>::type;
+        using interior_ring_range_type = typename interior_return_type<Polygon>::type;
 
         if (ring_index == -1)
         {
@@ -159,7 +159,8 @@ namespace dispatch
 
 template
 <
-    typename Geometry, typename RangeOrPoint,
+    typename Geometry,
+    typename RangeOrPoint,
     typename Tag = typename geometry::tag<Geometry>::type,
     typename OtherTag = typename geometry::tag<RangeOrPoint>::type
 >
