@@ -30,8 +30,6 @@
 #include <boost/geometry/io/wkt/read.hpp>
 
 
-struct no_strategy {};
-
 template <typename Geometry1, typename Geometry2, typename Strategy>
 bool call_disjoint(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
@@ -43,7 +41,7 @@ bool call_disjoint(Geometry1 const& geometry1,
 template <typename Geometry1, typename Geometry2>
 bool call_disjoint(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
-                   no_strategy)
+                   bg::default_strategy const&)
 {
     return bg::disjoint(geometry1, geometry2);
 }
@@ -92,24 +90,41 @@ void test_disjoint(std::string const& id,
     bg::model::geometry_collection<boost::variant<G1>> gc1{v1};
     bg::model::geometry_collection<boost::variant<G2>> gc2{v2};
 
-    typedef typename bg::strategy::disjoint::services::default_strategy
-        <
-            G1, G2
-        >::type strategy_type;
+    using strategy_t = typename bg::strategy::disjoint::services::default_strategy<G1, G2>::type;
+    using strategies_t = typename bg::strategies::relate::services::default_strategy<G1, G2>::type;
 
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategy_type());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategies_t());
 
-    check_disjoint(id, wkt1, wkt2, v1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, g1, v2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, v1, v2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, strategies_t());
 
-    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, strategies_t());
 
-    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, no_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, strategies_t());
 }
 
 template <typename G1, typename G2>
