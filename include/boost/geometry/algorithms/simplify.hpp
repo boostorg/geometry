@@ -518,7 +518,7 @@ private:
             simplify_ring::apply(*it, out, max_distance, impl, strategies);
             if (! geometry::is_empty(out))
             {
-                range::push_back(interior_rings_out, out);
+                range::push_back(interior_rings_out, std::move(out));
             }
         }
     }
@@ -581,7 +581,7 @@ struct simplify_multi
             Policy::apply(*it, single_out, max_distance, impl, strategies);
             if (! geometry::is_empty(single_out))
             {
-                range::push_back(out, single_out);
+                range::push_back(out, std::move(single_out));
             }
         }
     }

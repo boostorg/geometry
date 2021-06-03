@@ -6,8 +6,8 @@
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Baidyanath Kundu, Haldia, India.
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -30,9 +30,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
@@ -43,7 +40,9 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
@@ -458,44 +457,65 @@ struct wkt<Multi, multi_polygon_tag>
 
 
 template <typename Geometry>
-struct devarianted_wkt
+struct wkt<Geometry, dynamic_geometry_tag>
 {
     template <typename OutputStream>
     static inline void apply(OutputStream& os, Geometry const& geometry,
                              bool force_closure)
     {
-        wkt<Geometry>::apply(os, geometry, force_closure);
+        traits::visit<Geometry>::apply([&](auto const& g)
+        {
+            wkt<util::remove_cref_t<decltype(g)>>::apply(os, g, force_closure);
+        }, geometry);
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct devarianted_wkt<variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+// TODO: Implement non-recursive version
+template <typename Geometry>
+struct wkt<Geometry, geometry_collection_tag>
 {
     template <typename OutputStream>
-    struct visitor: static_visitor<void>
+    static inline void apply(OutputStream& os, Geometry const& geometry,
+                             bool force_closure)
     {
-        OutputStream& m_os;
-        bool m_force_closure;
+        output_or_recursive_call(os, geometry, force_closure);
+    }
 
-        visitor(OutputStream& os, bool force_closure)
-            : m_os(os)
-            , m_force_closure(force_closure)
-        {}
+    template
+    <
+        typename OutputStream, typename Geom,
+        std::enable_if_t<util::is_geometry_collection<Geom>::value, int> = 0
+    >
+    static void output_or_recursive_call(OutputStream& os, Geom const& geom, bool force_closure)
+    {
+        os << "GEOMETRYCOLLECTION(";
 
-        template <typename Geometry>
-        inline void operator()(Geometry const& geometry) const
+        bool first = true;
+        auto const end = boost::end(geom);
+        for (auto it = boost::begin(geom); it != end; ++it)
         {
-            devarianted_wkt<Geometry>::apply(m_os, geometry, m_force_closure);
-        }
-    };
+            if (first)
+                first = false;
+            else
+                os << ',';
 
-    template <typename OutputStream>
-    static inline void apply(
-        OutputStream& os,
-        variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-        bool force_closure)
+            traits::iter_visit<Geom>::apply([&](auto const& g)
+            {
+                output_or_recursive_call(os, g, force_closure);
+            }, it);
+        }
+
+        os << ')';
+    }
+
+    template
+    <
+        typename OutputStream, typename Geom,
+        std::enable_if_t<! util::is_geometry_collection<Geom>::value, int> = 0
+    >
+    static void output_or_recursive_call(OutputStream& os, Geom const& geom, bool force_closure)
     {
-        boost::apply_visitor(visitor<OutputStream>(os, force_closure), geometry);
+        wkt<Geom>::apply(os, geom, force_closure);
     }
 };
 
@@ -534,7 +554,7 @@ public:
             std::basic_ostream<Char, Traits>& os,
             wkt_manipulator const& m)
     {
-        dispatch::devarianted_wkt<Geometry>::apply(os, m.m_geometry, m.m_force_closure);
+        dispatch::wkt<Geometry>::apply(os, m.m_geometry, m.m_force_closure);
         os.flush();
         return os;
     }

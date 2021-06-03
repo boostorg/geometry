@@ -22,26 +22,26 @@
 
 #include <iterator>
 
-#include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -231,9 +231,9 @@ struct length<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
 struct length
 {
     template <typename Strategy>
@@ -244,43 +244,40 @@ struct length
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct length<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct length<Geometry, dynamic_geometry_tag>
 {
-    typedef typename default_length_result
-        <
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>
-        >::type result_type;
-
     template <typename Strategy>
-    struct visitor
-        : static_visitor<result_type>
+    static inline typename default_length_result<Geometry>::type
+        apply(Geometry const& geometry, Strategy const& strategy)
     {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Geometry>
-        inline typename default_length_result<Geometry>::type
-        operator()(Geometry const& geometry) const
+        typename default_length_result<Geometry>::type result = 0;
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            return length<Geometry>::apply(geometry, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline result_type apply(
-        variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-        Strategy const& strategy
-    )
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
+            result = length<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+        }, geometry);
+        return result;
     }
 };
 
-} // namespace resolve_variant
+template <typename Geometry>
+struct length<Geometry, geometry_collection_tag>
+{
+    template <typename Strategy>
+    static inline typename default_length_result<Geometry>::type
+        apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        typename default_length_result<Geometry>::type result = 0;
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            result += length<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+            return true;
+        }, geometry);
+        return result;
+    }
+};
+
+} // namespace resolve_dynamic
 
 
 /*!
@@ -302,7 +299,7 @@ length(Geometry const& geometry)
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::length<Geometry>::apply(geometry, default_strategy());
+    return resolve_dynamic::length<Geometry>::apply(geometry, default_strategy());
 }
 
 
@@ -328,7 +325,7 @@ length(Geometry const& geometry, Strategy const& strategy)
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::length<Geometry>::apply(geometry, strategy);
+    return resolve_dynamic::length<Geometry>::apply(geometry, strategy);
 }
 
 

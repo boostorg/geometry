@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -26,10 +26,9 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
-
-struct no_strategy {};
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
 bool call_disjoint(Geometry1 const& geometry1,
@@ -42,7 +41,7 @@ bool call_disjoint(Geometry1 const& geometry1,
 template <typename Geometry1, typename Geometry2>
 bool call_disjoint(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
-                   no_strategy)
+                   bg::default_strategy const&)
 {
     return bg::disjoint(geometry1, geometry2);
 }
@@ -88,17 +87,44 @@ void test_disjoint(std::string const& id,
     boost::variant<G1> v1(g1);
     boost::variant<G2> v2(g2);
 
-    typedef typename bg::strategy::disjoint::services::default_strategy
-        <
-            G1, G2
-        >::type strategy_type;
+    bg::model::geometry_collection<boost::variant<G1>> gc1{v1};
+    bg::model::geometry_collection<boost::variant<G2>> gc2{v2};
 
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategy_type());
-    check_disjoint(id, wkt1, wkt2, g1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, v1, g2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, g1, v2, expected, no_strategy());
-    check_disjoint(id, wkt1, wkt2, v1, v2, expected, no_strategy());
+    using strategy_t = typename bg::strategy::disjoint::services::default_strategy<G1, G2>::type;
+    using strategies_t = typename bg::strategies::relate::services::default_strategy<G1, G2>::type;
+
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, g2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, v2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, gc2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, g2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, v2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, g2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, g1, gc2, expected, strategies_t());
+
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, gc1, v2, expected, strategies_t());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, bg::default_strategy());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, strategy_t());
+    check_disjoint(id, wkt1, wkt2, v1, gc2, expected, strategies_t());
 }
 
 template <typename G1, typename G2>

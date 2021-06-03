@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -224,6 +224,29 @@ inline void push_back(Range & rng,
 }
 
 /*!
+\brief Short utility to conveniently insert a new element at the end of a mutable range.
+       It uses boost::geometry::traits::push_back<>.
+\ingroup utility
+*/
+template <typename Range>
+inline void push_back(Range & rng,
+                      typename boost::range_value<Range>::type && value)
+{
+    geometry::traits::push_back<Range>::apply(rng, std::move(value));
+}
+
+/*!
+\brief Short utility to conveniently insert a new element at the end of a mutable range.
+       It uses boost::geometry::traits::emplace_back<>.
+\ingroup utility
+*/
+template <typename Range, typename ...Args>
+inline void emplace_back(Range & rng, Args&&... args)
+{
+    geometry::traits::emplace_back<Range>::apply(rng, std::forward<Args>(args)...);
+}
+
+/*!
 \brief Short utility to conveniently resize a mutable range.
        It uses boost::geometry::traits::resize<>.
 \ingroup utility
@@ -234,7 +257,6 @@ inline void resize(Range & rng,
 {
     geometry::traits::resize<Range>::apply(rng, new_size);
 }
-
 
 /*!
 \brief Short utility to conveniently remove an element from the back of a mutable range.
@@ -247,52 +269,6 @@ inline void pop_back(Range & rng)
     BOOST_GEOMETRY_ASSERT(!boost::empty(rng));
     range::resize(rng, boost::size(rng) - 1);
 }
-
-namespace detail {
-
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-
-template <typename It,
-          typename OutIt,
-          bool UseMove = std::is_convertible
-                            <
-                                typename std::iterator_traits<It>::value_type &&,
-                                typename std::iterator_traits<OutIt>::value_type
-                            >::value>
-struct copy_or_move_impl
-{
-    static inline OutIt apply(It first, It last, OutIt out)
-    {
-        return std::move(first, last, out);
-    }
-};
-
-template <typename It, typename OutIt>
-struct copy_or_move_impl<It, OutIt, false>
-{
-    static inline OutIt apply(It first, It last, OutIt out)
-    {
-        return std::copy(first, last, out);
-    }
-};
-
-template <typename It, typename OutIt>
-inline OutIt copy_or_move(It first, It last, OutIt out)
-{
-    return copy_or_move_impl<It, OutIt>::apply(first, last, out);
-}
-
-#else
-
-template <typename It, typename OutIt>
-inline OutIt copy_or_move(It first, It last, OutIt out)
-{
-    return std::copy(first, last, out);
-}
-
-#endif
-
-} // namespace detail
 
 /*!
 \brief Short utility to conveniently remove an element from a mutable range.
@@ -314,7 +290,7 @@ erase(Range & rng,
         next = it;
     ++next;
 
-    detail::copy_or_move(next, boost::end(rng), it);
+    std::move(next, boost::end(rng), it);
     range::resize(rng, boost::size(rng) - 1);
 
     // NOTE: In general this should be sufficient:
@@ -368,7 +344,7 @@ erase(Range & rng,
         typename boost::range_difference<Range>::type const
             d = std::distance(boost::begin(rng), first);
 
-        detail::copy_or_move(last, boost::end(rng), first);
+        std::move(last, boost::end(rng), first);
         range::resize(rng, boost::size(rng) - count);
 
         // NOTE: In general this should be sufficient:
@@ -427,6 +403,12 @@ public:
     back_insert_iterator & operator=(typename Container::value_type const& value)
     {
         range::push_back(*container, value);
+        return *this;
+    }
+
+    back_insert_iterator & operator=(typename Container::value_type && value)
+    {
+        range::push_back(*container, std::move(value));
         return *this;
     }
 

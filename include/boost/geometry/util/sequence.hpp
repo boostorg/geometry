@@ -112,6 +112,36 @@ struct sequence_empty
 {};
 
 
+template
+<
+    typename Sequence,
+    template <typename> class UnaryPred
+>
+struct sequence_find_if {};
+
+template
+<
+    typename T, typename ...Ts,
+    template <typename> class UnaryPred
+>
+struct sequence_find_if<type_sequence<T, Ts...>, UnaryPred>
+    : std::conditional
+        <
+            UnaryPred<T>::value,
+            T,
+            // TODO: prevent instantiation for the rest of the sequence if value is true
+            typename sequence_find_if<type_sequence<Ts...>, UnaryPred>::type
+        >
+{};
+
+template <template <typename> class UnaryPred>
+struct sequence_find_if<type_sequence<>, UnaryPred>
+{
+    // TODO: This is technically incorrect because void can be stored in a type_sequence
+    typedef void type;
+};
+
+
 // merge<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<A, B, C, D>
 // merge<integer_sequence<A, B>, integer_sequence<C, D>>::type is
