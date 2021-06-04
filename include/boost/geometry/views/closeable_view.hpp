@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -43,21 +43,24 @@ namespace detail
 template <typename Range>
 struct closing_view
 {
+    using iterator = closing_iterator<Range>;
+    using const_iterator = closing_iterator<Range const>;
+
     // Keep this explicit, important for nested views/ranges
     explicit inline closing_view(Range& r)
-        : m_range(r)
+        : m_begin(r)
+        , m_end(r, true)
     {}
 
-    typedef closing_iterator<Range> iterator;
-    typedef closing_iterator<Range const> const_iterator;
+    inline const_iterator begin() const { return m_begin; }
+    inline const_iterator end() const { return m_end; }
 
-    inline const_iterator begin() const { return const_iterator(m_range); }
-    inline const_iterator end() const { return const_iterator(m_range, true); }
+    inline iterator begin() { return m_begin; }
+    inline iterator end() { return m_end; }
 
-    inline iterator begin() { return iterator(m_range); }
-    inline iterator end() { return iterator(m_range, true); }
-private :
-    Range& m_range;
+private:
+    iterator m_begin;
+    iterator m_end;
 };
 
 }

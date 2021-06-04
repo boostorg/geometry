@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -28,6 +28,7 @@
 #include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry {
 
@@ -39,53 +40,30 @@ namespace detail {
 template <typename Geometry>
 struct normalized_view
 {
-    static const bool is_const = std::is_const<Geometry>::value;
+    using range_type = typename detail::range_type<Geometry>::type;
+    using range = util::transcribe_const_t<Geometry, range_type>;
 
-    //typedef typename ring_type<Geometry>::type ring_type;
-
-    typedef typename detail::range_type<Geometry>::type range_type;
-
-    typedef std::conditional_t
-        <
-            is_const,
-            range_type const,
-            range_type
-        > range;
-
-    typedef typename
-        reversible_view
+    using reversible_type = typename reversible_view
             <
                 range,
                 order_as_direction
                     <
                         geometry::point_order<Geometry>::value
                     >::value
-            >::type reversible_type;
+            >::type;
 
-    typedef std::conditional_t
-        <
-            is_const,
-            reversible_type const,
-            reversible_type
-        > reversible;
-
-    typedef typename
-        closeable_view
+    using reversible = util::transcribe_const_t<Geometry, reversible_type>;
+    
+    using closeable_type = typename closeable_view
             <
                 reversible,
                 geometry::closure<Geometry>::value
-            >::type closeable_type;
+            >::type;
 
-    typedef std::conditional_t
-        <
-            is_const,
-            closeable_type const,
-            closeable_type
-        > closeable;
+    using closeable = util::transcribe_const_t<Geometry, closeable_type>;
     
     explicit inline normalized_view(range & r)
-        : m_reversible(r)
-        , m_closeable(m_reversible)
+        : m_closeable(reversible_type(r))
     {}
 
     typedef typename boost::range_iterator<closeable>::type iterator;
@@ -98,7 +76,6 @@ struct normalized_view
     inline iterator end() { return boost::end(m_closeable); }
 
 private:
-    reversible_type m_reversible;
     closeable_type m_closeable;
 };
 

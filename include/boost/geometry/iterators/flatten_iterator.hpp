@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -10,13 +10,14 @@
 #ifndef BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 #define BOOST_GEOMETRY_ITERATORS_FLATTEN_ITERATOR_HPP
 
+
 #include <type_traits>
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 
 #include <boost/geometry/core/assert.hpp>
-#include <boost/geometry/core/static_assert.hpp>
+
 
 namespace boost { namespace geometry
 {
@@ -58,7 +59,7 @@ public:
     typedef InnerIterator inner_iterator_type;
 
     // default constructor
-    flatten_iterator() {}
+    flatten_iterator() = default;
 
     // for begin
     flatten_iterator(OuterIterator outer_it, OuterIterator outer_end)
@@ -77,7 +78,13 @@ public:
         typename OtherOuterIterator, typename OtherInnerIterator,
         typename OtherValue,
         typename OtherAccessInnerBegin, typename OtherAccessInnerEnd,
-        typename OtherReference
+        typename OtherReference,
+        std::enable_if_t
+            <
+                std::is_convertible<OtherOuterIterator, OuterIterator>::value
+                && std::is_convertible<OtherInnerIterator, InnerIterator>::value,
+                int
+            > = 0
     >
     flatten_iterator(flatten_iterator
                      <
@@ -91,21 +98,7 @@ public:
         : m_outer_it(other.m_outer_it),
           m_outer_end(other.m_outer_end),
           m_inner_it(other.m_inner_it)
-    {
-        static const bool are_conv
-            = std::is_convertible
-                <
-                    OtherOuterIterator, OuterIterator
-                >::value
-           && std::is_convertible
-                <
-                    OtherInnerIterator, InnerIterator
-                >::value;
-
-        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
-            "Other iterators have to be convertible to member iterators.",
-            OtherOuterIterator, OtherInnerIterator);
-    }
+    {}
 
     flatten_iterator& operator=(flatten_iterator const& other)
     {

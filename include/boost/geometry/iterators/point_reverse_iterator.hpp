@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -13,7 +13,6 @@
 #include <iterator>
 #include <type_traits>
 
-#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/iterators/point_iterator.hpp>
 
 namespace boost { namespace geometry
@@ -39,23 +38,24 @@ private:
         : base_type(base_it) {}
 
 public:
-    inline point_reverse_iterator() {}
+    inline point_reverse_iterator() = default;
 
-    template <typename OtherGeometry>
-    inline
-    point_reverse_iterator(point_reverse_iterator<OtherGeometry> const& other)
-        : base_type(other.base())
-    {
-        static const bool is_conv = std::is_convertible
+    template
+    <
+        typename OtherGeometry,
+        std::enable_if_t
             <
-                std::reverse_iterator<point_iterator<Geometry> >,
-                std::reverse_iterator<point_iterator<OtherGeometry> >
-            >::value;
-
-        BOOST_GEOMETRY_STATIC_ASSERT((is_conv),
-            "Other iterator has to be convertible to member iterator.",
-            point_reverse_iterator<OtherGeometry>);
-    }
+                std::is_convertible
+                    <
+                        std::reverse_iterator<point_iterator<OtherGeometry> >,
+                        std::reverse_iterator<point_iterator<Geometry> >
+                    >::value,
+                int
+            > = 0
+    >
+    inline point_reverse_iterator(point_reverse_iterator<OtherGeometry> const& other)
+        : base_type(other.base())
+    {}
 };
 
 
