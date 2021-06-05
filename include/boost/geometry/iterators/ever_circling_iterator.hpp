@@ -31,7 +31,7 @@
 
 #include <boost/geometry/core/assert.hpp>
 
-#include <boost/geometry/iterators/base.hpp>
+#include <boost/geometry/iterators/detail/iterator_base.hpp>
 
 
 namespace boost { namespace geometry
