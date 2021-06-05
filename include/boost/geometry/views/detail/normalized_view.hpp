@@ -24,9 +24,8 @@
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
 
-#include <boost/geometry/views/detail/range_type.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
+#include <boost/geometry/views/reversible_view.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
@@ -40,40 +39,30 @@ namespace detail {
 template <typename Geometry>
 struct normalized_view
 {
-    using range_type = typename detail::range_type<Geometry>::type;
-    using range = util::transcribe_const_t<Geometry, range_type>;
-
     using reversible_type = typename reversible_view
             <
-                range,
+                Geometry const,
                 order_as_direction
                     <
                         geometry::point_order<Geometry>::value
                     >::value
             >::type;
-
-    using reversible = util::transcribe_const_t<Geometry, reversible_type>;
     
     using closeable_type = typename closeable_view
             <
-                reversible,
+                reversible_type const,
                 geometry::closure<Geometry>::value
             >::type;
-
-    using closeable = util::transcribe_const_t<Geometry, closeable_type>;
     
-    explicit inline normalized_view(range & r)
-        : m_closeable(reversible_type(r))
+    explicit inline normalized_view(Geometry const& g)
+        : m_closeable(reversible_type(g))
     {}
 
-    typedef typename boost::range_iterator<closeable>::type iterator;
-    typedef typename boost::range_const_iterator<closeable>::type const_iterator;
+    using iterator = typename boost::range_iterator<closeable_type const>::type;
+    using const_iterator = typename boost::range_iterator<closeable_type const>::type;
 
     inline const_iterator begin() const { return boost::begin(m_closeable); }
     inline const_iterator end() const { return boost::end(m_closeable); }
-
-    inline iterator begin() { return boost::begin(m_closeable); }
-    inline iterator end() { return boost::end(m_closeable); }
 
 private:
     closeable_type m_closeable;

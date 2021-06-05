@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -137,6 +137,13 @@ struct ring_return_type<multi_polygon_tag, MultiPolygon>
 template <typename GeometryTag, typename Geometry>
 struct ring_type
 {};
+
+
+template <typename Linestring>
+struct ring_type<linestring_tag, Linestring>
+{
+    typedef Linestring type;
+};
 
 
 template <typename Ring>

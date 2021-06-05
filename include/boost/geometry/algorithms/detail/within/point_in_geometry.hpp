@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -28,6 +28,7 @@
 
 #include <boost/geometry/core/assert.hpp>
 
+#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 

@@ -43,11 +43,11 @@ namespace detail
 template <typename Range>
 struct closing_view
 {
-    using iterator = closing_iterator<Range>;
+    using iterator = closing_iterator<Range const>;
     using const_iterator = closing_iterator<Range const>;
 
     // Keep this explicit, important for nested views/ranges
-    explicit inline closing_view(Range& r)
+    explicit inline closing_view(Range const& r)
         : m_begin(r)
         , m_end(r, true)
     {}
@@ -55,12 +55,9 @@ struct closing_view
     inline const_iterator begin() const { return m_begin; }
     inline const_iterator end() const { return m_end; }
 
-    inline iterator begin() { return m_begin; }
-    inline iterator end() { return m_end; }
-
 private:
-    iterator m_begin;
-    iterator m_end;
+    const_iterator m_begin;
+    const_iterator m_end;
 };
 
 }

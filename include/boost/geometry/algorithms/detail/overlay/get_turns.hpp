@@ -64,7 +64,6 @@
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
-#include <boost/geometry/views/detail/range_type.hpp>
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -218,12 +217,12 @@ class get_turns_in_sections
 {
     typedef typename closeable_view
         <
-            typename range_type<Geometry1>::type const,
+            typename ring_type<Geometry1>::type const,
             closure<Geometry1>::value
         >::type cview_type1;
     typedef typename closeable_view
         <
-            typename range_type<Geometry2>::type const,
+            typename ring_type<Geometry2>::type const,
             closure<Geometry2>::value
         >::type cview_type2;
 
