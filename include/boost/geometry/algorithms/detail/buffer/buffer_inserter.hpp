@@ -537,7 +537,7 @@ struct buffer_inserter_ring
 
         if (n >= min_points)
         {
-            detail::normalized_view<RingInput const> view(simplified);
+            detail::reverse_close_view<RingInput const> view(simplified);
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)

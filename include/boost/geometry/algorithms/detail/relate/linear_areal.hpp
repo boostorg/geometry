@@ -1218,9 +1218,9 @@ struct linear_areal
             typename sub_range_return_type<Geometry1 const>::type
                 range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
             
-            typedef detail::normalized_view<typename ring_type<Geometry2>::type const> const range2_type;
-            typedef typename boost::range_iterator<range2_type>::type range2_iterator;
-            range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
+            using range2_view = detail::reverse_close_view<typename ring_type<Geometry2>::type const>;
+            using range2_iterator = typename boost::range_iterator<range2_view const>::type;
+            range2_view const range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
             BOOST_GEOMETRY_ASSERT(boost::size(range1));
             std::size_t const s2 = boost::size(range2);

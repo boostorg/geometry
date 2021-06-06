@@ -702,7 +702,7 @@ struct buffered_piece_collection
             // GeometryOut type, which might differ from the input ring type)
             clockwise_ring_type clockwise_ring;
 
-            typedef detail::normalized_view<InputRing const> view_type;
+            using view_type = detail::reverse_close_view<InputRing const>;
             view_type const view(input_ring);
 
             for (typename boost::range_iterator<view_type const>::type it =

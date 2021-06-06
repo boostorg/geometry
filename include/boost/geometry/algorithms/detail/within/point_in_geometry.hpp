@@ -181,7 +181,7 @@ struct point_in_geometry<Ring, ring_tag>
             return -1;
         }
 
-        detail::normalized_view<Ring const> view(ring);
+        detail::reverse_close_view<Ring const> view(ring);
         return detail::within::point_in_range(point, view,
                                               strategy.relate(point, ring));
     }
