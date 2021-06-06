@@ -30,6 +30,19 @@
 namespace boost { namespace geometry
 {
 
+// NOTE: This is equivalent to the previous implementation with detail::points_view.
+//       Technically this should not be called a view because it owns the elements.
+//       It's also not a borrowed_range because of dangling iterators after the
+//       destruction.
+//       It's a container or more specifically a ring of some sort, e.g. static_ring.
+// NOTE: It would be possible to implement a borrowed_range or a view.
+//       The iterators would have to store copies of points.
+//       Another possibility is to store the original Box or reference/pointer
+//       to Box and index. But then the reference would be the value type
+//       so technically they would be InputIterators not RandomAccessIterators.
+// NOTE: This object can not represent a Box correctly in all coordinates systems.
+//       It's correct only in cartesian CS so maybe it should be removed entirely.
+
 
 /*!
 \brief Makes a box behave like a ring or a range
@@ -49,35 +62,24 @@ namespace boost { namespace geometry
 */
 template <typename Box, bool Clockwise = true>
 struct box_view
-    // NOTE: This is equivalent to the previous implementation with detail::points_view
-    //       Technically this should not be called a view because it owns the elements.
-    //       It's also not a borrowed_range because of dangling iterators after the
-    //       destruction.
-    //       It's a container or more specifically a ring of some sort,
-    //       e.g. static_ring.
-    // NOTE: It would be possible to implement a borrowed_range or a view.
-    //       The iterators would have to store copies of points.
-    //       Another possibility is to store the original Box or reference/pointer
-    //       to Box and index. But then the reference would be the value type
-    //       so technically they would be InputIterators not RandomAccessIterators.
-    // NOTE: This object can not represent a Box correctly in all coordinates systems.
-    //       It's correct only in cartesian CS so maybe it should be removed entirely.
-    : private std::array<typename geometry::point_type<Box>::type, 5>
 {
-    using base_t = std::array<typename geometry::point_type<Box>::type, 5>;
+    using array_t = std::array<typename geometry::point_type<Box>::type, 5>;
 
-    using iterator = typename base_t::const_iterator;
-    using const_iterator = typename base_t::const_iterator;
+    using iterator = typename array_t::const_iterator;
+    using const_iterator = typename array_t::const_iterator;
 
     /// Constructor accepting the box to adapt
     explicit box_view(Box const& box)
     {
-        detail::assign_box_corners_oriented<!Clockwise>(box, static_cast<base_t&>(*this));
-        (*this)[4] = (*this)[0];
+        detail::assign_box_corners_oriented<!Clockwise>(box, m_array);
+        m_array[4] = m_array[0];
     }
 
-    const_iterator begin() const noexcept { return base_t::begin(); }
-    const_iterator end() const noexcept { return base_t::end(); }
+    const_iterator begin() const noexcept { return m_array.begin(); }
+    const_iterator end() const noexcept { return m_array.end(); }
+
+private:
+    array_t m_array;
 };
 
 

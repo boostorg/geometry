@@ -29,6 +29,17 @@
 namespace boost { namespace geometry
 {
 
+// NOTE: This is equivalent to the previous implementation with detail::points_view.
+//       Technically this should not be called a view because it owns the elements.
+//       It's also not a borrowed_range because of dangling iterators after the
+//       destruction.
+//       It's a container or more specifically a linestring of some sort, e.g. static_linestring.
+// NOTE: It would be possible to implement a borrowed_range or a view.
+//       The iterators would have to store copies of points.
+//       Another possibility is to store the original Segment or reference/pointer
+//       to Segment and index. But then the reference would be the value type
+//       so technically they would be InputIterators not RandomAccessIterators.
+
 
 /*!
 \brief Makes a segment behave like a linestring or a range
@@ -47,33 +58,24 @@ namespace boost { namespace geometry
 */
 template <typename Segment>
 struct segment_view
-    // NOTE: This is equivalent to the previous implementation with detail::points_view
-    //       Technically this should not be called a view because it owns the elements.
-    //       It's also not a borrowed_range because of dangling iterators after the
-    //       destruction.
-    //       It's a container or more specifically a linestring of some sort,
-    //       e.g. static_linestring.
-    // NOTE: It would be possible to implement a borrowed_range or a view.
-    //       The iterators would have to store copies of points.
-    //       Another possibility is to store the original Segment or reference/pointer
-    //       to Segment and index. But then the reference would be the value type
-    //       so technically they would be InputIterators not RandomAccessIterators.
-    : private std::array<typename geometry::point_type<Segment>::type, 2>
 {
-    using base_t = std::array<typename geometry::point_type<Segment>::type, 2>;
+    using array_t = std::array<typename geometry::point_type<Segment>::type, 2>;
 
-    using iterator = typename base_t::const_iterator;
-    using const_iterator = typename base_t::const_iterator;
+    using iterator = typename array_t::const_iterator;
+    using const_iterator = typename array_t::const_iterator;
 
     /// Constructor accepting the segment to adapt
     explicit segment_view(Segment const& segment)
     {
-        geometry::detail::assign_point_from_index<0>(segment, (*this)[0]);
-        geometry::detail::assign_point_from_index<1>(segment, (*this)[1]);
+        geometry::detail::assign_point_from_index<0>(segment, m_array[0]);
+        geometry::detail::assign_point_from_index<1>(segment, m_array[1]);
     }
 
-    const_iterator begin() const noexcept { return base_t::begin(); }
-    const_iterator end() const noexcept { return base_t::end(); }
+    const_iterator begin() const noexcept { return m_array.begin(); }
+    const_iterator end() const noexcept { return m_array.end(); }
+
+private:
+    array_t m_array;
 };
 
 
