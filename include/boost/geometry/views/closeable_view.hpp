@@ -29,14 +29,8 @@
 namespace boost { namespace geometry
 {
 
-// Silence warning C4512: assignment operator could not be generated
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4512)
-#endif
 
 #ifndef DOXYGEN_NO_DETAIL
-
 namespace detail
 {
 
@@ -60,8 +54,26 @@ private:
     const_iterator m_end;
 };
 
-}
 
+// Other possible names:
+//   conditionally_close_view
+//   closed_view
+// As template alias for now. It's possible that this should be a struct.
+//   It'd also prevent instantiating the other, unneeded view.
+template
+<
+    typename Range,
+    closure_selector Close = geometry::closure<Range>::value
+>
+using close_view = std::conditional_t
+    <
+        Close == open,
+        closing_view<Range>,
+        identity_view<Range>
+    >;
+
+
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -87,22 +99,18 @@ struct closeable_view {};
 template <typename Range>
 struct closeable_view<Range, closed>
 {
-    typedef identity_view<Range> type;
+    using type = identity_view<Range>;
 };
 
 
 template <typename Range>
 struct closeable_view<Range, open>
 {
-    typedef detail::closing_view<Range> type;
+    using type = detail::closing_view<Range>;
 };
 
 #endif // DOXYGEN_NO_SPECIALIZATIONS
 
-
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 
 }} // namespace boost::geometry
 

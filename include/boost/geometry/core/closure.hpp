@@ -4,9 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -106,7 +105,7 @@ struct minimum_ring_size<geometry::open>
 {};
 
 
-}} // namespace detail::point_order
+}} // namespace core_detail::closure
 #endif // DOXYGEN_NO_DETAIL
 
 
@@ -195,6 +194,21 @@ struct closure
             typename util::remove_cptrref<Geometry>::type
         >::value;
 };
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
+template
+<
+    typename Geometry,
+    closure_selector Closure = geometry::closure<Geometry>::value
+>
+using minimum_ring_size = core_detail::closure::minimum_ring_size<Closure>;
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
 
 }} // namespace boost::geometry

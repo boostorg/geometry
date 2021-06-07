@@ -37,23 +37,19 @@ namespace boost { namespace geometry {
 namespace detail {
 
 
-template <typename Geometry>
+template
+<
+    typename Geometry,
+    iterate_direction Direction = geometry::order_as_direction
+        <
+            geometry::point_order<Geometry>::value
+        >::value,
+    closure_selector Closure = geometry::closure<Geometry>::value
+>
 struct reverse_close_view
 {
-    using reverse_view = typename reversible_view
-            <
-                Geometry const,
-                order_as_direction
-                    <
-                        geometry::point_order<Geometry>::value
-                    >::value
-            >::type;
-    
-    using view = typename closeable_view
-            <
-                reverse_view const,
-                geometry::closure<Geometry>::value
-            >::type;
+    using reverse_view = detail::reverse_view<Geometry const, Direction>;
+    using view = detail::close_view<reverse_view const, Closure>;
     
     explicit inline reverse_close_view(Geometry const& g)
         : m_view(reverse_view(g))
@@ -74,7 +70,7 @@ template
 <
     typename Geometry,
     closure_selector Closure = geometry::closure<Geometry>::value,
-    iterate_direction Direction = order_as_direction
+    iterate_direction Direction = geometry::order_as_direction
         <
             geometry::point_order<Geometry>::value
         >::value
@@ -83,8 +79,8 @@ struct close_reverse_view
 {
     // These utilities are inconsistent since Closure defines the property of
     // the Geometry while Direction defines what to do with the Geometry.
-    using close_view = typename closeable_view<Geometry const, Closure>::type;
-    using view = typename reversible_view<close_view const, Direction>::type;
+    using close_view = detail::close_view<Geometry const, Closure>;
+    using view = detail::reverse_view<close_view const, Direction>;
     
     explicit inline close_reverse_view(Geometry const& g)
         : m_view(close_view(g))
@@ -99,6 +95,38 @@ struct close_reverse_view
 private:
     view m_view;
 };
+
+
+// Other possible names:
+//   clockwise_closed_view
+template
+<
+    typename Range,
+    order_selector Order = geometry::point_order<Range>::value,
+    closure_selector Closure = geometry::closure<Range>::value
+>
+using clockwise_close_view = reverse_close_view
+    <
+        Range,
+        geometry::order_as_direction<Order>::value,
+        Closure
+    >;
+
+
+// Other possible names:
+//   closed_clockwise_view
+template
+<
+    typename Range,
+    closure_selector Closure = geometry::closure<Range>::value,
+    order_selector Order = geometry::point_order<Range>::value    
+>
+using close_clockwise_view = close_reverse_view
+    <
+        Range,
+        Closure,
+        geometry::order_as_direction<Order>::value
+    >;
 
 
 } // namespace detail
