@@ -238,14 +238,8 @@ struct is_simple_linestring
     {
         simplicity_failure_policy policy;
         return ! boost::empty(linestring)
-            && ! detail::is_valid::has_duplicates
-                    <
-                        Linestring, closed
-                    >::apply(linestring, policy, strategy)
-            && ! detail::is_valid::has_spikes
-                    <
-                        Linestring, closed
-                    >::apply(linestring, policy, strategy);
+            && ! detail::is_valid::has_duplicates<Linestring>::apply(linestring, policy, strategy)
+            && ! detail::is_valid::has_spikes<Linestring>::apply(linestring, policy, strategy);
     }
 };
 
@@ -256,10 +250,7 @@ struct is_simple_linestring<Linestring, true>
     static inline bool apply(Linestring const& linestring,
                              Strategy const& strategy)
     {
-        return is_simple_linestring
-                <
-                    Linestring, false
-                >::apply(linestring, strategy)
+        return is_simple_linestring<Linestring, false>::apply(linestring, strategy)
             && ! has_self_intersections(linestring, strategy);
     }
 };

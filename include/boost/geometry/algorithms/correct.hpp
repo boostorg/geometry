@@ -130,13 +130,6 @@ struct correct_ring
     typedef typename point_type<Ring>::type point_type;
     typedef typename coordinate_type<Ring>::type coordinate_type;
 
-    typedef detail::area::ring_area
-            <
-                order_as_direction<geometry::point_order<Ring>::value>::value,
-                geometry::closure<Ring>::value
-            > ring_area_type;
-
-
     template <typename Strategy>
     static inline void apply(Ring& r, Strategy const& strategy)
     {
@@ -147,12 +140,13 @@ struct correct_ring
         typedef typename area_result<Ring, Strategy>::type area_result_type;
         Predicate<area_result_type> predicate;
         area_result_type const zero = 0;
-        if (predicate(ring_area_type::apply(r,
-                                            // TEMP - in the future (umbrella) strategy will be passed
-                                            geometry::strategies::area::services::strategy_converter
-                                                <
-                                                    Strategy
-                                                >::get(strategy)),
+        if (predicate(detail::area::ring_area::apply(
+                        r,
+                        // TEMP - in the future (umbrella) strategy will be passed
+                        geometry::strategies::area::services::strategy_converter
+                            <
+                                Strategy
+                            >::get(strategy)),
                       zero))
         {
             std::reverse(boost::begin(r), boost::end(r));

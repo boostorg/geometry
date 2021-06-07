@@ -92,22 +92,15 @@ struct range_length
     static inline return_type
     apply(Range const& range, Strategies const& strategies)
     {
-        typedef typename closeable_view<Range const, Closure>::type view_type;
-        typedef typename boost::range_iterator
-            <
-                view_type const
-            >::type iterator_type;
-
         return_type sum = return_type();
-        view_type view(range);
-        iterator_type it = boost::begin(view), end = boost::end(view);
+        detail::close_view<Range const> const view(range);
+        auto it = boost::begin(view);
+        auto const end = boost::end(view);
         if (it != end)
         {
             auto const strategy = strategies.distance(dummy_point(), dummy_point());
 
-            for(iterator_type previous = it++;
-                    it != end;
-                    ++previous, ++it)
+            for(auto previous = it++; it != end; ++previous, ++it)
             {
                 // Add point-point distance using the return type belonging
                 // to strategy
