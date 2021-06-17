@@ -87,7 +87,7 @@ struct disjoint_range_segment_or_box
         using point_type = typename point_type<Range>::type;
         using range_segment = typename geometry::model::referring_segment<point_type const>;
 
-        detail::close_view<Range const> const view(range);
+        detail::closed_view<Range const> const view(range);
 
         auto const count = ::boost::size(view);
 

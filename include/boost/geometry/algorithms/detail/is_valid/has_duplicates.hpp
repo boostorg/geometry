@@ -42,7 +42,7 @@ struct has_duplicates
     {
         boost::ignore_unused(visitor);
 
-        detail::close_view<Range const> const view(range);
+        detail::closed_view<Range const> const view(range);
 
         if ( boost::size(view) < 2 )
         {

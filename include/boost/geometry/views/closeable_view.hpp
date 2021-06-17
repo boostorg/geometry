@@ -55,9 +55,6 @@ private:
 };
 
 
-// Other possible names:
-//   conditionally_close_view
-//   closed_view
 // As template alias for now. It's possible that this should be a struct.
 //   It'd also prevent instantiating the other, unneeded view.
 template
@@ -65,7 +62,7 @@ template
     typename Range,
     closure_selector Close = geometry::closure<Range>::value
 >
-using close_view = std::conditional_t
+using closed_view = std::conditional_t
     <
         Close == open,
         closing_view<Range>,

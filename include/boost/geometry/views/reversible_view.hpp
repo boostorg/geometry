@@ -39,34 +39,19 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-// Other possible names:
-//   conditionally_reverse_view
+
 // As template alias for now. It's possible that this should be a struct.
 //   It'd also prevent instantiating the other, unneeded view.
 template
 <
     typename Range,
-    iterate_direction Direction = geometry::order_as_direction
-        <
-            geometry::point_order<Range>::value
-        >::value
->
-using reverse_view = std::conditional_t
-    <
-        Direction == iterate_reverse,
-        boost::reversed_range<Range>,
-        identity_view<Range>
-    >;
-
-template
-<
-    typename Range,
     order_selector Order = geometry::point_order<Range>::value
 >
-using clockwise_view = reverse_view
+using clockwise_view = std::conditional_t
     <
-        Range,
-        geometry::order_as_direction<Order>::value
+        Order == counterclockwise,
+        boost::reversed_range<Range>,
+        identity_view<Range>
     >;
 
 
@@ -82,7 +67,6 @@ using clockwise_view = reverse_view
 */
 template <typename Range, iterate_direction Direction>
 struct reversible_view {};
-
 
 
 #ifndef DOXYGEN_NO_SPECIALIZATIONS

@@ -154,7 +154,7 @@ struct is_valid_ring
             return visitor.template apply<failure_few_points>();
         }
 
-        detail::close_view<Ring const> const view(ring);
+        detail::closed_view<Ring const> const view(ring);
 
         if (detail::num_distinct_consecutive_points
                 <

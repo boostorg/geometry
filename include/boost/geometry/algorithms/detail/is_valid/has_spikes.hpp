@@ -102,7 +102,7 @@ struct has_spikes
 
         bool const is_linestring = util::is_linestring<Range>::value;
 
-        detail::close_view<Range const> const view(range);
+        detail::closed_view<Range const> const view(range);
 
         auto prev = boost::begin(view);
         auto const end = boost::end(view);

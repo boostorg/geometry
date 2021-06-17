@@ -93,7 +93,7 @@ struct range_length
     apply(Range const& range, Strategies const& strategies)
     {
         return_type sum = return_type();
-        detail::close_view<Range const> const view(range);
+        detail::closed_view<Range const> const view(range);
         auto it = boost::begin(view);
         auto const end = boost::end(view);
         if (it != end)

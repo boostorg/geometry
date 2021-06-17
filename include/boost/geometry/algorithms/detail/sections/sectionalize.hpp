@@ -59,7 +59,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/sequence.hpp>
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 // TEMP
 #include <boost/geometry/strategy/envelope.hpp>
@@ -581,11 +581,11 @@ struct sectionalize_range
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-        detail::close_reverse_view
+        detail::closed_clockwise_view
             <
                 Range const,
                 Closure,
-                Reverse ? iterate_reverse : iterate_forward
+                Reverse ? counterclockwise : clockwise
             > const view(range);
 
         std::size_t const n = boost::size(view);

@@ -32,18 +32,15 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_indexed_to_indexed.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
-
-#include <boost/geometry/util/range.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -51,6 +48,10 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -163,11 +164,11 @@ struct range_to_range
     {
         geometry::clear(destination);
 
-        using view_type = detail::close_reverse_view
+        using view_type = detail::closed_clockwise_view
             <
                 Range1 const,
                 geometry::closure<Range1>::value,
-                Reverse ? iterate_reverse : iterate_forward
+                Reverse ? counterclockwise : clockwise
             >;
 
         // We consider input always as closed, and skip last

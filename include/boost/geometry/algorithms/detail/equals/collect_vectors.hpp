@@ -37,7 +37,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
@@ -327,7 +327,7 @@ struct range_collect_vectors
     static inline void apply(Collection& collection, Range const& range)
     {
         apply_impl(collection,
-                   detail::reverse_close_view<Range const>(range));
+                   detail::closed_clockwise_view<Range const>(range));
     }
 
 private:

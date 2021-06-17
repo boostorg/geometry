@@ -36,7 +36,7 @@
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
 
 #include <boost/geometry/util/range.hpp>
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 namespace boost { namespace geometry {
 
@@ -181,7 +181,7 @@ struct point_in_geometry<Ring, ring_tag>
             return -1;
         }
 
-        detail::reverse_close_view<Ring const> view(ring);
+        detail::closed_clockwise_view<Ring const> view(ring);
         return detail::within::point_in_range(point, view,
                                               strategy.relate(point, ring));
     }

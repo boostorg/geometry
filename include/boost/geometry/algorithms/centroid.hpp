@@ -182,7 +182,7 @@ struct centroid_range_state
     {
         boost::ignore_unused(strategy);
 
-        detail::close_view<Ring const> const view(ring);
+        detail::closed_view<Ring const> const view(ring);
         auto it = boost::begin(view);
         auto const end = boost::end(view);
 

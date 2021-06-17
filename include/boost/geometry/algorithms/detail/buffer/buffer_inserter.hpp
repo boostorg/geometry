@@ -44,7 +44,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -537,7 +537,7 @@ struct buffer_inserter_ring
 
         if (n >= min_points)
         {
-            detail::reverse_close_view<RingInput const> view(simplified);
+            detail::closed_clockwise_view<RingInput const> view(simplified);
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)

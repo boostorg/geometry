@@ -55,7 +55,7 @@
 
 #include <boost/geometry/util/math.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -103,7 +103,7 @@ struct ring_area
             return typename area_result<Ring, Strategies>::type();
         }
 
-        detail::clockwise_close_view<Ring const> const view(ring);
+        detail::closed_clockwise_view<Ring const> const view(ring);
         auto it = boost::begin(view);
         auto const end = boost::end(view);
 

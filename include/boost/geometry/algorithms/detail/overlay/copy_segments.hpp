@@ -41,7 +41,7 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -71,11 +71,11 @@ struct copy_segments_ring
             RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
-        using view_type = detail::close_reverse_view
+        using view_type = detail::closed_clockwise_view
             <
                 Ring const,
                 closure<Ring>::value,
-                Reverse ? iterate_reverse : iterate_forward
+                Reverse ? counterclockwise : clockwise
             >;
 
         using iterator = typename boost::range_iterator<view_type const>::type;

@@ -30,7 +30,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/range.hpp>
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -59,11 +59,11 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
-        using view_type = detail::close_reverse_view
+        using view_type = detail::closed_clockwise_view
             <
                 Range const,
                 closure<Range>::value,
-                Reverse ? iterate_reverse : iterate_forward
+                Reverse ? counterclockwise : clockwise
             >;
 
         view_type view(range);

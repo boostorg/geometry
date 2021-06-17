@@ -62,7 +62,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
@@ -214,17 +214,17 @@ template
 >
 class get_turns_in_sections
 {
-    using range1_view = detail::close_reverse_view
+    using range1_view = detail::closed_clockwise_view
         <
             typename ring_type<Geometry1>::type const,
             geometry::closure<Geometry1>::value,
-            Reverse1 ? iterate_reverse : iterate_forward
+            Reverse1 ? counterclockwise : clockwise
         >;
-    using range2_view = detail::close_reverse_view
+    using range2_view = detail::closed_clockwise_view
         <
             typename ring_type<Geometry2>::type const,
             geometry::closure<Geometry2>::value,
-            Reverse2 ? iterate_reverse : iterate_forward
+            Reverse2 ? counterclockwise : clockwise
         >;
 
     using range1_iterator = typename boost::range_iterator<range1_view const>::type;
@@ -573,11 +573,11 @@ struct get_turns_cs
     typedef typename geometry::point_type<Box>::type box_point_type;
     typedef boost::array<box_point_type, 4> box_array;
 
-    using view_type = detail::close_reverse_view
+    using view_type = detail::closed_clockwise_view
         <
             Range const,
             geometry::closure<Range>::value,
-            ReverseRange ? iterate_reverse : iterate_forward
+            ReverseRange ? counterclockwise : clockwise
         >;
 
     using iterator_type = typename boost::range_iterator<view_type const>::type;
