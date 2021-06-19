@@ -378,10 +378,9 @@ void test_areal()
     TEST_INTERSECTION(issue_643, 1, -1, 3.4615);
 #endif
 
-    test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_23023665_7",
-        mysql_23023665_7[0], mysql_23023665_7[1],
-        2, 11, 9.80505786783);
+    TEST_INTERSECTION(issue_869_c, 3, -1, 3600);
 
+    TEST_INTERSECTION(mysql_23023665_7, 2, 11, 9.80505786783);
     TEST_INTERSECTION(mysql_23023665_12, 2, 0, 11.812440191387557);
     TEST_INTERSECTION(mysql_regression_1_65_2017_08_31, 2, -1, 29.9022122);
 }

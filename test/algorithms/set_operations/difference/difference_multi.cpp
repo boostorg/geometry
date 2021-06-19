@@ -209,6 +209,10 @@ void test_areal()
 #endif
     }
 
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+        // Generates a polygon with two interiors, i/o a multipoly with 3 rings
+    TEST_DIFFERENCE(issue_869_a, 3, 3600, 0, 0, 1);
+#endif
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
