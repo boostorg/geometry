@@ -307,6 +307,11 @@ void test_areal()
 
     TEST_INTERSECTION(issue_838, 1, -1, (expectation_limits{0.6582, 0.6650}));
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // With rescaling the output is wrong
+    TEST_INTERSECTION(issue_861, 1, -1, 1.4715007684573677693e-10);
+#endif
+
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],

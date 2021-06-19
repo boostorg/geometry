@@ -433,6 +433,11 @@ void test_areal()
     TEST_UNION(issue_643, 1, 0, -1, 80.0);
 #endif
 
+    // It returns 3 polygons, the first with an interior
+    // This is correct (the difference, resulting in the same spatial coverage,
+    // generates only one polygon with two interiors)
+    TEST_UNION(issue_869_b, 3, 1, -1, 3600);
+
 #if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
     // Two polygons, should ideally be merged
     TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
