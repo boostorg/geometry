@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -37,6 +38,7 @@
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/simplify.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
@@ -58,46 +60,28 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_MULTI_POINT(tuple_multi_point_type)
 BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED(std::vector)
 
-typedef bg::strategy::distance::projected_point<> distance_strategy_type;
-typedef bg::strategy::distance::projected_point
-    <
-        void, bg::strategy::distance::comparable::pythagoras<>
-    > comparable_distance_strategy_type;
-
-
 template <typename CoordinateType>
-struct default_simplify_strategy
+struct simplify_default_strategy
 {
     typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef typename bg::strategy::distance::services::default_strategy
+    typedef typename bg::strategies::simplify::services::default_strategy
         <
-            bg::point_tag, bg::segment_tag, point_type
-        >::type default_distance_strategy_type;
-
-    typedef bg::strategy::simplify::douglas_peucker
-        <
-            point_type, default_distance_strategy_type
-        > type;
-};
-
-
-template <typename CoordinateType>
-struct simplify_regular_distance_strategy
-{
-    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef bg::strategy::simplify::douglas_peucker
-        <
-            point_type, distance_strategy_type
-        > type;
+            point_type
+        >::type type;
 };
 
 template <typename CoordinateType>
-struct simplify_comparable_distance_strategy
+struct simplify_regular_strategy
 {
-    typedef bg::model::point<CoordinateType, 2, bg::cs::cartesian> point_type;
-    typedef bg::strategy::simplify::douglas_peucker
+    typedef bg::strategies::simplify::cartesian<> type;
+};
+
+template <typename CoordinateType>
+struct simplify_comparable_strategy
+{
+    typedef bg::strategies::distance::detail::comparable
         <
-            point_type, comparable_distance_strategy_type
+            bg::strategies::simplify::cartesian<>
         > type;
 };
 
@@ -188,9 +172,8 @@ struct test_one_case
         std::cout << wkt << std::endl;
 #endif
 
-        strategy.apply(geometry, std::back_inserter(result), max_distance);
-
-        boost::ignore_unused(strategy);
+        bg::detail::simplify::douglas_peucker::apply(
+            geometry, std::back_inserter(result), max_distance, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         print_point_range(std::cout, boost::begin(result), boost::end(result),
@@ -361,13 +344,13 @@ inline void test_with_strategy(std::string label)
 
 BOOST_AUTO_TEST_CASE( test_default_strategy )
 {
-    test_with_strategy<int, default_simplify_strategy<int>::type>("i");
-    test_with_strategy<float, default_simplify_strategy<float>::type>("f");
-    test_with_strategy<double, default_simplify_strategy<double>::type>("d");
+    test_with_strategy<int, simplify_default_strategy<int>::type>("i");
+    test_with_strategy<float, simplify_default_strategy<float>::type>("f");
+    test_with_strategy<double, simplify_default_strategy<double>::type>("d");
     test_with_strategy
         <
             long double,
-            default_simplify_strategy<long double>::type
+            simplify_default_strategy<long double>::type
         >("ld");
 }
 
@@ -376,24 +359,24 @@ BOOST_AUTO_TEST_CASE( test_with_regular_distance_strategy )
     test_with_strategy
         <
             int,
-            simplify_regular_distance_strategy<int>::type
+            simplify_regular_strategy<int>::type
         >("i");
 
     test_with_strategy
         <
             float,
-            simplify_regular_distance_strategy<float>::type
+            simplify_regular_strategy<float>::type
         >("f");
 
     test_with_strategy
         <
             double,
-            simplify_regular_distance_strategy<double>::type
+            simplify_regular_strategy<double>::type
         >("d");
     test_with_strategy
         <
             long double,
-            simplify_regular_distance_strategy<long double>::type
+            simplify_regular_strategy<long double>::type
         >("ld");
 }
 
@@ -402,21 +385,21 @@ BOOST_AUTO_TEST_CASE( test_with_comparable_distance_strategy )
     test_with_strategy
         <
             int,
-            simplify_comparable_distance_strategy<int>::type
+            simplify_comparable_strategy<int>::type
         >("i");
     test_with_strategy
         <
             float,
-            simplify_comparable_distance_strategy<float>::type
+            simplify_comparable_strategy<float>::type
         >("f");
     test_with_strategy
         <
             double,
-            simplify_comparable_distance_strategy<double>::type
+            simplify_comparable_strategy<double>::type
         >("d");
     test_with_strategy
         <
             long double,
-            simplify_comparable_distance_strategy<long double>::type
+            simplify_comparable_strategy<long double>::type
         >("ld");
 }

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -18,21 +18,23 @@
 
 #include <boost/range/value_type.hpp>
 
-#include <boost/geometry/algorithms/not_implemented.hpp>
+#include <boost/geometry/algorithms/detail/intersection/multi.hpp>
+#include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
+#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategies/relate/services.hpp>
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/algorithms/detail/intersection/multi.hpp>
-#include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
-#include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
-#include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 
 
 namespace boost { namespace geometry

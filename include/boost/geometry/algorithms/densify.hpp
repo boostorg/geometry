@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,7 +21,10 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategies/densify.hpp>
+#include <boost/geometry/strategies/densify/cartesian.hpp>
+#include <boost/geometry/strategies/densify/geographic.hpp>
+#include <boost/geometry/strategies/densify/spherical.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
@@ -68,9 +71,9 @@ inline void convert_and_push_back(Range & range, Point const& p)
 template <bool AppendLastPoint = true>
 struct densify_range
 {
-    template <typename FwdRng, typename MutRng, typename T, typename Strategy>
+    template <typename FwdRng, typename MutRng, typename T, typename Strategies>
     static inline void apply(FwdRng const& rng, MutRng & rng_out,
-                             T const& len, Strategy const& strategy)
+                             T const& len, Strategies const& strategies)
     {
         typedef typename boost::range_iterator<FwdRng const>::type iterator_t;
         typedef typename boost::range_value<FwdRng>::type point_t;
@@ -83,6 +86,7 @@ struct densify_range
             return;
         }
             
+        auto strategy = strategies.densify(rng);
         push_back_policy<MutRng> policy(rng_out);
 
         iterator_t prev = it;
@@ -106,12 +110,12 @@ struct densify_range
 template <bool IsClosed1, bool IsClosed2> // false, X
 struct densify_ring
 {
-    template <typename Geometry, typename GeometryOut, typename T, typename Strategy>
+    template <typename Geometry, typename GeometryOut, typename T, typename Strategies>
     static inline void apply(Geometry const& ring, GeometryOut & ring_out,
-                             T const& len, Strategy const& strategy)
+                             T const& len, Strategies const& strategies)
     {
         geometry::detail::densify::densify_range<true>
-            ::apply(ring, ring_out, len, strategy);
+            ::apply(ring, ring_out, len, strategies);
 
         if (boost::size(ring) <= 1)
             return;
@@ -120,6 +124,7 @@ struct densify_ring
         point_t const& p0 = range::back(ring);
         point_t const& p1 = range::front(ring);
 
+        auto strategy = strategies.densify(ring);
         push_back_policy<GeometryOut> policy(ring_out);
 
         strategy.apply(p0, p1, policy, len);
@@ -260,34 +265,63 @@ struct densify<Geometry, GeometryOut, multi_polygon_tag, multi_polygon_tag>
 namespace resolve_strategy
 {
 
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
 struct densify
 {
-    template <typename Geometry, typename Distance, typename Strategy>
+    template <typename Geometry, typename Distance>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategies const& strategies)
+    {
+        dispatch::densify
+            <
+                Geometry, Geometry
+            >::apply(geometry, out, max_distance, strategies);
+    }
+};
+
+template <typename Strategy>
+struct densify<Strategy, false>
+{
+    template <typename Geometry, typename Distance>
     static inline void apply(Geometry const& geometry,
                              Geometry& out,
                              Distance const& max_distance,
                              Strategy const& strategy)
     {
-        dispatch::densify<Geometry, Geometry>
-            ::apply(geometry, out, max_distance, strategy);
-    }
+        using strategies::densify::services::strategy_converter;
 
+        dispatch::densify
+            <
+                Geometry, Geometry
+            >::apply(geometry, out, max_distance,
+                     strategy_converter<Strategy>::get(strategy));
+    }
+};
+
+template <>
+struct densify<default_strategy, false>
+{
     template <typename Geometry, typename Distance>
     static inline void apply(Geometry const& geometry,
                              Geometry& out,
                              Distance const& max_distance,
-                             default_strategy)
+                             default_strategy const&)
     {
-        typedef typename strategy::densify::services::default_strategy
+        typedef typename strategies::densify::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
-            >::type strategy_type;
+                Geometry
+            >::type strategies_type;
         
-        /*BOOST_CONCEPT_ASSERT(
-            (concepts::DensifyStrategy<strategy_type>)
-        );*/
-
-        apply(geometry, out, max_distance, strategy_type());
+        dispatch::densify
+            <
+                Geometry, Geometry
+            >::apply(geometry, out, max_distance, strategies_type());
     }
 };
 
@@ -305,7 +339,10 @@ struct densify
                              Distance const& max_distance,
                              Strategy const& strategy)
     {
-        resolve_strategy::densify::apply(geometry, out, max_distance, strategy);
+        resolve_strategy::densify
+            <
+                Strategy
+            >::apply(geometry, out, max_distance, strategy);
     }
 };
 

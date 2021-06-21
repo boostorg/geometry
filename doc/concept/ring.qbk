@@ -38,8 +38,6 @@ on the rules a polygon (and also a ring) must fulfill.
 [heading Available Models]	
 * [link geometry.reference.models.model_ring ring]
 * a Boost.Polygon polygon_data (requires `#include boost/geometry/geometries/adapted/boost_polygon/ring.hpp>`)
-* a std::vector (requires `#include boost/geometry/geometries/adapted/std_as_ring.hpp>`)
-* a std::deque (requires `#include boost/geometry/geometries/adapted/std_as_ring.hpp>`)
 
 [see_boost_range_sample Ring]
 

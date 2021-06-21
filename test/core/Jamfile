@@ -5,6 +5,9 @@
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 # Copyright (c) 2015 Adam Wulkiewicz, Lodz, Poland.
 #
+# Copyright (c) 2021 Oracle and/or its affiliates.
+# Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -24,6 +27,7 @@ test-suite boost-geometry-core
     [ run ring.cpp                  : : : : core_ring ]
     [ run tag.cpp                   : : : : core_tag ]
     [ run topological_dimension.cpp : : : : core_topological_dimension ]
+    [ run visit.cpp                 : : : : core_visit ]
     ;
 
 # The reverse_dispatch somehow asks for UAC-control on MinGW...

@@ -23,18 +23,15 @@
 
 #include <cstddef>
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
 #include <boost/geometry/algorithms/detail/relate/interface.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 
@@ -104,13 +101,21 @@ struct disjoint<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry1, typename Geometry2>
+template
+<
+    typename Geometry1, typename Geometry2,
+    bool IsDynamic = util::is_dynamic_geometry<Geometry1>::value
+                  || util::is_dynamic_geometry<Geometry2>::value,
+    bool IsCollection = util::is_geometry_collection<Geometry1>::value
+                     || util::is_geometry_collection<Geometry2>::value
+>
 struct disjoint
 {
     template <typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         concepts::check_concepts_and_equal_dimensions
             <
@@ -125,104 +130,53 @@ struct disjoint
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
-struct disjoint<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+template <typename Geometry1, typename Geometry2>
+struct disjoint<Geometry1, Geometry2, true, false>
 {
     template <typename Strategy>
-    struct visitor: boost::static_visitor<bool>
-    {
-        Geometry2 const& m_geometry2;
-        Strategy const& m_strategy;
-
-        visitor(Geometry2 const& geometry2, Strategy const& strategy)
-            : m_geometry2(geometry2)
-            , m_strategy(strategy)
-        {}
-
-        template <typename Geometry1>
-        bool operator()(Geometry1 const& geometry1) const
-        {
-            return disjoint<Geometry1, Geometry2>::apply(geometry1, m_geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline bool apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
-                             Geometry2 const& geometry2,
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return boost::apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
+        bool result = true;
+        detail::visit([&](auto const& g1, auto const& g2)
+        {
+            result = disjoint
+                <
+                    util::remove_cref_t<decltype(g1)>, util::remove_cref_t<decltype(g2)>
+                >::apply(g1, g2, strategy);
+        }, geometry1, geometry2);
+        return result;
     }
 };
 
-template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct disjoint<Geometry1, boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+// TODO: The complexity is quadratic for two GCs
+//   Decrease e.g. with spatial index
+template <typename Geometry1, typename Geometry2, bool IsDynamic>
+struct disjoint<Geometry1, Geometry2, IsDynamic, true>
 {
     template <typename Strategy>
-    struct visitor: boost::static_visitor<bool>
-    {
-        Geometry1 const& m_geometry1;
-        Strategy const& m_strategy;
-
-        visitor(Geometry1 const& geometry1, Strategy const& strategy)
-            : m_geometry1(geometry1)
-            , m_strategy(strategy)
-        {}
-
-        template <typename Geometry2>
-        bool operator()(Geometry2 const& geometry2) const
-        {
-            return disjoint<Geometry1, Geometry2>::apply(m_geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1,
-                             boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2,
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return boost::apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
+        bool result = true;
+        detail::visit_breadth_first([&](auto const& g1)
+        {
+            detail::visit_breadth_first([&](auto const& g2)
+            {
+                result = disjoint
+                    <
+                        util::remove_cref_t<decltype(g1)>, util::remove_cref_t<decltype(g2)>
+                    >::apply(g1, g2, strategy);
+                // If any of the combination intersects then the final result is not disjoint
+                return result;
+            }, geometry2);
+            return result;
+        }, geometry1);
+        return result;
     }
 };
 
-template
-<
-    BOOST_VARIANT_ENUM_PARAMS(typename T1),
-    BOOST_VARIANT_ENUM_PARAMS(typename T2)
->
-struct disjoint
-    <
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
-    >
-{
-    template <typename Strategy>
-    struct visitor: boost::static_visitor<bool>
-    {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Geometry1, typename Geometry2>
-        bool operator()(Geometry1 const& geometry1,
-                        Geometry2 const& geometry2) const
-        {
-            return disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline bool apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
-                             boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
-                             Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry1, geometry2);
-    }
-};
-
-} // namespace resolve_variant
+} // namespace resolve_dynamic
 
 
 /*!
@@ -244,7 +198,7 @@ inline bool disjoint(Geometry1 const& geometry1,
                      Geometry2 const& geometry2,
                      Strategy const& strategy)
 {
-    return resolve_variant::disjoint
+    return resolve_dynamic::disjoint
             <
                 Geometry1, Geometry2
             >::apply(geometry1, geometry2, strategy);
@@ -271,7 +225,7 @@ template <typename Geometry1, typename Geometry2>
 inline bool disjoint(Geometry1 const& geometry1,
                      Geometry2 const& geometry2)
 {
-    return resolve_variant::disjoint
+    return resolve_dynamic::disjoint
             <
                 Geometry1, Geometry2
             >::apply(geometry1, geometry2, default_strategy());

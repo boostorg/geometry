@@ -26,8 +26,6 @@
 #include <boost/geometry/algorithms/detail/within/interface.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/strategies/cartesian/point_in_box.hpp>
-#include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>

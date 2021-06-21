@@ -23,7 +23,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/foreach.hpp>
 #include <boost/program_options.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -39,14 +38,16 @@
 #include <boost/geometry/strategies/buffer.hpp>
 
 #include <geometry_test_common.hpp>
+#include <geometry_to_crc.hpp>
 #include <common/common_settings.hpp>
 #include <common/make_square_polygon.hpp>
 
 
 struct buffer_settings : public common_settings
 {
-    int join_code;
-    double distance;
+    int join_code{1};
+    double distance{1.0};
+    int points_per_circle{32}; // MySQL also uses 32 points in a circle for buffer
 };
 
 namespace bg = boost::geometry;
@@ -54,8 +55,7 @@ namespace bg = boost::geometry;
 template <typename Geometry1, typename Geometry2>
 void create_svg(std::string const& filename
                 , Geometry1 const& mp
-                , Geometry2 const& buffer
-                )
+                , Geometry2 const& buffer)
 {
     typedef typename boost::geometry::point_type<Geometry1>::type point_type;
 
@@ -77,16 +77,13 @@ void create_svg(std::string const& filename
 
     mapper.map(mp, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:3");
     mapper.map(buffer, "stroke-opacity:0.9;stroke:rgb(0,0,0);fill:none;stroke-width:1");
-
-    //mapper.map(intersection,"opacity:0.6;stroke:rgb(0,128,0);stroke-width:5");
 }
-
-
-
 
 template <typename MultiPolygon, typename Settings>
 bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon const& buffer, Settings const& settings)
 {
+    using polygon_type = typename boost::range_value<MultiPolygon const>::type;
+
     bool result = true;
 
     // Area of buffer must be larger than of original polygon
@@ -101,8 +98,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     // Verify if all points are IN the buffer
     if (result)
     {
-        typedef typename boost::range_value<MultiPolygon const>::type polygon_type;
-        BOOST_FOREACH(polygon_type const& polygon, mp)
+        for (auto const& polygon : mp)
         {
             typename bg::point_type<polygon_type>::type point;
             bg::point_on_border(point, polygon);
@@ -133,27 +129,31 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         wkt = true;
     }
 
+    std::string filename;
+
+    {
+        // Generate a unique name
+        std::ostringstream out;
+        out << "rec_pol_buffer_" << geometry_to_crc(mp)
+            << "_" << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
+       #if defined(BOOST_GEOMETRY_USE_RESCALING)
+            << "_rescaled"
+       #endif
+            << ".";
+        filename = out.str();
+    }
+
     if (svg)
     {
-        std::ostringstream filename;
-        filename << caseid << "_"
-            << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            << "_rescaled"
-#endif
-            << ".svg";
-        create_svg(filename.str(), mp, buffer);
+        create_svg(filename + "svg", mp, buffer);
     }
 
     if (wkt)
     {
-        std::ostringstream filename;
-        filename << caseid << "_"
-            << typeid(typename bg::coordinate_type<MultiPolygon>::type).name()
-            << ".wkt";
-        std::ofstream stream(filename.str().c_str());
+        std::ofstream stream(filename + "wkt");
+        // Stream input WKT
         stream << bg::wkt(mp) << std::endl;
-        stream << bg::wkt(buffer) << std::endl;
+        // If you need the output WKT, then stream bg::wkt(buffer)
     }
 
     return result;
@@ -213,7 +213,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::strategy::buffer::end_round end_strategy;
     bg::strategy::buffer::point_circle point_strategy;
     bg::strategy::buffer::side_straight side_strategy;
-    bg::strategy::buffer::join_round join_round_strategy(32); // Compatible with MySQL
+    bg::strategy::buffer::join_round join_round_strategy(settings.points_per_circle);
     bg::strategy::buffer::join_miter join_miter_strategy;
 
     try
@@ -312,8 +312,9 @@ int main(int argc, char** argv)
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
             ("validity", po::value<bool>(&settings.check_validity)->default_value(true), "Include testing on validity")
-            ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
+            ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher -> slower)")
             ("distance", po::value<double>(&settings.distance)->default_value(1.0), "Distance (1.0)")
+            ("ppc", po::value<int>(&settings.points_per_circle)->default_value(32), "Points per circle (32)")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
             ("join", po::value<std::string>(&join)->default_value("round"), "Form of the joins (round, miter)")
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")

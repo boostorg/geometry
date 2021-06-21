@@ -9,6 +9,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>

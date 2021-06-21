@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2018, Oracle and/or its affiliates.
+// Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -202,15 +202,17 @@ void test_car()
     test<LS,P>(l1, 1,   "POINT(1 3)");
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
-    //(1 3) missing due to floating point round off errors
-    test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-                                    (1.2 2)(1 2.2)(1 2.6))");
-    //(1 3) is not missing if you directly pass the distance
+    // The following type of test is not robust;
+    // (1 3) could be missing due to floating point round off errors
+    //test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
+    //                                (1.2 2)(1 2.2)(1 2.6)(1 3))");
+    // Tests are more robust if you directly pass the distance
     test_distance<LS,MP>(l1, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
                                              (1.2 2)(1 2.2)(1 2.6)(1 3))");
-    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.8 1)(2 1.6)(1.6 2)(1 2.2))");//(1 3) missing
+    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.36 1)(1.72 1)(2 1.08)(2 1.44)(2 1.8)\
+                                      (1.84 2)(1.48 2)(1.12 2)(1 2.24)(1 2.6)(1 2.96))");
+    test<LS,MP>(l1, 0.21, "MULTIPOINT((1.84 1)(2 1.68)(1.48 2)(1 2.36))");
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
-    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 2)(1 3))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6 2))");
     test<LS,MP>(l1, 1, "MULTIPOINT((1 3))");
 }
@@ -239,30 +241,18 @@ void test_sph()
     test<LS,P>(l1, 1,   "POINT(1 3)");
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
-    test<LS,MP>(l1, 0.1, "MULTIPOINT((1.39998476912905323 1.0000365473536286)\
-                                    (1.79996953825810646 1.0000243679448551)\
-                                    (2 1.1999238595669637)\
-                                    (2 1.5998477098527744)\
-                                    (2 1.9997715601385837)\
-                                    (1.6000609543036084 2.0000730473928678)\
-                                    (1.1998933176222553 2.0000486811516014)\
-                                    (1 2.2001522994279883)\
-                                    (1 2.6000761497139444)\
-                                    )");//(1,3)
-    test<LS,MP>(l1, 0.2, "MULTIPOINT((1.79996953825810646 1.0000243679448551)\
-                                    (2 1.5998477098527744)\
-                                    (1.6000609543036084 2.0000730473928678)\
-                                    (1 2.2001522994279883)\
-                                    )");//(1,3)
+    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.35999 1.00004)(1.71997 1.00003)\
+                                      (2 1.07995)(2 1.43988)(2 1.79981)(1.84016 2.00004)\
+                                      (1.48001 2.00008)(1.11986 2.00003)(1 2.24014)\
+                                      (1 2.60008)(1 2.96001))");
+    test<LS,MP>(l1, 0.21, "MULTIPOINT((1.83997 1.00002)(2 1.67983)(1.48001 2.00008)(1 2.36012))");
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
-    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 1.9997715601385837)(1 3))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
     test<LS,MP>(l1, 1, "MULTIPOINT((1 3))");
 
     test<LS,MP>(l2, 0.3, "MULTIPOINT((5.3014893312120446 1.0006787676128222)\
                                      (11.600850053156366 1.0085030143490989)\
                                      (17.9002174825842 1.0041514208039872))");
-
 }
 
 template <typename Strategy>
@@ -304,31 +294,12 @@ void test_geo(Strategy str)
     test<LS,P>(l1, 1,   "POINT(1 3)", str);
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))", str);
-
-    //adnoyer is missing the last point in the following cases
-    // of linestrings due to inaccuracy
-    if (!boost::is_same<Strategy, bg::strategy::line_interpolate::geographic
-                                 <bg::strategy::andoyer> >::value)
-    {
-        test<LS,MP>(l1, 0.1, "MULTIPOINT((1.3986445638301882 1.0000367522730751)\
-                    (1.79728912766037641 1.0000247772582571)\
-                    (2 1.1972285554368427)\
-                    (2 1.598498298996567)\
-                    (2 1.9997664696834965)\
-                    (1.6013936980010324 2.0000734568388099)\
-                    (1.2025664628960846 2.0000495003440779)\
-                    (1 2.1974612279909937)\
-                    (1 2.5987263175375022)\
-                    (1 3))", str);
-
-        test<LS,MP>(l1, 0.2, "MULTIPOINT((1.79728912766037641 1.0000247772613331)\
-                    (2 1.598498298996567)\
-                    (1.6013936980010324 2.0000734568388099)\
-                    (1 2.1974612279909937)\
-                    (1 3))", str);
-    }
+    test<LS,MP>(l1, 0.11, "MULTIPOINT((1.43851 1.00004)(1.87702 1.00002)(2 1.31761)\
+                (2 1.75901)(1.80081 2.00005)(1.3621 2.00007)\
+                (1 2.07708)(1 2.51847)(1 2.95986))", str);
+    test<LS,MP>(l1, 0.21, "MULTIPOINT((1.83716 1.00002)(2 1.67875)(1.48176 2.00008)\
+                                      (1 2.35796))", str);
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
-    test<LS,MP>(l1, 0.5, "MULTIPOINT((2 1.9997664696834965)(1 3))", str);
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
     test<LS,MP>(l1, 1, "MULTIPOINT((1 3))", str);
 

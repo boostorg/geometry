@@ -40,6 +40,10 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 
+#include <boost/geometry/strategies/buffer/cartesian.hpp>
+#include <boost/geometry/strategies/buffer/geographic.hpp>
+#include <boost/geometry/strategies/buffer/spherical.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -242,9 +246,9 @@ inline void buffer(GeometryIn const& geometry_in,
     geometry::envelope(geometry_in, box);
     geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
 
-    typename strategies::relate::services::default_strategy
+    typename strategies::buffer::services::default_strategy
         <
-            GeometryIn, GeometryIn
+            GeometryIn
         >::type strategies;
 
     rescale_policy_type rescale_policy

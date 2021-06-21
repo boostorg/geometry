@@ -13,13 +13,16 @@
 
 #include <boost/geometry/strategies/area/cartesian.hpp>
 #include <boost/geometry/strategies/azimuth/cartesian.hpp>
+#include <boost/geometry/strategies/buffer/cartesian.hpp>
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/distance/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/expand/cartesian.hpp>
 #include <boost/geometry/strategies/io/cartesian.hpp>
 #include <boost/geometry/strategies/index/cartesian.hpp>
+#include <boost/geometry/strategies/is_convex/cartesian.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/simplify/cartesian.hpp>
 
 
 namespace boost { namespace geometry

@@ -54,7 +54,6 @@ private:
                              QueryRangeIterator& qit_min,
                              Distance& dist_min)
     {
-        using strategies::index::services::strategy_converter;
         typedef index::parameters
             <
                 index::linear<8>, Strategies

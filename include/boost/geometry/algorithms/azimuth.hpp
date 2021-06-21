@@ -23,7 +23,6 @@
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/strategies/azimuth.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/azimuth/cartesian.hpp>
 #include <boost/geometry/strategies/azimuth/geographic.hpp>

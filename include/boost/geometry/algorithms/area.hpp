@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -19,16 +19,11 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 
-#include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -37,22 +32,26 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/core/visit.hpp>
 
 #include <boost/geometry/algorithms/detail/calculate_null.hpp>
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 
 #include <boost/geometry/algorithms/area_result.hpp>
 #include <boost/geometry/algorithms/default_area_result.hpp>
 
-#include <boost/geometry/strategies/area/services.hpp>
-#include <boost/geometry/strategies/default_strategy.hpp>
-#include <boost/geometry/strategy/area.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
+#include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/strategies/area/services.hpp>
+#include <boost/geometry/strategies/area/cartesian.hpp>
+#include <boost/geometry/strategies/area/geographic.hpp>
+#include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/concepts/area_concept.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/order_as_direction.hpp>
@@ -273,10 +272,10 @@ struct area<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant
+namespace resolve_dynamic
 {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
 struct area
 {
     template <typename Strategy>
@@ -287,37 +286,40 @@ struct area
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct area<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct area<Geometry, dynamic_geometry_tag>
 {
-    typedef boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> variant_type;
-
     template <typename Strategy>
-    struct visitor
-        : boost::static_visitor<typename area_result<variant_type, Strategy>::type>
+    static inline typename area_result<Geometry, Strategy>::type
+        apply(Geometry const& geometry, Strategy const& strategy)
     {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy): m_strategy(strategy) {}
-
-        template <typename Geometry>
-        typename area_result<variant_type, Strategy>::type
-        operator()(Geometry const& geometry) const
+        typename area_result<Geometry, Strategy>::type result = 0;
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            return area<Geometry>::apply(geometry, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename area_result<variant_type, Strategy>::type
-    apply(variant_type const& geometry,
-          Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
+            result = area<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+        }, geometry);
+        return result;
     }
 };
 
-} // namespace resolve_variant
+template <typename Geometry>
+struct area<Geometry, geometry_collection_tag>
+{
+    template <typename Strategy>
+    static inline typename area_result<Geometry, Strategy>::type
+        apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        typename area_result<Geometry, Strategy>::type result = 0;
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            result += area<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+            return true;
+        }, geometry);
+        return result;
+    }
+};
+
+} // namespace resolve_dynamic
 
 
 /*!
@@ -349,7 +351,7 @@ area(Geometry const& geometry)
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::area<Geometry>::apply(geometry, default_strategy());
+    return resolve_dynamic::area<Geometry>::apply(geometry, default_strategy());
 }
 
 /*!
@@ -385,7 +387,7 @@ area(Geometry const& geometry, Strategy const& strategy)
 
     // detail::throw_on_empty_input(geometry);
 
-    return resolve_variant::area<Geometry>::apply(geometry, strategy);
+    return resolve_dynamic::area<Geometry>::apply(geometry, strategy);
 }
 
 

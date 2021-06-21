@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019-2020, Oracle and/or its affiliates.
+// Copyright (c) 2019-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,6 +11,7 @@
 
 // These includes are required for the following code to compile.
 // This is probably wrong.
+#include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/equals.hpp>

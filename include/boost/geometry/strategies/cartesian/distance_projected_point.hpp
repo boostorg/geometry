@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -75,29 +75,7 @@ template
 >
 class projected_point
 {
-public :
-    typedef within::cartesian_point_point equals_point_point_strategy_type;
-
-    typedef intersection::cartesian_segments
-        <
-            CalculationType
-        > relate_segment_segment_strategy_type;
-
-    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
-    {
-        return relate_segment_segment_strategy_type();
-    }
-
-    typedef within::cartesian_winding
-        <
-            void, void, CalculationType
-        > point_in_geometry_strategy_type;
-
-    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
-    {
-        return point_in_geometry_strategy_type();
-    }
-
+public:
     // The three typedefs below are necessary to calculate distances
     // from segments defined in integer coordinates.
 

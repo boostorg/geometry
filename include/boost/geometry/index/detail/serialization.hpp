@@ -391,7 +391,9 @@ private:
         size_t elements_count;
         ar >> boost::serialization::make_nvp("s", elements_count);
 
-        if ( elements_count < parameters.get_min_elements() || parameters.get_max_elements() < elements_count )
+        // leafs_level == 0 implies current_level == 0
+        if ( (elements_count < parameters.get_min_elements() && leafs_level > 0)
+                || parameters.get_max_elements() < elements_count )
             BOOST_THROW_EXCEPTION(std::runtime_error("rtree loading error"));
 
         if ( current_level < leafs_level )

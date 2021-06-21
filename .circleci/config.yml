@@ -2,7 +2,7 @@
 # CircleCI 2.0 for Boost.Geometry
 #
 # Copyright (c) 2018 Mateusz Loskot <mateusz@loskot.net>
-# Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland
+# Copyright (c) 2018-2021 Adam Wulkiewicz, Lodz, Poland
 #
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -88,7 +88,8 @@ jobs:
     <<: *config
     steps:
       - *attach_workspace
-      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_buffer test/algorithms/buffer
+      # 1 test at a time to avoid fatal error: ... No space left on device
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_buffer test/algorithms/buffer 1
       - persist_to_workspace:
           root: ~/project
           paths:
@@ -124,7 +125,8 @@ jobs:
     <<: *config
     steps:
       - *attach_workspace
-      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_disjoint test/algorithms/disjoint
+      # 1 test at a time to decrease memory consumption causing gcc internal error
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_disjoint test/algorithms/disjoint 1
       - persist_to_workspace:
           root: ~/project
           paths:

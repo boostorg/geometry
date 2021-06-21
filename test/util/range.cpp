@@ -1,7 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2014-2015 Oracle and/or its affiliates.
+// Copyright (c) 2014-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -70,11 +70,8 @@ struct NonMovable
     NonMovable & operator=(NonMovable const& ii) { i = ii.i; return *this; }
     bool operator==(NonMovable const& ii) const { return i == ii.i; }
     int i;
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
-private:
-    NonMovable(NonMovable && ii);
-    NonMovable & operator=(NonMovable && ii);
-#endif
+    NonMovable(NonMovable && ii) = delete;
+    NonMovable & operator=(NonMovable && ii) = delete;
 };
 
 struct CopyableAndMovable
@@ -84,10 +81,8 @@ struct CopyableAndMovable
     CopyableAndMovable & operator=(CopyableAndMovable const& ii) { i = ii.i; return *this; }
     bool operator==(CopyableAndMovable const& ii) const { return i == ii.i; }
     int i;
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     CopyableAndMovable(CopyableAndMovable && ii) : i(std::move(ii.i)) {}
     CopyableAndMovable & operator=(CopyableAndMovable && ii) { i = std::move(ii.i); return *this; }
-#endif
 };
 
 } // namespace bgt
@@ -183,11 +178,11 @@ void test_all()
 void test_detail()
 {
     int arr[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    bgr::detail::copy_or_move(arr + 1, arr + 10, arr);
+    std::move(arr + 1, arr + 10, arr);
     BOOST_CHECK(arr[0] == 1);
 
     std::vector<int> v(10, 0);
-    bgr::detail::copy_or_move(v.begin() + 1, v.begin() + 10, v.begin());
+    std::move(v.begin() + 1, v.begin() + 10, v.begin());
     BOOST_CHECK(boost::size(v) == 10);
     bgr::erase(v, v.begin() + 1);
     BOOST_CHECK(boost::size(v) == 9);
@@ -195,17 +190,14 @@ void test_detail()
     bgt::NonMovable * arr2[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     bgt::NonMovable foo;
     arr2[1] = &foo;
-    bgr::detail::copy_or_move(arr2 + 1, arr2 + 10, arr2);
+    std::move(arr2 + 1, arr2 + 10, arr2);
     BOOST_CHECK(arr2[0] == &foo);
 
-    // Storing pointers in a std::vector is not possible in MinGW C++98
-#if __cplusplus >= 201103L
     std::vector<bgt::NonMovable*> v2(10, (bgt::NonMovable*)NULL);
-    bgr::detail::copy_or_move(v2.begin() + 1, v2.begin() + 10, v2.begin());
+    std::move(v2.begin() + 1, v2.begin() + 10, v2.begin());
     BOOST_CHECK(boost::size(v2) == 10);
     bgr::erase(v2, v2.begin() + 1);
     BOOST_CHECK(boost::size(v2) == 9);
-#endif
 }
 
 template <class Iterator>
