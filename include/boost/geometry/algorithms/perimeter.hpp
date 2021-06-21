@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -30,12 +30,19 @@
 #include <boost/geometry/algorithms/detail/calculate_sum.hpp>
 #include <boost/geometry/algorithms/detail/multi_sum.hpp>
 // #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/tags.hpp>
+
 #include <boost/geometry/geometries/concepts/check.hpp>
+
 #include <boost/geometry/strategies/default_length_result.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/length/cartesian.hpp>
+#include <boost/geometry/strategies/length/geographic.hpp>
+#include <boost/geometry/strategies/length/spherical.hpp>
 
 namespace boost { namespace geometry
 {
@@ -108,25 +115,47 @@ struct perimeter<MultiPolygon, multi_polygon_tag> : detail::multi_sum
 
 namespace resolve_strategy {
 
+template
+<
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
 struct perimeter
 {
-    template <typename Geometry, typename Strategy>
+    template <typename Geometry>
+    static inline typename default_length_result<Geometry>::type
+    apply(Geometry const& geometry, Strategies const& strategies)
+    {
+        return dispatch::perimeter<Geometry>::apply(geometry, strategies);
+    }
+};
+
+template <typename Strategy>
+struct perimeter<Strategy, false>
+{
+    template <typename Geometry>
     static inline typename default_length_result<Geometry>::type
     apply(Geometry const& geometry, Strategy const& strategy)
     {
-        return dispatch::perimeter<Geometry>::apply(geometry, strategy);
+        using strategies::length::services::strategy_converter;
+        return dispatch::perimeter<Geometry>::apply(
+                geometry, strategy_converter<Strategy>::get(strategy));
     }
+};
 
+template <>
+struct perimeter<default_strategy, false>
+{
     template <typename Geometry>
     static inline typename default_length_result<Geometry>::type
-    apply(Geometry const& geometry, default_strategy)
+    apply(Geometry const& geometry, default_strategy const&)
     {
-        typedef typename strategy::distance::services::default_strategy
+        typedef typename strategies::length::services::default_strategy
             <
-                point_tag, point_tag, typename point_type<Geometry>::type
-            >::type strategy_type;
+                Geometry
+            >::type strategies_type;
 
-        return dispatch::perimeter<Geometry>::apply(geometry, strategy_type());
+        return dispatch::perimeter<Geometry>::apply(geometry, strategies_type());
     }
 };
 
@@ -143,7 +172,7 @@ struct perimeter
     apply(Geometry const& geometry, Strategy const& strategy)
     {
         concepts::check<Geometry const>();
-        return resolve_strategy::perimeter::apply(geometry, strategy);
+        return resolve_strategy::perimeter<Strategy>::apply(geometry, strategy);
     }
 };
 

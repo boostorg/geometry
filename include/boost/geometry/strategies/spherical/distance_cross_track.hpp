@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -329,29 +329,7 @@ template
 >
 class cross_track
 {
-public :
-    typedef within::spherical_point_point equals_point_point_strategy_type;
-
-    typedef intersection::spherical_segments
-        <
-            CalculationType
-        > relate_segment_segment_strategy_type;
-
-    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
-    {
-        return relate_segment_segment_strategy_type();
-    }
-
-    typedef within::spherical_winding
-        <
-            void, void, CalculationType
-        > point_in_geometry_strategy_type;
-
-    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
-    {
-        return point_in_geometry_strategy_type();
-    }
-
+public:
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point
@@ -367,8 +345,7 @@ public :
 
     typedef typename Strategy::radius_type radius_type;
 
-    inline cross_track()
-    {}
+    cross_track() = default;
 
     explicit inline cross_track(typename Strategy::radius_type const& r)
         : m_strategy(r)

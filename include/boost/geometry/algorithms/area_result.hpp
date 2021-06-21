@@ -2,8 +2,8 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,20 +16,21 @@
 
 #include <type_traits>
 
+#include <boost/geometry/algorithms/detail/select_geometry_type.hpp>
+
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategy/area.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
-
-#include <boost/variant/variant_fwd.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -59,11 +60,7 @@ struct area_result<Geometry, Strategy, false>
 };
 
 
-template
-<
-    typename Geometry,
-    bool IsGeometry = util::is_geometry<Geometry>::value
->
+template <typename Geometry>
 struct default_area_result
     : area_result
         <
@@ -75,37 +72,16 @@ struct default_area_result
         >
 {};
 
-// Workaround for VS2015
-#if defined(_MSC_VER) && (_MSC_VER < 1910)
-template
-<
-    typename Geometry,
-    bool IsGeometry = util::is_geometry<Geometry>::value
->
-struct coordinate_type
-    : geometry::coordinate_type<Geometry>
-{};
-template <typename Geometry>
-struct coordinate_type<Geometry, false>
-{
-    typedef int type;
-};
-template <typename Geometry>
-struct default_area_result<Geometry, false>
-{
-    typedef int type;
-};
-#endif
 
 template <typename Curr, typename Next>
 struct more_precise_coordinate_type
     : std::is_same
         <
-            typename coordinate_type<Curr>::type,
+            typename geometry::coordinate_type<Curr>::type,
             typename geometry::select_most_precise
                 <
-                    typename coordinate_type<Curr>::type,
-                    typename coordinate_type<Next>::type
+                    typename geometry::coordinate_type<Curr>::type,
+                    typename geometry::coordinate_type<Next>::type
                 >::type
         >
 {};
@@ -140,17 +116,12 @@ template
     typename Strategy = default_strategy
 >
 struct area_result
-    : detail::area::area_result<Geometry, Strategy>
-{};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Strategy>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
-    : geometry::area_result
+    : detail::area::area_result
         <
-            typename util::select_pack_element
+            typename detail::select_geometry_type
                 <
-                    detail::area::more_precise_coordinate_type,
-                    BOOST_VARIANT_ENUM_PARAMS(T)
+                    Geometry,
+                    detail::area::more_precise_coordinate_type
                 >::type,
             Strategy
         >
@@ -158,17 +129,12 @@ struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Strategy>
 
 template <typename Geometry>
 struct area_result<Geometry, default_strategy>
-    : detail::area::default_area_result<Geometry>
-{};
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct area_result<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>, default_strategy>
     : detail::area::default_area_result
         <
-            typename util::select_pack_element
+            typename detail::select_geometry_type
                 <
-                    detail::area::more_precise_default_area_result,
-                    BOOST_VARIANT_ENUM_PARAMS(T)
+                    Geometry,
+                    detail::area::more_precise_default_area_result
                 >::type
         >
 {};

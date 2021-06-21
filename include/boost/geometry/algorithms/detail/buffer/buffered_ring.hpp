@@ -83,11 +83,14 @@ struct buffered_ring_collection : public std::vector<Ring>
 
 
 // Turn off concept checking (for now)
-namespace dispatch
+namespace concepts
 {
-template <typename Geometry, bool IsConst>
-struct check<Geometry, detail::buffer::buffered_ring_collection_tag, IsConst>
+
+template <typename Geometry>
+struct concept_type<Geometry, geometry::detail::buffer::buffered_ring_collection_tag>
 {
+    struct dummy {};
+    using type = dummy;
 };
 
 }

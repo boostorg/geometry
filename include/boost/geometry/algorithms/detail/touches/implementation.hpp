@@ -36,6 +36,10 @@
 
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
+#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/spherical.hpp>
+
 
 namespace boost { namespace geometry
 {

@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -29,6 +29,7 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 
+#include <boost/geometry/geometries/concepts/concept_type.hpp>
 
 
 namespace boost { namespace geometry { namespace concepts
@@ -187,6 +188,20 @@ public:
     }
 #endif
 };
+
+
+template <typename Geometry>
+struct concept_type<Geometry, point_tag>
+{
+    using type = Point<Geometry>;
+};
+
+template <typename Geometry>
+struct concept_type<Geometry const, point_tag>
+{
+    using type = ConstPoint<Geometry>;
+};
+
 
 }}} // namespace boost::geometry::concepts
 

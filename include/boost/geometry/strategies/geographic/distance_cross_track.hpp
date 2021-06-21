@@ -89,32 +89,7 @@ template
 >
 class geographic_cross_track
 {
-public :
-    typedef within::spherical_point_point equals_point_point_strategy_type;
-
-    typedef intersection::geographic_segments
-        <
-            FormulaPolicy,
-            strategy::default_order<FormulaPolicy>::value,
-            Spheroid,
-            CalculationType
-        > relate_segment_segment_strategy_type;
-
-    inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy() const
-    {
-        return relate_segment_segment_strategy_type(m_spheroid);
-    }
-
-    typedef within::geographic_winding
-        <
-            void, void, FormulaPolicy, Spheroid, CalculationType
-        > point_in_geometry_strategy_type;
-
-    inline point_in_geometry_strategy_type get_point_in_geometry_strategy() const
-    {
-        return point_in_geometry_strategy_type(m_spheroid);
-    }
-
+public:
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point
@@ -128,7 +103,9 @@ public :
           >
     {};
 
-    explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
+    geographic_cross_track() = default;
+
+    explicit geographic_cross_track(Spheroid const& spheroid)
         : m_spheroid(spheroid)
     {}
 

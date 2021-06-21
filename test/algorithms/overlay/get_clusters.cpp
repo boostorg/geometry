@@ -66,7 +66,6 @@ void do_test(std::string const& case_id,
 template <typename Point, typename T>
 void test_get_clusters(T eps)
 {
-    using coor_type = typename bg::coordinate_type<Point>::type;
     do_test<Point>("no", {{1.0, 1.0}, {1.0, 2.0}}, 0);
     do_test<Point>("simplex", {{1.0, 1.0}, {1.0, 1.0}}, 1);
 

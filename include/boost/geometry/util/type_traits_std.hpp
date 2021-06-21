@@ -138,6 +138,40 @@ template <typename From, typename To>
 using transcribe_const_t = typename transcribe_const<From, To>::type;
 
 
+// non-standard
+template <typename From, typename To>
+struct transcribe_reference
+{
+    using type = std::remove_reference_t<To>;
+};
+
+template <typename From, typename To>
+struct transcribe_reference<From &, To>
+{
+    using type = std::remove_reference_t<To> &;
+};
+
+template <typename From, typename To>
+struct transcribe_reference<From &&, To>
+{
+    using type = std::remove_reference_t<To> &&;
+};
+
+template <typename From, typename To>
+using transcribe_reference_t = typename transcribe_reference<From, To>::type;
+
+
+// non-standard
+template <typename From, typename To>
+struct transcribe_cref
+{
+    using type = transcribe_reference_t<From, transcribe_const_t<From, To>>;
+};
+
+template <typename From, typename To>
+using transcribe_cref_t = typename transcribe_cref<From, To>::type;
+
+
 } // namespace util
 
 

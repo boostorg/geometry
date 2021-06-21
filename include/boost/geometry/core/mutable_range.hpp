@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <type_traits>
 
+#include <boost/range/size_type.hpp>
 #include <boost/range/value_type.hpp>
 
 
@@ -75,6 +76,31 @@ struct push_back
     {
         range.push_back(item);
     }
+
+    static inline void apply(typename rvalue_type<Range>::type range,
+                 item_type && item)
+    {
+        range.push_back(std::move(item));
+    }
+};
+
+
+/*!
+\brief Traits class to append an element of geometry collection
+\ingroup mutable_range
+ */
+template <typename Range>
+struct emplace_back
+{
+    // When specializing it'd be enough to only implement it for one argument
+    // because we'll use it to pass one object of type potentially different
+    // than range_value but which range_value can be constructed from.
+    template <typename ...Args>
+    static inline void apply(typename rvalue_type<Range>::type range,
+                             Args&&... args)
+    {
+        range.emplace_back(std::forward<Args>(args)...);
+    }
 };
 
 
@@ -85,8 +111,13 @@ struct push_back
 template <typename Range>
 struct resize
 {
+    using size_type = typename boost::range_size
+        <
+            typename std::remove_reference<Range>::type
+        >::type;
+
     static inline void apply(typename rvalue_type<Range>::type range,
-                std::size_t new_size)
+                             size_type new_size)
     {
         range.resize(new_size);
     }

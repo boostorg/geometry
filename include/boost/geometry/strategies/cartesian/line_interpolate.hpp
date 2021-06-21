@@ -47,19 +47,6 @@ template
 class cartesian
 {
 public:
-
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef DistanceStrategy type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        typedef typename distance_pp_strategy::type distance_type;
-        return distance_type();
-    }
-
     template <typename Point, typename Fraction, typename Distance>
     inline void apply(Point const& p0,
                       Point const& p1,

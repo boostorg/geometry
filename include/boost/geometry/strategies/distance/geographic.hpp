@@ -44,14 +44,13 @@ namespace strategies { namespace distance
 template
 <
     typename FormulaPolicy = strategy::andoyer,
-    std::size_t SeriesOrder = strategy::default_order<FormulaPolicy>::value,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
 class geographic
-    : public strategies::relate::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>
+    : public strategies::relate::geographic<FormulaPolicy, Spheroid, CalculationType>
 {
-    using base_t = strategies::relate::geographic<FormulaPolicy, SeriesOrder, Spheroid, CalculationType>;
+    using base_t = strategies::relate::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
     geographic() = default;
@@ -151,7 +150,7 @@ struct strategy_converter<strategy::distance::geographic<FP, S, CT> >
 {
     static auto get(strategy::distance::geographic<FP, S, CT> const& s)
     {
-        return strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>(s.model());
+        return strategies::distance::geographic<FP, S, CT>(s.model());
     }
 };
 // TODO - for backwards compatibility, remove?
@@ -160,7 +159,7 @@ struct strategy_converter<strategy::distance::andoyer<S, CT> >
 {
     static auto get(strategy::distance::andoyer<S, CT> const& s)
     {
-        return strategies::distance::geographic<strategy::andoyer, strategy::default_order<strategy::andoyer>::value, S, CT>(s.model());
+        return strategies::distance::geographic<strategy::andoyer, S, CT>(s.model());
     }
 };
 // TODO - for backwards compatibility, remove?
@@ -169,7 +168,7 @@ struct strategy_converter<strategy::distance::thomas<S, CT> >
 {
     static auto get(strategy::distance::thomas<S, CT> const& s)
     {
-        return strategies::distance::geographic<strategy::thomas, strategy::default_order<strategy::thomas>::value, S, CT>(s.model());
+        return strategies::distance::geographic<strategy::thomas, S, CT>(s.model());
     }
 };
 // TODO - for backwards compatibility, remove?
@@ -178,7 +177,7 @@ struct strategy_converter<strategy::distance::vincenty<S, CT> >
 {
     static auto get(strategy::distance::vincenty<S, CT> const& s)
     {
-        return strategies::distance::geographic<strategy::vincenty, strategy::default_order<strategy::vincenty>::value, S, CT>(s.model());
+        return strategies::distance::geographic<strategy::vincenty, S, CT>(s.model());
     }
 };
 
@@ -187,7 +186,7 @@ struct strategy_converter<strategy::distance::geographic_cross_track<FP, S, CT> 
 {
     static auto get(strategy::distance::geographic_cross_track<FP, S, CT> const& s)
     {
-        return strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>(s.model());
+        return strategies::distance::geographic<FP, S, CT>(s.model());
     }
 };
 
@@ -196,7 +195,7 @@ struct strategy_converter<strategy::distance::geographic_cross_track_point_box<F
 {
     static auto get(strategy::distance::geographic_cross_track_point_box<FP, S, CT> const& s)
     {
-        return strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>(s.model());
+        return strategies::distance::geographic<FP, S, CT>(s.model());
     }
 };
 
@@ -205,7 +204,7 @@ struct strategy_converter<strategy::distance::geographic_segment_box<FP, S, CT> 
 {
     static auto get(strategy::distance::geographic_segment_box<FP, S, CT> const& s)
     {
-        return strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>(s.model());
+        return strategies::distance::geographic<FP, S, CT>(s.model());
     }
 };
 
@@ -214,7 +213,7 @@ struct strategy_converter<strategy::distance::geographic_cross_track_box_box<FP,
 {
     static auto get(strategy::distance::geographic_cross_track_box_box<FP, S, CT> const& s)
     {
-        return strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>(s.model());
+        return strategies::distance::geographic<FP, S, CT>(s.model());
     }
 };
 
@@ -226,9 +225,9 @@ template <typename FP, typename S, typename CT, bool B, bool ECP>
 struct strategy_converter<strategy::distance::detail::geographic_cross_track<FP, S, CT, B, ECP> >
 {
     struct altered_strategy
-        : strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT>
+        : strategies::distance::geographic<FP, S, CT>
     {
-        typedef strategies::distance::geographic<FP, strategy::default_order<FP>::value, S, CT> base_t;
+        typedef strategies::distance::geographic<FP, S, CT> base_t;
 
         explicit altered_strategy(S const& s) : base_t(s) {}
 
@@ -236,15 +235,7 @@ struct strategy_converter<strategy::distance::detail::geographic_cross_track<FP,
 
         template <typename Geometry1, typename Geometry2>
         auto distance(Geometry1 const&, Geometry2 const&,
-                      std::enable_if_t
-                      <
-                            util::is_pointlike<Geometry1>::value
-                                && util::is_segmental<Geometry2>::value
-                         || util::is_segmental<Geometry1>::value
-                                && util::is_pointlike<Geometry2>::value
-                         || util::is_segmental<Geometry1>::value
-                                && util::is_segmental<Geometry2>::value
-                      > * = nullptr) const
+                      detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
         {
             return strategy::distance::detail::geographic_cross_track
                 <

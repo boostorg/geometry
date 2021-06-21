@@ -59,68 +59,6 @@ struct geographic_segment_box
 
     typedef geographic_tag cs_tag;
 
-    // point-point strategy getters
-    struct distance_pp_strategy
-    {
-        typedef geographic<FormulaPolicy, Spheroid, CalculationType> type;
-    };
-
-    inline typename distance_pp_strategy::type get_distance_pp_strategy() const
-    {
-        typedef typename distance_pp_strategy::type distance_type;
-        return distance_type(m_spheroid);
-    }
-    // point-segment strategy getters
-    struct distance_ps_strategy
-    {
-        typedef geographic_cross_track
-                <
-                    FormulaPolicy,
-                    Spheroid,
-                    CalculationType
-                > type;
-    };
-
-    inline typename distance_ps_strategy::type get_distance_ps_strategy() const
-    {
-        typedef typename distance_ps_strategy::type distance_type;
-        return distance_type(m_spheroid);
-    }
-
-    struct distance_pb_strategy
-    {
-        typedef geographic_cross_track_point_box
-                <
-                    FormulaPolicy,
-                    Spheroid,
-                    CalculationType
-                > type;
-    };
-
-    inline typename distance_pb_strategy::type get_distance_pb_strategy() const
-    {
-        return typename distance_pb_strategy::type(m_spheroid);
-    }
-
-    typedef side::geographic
-            <
-                FormulaPolicy,
-                Spheroid,
-                CalculationType
-            > side_strategy_type;
-
-    inline side_strategy_type get_side_strategy() const
-    {
-        return side_strategy_type(m_spheroid);
-    }
-
-    typedef within::spherical_point_point equals_point_point_strategy_type;
-
-    static inline equals_point_point_strategy_type get_equals_point_point_strategy()
-    {
-        return equals_point_point_strategy_type();
-    }
-
     //constructor
 
     explicit geographic_segment_box(Spheroid const& spheroid = Spheroid())
