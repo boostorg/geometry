@@ -21,11 +21,11 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_INTERFACE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CONVEX_HULL_INTERFACE_HPP
 
-#include <boost/array.hpp>
+#include <array>
 
-#include <boost/geometry/algorithms/detail/as_range.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/convex_hull/graham_andrew.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/algorithms/detail/select_geometry_type.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
@@ -51,6 +51,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -58,6 +59,8 @@
 namespace boost { namespace geometry
 {
 
+// TODO: This file is named interface.hpp but the code below is not the interface.
+//       It's the implementation of the algorithm.
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace convex_hull
@@ -136,6 +139,216 @@ struct default_strategy<Geometry, geometry_collection_tag>
     : default_strategy<typename detail::first_geometry_type<Geometry>::type>
 {};
 
+
+// Wrapper for output geometry. It contains reference to OutputGeometry and may contain
+// a temporary geometry which is moved to the output at the end of the algorithm.
+template <typename OutputGeometry, typename Tag = typename tag<OutputGeometry>::type>
+struct output_geometry
+{
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE("This OutputGeometry is not supported.", OutputGeometry, Tag);
+};
+
+// For backward compatibility
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, linestring_tag>
+{
+    output_geometry(OutputGeometry & out) : m_out(out) {}
+    OutputGeometry & range() { return m_out; }
+    template <typename Strategy>
+    void move_to_out(Strategy const& ) {}
+private:
+    OutputGeometry & m_out;
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, ring_tag>
+{
+    output_geometry(OutputGeometry & out) : m_out(out) {}
+    OutputGeometry & range() { return m_out; }
+    template <typename Strategy>
+    void move_to_out(Strategy const& ) {}
+private:
+    OutputGeometry & m_out;
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, polygon_tag>
+{
+    output_geometry(OutputGeometry & out) : m_out(out) {}
+    decltype(auto) range() { return exterior_ring(m_out); }
+    template <typename Strategy>
+    void move_to_out(Strategy const& ) {}
+private:
+    OutputGeometry & m_out;
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, multi_polygon_tag>
+{
+    output_geometry(OutputGeometry & out) : m_out(out) {}
+    decltype(auto) range() { return exterior_ring(m_polygon); }
+    template <typename Strategy>
+    void move_to_out(Strategy const& )
+    {
+        if (! boost::empty(exterior_ring(m_polygon)))
+        {
+            range::push_back(m_out, std::move(m_polygon));
+        }
+    }
+private:
+    OutputGeometry & m_out;
+    typename boost::range_value<OutputGeometry>::type m_polygon;
+};
+
+template <typename G1, typename G2>
+struct output_polygonal_less
+{
+    template <typename G>
+    using priority = std::integral_constant
+        <
+            int,
+            (util::is_ring<G>::value ? 0 :
+             util::is_polygon<G>::value ? 1 :
+             util::is_multi_polygon<G>::value ? 2 : 3)
+        >;
+
+    static const bool value = priority<G1>::value < priority<G2>::value;
+};
+
+template <typename G1, typename G2>
+struct output_linear_less
+{
+    template <typename G>
+    using priority = std::integral_constant
+        <
+            int,
+            (util::is_segment<G>::value ? 0 :
+             util::is_linestring<G>::value ? 1 :
+             util::is_multi_linestring<G>::value ? 2 : 3)
+        >;
+
+    static const bool value = priority<G1>::value < priority<G2>::value;
+};
+
+template <typename G1, typename G2>
+struct output_pointlike_less
+{
+    template <typename G>
+    using priority = std::integral_constant
+        <
+            int,
+            (util::is_point<G>::value ? 0 :
+             util::is_multi_point<G>::value ? 1 : 2)
+        >;
+
+    static const bool value = priority<G1>::value < priority<G2>::value;
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, geometry_collection_tag>
+{
+    using polygonal_t = typename util::select_element
+        <
+            typename traits::geometry_types<OutputGeometry>::type,
+            output_polygonal_less
+        >::type;
+    using linear_t = typename util::select_element
+        <
+            typename traits::geometry_types<OutputGeometry>::type,
+            output_linear_less
+        >::type;
+    using pointlike_t = typename util::select_element
+        <
+            typename traits::geometry_types<OutputGeometry>::type,
+            output_pointlike_less
+        >::type;
+
+    // select_element may define different kind of geometry than the one that is desired
+    BOOST_GEOMETRY_STATIC_ASSERT(util::is_polygonal<polygonal_t>::value,
+        "It must be possible to store polygonal geometry in GeometryCollection.", polygonal_t);
+    BOOST_GEOMETRY_STATIC_ASSERT(util::is_linear<linear_t>::value,
+        "It must be possible to store linear geometry in GeometryCollection.", linear_t);
+    BOOST_GEOMETRY_STATIC_ASSERT(util::is_pointlike<pointlike_t>::value,
+        "It must be possible to store pointlike geometry in GeometryCollection.", pointlike_t);
+
+    output_geometry(OutputGeometry & out)
+        : m_out(out), m_wrapper(m_polygonal)
+    {}
+
+    decltype(auto) range() { return m_wrapper.range(); }
+    
+    template <typename Strategy>
+    void move_to_out(Strategy const& strategy)
+    {
+        auto&& out_range = m_wrapper.range();
+        if (! boost::empty(out_range))
+        {
+            auto size = boost::size(out_range);
+            if (size > minimum_ring_size<polygonal_t>::value)
+            {
+                m_wrapper.move_to_out(strategy);
+                range::emplace_back(m_out, std::move(m_polygonal));
+            }
+            else // size == 3 || size == 4
+            {
+                if (detail::equals::equals_point_point(range::front(out_range), range::at(out_range, 1), strategy))
+                {
+                    pointlike_t pointlike;
+                    move_to_pointlike(out_range, pointlike);
+                    range::emplace_back(m_out, std::move(pointlike));
+                }
+                else if (detail::equals::equals_point_point(range::front(out_range), range::at(out_range, 2), strategy))
+                {
+                    linear_t linear;
+                    move_to_linear(out_range, linear);
+                    range::emplace_back(m_out, std::move(linear));
+                }
+                else
+                {
+                    m_wrapper.move_to_out(strategy);
+                    range::emplace_back(m_out, std::move(m_polygonal));
+                }
+            }
+        }
+    }
+
+private:
+    template <typename Range, typename Linear, util::enable_if_segment_t<Linear, int> = 0>
+    static void move_to_linear(Range & out_range, Linear & seg)
+    {
+        detail::assign_point_to_index<0>(range::front(out_range), seg);
+        detail::assign_point_to_index<1>(range::at(out_range, 1), seg);
+    }
+    template <typename Range, typename Linear, util::enable_if_linestring_t<Linear, int> = 0>
+    static void move_to_linear(Range & out_range, Linear & ls)
+    {
+        std::move(boost::begin(out_range), boost::begin(out_range) + 2, range::back_inserter(ls));
+    }
+    template <typename Range, typename Linear, util::enable_if_multi_linestring_t<Linear, int> = 0>
+    static void move_to_linear(Range & out_range, Linear & mls)
+    {
+        typename boost::range_value<Linear>::type ls;
+        std::move(boost::begin(out_range), boost::begin(out_range) + 2, range::back_inserter(ls));
+        range::push_back(mls, std::move(ls));
+    }
+
+    template <typename Range, typename PointLike, util::enable_if_point_t<PointLike, int> = 0>
+    static void move_to_pointlike(Range & out_range, PointLike & pt)
+    {
+        pt = range::front(out_range);
+    }
+    template <typename Range, typename PointLike, util::enable_if_multi_point_t<PointLike, int> = 0>
+    static void move_to_pointlike(Range & out_range, PointLike & mpt)
+    {
+        range::push_back(mpt, std::move(range::front(out_range)));
+    }
+
+    OutputGeometry & m_out;
+    polygonal_t m_polygonal;
+    output_geometry<polygonal_t> m_wrapper;
+};
+
+
 }} // namespace detail::convex_hull
 #endif // DOXYGEN_NO_DETAIL
 
@@ -159,46 +372,54 @@ struct convex_hull
     {
         detail::convex_hull::geometry_ranges<Geometry> ranges(geometry);
 
-        // TODO: Why not handle multi-polygon here?
-        // TODO: detail::as_range() is only used in this place in the whole library
-        //       it should probably be located here.
+        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
         // NOTE: A variable is created here because this can be a proxy range
         //       and back_insert_iterator<> can store a pointer to it.
-        // Handle linestring, ring and polygon the same:
-        auto&& range = detail::as_range(out);
+        auto&& out_range = out_wrapper.range();
 
         detail::convex_hull::graham_andrew
             <
                 typename point_type<Geometry>::type
-            >::apply(ranges, range, strategy);
+            >::apply(ranges, out_range, strategy);
+
+        out_wrapper.move_to_out(strategy);
     }
 };
 
 
-// TODO: This is not correct in spherical and geographic CS
+// A hull for boxes is trivial. Any strategy is (currently) skipped.
+// TODO: This is not correct in spherical and geographic CS.
 template <typename Box>
 struct convex_hull<Box, box_tag>
 {
     template <typename OutputGeometry, typename Strategy>
     static inline void apply(Box const& box,
                              OutputGeometry& out,
-                             Strategy const& )
+                             Strategy const& strategy)
     {
-        static bool const Close
-            = geometry::closure<OutputGeometry>::value == closed;
-        static bool const Reverse
-            = geometry::point_order<OutputGeometry>::value == counterclockwise;
+        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
+        // NOTE: A variable is created here because this can be a proxy range
+        //       and back_insert_iterator<> can store a pointer to it.
+        auto&& out_range = out_wrapper.range();
 
-        // A hull for boxes is trivial. Any strategy is (currently) skipped.
-        boost::array<typename point_type<Box>::type, 4> range;
+        using out_range_t = std::remove_reference_t<decltype(out_range)>;
+        static bool const Close
+            = geometry::closure<out_range_t>::value == closed;
+        static bool const Reverse
+            = geometry::point_order<out_range_t>::value == counterclockwise;
+
+        std::array<typename point_type<out_range_t>::type, 4> arr;
         // TODO: This assigns only 2d cooridnates!
         //       And it is also used in box_view<>!
-        geometry::detail::assign_box_corners_oriented<Reverse>(box, range);
-        geometry::append(out, range);
+        geometry::detail::assign_box_corners_oriented<Reverse>(box, arr);
+
+        std::move(arr.begin(), arr.end(), range::back_inserter(out_range));
         if (BOOST_GEOMETRY_CONDITION(Close))
         {
-            geometry::append(out, *boost::begin(range));
+            range::push_back(out_range, range::front(out_range));
         }
+
+        out_wrapper.move_to_out(strategy);
     }
 };
 
@@ -229,12 +450,17 @@ struct convex_hull<GeometryCollection, geometry_collection_tag>
                 GeometryCollection, std::vector<ring_type>
             > ranges(geometry, box_rings);
 
-        auto&& range = detail::as_range(out);
+        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
+        // NOTE: A variable is created here because this can be a proxy range
+        //       and back_insert_iterator<> can store a pointer to it.
+        auto&& out_range = out_wrapper.range();
 
         detail::convex_hull::graham_andrew
             <
                 point_type
-            >::apply(ranges, range, strategy);
+            >::apply(ranges, out_range, strategy);
+
+        out_wrapper.move_to_out(strategy);
     }
 
 private:

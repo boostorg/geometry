@@ -26,9 +26,9 @@
 
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/geometry_collection.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
@@ -40,7 +40,7 @@
 #include <boost/geometry/geometries/polygon.hpp>
 
 
-struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
+struct robust_cartesian : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
@@ -48,7 +48,7 @@ struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
     }
 };
 
-struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesian_base
+struct non_robust_cartesian_fast : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
@@ -56,7 +56,7 @@ struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesia
     }
 };
 
-struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian_base
+struct non_robust_cartesian_sbt : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
@@ -65,7 +65,7 @@ struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian
 };
 
 template <typename CalculationType = void>
-struct sphrerical_side_by_cross_track : boost::geometry::strategies::detail::spherical_base<void>
+struct sphrerical_side_by_cross_track : boost::geometry::strategies::convex_hull::spherical<>
 {
     static auto side()
     {
@@ -73,7 +73,7 @@ struct sphrerical_side_by_cross_track : boost::geometry::strategies::detail::sph
     }
 };
 
-struct precise_cartesian : boost::geometry::strategies::detail::cartesian_base
+struct precise_cartesian : boost::geometry::strategies::area::cartesian<>
 {
     template <typename Geometry>
     static auto area(Geometry const&)
@@ -135,7 +135,7 @@ struct test_convex_hull
                       std::size_t size_hull_closed,
                       double expected_area,
                       double expected_perimeter,
-                      bool reverse)
+                      bool )
     {
         static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
         std::size_t const size_hull = is_hull_closed ? size_hull_closed :
@@ -147,6 +147,19 @@ struct test_convex_hull
         check_convex_hull(geometry, hull, size_original, size_hull,
             expected_area, expected_perimeter, false, AreaStrategy());
 
+        bg::convex_hull(geometry, hull, Strategy());
+
+        using point_t = typename bg::point_type<Hull>::type;
+        using var_t = boost::variant<Hull, bg::model::linestring<point_t>, point_t>;
+        using gc_t = bg::model::geometry_collection<var_t>;
+        gc_t gc;
+        bg::convex_hull(geometry, gc, Strategy());
+        if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[1], Strategy()))
+            BOOST_CHECK(gc[0].which() == 2); // GC stores point
+        else if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[2], Strategy()))
+            BOOST_CHECK(gc[0].which() == 1); // GC stores linestring
+        else
+            BOOST_CHECK(gc[0].which() == 0); // GC stores polygon
     }
 };
 
@@ -164,7 +177,7 @@ struct test_convex_hull<Hull, robust_cartesian, AreaStrategy>
                       std::size_t size_hull_closed,
                       double expected_area,
                       double expected_perimeter,
-                      bool reverse)
+                      bool )
     {
         static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
         std::size_t const size_hull = is_hull_closed ? size_hull_closed :

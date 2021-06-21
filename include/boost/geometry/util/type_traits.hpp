@@ -182,6 +182,22 @@ struct enable_if_segment
 template <typename Geometry, typename T = void>
 using enable_if_segment_t = typename enable_if_segment<Geometry, T>::type;
 
+template <typename Geometry, typename T = void>
+struct enable_if_linestring
+    : std::enable_if<is_linestring<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_linestring_t = typename enable_if_linestring<Geometry, T>::type;
+
+template <typename Geometry, typename T = void>
+struct enable_if_multi_linestring
+    : std::enable_if<is_multi_linestring<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_multi_linestring_t = typename enable_if_multi_linestring<Geometry, T>::type;
+
 
 template <typename Geometry, typename T = void>
 struct enable_if_polylinear
