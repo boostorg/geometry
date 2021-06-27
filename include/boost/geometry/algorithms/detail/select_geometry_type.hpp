@@ -92,7 +92,7 @@ template
     template <typename, typename> class LessPred
 >
 struct select_geometry_type<Geometry, LessPred, true>
-    : util::select_element
+    : util::sequence_min_element
         <
             typename traits::geometry_types<std::remove_const_t<Geometry>>::type,
             LessPred
@@ -124,10 +124,13 @@ template
     template <typename, typename> class LessPred
 >
 struct select_geometry_types<Geometry1, Geometry2, LessPred, true>
-    : util::select_combination_element
+    : util::sequence_min_element
         <
-            typename geometry_types<Geometry1>::type,
-            typename geometry_types<Geometry2>::type,
+            typename util::sequence_combine
+                <
+                    typename geometry_types<Geometry1>::type,
+                    typename geometry_types<Geometry2>::type
+                >::type,
             LessPred
         >
 {};

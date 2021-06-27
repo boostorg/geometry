@@ -247,17 +247,17 @@ struct output_pointlike_less
 template <typename OutputGeometry>
 struct output_geometry<OutputGeometry, geometry_collection_tag>
 {
-    using polygonal_t = typename util::select_element
+    using polygonal_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
             output_polygonal_less
         >::type;
-    using linear_t = typename util::select_element
+    using linear_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
             output_linear_less
         >::type;
-    using pointlike_t = typename util::select_element
+    using pointlike_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
             output_pointlike_less
