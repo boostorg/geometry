@@ -152,7 +152,7 @@ struct output_geometry
 template <typename OutputGeometry>
 struct output_geometry<OutputGeometry, linestring_tag>
 {
-    output_geometry(OutputGeometry & out) : m_out(out) {}
+    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
     OutputGeometry & range() { return m_out; }
     template <typename Strategy>
     void move_to_out(Strategy const& ) {}
@@ -163,7 +163,7 @@ private:
 template <typename OutputGeometry>
 struct output_geometry<OutputGeometry, ring_tag>
 {
-    output_geometry(OutputGeometry & out) : m_out(out) {}
+    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
     OutputGeometry & range() { return m_out; }
     template <typename Strategy>
     void move_to_out(Strategy const& ) {}
@@ -174,7 +174,7 @@ private:
 template <typename OutputGeometry>
 struct output_geometry<OutputGeometry, polygon_tag>
 {
-    output_geometry(OutputGeometry & out) : m_out(out) {}
+    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
     decltype(auto) range() { return exterior_ring(m_out); }
     template <typename Strategy>
     void move_to_out(Strategy const& ) {}
@@ -185,7 +185,7 @@ private:
 template <typename OutputGeometry>
 struct output_geometry<OutputGeometry, multi_polygon_tag>
 {
-    output_geometry(OutputGeometry & out) : m_out(out) {}
+    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
     decltype(auto) range() { return exterior_ring(m_polygon); }
     template <typename Strategy>
     void move_to_out(Strategy const& )
@@ -244,8 +244,26 @@ struct output_pointlike_less
     static const bool value = priority<G1>::value < priority<G2>::value;
 };
 
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, geometry_collection_tag>
+struct move_emplace_back_policy
+{
+    template <typename Geometry, typename OutputGeometry>
+    static inline void apply(Geometry & g, OutputGeometry & out)
+    {
+        range::emplace_back(out, std::move(g));
+    }
+};
+
+struct move_assign_policy
+{
+    template <typename Geometry, typename OutputGeometry>
+    static inline void apply(Geometry & g, OutputGeometry & out)
+    {
+        out = std::move(g);
+    }
+};
+
+template <typename OutputGeometry, typename MovePolicy>
+struct output_geometry_dg_or_gc
 {
     using polygonal_t = typename util::sequence_min_element
         <
@@ -265,18 +283,18 @@ struct output_geometry<OutputGeometry, geometry_collection_tag>
 
     // select_element may define different kind of geometry than the one that is desired
     BOOST_GEOMETRY_STATIC_ASSERT(util::is_polygonal<polygonal_t>::value,
-        "It must be possible to store polygonal geometry in GeometryCollection.", polygonal_t);
+        "It must be possible to store polygonal geometry in OutputGeometry.", polygonal_t);
     BOOST_GEOMETRY_STATIC_ASSERT(util::is_linear<linear_t>::value,
-        "It must be possible to store linear geometry in GeometryCollection.", linear_t);
+        "It must be possible to store linear geometry in OutputGeometry.", linear_t);
     BOOST_GEOMETRY_STATIC_ASSERT(util::is_pointlike<pointlike_t>::value,
-        "It must be possible to store pointlike geometry in GeometryCollection.", pointlike_t);
+        "It must be possible to store pointlike geometry in OutputGeometry.", pointlike_t);
 
-    output_geometry(OutputGeometry & out)
+    explicit output_geometry_dg_or_gc(OutputGeometry & out)
         : m_out(out), m_wrapper(m_polygonal)
     {}
 
     decltype(auto) range() { return m_wrapper.range(); }
-    
+
     template <typename Strategy>
     void move_to_out(Strategy const& strategy)
     {
@@ -287,7 +305,7 @@ struct output_geometry<OutputGeometry, geometry_collection_tag>
             if (size > minimum_ring_size<polygonal_t>::value)
             {
                 m_wrapper.move_to_out(strategy);
-                range::emplace_back(m_out, std::move(m_polygonal));
+                MovePolicy::apply(m_polygonal, m_out);
             }
             else // size == 3 || size == 4
             {
@@ -295,18 +313,18 @@ struct output_geometry<OutputGeometry, geometry_collection_tag>
                 {
                     pointlike_t pointlike;
                     move_to_pointlike(out_range, pointlike);
-                    range::emplace_back(m_out, std::move(pointlike));
+                    MovePolicy::apply(pointlike, m_out);
                 }
                 else if (detail::equals::equals_point_point(range::front(out_range), range::at(out_range, 2), strategy))
                 {
                     linear_t linear;
                     move_to_linear(out_range, linear);
-                    range::emplace_back(m_out, std::move(linear));
+                    MovePolicy::apply(linear, m_out);
                 }
                 else
                 {
                     m_wrapper.move_to_out(strategy);
-                    range::emplace_back(m_out, std::move(m_polygonal));
+                    MovePolicy::apply(m_polygonal, m_out);
                 }
             }
         }
@@ -346,6 +364,24 @@ private:
     OutputGeometry & m_out;
     polygonal_t m_polygonal;
     output_geometry<polygonal_t> m_wrapper;
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, geometry_collection_tag>
+    : output_geometry_dg_or_gc<OutputGeometry, move_emplace_back_policy>
+{
+    explicit output_geometry(OutputGeometry & out)
+        : output_geometry_dg_or_gc<OutputGeometry, move_emplace_back_policy>(out)
+    {}
+};
+
+template <typename OutputGeometry>
+struct output_geometry<OutputGeometry, dynamic_geometry_tag>
+    : output_geometry_dg_or_gc<OutputGeometry, move_assign_policy>
+{
+    explicit output_geometry(OutputGeometry & out)
+        : output_geometry_dg_or_gc<OutputGeometry, move_assign_policy>(out)
+    {}
 };
 
 

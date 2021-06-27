@@ -32,13 +32,6 @@ struct first_geometry_type
 };
 
 template <typename Geometry>
-struct first_geometry_type<Geometry, dynamic_geometry_tag>
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE("Not implemented for this Geometry",
-        Geometry, dynamic_geometry_tag);
-};
-
-template <typename Geometry>
 struct first_geometry_type<Geometry, geometry_collection_tag>
 {
     template <typename T>
@@ -54,6 +47,11 @@ struct first_geometry_type<Geometry, geometry_collection_tag>
             pred
         >::type;
 };
+
+template <typename Geometry>
+struct first_geometry_type<Geometry, dynamic_geometry_tag>
+    : first_geometry_type<Geometry, geometry_collection_tag>
+{};
 
 
 template

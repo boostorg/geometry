@@ -152,8 +152,15 @@ struct test_convex_hull
         using point_t = typename bg::point_type<Hull>::type;
         using var_t = boost::variant<Hull, bg::model::linestring<point_t>, point_t>;
         using gc_t = bg::model::geometry_collection<var_t>;
+
+        var_t var;
+        bg::convex_hull(geometry, var, Strategy());
+
         gc_t gc;
         bg::convex_hull(geometry, gc, Strategy());
+
+        BOOST_CHECK(var.which() == gc[0].which());
+
         if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[1], Strategy()))
             BOOST_CHECK(gc[0].which() == 2); // GC stores point
         else if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[2], Strategy()))
