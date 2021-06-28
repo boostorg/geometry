@@ -68,9 +68,9 @@ namespace detail { namespace convex_hull
 
 // Abstraction representing ranges/rings of a geometry
 template <typename Geometry>
-struct geometry_ranges
+struct input_geometry_proxy
 {
-    geometry_ranges(Geometry const& geometry)
+    input_geometry_proxy(Geometry const& geometry)
         : m_geometry(geometry)
     {}
 
@@ -86,9 +86,9 @@ struct geometry_ranges
 // Abstraction representing ranges/rings of subgeometries of geometry collection
 // with boxes converted to rings
 template <typename Geometry, typename BoxRings>
-struct geometry_collection_ranges
+struct input_geometry_collection_proxy
 {
-    geometry_collection_ranges(Geometry const& geometry, BoxRings const& box_rings)
+    input_geometry_collection_proxy(Geometry const& geometry, BoxRings const& box_rings)
         : m_geometry(geometry)
         , m_box_rings(box_rings)
     {}
@@ -140,66 +140,7 @@ struct default_strategy<Geometry, geometry_collection_tag>
 {};
 
 
-// Wrapper for output geometry. It contains reference to OutputGeometry and may contain
-// a temporary geometry which is moved to the output at the end of the algorithm.
-template <typename OutputGeometry, typename Tag = typename tag<OutputGeometry>::type>
-struct output_geometry
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE("This OutputGeometry is not supported.", OutputGeometry, Tag);
-};
-
-// For backward compatibility
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, linestring_tag>
-{
-    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
-    OutputGeometry & range() { return m_out; }
-    template <typename Strategy>
-    void move_to_out(Strategy const& ) {}
-private:
-    OutputGeometry & m_out;
-};
-
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, ring_tag>
-{
-    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
-    OutputGeometry & range() { return m_out; }
-    template <typename Strategy>
-    void move_to_out(Strategy const& ) {}
-private:
-    OutputGeometry & m_out;
-};
-
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, polygon_tag>
-{
-    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
-    decltype(auto) range() { return exterior_ring(m_out); }
-    template <typename Strategy>
-    void move_to_out(Strategy const& ) {}
-private:
-    OutputGeometry & m_out;
-};
-
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, multi_polygon_tag>
-{
-    explicit output_geometry(OutputGeometry & out) : m_out(out) {}
-    decltype(auto) range() { return exterior_ring(m_polygon); }
-    template <typename Strategy>
-    void move_to_out(Strategy const& )
-    {
-        if (! boost::empty(exterior_ring(m_polygon)))
-        {
-            range::push_back(m_out, std::move(m_polygon));
-        }
-    }
-private:
-    OutputGeometry & m_out;
-    typename boost::range_value<OutputGeometry>::type m_polygon;
-};
-
+// Utilities for output GC and DG
 template <typename G1, typename G2>
 struct output_polygonal_less
 {
@@ -244,41 +185,186 @@ struct output_pointlike_less
     static const bool value = priority<G1>::value < priority<G2>::value;
 };
 
-struct move_emplace_back_policy
+
+}} // namespace detail::convex_hull
+#endif // DOXYGEN_NO_DETAIL
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
 {
-    template <typename Geometry, typename OutputGeometry>
-    static inline void apply(Geometry & g, OutputGeometry & out)
+
+
+template
+<
+    typename Geometry,
+    typename Tag = typename tag<Geometry>::type
+>
+struct convex_hull
+{
+    template <typename OutputGeometry, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategy const& strategy)
     {
-        range::emplace_back(out, std::move(g));
+        detail::convex_hull::input_geometry_proxy<Geometry> in_proxy(geometry);        
+        detail::convex_hull::graham_andrew
+            <
+                typename point_type<Geometry>::type
+            >::apply(in_proxy, out, strategy);
     }
 };
 
-struct move_assign_policy
+
+// A hull for boxes is trivial. Any strategy is (currently) skipped.
+// TODO: This is not correct in spherical and geographic CS.
+template <typename Box>
+struct convex_hull<Box, box_tag>
 {
-    template <typename Geometry, typename OutputGeometry>
-    static inline void apply(Geometry & g, OutputGeometry & out)
+    template <typename OutputGeometry, typename Strategy>
+    static inline void apply(Box const& box,
+                             OutputGeometry& out,
+                             Strategy const& strategy)
     {
-        out = std::move(g);
+        static bool const Close
+            = geometry::closure<OutputGeometry>::value == closed;
+        static bool const Reverse
+            = geometry::point_order<OutputGeometry>::value == counterclockwise;
+
+        std::array<typename point_type<OutputGeometry>::type, 4> arr;
+        // TODO: This assigns only 2d cooridnates!
+        //       And it is also used in box_view<>!
+        geometry::detail::assign_box_corners_oriented<Reverse>(box, arr);
+
+        std::move(arr.begin(), arr.end(), range::back_inserter(out));
+        if (BOOST_GEOMETRY_CONDITION(Close))
+        {
+            range::push_back(out, range::front(out));
+        }
     }
 };
 
-template <typename OutputGeometry, typename MovePolicy>
-struct output_geometry_dg_or_gc
+
+template <typename GeometryCollection>
+struct convex_hull<GeometryCollection, geometry_collection_tag>
+{
+    template <typename OutputGeometry, typename Strategy>
+    static inline void apply(GeometryCollection const& geometry,
+                             OutputGeometry& out,
+                             Strategy const& strategy)
+    {
+        // Assuming that single point_type is used by the GeometryCollection
+        using subgeometry_type = typename detail::first_geometry_type<GeometryCollection>::type;
+        using point_type = typename geometry::point_type<subgeometry_type>::type;
+        using ring_type = model::ring<point_type, true, false>;
+
+        // Calculate box rings once
+        std::vector<ring_type> box_rings;
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            add_ring_for_box(box_rings, g, strategy);
+            return true;
+        }, geometry);
+
+        detail::convex_hull::input_geometry_collection_proxy
+            <
+                GeometryCollection, std::vector<ring_type>
+            > in_proxy(geometry, box_rings);
+
+        detail::convex_hull::graham_andrew
+            <
+                point_type
+            >::apply(in_proxy, out, strategy);
+    }
+
+private:
+    template
+    <
+        typename Ring, typename SubGeometry, typename Strategy,
+        std::enable_if_t<util::is_box<SubGeometry>::value, int> = 0
+    >
+    static inline void add_ring_for_box(std::vector<Ring> & rings, SubGeometry const& box,
+                                        Strategy const& strategy)
+    {
+        Ring ring;
+        convex_hull<SubGeometry>::apply(box, ring, strategy);
+        rings.push_back(std::move(ring));
+    }
+    template
+    <
+        typename Ring, typename SubGeometry, typename Strategy,
+        std::enable_if_t<! util::is_box<SubGeometry>::value, int> = 0
+    >
+    static inline void add_ring_for_box(std::vector<Ring> & , SubGeometry const& ,
+                                        Strategy const& )
+    {}
+};
+
+
+template <typename OutputGeometry, typename Tag = typename tag<OutputGeometry>::type>
+struct convex_hull_out
+{
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE("This OutputGeometry is not supported.", OutputGeometry, Tag);
+};
+
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, ring_tag>
+{
+    template <typename Geometry, typename Strategies>
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategies const& strategies)
+    {
+        dispatch::convex_hull<Geometry>::apply(geometry, out, strategies);
+    }
+};
+
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, polygon_tag>
+{
+    template <typename Geometry, typename Strategies>
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategies const& strategies)
+    {
+        auto&& ring = exterior_ring(out);
+        dispatch::convex_hull<Geometry>::apply(geometry, ring, strategies);
+    }
+};
+
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, multi_polygon_tag>
+{
+    template <typename Geometry, typename Strategies>
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategies const& strategies)
+    {
+        typename boost::range_value<OutputGeometry>::type polygon;
+        auto&& ring = exterior_ring(polygon);
+        dispatch::convex_hull<Geometry>::apply(geometry, ring, strategies);
+        // Empty input is checked so the output shouldn't be empty
+        range::push_back(out, std::move(polygon));
+    }
+};
+
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, geometry_collection_tag>
 {
     using polygonal_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
-            output_polygonal_less
+            detail::convex_hull::output_polygonal_less
         >::type;
     using linear_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
-            output_linear_less
+            detail::convex_hull::output_linear_less
         >::type;
     using pointlike_t = typename util::sequence_min_element
         <
             typename traits::geometry_types<OutputGeometry>::type,
-            output_pointlike_less
+            detail::convex_hull::output_pointlike_less
         >::type;
 
     // select_element may define different kind of geometry than the one that is desired
@@ -289,48 +375,55 @@ struct output_geometry_dg_or_gc
     BOOST_GEOMETRY_STATIC_ASSERT(util::is_pointlike<pointlike_t>::value,
         "It must be possible to store pointlike geometry in OutputGeometry.", pointlike_t);
 
-    explicit output_geometry_dg_or_gc(OutputGeometry & out)
-        : m_out(out), m_wrapper(m_polygonal)
-    {}
-
-    decltype(auto) range() { return m_wrapper.range(); }
-
-    template <typename Strategy>
-    void move_to_out(Strategy const& strategy)
+    template <typename Geometry, typename Strategies>
+    static inline void apply(Geometry const& geometry,
+                             OutputGeometry& out,
+                             Strategies const& strategies)
     {
-        auto&& out_range = m_wrapper.range();
-        if (! boost::empty(out_range))
+        polygonal_t polygonal;
+        convex_hull_out<polygonal_t>::apply(geometry, polygonal, strategies);
+        // Empty input is checked so the output shouldn't be empty
+        auto&& out_ring = ring(polygonal);
+
+        if (boost::size(out_ring) == detail::minimum_ring_size<polygonal_t>::value)
         {
-            auto size = boost::size(out_range);
-            if (size > minimum_ring_size<polygonal_t>::value)
+            using detail::equals::equals_point_point;
+            if (equals_point_point(range::front(out_ring), range::at(out_ring, 1), strategies))
             {
-                m_wrapper.move_to_out(strategy);
-                MovePolicy::apply(m_polygonal, m_out);
+                pointlike_t pointlike;
+                move_to_pointlike(out_ring, pointlike);
+                move_to_out(pointlike, out);
+                return;
             }
-            else // size == 3 || size == 4
+            if (equals_point_point(range::front(out_ring), range::at(out_ring, 2), strategies))
             {
-                if (detail::equals::equals_point_point(range::front(out_range), range::at(out_range, 1), strategy))
-                {
-                    pointlike_t pointlike;
-                    move_to_pointlike(out_range, pointlike);
-                    MovePolicy::apply(pointlike, m_out);
-                }
-                else if (detail::equals::equals_point_point(range::front(out_range), range::at(out_range, 2), strategy))
-                {
-                    linear_t linear;
-                    move_to_linear(out_range, linear);
-                    MovePolicy::apply(linear, m_out);
-                }
-                else
-                {
-                    m_wrapper.move_to_out(strategy);
-                    MovePolicy::apply(m_polygonal, m_out);
-                }
+                linear_t linear;
+                move_to_linear(out_ring, linear);
+                move_to_out(linear, out);
+                return;
             }
         }
+
+        move_to_out(polygonal, out);
     }
 
 private:
+    template <typename Polygonal, util::enable_if_ring_t<Polygonal, int> = 0>
+    static decltype(auto) ring(Polygonal const& polygonal)
+    {
+        return polygonal;
+    }
+    template <typename Polygonal, util::enable_if_polygon_t<Polygonal, int> = 0>
+    static decltype(auto) ring(Polygonal const& polygonal)
+    {
+        return exterior_ring(polygonal);
+    }
+    template <typename Polygonal, util::enable_if_multi_polygon_t<Polygonal, int> = 0>
+    static decltype(auto) ring(Polygonal const& polygonal)
+    {
+        return exterior_ring(range::front(polygonal));
+    }
+
     template <typename Range, typename Linear, util::enable_if_segment_t<Linear, int> = 0>
     static void move_to_linear(Range & out_range, Linear & seg)
     {
@@ -361,166 +454,37 @@ private:
         range::push_back(mpt, std::move(range::front(out_range)));
     }
 
-    OutputGeometry & m_out;
-    polygonal_t m_polygonal;
-    output_geometry<polygonal_t> m_wrapper;
-};
-
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, geometry_collection_tag>
-    : output_geometry_dg_or_gc<OutputGeometry, move_emplace_back_policy>
-{
-    explicit output_geometry(OutputGeometry & out)
-        : output_geometry_dg_or_gc<OutputGeometry, move_emplace_back_policy>(out)
-    {}
-};
-
-template <typename OutputGeometry>
-struct output_geometry<OutputGeometry, dynamic_geometry_tag>
-    : output_geometry_dg_or_gc<OutputGeometry, move_assign_policy>
-{
-    explicit output_geometry(OutputGeometry & out)
-        : output_geometry_dg_or_gc<OutputGeometry, move_assign_policy>(out)
-    {}
-};
-
-
-}} // namespace detail::convex_hull
-#endif // DOXYGEN_NO_DETAIL
-
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
-
-
-template
-<
-    typename Geometry,
-    typename Tag = typename tag<Geometry>::type
->
-struct convex_hull
-{
-    template <typename OutputGeometry, typename Strategy>
-    static inline void apply(Geometry const& geometry,
-                             OutputGeometry& out,
-                             Strategy const& strategy)
-    {
-        detail::convex_hull::geometry_ranges<Geometry> ranges(geometry);
-
-        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
-        // NOTE: A variable is created here because this can be a proxy range
-        //       and back_insert_iterator<> can store a pointer to it.
-        auto&& out_range = out_wrapper.range();
-
-        detail::convex_hull::graham_andrew
-            <
-                typename point_type<Geometry>::type
-            >::apply(ranges, out_range, strategy);
-
-        out_wrapper.move_to_out(strategy);
-    }
-};
-
-
-// A hull for boxes is trivial. Any strategy is (currently) skipped.
-// TODO: This is not correct in spherical and geographic CS.
-template <typename Box>
-struct convex_hull<Box, box_tag>
-{
-    template <typename OutputGeometry, typename Strategy>
-    static inline void apply(Box const& box,
-                             OutputGeometry& out,
-                             Strategy const& strategy)
-    {
-        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
-        // NOTE: A variable is created here because this can be a proxy range
-        //       and back_insert_iterator<> can store a pointer to it.
-        auto&& out_range = out_wrapper.range();
-
-        using out_range_t = std::remove_reference_t<decltype(out_range)>;
-        static bool const Close
-            = geometry::closure<out_range_t>::value == closed;
-        static bool const Reverse
-            = geometry::point_order<out_range_t>::value == counterclockwise;
-
-        std::array<typename point_type<out_range_t>::type, 4> arr;
-        // TODO: This assigns only 2d cooridnates!
-        //       And it is also used in box_view<>!
-        geometry::detail::assign_box_corners_oriented<Reverse>(box, arr);
-
-        std::move(arr.begin(), arr.end(), range::back_inserter(out_range));
-        if (BOOST_GEOMETRY_CONDITION(Close))
-        {
-            range::push_back(out_range, range::front(out_range));
-        }
-
-        out_wrapper.move_to_out(strategy);
-    }
-};
-
-
-template <typename GeometryCollection>
-struct convex_hull<GeometryCollection, geometry_collection_tag>
-{
-    template <typename OutputGeometry, typename Strategy>
-    static inline void apply(GeometryCollection const& geometry,
-                             OutputGeometry& out,
-                             Strategy const& strategy)
-    {
-        // Assuming that single point_type is used by the GeometryCollection
-        using subgeometry_type = typename detail::first_geometry_type<GeometryCollection>::type;
-        using point_type = typename geometry::point_type<subgeometry_type>::type;
-        using ring_type = model::ring<point_type, true, false>;
-
-        // Calculate box rings once
-        std::vector<ring_type> box_rings;
-        detail::visit_breadth_first([&](auto const& g)
-        {
-            add_ring_for_box(box_rings, g, strategy);
-            return true;
-        }, geometry);
-
-        detail::convex_hull::geometry_collection_ranges
-            <
-                GeometryCollection, std::vector<ring_type>
-            > ranges(geometry, box_rings);
-
-        detail::convex_hull::output_geometry<OutputGeometry> out_wrapper(out);
-        // NOTE: A variable is created here because this can be a proxy range
-        //       and back_insert_iterator<> can store a pointer to it.
-        auto&& out_range = out_wrapper.range();
-
-        detail::convex_hull::graham_andrew
-            <
-                point_type
-            >::apply(ranges, out_range, strategy);
-
-        out_wrapper.move_to_out(strategy);
-    }
-
-private:
     template
     <
-        typename Ring, typename SubGeometry, typename Strategy,
-        std::enable_if_t<util::is_box<SubGeometry>::value, int> = 0
+        typename Geometry, typename OutputGeometry_,
+        util::enable_if_geometry_collection_t<OutputGeometry_, int> = 0
     >
-    static inline void add_ring_for_box(std::vector<Ring> & rings, SubGeometry const& box,
-                                        Strategy const& strategy)
+    static void move_to_out(Geometry & g, OutputGeometry_ & out)
     {
-        Ring ring;
-        convex_hull<SubGeometry>::apply(box, ring, strategy);
-        rings.push_back(std::move(ring));
+        range::emplace_back(out, std::move(g));
     }
     template
     <
-        typename Ring, typename SubGeometry, typename Strategy,
-        std::enable_if_t<! util::is_box<SubGeometry>::value, int> = 0
+        typename Geometry, typename OutputGeometry_,
+        util::enable_if_dynamic_geometry_t<OutputGeometry_, int> = 0
     >
-    static inline void add_ring_for_box(std::vector<Ring> & , SubGeometry const& ,
-                                        Strategy const& )
-    {}
+    static void move_to_out(Geometry & g, OutputGeometry_ & out)
+    {
+        out = std::move(g);
+    }
 };
+
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, dynamic_geometry_tag>
+    : convex_hull_out<OutputGeometry, geometry_collection_tag>
+{};
+
+
+// For backward compatibility
+template <typename OutputGeometry>
+struct convex_hull_out<OutputGeometry, linestring_tag>
+    : convex_hull_out<OutputGeometry, ring_tag>
+{};
 
 
 } // namespace dispatch
@@ -537,7 +501,7 @@ struct convex_hull
                              OutputGeometry& out,
                              Strategies const& strategies)
     {
-        dispatch::convex_hull<Geometry>::apply(geometry, out, strategies);
+        dispatch::convex_hull_out<OutputGeometry>::apply(geometry, out, strategies);
     }
 };
 
@@ -554,7 +518,7 @@ struct convex_hull<default_strategy>
                 Geometry
             >::type;
 
-        dispatch::convex_hull<Geometry>::apply(geometry, out, strategy_type());
+        dispatch::convex_hull_out<OutputGeometry>::apply(geometry, out, strategy_type());
     }
 };
 

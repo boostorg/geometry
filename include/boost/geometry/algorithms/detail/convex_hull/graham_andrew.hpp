@@ -46,13 +46,13 @@ namespace detail { namespace convex_hull
 
 // TODO: All of the copies could be avoided if this function stored pointers to points.
 //       But would it be possible considering that a range can return proxy reference?
-template <typename Ranges, typename Point, typename Less>
-inline void get_extremes(Ranges const& ranges,
+template <typename InputProxy, typename Point, typename Less>
+inline void get_extremes(InputProxy const& in_proxy,
                          Point& left, Point& right,
                          Less const& less)
 {
     bool first = true;
-    ranges.for_each_range([&](auto const& range)
+    in_proxy.for_each_range([&](auto const& range)
     {
         if (boost::empty(range))
         {
@@ -108,13 +108,13 @@ inline void get_extremes(Ranges const& ranges,
 }
 
 
-template <typename Ranges, typename Point, typename Container, typename SideStrategy>
-inline void assign_ranges(Ranges const& ranges,
+template <typename InputProxy, typename Point, typename Container, typename SideStrategy>
+inline void assign_ranges(InputProxy const& in_proxy,
                           Point const& most_left, Point const& most_right,
                           Container& lower_points, Container& upper_points,
                           SideStrategy const& side)
 {
-    ranges.for_each_range([&](auto const& range)
+    in_proxy.for_each_range([&](auto const& range)
     {
         // Put points in one of the two output sequences
         for (auto it = boost::begin(range); it != boost::end(range); ++it)
@@ -161,12 +161,12 @@ class graham_andrew
     };
 
 public:
-    template <typename InputRanges, typename OutputRing, typename Strategy>
-    static void apply(InputRanges const& ranges, OutputRing & out_ring, Strategy& strategy)
+    template <typename InputProxy, typename OutputRing, typename Strategy>
+    static void apply(InputProxy const& in_proxy, OutputRing & out_ring, Strategy& strategy)
     {
         partitions state;
 
-        apply(ranges, state, strategy);
+        apply(in_proxy, state, strategy);
 
         result(state,
                range::back_inserter(out_ring),
@@ -175,8 +175,8 @@ public:
     }
 
 private:
-    template <typename InputRanges, typename Strategy>
-    static void apply(InputRanges const& ranges, partitions& state, Strategy& strategy)
+    template <typename InputProxy, typename Strategy>
+    static void apply(InputProxy const& in_proxy, partitions& state, Strategy& strategy)
     {
         // First pass.
         // Get min/max (in most cases left / right) points
@@ -195,7 +195,7 @@ private:
         // TODO: User-defined CS-specific less-compare
         geometry::less<point_type> less;
 
-        detail::convex_hull::get_extremes(ranges, most_left, most_right, less);
+        detail::convex_hull::get_extremes(in_proxy, most_left, most_right, less);
 
         container_type lower_points, upper_points;
 
@@ -204,7 +204,7 @@ private:
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points
         // in either lower, either upper
-        detail::convex_hull::assign_ranges(ranges, most_left, most_right,
+        detail::convex_hull::assign_ranges(in_proxy, most_left, most_right,
                               lower_points, upper_points,
                               side_strategy);
 
