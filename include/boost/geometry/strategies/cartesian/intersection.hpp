@@ -44,7 +44,7 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
@@ -402,7 +402,7 @@ struct cartesian_segments
             return Policy::disjoint();
         }
 
-        typedef side::side_by_triangle<CalculationType> side_strategy_type;
+        typedef side::side_robust<CalculationType> side_strategy_type;
         side_info sides;
         sides.set<0>(side_strategy_type::apply(q1, q2, p1),
                      side_strategy_type::apply(q1, q2, p2));

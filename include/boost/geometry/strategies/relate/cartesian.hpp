@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
+#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
@@ -147,7 +148,7 @@ public:
 
     static auto side()
     {
-        return strategy::side::side_by_triangle<CalculationType>();
+        return strategy::side::side_robust<CalculationType>();
     }
 
     // within
@@ -367,6 +368,15 @@ template <typename CalculationType>
 struct strategy_converter<strategy::side::side_by_triangle<CalculationType>>
 {
     static auto get(strategy::side::side_by_triangle<CalculationType> const&)
+    {
+        return strategies::relate::cartesian<CalculationType>();
+    }
+};
+
+template <typename CalculationType>
+struct strategy_converter<strategy::side::side_robust<CalculationType>>
+{
+    static auto get(strategy::side::side_robust<CalculationType> const&)
     {
         return strategies::relate::cartesian<CalculationType>();
     }

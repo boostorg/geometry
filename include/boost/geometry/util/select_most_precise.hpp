@@ -30,7 +30,6 @@ namespace boost { namespace geometry
 namespace detail { namespace select_most_precise
 {
 
-
 // 0 - void
 // 1 - integral
 // 2 - floating point
@@ -55,6 +54,43 @@ struct type_priority
         >
 {};
 
+/*
+// 0 - void
+// 1 - integral (int, long int)
+// 2 - floating point (float, double)
+// 3 - long long int
+// 4 - long double
+// 5 - non-fundamental
+template <typename T>
+struct type_priority
+    : std::conditional_t
+        <
+            std::is_void<T>::value,
+            std::integral_constant<int, 0>,
+            std::conditional_t
+                <
+                    std::is_fundamental<T>::value,
+                    std::conditional_t
+                        <
+                            std::is_same<T, long double>::value,
+                            std::integral_constant<int, 4>,
+                            std::conditional_t
+                                <
+                                    std::is_same<T, long long int>::value,
+                                    std::integral_constant<int, 3>,
+                                    std::conditional_t
+                                        <
+                                            std::is_floating_point<T>::value,
+                                            std::integral_constant<int, 2>,
+                                            std::integral_constant<int, 1>
+                                        >
+                                >
+                        >,
+                    std::integral_constant<int, 5>
+                >
+        >
+{};
+*/
 
 template <typename T>
 struct type_size
@@ -119,7 +155,7 @@ struct select_most_precise<T1, T2>
                     T2,
                     std::conditional_t // priority1 == priority2
                         <
-                            (priority1 == 0 || priority1 == 3), // both void or non-fundamental
+                            (priority1 == 0 || priority1 == 5), // both void or non-fundamental
                             T1,
                             std::conditional_t // both fundamental
                                 <

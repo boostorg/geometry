@@ -62,6 +62,7 @@ public:
                 * (promoted_type(get<1>(p2)) - promoted_type(get<1>(p)));
         auto detright = (promoted_type(get<1>(p1)) - promoted_type(get<1>(p)))
                 * (promoted_type(get<0>(p2)) - promoted_type(get<0>(p)));
+
         return detleft > detright ? 1 : (detleft < detright ? -1 : 0 );
 
     }

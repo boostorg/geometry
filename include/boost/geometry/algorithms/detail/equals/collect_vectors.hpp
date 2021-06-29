@@ -40,7 +40,7 @@
 
 #include <boost/geometry/views/detail/normalized_view.hpp>
 
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 
@@ -62,11 +62,11 @@ struct collected_vector
     : nyi::not_implemented_tag
 {};
 
-// compatible with side_by_triangle cartesian strategy
+// compatible with side_robust cartesian strategy
 template <typename T, typename Geometry, typename CT, typename CSTag>
 struct collected_vector
     <
-        T, Geometry, strategy::side::side_by_triangle<CT>, CSTag
+        T, Geometry, strategy::side::side_robust<CT>, CSTag
     >
 {
     typedef T type;

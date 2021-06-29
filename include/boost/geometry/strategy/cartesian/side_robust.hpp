@@ -5,6 +5,11 @@
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -12,15 +17,44 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 
+#include <iostream>
+
+#include <boost/rational.hpp>
+
+#include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/precise_math.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
 
 namespace strategy { namespace side
 {
+
+struct eps_equals_policy
+{
+public:
+
+    template <typename Policy, typename T1, typename T2>
+    static auto apply(T1 a, T2 b, Policy policy)
+    {
+        return boost::geometry::math::detail::equals_by_policy(a, b, policy);
+    }
+};
+
+struct fp_equals_policy
+{
+public:
+    template <typename Policy, typename T1, typename T2>
+    static auto apply(T1 a, T2 b, Policy)
+    {
+        return a == b;
+    }
+};
+
 
 /*!
 \brief Adaptive precision predicate to check at which side of a segment a point lies:
@@ -33,57 +67,106 @@ namespace strategy { namespace side
 template
 <
     typename CalculationType = void,
+    typename EpsPolicy = eps_equals_policy,
     std::size_t Robustness = 3
 >
 struct side_robust
 {
+    template <typename Policy>
+    struct eps_policy
+    {
+        eps_policy() {}
+        template <typename Type>
+        eps_policy(Type const& a, Type const& b, Type const& c, Type const& d)
+            : policy(a, b, c, d)
+        {}
+        Policy policy;
+    };
+
 public:
-    //! \brief Computes double the signed area of the CCW triangle p1, p2, p
+
+    typedef cartesian_tag cs_tag;
+
+    //! \brief Computes the sign of the CCW triangle p1, p2, p
     template
     <
         typename PromotedType,
         typename P1,
         typename P2,
-        typename P
+        typename P,
+        typename EpsPolicyInternal,
+        std::enable_if_t<std::is_fundamental<PromotedType>::value, int> = 0
     >
-    static inline PromotedType side_value(P1 const& p1, P2 const& p2,
-        P const& p)
+    static inline PromotedType side_value(P1 const& p1,
+                                          P2 const& p2,
+                                          P const& p,
+                                          EpsPolicyInternal& eps_policy)
     {
-        typedef ::boost::geometry::detail::precise_math::vec2d<PromotedType> vec2d;
-        vec2d pa { get<0>(p1), get<1>(p1) };
-        vec2d pb { get<0>(p2), get<1>(p2) };
-        vec2d pc { get<0>(p), get<1>(p) };
+        using vec2d = ::boost::geometry::detail::precise_math::vec2d<PromotedType>;
+        vec2d pa;
+        pa.x = get<0>(p1);
+        pa.y = get<1>(p1);
+        vec2d pb;
+        pb.x = get<0>(p2);
+        pb.y = get<1>(p2);
+        vec2d pc;
+        pc.x = get<0>(p);
+        pc.y = get<1>(p);
         return ::boost::geometry::detail::precise_math::orient2d
-            <PromotedType, Robustness>(pa, pb, pc);
+            <PromotedType, Robustness>(pa, pb, pc, eps_policy);
+    }
+
+    template
+    <
+        typename PromotedType,
+        typename P1,
+        typename P2,
+        typename P,
+        typename EpsPolicyInternal,
+        std::enable_if_t<!std::is_fundamental<PromotedType>::value, int> = 0
+    >
+    static inline auto side_value(P1 const& p1, P2 const& p2, P const& p,
+                                  EpsPolicyInternal&)
+    {
+        return side_non_robust<>::apply(p1, p2, p);
     }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     template
-    <
+    < 
         typename P1,
         typename P2,
         typename P
     >
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
-        typedef typename select_calculation_type_alt
+        using coordinate_type = typename select_calculation_type_alt
             <
                 CalculationType,
                 P1,
                 P2,
                 P
-            >::type coordinate_type;
-        typedef typename select_most_precise
+            >::type;
+
+        using promoted_type = typename select_most_precise
             <
                 coordinate_type,
                 double
-            >::type promoted_type;
+            >::type;
 
-        promoted_type sv = side_value<promoted_type>(p1, p2, p);
-        return sv > 0 ? 1
-            : sv < 0 ? -1
-            : 0;
+        eps_policy
+            <
+                boost::geometry::math::detail::equals_factor_policy<promoted_type>
+            > epsp;
+
+        promoted_type sv = side_value<promoted_type>(p1, p2, p, epsp);
+
+        promoted_type const zero = promoted_type();
+        return EpsPolicy::apply(sv, zero, epsp.policy) ? 0
+            : sv > zero ? 1
+            : -1;
     }
+
 #endif
 
 };
