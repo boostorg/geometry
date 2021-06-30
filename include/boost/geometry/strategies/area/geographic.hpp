@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategy/geographic/area.hpp>
+#include <boost/geometry/strategy/geographic/area_box.hpp>
 
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -42,12 +43,23 @@ public:
     {}
 
     template <typename Geometry>
-    auto area(Geometry const&) const
+    auto area(Geometry const&,
+              std::enable_if_t<! util::is_box<Geometry>::value> * = nullptr) const
     {
         return strategy::area::geographic
             <
                 FormulaPolicy,
                 strategy::default_order<FormulaPolicy>::value,
+                Spheroid, CalculationType
+            >(base_t::m_spheroid);
+    }
+
+    template <typename Geometry>
+    auto area(Geometry const&,
+              std::enable_if_t<util::is_box<Geometry>::value> * = nullptr) const
+    {
+        return strategy::area::geographic_box
+            <
                 Spheroid, CalculationType
             >(base_t::m_spheroid);
     }

@@ -69,15 +69,14 @@ namespace detail { namespace area
 
 struct box_area
 {
-    template <typename Box, typename Strategy>
+    template <typename Box, typename Strategies>
     static inline typename coordinate_type<Box>::type
-    apply(Box const& box, Strategy const&)
+    apply(Box const& box, Strategies const& strategies)
     {
         // Currently only works for 2D Cartesian boxes
         assert_dimension<Box, 2>();
 
-        return (get<max_corner, 0>(box) - get<min_corner, 0>(box))
-             * (get<max_corner, 1>(box) - get<min_corner, 1>(box));
+        return strategies.area(box).apply(box);
     }
 };
 
