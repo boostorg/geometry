@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -15,8 +15,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ITERATORS_BASE_HPP
-#define BOOST_GEOMETRY_ITERATORS_BASE_HPP
+#ifndef BOOST_GEOMETRY_ITERATORS_DETAIL_ITERATOR_BASE_HPP
+#define BOOST_GEOMETRY_ITERATORS_DETAIL_ITERATOR_BASE_HPP
 
 #include <type_traits>
 
@@ -71,4 +71,4 @@ struct iterator_base
 #endif
 
 
-#endif // BOOST_GEOMETRY_ITERATORS_BASE_HPP
+#endif // BOOST_GEOMETRY_ITERATORS_DETAIL_ITERATOR_BASE_HPP

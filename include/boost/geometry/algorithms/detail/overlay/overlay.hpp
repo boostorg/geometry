@@ -338,8 +338,8 @@ std::cout << "enrich" << std::endl;
 std::cout << "traverse" << std::endl;
 #endif
         // Traverse through intersection/turn points and create rings of them.
-        // Note that these rings are always in clockwise order, even in CCW polygons,
-        // and are marked as "to be reversed" below
+        // These rings are always in clockwise order.
+        // In CCW polygons they are marked as "to be reversed" below.
         ring_container_type rings;
         traverse<Reverse1, Reverse2, Geometry1, Geometry2, OverlayType>::apply
                 (

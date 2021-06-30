@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,14 +19,13 @@
 
 #include <geometry_test_common.hpp>
 
-
-#include <boost/geometry/views/detail/range_type.hpp>
 #include <boost/geometry/algorithms/detail/as_range.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
+
 
 template <int D, typename Range>
 double sum(Range const& range)
@@ -40,17 +43,12 @@ template <typename G>
 void test_geometry(std::string const& wkt, double expected_x, double expected_y)
 {
     G geometry;
-
-    // Declare a range-type, compatible with boost::range,
-    // such that range_iterator etc could be called
-    typedef typename bg::detail::range_type<G>::type range_type;
-
     bg::read_wkt(wkt, geometry);
 
-    double s = sum<0>(bg::detail::as_range<range_type>(geometry));
+    double s = sum<0>(bg::detail::as_range(geometry));
     BOOST_CHECK_CLOSE(s, expected_x, 0.001);
 
-    s = sum<1>(bg::detail::as_range<range_type>(geometry));
+    s = sum<1>(bg::detail::as_range(geometry));
     BOOST_CHECK_CLOSE(s, expected_y, 0.001);
 }
 
