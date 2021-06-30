@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -61,10 +61,7 @@ struct is_simple_multipoint
         std::sort(boost::begin(mp), boost::end(mp), less_type());
 
         simplicity_failure_policy policy;
-        return ! detail::is_valid::has_duplicates
-            <
-                MultiPoint, closed
-            >::apply(mp, policy, strategy);
+        return ! detail::is_valid::has_duplicates<MultiPoint>::apply(mp, policy, strategy);
     }
 };
 

@@ -27,10 +27,16 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/algorithms/detail/as_range.hpp>
+#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
+#include <boost/geometry/algorithms/detail/convex_hull/graham_andrew.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
+
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/ring_type.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -38,13 +44,6 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/condition.hpp>
-
-#include <boost/geometry/views/detail/range_type.hpp>
-
-#include <boost/geometry/algorithms/is_empty.hpp>
-#include <boost/geometry/algorithms/detail/as_range.hpp>
-#include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
-#include <boost/geometry/algorithms/detail/convex_hull/graham_andrew.hpp>
 
 
 namespace boost { namespace geometry
@@ -58,7 +57,6 @@ namespace detail { namespace convex_hull
 template <order_selector Order, closure_selector Closure>
 struct hull_insert
 {
-
     // Member template function (to avoid inconvenient declaration
     // of output-iterator-type, from hull_to_geometry)
     template <typename Geometry, typename OutputIterator, typename Strategy>
@@ -88,17 +86,18 @@ struct hull_to_geometry
     static inline void apply(Geometry const& geometry, OutputGeometry& out,
             Strategy const& strategy)
     {
+        // TODO: Why not handle multi-polygon here?
+        // TODO: detail::as_range() is only used in this place in the whole library
+        //       it should probably be located here.
+        // NOTE: A variable is created here because this can be a proxy range
+        //       and back_insert_iterator<> can store a pointer to it.
+        // Handle linestring, ring and polygon the same:
+        auto&& range = detail::as_range(out);
         hull_insert
             <
                 geometry::point_order<OutputGeometry>::value,
                 geometry::closure<OutputGeometry>::value
-            >::apply(geometry,
-                range::back_inserter(
-                    // Handle linestring, ring and polygon the same:
-                    detail::as_range
-                        <
-                            typename range_type<OutputGeometry>::type
-                        >(out)), strategy);
+            >::apply(geometry, range::back_inserter(range), strategy);
     }
 };
 
@@ -120,6 +119,7 @@ struct convex_hull
     : detail::convex_hull::hull_to_geometry
 {};
 
+// TODO: This is not correct in spherical and geographic CS
 template <typename Box>
 struct convex_hull<Box, box_tag>
 {

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -12,7 +12,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP
 
 #include <algorithm>
-#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
@@ -20,21 +19,23 @@
 #include <boost/range/rbegin.hpp>
 #include <boost/range/rend.hpp>
 
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
+#include <boost/geometry/io/dsv/write.hpp>
+
 #include <boost/geometry/policies/is_valid/default_policy.hpp>
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
-
-#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-#include <boost/geometry/algorithms/validity_failure_type.hpp>
-#include <boost/geometry/algorithms/detail/point_is_spike_or_equal.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
 
 
 namespace boost { namespace geometry
@@ -46,7 +47,7 @@ namespace detail { namespace is_valid
 {
 
 
-template <typename Range, closure_selector Closure>
+template <typename Range>
 struct has_spikes
 {
     template <typename Iterator, typename Strategy>
@@ -99,33 +100,30 @@ struct has_spikes
     {
         boost::ignore_unused(visitor);
 
-        typedef typename closeable_view<Range const, Closure>::type view_type;
-        typedef typename boost::range_iterator<view_type const>::type iterator; 
+        bool const is_linestring = util::is_linestring<Range>::value;
 
-        bool const is_linestring
-            = std::is_same<typename tag<Range>::type, linestring_tag>::value;
+        detail::closed_view<Range const> const view(range);
 
-        view_type const view(range);
+        auto prev = boost::begin(view);
+        auto const end = boost::end(view);
 
-        iterator prev = boost::begin(view);
-
-        iterator cur = find_different_from_first(prev, boost::end(view), strategy);
-        if (cur == boost::end(view))
+        auto cur = find_different_from_first(prev, boost::end(view), strategy);
+        if (cur == end)
         {
             // the range has only one distinct point, so it
             // cannot have a spike
             return ! visitor.template apply<no_failure>();
         }
 
-        iterator next = find_different_from_first(cur, boost::end(view), strategy);
-        if (next == boost::end(view))
+        auto next = find_different_from_first(cur, boost::end(view), strategy);
+        if (next == end)
         {
             // the range has only two distinct points, so it
             // cannot have a spike
             return ! visitor.template apply<no_failure>();
         }
 
-        while (next != boost::end(view))
+        while (next != end)
         {
             // Verify spike. TODO: this is a reverse order from expected
             // in is_spike_or_equal, but this order calls the side

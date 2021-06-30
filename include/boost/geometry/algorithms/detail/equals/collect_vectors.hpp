@@ -5,9 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017, 2019.
-// Modifications copyright (c) 2017, 2019 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -38,7 +37,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
@@ -327,17 +326,13 @@ struct range_collect_vectors
 
     static inline void apply(Collection& collection, Range const& range)
     {
-        typedef geometry::detail::normalized_view
-            <
-                Range const
-            > normalized_range_type;
-
-        apply_impl(collection, normalized_range_type(range));
+        apply_impl(collection,
+                   detail::closed_clockwise_view<Range const>(range));
     }
 
 private:
-    template <typename NormalizedRange>
-    static inline void apply_impl(Collection& collection, NormalizedRange const& range)
+    template <typename ClosedClockwiseRange>
+    static inline void apply_impl(Collection& collection, ClosedClockwiseRange const& range)
     {
         if (boost::size(range) < 2)
         {
@@ -347,14 +342,12 @@ private:
         typedef typename boost::range_size<Collection>::type collection_size_t;
         collection_size_t c_old_size = boost::size(collection);
 
-        typedef typename boost::range_iterator<NormalizedRange const>::type iterator;
+        typedef typename boost::range_iterator<ClosedClockwiseRange const>::type iterator;
 
         bool is_first = true;
         iterator it = boost::begin(range);
 
-        for (iterator prev = it++;
-            it != boost::end(range);
-            prev = it++)
+        for (iterator prev = it++; it != boost::end(range); prev = it++)
         {
             typename boost::range_value<Collection>::type v(*prev, *it);
 

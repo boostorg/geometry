@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -41,8 +41,7 @@
 
 #include <boost/geometry/util/range.hpp>
 
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -72,24 +71,17 @@ struct copy_segments_ring
             RobustPolicy const& robust_policy,
             RangeOut& current_output)
     {
-        typedef typename closeable_view
-        <
-            Ring const,
-            closure<Ring>::value
-        >::type cview_type;
+        using view_type = detail::closed_clockwise_view
+            <
+                Ring const,
+                closure<Ring>::value,
+                Reverse ? counterclockwise : clockwise
+            >;
 
-        typedef typename reversible_view
-        <
-            cview_type const,
-            Reverse ? iterate_reverse : iterate_forward
-        >::type rview_type;
+        using iterator = typename boost::range_iterator<view_type const>::type;
+        using ec_iterator = geometry::ever_circling_iterator<iterator>;
 
-        typedef typename boost::range_iterator<rview_type const>::type iterator;
-        typedef geometry::ever_circling_iterator<iterator> ec_iterator;
-
-
-        cview_type cview(ring);
-        rview_type view(cview);
+        view_type view(ring);
 
         // The problem: sometimes we want to from "3" to "2"
         // -> end = "3" -> end == begin

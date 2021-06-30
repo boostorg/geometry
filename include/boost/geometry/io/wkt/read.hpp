@@ -442,11 +442,7 @@ struct polygon_parser
             {
                 typename ring_type<Polygon>::type ring;
                 appender::apply(it, end, wkt, ring);
-                // This may be a proxy range and push_back needs lvalue
-                // TODO: Support rvalue ranges in util/range.hpp
-                typename traits::interior_mutable_type<Polygon>::type
-                    rings = geometry::interior_rings(poly);
-                range::push_back(rings, std::move(ring));
+                range::push_back(geometry::interior_rings(poly), std::move(ring));
             }
 
             if (it != end && *it == ",")

@@ -58,7 +58,7 @@
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 #include <boost/geometry/util/range.hpp>
 
 
@@ -702,7 +702,7 @@ struct buffered_piece_collection
             // GeometryOut type, which might differ from the input ring type)
             clockwise_ring_type clockwise_ring;
 
-            typedef detail::normalized_view<InputRing const> view_type;
+            using view_type = detail::closed_clockwise_view<InputRing const>;
             view_type const view(input_ring);
 
             for (typename boost::range_iterator<view_type const>::type it =

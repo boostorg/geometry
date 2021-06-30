@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -76,12 +76,7 @@ struct disjoint_point_segment_or_box<Box, box_tag>
 };
 
 
-template
-<
-    typename Range,
-    closure_selector Closure,
-    typename SegmentOrBox
->
+template <typename Range, typename SegmentOrBox>
 struct disjoint_range_segment_or_box
 {
     template <typename Strategy>
@@ -89,24 +84,12 @@ struct disjoint_range_segment_or_box
                              SegmentOrBox const& segment_or_box,
                              Strategy const& strategy)
     {
-        typedef typename closeable_view<Range const, Closure>::type view_type;
+        using point_type = typename point_type<Range>::type;
+        using range_segment = typename geometry::model::referring_segment<point_type const>;
 
-        typedef typename ::boost::range_value<view_type>::type point_type;
-        typedef typename ::boost::range_iterator
-            <
-                view_type const
-            >::type const_iterator;
+        detail::closed_view<Range const> const view(range);
 
-        typedef typename ::boost::range_size<view_type>::type size_type;
-
-        typedef typename geometry::model::referring_segment
-            <
-                point_type const
-            > range_segment;
-
-        view_type view(range);
-
-        const size_type count = ::boost::size(view);
+        auto const count = ::boost::size(view);
 
         if ( count == 0 )
         {
@@ -117,15 +100,13 @@ struct disjoint_range_segment_or_box
             return disjoint_point_segment_or_box
                 <
                     SegmentOrBox
-                >::apply(geometry::range::front<view_type const>(view),
-                         segment_or_box,
-                         strategy);
+                >::apply(range::front(view), segment_or_box, strategy);
         }
         else
         {
-            const_iterator it0 = ::boost::begin(view);
-            const_iterator it1 = ::boost::begin(view) + 1;
-            const_iterator last = ::boost::end(view);
+            auto it0 = ::boost::begin(view);
+            auto it1 = ::boost::begin(view) + 1;
+            auto const last = ::boost::end(view);
 
             for ( ; it1 != last ; ++it0, ++it1 )
             {
@@ -161,7 +142,7 @@ struct disjoint_linear_segment_or_box
 
 template <typename Linestring, typename SegmentOrBox>
 struct disjoint_linear_segment_or_box<Linestring, SegmentOrBox, linestring_tag>
-    : disjoint_range_segment_or_box<Linestring, closed, SegmentOrBox>
+    : disjoint_range_segment_or_box<Linestring, SegmentOrBox>
 {};
 
 

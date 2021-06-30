@@ -36,7 +36,6 @@
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
-#include <boost/geometry/views/detail/range_type.hpp>
 
 
 namespace boost { namespace geometry
@@ -68,7 +67,8 @@ inline void get_extremes(Geometry const& geometry,
         auto left_it = boost::begin(range);
         auto right_it = boost::begin(range);
 
-        for (auto it = ++boost::begin(range); it != boost::end(range); ++it)
+        auto it = boost::begin(range);
+        for (++it; it != boost::end(range); ++it)
         {
             if (less(*it, *left_it))
             {
