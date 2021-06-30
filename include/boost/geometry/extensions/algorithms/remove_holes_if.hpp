@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,7 +19,7 @@
 #include <algorithm>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/detail/multi_modify_with_predicate.hpp>
+#include <boost/geometry/algorithms/detail/multi_modify.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -76,10 +80,8 @@ struct remove_holes_if<polygon_tag, Geometry, Predicate>
 
 template <typename MultiPolygon, typename Predicate>
 struct remove_holes_if<multi_polygon_tag, MultiPolygon, Predicate>
-    : detail::multi_modify_with_predicate
+    : detail::multi_modify
         <
-            MultiPolygon,
-            Predicate,
             detail::remove_holes_if::polygon_remove_holes_if
                 <
                     typename boost::range_value<MultiPolygon>::type, Predicate
