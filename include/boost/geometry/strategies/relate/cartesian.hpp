@@ -20,13 +20,14 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 

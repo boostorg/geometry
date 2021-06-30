@@ -20,12 +20,16 @@
 
 #include <boost/array.hpp>
 #include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
+
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 

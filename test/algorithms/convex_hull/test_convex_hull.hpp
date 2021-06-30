@@ -31,9 +31,10 @@
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
-#include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 

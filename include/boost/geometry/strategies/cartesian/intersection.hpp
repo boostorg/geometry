@@ -38,13 +38,13 @@
 #include <boost/geometry/strategy/cartesian/envelope.hpp>
 #include <boost/geometry/strategy/cartesian/expand_box.hpp>
 #include <boost/geometry/strategy/cartesian/expand_segment.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>

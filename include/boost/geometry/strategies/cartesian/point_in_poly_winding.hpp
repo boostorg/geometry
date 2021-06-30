@@ -24,10 +24,10 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategy/cartesian/expand_point.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
 

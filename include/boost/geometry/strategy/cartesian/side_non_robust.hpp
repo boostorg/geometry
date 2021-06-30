@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -21,7 +21,7 @@ namespace strategy { namespace side
 {
 
 /*!
-\brief Adaptive precision predicate to check at which side of a segment a point lies:
+\brief Predicate to check at which side of a segment a point lies:
     left of segment (>0), right of segment (< 0), on segment (0).
 \ingroup strategies
 \tparam CalculationType \tparam_calculation
@@ -35,8 +35,6 @@ struct side_non_robust
 {
 public:
     //! \brief Computes double the signed area of the CCW triangle p1, p2, p
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
     template
     <
         typename P1,
@@ -66,7 +64,6 @@ public:
         return detleft > detright ? 1 : (detleft < detright ? -1 : 0 );
 
     }
-#endif
 
 };
 

@@ -17,11 +17,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 
-#include <iostream>
-
-#include <boost/rational.hpp>
-
 #include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+
+#include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -133,7 +131,7 @@ public:
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     template
-    < 
+    <
         typename P1,
         typename P2,
         typename P
@@ -170,6 +168,21 @@ public:
 #endif
 
 };
+
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+namespace services
+{
+
+template <typename CalculationType>
+struct default_strategy<cartesian_tag, CalculationType>
+{
+    typedef side_robust<CalculationType> type;
+};
+
+}
+
+#endif
 
 }} // namespace strategy::side
 
