@@ -42,10 +42,7 @@ inline bool is_simple_ring(Ring const& ring, Strategy const& strategy)
 {
     simplicity_failure_policy policy;
     return ! boost::empty(ring)
-        && ! detail::is_valid::has_duplicates
-                <
-                    Ring, geometry::closure<Ring>::value
-                >::apply(ring, policy, strategy);
+        && ! detail::is_valid::has_duplicates<Ring>::apply(ring, policy, strategy);
 }
 
 template <typename InteriorRings, typename Strategy>

@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,7 +18,6 @@
 
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/iterators/detail/point_iterator/inner_range_type.hpp>
@@ -285,25 +284,24 @@ public:
     // correct iterator category.
     typedef std::bidirectional_iterator_tag iterator_category;
 
-    inline segment_iterator() {}
+    inline segment_iterator() = default;
 
-    template <typename OtherGeometry>
+    template
+    <
+        typename OtherGeometry,
+        std::enable_if_t
+            <
+                std::is_convertible
+                    <
+                        typename detail::segment_iterator::iterator_type<OtherGeometry>::type,
+                        typename detail::segment_iterator::iterator_type<Geometry>::type
+                    >::value,
+                int
+            > = 0
+    >
     inline segment_iterator(segment_iterator<OtherGeometry> const& other)
         : base(*other.base_ptr())
-    {
-        static const bool is_conv
-            = std::is_convertible<
-                typename detail::segment_iterator::iterator_type
-                    <
-                        OtherGeometry
-                    >::type,
-                typename detail::segment_iterator::iterator_type<Geometry>::type
-            >::value;
-
-        BOOST_GEOMETRY_STATIC_ASSERT((is_conv),
-            "Other iterator has to be convertible to member iterator.",
-            segment_iterator<OtherGeometry>);
-    }
+    {}
 
     inline segment_iterator& operator++() // prefix
     {

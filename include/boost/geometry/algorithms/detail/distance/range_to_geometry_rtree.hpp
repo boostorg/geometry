@@ -1,7 +1,6 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Boost.Geometry
 
 // Copyright (c) 2014-2021, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -23,7 +22,7 @@
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/iterators/has_one_element.hpp>
+#include <boost/geometry/iterators/detail/has_one_element.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -67,7 +66,7 @@ public:
     {
         BOOST_GEOMETRY_ASSERT( first != last );
 
-        if ( geometry::has_one_element(first, last) )
+        if ( detail::has_one_element(first, last) )
         {
             return dispatch::distance
                 <

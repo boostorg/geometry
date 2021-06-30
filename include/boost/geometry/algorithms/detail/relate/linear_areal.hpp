@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -34,7 +34,7 @@
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -1218,9 +1218,9 @@ struct linear_areal
             typename sub_range_return_type<Geometry1 const>::type
                 range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
             
-            typedef detail::normalized_view<Geometry2 const> const range2_type;
-            typedef typename boost::range_iterator<range2_type>::type range2_iterator;
-            range2_type range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
+            using range2_view = detail::closed_clockwise_view<typename ring_type<Geometry2>::type const>;
+            using range2_iterator = typename boost::range_iterator<range2_view const>::type;
+            range2_view const range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
             
             BOOST_GEOMETRY_ASSERT(boost::size(range1));
             std::size_t const s2 = boost::size(range2);

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -154,10 +154,7 @@ private:
             <
                 Segment,
                 Strategy,
-                disjoint_range_segment_or_box
-                    <
-                        ring_type, closure<ring_type>::value, Segment
-                    >
+                disjoint_range_segment_or_box<ring_type, Segment>
             > unary_predicate_type;
                 
         return check_iterator_range
@@ -175,17 +172,16 @@ public:
                              Polygon const& polygon,
                              IntersectionStrategy const& strategy)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring;
-
-        if ( !disjoint_range_segment_or_box
-                 <
-                     ring, closure<Polygon>::value, Segment
-                 >::apply(geometry::exterior_ring(polygon), segment, strategy) )
+        if (! disjoint_range_segment_or_box
+                <
+                    typename geometry::ring_type<Polygon>::type,
+                    Segment
+                >::apply(geometry::exterior_ring(polygon), segment, strategy))
         {
             return false;
         }
 
-        if ( !check_interior_rings(geometry::interior_rings(polygon), segment, strategy) )
+        if (! check_interior_rings(geometry::interior_rings(polygon), segment, strategy))
         {
             return false;
         }
@@ -221,10 +217,7 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
                              Ring const& ring,
                              IntersectionStrategy const& strategy)
     {
-        if ( !disjoint_range_segment_or_box
-                 <
-                     Ring, closure<Ring>::value, Segment
-                 >::apply(ring, segment, strategy) )
+        if (! disjoint_range_segment_or_box<Ring, Segment>::apply(ring, segment, strategy))
         {
             return false;
         }
