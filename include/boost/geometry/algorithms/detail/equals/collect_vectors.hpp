@@ -331,8 +331,8 @@ struct range_collect_vectors
     }
 
 private:
-    template <typename RevClRange>
-    static inline void apply_impl(Collection& collection, RevClRange const& range)
+    template <typename ClosedClockwiseRange>
+    static inline void apply_impl(Collection& collection, ClosedClockwiseRange const& range)
     {
         if (boost::size(range) < 2)
         {
@@ -342,7 +342,7 @@ private:
         typedef typename boost::range_size<Collection>::type collection_size_t;
         collection_size_t c_old_size = boost::size(collection);
 
-        typedef typename boost::range_iterator<RevClRange const>::type iterator;
+        typedef typename boost::range_iterator<ClosedClockwiseRange const>::type iterator;
 
         bool is_first = true;
         iterator it = boost::begin(range);
