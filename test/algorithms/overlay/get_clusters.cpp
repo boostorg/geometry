@@ -3,6 +3,10 @@
 
 // Copyright (c) 2021 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -63,8 +67,8 @@ void do_test(std::string const& case_id,
                         << " detected: " << clusters.size());
 }
 
-template <typename Point, typename T>
-void test_get_clusters(T eps)
+template <typename Point>
+void test_get_clusters(typename bg::coordinate_type<Point>::type eps)
 {
     do_test<Point>("no", {{1.0, 1.0}, {1.0, 2.0}}, 0);
     do_test<Point>("simplex", {{1.0, 1.0}, {1.0, 1.0}}, 1);
@@ -78,10 +82,10 @@ void test_get_clusters(T eps)
                    8);
 
     // Border cases
-    do_test<Point>("borderx_no", {{1.0, 1.0}, {1.0, 2.0}, {1.0 + eps * 10.0, 1.0}}, 0);
-    do_test<Point>("borderx_yes", {{1.0, 1.0}, {1.0, 2.0}, {1.0 + eps, 1.0}}, 1);
-    do_test<Point>("bordery_no", {{1.0, 1.0}, {2.0, 1.0}, {1.0 + eps * 10.0, 1.0}}, 0);
-    do_test<Point>("bordery_yes", {{1.0, 1.0}, {2.0, 1.0}, {1.0 + eps, 1.0}}, 1);
+    do_test<Point>("borderx_no",  {{1, 1}, {1, 2}, {1 + eps * 10, 1}}, 0);
+    do_test<Point>("borderx_yes", {{1, 1}, {1, 2}, {1 + eps, 1}}, 1);
+    do_test<Point>("bordery_no",  {{1, 1}, {2, 1}, {1 + eps * 10, 1}}, 0);
+    do_test<Point>("bordery_yes", {{1, 1}, {2, 1}, {1 + eps, 1}}, 1);
 }
 
 int test_main(int, char* [])
@@ -89,7 +93,7 @@ int test_main(int, char* [])
     using fp = bg::model::point<float, 2, bg::cs::cartesian>;
     using dp = bg::model::point<double, 2, bg::cs::cartesian>;
     using ep = bg::model::point<long double, 2, bg::cs::cartesian>;
-    test_get_clusters<fp>(1.0e-8);
+    test_get_clusters<fp>(1.0e-8f);
     test_get_clusters<dp>(1.0e-13);
     test_get_clusters<ep>(1.0e-16);
     return 0;
