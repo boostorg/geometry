@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -82,12 +82,12 @@ void test_box_box()
 template <typename P>
 void test_point_polygon()
 {
-    typename boost::mpl::if_
+    std::conditional_t
         <
-            boost::is_same<typename bg::cs_tag<P>::type, bg::geographic_tag>,
+            std::is_same<typename bg::cs_tag<P>::type, bg::geographic_tag>::value,
             bg::strategy::within::geographic_winding<P>,
             bg::strategy::within::spherical_winding<P>
-        >::type s;
+        > s;
 
     typedef bg::model::polygon<P> poly;
 

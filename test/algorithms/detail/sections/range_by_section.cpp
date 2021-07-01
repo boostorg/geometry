@@ -11,7 +11,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <iostream>
+
 #include <string>
 
 #define BOOST_GEOMETRY_UNIT_TEST_SECTIONALIZE
@@ -58,7 +58,7 @@ void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, s
             view_type const
         >::type range_iterator;
 
-    BOOST_FOREACH(typename sections::value_type const& sec, s)
+    for (typename sections::value_type const& sec : s)
     {
         cview_type cview(bg::range_by_section(geometry, sec));
         view_type view(cview);

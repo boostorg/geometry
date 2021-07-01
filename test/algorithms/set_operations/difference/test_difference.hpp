@@ -25,7 +25,6 @@
 #include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/foreach.hpp>
 
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/size.hpp>
