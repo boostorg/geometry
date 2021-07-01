@@ -3,9 +3,9 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -23,11 +23,16 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include <boost/assign/list_of.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/iterator/iterator_concepts.hpp>
 #include <boost/tuple/tuple.hpp>
+
+#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/num_segments.hpp>
+
+#include <boost/geometry/core/closure.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
@@ -37,25 +42,13 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
-#include <boost/geometry/core/closure.hpp>
-
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/num_segments.hpp>
-
-#include <boost/geometry/policies/compare.hpp>
-
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
-// TEMP
-#include <boost/geometry/strategies/relate/cartesian.hpp>
-#include <boost/geometry/strategies/relate/geographic.hpp>
-#include <boost/geometry/strategies/relate/spherical.hpp>
+#include <boost/geometry/policies/compare.hpp>
 
 #include <test_common/with_pointer.hpp>
 #include <test_geometries/copy_on_dereference_geometries.hpp>
 
-namespace ba = ::boost::assign;
 namespace bg = ::boost::geometry;
 namespace bgm = bg::model;
 
@@ -87,7 +80,7 @@ template <typename Geometry>
 inline Geometry from_wkt(std::string const& wkt)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     return geometry;
 }
 
@@ -325,22 +318,23 @@ BOOST_AUTO_TEST_CASE( test_linestring_segment_iterator )
     typedef test_segment_iterator_of_geometry<G, TML> tester;
 
     tester::apply(from_wkt<G>("LINESTRING(0 0,1 1,2 2,3 3,4 4)"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(1,1) )
-                  ( ba::tuple_list_of(1,1)(2,2) )
-                  ( ba::tuple_list_of(2,2)(3,3) )
-                  ( ba::tuple_list_of(3,3)(4,4) )
-                  );
+                  TML{
+                  {{0,0},{1,1}},
+                  {{1,1},{2,2}},
+                  {{2,2},{3,3}},
+                  {{3,3},{4,4}}
+                  });
 
     // linestring with no points
     tester::apply(from_wkt<G>("LINESTRING()"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // linestring with a single point
     tester::apply(from_wkt<G>("LINESTRING(1 0)"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(1,0)(1,0) ),
+                  TML{
+                  {{1,0},{1,0}}
+                  },
                   false
                   );
 
@@ -365,80 +359,82 @@ BOOST_AUTO_TEST_CASE( test_ring_segment_iterator )
     typedef dual_tester<CG, TML> tester;
 
     tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10,10 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}}
+                  });
 
     // open ring with no points
     tester::apply(from_wkt<OG>("POLYGON(())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // open ring with a single point (one segment)
     tester::apply(from_wkt<OG>("POLYGON((0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,0) ),
+                  TML{
+                  {{0,0},{0,0}}
+                  },
                   false
                   );
 
     // open ring with a two points (two segments)
     tester::apply(from_wkt<OG>("POLYGON((0 0,0 10))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{0,0}}
+                  });
 
     // open ring with a three points (three segments)
     tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{0,0}}
+                  });
 
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}}
+                  });
 
     // closed ring with no points
     tester::apply(from_wkt<CG>("POLYGON(())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // closed ring with a single point (one segment)
     tester::apply(from_wkt<CG>("POLYGON((0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,0) ),
+                  TML{
+                  {{0,0},{0,0}}
+                  },
                   false
                   );
 
     // closed ring with two points (one segment)
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,0}}
+                  });
 
     // closed ring with three points (two segments)
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{0,0}}
+                  });
 
     // closed ring with four points (three segments)
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,0 0))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(0,0) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{0,0}}
+                  });
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
@@ -461,85 +457,89 @@ BOOST_AUTO_TEST_CASE( test_polygon_segment_iterator )
     typedef dual_tester<CG, TML> tester;
 
     tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10,10 0),(1 1,9 1,9 9,1 9))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}}
+                  });
 
     // open polygon with no points
     tester::apply(from_wkt<OG>("POLYGON(())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // open polygons with single-point rings
     tester::apply(from_wkt<OG>("POLYGON((0 0,0 10,10 10,10 0),(1 1))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(1,1) ),
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{1,1}}
+                  },
                   false
                   );
 
     tester::apply(from_wkt<OG>("POLYGON((0 0),(1 1,9 1,9 9,1 9))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) ),
+                  TML{
+                  {{0,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}}
+                  },
                   false
                   );
 
 
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}}
+                  });
 
     // closed polygons with no points
     tester::apply(from_wkt<CG>("POLYGON(())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("POLYGON((),())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("POLYGON((),(),())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // closed polygons with single-point rings
     tester::apply(from_wkt<CG>("POLYGON((0 0,0 10,10 10,10 0,0 0),(1 1))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(1,1) ),
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{1,1}},
+                  },
                   false
                   );
 
     tester::apply(from_wkt<CG>("POLYGON((0 0),(1 1,9 1,9 9,1 9,1 1))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) ),
+                  TML{
+                  {{0,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}}
+                  },
                   false
                   );
 
@@ -563,37 +563,38 @@ BOOST_AUTO_TEST_CASE( test_multi_linestring_segment_iterator )
     typedef test_segment_iterator_of_geometry<G, TML> tester;
 
     tester::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2,3 3,4 4),(5 5,6 6,7 7,8 8),(9 9,10 10))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(1,1) )
-                  ( ba::tuple_list_of(1,1)(2,2) )
-                  ( ba::tuple_list_of(2,2)(3,3) )
-                  ( ba::tuple_list_of(3,3)(4,4) )
-                  ( ba::tuple_list_of(5,5)(6,6) )
-                  ( ba::tuple_list_of(6,6)(7,7) )
-                  ( ba::tuple_list_of(7,7)(8,8) )
-                  ( ba::tuple_list_of(9,9)(10,10) )
-                  );
+                  TML{
+                  {{0,0},{1,1}},
+                  {{1,1},{2,2}},
+                  {{2,2},{3,3}},
+                  {{3,3},{4,4}},
+                  {{5,5},{6,6}},
+                  {{6,6},{7,7}},
+                  {{7,7},{8,8}},
+                  {{9,9},{10,10}}
+                  });
 
     // empty multi-linestrings
     tester::apply(from_wkt<G>("MULTILINESTRING()"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<G>("MULTILINESTRING(())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<G>("MULTILINESTRING((),())"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
     // multi-linestring with a linestring with one point
     tester::apply(from_wkt<G>("MULTILINESTRING((0 0,1 1,2 2,3 3,4 4),(5 5),(9 9,10 10))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(1,1) )
-                  ( ba::tuple_list_of(1,1)(2,2) )
-                  ( ba::tuple_list_of(2,2)(3,3) )
-                  ( ba::tuple_list_of(3,3)(4,4) )
-                  ( ba::tuple_list_of(5,5)(5,5) )
-                  ( ba::tuple_list_of(9,9)(10,10) ),
+                  TML{
+                  {{0,0},{1,1}},
+                  {{1,1},{2,2}},
+                  {{2,2},{3,3}},
+                  {{3,3},{4,4}},
+                  {{5,5},{5,5}},
+                  {{9,9},{10,10}}
+                  },
                   false
                   );
 
@@ -618,63 +619,63 @@ BOOST_AUTO_TEST_CASE( test_multi_polygon_segment_iterator )
     typedef dual_tester<CG, TML> tester;
 
     tester::apply(from_wkt<OG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0),(1 1,9 1,9 9,1 9)),((20 0,20 10,30 10,30 0),(21 1,29 1,29 9,21 9)))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) )
-                  ( ba::tuple_list_of(20,0)(20,10) )
-                  ( ba::tuple_list_of(20,10)(30,10) )
-                  ( ba::tuple_list_of(30,10)(30,0) )
-                  ( ba::tuple_list_of(30,0)(20,0) )
-                  ( ba::tuple_list_of(21,1)(29,1) )
-                  ( ba::tuple_list_of(29,1)(29,9) )
-                  ( ba::tuple_list_of(29,9)(21,9) )
-                  ( ba::tuple_list_of(21,9)(21,1) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}},
+                  {{20,0},{20,10}},
+                  {{20,10},{30,10}},
+                  {{30,10},{30,0}},
+                  {{30,0},{20,0}},
+                  {{21,1},{29,1}},
+                  {{29,1},{29,9}},
+                  {{29,9},{21,9}},
+                  {{21,9},{21,1}}
+                  });
 
     tester::apply(from_wkt<CG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0),(1 1,9 1,9 9,1 9,1 1)),((20 0,20 10,30 10,30 0,20 0),(21 1,29 1,29 9,21 9,21 1)))"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(0,0)(0,10) )
-                  ( ba::tuple_list_of(0,10)(10,10) )
-                  ( ba::tuple_list_of(10,10)(10,0) )
-                  ( ba::tuple_list_of(10,0)(0,0) )
-                  ( ba::tuple_list_of(1,1)(9,1) )
-                  ( ba::tuple_list_of(9,1)(9,9) )
-                  ( ba::tuple_list_of(9,9)(1,9) )
-                  ( ba::tuple_list_of(1,9)(1,1) )
-                  ( ba::tuple_list_of(20,0)(20,10) )
-                  ( ba::tuple_list_of(20,10)(30,10) )
-                  ( ba::tuple_list_of(30,10)(30,0) )
-                  ( ba::tuple_list_of(30,0)(20,0) )
-                  ( ba::tuple_list_of(21,1)(29,1) )
-                  ( ba::tuple_list_of(29,1)(29,9) )
-                  ( ba::tuple_list_of(29,9)(21,9) )
-                  ( ba::tuple_list_of(21,9)(21,1) )
-                  );
+                  TML{
+                  {{0,0},{0,10}},
+                  {{0,10},{10,10}},
+                  {{10,10},{10,0}},
+                  {{10,0},{0,0}},
+                  {{1,1},{9,1}},
+                  {{9,1},{9,9}},
+                  {{9,9},{1,9}},
+                  {{1,9},{1,1}},
+                  {{20,0},{20,10}},
+                  {{20,10},{30,10}},
+                  {{30,10},{30,0}},
+                  {{30,0},{20,0}},
+                  {{21,1},{29,1}},
+                  {{29,1},{29,9}},
+                  {{29,9},{21,9}},
+                  {{21,9},{21,1}}
+                  });
 
     // test empty closed multi-polygons
     tester::apply(from_wkt<CG>("MULTIPOLYGON()"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("MULTIPOLYGON((()))"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("MULTIPOLYGON(((),()))"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()))"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()),(()))"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
     tester::apply(from_wkt<CG>("MULTIPOLYGON(((),(),()),((),()))"),
-                  ba::list_of<tuple_linestring_type>()
+                  TML()
                   );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -711,16 +712,16 @@ BOOST_AUTO_TEST_CASE( test_linestring_of_point_pointers )
     typedef test_segment_iterator_of_geometry<L, TML> tester;
 
     tester::apply(linestring,
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(1,-1)(2,-2) )
-                  ( ba::tuple_list_of(2,-2)(3,-3) )
-                  ( ba::tuple_list_of(3,-3)(4,-4) )
-                  ( ba::tuple_list_of(4,-4)(5,-5) )
-                  ( ba::tuple_list_of(5,-5)(6,-6) )
-                  ( ba::tuple_list_of(6,-6)(7,-7) )
-                  ( ba::tuple_list_of(7,-7)(8,-8) )
-                  ( ba::tuple_list_of(8,-8)(9,-9) )
-                  );
+                  TML{
+                  {{1,-1},{2,-2}},
+                  {{2,-2},{3,-3}},
+                  {{3,-3},{4,-4}},
+                  {{4,-4},{5,-5}},
+                  {{5,-5},{6,-6}},
+                  {{6,-6},{7,-7}},
+                  {{7,-7},{8,-8}},
+                  {{8,-8},{9,-9}}
+                  });
 
     for (unsigned int i = 0; i < linestring.size(); i++)
     {
@@ -744,14 +745,14 @@ BOOST_AUTO_TEST_CASE( test_linestring_copy_on_dereference )
     typedef test_segment_iterator_of_geometry<L, TML> tester;
 
     tester::apply(from_wkt<L>("LINESTRING(1 -1,2 -2,3 -3,4 -4,5 -5,6 -6, 7 -7,8 -8,9 -9)"),
-                  ba::list_of<tuple_linestring_type>
-                  ( ba::tuple_list_of(1,-1)(2,-2) )
-                  ( ba::tuple_list_of(2,-2)(3,-3) )
-                  ( ba::tuple_list_of(3,-3)(4,-4) )
-                  ( ba::tuple_list_of(4,-4)(5,-5) )
-                  ( ba::tuple_list_of(5,-5)(6,-6) )
-                  ( ba::tuple_list_of(6,-6)(7,-7) )
-                  ( ba::tuple_list_of(7,-7)(8,-8) )
-                  ( ba::tuple_list_of(8,-8)(9,-9) )
-                  );
+                  TML{
+                  {{1,-1},{2,-2}},
+                  {{2,-2},{3,-3}},
+                  {{3,-3},{4,-4}},
+                  {{4,-4},{5,-5}},
+                  {{5,-5},{6,-6}},
+                  {{6,-6},{7,-7}},
+                  {{7,-7},{8,-8}},
+                  {{8,-8},{9,-9}}
+                  });
 }

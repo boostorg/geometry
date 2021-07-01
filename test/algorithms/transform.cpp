@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,7 +19,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <boost/typeof/typeof.hpp>
 #include <boost/variant/variant.hpp>
 
 #include <geometry_test_common.hpp>
@@ -71,10 +74,10 @@ void test_transform_linestring(Value value)
     boost::variant<line1_type> v(line1);
 
     line2_type expected;
-    for (BOOST_AUTO(p, line1.begin()); p != line1.end(); ++p)
+    for (auto it = line1.begin(); it != line1.end(); ++it)
     {
         P2 new_point;
-        bg::assign(new_point, *p);
+        bg::assign(new_point, *it);
         bg::multiply_value(new_point, value);
         expected.push_back(new_point);
     }

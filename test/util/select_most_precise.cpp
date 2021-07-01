@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -23,8 +27,8 @@ struct user_defined {};
 template <typename T1, typename T2, typename ExpectedType>
 void test()
 {
-    typedef typename bg::select_most_precise<T1, T2>::type type;
-    bool is_same = boost::is_same<type, ExpectedType>::type::value;
+    using type = typename bg::select_most_precise<T1, T2>::type;
+    bool is_same = std::is_same<type, ExpectedType>::value;
 
     BOOST_CHECK_MESSAGE(is_same,
                         "The most precise of types " <<

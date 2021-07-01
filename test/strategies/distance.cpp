@@ -1,8 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2017 Oracle and/or its affiliates.
-
+// Copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -28,8 +28,8 @@ typedef bg::strategy::vincenty vincenty_formula;
 template <typename P>
 bool non_precise_ct()
 {
-    typedef typename bg::coordinate_type<P>::type ct;
-    return boost::is_integral<ct>::value || boost::is_float<ct>::value;
+    using ct = typename bg::coordinate_type<P>::type;
+    return std::is_integral<ct>::value || std::is_floating_point<ct>::value;
 }
 
 template <typename P1, typename P2, typename FormulaPolicy>

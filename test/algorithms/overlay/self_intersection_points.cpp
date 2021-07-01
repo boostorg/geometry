@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -77,7 +77,7 @@ static void test_self_intersection_points(std::string const& case_id,
     typedef typename bg::coordinate_type<Geometry>::type ct;
     ct zero = ct();
     ct x = zero, y = zero;
-    BOOST_FOREACH(turn_info const& turn, turns)
+    for (turn_info const& turn : turns)
     {
         x += bg::get<0>(turn.point);
         y += bg::get<1>(turn.point);
@@ -141,7 +141,7 @@ static void test_self_intersection_points(std::string const& case_id,
 
         mapper.map(geometry, "fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:1");
 
-        BOOST_FOREACH(turn_info const& turn, turns)
+        for (turn_info const& turn : turns)
         {
             mapper.map(turn.point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1");
         }

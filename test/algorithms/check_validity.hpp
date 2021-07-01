@@ -2,14 +2,16 @@
 
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef BOOST_GEOMETRY_TEST_CHECK_VALIDITY_HPP
 #define BOOST_GEOMETRY_TEST_CHECK_VALIDITY_HPP
-
-#include <boost/foreach.hpp>
 
 #include <boost/geometry/algorithms/is_valid.hpp>
 
@@ -64,7 +66,7 @@ struct check_validity<Geometry, void>
                std::string& message)
     {
         typedef typename boost::range_value<Geometry>::type single_type;
-        BOOST_FOREACH(single_type const& element, geometry)
+        for (single_type const& element : geometry)
         {
             if (! is_output_valid(element, case_id, g1, g2, message))
             {

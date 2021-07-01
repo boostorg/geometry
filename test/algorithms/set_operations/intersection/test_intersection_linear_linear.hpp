@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,7 +14,6 @@
 #include <limits>
 
 #include <boost/range/value_type.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
@@ -212,19 +211,8 @@ public:
         Geometry2 rg2(geometry2);
         bg::reverse<Geometry2>(rg2);
 
-        typedef typename bg::tag_cast
-            <
-                Geometry1, bg::linear_tag
-            >::type tag1_type;
-
-        typedef typename bg::tag_cast
-            <
-                Geometry2, bg::linear_tag
-            >::type tag2_type;
-
-        bool const are_linear
-            = boost::is_same<tag1_type, bg::linear_tag>::value
-            && boost::is_same<tag2_type, bg::linear_tag>::value;
+        static const bool are_linear = bg::util::is_linear<Geometry1>::value
+                                    && bg::util::is_linear<Geometry2>::value;
 
         test_get_turns_ll_invariance<are_linear>::apply(geometry1, geometry2);
 #ifdef BOOST_GEOMETRY_TEST_DEBUG

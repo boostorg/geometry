@@ -1,8 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2017, Oracle and/or its affiliates.
-
+// Copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -17,8 +16,6 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
-
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -66,7 +63,7 @@ struct rng
 template <typename Units>
 char const* units2string()
 {
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<Units, bg::degree>::value)))
+    if (BOOST_GEOMETRY_CONDITION((std::is_same<Units, bg::degree>::value)))
     {
         return "degrees";
     }

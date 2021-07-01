@@ -73,13 +73,13 @@ void test_all()
         ("POLYGON((1 0,0 1,-1 0,0 -1,1 0))", 2);
 
     typedef typename bg::coordinate_type<P>::type coord_type;
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coord_type, double>::value)))
+    if (BOOST_GEOMETRY_CONDITION((std::is_same<coord_type, double>::value)))
     {
         test_geometry<bg::model::polygon<P, false, false> >
             ("POLYGON((100000001 100000000, 100000000 100000001, \
                        99999999 100000000, 100000000  99999999))", 2);
     }
-    else if (BOOST_GEOMETRY_CONDITION((boost::is_same<coord_type, float>::value)))
+    else if (BOOST_GEOMETRY_CONDITION((std::is_same<coord_type, float>::value)))
     {
         test_geometry<bg::model::polygon<P, false, false> >
             ("POLYGON((100001 100000, 100000 100001, \

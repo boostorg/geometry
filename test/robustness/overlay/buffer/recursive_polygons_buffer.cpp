@@ -3,10 +3,10 @@
 
 // Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -39,8 +39,8 @@
 
 #include <geometry_test_common.hpp>
 #include <geometry_to_crc.hpp>
-#include <common/common_settings.hpp>
-#include <common/make_square_polygon.hpp>
+#include <robustness/common/common_settings.hpp>
+#include <robustness/common/make_square_polygon.hpp>
 
 
 struct buffer_settings : public common_settings

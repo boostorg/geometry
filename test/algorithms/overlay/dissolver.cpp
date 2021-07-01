@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -46,7 +50,7 @@ void test_dissolve_plusmin(std::string const& caseid, Collection const& input,
     T positive_area = T();
     T negative_area = T();
 
-    BOOST_FOREACH(geometry_type const& geometry, output)
+    for (geometry_type const& geometry : output)
     {
         T a = bg::area(geometry);
         if (a > zero)
@@ -74,17 +78,17 @@ void test_dissolve_plusmin(std::string const& caseid, Collection const& input,
         bg::svg_mapper<point_type> mapper(svg, 500, 500);
 
         typedef typename boost::range_value<Collection>::type value_type;
-        BOOST_FOREACH(value_type const& geometry, input)
+        for (value_type const& geometry : input)
         {
             mapper.add(geometry);
         }
 
-        BOOST_FOREACH(value_type const& geometry, input)
+        for (value_type const& geometry : input)
         {
             mapper.map(geometry,
                 "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:0.5");
         }
-        BOOST_FOREACH(geometry_type const& geometry, output)
+        for (geometry_type const& geometry : output)
         {
             mapper.map(geometry,
                 bg::area(geometry) > 0
@@ -116,7 +120,7 @@ void test_geometry(std::string const& caseid, std::string const& wkt,
         typedef typename boost::range_value<MultiPolygon>::type polygon_type;
         typedef typename bg::ring_type<MultiPolygon>::type ring_type;
         std::vector<ring_type> rings;
-        BOOST_FOREACH(polygon_type const& polygon, multi_polygon)
+        for (polygon_type const& polygon : multi_polygon)
         {
             rings.push_back(bg::exterior_ring(polygon));
         }

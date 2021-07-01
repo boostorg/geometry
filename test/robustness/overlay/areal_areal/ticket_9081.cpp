@@ -2,6 +2,10 @@
 
 // Copyright (c) 2013-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,23 +15,30 @@
 #define CHECK_SELF_INTERSECTIONS
 #define LIST_WKT
 
- #include <iomanip>
- #include <iostream>
- #include <vector>
- #include <boost/geometry.hpp>
- #include <boost/geometry/geometries/point_xy.hpp>
- #include <boost/geometry/geometries/polygon.hpp>
- #include <boost/geometry/geometries/register/point.hpp>
- #include <boost/geometry/geometries/register/ring.hpp>
- #include <boost/geometry/io/wkt/wkt.hpp>
- #include <boost/geometry/geometries/multi_polygon.hpp>
-
-#include <boost/foreach.hpp>
-#include <boost/timer.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <vector>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/timer.hpp>
+
+#include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
+#include <boost/geometry/algorithms/difference.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/union.hpp>
+
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/register/point.hpp>
+#include <boost/geometry/geometries/register/ring.hpp>
+#include <boost/geometry/geometries/multi_polygon.hpp>
+
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
+
+namespace bg = boost::geometry;
 
 typedef boost::geometry::model::d2::point_xy<double> pt;
 typedef boost::geometry::model::polygon<pt> polygon;
@@ -62,7 +73,7 @@ inline void debug_with_svg(int index, char method, Geometry const& a, Geometry c
 
     mapper.map(a, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:2");
     mapper.map(b, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:2");
-    BOOST_FOREACH(polygon const& g, output)
+    for(polygon const& g : output)
     {
         mapper.map(g, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
     }
@@ -87,6 +98,14 @@ int main()
 
     std::string wkt1, wkt2, operation;
 
+
+    typename bg::strategies::relate::services::default_strategy
+        <
+            multi_polygon, multi_polygon
+        >::type strategy;
+
+    using rescale_policy_type = typename bg::rescale_policy_type<pt>::type;
+
     try
     {
 
@@ -94,19 +113,23 @@ int main()
     boost::timer t;
     std::vector<multi_polygon> poly_list;
 
-    for(int i=0;i<num_orig;i++)
+    for (int i = 0 ; i < num_orig ; i++)
     {
         multi_polygon mp;
         polygon p;
-        for(int j=0;j<3;j++)
+        for (int j = 0 ; j < 3 ; j++)
         {
-            double x=(double)rand()/RAND_MAX;
-            double y=(double)rand()/RAND_MAX;
+            double x = (double)rand()/RAND_MAX;
+            double y = (double)rand()/RAND_MAX;
             p.outer().push_back(pt(x,y));
         }
-        boost::geometry::correct(p);
+        bg::correct(p);
         mp.push_back(p);
-        boost::geometry::detail::overlay::has_self_intersections(mp);
+
+        rescale_policy_type robust_policy
+            = bg::get_rescale_policy<rescale_policy_type>(mp, strategy);
+
+        bg::detail::overlay::has_self_intersections(mp, strategy, robust_policy);
 
         std::ostringstream out;
         out << "original " << poly_list.size();
@@ -119,7 +142,7 @@ int main()
     }
 
 
-    for(int j=0;j<num_rounds;j++)
+    for (int j = 0 ; j < num_rounds ; j++)
     {
         if (j % 100 == 0) { std::cout << " " << j; }
         pj = j;
@@ -150,9 +173,13 @@ int main()
 #endif
 
 #ifdef CHECK_SELF_INTERSECTIONS
+
+        rescale_policy_type robust_policy_i
+            = bg::get_rescale_policy<rescale_policy_type>(mp_i, strategy);
+
         try
         {
-            boost::geometry::detail::overlay::has_self_intersections(mp_i);
+            boost::geometry::detail::overlay::has_self_intersections(mp_i, strategy, robust_policy_i);
         }
         catch(...)
         {
@@ -162,7 +189,7 @@ int main()
             std::cout << boost::geometry::wkt(mp_i) << std::endl;
             try
             {
-                boost::geometry::detail::overlay::has_self_intersections(mp_i);
+                boost::geometry::detail::overlay::has_self_intersections(mp_i, strategy, robust_policy_i);
             }
             catch(...)
             {
@@ -170,9 +197,12 @@ int main()
             break;
         }
 
+        rescale_policy_type robust_policy_d
+            = bg::get_rescale_policy<rescale_policy_type>(mp_d, strategy);
+
         try
         {
-            boost::geometry::detail::overlay::has_self_intersections(mp_d);
+            boost::geometry::detail::overlay::has_self_intersections(mp_d, strategy, robust_policy_d);
         }
         catch(...)
         {
@@ -182,9 +212,13 @@ int main()
             std::cout << boost::geometry::wkt(mp_d) << std::endl;
             break;
         }
+
+        rescale_policy_type robust_policy_e
+            = bg::get_rescale_policy<rescale_policy_type>(mp_e, strategy);
+
         try
         {
-            boost::geometry::detail::overlay::has_self_intersections(mp_e);
+            boost::geometry::detail::overlay::has_self_intersections(mp_e, strategy, robust_policy_e);
         }
         catch(...)
         {

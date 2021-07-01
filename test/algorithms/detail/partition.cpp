@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2017, 2018.
-// Modifications copyright (c) 2017-2018 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -15,19 +15,20 @@
 
 #include <algorithms/test_overlay.hpp>
 
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/intersects.hpp>
 
-#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
-#include <boost/geometry/algorithms/detail/partition.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-
 #if defined(TEST_WITH_SVG)
 # include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/random/linear_congruential.hpp>
 #include <boost/random/uniform_int.hpp>
@@ -151,7 +152,7 @@ void test_boxes(std::string const& wkt_box_list, double expected_area, int expec
     std::vector<sample> boxes;
 
     int index = 1;
-    BOOST_FOREACH(std::string const& wkt, wkt_boxes)
+    for (std::string const& wkt : wkt_boxes)
     {
         boxes.push_back(sample(index++, wkt));
     }
@@ -229,10 +230,10 @@ void test_points(std::string const& wkt1, std::string const& wkt2, int expected_
     bg::read_wkt(wkt2, mp2);
 
     int id = 1;
-    BOOST_FOREACH(point_item& p, mp1)
+    for (point_item& p : mp1)
     { p.id = id++; }
     id = 1;
-    BOOST_FOREACH(point_item& p, mp2)
+    for (point_item& p : mp2)
     { p.id = id++; }
 
     point_visitor visitor;
@@ -352,9 +353,9 @@ void test_many_points(int seed, int size, int count)
 
     // Test equality in quadratic loop
     int expected_count = 0;
-    BOOST_FOREACH(point_item const& item1, mp1)
+    for (point_item const& item1 : mp1)
     {
-        BOOST_FOREACH(point_item const& item2, mp2)
+        for (point_item const& item2 : mp2)
         {
             if (bg::equals(item1, item2))
             {
@@ -395,11 +396,11 @@ void test_many_points(int seed, int size, int count)
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
 
 #if defined(TEST_WITH_SVG)
-    BOOST_FOREACH(point_item const& item, mp1)
+    for (point_item const& item : mp1)
     {
         mapper.map(item, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 8);
     }
-    BOOST_FOREACH(point_item const& item, mp2)
+    for (point_item const& item : mp2)
     {
         mapper.map(item, "fill:rgb(0,128,255);stroke:rgb(0,0,100);stroke-width:1", 4);
     }
@@ -447,9 +448,9 @@ void test_many_boxes(int seed, int size, int count)
     // Test equality in quadratic loop
     int expected_count = 0;
     double expected_area = 0.0;
-    BOOST_FOREACH(box_item<box_type> const& item1, boxes)
+    for (box_item<box_type> const& item1 : boxes)
     {
-        BOOST_FOREACH(box_item<box_type> const& item2, boxes)
+        for (box_item<box_type> const& item2 : boxes)
         {
             if (item1.id < item2.id)
             {
@@ -478,7 +479,7 @@ void test_many_boxes(int seed, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(box_item<box_type> const& item, boxes)
+    for (box_item<box_type> const& item : boxes)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
     }
@@ -515,9 +516,9 @@ void test_two_collections(int seed1, int seed2, int size, int count)
     // Get expectations in quadratic loop
     int expected_count = 0;
     double expected_area = 0.0;
-    BOOST_FOREACH(box_item<box_type> const& item1, boxes1)
+    for (box_item<box_type> const& item1 : boxes1)
     {
-        BOOST_FOREACH(box_item<box_type> const& item2, boxes2)
+        for (box_item<box_type> const& item2 : boxes2)
         {
             if (bg::intersects(item1.box, item2.box))
             {
@@ -543,11 +544,11 @@ void test_two_collections(int seed1, int seed2, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(box_item<box_type> const& item, boxes1)
+    for (box_item<box_type> const& item : boxes1)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(50,50,210);stroke:rgb(0,0,0);stroke-width:1");
     }
-    BOOST_FOREACH(box_item<box_type> const& item, boxes2)
+    for (box_item<box_type> const& item : boxes2)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
     }
@@ -584,9 +585,9 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
 
     // Get expectations in quadratic loop
     int expected_count = 0;
-    BOOST_FOREACH(point_item const& point, points)
+    for (point_item const& point : points)
     {
-        BOOST_FOREACH(box_item<box_type> const& box_item, boxes)
+        for (box_item<box_type> const& box_item : boxes)
         {
             if (bg::within(point, box_item.box))
             {
@@ -609,11 +610,11 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
         p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
 
-    BOOST_FOREACH(point_item const& point, points)
+    for (point_item const& point : points)
     {
         mapper.map(point, "fill:rgb(255,128,0);stroke:rgb(0,0,100);stroke-width:1", 8);
     }
-    BOOST_FOREACH(box_item<box_type> const& item, boxes)
+    for (box_item<box_type> const& item : boxes)
     {
         mapper.map(item.box, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
     }

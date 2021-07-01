@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -16,10 +16,6 @@
 #include <iostream>
 
 #include <boost/test/included/unit_test.hpp>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 #include <boost/geometry/util/calculation_type.hpp>
 
@@ -35,17 +31,12 @@ namespace bg = ::boost::geometry;
 
 
 template <typename DefaultResult, typename ExpectedResult>
-struct assert_equal_types
+inline void assert_equal_types()
 {
-    assert_equal_types()
-    {
-        static const bool are_same =
-            boost::is_same<DefaultResult, ExpectedResult>::type::value;
-
-        BOOST_MPL_ASSERT_MSG((are_same),
-                             WRONG_DEFAULT_DISTANCE_RESULT,
-                             (types<DefaultResult, ExpectedResult>));
-    }
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        (std::is_same<DefaultResult, ExpectedResult>::value),
+        "Wrong default distance result",
+        DefaultResult, ExpectedResult);
 };
 
 //=========================================================================
@@ -179,20 +170,20 @@ struct test_distance_result_box
 template <std::size_t D, typename CoordinateSystem>
 inline void test_segment_all()
 {
-    typedef typename boost::mpl::if_
+    using fp_return_type = std::conditional_t
         <
-            typename boost::is_same<CoordinateSystem, bg::cs::cartesian>::type,
+            std::is_same<CoordinateSystem, bg::cs::cartesian>::value,
             double,
             float
-        >::type float_return_type;
+        >;
 
     test_distance_result_segment<short, short, D, CoordinateSystem, double>();
     test_distance_result_segment<int, int, D, CoordinateSystem, double>();
     test_distance_result_segment<int, long, D, CoordinateSystem, double>();
     test_distance_result_segment<long, long, D, CoordinateSystem, double>();
 
-    test_distance_result_segment<int, float, D, CoordinateSystem, float_return_type>();
-    test_distance_result_segment<float, float, D, CoordinateSystem, float_return_type>();
+    test_distance_result_segment<int, float, D, CoordinateSystem, fp_return_type>();
+    test_distance_result_segment<float, float, D, CoordinateSystem, fp_return_type>();
 
     test_distance_result_segment<int, double, D, CoordinateSystem, double>();
     test_distance_result_segment<double, int, D, CoordinateSystem, double>();

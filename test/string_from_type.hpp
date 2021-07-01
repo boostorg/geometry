@@ -4,10 +4,10 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -50,11 +50,9 @@ template <> struct string_from_type<long>
 template <> struct string_from_type<boost::multiprecision::cpp_bin_float_100>
 { static std::string name() { return "m"; }  };
 
-#if defined(BOOST_HAS_LONG_LONG)
 // this is what g++ and clang++ use
-template <> struct string_from_type<boost::long_long_type>
+template <> struct string_from_type<long long>
 { static std::string name() { return "x"; }  };
-#endif
 
 #if defined(BOOST_HAS_INT128)
 // this is what g++ and clang++ use

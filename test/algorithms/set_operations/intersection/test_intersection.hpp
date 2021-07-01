@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,7 +17,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/foreach.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/variant/variant.hpp>
 
@@ -31,10 +30,9 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/strategies/strategies.hpp>
-
 #include <boost/geometry/io/wkt/wkt.hpp>
 
+#include <boost/geometry/strategies/strategies.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
@@ -73,9 +71,7 @@ void check_result(IntersectionOutput const& intersection_output,
     typename bg::default_area_result<G1>::type length_or_area = 0;
     int n = 0;
     std::size_t nholes = 0;
-    for (typename IntersectionOutput::const_iterator it = intersection_output.begin();
-            it != intersection_output.end();
-            ++it)
+    for (auto it = intersection_output.begin(); it != intersection_output.end(); ++it)
     {
       if (! expected_count.empty())
         {
