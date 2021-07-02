@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -20,7 +20,6 @@
 
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/views/detail/range_type.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -46,7 +45,7 @@ void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, s
 
     typedef typename bg::closeable_view
         <
-            typename bg::detail::range_type<Geometry>::type const,
+            typename bg::ring_type<Geometry>::type const,
             bg::closure<Geometry>::value
         >::type cview_type;
     typedef typename bg::reversible_view

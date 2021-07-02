@@ -28,6 +28,7 @@
 #include <boost/geometry/strategy/cartesian/area.hpp>
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/area_box.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -46,9 +47,17 @@ public:
     //area
 
     template <typename Geometry>
-    static auto area(Geometry const&)
+    static auto area(Geometry const&,
+                     std::enable_if_t<! util::is_box<Geometry>::value> * = nullptr)
     {
         return strategy::area::cartesian<CalculationType>();
+    }
+
+    template <typename Geometry>
+    static auto area(Geometry const&,
+                     std::enable_if_t<util::is_box<Geometry>::value> * = nullptr)
+    {
+        return strategy::area::cartesian_box<CalculationType>();
     }
 
     // covered_by

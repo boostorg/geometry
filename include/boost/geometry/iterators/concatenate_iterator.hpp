@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -15,8 +15,6 @@
 
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
-
-#include <boost/geometry/core/static_assert.hpp>
 
 
 namespace boost { namespace geometry
@@ -49,7 +47,7 @@ public:
     typedef Iterator2 second_iterator_type;
 
     // default constructor
-    concatenate_iterator() {}
+    concatenate_iterator() = default;
 
     // for begin
     concatenate_iterator(Iterator1 it1, Iterator1 end1,
@@ -67,7 +65,13 @@ public:
         typename OtherIt1,
         typename OtherIt2,
         typename OtherValue,
-        typename OtherReference
+        typename OtherReference,
+        std::enable_if_t
+            <
+                std::is_convertible<OtherIt1, Iterator1>::value
+                && std::is_convertible<OtherIt2, Iterator2>::value,
+                int
+            > = 0
     >
     concatenate_iterator(concatenate_iterator
                          <
@@ -80,15 +84,7 @@ public:
         , m_end1(other.m_end1)
         , m_begin2(other.m_begin2)
         , m_it2(other.m_it2)
-    {
-        static const bool are_conv
-            = std::is_convertible<OtherIt1, Iterator1>::value
-           && std::is_convertible<OtherIt2, Iterator2>::value;
-
-        BOOST_GEOMETRY_STATIC_ASSERT((are_conv),
-            "Other iterators have to be convertible to member iterators.",
-            OtherIt1, OtherIt2);
-    }
+    {}
 
 private:
     friend class boost::iterator_core_access;

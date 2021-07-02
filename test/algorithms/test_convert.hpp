@@ -2,6 +2,11 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -33,7 +38,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 
 template <typename Geometry2, typename Geometry1>
-void check_mixed(Geometry1 const& geometry1, std::string const& expected, int expected_point_count)
+void check(Geometry1 const& geometry1, std::string const& expected, int expected_point_count = -1)
 {
     Geometry2 geometry2;
     bg::convert(geometry1, geometry2);
@@ -52,26 +57,14 @@ void check_mixed(Geometry1 const& geometry1, std::string const& expected, int ex
 }
 
 template <typename Geometry1, typename Geometry2>
-void test_mixed(std::string const& wkt, std::string const& expected, int expected_point_count)
+void check(std::string const& wkt, std::string const& expected = "", int expected_point_count = -1)
 {
     Geometry1 geometry1;
     bg::read_wkt(wkt, geometry1);
-    check_mixed<Geometry2>(geometry1, expected, expected_point_count);
-    check_mixed<Geometry2>(boost::variant<Geometry1>(geometry1), expected, expected_point_count);
+    std::string const& used_expected = expected.empty() ? wkt : expected;
+    check<Geometry2>(geometry1, used_expected, expected_point_count);
+    check<Geometry2>(boost::variant<Geometry1>(geometry1), used_expected, expected_point_count);
 }
 
-template <typename Geometry1, typename Geometry2>
-void test_mixed_identical_result(std::string const& wkt)
-{
-    test_mixed<Geometry1, Geometry2>(wkt, wkt, -1);
-    test_mixed<Geometry2, Geometry1>(wkt, wkt, -1);
-}
 
-template <typename Geometry1, typename Geometry2>
-void test_mixed_reversible_result(std::string const& wkt1, std::string const& wkt2)
-{
-    test_mixed<Geometry1, Geometry2>(wkt1, wkt2, -1);
-    test_mixed<Geometry2, Geometry1>(wkt2, wkt1, -1);
-}
-
-#endif
+#endif // BOOST_GEOMETRY_TEST_CONVERT_HPP

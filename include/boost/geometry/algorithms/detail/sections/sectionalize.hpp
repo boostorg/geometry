@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -59,8 +59,7 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/sequence.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 // TEMP
 #include <boost/geometry/strategy/envelope.hpp>
@@ -582,15 +581,12 @@ struct sectionalize_range
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-        typedef typename closeable_view<Range const, Closure>::type cview_type;
-        typedef typename reversible_view
+        detail::closed_clockwise_view
             <
-                cview_type const,
-                Reverse ? iterate_reverse : iterate_forward
-            >::type view_type;
-
-        cview_type cview(range);
-        view_type view(cview);
+                Range const,
+                Closure,
+                Reverse ? counterclockwise : clockwise
+            > const view(range);
 
         std::size_t const n = boost::size(view);
         if (n == 0)

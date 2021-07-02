@@ -36,7 +36,7 @@
 #include <boost/geometry/strategies/is_convex/cartesian.hpp>
 #include <boost/geometry/strategies/is_convex/geographic.hpp>
 #include <boost/geometry/strategies/is_convex/spherical.hpp>
-#include <boost/geometry/views/detail/normalized_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -65,10 +65,10 @@ struct ring_is_convex
         // Walk in clockwise direction, consider ring as closed
         // (though closure is not important in this algorithm - any dupped
         //  point is skipped)
-        typedef detail::normalized_view<Ring const> view_type;
-        view_type view(ring);
+        using view_type = detail::closed_clockwise_view<Ring const>;
+        view_type const view(ring);
 
-        typedef geometry::ever_circling_range_iterator<view_type const> it_type;
+        using it_type = geometry::ever_circling_range_iterator<view_type const>;
         it_type previous(view);
         it_type current(view);
         current++;

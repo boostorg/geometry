@@ -24,6 +24,7 @@
 #include <boost/geometry/strategies/detail.hpp>
 
 #include <boost/geometry/strategy/spherical/area.hpp>
+#include <boost/geometry/strategy/spherical/area_box.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -56,12 +57,22 @@ public:
     // area
 
     template <typename Geometry>
-    auto area(Geometry const&) const
+    auto area(Geometry const&,
+              std::enable_if_t<! util::is_box<Geometry>::value> * = nullptr) const
     {
         return strategy::area::spherical
             <
-                typename base_t::radius_type,
-                CalculationType
+                typename base_t::radius_type, CalculationType
+            >(base_t::radius());
+    }
+
+    template <typename Geometry>
+    auto area(Geometry const&,
+              std::enable_if_t<util::is_box<Geometry>::value> * = nullptr) const
+    {
+        return strategy::area::spherical_box
+            <
+                typename base_t::radius_type, CalculationType
             >(base_t::radius());
     }
 

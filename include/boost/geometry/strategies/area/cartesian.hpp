@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
+#include <boost/geometry/strategy/cartesian/area_box.hpp>
 
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -27,9 +28,17 @@ template <typename CalculationType = void>
 struct cartesian : strategies::detail::cartesian_base
 {
     template <typename Geometry>
-    static auto area(Geometry const&)
+    static auto area(Geometry const&,
+                     std::enable_if_t<! util::is_box<Geometry>::value> * = nullptr)
     {
         return strategy::area::cartesian<CalculationType>();
+    }
+
+    template <typename Geometry>
+    static auto area(Geometry const&,
+                     std::enable_if_t<util::is_box<Geometry>::value> * = nullptr)
+    {
+        return strategy::area::cartesian_box<CalculationType>();
     }
 };
 
