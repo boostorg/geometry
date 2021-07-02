@@ -32,12 +32,11 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
-struct eps_equals_policy
+struct epsilon_equals_policy
 {
 public:
-
     template <typename Policy, typename T1, typename T2>
-    static auto apply(T1 a, T2 b, Policy policy)
+    static bool apply(T1 const& a, T2 const& b, Policy const& policy)
     {
         return boost::geometry::math::detail::equals_by_policy(a, b, policy);
     }
@@ -47,7 +46,7 @@ struct fp_equals_policy
 {
 public:
     template <typename Policy, typename T1, typename T2>
-    static auto apply(T1 a, T2 b, Policy)
+    static bool apply(T1 const& a, T2 const& b, Policy const&)
     {
         return a == b;
     }
@@ -65,20 +64,32 @@ public:
 template
 <
     typename CalculationType = void,
-    typename EpsPolicy = eps_equals_policy,
+    typename EqualsPolicy = epsilon_equals_policy,
     std::size_t Robustness = 3
 >
 struct side_robust
 {
-    template <typename Policy>
-    struct eps_policy
+
+    template <typename CT>
+    struct epsilon_policy
     {
-        eps_policy() {}
+        using Policy = boost::geometry::math::detail::equals_factor_policy<CT>;
+
+        epsilon_policy() {}
+
         template <typename Type>
-        eps_policy(Type const& a, Type const& b, Type const& c, Type const& d)
-            : policy(a, b, c, d)
+        epsilon_policy(Type const& a, Type const& b, Type const& c, Type const& d)
+            : m_policy(a, b, c, d)
         {}
-        Policy policy;
+        Policy m_policy;
+
+    public:
+
+        template <typename T1, typename T2>
+        bool apply(T1 a, T2 b) const
+        {
+            return EqualsPolicy::apply(a, b, m_policy);
+        }
     };
 
 public:
@@ -152,15 +163,11 @@ public:
                 double
             >::type;
 
-        eps_policy
-            <
-                boost::geometry::math::detail::equals_factor_policy<promoted_type>
-            > epsp;
-
+        epsilon_policy<promoted_type> epsp;
         promoted_type sv = side_value<promoted_type>(p1, p2, p, epsp);
-
         promoted_type const zero = promoted_type();
-        return EpsPolicy::apply(sv, zero, epsp.policy) ? 0
+
+        return epsp.apply(sv, zero) ? 0
             : sv > zero ? 1
             : -1;
     }
