@@ -368,27 +368,13 @@ inline RealNumber orient2d(vec2d<RealNumber> const& p1,
                            vec2d<RealNumber> const& p3,
                            EpsPolicy& eps_policy)
 {
-    auto const x = p3.x;
-    auto const y = p3.y;
-
-    auto const sx1 = p1.x;
-    auto const sy1 = p1.y;
-    auto const sx2 = p2.x;
-    auto const sy2 = p2.y;
-
-
-    auto const dx = sx2 - sx1;
-    auto const dy = sy2 - sy1;
-    auto const dpx = x - sx1;
-    auto const dpy = y - sy1;
-
-    eps_policy = EpsPolicy(dx, dy, dpx, dpy);
-
     std::array<RealNumber, 2> t1, t2, t3, t4;
     t1[0] = p1.x - p3.x;
     t2[0] = p2.y - p3.y;
     t3[0] = p1.y - p3.y;
     t4[0] = p2.x - p3.x;
+
+    eps_policy = EpsPolicy(t1[0], t2[0], t3[0], t4[0]);
 
     std::array<RealNumber, 2> t5_01, t6_01;
     t5_01[0] = t1[0] * t2[0];
