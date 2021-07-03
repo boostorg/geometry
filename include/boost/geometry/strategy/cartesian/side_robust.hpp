@@ -5,6 +5,11 @@
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -49,10 +54,16 @@ public:
     static inline PromotedType side_value(P1 const& p1, P2 const& p2,
         P const& p)
     {
-        typedef ::boost::geometry::detail::precise_math::vec2d<PromotedType> vec2d;
-        vec2d pa { get<0>(p1), get<1>(p1) };
-        vec2d pb { get<0>(p2), get<1>(p2) };
-        vec2d pc { get<0>(p), get<1>(p) };
+        using vec2d = ::boost::geometry::detail::precise_math::vec2d<PromotedType>;
+        vec2d pa;
+        pa.x = get<0>(p1);
+        pa.y = get<1>(p1);
+        vec2d pb;
+        pb.x = get<0>(p2);
+        pb.y = get<1>(p2);
+        vec2d pc;
+        pc.x = get<0>(p);
+        pc.y = get<1>(p);
         return ::boost::geometry::detail::precise_math::orient2d
             <PromotedType, Robustness>(pa, pb, pc);
     }
