@@ -38,16 +38,6 @@ namespace boost { namespace geometry
 namespace detail
 {
 
-template <typename ...>
-struct parameter_pack_first_type {};
-
-template <typename T, typename ... Ts>
-struct parameter_pack_first_type<T, Ts...>
-{
-    typedef T type;
-};
-
-
 template <typename Seq, typename ResultSeq = util::type_sequence<>>
 struct boost_variant_types;
 
@@ -78,7 +68,7 @@ template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct point_type<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
     : point_type
         <
-            typename detail::parameter_pack_first_type
+            typename util::pack_front
                 <
                     BOOST_VARIANT_ENUM_PARAMS(T)
                 >::type

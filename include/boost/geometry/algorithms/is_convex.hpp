@@ -17,12 +17,9 @@
 
 #include <boost/range/empty.hpp>
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -30,6 +27,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/visit.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -53,10 +52,7 @@ struct ring_is_convex
     static inline bool apply(Ring const& ring, Strategies const& strategies)
     {
         std::size_t n = boost::size(ring);
-        if (boost::size(ring) < core_detail::closure::minimum_ring_size
-                                    <
-                                        geometry::closure<Ring>::value
-                                    >::value)
+        if (n < detail::minimum_ring_size<Ring>::value)
         {
             // (Too) small rings are considered as non-concave, is convex
             return true;
@@ -137,6 +133,17 @@ struct polygon_is_convex
     }
 };
 
+struct multi_polygon_is_convex
+{
+    template <typename MultiPolygon, typename Strategies>
+    static inline bool apply(MultiPolygon const& multi_polygon, Strategies const& strategies)
+    {
+        auto const size = boost::size(multi_polygon);
+        return size == 0 // For consistency with ring_is_convex
+            || (size == 1 && polygon_is_convex::apply(range::front(multi_polygon), strategies));
+    }
+};
+
 
 }} // namespace detail::is_convex
 #endif // DOXYGEN_NO_DETAIL
@@ -151,14 +158,29 @@ template
     typename Geometry,
     typename Tag = typename tag<Geometry>::type
 >
-struct is_convex : not_implemented<Tag>
-{};
+struct is_convex
+{
+    template <typename Strategies>
+    static inline bool apply(Geometry const&, Strategies const&)
+    {
+        // Convexity is not defined for PointLike and Linear geometries.
+        // We could implement this because the following definitions would work:
+        // - no line segment between two points on the interior or boundary ever goes outside.
+        // - convex_hull of geometry is equal to the original geometry, this implies equal
+        //   topological dimension.
+        // For MultiPoint we'd have to check whether or not an arbitrary number of equal points
+        //   is stored.
+        // MultiPolygon we'd have to check for continuous chain of Linestrings which would require
+        //   the use of relate(pt, seg) or distance(pt, pt) strategy.
+        return false;
+    }
+};
 
 template <typename Box>
 struct is_convex<Box, box_tag>
 {
-    template <typename Strategy>
-    static inline bool apply(Box const& , Strategy const& )
+    template <typename Strategies>
+    static inline bool apply(Box const& , Strategies const& )
     {
         // Any box is convex (TODO: consider spherical boxes)
         // TODO: in spherical and geographic the answer would be "false" most of the time.
@@ -185,6 +207,10 @@ struct is_convex<Ring, ring_tag> : detail::is_convex::ring_is_convex
 
 template <typename Polygon>
 struct is_convex<Polygon, polygon_tag> : detail::is_convex::polygon_is_convex
+{};
+
+template <typename MultiPolygon>
+struct is_convex<MultiPolygon, multi_polygon_tag> : detail::is_convex::multi_polygon_is_convex
 {};
 
 
@@ -238,9 +264,9 @@ struct is_convex<default_strategy, false>
 
 } // namespace resolve_strategy
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct is_convex
 {
     template <typename Strategy>
@@ -251,38 +277,50 @@ struct is_convex
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct is_convex<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct is_convex<Geometry, dynamic_geometry_tag>
 {
     template <typename Strategy>
-    struct visitor: boost::static_visitor<bool>
+    static inline bool apply(Geometry const& geometry, Strategy const& strategy)
     {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy) : m_strategy(strategy) {}
-
-        template <typename Geometry>
-        bool operator()(Geometry const& geometry) const
+        bool result = false;
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            return is_convex<Geometry>::apply(geometry, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline bool apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-                             Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry);
+            result = is_convex<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+        }, geometry);
+        return result;
     }
 };
 
-} // namespace resolve_variant
+// NOTE: This is a simple implementation checking if a GC contains single convex geometry.
+//   Technically a GC could store e.g. polygons touching with edges and together creating a convex
+//   region. To check this we'd require relate() strategy and the algorithm would be quite complex.
+template <typename Geometry>
+struct is_convex<Geometry, geometry_collection_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry const& geometry, Strategy const& strategy)
+    {
+        bool result = false;
+        bool is_first = true;
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            result = is_first
+                  && is_convex<util::remove_cref_t<decltype(g)>>::apply(g, strategy);
+            is_first = false;
+            return result;
+        }, geometry);
+        return result;
+    }
+};
+
+} // namespace resolve_dynamic
 
 // TODO: documentation / qbk
 template<typename Geometry>
 inline bool is_convex(Geometry const& geometry)
 {
-    return resolve_variant::is_convex
+    return resolve_dynamic::is_convex
             <
                 Geometry
             >::apply(geometry, geometry::default_strategy());
@@ -292,7 +330,7 @@ inline bool is_convex(Geometry const& geometry)
 template<typename Geometry, typename Strategy>
 inline bool is_convex(Geometry const& geometry, Strategy const& strategy)
 {
-    return resolve_variant::is_convex<Geometry>::apply(geometry, strategy);
+    return resolve_dynamic::is_convex<Geometry>::apply(geometry, strategy);
 }
 
 

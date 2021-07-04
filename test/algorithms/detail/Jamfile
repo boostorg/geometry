@@ -15,7 +15,6 @@
 
 test-suite boost-geometry-algorithms-detail
     :
-    [ run as_range.cpp              : : : : algorithms_as_range ]
     [ run calculate_point_order.cpp : : : : algorithms_calculate_point_order ]
     [ run approximately_equals.cpp  : : : : algorithms_approximately_equals ]
     [ run partition.cpp             : : : : algorithms_partition ]

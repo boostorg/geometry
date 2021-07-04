@@ -1,8 +1,9 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -14,6 +15,8 @@
 #include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -38,6 +41,17 @@ public:
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)
     {}
+
+    template <typename Geometry1, typename Geometry2>
+    static auto relate(Geometry1 const&, Geometry2 const&,
+                       std::enable_if_t
+                            <
+                                util::is_pointlike<Geometry1>::value
+                             && util::is_pointlike<Geometry2>::value
+                            > * = nullptr)
+    {
+        return strategy::within::spherical_point_point();
+    }
 
     auto side() const
     {

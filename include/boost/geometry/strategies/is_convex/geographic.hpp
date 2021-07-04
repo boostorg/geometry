@@ -14,8 +14,6 @@
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/is_convex/services.hpp>
-#include <boost/geometry/strategies/spherical/point_in_point.hpp>
-#include <boost/geometry/util/type_traits.hpp>
 
 
 namespace boost { namespace geometry
@@ -24,34 +22,15 @@ namespace boost { namespace geometry
 namespace strategies { namespace is_convex
 {
 
+
 template
 <
     typename FormulaPolicy = strategy::andoyer,
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-class geographic : public strategies::convex_hull::geographic<FormulaPolicy, Spheroid, CalculationType>
-{
-    using base_t = strategies::convex_hull::geographic<FormulaPolicy, Spheroid, CalculationType>;
+using geographic = strategies::convex_hull::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
-public:
-    geographic() = default;
-
-    explicit geographic(Spheroid const& spheroid)
-        : base_t(spheroid)
-    {}
-
-    template <typename Geometry1, typename Geometry2>
-    static auto relate(Geometry1 const&, Geometry2 const&,
-                       std::enable_if_t
-                            <
-                                util::is_pointlike<Geometry1>::value
-                             && util::is_pointlike<Geometry2>::value
-                            > * = nullptr)
-    {
-        return strategy::within::spherical_point_point();
-    }
-};
 
 namespace services
 {
