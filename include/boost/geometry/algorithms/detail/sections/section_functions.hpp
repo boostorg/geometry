@@ -2,9 +2,8 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2017, 2018.
-// Modifications copyright (c) 2015-2018, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -132,8 +131,10 @@ static inline bool preceding(int dir,
                              RobustPolicy const& robust_policy)
 {
     typename geometry::robust_point_type<Point, RobustPolicy>::type robust_point;
-    assert_coordinate_type_equal(robust_point, point_box);
     geometry::recalculate(robust_point, point, robust_policy);
+
+    // After recalculate() to prevent warning: 'robust_point' may be used uninitialized
+    assert_coordinate_type_equal(robust_point, point_box);
 
     return preceding_check<Dimension, Box>::apply(dir, robust_point,
                                                     point_box,

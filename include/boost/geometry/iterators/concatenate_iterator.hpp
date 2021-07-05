@@ -86,6 +86,10 @@ public:
         , m_it2(other.m_it2)
     {}
 
+    concatenate_iterator(concatenate_iterator const& other) = default;
+
+    concatenate_iterator& operator=(concatenate_iterator const& other) = default;
+
 private:
     friend class boost::iterator_core_access;
 
