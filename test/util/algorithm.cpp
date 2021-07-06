@@ -19,7 +19,7 @@
 #include <boost/geometry/util/algorithm.hpp>
 
 
-void test_dimension(bg::util::index_constant<0> index)
+void test_dimension(bg::util::index_constant<0>)
 {
     bool called = false;
     bg::detail::for_each_index<0>([&](auto index) { called = true; });
