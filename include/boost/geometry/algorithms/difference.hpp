@@ -161,10 +161,10 @@ struct call_intersection_insert
         typename Strategy
     >
     static inline OutputIterator apply(Geometry1 const& geometry1,
-                                       Geometry2 const& geometry2,
-                                       RobustPolicy const& robust_policy,
+                                       Geometry2 const& ,
+                                       RobustPolicy const& ,
                                        OutputIterator out,
-                                       Strategy const& strategy)
+                                       Strategy const& )
     {
         base_t::access::get(out) = geometry::detail::convert_to_output
             <
