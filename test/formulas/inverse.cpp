@@ -25,29 +25,6 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
-template <typename Result>
-void check_inverse(std::string const& name,
-                   Result const& results,
-                   bg::formula::result_inverse<double> const& result,
-                   expected_result const& expected,
-                   expected_result const& reference,
-                   double reference_error)
-{
-    std::stringstream ss;
-    ss << "(" << results.p1.lon << " " << results.p1.lat << ")->(" << results.p2.lon << " " << results.p2.lat << ")";
-
-    check_one(name + "_d  " + ss.str(),
-              result.distance, expected.distance, reference.distance, reference_error);
-    check_one(name + "_a  " + ss.str(),
-              result.azimuth, expected.azimuth, reference.azimuth, reference_error, true);
-    check_one(name + "_ra " + ss.str(),
-              result.reverse_azimuth, expected.reverse_azimuth, reference.reverse_azimuth, reference_error, true);
-    check_one(name + "_rl " + ss.str(),
-              result.reduced_length, expected.reduced_length, reference.reduced_length, reference_error);
-    check_one(name + "_gs " + ss.str(),
-              result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale, reference_error);
-}
-
 void test_all(expected_results const& results)
 {
     double const d2r = bg::math::d2r<double>();
