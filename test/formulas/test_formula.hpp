@@ -14,6 +14,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/formulas/result_inverse.hpp>
 #include <boost/geometry/util/math.hpp>
 
 void normalize_deg(double & deg)
@@ -42,22 +43,26 @@ void check_one(std::string const& name, double result, double expected)
     {
         bool is_close = abs_result <= 30 * eps && abs_expected <= 30 * eps;
         BOOST_CHECK_MESSAGE((is_close),
-            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+            id << std::setprecision(20) << "result {" << result
+            << "} different than expected {" << expected << "}.");
     }
     else if (res_max > 100 * eps)
     {
         BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 0.1,
-            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+            id << std::setprecision(20) << "result {" << result
+            << "} different than expected {" << expected << "}.");
     }
     else if (res_max > 10 * eps)
     {
         BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 10,
-            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+            id << std::setprecision(20) << "result {" << result
+            << "} different than expected {" << expected << "}.");
     }
     else if (res_max > eps)
     {
         BOOST_GEOMETRY_CHECK_CLOSE(result, expected, 1000,
-            id << std::setprecision(20) << "result {" << result << "} different than expected {" << expected << "}.");
+            id << std::setprecision(20) << "result {" << result
+            << "} different than expected {" << expected << "}.");
     }
 }
 
@@ -85,13 +90,42 @@ void check_one(std::string const& name,
     double ref_max = (std::max)(bg::math::abs(result), bg::math::abs(reference));
     bool is_ref_close = ref_diff <= reference_error || ref_diff <= reference_error * ref_max;
     BOOST_CHECK_MESSAGE((is_ref_close),
-        id << std::setprecision(20) << "result {" << result << "} and reference {" << reference << "} not close enough.");
+        id << std::setprecision(20) << "result {" << result << "} and reference {"
+        << reference << "} not close enough.");
 }
 
 void check_one(double result, double expected, double reference, double reference_error,
                bool normalize = false, bool check_reference_only = false)
 {
-    check_one("", result, expected, reference, reference_error, normalize, check_reference_only);
+    check_one("", result, expected, reference, reference_error, normalize,
+        check_reference_only);
+}
+
+template <typename Result, typename ExpectedResult>
+void check_inverse(std::string const& name,
+                   Result const& results,
+                   boost::geometry::formula::result_inverse<double> const& result,
+                   ExpectedResult const& expected,
+                   ExpectedResult const& reference,
+                   double reference_error)
+{
+    std::stringstream ss;
+    ss << "(" << results.p1.lon << " " << results.p1.lat << ")->("
+       << results.p2.lon << " " << results.p2.lat << ")";
+
+    check_one(name + "_d  " + ss.str(),
+              result.distance, expected.distance, reference.distance, reference_error);
+    check_one(name + "_a  " + ss.str(),
+              result.azimuth, expected.azimuth, reference.azimuth, reference_error, true);
+    check_one(name + "_ra " + ss.str(),
+              result.reverse_azimuth, expected.reverse_azimuth, reference.reverse_azimuth,
+              reference_error, true);
+    check_one(name + "_rl " + ss.str(),
+              result.reduced_length, expected.reduced_length, reference.reduced_length,
+              reference_error);
+    check_one(name + "_gs " + ss.str(),
+              result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale,
+              reference_error);
 }
 
 #endif // BOOST_GEOMETRY_TEST_FORMULA_HPP

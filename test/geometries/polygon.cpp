@@ -3,6 +3,10 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -26,10 +30,6 @@
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
-
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-#include <initializer_list>
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::polygon<P> create_polygon()
@@ -111,13 +111,11 @@ void test_all()
 template <typename P>
 void test_custom_polygon(bg::model::ring<P> IL)
 {   
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     std::initializer_list<bg::model::ring<P> > RIL = {IL};
     bg::model::polygon<P> pl1(RIL);
     std::ostringstream out;
     out << bg::dsv(pl1);
     BOOST_CHECK_EQUAL(out.str(), "(((3, 3), (3, 0), (0, 0), (0, 3), (3, 3)))");
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename P>
