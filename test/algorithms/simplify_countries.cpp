@@ -3,21 +3,30 @@
 
 // Copyright (c) 2018 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/geometry.hpp>
-#include <geometry_test_common.hpp>
-
-#include <boost/foreach.hpp>
 
 #include <iomanip>
+
+#include <geometry_test_common.hpp>
+
+#include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/simplify.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
-
 
 
 template <typename MultiPolygon>
@@ -102,7 +111,7 @@ void test_one(std::string const& caseid, std::string const& wkt,
 
         mapper.map(geometry, "fill-opacity:0.5;fill:rgb(153,204,0);"
                 "stroke:rgb(153,204,0);stroke-width:1");
-        BOOST_FOREACH(polygon const& pol, simplified)
+        for (polygon const& pol : simplified)
         {
             mapper.map(pol,
                        bg::area(pol) > 0 ? "fill:none;stroke:rgb(255,0,0);stroke-width:1"

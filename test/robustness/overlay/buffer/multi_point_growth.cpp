@@ -3,16 +3,24 @@
 
 // Copyright (c) 2012-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-
-#include <boost/foreach.hpp>
-#include <boost/timer.hpp>
+#include <iostream>
 #include <fstream>
+#include <sstream>
+
+#include <boost/timer.hpp>
+
+#include <boost/geometry/algorithms/buffer.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 
 namespace bg = boost::geometry;
@@ -73,7 +81,7 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
 
 
     typename bg::default_area_result<GeometryOut>::type area = 0;
-    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    for (GeometryOut const& polygon : buffered)
     {
         area += bg::area(polygon);
     }
@@ -82,7 +90,7 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
     // Map input geometry in green
     mapper.map(geometry, "opacity:0.5;fill:rgb(0,128,0);stroke:rgb(0,128,0);stroke-width:10");
 
-    BOOST_FOREACH(GeometryOut const& polygon, buffered)
+    for (GeometryOut const& polygon : buffered)
     {
         mapper.map(polygon, "opacity:0.4;fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:3");
     }

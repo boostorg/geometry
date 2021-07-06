@@ -1,8 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2020 Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -15,8 +14,6 @@
 
 #include <iterator>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/or.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
@@ -46,17 +43,13 @@ struct distance_from_bg
 {
     template <typename G>
     struct use_distance_from_bg
-    {
-        typedef typename boost::mpl::or_
+        : util::bool_constant
             <
-                boost::is_same<typename tag<G>::type, point_tag>,
-                typename boost::mpl::or_
-                    <
-                        boost::is_same<typename tag<G>::type, segment_tag>,
-                        boost::is_same<typename tag<G>::type, box_tag>
-                    >::type
-            >::type type;
-    };
+                std::is_same<typename tag<G>::type, point_tag>::value
+             || std::is_same<typename tag<G>::type, segment_tag>::value
+             || std::is_same<typename tag<G>::type, box_tag>::value
+            >
+    {};
 
     template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline
@@ -65,8 +58,10 @@ struct distance_from_bg
           Geometry2 const& geometry2,
           Strategy const& strategy)
     {
-        BOOST_MPL_ASSERT((typename use_distance_from_bg<Geometry1>::type));
-        BOOST_MPL_ASSERT((typename use_distance_from_bg<Geometry2>::type));
+        BOOST_GEOMETRY_STATIC_ASSERT((use_distance_from_bg<Geometry1>::value),
+                                     "Unexpected kind of Geometry1");
+        BOOST_GEOMETRY_STATIC_ASSERT((use_distance_from_bg<Geometry2>::value),
+                                     "Unexpected kind of Geometry1");
 
         return geometry::distance(geometry1, geometry2, strategy);
     }

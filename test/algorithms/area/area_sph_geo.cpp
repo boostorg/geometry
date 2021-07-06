@@ -6,9 +6,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -430,7 +429,7 @@ void test_spherical_geo()
         /*if (polar)
         {
             // Create colatitudes (measured from pole)
-            BOOST_FOREACH(pt& p, aurha)
+            for (pt& p : aurha)
             {
                 bg::set<1>(p, ct(90) - bg::get<1>(p));
             }

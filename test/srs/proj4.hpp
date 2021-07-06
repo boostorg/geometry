@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2019, Oracle and/or its affiliates.
+// Copyright (c) 2017-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,6 +14,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 #if defined(TEST_WITH_PROJ6)
 #define TEST_WITH_PROJ5
@@ -152,30 +153,14 @@ struct pj_transformation
             forward(in_xy[i], out_xy[i]);
     }
 
-    template <typename In, typename Out>
-    void forward(In const& in, Out & out,
-                 typename boost::enable_if_c
-                    <
-                        boost::is_same
-                            <
-                                typename boost::geometry::tag<In>::type,
-                                boost::geometry::point_tag
-                            >::value
-                    >::type* dummy = 0) const
+    template <typename In, typename Out, boost::geometry::util::enable_if_point_t<In, int> = 0>
+    void forward(In const& in, Out & out) const
     {
         transform_point(in, out, m_from, m_to);
     }
 
-    template <typename In, typename Out>
-    void inverse(In const& in, Out & out,
-                 typename boost::enable_if_c
-                    <
-                        boost::is_same
-                            <
-                                typename boost::geometry::tag<In>::type,
-                                boost::geometry::point_tag
-                            >::value
-                    >::type* dummy = 0) const
+    template <typename In, typename Out, boost::geometry::util::enable_if_point_t<In, int> = 0>
+    void inverse(In const& in, Out & out) const
     {
         transform_point(in, out, m_to, m_from);
     }
@@ -256,16 +241,8 @@ struct proj5_transformation
         out = std::move(in);
     }
 
-    template <typename In, typename Out>
-    void forward(In const& in, Out & out,
-                 typename boost::enable_if_c
-                    <
-                        boost::is_same
-                            <
-                                typename boost::geometry::tag<In>::type,
-                                boost::geometry::point_tag
-                            >::value
-                    >::type* dummy = 0) const
+    template <typename In, typename Out, boost::geometry::util::enable_if_point_t<In, int> = 0>
+    void forward(In const& in, Out & out) const
     {
         PJ_COORD c;
         c.lp.lam = boost::geometry::get_as_radian<0>(in);
@@ -300,16 +277,8 @@ struct proj6_transformation
         out = std::move(in);
     }
 
-    template <typename In, typename Out>
-    void forward(In const& in, Out & out,
-                 typename boost::enable_if_c
-                    <
-                        boost::is_same
-                            <
-                                typename boost::geometry::tag<In>::type,
-                                boost::geometry::point_tag
-                            >::value
-                    >::type* dummy = 0) const
+    template <typename In, typename Out, boost::geometry::util::enable_if_point_t<In, int> = 0>
+    void forward(In const& in, Out & out) const
     {
         PJ_COORD c;
         c.lp.lam = boost::geometry::get_as_radian<0>(in);

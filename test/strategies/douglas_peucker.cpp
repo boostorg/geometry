@@ -2,7 +2,6 @@
 // Unit Test
 
 // Copyright (c) 2015-2021, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,10 +23,19 @@
 #include <sstream>
 #include <string>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/test/included/unit_test.hpp>
+#include <boost/tuple/tuple.hpp>
+
+#include <boost/geometry/algorithms/comparable_distance.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/simplify.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
+
+#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
@@ -36,21 +44,8 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/register/multi_point.hpp>
 
-#include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/simplify.hpp>
-
-#include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
-
-#include <boost/assign/list_of.hpp>
-#include <boost/core/ignore_unused.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/tuple/tuple.hpp>
-
 
 namespace bg = ::boost::geometry;
-namespace ba = ::boost::assign;
 namespace services = bg::strategy::distance::services;
 
 typedef boost::tuple<double, double> tuple_point_type;
@@ -91,7 +86,7 @@ template <typename Geometry>
 inline Geometry from_wkt(std::string const& wkt)
 {
     Geometry geometry;
-    boost::geometry::read_wkt(wkt, geometry);
+    bg::read_wkt(wkt, geometry);
     return geometry;
 }
 
@@ -151,14 +146,15 @@ struct equals
 template <typename Geometry>
 struct test_one_case
 {
-    template <typename Strategy, typename Range>
+    using point_type = typename bg::point_type<Geometry>::type;
+
+    template <typename Strategy>
     static inline void apply(std::string const& case_id,
                              std::string const& wkt,
                              double max_distance,
                              Strategy const& strategy,
-                             Range const& expected_result)
+                             std::initializer_list<point_type> const& expected_result)
     {
-        typedef typename bg::point_type<Geometry>::type point_type;
         std::vector<point_type> result;
 
         Geometry geometry = from_wkt<Geometry>(wkt);
@@ -227,7 +223,7 @@ inline void test_with_strategy(std::string label)
                           "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
                           10,
                           strategy,
-                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5)
+                          {{12,-3},{4,8},{-6,-13},{-12,5}}
                           );
         }
         else
@@ -236,7 +232,7 @@ inline void test_with_strategy(std::string label)
                           "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -15,-12 5)",
                           10,
                           strategy,
-                          ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-9,4)(0,-15)(-12,5)
+                          {{12,-3},{4,8},{-6,-13},{-9,4},{0,-15},{-12,5}}
                           );
         }
     }
@@ -245,21 +241,21 @@ inline void test_with_strategy(std::string label)
                   "LINESTRING(-6 -13,-9 4,0 -15,-12 5)",
                   10,
                   strategy,
-                  ba::tuple_list_of(-6,-13)(-12,5)
+                  {{-6,-13},{-12,5}}
                   );
 
     tester::apply("l03" + label,
                   "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
                   10,
                   strategy,
-                  ba::tuple_list_of(12,-3)(4,8)(-6,-13)(-12,5)
+                  {{12,-3},{4,8},{-6,-13},{-12,5}}
                   );
 
     tester::apply("l04" + label,
                   "LINESTRING(12 -3, 4 8,-6 -13,-9 4,0 -14,-12 5)",
                   14,
                   strategy,
-                  ba::tuple_list_of(12,-3)(-6,-13)(-12,5)
+                  {{12,-3},{-6,-13},{-12,5}}
                   );
 
     {
@@ -306,13 +302,13 @@ inline void test_with_strategy(std::string label)
                           wkt,
                           1,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-3)(5,-4)(0,0)
+                          {{0,0},{5,0},{0,-1},{5,-1},{0,-2},{5,-2},{0,-3},{5,-4},{0,0}}
                           );
             tester::apply("l05c1a" + label,
                           wkt,
                           2,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-4)(0,0)
+                          {{0,0},{5,0},{0,-1},{5,-1},{0,-2},{5,-4},{0,0}}
                           );
         }
         else
@@ -321,13 +317,13 @@ inline void test_with_strategy(std::string label)
                           wkt,
                           1,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-2)(5,-2)(0,-4)(5,-4)(0,0)
+                          {{0,0},{5,0},{0,-1},{5,-1},{0,-2},{5,-2},{0,-4},{5,-4},{0,0}}
                           );
             tester::apply("l05c2a" + label,
                           wkt,
                           2,
                           strategy,
-                          ba::tuple_list_of(0,0)(5,0)(0,-1)(5,-1)(0,-4)(5,-4)(0,0)
+                          {{0,0},{5,0},{0,-1},{5,-1},{0,-4},{5,-4},{0,0}}
                           );
         }
     }

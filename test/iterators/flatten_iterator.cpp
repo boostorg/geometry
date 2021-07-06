@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -14,26 +14,24 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <iostream>
+#include <iterator>
+#include <list>
 #include <string>
 #include <sstream>
-#include <algorithm>
-#include <iterator>
-
+#include <type_traits>
 #include <vector>
-#include <list>
 
-#include <boost/core/ignore_unused.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_const.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/std/list.hpp>
-#include <boost/assign/std/set.hpp>
+#include <boost/core/ignore_unused.hpp>
+
+#include <boost/geometry/iterators/flatten_iterator.hpp>
 
 #include "test_iterator_common.hpp"
 
-#include <boost/geometry/iterators/flatten_iterator.hpp>
 
 using namespace boost::assign;
 
@@ -41,12 +39,12 @@ using namespace boost::assign;
 template <typename InnerContainer>
 struct access_begin
 {
-    typedef typename boost::mpl::if_
-    <
-        typename boost::is_const<InnerContainer>::type,
-        typename InnerContainer::const_iterator,
-        typename InnerContainer::iterator
-    >::type return_type;
+    using return_type = std::conditional_t
+        <
+            std::is_const<InnerContainer>::value,
+            typename InnerContainer::const_iterator,
+            typename InnerContainer::iterator
+        >;
 
     static inline return_type apply(InnerContainer& inner)
     {
@@ -58,12 +56,12 @@ struct access_begin
 template <typename InnerContainer>
 struct access_end
 {
-    typedef typename boost::mpl::if_
-    <
-        typename boost::is_const<InnerContainer>::type,
-        typename InnerContainer::const_iterator,
-        typename InnerContainer::iterator
-    >::type return_type;
+    using return_type = std::conditional_t
+        <
+            std::is_const<InnerContainer>::value,
+            typename InnerContainer::const_iterator,
+            typename InnerContainer::iterator
+        >;
 
     static inline return_type apply(InnerContainer& inner)
     {

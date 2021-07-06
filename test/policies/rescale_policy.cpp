@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -15,21 +19,15 @@
 #include <iostream>
 #include <string>
 
-#include <boost/foreach.hpp>
-
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/iterators/point_iterator.hpp>
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
-
 #include <boost/geometry/io/wkt/wkt.hpp>
-
-
+#include <boost/geometry/iterators/point_iterator.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -94,14 +92,14 @@ static std::string simplex_large[2] =
 template <bool Rescale, typename P>
 void test_rescale(std::string const& expected_normal, std::string const& expected_large)
 {
-    typedef bg::model::polygon<P> polygon;
+    using polygon = bg::model::polygon<P>;
 
-    typedef typename boost::mpl::if_c
+    using rescale_policy_type = std::conditional_t
         <
             Rescale,
-            typename bg::rescale_policy_type<P>::type ,
+            typename bg::rescale_policy_type<P>::type,
             bg::detail::no_rescale_policy
-        >::type rescale_policy_type;
+        >;
 
     test_one<rescale_policy_type, polygon, polygon>(
         simplex_normal[0], simplex_normal[1],
@@ -125,7 +123,7 @@ int test_main(int, char* [])
     test_all<double>("-5000000 -3000000", "-5000000 -3000000");
     test_all<long double>("-5000000 -3000000", "-5000000 -3000000");
     test_all<int>("0 1", "0 1000");
-    test_all<boost::long_long_type>("0 1", "0 1000");
+    test_all<long long>("0 1", "0 1000");
     //    test_all<short int>(); // compiles but overflows
 
     return 0;

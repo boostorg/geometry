@@ -5,6 +5,9 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
+// Copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -20,8 +23,6 @@
 #include "test_distance.hpp"
 
 #include <boost/array.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -81,7 +82,9 @@ void test_distance_point()
         BOOST_CONCEPT_ASSERT( (bg::concepts::PointDistanceStrategy<taxicab_distance, P, P>) );
 
         typedef typename services::return_type<taxicab_distance, P, P>::type cab_return_type;
-        BOOST_MPL_ASSERT((boost::is_same<cab_return_type, typename bg::coordinate_type<P>::type>));
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<cab_return_type, typename bg::coordinate_type<P>::type>::value),
+            "Unexpected result type");
 
         taxicab_distance tcd;
         cab_return_type d = bg::distance(p1, p2, tcd);
@@ -412,8 +415,8 @@ void test_large_integers()
         bg::read_wkt(a, da);
         bg::read_wkt(b, db);
 
-        BOOST_AUTO(idist, bg::distance(ia, ib));
-        BOOST_AUTO(ddist, bg::distance(da, db));
+        auto const idist = bg::distance(ia, ib);
+        auto const ddist = bg::distance(da, db);
 
         BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1,
                 "within<a double> different from within<an int>");
@@ -431,8 +434,8 @@ void test_large_integers()
         bg::read_wkt(a, da);
         bg::read_wkt(b, db);
 
-        BOOST_AUTO(idist, bg::distance(ia, ib));
-        BOOST_AUTO(ddist, bg::distance(da, db));
+        auto const idist = bg::distance(ia, ib);
+        auto const ddist = bg::distance(da, db);
 
         BOOST_CHECK_MESSAGE(std::abs(idist - ddist) < 0.1,
                 "within<a double> different from within<an int>");
@@ -457,16 +460,16 @@ void test_variant()
 
     variant_type v1, v2;
     
-    BOOST_MPL_ASSERT((
-        boost::is_same
+    BOOST_GEOMETRY_STATIC_ASSERT(
+        (std::is_same
             <
                 typename bg::distance_result
                     <
                         variant_type, variant_type, bg::default_strategy
                     >::type,
                 double
-            >
-    ));
+            >::value),
+        "Unexpected result type");
 
     // Default strategy
     v1 = point;

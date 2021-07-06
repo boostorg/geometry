@@ -5,9 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -215,7 +214,7 @@ void test_all()
                           expected("muu++"));
     
     // 29.01.2015
-    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<T, double>::value)) )
     {
         // FAILING - possibly wrong IPs
         test_geometry<ls, ls>("LINESTRING(3 -0.6,0 -0.9)",
@@ -308,7 +307,7 @@ void test_all()
     // determinants.
     // See also: https://svn.boost.org/trac/boost/ticket/8379
     //           https://github.com/boostorg/geometry/pull/259
-    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<T, double>::value)) )
     {
         test_geometry<ls, ls>("LINESTRING(0 0, 10 0, 20 1)",
                               "LINESTRING(12 10, 13 0.3, 14 0.4, 15 0.5)",
@@ -370,7 +369,7 @@ void test_all()
     //test_geometry<ls, ls>("LINESTRING(0 0,2 2,3 3,4 4)", "LINESTRING(0 0,1 1,4 4)", "1FFF0FFF2");
 
 
-    //if ( boost::is_same<T, double>::value )
+    //if ( std::is_same<T, double>::value )
     //{
     //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(0 0,2 0,2.5 0,3 1)", "test11.svg");
     //    to_svg<ls, ls>("LINESTRING(0 0,1 0,2 0,2.5 0,3 1)", "LINESTRING(3 1,2.5 0,2 0,0 0)", "test12.svg");
@@ -520,7 +519,7 @@ void test_all()
                             expected("tiu+=")("mui=+"));
 
     // parts of boundaries taken from union A/A buffer_mp1
-    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<T, double>::value)) )
     {
         test_geometry<ls, ls>("LINESTRING(6.95629520146761 5.415823381635526,6.989043790736545 5.209056926535316,7 5,6.989043790736547 4.790943073464693,6.956295201467611 4.584176618364482)",
                               "LINESTRING(7.415823381635519 5.043704798532389,7.209056926535308 5.010956209263453,7.000000000000001 5,6.790943073464693 5.010956209263453,6.584176618364483 5.043704798532389)",

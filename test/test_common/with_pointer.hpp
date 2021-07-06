@@ -3,6 +3,11 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -48,7 +53,7 @@ template<> struct coordinate_type<test::test_point_xy>
 template<> struct coordinate_system<test::test_point_xy>
 { typedef cs::cartesian type; };
 
-template<> struct dimension<test::test_point_xy> : boost::mpl::int_<2> {};
+template<> struct dimension<test::test_point_xy> : std::integral_constant<int, 2> {};
 
 template<>
 struct access<test::test_point_xy, 0>

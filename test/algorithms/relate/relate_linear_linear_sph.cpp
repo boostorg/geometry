@@ -1,8 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
-
+// Copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,7 +15,8 @@
 template <typename P>
 void test_linestring_linestring()
 {
-    typedef bg::model::linestring<P> ls;
+    using coord_t = typename bg::coordinate_type<P>::type;
+    using ls = bg::model::linestring<P>;
 
     test_geometry<ls, ls>("LINESTRING(0 0, 2 2, 3 2)", "LINESTRING(0 0, 2 2, 3 2)", "1FFF0FFF2");
     test_geometry<ls, ls>("LINESTRING(0 0,3 2)", "LINESTRING(0 0, 2 2, 3 2)", "FF1F0F1F2");
@@ -182,8 +182,7 @@ void test_linestring_linestring()
     // Point/Point
     //test_geometry<ls, ls>("LINESTRING(0 0)", "LINESTRING(0 0)", "0FFFFFFF2");
 
-    if ( BOOST_GEOMETRY_CONDITION(
-            boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value ) )
+    if ( BOOST_GEOMETRY_CONDITION(std::is_floating_point<coord_t>::value) )
     {
         // https://svn.boost.org/trac/boost/ticket/10904
         // very small segments
@@ -195,8 +194,7 @@ void test_linestring_linestring()
                               "*********"); // TODO: be more specific with the result
     }
 
-    if ( BOOST_GEOMETRY_CONDITION((
-            boost::is_same<typename bg::coordinate_type<ls>::type, double>::value )) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<coord_t, double>::value)) )
     {
         // detected as collinear
         test_geometry<ls, ls>("LINESTRING(1 -10, 3.069359e+307 3.069359e+307)",
@@ -244,8 +242,9 @@ void test_linestring_linestring()
 template <typename P>
 void test_linestring_multi_linestring()
 {
-    typedef bg::model::linestring<P> ls;
-    typedef bg::model::multi_linestring<ls> mls;
+    using coord_t = typename bg::coordinate_type<P>::type;
+    using ls = bg::model::linestring<P>;
+    using mls = bg::model::multi_linestring<ls>;
 
     // LS disjoint
     test_geometry<ls, mls>("LINESTRING(0 0,10 0)", "MULTILINESTRING((1 0,2 0),(1 1,2 1))", "101FF0102");
@@ -344,7 +343,7 @@ void test_linestring_multi_linestring()
                            "10FF0F102");                                //            |
                                                                         //            |
 
-    if ( BOOST_GEOMETRY_CONDITION(boost::is_floating_point<typename bg::coordinate_type<ls>::type>::value) )
+    if ( BOOST_GEOMETRY_CONDITION(std::is_floating_point<coord_t>::value) )
     {
         // related to https://svn.boost.org/trac/boost/ticket/10904
         test_geometry<ls, mls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
@@ -389,8 +388,9 @@ void test_linestring_multi_linestring()
 template <typename P>
 void test_multi_linestring_multi_linestring()
 {
-    typedef bg::model::linestring<P> ls;
-    typedef bg::model::multi_linestring<ls> mls;
+    using coord_t = typename bg::coordinate_type<P>::type;
+    using ls = bg::model::linestring<P>;
+    using mls = bg::model::multi_linestring<ls>;
 
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
@@ -418,8 +418,7 @@ void test_multi_linestring_multi_linestring()
                             "MULTILINESTRING((5 5.0190018174896416,0 5),(5 5.0190018174896416,5 0),(10 10,10 5,5 5.0190018174896416,5 10,10 10))",
                             "10FFFFFF2");
 
-    if ( BOOST_GEOMETRY_CONDITION((
-            boost::is_same<typename bg::coordinate_type<P>::type, double>::value )) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<coord_t, double>::value)) )
     {
         // assertion failure in 1.57
         test_geometry<mls, mls>("MULTILINESTRING((-0.59322033898305082 -8.0508474576271194,-2.882352941176471 -7.7647058823529411,-2.8823529411764706 -7.7647058823529411,-3.7361111111111112 -6.5694444444444446,-3.4404145077720205 -5.766839378238342,-4.1864406779661012 -3.6779661016949152,-7.5252525252525251 -5.5858585858585865,-7.5862068965517242 -5.1896551724137936,-4.47887323943662 -2.859154929577465,-4.5789473684210531 -2.5789473684210527,-3 -1,-2.9310344827586206 -0.86206896551724144,-3.1764705882352944 -0.70588235294117663,-4.7401960784313726 -2.1274509803921577,-5.3255813953488369 -0.48837209302325502,-4.7872340425531918 0.31914893617021284,-5.8571428571428577 1.0000000000000007,-5.3255813953488369 -0.48837209302325502,-5.9473684210526319 -1.4210526315789465,-8 2,-7.7333333333333334 2.1939393939393939,-8.8294573643410867 2.891472868217055,-8.8556701030927822 3.061855670103093,-7.5999999999999996 3.6000000000000001,-7.7999999999999998 3.7999999999999998,-7.75 3.7916666666666665,-7.5471698113207548 3.6226415094339623,-7.3200000000000003 3.7200000000000002,-3.473684210526315 3.0789473684210527,-3.2549019607843133 3.2156862745098036,-2.9999999999999982 3.1428571428571423,-3.1733333333333325 3.2666666666666666,-2.9180327868852456 3.4262295081967209,-2.8723404255319145 3.1063829787234041,-2.1111111111111112 2.8888888888888888,-2.1428571428571428 2.8571428571428572,-1.8433734939759043 2.8072289156626509,-1.8396226415094346 2.8113207547169816,-1.6486486486486487 2.756756756756757,-1.76510067114094 2.8926174496644301,-0.53846153846153855 4.2307692307692308,1.8148148148148147 5.4074074074074074,1.588235294117647 2.2352941176470589,1.819672131147541 2.1967213114754101,2 4,2 2.1666666666666665,2.3538461538461544 2.1076923076923078,2 1.6875000000000004,2 -2,1.2173913043478262 -3.8260869565217392,1.7375886524822697 1.3758865248226959,1.5073170731707317 1.1024390243902444,1.1428571428571428 -4,-0.59322033898305082 -8.0508474576271194),(1.666666666666667 1.5999999999999988,1.5675675675675675 1.8378378378378377,1.4374999999999991 1.8750000000000002,1.0487804878048776 2.3414634146341466,0.46666666666666712 2.6060606060606055,0.086956521739131043 2.2608695652173911,1.4374999999999991 1.8750000000000002,1.666666666666667 1.5999999999999988))",

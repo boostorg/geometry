@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -62,7 +66,7 @@ struct test_split_rings
 
             mapper.map(geometry, "fill:rgb(255,255,128);stroke:rgb(0,0,0);stroke-width:1");
 
-            BOOST_FOREACH(ring_type const& ring, rings)
+            for (ring_type const& ring : rings)
             {
                 std::string style = "opacity:0.6;fill:rgb";
                 std::string color = bg::area(ring) > 0 ? "(255,0,0)" : "(0,0,255)";

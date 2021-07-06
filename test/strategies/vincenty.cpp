@@ -5,9 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -96,8 +95,8 @@ double azimuth(double deg, double min)
 template <typename P>
 bool non_precise_ct()
 {
-    typedef typename bg::coordinate_type<P>::type ct;
-    return boost::is_integral<ct>::value || boost::is_float<ct>::value;
+    using ct = typename bg::coordinate_type<P>::type;
+    return std::is_integral<ct>::value || std::is_floating_point<ct>::value;
 }
 
 template <typename P1, typename P2, typename Spheroid>
@@ -248,8 +247,8 @@ void test_all()
 
     // Test fractional coordinates only for non-integral types
     if ( BOOST_GEOMETRY_CONDITION(
-            ! boost::is_integral<typename bg::coordinate_type<P1>::type>::value
-         && ! boost::is_integral<typename bg::coordinate_type<P2>::type>::value  ) )
+            ! std::is_integral<typename bg::coordinate_type<P1>::type>::value
+         && ! std::is_integral<typename bg::coordinate_type<P2>::type>::value ) )
     {
         // Flinders Peak -> Buninyong
         test_vincenty<P1, P2>(azimuth(144,25,29.52440), azimuth(-37,57,3.72030),

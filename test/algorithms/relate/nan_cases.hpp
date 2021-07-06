@@ -1,7 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015 Oracle and/or its affiliates.
-
+// Copyright (c) 2015-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,7 +13,6 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/range/value_type.hpp>
-#include <boost/type_traits/is_same.hpp>
 
 template <typename Container>
 struct pusher
@@ -125,6 +123,6 @@ struct is_nan_case_supported
 {
     typedef typename bg::coordinate_type<Geometry>::type coord_t;
 
-    static const bool value = boost::is_same<coord_t, double>::value
+    static const bool value = std::is_same<coord_t, double>::value
                            && std::numeric_limits<coord_t>::has_quiet_NaN;
 };

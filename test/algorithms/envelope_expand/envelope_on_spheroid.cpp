@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2020, Oracle and/or its affiliates.
+// Copyright (c) 2015-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -22,34 +22,24 @@
 #include <iostream>
 #include <string>
 
-#include <geometry_test_common.hpp>
-#include <from_wkt.hpp>
-
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/type_traits/is_same.hpp>
 
-#include <boost/geometry/core/coordinate_dimension.hpp>
-#include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/tags.hpp>
-
-#include <boost/geometry/geometries/geometries.hpp>
-
-#include <boost/geometry/util/condition.hpp>
-
-#include <boost/geometry/io/dsv/write.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
+#include <from_wkt.hpp>
+#include <geometry_test_common.hpp>
+#include "test_envelope_expand_on_spheroid.hpp"
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
-
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/index/detail/algorithms/is_valid.hpp>
-
-#include "test_envelope_expand_on_spheroid.hpp"
-
-//TEMP
-#include <boost/geometry/strategies/envelope/geographic.hpp>
-#include <boost/geometry/strategies/envelope/spherical.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 template <typename FormulaPolicy, typename CS_Tag>
@@ -74,22 +64,22 @@ struct test_envelope<FormulaPolicy, bg::geographic_tag>
         typedef bg::strategy::envelope::spherical_box box_strategy_t;
         typedef bg::strategy::envelope::geographic<FormulaPolicy, bg::srs::spheroid<double>, double> strategy_t;
 
-        typename boost::mpl::if_c
+        std::conditional_t
             <
-                boost::is_same<typename bg::tag<Geometry>::type, bg::point_tag>::value,
+                std::is_same<typename bg::tag<Geometry>::type, bg::point_tag>::value,
                 point_strategy_t,
-                typename boost::mpl::if_c
+                std::conditional_t
                     <
-                        boost::is_same<typename bg::tag<Geometry>::type, bg::multi_point_tag>::value,
+                        std::is_same<typename bg::tag<Geometry>::type, bg::multi_point_tag>::value,
                         multi_point_strategy_t,
-                        typename boost::mpl::if_c
+                        std::conditional_t
                             <
-                                boost::is_same<typename bg::tag<Geometry>::type, bg::box_tag>::value,
+                                std::is_same<typename bg::tag<Geometry>::type, bg::box_tag>::value,
                                 box_strategy_t,
                                 strategy_t
-                            >::type
-                    >::type
-            >::type strategy;
+                            >
+                    >
+            > strategy;
 
         bg::envelope(geometry, detected, strategy);
     }
@@ -327,26 +317,16 @@ public:
 
 
 // test the reverse of a geometry if it is either linear or ring
-template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
+template <typename Geometry>
 struct test_reverse_geometry
 {
-    static bool const is_linear =
-        boost::is_same<Tag, bg::segment_tag>::value
-        || boost::is_same<Tag, bg::linestring_tag>::value
-        || boost::is_same<Tag, bg::multi_linestring_tag>::value;
+    static bool const is_linear = bg::util::is_linear<Geometry>::value;
 
     // currently disable rings
     static bool const is_ring = false;
-    //    static bool const is_ring = boost::is_same<Tag, bg::ring_tag>::value;
+    //    static bool const is_ring = bg::util::is_ring<Geometry>::value;
 
-    typedef typename boost::mpl::if_c
-        <
-            is_linear || is_ring,
-            boost::true_type,
-            boost::false_type
-        >::type type;
-
-    static bool const value = type::value;
+    static bool const value = (is_linear || is_ring);
 };
 
 template

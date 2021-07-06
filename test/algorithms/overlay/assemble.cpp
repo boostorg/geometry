@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,24 +18,22 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/foreach.hpp>
-
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/within.hpp>
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-#include <boost/geometry/strategies/strategies.hpp>
-
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
+
+#include <boost/geometry/strategies/strategies.hpp>
 
 
 #if defined(TEST_WITH_SVG)
@@ -60,19 +57,19 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
 
         type area_i = 0, area_u = 0, area_d1 = 0, area_d2 = 0;
 
-        BOOST_FOREACH(Geometry const& g, u)
+        for (Geometry const& g : u)
         {
             area_u += bg::area(g);
         }
-        BOOST_FOREACH(Geometry const& g, i)
+        for (Geometry const& g : i)
         {
             area_i += bg::area(g);
         }
-        BOOST_FOREACH(Geometry const& g, d1)
+        for (Geometry const& g : d1)
         {
             area_d1 += bg::area(g);
         }
-        BOOST_FOREACH(Geometry const& g, d2)
+        for (Geometry const& g : d2)
         {
             area_d2 += bg::area(g);
         }
@@ -111,7 +108,7 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
             : d2
             ;
 
-        BOOST_FOREACH(Geometry const& geometry, v)
+        for (Geometry const& geometry : v)
         {
             mapper.map(geometry,
                 linestyle + "stroke-width:3;stroke-linejoin:round;stroke-linecap:square;stroke-dasharray:12,12;stroke:rgb(255,0,0);");
@@ -123,7 +120,6 @@ inline void test_assemble(std::string const& id, Geometry const& p, Geometry con
 template <typename Polygon>
 inline bool int_ok(Polygon const& poly)
 {
-
     typename bg::point_type<Polygon>::type const& pi =
         bg::interior_rings(poly)[0].front();
 
