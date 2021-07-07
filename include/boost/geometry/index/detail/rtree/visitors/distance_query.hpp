@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -97,7 +97,7 @@ template
 <
     typename MembersHolder,
     typename Predicates,
-    unsigned DistancePredicateIndex,
+    std::size_t DistancePredicateIndex,
     typename OutIter
 >
 class distance_query
@@ -125,7 +125,7 @@ public:
     typedef typename calculate_value_distance::result_type value_distance_type;
     typedef typename calculate_node_distance::result_type node_distance_type;
 
-    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline distance_query(parameters_type const& parameters, translator_type const& translator, Predicates const& pred, OutIter out_it)
         : m_parameters(parameters), m_translator(translator)
@@ -299,7 +299,7 @@ private:
 template <
     typename MembersHolder,
     typename Predicates,
-    unsigned DistancePredicateIndex
+    std::size_t DistancePredicateIndex
 >
 class distance_query_incremental
     : public MembersHolder::visitor_const
@@ -330,7 +330,7 @@ public:
     typedef typename allocators_type::const_reference const_reference;
     typedef typename allocators_type::node_pointer node_pointer;
 
-    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
 
     typedef typename rtree::elements_type<internal_node>::type internal_elements;
     typedef typename internal_elements::const_iterator internal_iterator;
@@ -590,7 +590,7 @@ private:
         return greatest_dist <= d;
     }
 
-    inline unsigned max_count() const
+    inline std::size_t max_count() const
     {
         return nearest_predicate_access::get(m_pred).count;
     }

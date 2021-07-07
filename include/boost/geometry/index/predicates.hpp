@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2020.
-// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -338,7 +338,7 @@ Only one \c nearest() predicate may be used in a query.
 */
 template <typename Geometry> inline
 detail::predicates::nearest<Geometry>
-nearest(Geometry const& geometry, unsigned k)
+nearest(Geometry const& geometry, std::size_t k)
 {
     return detail::predicates::nearest<Geometry>(geometry, k);
 }
@@ -368,7 +368,7 @@ Only one distance predicate (\c nearest() or \c path()) may be used in a query.
 */
 template <typename SegmentOrLinestring> inline
 detail::predicates::path<SegmentOrLinestring>
-path(SegmentOrLinestring const& linestring, unsigned k)
+path(SegmentOrLinestring const& linestring, std::size_t k)
 {
     return detail::predicates::path<SegmentOrLinestring>(linestring, k);
 }
