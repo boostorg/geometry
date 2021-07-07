@@ -513,8 +513,13 @@ public:
             }
         }
 
+        // TODO: sort is probably suboptimal.
+        //   An alternative would be std::set, but it'd probably add constant cost.
+        //   Ideally replace this with double-ended priority queue, e.g. min-max heap.
+
         // sort array
-        std::sort(neighbors.begin(), neighbors.end(), pair_first_less());
+        size_type sort_first = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor;
+        std::sort(neighbors.begin() + sort_first, neighbors.end(), pair_first_less());
         // remove furthest values
         if ( max_count() < neighbors.size() )
             neighbors.resize(max_count());
