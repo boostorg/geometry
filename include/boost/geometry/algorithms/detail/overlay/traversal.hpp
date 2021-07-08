@@ -621,31 +621,32 @@ public :
         return m_turns[rp.turn_index].operations[rp.operation_index];
     }
 
-    inline sort_by_side::rank_type select_rank(sbs_type const& sbs,
-                                        bool skip_isolated) const
+    inline sort_by_side::rank_type select_rank(sbs_type const& sbs) const
     {
+        static bool const is_intersection
+                = target_operation == operation_intersection;
+
         // Take the first outgoing rank corresponding to incoming region,
         // or take another region if it is not isolated
-        turn_operation_type const& incoming_op
-                = operation_from_rank(sbs.m_ranked_points.front());
+        auto const& in_op = operation_from_rank(sbs.m_ranked_points.front());
 
         for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
         {
-            typename sbs_type::rp const& rp = sbs.m_ranked_points[i];
+            auto const& rp = sbs.m_ranked_points[i];
             if (rp.rank == 0 || rp.direction == sort_by_side::dir_from)
             {
                 continue;
             }
-            turn_operation_type const& op = operation_from_rank(rp);
+            auto const& out_op = operation_from_rank(rp);
 
-            if (op.operation != target_operation
-                && op.operation != operation_continue)
+            if (out_op.operation != target_operation
+                && out_op.operation != operation_continue)
             {
                 continue;
             }
 
-            if (op.enriched.region_id == incoming_op.enriched.region_id
-                || (skip_isolated && ! op.enriched.isolated))
+            if (in_op.enriched.region_id == out_op.enriched.region_id
+                || (is_intersection && ! out_op.enriched.isolated))
             {
                 // Region corresponds to incoming region, or (for intersection)
                 // there is a non-isolated other region which should be taken
@@ -660,7 +661,7 @@ public :
         int& op_index, sbs_type const& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
-        sort_by_side::rank_type const selected_rank = select_rank(sbs, false);
+        sort_by_side::rank_type const selected_rank = select_rank(sbs);
 
         int current_priority = 0;
         for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
@@ -688,49 +689,59 @@ public :
     inline bool analyze_cluster_intersection(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
-        sort_by_side::rank_type const selected_rank = select_rank(sbs, true);
+        // Select the rank based on regions and isolation
+        sort_by_side::rank_type const selected_rank = select_rank(sbs);
 
-        if (selected_rank > 0)
+        if (selected_rank <= 0)
         {
-            typename turn_operation_type::comparable_distance_type
-                    min_remaining_distance = 0;
+            return false;
+        }
 
-            std::size_t selected_index = sbs.m_ranked_points.size();
-            for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+        // From these ranks, select the index: the first, or the one with
+        // the smallest remaining distance
+        typename turn_operation_type::comparable_distance_type
+                min_remaining_distance = 0;
+
+        std::size_t selected_index = sbs.m_ranked_points.size();
+        for (std::size_t i = 0; i < sbs.m_ranked_points.size(); i++)
+        {
+            auto const& ranked_point = sbs.m_ranked_points[i];
+
+            if (ranked_point.rank > selected_rank)
             {
-                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
-
-                if (ranked_point.rank == selected_rank)
-                {
-                    turn_operation_type const& op = operation_from_rank(ranked_point);
-
-                    if (op.visited.finalized())
-                    {
-                        // This direction is already traveled before, the same
-                        // cannot be traveled again
-                        continue;
-                    }
-
-                    // Take turn with the smallest remaining distance
-                    if (selected_index == sbs.m_ranked_points.size()
-                            || op.remaining_distance < min_remaining_distance)
-                    {
-                        selected_index = i;
-                        min_remaining_distance = op.remaining_distance;
-                    }
-                }
+                break;
             }
-
-            if (selected_index < sbs.m_ranked_points.size())
+            else if (ranked_point.rank == selected_rank)
             {
-                typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[selected_index];
-                turn_index = ranked_point.turn_index;
-                op_index = ranked_point.operation_index;
-                return true;
+                auto const& op = operation_from_rank(ranked_point);
+
+                if (op.visited.finalized())
+                {
+                    // This direction is already traveled,
+                    // it cannot be traveled again
+                    continue;
+                }
+
+                if (selected_index == sbs.m_ranked_points.size()
+                        || op.remaining_distance < min_remaining_distance)
+                {
+                    // It was unassigned or it is better
+                    selected_index = i;
+                    min_remaining_distance = op.remaining_distance;
+                }
             }
         }
 
-        return false;
+        if (selected_index == sbs.m_ranked_points.size())
+        {
+            // Should not happen, there must be points with the selected rank
+            return false;
+        }
+
+        auto const& ranked_point = sbs.m_ranked_points[selected_index];
+        turn_index = ranked_point.turn_index;
+        op_index = ranked_point.operation_index;
+        return true;
     }
 
     inline bool fill_sbs(sbs_type& sbs,
@@ -819,6 +830,7 @@ public :
         return result;
     }
 
+    // Analyzes a non-clustered "ii" intersection, as if it is clustered.
     inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
                     turn_type const& current_turn,
                     segment_identifier const& previous_seg_id)
