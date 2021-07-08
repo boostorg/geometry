@@ -322,17 +322,24 @@ std::string test_one(std::string const& caseid,
     bg::correct(g1);
     bg::correct(g2);
 
-    std::string result = test_difference<OutputType>(caseid + "_a", g1, g2,
+    std::string result;
+
+#if ! defined(BOOST_GEOMETRY_TEST_DIFFERENCE_ONLY_B)
+    result = test_difference<OutputType>(caseid + "_a", g1, g2,
         expected_count1, expected_rings_count1, expected_point_count1,
         expected_area1, false, settings);
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
+#endif
+#if defined(BOOST_GEOMETRY_TEST_DIFFERENCE_ONLY_A)
     return result;
 #endif
 
     test_difference<OutputType>(caseid + "_b", g2, g1,
         expected_count2, expected_rings_count2, expected_point_count2,
         expected_area2, false, settings);
+
+#if defined(BOOST_GEOMETRY_TEST_DIFFERENCE_ONLY_B)
+    return result;
+#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ALWAYS_CHECK_SYMDIFFERENCE)
     if (settings.sym_difference)
