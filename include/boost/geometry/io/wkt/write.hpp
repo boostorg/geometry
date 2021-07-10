@@ -117,13 +117,14 @@ struct double_closing_parenthesis
 /*!
 \brief Stream points as \ref WKT
 */
-template <typename Point, typename Policy>
+template <typename Point, typename Policy1, typename Policy2>
 struct wkt_point
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os, Point const& p, bool)
     {
-        os << Policy::apply() << "(";
+        if(dimension<Point>::type::value == 3) os << Policy2::apply() << "(";
+        else os << Policy1::apply() << "(";
         stream_coordinate<Point, 0, dimension<Point>::type::value>::apply(os, p);
         os << ")";
     }
@@ -354,7 +355,8 @@ struct wkt<Point, point_tag>
     : detail::wkt::wkt_point
         <
             Point,
-            detail::wkt::prefix_point
+            detail::wkt::prefix_point,
+            detail::wkt::prefix_point_z
         >
 {};
 
@@ -421,6 +423,7 @@ struct wkt<Multi, multi_point_tag>
             detail::wkt::wkt_point
                 <
                     typename boost::range_value<Multi>::type,
+                    detail::wkt::prefix_null,
                     detail::wkt::prefix_null
                 >,
             detail::wkt::prefix_multipoint
