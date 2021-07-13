@@ -31,9 +31,9 @@
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
-#include <boost/geometry/strategies/side.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
+#include <boost/geometry/strategies/side.hpp>
 
 template <typename P, typename T>
 void test_with_point(std::string const& /*caseid*/,

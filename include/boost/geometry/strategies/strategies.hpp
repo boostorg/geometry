@@ -67,7 +67,6 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/line_interpolate.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/spherical/azimuth.hpp>
 #include <boost/geometry/strategies/spherical/densify.hpp>
@@ -135,6 +134,8 @@
 #include <boost/geometry/strategy/cartesian/expand_box.hpp>
 #include <boost/geometry/strategy/cartesian/expand_point.hpp>
 #include <boost/geometry/strategy/cartesian/expand_segment.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/strategy/geographic/area.hpp>
 #include <boost/geometry/strategy/geographic/envelope.hpp>

@@ -10,10 +10,10 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
 
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 namespace boost { namespace geometry
 {
