@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -32,19 +32,15 @@
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/convert_indexed_to_indexed.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
+#include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
-
-#include <boost/geometry/util/range.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -52,6 +48,10 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/util/range.hpp>
+
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -144,17 +144,6 @@ template
 >
 struct range_to_range
 {
-    typedef typename reversible_view
-        <
-            Range1 const,
-            Reverse ? iterate_reverse : iterate_forward
-        >::type rview_type;
-    typedef typename closeable_view
-        <
-            rview_type const,
-            geometry::closure<Range1>::value
-        >::type view_type;
-
     struct default_policy
     {
         template <typename Point1, typename Point2>
@@ -175,11 +164,16 @@ struct range_to_range
     {
         geometry::clear(destination);
 
-        rview_type rview(source);
+        using view_type = detail::closed_clockwise_view
+            <
+                Range1 const,
+                geometry::closure<Range1>::value,
+                Reverse ? counterclockwise : clockwise
+            >;
 
         // We consider input always as closed, and skip last
         // point for open output.
-        view_type view(rview);
+        view_type const view(source);
 
         typedef typename boost::range_size<Range1>::type size_type;
         size_type n = boost::size(view);

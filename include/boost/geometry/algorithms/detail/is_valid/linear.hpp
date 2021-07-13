@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -83,10 +83,7 @@ struct is_valid_linestring
         //   is done regardless of VisitPolicy.
         //   An obvious improvement is to avoid calling the algorithm at all if
         //   spikes are allowed which is the default.
-        return ! has_spikes
-                    <
-                        Linestring, closed
-                    >::apply(linestring, visitor, strategy);
+        return ! has_spikes<Linestring>::apply(linestring, visitor, strategy);
     }
 };
 

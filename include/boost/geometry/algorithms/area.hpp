@@ -54,9 +54,8 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/order_as_direction.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
+
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -69,24 +68,18 @@ namespace detail { namespace area
 
 struct box_area
 {
-    template <typename Box, typename Strategy>
+    template <typename Box, typename Strategies>
     static inline typename coordinate_type<Box>::type
-    apply(Box const& box, Strategy const&)
+    apply(Box const& box, Strategies const& strategies)
     {
         // Currently only works for 2D Cartesian boxes
         assert_dimension<Box, 2>();
 
-        return (get<max_corner, 0>(box) - get<min_corner, 0>(box))
-             * (get<max_corner, 1>(box) - get<min_corner, 1>(box));
+        return strategies.area(box).apply(box);
     }
 };
 
 
-template
-<
-    iterate_direction Direction,
-    closure_selector Closure
->
 struct ring_area
 {
     template <typename Ring, typename Strategies>
@@ -104,30 +97,19 @@ struct ring_area
         // An open ring has at least three points,
         // A closed ring has at least four points,
         // if not, there is no (zero) area
-        if (boost::size(ring)
-                < core_detail::closure::minimum_ring_size<Closure>::value)
+        if (boost::size(ring) < detail::minimum_ring_size<Ring>::value)
         {
             return typename area_result<Ring, Strategies>::type();
         }
 
-        typedef typename reversible_view<Ring const, Direction>::type rview_type;
-        typedef typename closeable_view
-            <
-                rview_type const, Closure
-            >::type view_type;
-        typedef typename boost::range_iterator<view_type const>::type iterator_type;
+        detail::closed_clockwise_view<Ring const> const view(ring);
+        auto it = boost::begin(view);
+        auto const end = boost::end(view);
 
-        rview_type rview(ring);
-        view_type view(rview);
-        iterator_type it = boost::begin(view);
-        iterator_type end = boost::end(view);
-
-        strategy_type strategy = strategies.area(ring);
+        strategy_type const strategy = strategies.area(ring);
         typename strategy_type::template state<Ring> state;        
 
-        for (iterator_type previous = it++;
-            it != end;
-            ++previous, ++it)
+        for (auto previous = it++; it != end; ++previous, ++it)
         {
             strategy.apply(*previous, *it, state);
         }
@@ -174,10 +156,6 @@ struct area<Geometry, box_tag> : detail::area::box_area
 template <typename Ring>
 struct area<Ring, ring_tag>
     : detail::area::ring_area
-        <
-            order_as_direction<geometry::point_order<Ring>::value>::value,
-            geometry::closure<Ring>::value
-        >
 {};
 
 
@@ -188,13 +166,10 @@ struct area<Polygon, polygon_tag> : detail::calculate_polygon_sum
     static inline typename area_result<Polygon, Strategy>::type
         apply(Polygon const& polygon, Strategy const& strategy)
     {
-        return calculate_polygon_sum::apply<
-            typename area_result<Polygon, Strategy>::type,
-            detail::area::ring_area
-                <
-                    order_as_direction<geometry::point_order<Polygon>::value>::value,
-                    geometry::closure<Polygon>::value
-                >
+        return calculate_polygon_sum::apply
+            <
+                typename area_result<Polygon, Strategy>::type,
+                detail::area::ring_area
             >(polygon, strategy);
     }
 };

@@ -30,8 +30,7 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/util/range.hpp>
-#include <boost/geometry/views/closeable_view.hpp>
-#include <boost/geometry/views/reversible_view.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -60,20 +59,14 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
-        typedef typename closeable_view
-        <
-            Range const,
-            closure<Range>::value
-        >::type cview_type;
+        using view_type = detail::closed_clockwise_view
+            <
+                Range const,
+                closure<Range>::value,
+                Reverse ? counterclockwise : clockwise
+            >;
 
-        typedef typename reversible_view
-        <
-            cview_type const,
-            Reverse ? iterate_reverse : iterate_forward
-        >::type rview_type;
-
-        cview_type cview(range);
-        rview_type view(cview);
+        view_type view(range);
 
         std::size_t const segment_count = boost::size(view) - 1;
         signed_size_type const target = circular_offset(segment_count, seg_id.segment_index, offset);
