@@ -4,12 +4,13 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-// Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -845,24 +846,6 @@ inline T round_angle(T const& x) {
     y = y < z ? z - (z - y) : y;
 
     return x < 0 ? -y : y;
-}
-
-
-/*!
-\brief The error-free sum of two numbers.
-*/
-template<typename T>
-inline T sum_error(T const& u, T const& v, T& t)
-{
-    volatile T s = u + v;
-    volatile T up = s - v;
-    volatile T vpp = s - up;
-
-    up -= u;
-    vpp -= v;
-    t = -(up + vpp);
-
-    return s;
 }
 
 /*!
