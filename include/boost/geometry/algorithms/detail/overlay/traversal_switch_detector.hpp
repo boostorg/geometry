@@ -415,7 +415,7 @@ struct traversal_switch_detector
                     region_properties const& prop = mit->second;
                     op.enriched.isolated
                             = reverseMeaningInOp
-                            ? prop.isolated == isolation_no
+                            ? false
                             : prop.isolated == isolation_yes;
                 }
             }
@@ -591,6 +591,76 @@ struct traversal_switch_detector
         }
     }
 
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+    void debug_show_results()
+    {
+        auto isolation_to_string = [](isolation_type const& iso) -> std::string
+        {
+            switch(iso)
+            {
+                case isolation_no : return "no";
+                case isolation_yes : return "yes";
+                case isolation_multiple : return "multiple";
+            }
+            return "error";
+        };
+        auto set_to_string = [](auto const& s) -> std::string
+        {
+            std::ostringstream result;
+            for (auto item : s) { result << " " << item; }
+            return result.str();
+        };
+
+        for (auto const& kv : m_connected_regions)
+        {
+            auto const& prop = kv.second;
+
+            std::ostringstream sub;
+            sub << "[turns" << set_to_string(prop.unique_turn_ids)
+                << "] regions";
+            for (auto const& kvs : prop.connected_region_counts)
+            {
+                sub << " { " << kvs.first
+                    << " : via [" << set_to_string(kvs.second.unique_turn_ids)
+                    << " ] }";
+            }
+
+            std::cout << "REGION " << prop.region_id
+                      << " " << isolation_to_string(prop.isolated)
+                      << " " << sub.str()
+                      << std::endl;
+        }
+
+        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        {
+            turn_type const& turn = m_turns[turn_index];
+
+            if (uu_or_ii(turn) && ! turn.is_clustered())
+            {
+                std::cout << (turn.both(operation_union) ? "UU" : "II")
+                          << " " << turn_index
+                          << " (" << geometry::get<0>(turn.point)
+                          << ", " << geometry::get<1>(turn.point) << ")"
+                          << " -> " << std::boolalpha
+                          << " [" << turn.operations[0].seg_id.source_index
+                          << "/" << turn.operations[1].seg_id.source_index << "] "
+                          << "(" << turn.operations[0].enriched.region_id
+                          << " " << turn.operations[0].enriched.isolated
+                          << ") / (" << turn.operations[1].enriched.region_id
+                          << " " << turn.operations[1].enriched.isolated << ")"
+                          << std::endl;
+            }
+        }
+
+        for (auto const& key_val : m_clusters)
+        {
+            cluster_info const& cinfo = key_val.second;
+            std::cout << "CL RESULT " << key_val.first
+                         << " -> " << cinfo.open_count << std::endl;
+        }
+    }
+#endif
+
     void iterate()
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
@@ -637,33 +707,7 @@ struct traversal_switch_detector
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
         std::cout << "END SWITCH DETECTOR" << std::endl;
-
-        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
-        {
-            turn_type const& turn = m_turns[turn_index];
-
-            if (uu_or_ii(turn) && ! turn.is_clustered())
-            {
-                std::cout << (turn.both(operation_union) ? "UU" : "II")
-                          << " " << turn_index
-                          << " (" << geometry::get<0>(turn.point)
-                          << ", " << geometry::get<1>(turn.point) << ")"
-                          << " -> " << std::boolalpha
-                          << " [" << turn.operations[0].seg_id.source_index << "/" << turn.operations[1].seg_id.source_index << "] "
-                          << "(" << turn.operations[0].enriched.region_id
-                          << " " << turn.operations[0].enriched.isolated
-                          << ") / (" << turn.operations[1].enriched.region_id
-                          << " " << turn.operations[1].enriched.isolated << ")"
-                          << std::endl;
-            }
-        }
-
-        for (auto const& key_val : m_clusters)
-        {
-            cluster_info const& cinfo = key_val.second;
-            std::cout << "CL RESULT " << key_val.first
-                         << " -> " << cinfo.open_count << std::endl;
-        }
+        debug_show_results();
 #endif
 
     }
