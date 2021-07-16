@@ -519,7 +519,7 @@ public:
         //   participate in sorting anymore.
 
         // sort array
-        size_type sort_first = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor;
+        size_type sort_first = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor + 1;
         std::sort(neighbors.begin() + sort_first, neighbors.end(), pair_first_less());
         // remove furthest values
         if ( max_count() < neighbors.size() )
