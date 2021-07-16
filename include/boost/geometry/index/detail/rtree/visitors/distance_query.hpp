@@ -393,16 +393,15 @@ public:
 
                 // if there are no nodes which can have closer values, set new value
                 if ( new_neighbor < neighbors.size() &&
-                     // here must be < because otherwise neighbours may be sorted in different order
-                     // if there is another value with equal distance
-                     neighbors[new_neighbor].first < closest_distance)
+                     // NOTE: In order to use <= current neighbor can't be sorted again
+                     neighbors[new_neighbor].first <= closest_distance )
                 {
                     current_neighbor = new_neighbor;
                     return;
                 }
 
-                // if node is further than the furthest neighbour, following nodes also will be further
-                BOOST_GEOMETRY_INDEX_ASSERT(neighbors.size() <= max_count(), "unexpected neighbours count");
+                // if node is further than the furthest neighbor, following nodes will also be further
+                BOOST_GEOMETRY_INDEX_ASSERT(neighbors.size() <= max_count(), "unexpected neighbors count");
                 if ( max_count() <= neighbors.size() &&
                      neighbors.back().first <= closest_distance )
                 {
@@ -516,6 +515,8 @@ public:
         // TODO: sort is probably suboptimal.
         //   An alternative would be std::set, but it'd probably add constant cost.
         //   Ideally replace this with double-ended priority queue, e.g. min-max heap.
+        // NOTE: A condition in increment() relies on the fact that current neighbor doesn't
+        //   participate in sorting anymore.
 
         // sort array
         size_type sort_first = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor;
