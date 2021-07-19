@@ -6,8 +6,8 @@
 // Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
-// This file was modified by Oracle on 2019-2020.
-// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -1082,7 +1082,7 @@ public:
         if ( !m_members.root )
             return 0;
 
-        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         static const bool is_distance_predicate = 0 < distance_predicates_count;
         BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
             "Only one distance predicate can be passed.",
@@ -1252,7 +1252,7 @@ private:
         >
     qbegin_(Predicates const& predicates) const
     {
-        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
             "Only one distance predicate can be passed.",
             Predicates);
@@ -1319,7 +1319,7 @@ private:
         >
     qend_(Predicates const& predicates) const
     {
-        static const unsigned distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
+        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
         BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
             "Only one distance predicate can be passed.",
             Predicates);
@@ -1916,7 +1916,7 @@ private:
     {
         BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
 
-        static const unsigned distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
+        static const std::size_t distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
         detail::rtree::visitors::distance_query<
             members_holder,
             Predicates,

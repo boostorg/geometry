@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -35,7 +35,7 @@ struct spatial_query
 
     typedef typename allocators_type::size_type size_type;
 
-    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query(parameters_type const& par, translator_type const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0), strategy(index::detail::get_strategy(par))
@@ -119,7 +119,7 @@ public:
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
     typedef typename rtree::elements_type<leaf>::type::const_iterator leaf_iterator;
 
-    static const unsigned predicates_len = index::detail::predicates_length<Predicates>::value;
+    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query_incremental()
         : m_translator(NULL)
