@@ -35,27 +35,22 @@ struct spatial_query
 
     typedef typename allocators_type::size_type size_type;
 
-    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
-
     inline spatial_query(parameters_type const& par, translator_type const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0), strategy(index::detail::get_strategy(par))
     {}
 
     inline void operator()(internal_node const& n)
     {
-        typedef typename rtree::elements_type<internal_node>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
+        namespace id = index::detail;
+
+        auto const& elements = rtree::elements(n);
 
         // traverse nodes meeting predicates
-        for (typename elements_type::const_iterator it = elements.begin();
-            it != elements.end(); ++it)
+        for (auto it = elements.begin(); it != elements.end(); ++it)
         {
             // if node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::bounds_tag, 0, predicates_len
-                    >(pred, 0, it->first, strategy) )
+            if (id::predicates_check<id::bounds_tag>(pred, 0, it->first, strategy))
             {
                 rtree::apply_visitor(*this, *it->second);
             }
@@ -64,18 +59,15 @@ struct spatial_query
 
     inline void operator()(leaf const& n)
     {
-        typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
+        namespace id = index::detail;
+
+        auto const& elements = rtree::elements(n);
 
         // get all values meeting predicates
-        for (typename elements_type::const_iterator it = elements.begin();
-            it != elements.end(); ++it)
+        for (auto it = elements.begin(); it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::value_tag, 0, predicates_len
-                    >(pred, *it, tr(*it), strategy) )
+            if (id::predicates_check<id::value_tag>(pred, *it, tr(*it), strategy))
             {
                 *out_iter = *it;
                 ++out_iter;
@@ -118,8 +110,6 @@ public:
     typedef typename rtree::elements_type<internal_node>::type::const_iterator internal_iterator;
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
     typedef typename rtree::elements_type<leaf>::type::const_iterator leaf_iterator;
-
-    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
 
     inline spatial_query_incremental()
         : m_translator(NULL)
@@ -171,6 +161,7 @@ public:
 
     void search_value()
     {
+        namespace id = index::detail;
         for (;;)
         {
             // if leaf is choosen, move to the next value in leaf
@@ -180,10 +171,7 @@ public:
                 {
                     // return if next value is found
                     value_type const& v = *m_current;
-                    if (index::detail::predicates_check
-                            <
-                               index::detail::value_tag, 0, predicates_len
-                            >(m_pred, v, (*m_translator)(v), m_strategy))
+                    if (id::predicates_check<id::value_tag>(m_pred, v, (*m_translator)(v), m_strategy))
                     {
                         return;
                     }
@@ -214,10 +202,7 @@ public:
                 ++m_internal_stack.back().first;
 
                 // next node is found, push it to the stack
-                if (index::detail::predicates_check
-                        <
-                            index::detail::bounds_tag, 0, predicates_len
-                        >(m_pred, 0, it->first, m_strategy))
+                if (id::predicates_check<id::bounds_tag>(m_pred, 0, it->first, m_strategy))
                 {
                     rtree::apply_visitor(*this, *(it->second));
                 }

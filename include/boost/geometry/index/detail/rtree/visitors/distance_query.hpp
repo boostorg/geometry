@@ -15,6 +15,10 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
 
+#include <queue>
+
+#include <boost/geometry/index/detail/priority_dequeue.hpp>
+
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree { namespace visitors {
@@ -37,6 +41,16 @@ struct pair_first_greater
                            std::pair<First, Second> const& p2) const
     {
         return p1.first > p2.first;
+    }
+};
+
+template <typename T, typename Comp>
+struct priority_queue : std::priority_queue<T, std::vector<T>, Comp>
+{
+    priority_queue() = default;
+    void clear()
+    {
+        this->c.clear();
     }
 };
 
@@ -140,8 +154,6 @@ public:
     typedef typename calculate_value_distance::result_type value_distance_type;
     typedef typename calculate_node_distance::result_type node_distance_type;
 
-    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
-
     inline distance_query(parameters_type const& parameters, translator_type const& translator, Predicates const& pred, OutIter out_it)
         : m_parameters(parameters), m_translator(translator)
         , m_pred(pred)
@@ -151,29 +163,26 @@ public:
 
     inline void operator()(internal_node const& n)
     {
-        typedef typename rtree::elements_type<internal_node>::type elements_type;
+        namespace id = index::detail;
 
         // array of active nodes
-        typedef typename index::detail::rtree::container_from_elements_type<
-            elements_type,
-            std::pair<node_distance_type, typename allocators_type::node_pointer>
-        >::type active_branch_list_type;
+        using active_branch_list_type = typename index::detail::rtree::container_from_elements_type
+            <
+                typename rtree::elements_type<internal_node>::type,
+                std::pair<node_distance_type, typename allocators_type::node_pointer>
+            >::type;
 
         active_branch_list_type active_branch_list;
         active_branch_list.reserve(m_parameters.get_max_elements());
         
-        elements_type const& elements = rtree::elements(n);
+        auto const& elements = rtree::elements(n);
 
         // fill array of nodes meeting predicates
-        for (typename elements_type::const_iterator it = elements.begin();
-            it != elements.end(); ++it)
+        for (auto it = elements.begin(); it != elements.end(); ++it)
         {
             // if current node meets predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::bounds_tag, 0, predicates_len
-                    >(m_pred, 0, it->first, m_strategy) )
+            if (id::predicates_check<id::bounds_tag>(m_pred, 0, it->first, m_strategy) )
             {
                 // calculate node's distance(s) for distance predicate
                 node_distance_type node_distance;
@@ -204,8 +213,7 @@ public:
         std::sort(active_branch_list.begin(), active_branch_list.end(), pair_first_less());
 
         // recursively visit nodes
-        for ( typename active_branch_list_type::const_iterator it = active_branch_list.begin();
-              it != active_branch_list.end() ; ++it )
+        for (auto it = active_branch_list.begin(); it != active_branch_list.end() ; ++it)
         {
             // if current node is further than furthest neighbor, the rest of nodes also will be further
             if ( m_result.has_enough_neighbors() &&
@@ -245,18 +253,15 @@ public:
 
     inline void operator()(leaf const& n)
     {
-        typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
+        namespace id = index::detail;
+
+        auto const& elements = rtree::elements(n);
         
         // search leaf for closest value meeting predicates
-        for (typename elements_type::const_iterator it = elements.begin();
-            it != elements.end(); ++it)
+        for (auto it = elements.begin(); it != elements.end(); ++it)
         {
             // if value meets predicates
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::value_tag, 0, predicates_len
-                    >(m_pred, *it, m_translator(*it), m_strategy) )
+            if (id::predicates_check<id::value_tag>(m_pred, *it, m_translator(*it), m_strategy))
             {
                 // calculate values distance for distance predicate
                 value_distance_type value_distance;
@@ -331,88 +336,93 @@ public:
     typedef typename allocators_type::const_reference const_reference;
     typedef typename allocators_type::node_pointer node_pointer;
 
-    static const std::size_t predicates_len = index::detail::predicates_length<Predicates>::value;
-
     typedef typename rtree::elements_type<internal_node>::type internal_elements;
     typedef typename internal_elements::const_iterator internal_iterator;
     typedef typename rtree::elements_type<leaf>::type leaf_elements;
 
-    typedef std::pair<node_distance_type, node_pointer> branch_data;
-    typedef std::vector<branch_data> internal_heap_type;
+    using branch_data = std::pair<node_distance_type, node_pointer>;
+    using branches_type = priority_queue<branch_data, pair_first_greater>;
+    using neighbor_data = std::pair<value_distance_type, const value_type *>;
+    using neighbors_type = priority_dequeue<neighbor_data, std::vector<neighbor_data>, pair_first_greater>;
 
     inline distance_query_incremental()
-        : m_translator(NULL)
+        : m_translator(nullptr)
 //        , m_pred()
-        , current_neighbor((std::numeric_limits<size_type>::max)())
+        , m_neighbors_count(0)
+        , m_neighbor_ptr(nullptr)
 //        , m_strategy_type()
     {}
 
     inline distance_query_incremental(parameters_type const& params, translator_type const& translator, Predicates const& pred)
         : m_translator(::boost::addressof(translator))
         , m_pred(pred)
-        , current_neighbor((std::numeric_limits<size_type>::max)())
+        , m_neighbors_count(0)
+        , m_neighbor_ptr(nullptr)
         , m_strategy(index::detail::get_strategy(params))
-    {
-        BOOST_GEOMETRY_INDEX_ASSERT(0 < max_count(), "k must be greather than 0");
-    }
+    {}
 
     const_reference dereference() const
     {
-        return *(neighbors[current_neighbor].second);
+        return *m_neighbor_ptr;
     }
 
     void initialize(node_pointer root)
     {
-        rtree::apply_visitor(*this, *root);
-        increment();
+        if (0 < max_count())
+        {
+            rtree::apply_visitor(*this, *root);
+            increment();
+        }
     }
 
     void increment()
     {
         for (;;)
         {
-            size_type new_neighbor = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor + 1;
-
-            if ( internal_heap.empty() )
+            if (m_branches.empty())
             {
-                if ( new_neighbor < neighbors.size() )
-                    current_neighbor = new_neighbor;
+                // there exists a next closest neighbor so we can increment
+                if (! m_neighbors.empty())
+                {
+                    m_neighbor_ptr = m_neighbors.top().second;
+                    ++m_neighbors_count;
+                    m_neighbors.pop_top();
+                }
                 else
                 {
-                    current_neighbor = (std::numeric_limits<size_type>::max)();
-                    // clear() is used to disable the condition above
-                    neighbors.clear();
+                    // there aren't any neighbors left, end
+                    m_neighbor_ptr = nullptr;
+                    m_neighbors_count = max_count();
                 }
 
                 return;
             }
             else
             {
-                branch_data const& closest_branch = internal_heap.front();
-                node_distance_type const& closest_distance = closest_branch.first;
+                branch_data const& closest_branch = m_branches.top();
 
-                // if there are no nodes which can have closer values, set new value
-                if ( new_neighbor < neighbors.size() &&
-                     // NOTE: In order to use <= current neighbor can't be sorted again
-                     neighbors[new_neighbor].first <= closest_distance )
+                // if next neighbor is closer or as close as the closest branch, set next neighbor
+                if (! m_neighbors.empty() && m_neighbors.top().first <= closest_branch.first )
                 {
-                    current_neighbor = new_neighbor;
+                    m_neighbor_ptr = m_neighbors.top().second;
+                    ++m_neighbors_count;
+                    m_neighbors.pop_top();
                     return;
                 }
 
-                // if node is further than the furthest neighbor, following nodes will also be further
-                BOOST_GEOMETRY_INDEX_ASSERT(neighbors.size() <= max_count(), "unexpected neighbors count");
-                if ( max_count() <= neighbors.size() &&
-                     neighbors.back().first <= closest_distance )
+                BOOST_GEOMETRY_INDEX_ASSERT(m_neighbors_count + m_neighbors.size() <= max_count(), "unexpected neighbors count");
+
+                // if there is enough neighbors and there is no closer branch
+                if (m_neighbors_count + m_neighbors.size() == max_count()
+                    && (m_neighbors.empty() || m_neighbors.bottom().first <= closest_branch.first))
                 {
-                    internal_heap.clear();
+                    m_branches.clear();
                     continue;
                 }
                 else
                 {
                     node_pointer ptr = closest_branch.second;
-                    std::pop_heap(internal_heap.begin(), internal_heap.end(), pair_first_greater());
-                    internal_heap.pop_back();
+                    m_branches.pop();
 
                     rtree::apply_visitor(*this, *ptr);
                 }
@@ -422,17 +432,12 @@ public:
 
     bool is_end() const
     {
-        return (std::numeric_limits<size_type>::max)() == current_neighbor;
+        return m_neighbor_ptr == nullptr;
     }
 
     friend bool operator==(distance_query_incremental const& l, distance_query_incremental const& r)
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(l.current_neighbor != r.current_neighbor ||
-                                    (std::numeric_limits<size_type>::max)() == l.current_neighbor ||
-                                    (std::numeric_limits<size_type>::max)() == r.current_neighbor ||
-                                    l.neighbors[l.current_neighbor].second == r.neighbors[r.current_neighbor].second,
-                                    "not corresponding iterators");
-        return l.current_neighbor == r.current_neighbor;
+        return l.m_neighbors_count == r.m_neighbors_count;
     }
 
     // Put node's elements into the list of active branches if those elements meets predicates
@@ -440,39 +445,37 @@ public:
     // and aren't further than found neighbours (if there is enough neighbours)
     inline void operator()(internal_node const& n)
     {
-        typedef typename rtree::elements_type<internal_node>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
+        namespace id = index::detail;
+
+        auto const& elements = rtree::elements(n);
 
         // fill active branch list array of nodes meeting predicates
-        for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it )
+        for (auto it = elements.begin() ; it != elements.end() ; ++it)
         {
-            // if current node meets predicates
+            // if current node doesn't meet predicates
             // 0 - dummy value
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::bounds_tag, 0, predicates_len
-                    >(m_pred, 0, it->first, m_strategy) )
+            if (! id::predicates_check<id::bounds_tag>(m_pred, 0, it->first, m_strategy))
             {
-                // calculate node's distance(s) for distance predicate
-                node_distance_type node_distance;
-                // if distance isn't ok - move to the next node
-                if ( !calculate_node_distance::apply(predicate(), it->first,
-                                                     m_strategy, node_distance) )
-                {
-                    continue;
-                }
-
-                // if current node is further than found neighbors - don't analyze it
-                if ( max_count() <= neighbors.size() &&
-                     neighbors.back().first <= node_distance )
-                {
-                    continue;
-                }
-
-                // add current node's data into the queue
-                internal_heap.push_back(std::make_pair(node_distance, it->second));
-                std::push_heap(internal_heap.begin(), internal_heap.end(), pair_first_greater());
+                continue;
             }
+
+            // calculate node's distance(s) for distance predicate
+            node_distance_type node_distance;
+            // if distance isn't ok
+            if (! calculate_node_distance::apply(predicate(), it->first, m_strategy, node_distance))
+            {
+                continue;
+            }
+
+            // if there is enough neighbors and there is no closer branch
+            if (m_neighbors_count + m_neighbors.size() == max_count()
+                && (m_neighbors.empty() || m_neighbors.bottom().first <= node_distance))
+            {
+                continue;
+            }
+
+            // add current node into the queue
+            m_branches.push(std::make_pair(node_distance, it->second));
         }
     }
 
@@ -481,49 +484,42 @@ public:
     // and aren't further than already found neighbours (if there is enough neighbours)
     inline void operator()(leaf const& n)
     {
-        typedef typename rtree::elements_type<leaf>::type elements_type;
-        elements_type const& elements = rtree::elements(n);
+        namespace id = index::detail;
 
-        // store distance to the furthest neighbour
-        bool not_enough_neighbors = neighbors.size() < max_count();
-        value_distance_type greatest_distance = !not_enough_neighbors ? neighbors.back().first : (std::numeric_limits<value_distance_type>::max)();
-        
+        auto const& elements = rtree::elements(n);
+
         // search leaf for closest value meeting predicates
-        for ( typename elements_type::const_iterator it = elements.begin() ; it != elements.end() ; ++it)
+        for (auto it = elements.begin() ; it != elements.end() ; ++it)
         {
-            // if value meets predicates
-            if ( index::detail::predicates_check
-                    <
-                        index::detail::value_tag, 0, predicates_len
-                    >(m_pred, *it, (*m_translator)(*it), m_strategy) )
+            // if value doesn't meet predicates
+            if (! id::predicates_check<id::value_tag>(m_pred, *it, (*m_translator)(*it), m_strategy))
             {
-                // calculate values distance for distance predicate
-                value_distance_type value_distance;
-                // if distance is ok
-                if ( calculate_value_distance::apply(predicate(), (*m_translator)(*it),
-                                                     m_strategy, value_distance) )
-                {
-                    // if there is not enough values or current value is closer than furthest neighbour
-                    if ( not_enough_neighbors || value_distance < greatest_distance )
-                    {
-                        neighbors.push_back(std::make_pair(value_distance, boost::addressof(*it)));
-                    }
-                }
+                continue;
+            }
+                
+            // calculate values distance for distance predicate
+            value_distance_type value_distance;
+            // if distance isn't ok
+            if (! calculate_value_distance::apply(predicate(), (*m_translator)(*it),
+                                                  m_strategy, value_distance))
+            {
+                continue;
+            }
+
+            // if there is enough neighbors and there is no closer neighbor
+            if (m_neighbors_count + m_neighbors.size() == max_count()
+                && (m_neighbors.empty() || m_neighbors.bottom().first <= value_distance))
+            {
+                continue;
+            }
+
+            // add current value into the queue
+            m_neighbors.push(std::make_pair(value_distance, boost::addressof(*it)));
+            if (m_neighbors_count + m_neighbors.size() > max_count())
+            {
+                m_neighbors.pop_bottom();
             }
         }
-
-        // TODO: sort is probably suboptimal.
-        //   An alternative would be std::set, but it'd probably add constant cost.
-        //   Ideally replace this with double-ended priority queue, e.g. min-max heap.
-        // NOTE: A condition in increment() relies on the fact that current neighbor doesn't
-        //   participate in sorting anymore.
-
-        // sort array
-        size_type sort_first = current_neighbor == (std::numeric_limits<size_type>::max)() ? 0 : current_neighbor + 1;
-        std::sort(neighbors.begin() + sort_first, neighbors.end(), pair_first_less());
-        // remove furthest values
-        if ( max_count() < neighbors.size() )
-            neighbors.resize(max_count());
     }
 
 private:
@@ -541,9 +537,10 @@ private:
 
     Predicates m_pred;
     
-    internal_heap_type internal_heap;
-    std::vector< std::pair<value_distance_type, const value_type *> > neighbors;
-    size_type current_neighbor;
+    branches_type m_branches;
+    neighbors_type m_neighbors;
+    size_type m_neighbors_count;
+    const value_type * m_neighbor_ptr;
 
     strategy_type m_strategy;
 };
