@@ -213,6 +213,10 @@ void test_areal()
         // Generates a polygon with two interiors, i/o a multipoly with 3 rings
     TEST_DIFFERENCE(issue_869_a, 3, 3600, 0, 0, 1);
 #endif
+
+    TEST_DIFFERENCE(issue_888_34, 22, 0.2506824, 6, 0.0253798, 28);
+    TEST_DIFFERENCE(issue_888_37, 15, 0.0451408, 65, 0.3014843, 80);
+
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],

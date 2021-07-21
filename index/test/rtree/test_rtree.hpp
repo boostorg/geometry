@@ -3,8 +3,8 @@
 
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -1694,7 +1694,7 @@ void test_rtree_queries(Parameters const& parameters, Allocator const& allocator
 {
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
 
@@ -1717,7 +1717,7 @@ void test_rtree_modifiers(Parameters const& parameters, Allocator const& allocat
 {
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
 
@@ -1754,7 +1754,7 @@ void test_count_rtree_values(Parameters const& parameters, Allocator const& allo
 
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
 
@@ -1797,7 +1797,7 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
 
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
 
@@ -1828,7 +1828,7 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 {
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
     //typedef typename bg::traits::point_type<B>::type P;
@@ -1886,7 +1886,7 @@ void test_rtree_range(Parameters const& parameters, Allocator const& allocator)
 
     typedef bgi::indexable<Value> I;
     typedef bgi::equal_to<Value> E;
-    typedef typename Allocator::template rebind<Value>::other A;
+    typedef typename boost::container::allocator_traits<Allocator>::template rebind_alloc<Value> A;
     typedef bgi::rtree<Value, Parameters, I, E, A> Tree;
     typedef typename Tree::bounds_type B;
 
