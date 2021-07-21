@@ -232,10 +232,8 @@ void test_areal()
     TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
     TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4, expectation_limits(0.00029437, 0.000294380));
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
 
@@ -950,7 +948,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
     // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(5, 2, 6, 1);
+    BoostGeometryWriteExpectedFailures(6, 2, 7, 1);
 #endif
 
     return 0;

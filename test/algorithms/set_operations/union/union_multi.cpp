@@ -422,13 +422,13 @@ void test_areal()
     // Failure with rescaling
     TEST_UNION(issue_630_a, 1, 0, -1, 2.200326);
 #endif
+
     TEST_UNION(issue_630_b, 1, 0, -1, 1.675976);
-#if ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Failure with Kramer rule, it doesn't generate any output
-    TEST_UNION(issue_630_c, 1, 0, -1, 1.670367);
-#endif
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // With rescaling the smaller rectangle is added on top of the outer polygon
+    TEST_UNION(issue_630_c, 1, 0, -1, 1.670367);
+
     // With rescaling the small polygon is added on top of the outer polygon
     TEST_UNION(issue_643, 1, 0, -1, 80.0);
 #endif
@@ -441,13 +441,8 @@ void test_areal()
     TEST_UNION(issue_888_34, 15, 0, -1, 0.3017459);
     TEST_UNION(issue_888_37, 52, 3, -1, 0.4033294);
 
-#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
-    // Two polygons, should ideally be merged
-    TEST_UNION(mail_2019_01_21_johan, 2, 0, -1, 0.00058896);
-#else
-    // Correct: one polygon
-    TEST_UNION(mail_2019_01_21_johan, 1, 0, -1, 0.00058896);
-#endif
+    // One or two polygons, the ideal case is 1
+    TEST_UNION(mail_2019_01_21_johan, count_set(1, 2), 0, -1, 0.00058896);
 
     TEST_UNION(mysql_23023665_7, 1, 1, -1, 99.19494);
     TEST_UNION(mysql_23023665_8, 1, 2, -1, 1400.0);
