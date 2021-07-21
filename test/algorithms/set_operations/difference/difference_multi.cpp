@@ -204,11 +204,16 @@ void test_areal()
 #endif
     }
 
-    // Requires reveral of isolation in ii turns. There should be 3 rings.
-    TEST_DIFFERENCE(issue_869_a, 3, 3600, 0, 0, 3);
+    // Cases below go (or went) wrong in either a ( [0] - [1] ) or b ( [1] - [0] )
+    // Requires reversal of isolation in ii turns. There should be 3 rings.
+    TEST_DIFFERENCE(issue_869_a, 3, 3600, 0, 0, 3); // a went wrong
 
-    TEST_DIFFERENCE(issue_888_34, 22, 0.2506824, 6, 0.0253798, 28);
-    TEST_DIFFERENCE(issue_888_37, 15, 0.0451408, 65, 0.3014843, 80);
+    TEST_DIFFERENCE(issue_888_34, 22, 0.2506824, 6, 0.0253798, 28); // a went wrong
+    TEST_DIFFERENCE(issue_888_37, 15, 0.0451408, 65, 0.3014843, 80); // b went wrong
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_DIFFERENCE(issue_888_53, 117, 0.2973268, 17, 0.0525798, 134); // a goes wrong
+#endif
 
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
