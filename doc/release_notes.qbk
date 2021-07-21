@@ -20,6 +20,33 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.77]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/812 812] Umbrella strategies for distance and comparable_distance (undocumented for now).
+* [@https://github.com/boostorg/geometry/pull/840 840] Umbrella strategies for various algorithms (undocumented for now).
+* [@https://github.com/boostorg/geometry/pull/850 850] Introduced DynamicGeometry and GeometryCollection concepts and support in some algorithms (undocumented for now).
+* [@https://github.com/boostorg/geometry/pull/855 855] Various improvements related to strategies. Default strategies are now included with algorithms.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/865 865] Exception thrown in rtree serialization.
+* [@https://github.com/boostorg/geometry/issues/439 439] Invalid box spherical area computation.
+* [@https://github.com/boostorg/geometry/issues/838 838] Invalid result of union_().
+* [@https://github.com/boostorg/geometry/issues/851 851] Invalid geographic disjoint segment/box result.
+* [@https://github.com/boostorg/geometry/issues/861 861] Invalid result of intersection().
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/832 832] Fixed box spherical and geographic area computation.
+* [@https://github.com/boostorg/geometry/pull/853 853] Fixed geographic disjoint segment/box.
+* [@https://github.com/boostorg/geometry/pull/866 866] Fixed serialization of rtree containing lesser number of elements in root node than minimum.
+* [@https://github.com/boostorg/geometry/pull/886 886] Fixed knn rtree query bug causing it to be slow for big k.
+* Various fixes in set operations and buffer.
+
+[/=================]
 [heading Boost 1.76]
 [/=================]
 
