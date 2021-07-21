@@ -65,13 +65,13 @@ struct ut_settings : ut_base_settings
 {
     double percentage;
     bool sym_difference;
-    bool remove_spikes;
+    bool sym_difference_validity = true;
+    bool remove_spikes = false;
 
-    explicit ut_settings(double p = 0.0001, bool tv = true, bool sd = true)
-        : ut_base_settings(tv)
+    explicit ut_settings(double p = 0.0001, bool validity = true, bool sd = true)
+        : ut_base_settings(validity)
         , percentage(p)
         , sym_difference(sd)
-        , remove_spikes(false)
     {}
 
 };
@@ -192,7 +192,12 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
     typename bg::default_area_result<G1>::type const area = bg::area(result);
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-    if (settings.test_validity())
+    bool const test_validity
+            = sym
+            ? (settings.sym_difference_validity || BG_IF_TEST_FAILURES)
+            : settings.test_validity();
+
+    if (test_validity)
     {
         // std::cout << bg::dsv(result) << std::endl;
         typedef bg::model::multi_polygon<OutputType> result_type;

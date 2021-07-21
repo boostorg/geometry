@@ -132,18 +132,18 @@ struct mathematical_policy
 
 struct ut_base_settings
 {
-    explicit ut_base_settings(bool val = true)
+    explicit ut_base_settings(bool validity = true)
         : m_test_validity(true)
     {
-        set_test_validity(val);
+        set_test_validity(validity);
     }
 
-    inline void set_test_validity(bool val)
+    inline void set_test_validity(bool validity)
     {
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-        boost::ignore_unused(val);
+        boost::ignore_unused(validity);
 #else
-        m_test_validity = val;
+        m_test_validity = validity;
 #endif
     }
 
@@ -206,11 +206,6 @@ inline void BoostGeometryWriteTestConfiguration()
 #endif
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     std::cout << "  - Using rescaling" << std::endl;
-#endif
-#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
-    std::cout << "  - Using Kramer rule" << std::endl;
-#else
-    std::cout << "  - Using general form" << std::endl;
 #endif
 #if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     std::cout << "  - Testing only one type" << std::endl;
