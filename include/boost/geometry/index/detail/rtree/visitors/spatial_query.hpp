@@ -33,26 +33,44 @@ struct spatial_query
     typedef typename MembersHolder::internal_node internal_node;
     typedef typename MembersHolder::leaf leaf;
 
+    typedef typename allocators_type::node_pointer node_pointer;
     typedef typename allocators_type::size_type size_type;
 
     inline spatial_query(parameters_type const& par, translator_type const& t, Predicates const& p, OutIter out_it)
         : tr(t), pred(p), out_iter(out_it), found_count(0), strategy(index::detail::get_strategy(par))
     {}
 
+    size_type apply(node_pointer root)
+    {
+        rtree::apply_visitor(*this, *root);
+
+        for (;;)
+        {
+            if (m_internal_stack.empty())
+            {
+                break;
+            }
+
+            node_pointer ptr = m_internal_stack.back();
+            m_internal_stack.pop_back();
+            rtree::apply_visitor(*this, *ptr);
+        }
+
+        return found_count;
+    }
+
     inline void operator()(internal_node const& n)
     {
         namespace id = index::detail;
 
-        auto const& elements = rtree::elements(n);
-
         // traverse nodes meeting predicates
-        for (auto it = elements.begin(); it != elements.end(); ++it)
+        for (auto const& p : rtree::elements(n))
         {
             // if node meets predicates
             // 0 - dummy value
-            if (id::predicates_check<id::bounds_tag>(pred, 0, it->first, strategy))
+            if (id::predicates_check<id::bounds_tag>(pred, 0, p.first, strategy))
             {
-                rtree::apply_visitor(*this, *it->second);
+                m_internal_stack.push_back(p.second);
             }
         }
     }
@@ -61,15 +79,13 @@ struct spatial_query
     {
         namespace id = index::detail;
 
-        auto const& elements = rtree::elements(n);
-
         // get all values meeting predicates
-        for (auto it = elements.begin(); it != elements.end(); ++it)
+        for (auto const& v : rtree::elements(n))
         {
             // if value meets predicates
-            if (id::predicates_check<id::value_tag>(pred, *it, tr(*it), strategy))
+            if (id::predicates_check<id::value_tag>(pred, v, tr(v), strategy))
             {
-                *out_iter = *it;
+                *out_iter = v;
                 ++out_iter;
 
                 ++found_count;
@@ -77,9 +93,12 @@ struct spatial_query
         }
     }
 
+private:
     translator_type const& tr;
 
     Predicates pred;
+
+    std::vector<node_pointer> m_internal_stack;
 
     OutIter out_iter;
     size_type found_count;

@@ -1900,9 +1900,7 @@ private:
         detail::rtree::visitors::spatial_query<members_holder, Predicates, OutIter>
             find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
 
-        detail::rtree::apply_visitor(find_v, *m_members.root);
-
-        return find_v.found_count;
+        return find_v.apply(m_members.root);
     }
 
     /*!
