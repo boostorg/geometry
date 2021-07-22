@@ -1920,13 +1920,10 @@ private:
         detail::rtree::visitors::distance_query<
             members_holder,
             Predicates,
-            distance_predicate_index,
-            OutIter
-        > distance_v(m_members.parameters(), m_members.translator(), predicates, out_it);
+            distance_predicate_index
+        > distance_v(m_members.parameters(), m_members.translator(), predicates);
 
-        detail::rtree::apply_visitor(distance_v, *m_members.root);
-
-        return distance_v.finish();
+        return distance_v.apply(m_members.root, out_it);
     }
     
     /*!

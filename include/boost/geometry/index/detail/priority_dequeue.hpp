@@ -133,11 +133,6 @@ public:
         return c.size();
     }
 
-    void clear()
-    {
-        c.clear();
-    }
-
     void swap(priority_dequeue& other)
     {
         using std::swap;
