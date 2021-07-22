@@ -39,7 +39,7 @@ struct spatial_query
     typedef typename allocators_type::size_type size_type;
 
     inline spatial_query(parameters_type const& par, translator_type const& t, Predicates const& p, OutIter out_it)
-        : tr(t), pred(p), out_iter(out_it), found_count(0), strategy(index::detail::get_strategy(par))
+        : m_tr(t), m_pred(p), m_out_iter(out_it), m_found_count(0), m_strategy(index::detail::get_strategy(par))
     {}
 
     size_type apply(node_pointer root)
@@ -58,7 +58,7 @@ struct spatial_query
             rtree::apply_visitor(*this, *ptr);
         }
 
-        return found_count;
+        return m_found_count;
     }
 
     inline void operator()(internal_node const& n)
@@ -68,9 +68,8 @@ struct spatial_query
         // traverse nodes meeting predicates
         for (auto const& p : rtree::elements(n))
         {
-            // if node meets predicates
-            // 0 - dummy value
-            if (id::predicates_check<id::bounds_tag>(pred, 0, p.first, strategy))
+            // if node meets predicates (0 is dummy value)
+            if (id::predicates_check<id::bounds_tag>(m_pred, 0, p.first, m_strategy))
             {
                 m_internal_stack.push_back(p.second);
             }
@@ -85,27 +84,26 @@ struct spatial_query
         for (auto const& v : rtree::elements(n))
         {
             // if value meets predicates
-            if (id::predicates_check<id::value_tag>(pred, v, tr(v), strategy))
+            if (id::predicates_check<id::value_tag>(m_pred, v, m_tr(v), m_strategy))
             {
-                *out_iter = v;
-                ++out_iter;
-
-                ++found_count;
+                *m_out_iter = v;
+                ++m_out_iter;
+                ++m_found_count;
             }
         }
     }
 
 private:
-    translator_type const& tr;
+    translator_type const& m_tr;
 
-    Predicates pred;
+    Predicates m_pred;
 
     std::vector<node_pointer> m_internal_stack;
 
-    OutIter out_iter;
-    size_type found_count;
+    OutIter m_out_iter;
+    size_type m_found_count;
 
-    strategy_type strategy;
+    strategy_type m_strategy;
 };
 
 template <typename MembersHolder, typename Predicates>
