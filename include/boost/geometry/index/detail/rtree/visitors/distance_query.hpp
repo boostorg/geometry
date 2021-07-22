@@ -17,6 +17,7 @@
 
 #include <queue>
 
+#include <boost/geometry/index/detail/predicates.hpp>
 #include <boost/geometry/index/detail/priority_dequeue.hpp>
 
 namespace boost { namespace geometry { namespace index {
@@ -48,24 +49,24 @@ template <typename T, typename Comp>
 struct priority_dequeue : index::detail::priority_dequeue<T, std::vector<T>, Comp>
 {
     priority_dequeue() = default;
-    void reserve(typename std::vector<T>::size_type n)
-    {
-        this->c.reserve(n);
-    }
-    void clear()
-    {
-        this->c.clear();
-    }
+    //void reserve(typename std::vector<T>::size_type n)
+    //{
+    //    this->c.reserve(n);
+    //}
+    //void clear()
+    //{
+    //    this->c.clear();
+    //}
 };
 
 template <typename T, typename Comp>
 struct priority_queue : std::priority_queue<T, std::vector<T>, Comp>
 {
     priority_queue() = default;
-    void reserve(typename std::vector<T>::size_type n)
-    {
-        this->c.reserve(n);
-    }
+    //void reserve(typename std::vector<T>::size_type n)
+    //{
+    //    this->c.reserve(n);
+    //}
     void clear()
     {
         this->c.clear();
@@ -131,12 +132,7 @@ private:
     neighbors_type m_neighbors;
 };
 
-template
-<
-    typename MembersHolder,
-    typename Predicates,
-    std::size_t DistancePredicateIndex
->
+template <typename MembersHolder, typename Predicates>
 class distance_query
     : public MembersHolder::visitor_const
 {
@@ -153,7 +149,10 @@ public:
     typedef typename MembersHolder::internal_node internal_node;
     typedef typename MembersHolder::leaf leaf;
 
-    typedef index::detail::predicates_element<DistancePredicateIndex, Predicates> nearest_predicate_access;
+    typedef index::detail::predicates_element
+        <
+            index::detail::predicates_find_distance<Predicates>::value, Predicates
+        > nearest_predicate_access;
     typedef typename nearest_predicate_access::type nearest_predicate_type;
     typedef typename indexable_type<translator_type>::type indexable_type;
 
@@ -298,11 +297,7 @@ private:
     strategy_type m_strategy;
 };
 
-template <
-    typename MembersHolder,
-    typename Predicates,
-    std::size_t DistancePredicateIndex
->
+template <typename MembersHolder, typename Predicates>
 class distance_query_incremental
     : public MembersHolder::visitor_const
 {
@@ -319,7 +314,10 @@ public:
     typedef typename MembersHolder::internal_node internal_node;
     typedef typename MembersHolder::leaf leaf;
 
-    typedef index::detail::predicates_element<DistancePredicateIndex, Predicates> nearest_predicate_access;
+    typedef index::detail::predicates_element
+        <
+            index::detail::predicates_find_distance<Predicates>::value, Predicates
+        > nearest_predicate_access;
     typedef typename nearest_predicate_access::type nearest_predicate_type;
     typedef typename indexable_type<translator_type>::type indexable_type;
     

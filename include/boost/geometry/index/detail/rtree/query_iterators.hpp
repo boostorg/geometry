@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019.
-// Modifications copyright (c) 2019 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -134,14 +134,14 @@ private:
     visitor_type m_visitor;
 };
 
-template <typename MembersHolder, typename Predicates, unsigned NearestPredicateIndex>
+template <typename MembersHolder, typename Predicates>
 class distance_query_iterator
 {
     typedef typename MembersHolder::parameters_type parameters_type;
     typedef typename MembersHolder::translator_type translator_type;
     typedef typename MembersHolder::allocators_type allocators_type;
 
-    typedef visitors::distance_query_incremental<MembersHolder, Predicates, NearestPredicateIndex> visitor_type;
+    typedef visitors::distance_query_incremental<MembersHolder, Predicates> visitor_type;
     typedef typename visitor_type::node_pointer node_pointer;
 
 public:
