@@ -570,6 +570,12 @@ void test_all()
             settings);
     }
 
+    TEST_DIFFERENCE(issue_875, 1, 3468.77515, 1, 105.425816, 2);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_DIFFERENCE(issue_876a, 1, 4728.89916, 1, 786.29563, 2);
+#endif
+    TEST_DIFFERENCE(issue_876b, 1, 6114.18234, 1, 4754.29449, count_set(1, 2));
+
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
     TEST_DIFFERENCE(mysql_23023665_1, 1, 92.0, 1, 142.5, 2);
@@ -627,7 +633,7 @@ int test_main(int, char* [])
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
     // Many of the failures are self-intersection points.
-    BoostGeometryWriteExpectedFailures(12, 10, 17, 12);
+    BoostGeometryWriteExpectedFailures(19, 10, 17, 12);
 #endif
 
     return 0;

@@ -52,29 +52,9 @@
 
 struct ut_settings : public ut_base_settings
 {
-    ut_settings()
-        : percentage(0.001)
-    {}
-
-    double percentage;
+    double percentage = 0.001;
+    bool ignore_validity_on_invalid_input = true;
 };
-
-#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
-template <typename Geometry>
-inline void check_input_validity(std::string const& caseid, int case_index,
-                Geometry const& geometry)
-{
-    std::string message;
-    if (!bg::is_valid(geometry, message))
-    {
-        std::cout << caseid << " Input ["
-                  << case_index << "] not valid" << std::endl
-                  << "   ("  << message << ")" << std::endl;
-    }
-}
-#endif
-
-
 
 template <typename Range>
 inline std::size_t num_points(Range const& rng, bool add_for_open = false)
@@ -102,15 +82,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     typedef typename setop_output_type<OutputType>::type result_type;
     result_type clip;
 
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-    std::cout << "*** UNION " << caseid << std::endl;
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
-    check_input_validity(caseid, 0, g1);
-    check_input_validity(caseid, 1, g2);
-#endif
-
     // Check normal behaviour
     bg::union_(g1, g2, clip);
 
@@ -130,7 +101,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     if (settings.test_validity())
     {
         std::string message;
-        bool const valid = check_validity<result_type>::apply(clip, caseid, g1, g2, message);
+        bool const valid = check_validity<result_type>::apply(clip, caseid,
+            g1, g2, message, settings.ignore_validity_on_invalid_input);
         BOOST_CHECK_MESSAGE(valid,
             "union: " << caseid << " not valid: " << message
             << " type: " << (type_for_assert_message<G1, G2>()));

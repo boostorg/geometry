@@ -13,22 +13,38 @@
 
 #include <boost/geometry/algorithms/is_valid.hpp>
 
+template<typename Geometry>
+inline bool input_is_valid(std::string const& case_id, std::string const& subcase,
+                         Geometry const& geometry)
+{
+    std::string message;
+    bool const result = bg::is_valid(geometry, message);
+    if (! result)
+    {
+        std::cout << "WARNING: " << case_id << " Input [" << subcase
+                  << "] is not considered as valid ("
+                  << message << ") this can cause that output is invalid: "
+                  << case_id << std::endl;
+    }
+    return result;
+}
+
+
 template<typename Geometry, typename G1, typename G2>
 inline bool is_output_valid(Geometry const& geometry,
                             std::string const& case_id,
                             G1 const& g1, G2 const& g2,
+                            bool ignore_validity_on_invalid_input,
                             std::string& message)
 {
-    bool const result = bg::is_valid(geometry, message);
-    if (! result)
+    bool result = bg::is_valid(geometry, message);
+    if (! result && ignore_validity_on_invalid_input)
     {
-        // Check if input was valid. If not, do not report output validity
-        if (! bg::is_valid(g1) || ! bg::is_valid(g2))
+        if (! input_is_valid(case_id, "a", g1)
+            || ! input_is_valid(case_id, "b", g2))
         {
-            std::cout << "WARNING: Input is not considered as valid; "
-                      << "this can cause that output is invalid: " << case_id
-                      << std::endl;
-            return true;
+            // Because input is invalid, output validity is ignored
+            result = true;
         }
     }
     return result;
@@ -46,9 +62,11 @@ struct check_validity
     bool apply(Geometry const& geometry,
                std::string const& case_id,
                G1 const& g1, G2 const& g2,
-               std::string& message)
+               std::string& message,
+               bool ignore_validity_on_invalid_input = true)
     {
-        return is_output_valid(geometry, case_id, g1, g2, message);
+        return is_output_valid(geometry, case_id, g1, g2,
+                               ignore_validity_on_invalid_input, message);
     }
 };
 
@@ -61,12 +79,14 @@ struct check_validity<Geometry, void>
     bool apply(Geometry const& geometry,
                std::string const& case_id,
                G1 const& g1, G2 const& g2,
-               std::string& message)
+               std::string& message,
+               bool ignore_validity_on_invalid_input = true)
     {
         typedef typename boost::range_value<Geometry>::type single_type;
         BOOST_FOREACH(single_type const& element, geometry)
         {
-            if (! is_output_valid(element, case_id, g1, g2, message))
+            if (! is_output_valid(element, case_id, g1, g2,
+                                  ignore_validity_on_invalid_input, message))
             {
                 return false;
             }

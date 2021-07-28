@@ -430,6 +430,17 @@ void test_areal()
     TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    {
+        // With rescaling, the input (was already an output of a previous step)
+        // is somehow considered as invalid. Output is also invalid.
+        // Without rescaling, the same input is considered as valid
+        ut_settings settings;
+        settings.ignore_validity_on_invalid_input = false;
+        TEST_UNION_WITH(issue_690, 2, 0, -1, 25492.0505);
+    }
+#endif
+
     TEST_UNION(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
     TEST_UNION_REV(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
 
@@ -597,7 +608,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(3, 1, 2, 0);
+    BoostGeometryWriteExpectedFailures(4, 1, 2, 0);
 #endif
 
     return 0;
