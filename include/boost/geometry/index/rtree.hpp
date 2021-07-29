@@ -1248,8 +1248,8 @@ private:
             Predicates);
 
         return m_members.root
-             ? query_iterator_t<Predicates>(m_members.root, m_members.parameters(), m_members.translator(), predicates)
-             : query_iterator_t<Predicates>(m_members.parameters(), m_members.translator(), predicates);
+             ? query_iterator_t<Predicates>(m_members, predicates)
+             : query_iterator_t<Predicates>(predicates);
     }
 
     /*!
@@ -1857,9 +1857,8 @@ private:
     size_type query_dispatch(Predicates const& predicates, OutIter out_it) const
     {
         detail::rtree::visitors::spatial_query<members_holder, Predicates, OutIter>
-            find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
-
-        return find_v.apply(m_members.root);
+            query(m_members, predicates, out_it);
+        return query.apply(m_members);
     }
 
     /*!
@@ -1880,9 +1879,9 @@ private:
                                      Predicates);
 
         detail::rtree::visitors::distance_query<members_holder, Predicates>
-            distance_v(m_members.parameters(), m_members.translator(), predicates);
+            distance_v(m_members, predicates);
 
-        return distance_v.apply(m_members.root, out_it);
+        return distance_v.apply(m_members, out_it);
     }
     
     /*!
