@@ -82,8 +82,8 @@ int test_main(int, char*[])
 
     // compile-time errors
     {
-        point_ll pt_ll(1, 1);
-        point_xy pt_xy(0, 0);
+        //point_ll pt_ll(1, 1);
+        //point_xy pt_xy(0, 0);
 
         //projection<spar::parameters<int> > prj1;
         //projection<int> prj2;

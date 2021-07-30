@@ -2,31 +2,30 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014.
-// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_TO_SVG_HPP
 #define BOOST_GEOMETRY_TEST_TO_SVG_HPP
 
 #include <fstream>
 
-#include <boost/geometry/io/wkt/read.hpp>
-#include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
-#include <boost/foreach.hpp>
-
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
+
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
+
 
 template <typename G, typename Turns, typename Mapper>
 inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool /*enrich*/ = false)
@@ -42,7 +41,7 @@ inline void turns_to_svg(Turns const& turns, Mapper & mapper, bool /*enrich*/ = 
     int index = 0;
     int const margin = 5;
 
-    BOOST_FOREACH(turn_info const& turn, turns)
+    for (turn_info const& turn : turns)
     {
         int lineheight = 10;
         mapper.map(turn.point, "fill:rgb(255,128,0);"

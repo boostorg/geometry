@@ -74,14 +74,14 @@ int test_main(int, char* [])
     typedef bg::model::d2::point_xy<double> point_type;
 
     BOOST_MPL_ASSERT((
-        boost::is_same<
+        std::is_same<
             bg::util::is_implemented2
             <
                 point_type, point_type,
                 bg::algorithm_archetype<point_type, point_type, bg::strategy_archetype>
             >::type,
             boost::mpl::false_
-        >
+        >::value
     ));
 
     return 0;

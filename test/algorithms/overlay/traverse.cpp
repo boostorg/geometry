@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -16,8 +20,6 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-
-#include <boost/type_traits/is_same.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -34,31 +36,27 @@
 #  define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #endif
 
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
-
-#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
-#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
-
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
-
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
-
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
-
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
+
+#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -143,10 +141,10 @@ struct test_traverse
         //std::cout << bg::area(g1) << " " << bg::area(g2) << std::endl;
 #endif
 
-        typedef typename bg::strategy::side::services::default_strategy
-        <
-            typename bg::cs_tag<G1>::type
-        >::type side_strategy_type;
+        typename bg::strategy::intersection::services::default_strategy
+            <
+                typename bg::cs_tag<G1>::type
+            >::type strategy;
 
         typedef typename bg::point_type<G2>::type point_type;
         typedef typename bg::rescale_policy_type<point_type>::type
@@ -162,15 +160,11 @@ struct test_traverse
         > turn_info;
         std::vector<turn_info> turns;
 
-        bg::detail::overlay::operation_type const op =
-                OverlayType == bg::overlay_union
-                ? bg::detail::overlay::operation_union
-                : bg::detail::overlay::operation_intersection;
+        std::map<bg::signed_size_type, bg::detail::overlay::cluster_info> clusters;
 
         bg::detail::get_turns::no_interrupt_policy policy;
-        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::assign_null_policy>(g1, g2, rescale_policy, turns, policy);
-        bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns, op,
-            g1, g2, rescale_policy, side_strategy_type());
+        bg::get_turns<Reverse1, Reverse2, bg::detail::overlay::assign_null_policy>(g1, g2, strategy, rescale_policy, turns, policy);
+        bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns, clusters, g1, g2, rescale_policy, strategy);
 
         typedef bg::model::ring<typename bg::point_type<G2>::type> ring_type;
         typedef std::vector<ring_type> out_vector;
@@ -178,11 +172,13 @@ struct test_traverse
 
         bg::detail::overlay::overlay_null_visitor visitor;
 
+        // TODO: this function requires additional arguments
         bg::detail::overlay::traverse
             <
                 Reverse1, Reverse2,
-                G1, G2
-            >::apply(g1, g2, op, rescale_policy, turns, v, visitor);
+                G1, G2,
+                OverlayType
+            >::apply(g1, g2, strategy, rescale_policy, turns, v, visitor);
 
         // Check number of resulting rings
         BOOST_CHECK_MESSAGE(expected_count == boost::size(v),
@@ -196,7 +192,7 @@ struct test_traverse
 
         // Check total area of resulting rings
         typename bg::default_area_result<G1>::type total_area = 0;
-        BOOST_FOREACH(ring_type const& ring, v)
+        for (ring_type const& ring : v)
         {
             total_area += bg::area(ring);
             //std::cout << bg::wkt(ring) << std::endl;
@@ -225,7 +221,7 @@ struct test_traverse
                     "stroke:rgb(51,51,153);stroke-width:3");
 
             // Traversal rings in magenta outline/red fill -> over blue/green this gives brown
-            BOOST_FOREACH(ring_type const& ring, v)
+            for (ring_type const& ring : v)
             {
                 mapper.map(ring, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
                         "stroke:rgb(255,0,255);stroke-width:8");
@@ -239,7 +235,7 @@ struct test_traverse
             int index = 0;
             int const margin = 5;
 
-            BOOST_FOREACH(turn_info const& turn, turns)
+            for (turn_info const& turn : turns)
             {
                 int lineheight = 8;
                 mapper.map(turn.point, "fill:rgb(255,128,0);"
@@ -771,8 +767,7 @@ void test_all(bool test_self_tangencies = true, bool test_mixed = false)
     }
     */
 
-    static const bool is_float
-        = boost::is_same<T, float>::value;
+    static const bool is_float = std::is_same<T, float>::value;
 
     static const double float_might_deviate_more = is_float ? 0.1 : 0.001; // In some cases up to 1 promille permitted
 

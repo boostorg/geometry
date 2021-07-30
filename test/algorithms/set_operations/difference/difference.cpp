@@ -3,8 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2016.
-// Modifications copyright (c) 2015-2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -295,7 +295,7 @@ void test_all()
         1, 61, 10.2717,
         1, 61, 10.2717);
 
-    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<ct, double>::value)) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<ct, double>::value)) )
     {
         ut_settings settings;
         settings.sym_difference_validity = BG_IF_RESCALED(true, false);
