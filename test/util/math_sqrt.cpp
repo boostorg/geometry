@@ -64,7 +64,9 @@ template <typename Argument, typename Result>
 inline void check_sqrt(Argument const& arg, Result const& result)
 {
     using return_type = typename bg::math::detail::square_root<Argument>::return_type;
-    BOOST_GEOMETRY_STATIC_ASSERT((std::is_same<return_type, Result>::value), "Wrong return type");
+    BOOST_GEOMETRY_STATIC_ASSERT((std::is_same<return_type, Result>::value),
+                                 "Wrong return type",
+                                 return_type, Result);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << "testing: " << typeid(Result).name()

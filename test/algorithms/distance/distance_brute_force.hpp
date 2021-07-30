@@ -59,9 +59,11 @@ struct distance_from_bg
           Strategy const& strategy)
     {
         BOOST_GEOMETRY_STATIC_ASSERT((use_distance_from_bg<Geometry1>::value),
-                                     "Unexpected kind of Geometry1");
+                                     "Unexpected kind of Geometry1",
+                                     Geometry1);
         BOOST_GEOMETRY_STATIC_ASSERT((use_distance_from_bg<Geometry2>::value),
-                                     "Unexpected kind of Geometry1");
+                                     "Unexpected kind of Geometry2",
+                                     Geometry2);
 
         return geometry::distance(geometry1, geometry2, strategy);
     }

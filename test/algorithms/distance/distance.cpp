@@ -84,7 +84,8 @@ void test_distance_point()
         typedef typename services::return_type<taxicab_distance, P, P>::type cab_return_type;
         BOOST_GEOMETRY_STATIC_ASSERT(
             (std::is_same<cab_return_type, typename bg::coordinate_type<P>::type>::value),
-            "Unexpected result type");
+            "Unexpected result type",
+            cab_return_type, typename bg::coordinate_type<P>::type);
 
         taxicab_distance tcd;
         cab_return_type d = bg::distance(p1, p2, tcd);
@@ -460,16 +461,14 @@ void test_variant()
 
     variant_type v1, v2;
     
+    using distance_t = typename bg::distance_result
+        <
+            variant_type, variant_type, bg::default_strategy
+        >::type;
     BOOST_GEOMETRY_STATIC_ASSERT(
-        (std::is_same
-            <
-                typename bg::distance_result
-                    <
-                        variant_type, variant_type, bg::default_strategy
-                    >::type,
-                double
-            >::value),
-        "Unexpected result type");
+        (std::is_same<distance_t, double>::value),
+        "Unexpected result type",
+        distance_t, double);
 
     // Default strategy
     v1 = point;
