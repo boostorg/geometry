@@ -45,8 +45,7 @@ inline int level(T i)
 {
     ++i;
     int r = 0;
-    while (i >>= 1)
-        ++r;
+    while (i >>= 1) { ++r; }
     return r;
 }
 
@@ -74,10 +73,8 @@ inline int level(T i)
 #ifdef _WIN64
     _BitScanReverse64(&r, (unsigned long long)(i + 1));
 #else
-    if (_BitScanReverse(&r, (unsigned long)((i + 1) >> 32)))
-        r += 32;
-    else
-        _BitScanReverse(&r, (unsigned long)(i + 1));
+    if (_BitScanReverse(&r, (unsigned long)((i + 1) >> 32))) { r += 32; }
+    else { _BitScanReverse(&r, (unsigned long)(i + 1)); }
 #endif
     return int(r);
 }
@@ -157,7 +154,9 @@ inline void push_heap2(It first, diff_t<It> c, val_t<It> val, Compare comp)
     {
         diff_t<It> const g = (c - 3) >> 2; // grandparent index
         if (! Call()(comp, val, *(first + g)))
+        {
             break;
+        }
         *(first + c) = std::move(*(first + g));
         c = g;
     }
@@ -175,7 +174,9 @@ inline void push_heap1(It first, diff_t<It> c, val_t<It> val, Compare comp)
         return push_heap2<MaxCall>(first, p, std::move(val), comp);
     }
     else
+    {
         return push_heap2<MinCall>(first, c, std::move(val), comp);
+    }
 }
 
 template <typename MinCall, typename MaxCall, typename It, typename Compare>
@@ -183,14 +184,20 @@ inline void push_heap(It first, It last, Compare comp)
 {
     diff_t<It> const size = last - first;
     if (size < 2)
+    {
         return;
+    }
 
     diff_t<It> c = size - 1; // back index
     val_t<It> val = std::move(*(first + c));
     if (level(c) % 2 == 0) // is min level
+    {
         push_heap1<MinCall, MaxCall>(first, c, std::move(val), comp);
+    }
     else
+    {
         push_heap1<MaxCall, MinCall>(first, c, std::move(val), comp);
+    }
 }
 
 
@@ -208,8 +215,12 @@ inline diff_t<It> pick_grandchild4(It first, diff_t<It> f, Compare comp)
 //{
 //    diff_t<It> m = f;
 //    for (++f; f != l; ++f)
+//    {
 //        if (Call()(comp, *(first + f), *(first + m)))
+//        {
 //            m = f;
+//        }
+//    }
 //    return m;
 //}
 
@@ -225,7 +236,9 @@ inline void pop_heap1(It first, diff_t<It> p, diff_t<It> size, val_t<It> val, Co
             diff_t<It> const m = pick_grandchild4<Call>(first, ll, comp);
 
             if (! Call()(comp, *(first + m), val))
+            {
                 break;
+            }
 
             *(first + p) = std::move(*(first + m));
 
@@ -294,7 +307,9 @@ inline void pop_heap(It first, It el, It last, Compare comp)
 {
     diff_t<It> size = last - first;
     if (size < 2)
+    {
         return;
+    }
     
     --last;
     val_t<It> val = std::move(*last);
@@ -305,9 +320,13 @@ inline void pop_heap(It first, It el, It last, Compare comp)
     
     diff_t<It> p = el - first;
     if (level(p) % 2 == 0) // is min level
+    {
         pop_heap1<MinCall>(first, p, size, std::move(val), comp);
+    }
     else
+    {
         pop_heap1<MaxCall>(first, p, size, std::move(val), comp);
+    }
 }
 
 template <typename MinCall, typename MaxCall, typename It, typename Compare>
@@ -316,7 +335,10 @@ inline void make_heap(It first, It last, Compare comp)
     diff_t<It> size = last - first;
     diff_t<It> p = size / 2;
     if (p <= 0)
+    {
         return;
+    }
+
     int level_p = level(p - 1);
     diff_t<It> level_f = (diff_t<It>(1) << level_p) - 1;
     while (p > 0)
@@ -324,9 +346,14 @@ inline void make_heap(It first, It last, Compare comp)
         --p;
         val_t<It> val = std::move(*(first + p));
         if (level_p % 2 == 0) // is min level
+        {
             pop_heap1<MinCall>(first, p, size, std::move(val), comp);
+        }
         else
+        {
             pop_heap1<MaxCall>(first, p, size, std::move(val), comp);
+        }
+
         if (p == level_f)
         {
             --level_p;
@@ -353,12 +380,16 @@ inline bool is_heap(It first, It last, Compare comp)
         if (is_min_level)
         {
             if (Call()(comp, *(first + p), *(first + i)))
+            {
                 return false;
+            }
         }
         else
         {
             if (Call()(comp, *(first + i), *(first + p)))
+            {
                 return false;
+            }
         }
 
         if (i >= 3)
@@ -367,12 +398,16 @@ inline bool is_heap(It first, It last, Compare comp)
             if (is_min_level)
             {
                 if (Call()(comp, *(first + i), *(first + g)))
+                {
                     return false;
+                }
             }
             else
             {
                 if (Call()(comp, *(first + g), *(first + i)))
+                {
                     return false;
+                }
             }
         }
     }
@@ -383,14 +418,9 @@ template <typename Call, typename It, typename Compare>
 inline It bottom_heap(It first, It last, Compare comp)
 {
     diff_t<It> const size = last - first;
-    if (size <= 1)
-        return first;
-    else if (size == 2)
-        return (first + 1);
-    else
-        return Call()(comp, *(first + 1), *(first + 2))
-             ? (first + 2)
-             : (first + 1);
+    return size <= 1 ? first :
+           size == 2 ? (first + 1) :
+           Call()(comp, *(first + 1), *(first + 2)) ? (first + 2) : (first + 1);
 }
 
 } // namespace minmax_heap_detail
