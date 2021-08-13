@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -187,13 +187,13 @@ struct combine;
 template <typename ...T1s, typename ...T2s>
 struct combine<type_sequence<T1s...>, type_sequence<T2s...>>
 {
-    template <typename U1, typename ...U2s>
-    using type_sequence_t = type_sequence<type_sequence<U1, U2s>...>;
+    template <typename T1>
+    using type_sequence_t = type_sequence<type_sequence<T1, T2s>...>;
 
-    typedef typename merge
+    using type = typename merge
         <
-            type_sequence_t<T1s, T2s...>...
-        >::type type;
+            type_sequence_t<T1s>...
+        >::type;
 };
 
 // combine<integer_sequence<T, 1, 2>, integer_sequence<T, 3, 4>>::type is
@@ -202,13 +202,13 @@ struct combine<type_sequence<T1s...>, type_sequence<T2s...>>
 template <typename T, T ...I1s, T ...I2s>
 struct combine<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
 {
-    template <T J1, T ...J2s>
-    using type_sequence_t = type_sequence<std::integer_sequence<T, J1, J2s>...>;
+    template <T I1>
+    using type_sequence_t = type_sequence<std::integer_sequence<T, I1, I2s>...>;
 
-    typedef typename merge
+    using type = typename merge
         <
-            type_sequence_t<I1s, I2s...>...
-        >::type type;
+            type_sequence_t<I1s>...
+        >::type;
 };
 
 
