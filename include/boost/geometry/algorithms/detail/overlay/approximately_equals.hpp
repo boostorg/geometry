@@ -34,7 +34,7 @@ inline bool approximately_equals(Point1 const& a, Point2 const& b,
     calc_t const& b1 = geometry::get<1>(b);
 
     math::detail::equals_factor_policy<calc_t> policy(a0, b0, a1, b1);
-    policy.factor *= multiplier;
+    policy.multiply_factor(multiplier);
 
     return math::detail::equals_by_policy(a0, b0, policy)
         && math::detail::equals_by_policy(a1, b1, policy);

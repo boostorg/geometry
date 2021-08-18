@@ -26,6 +26,15 @@ static std::string case_multi_simplex[2] =
     "MULTIPOLYGON(((3 0,0 3,4 5,3 0)))"
 };
 
+// To support exact behavior in integer coordinates
+static std::string case_multi_rectangular[2] =
+{
+    "MULTIPOLYGON(((100 100,100 200,200 200,200 100,100 100)),"
+                 "((300 100,300 200,400 200,400 100,300 100),"
+                   "(325 125,375 125,375 175,325 175,325 125)))",
+    "MULTIPOLYGON(((150 50,150 150,350 150,350 50,150 50)))"
+};
+
 // To mix multi/single
 static std::string case_single_simplex = "POLYGON((3 0,0 3,4 5,3 0))";
 

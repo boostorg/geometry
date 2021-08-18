@@ -47,7 +47,8 @@ template <> struct string_from_type<int>
 template <> struct string_from_type<long>
 { static std::string name() { return "l"; }  };
 
-template <> struct string_from_type<boost::multiprecision::cpp_bin_float_100>
+template <typename Backend>
+struct string_from_type<boost::multiprecision::number<Backend>>
 { static std::string name() { return "m"; }  };
 
 // this is what g++ and clang++ use

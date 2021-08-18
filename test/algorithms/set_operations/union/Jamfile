@@ -24,5 +24,6 @@ test-suite boost-geometry-algorithms-union
     [ run union_multi.cpp         : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
                                         : algorithms_union_multi ]
     [ run union_pl_pl.cpp         : : : : algorithms_union_pl_pl ]
-	[ run union_tupled.cpp        : : : : algorithms_union_tupled ]
+    [ run union_tupled.cpp        : : : : algorithms_union_tupled ]
+    [ run union_other_types.cpp   : : : : algorithms_union_other_types ]
     ;

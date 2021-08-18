@@ -39,7 +39,9 @@ struct sweep_equal_policy
     static inline bool equals(P const& p1, P const& p2)
     {
         // Points within a kilo epsilon are considered as equal
-        return approximately_equals(p1, p2, 1000.0);
+        using coor_t = typename coordinate_type<P>::type;
+        const coor_t tolerance = 1000;
+        return approximately_equals(p1, p2, tolerance);
     }
 
     template <typename T>
@@ -47,7 +49,8 @@ struct sweep_equal_policy
     {
         // This threshold is an arbitrary value
         // as long as it is than the used kilo-epsilon
-        return value > 1.0e-3;
+        T const limit = T(1) / T(1000);
+        return value > limit;
     }
 };
 
