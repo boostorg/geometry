@@ -17,6 +17,7 @@
 
 #include <boost/container/allocator_traits.hpp>
 #include <boost/container/vector.hpp>
+#include <boost/core/pointer_traits.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant.hpp>
 
