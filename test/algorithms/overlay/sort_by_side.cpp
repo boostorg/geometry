@@ -217,11 +217,11 @@ void test_sort_by_side(std::string const& case_id,
 
 
 // Define two small macro's to avoid repetitions of testcases/names etc
-#define TEST_INT(caseid, exp, ...) { (test_sort_by_side<multi_polygon, bg::overlay_intersection>) \
-    ( #caseid "_int", caseid[0], caseid[1], exp, __VA_ARGS__); }
+#define TEST_INTER(caseid, ...) { (test_sort_by_side<multi_polygon, bg::overlay_intersection>) \
+    ( #caseid "_inter", caseid[0], caseid[1], __VA_ARGS__); }
 
-#define TEST_UNION(caseid, exp, ...) { (test_sort_by_side<multi_polygon, bg::overlay_union>) \
-    ( #caseid "_union", caseid[0], caseid[1], exp, __VA_ARGS__); }
+#define TEST_UNION(caseid, ...) { (test_sort_by_side<multi_polygon, bg::overlay_union>) \
+    ( #caseid "_union", caseid[0], caseid[1], __VA_ARGS__); }
 
 template <typename T>
 void test_all()
@@ -232,15 +232,15 @@ void test_all()
 
     // Selection of test cases having only one cluster
 
-    TEST_INT(case_64_multi, {1});
-    TEST_INT(case_72_multi, {3});
-    TEST_INT(case_107_multi, {2});
-    TEST_INT(case_123_multi, {3});
-    TEST_INT(case_124_multi, {3});
-    TEST_INT(case_recursive_boxes_10, {2});
-    TEST_INT(case_recursive_boxes_20, {2});
-    TEST_INT(case_recursive_boxes_21, {2});
-    TEST_INT(case_recursive_boxes_22, {0});
+    TEST_INTER(case_64_multi, {1});
+    TEST_INTER(case_72_multi, {3});
+    TEST_INTER(case_107_multi, {2});
+    TEST_INTER(case_123_multi, {3});
+    TEST_INTER(case_124_multi, {3});
+    TEST_INTER(case_recursive_boxes_10, {2});
+    TEST_INTER(case_recursive_boxes_20, {2});
+    TEST_INTER(case_recursive_boxes_21, {1});
+    TEST_INTER(case_recursive_boxes_22, {0});
 
     TEST_UNION(case_recursive_boxes_46, {2, 1, 2, 1, 1, 2, 1});
 

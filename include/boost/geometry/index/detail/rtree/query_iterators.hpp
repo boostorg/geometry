@@ -17,6 +17,10 @@
 
 #include <boost/scoped_ptr.hpp>
 
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/distance_query.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/spatial_query.hpp>
+
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {
 
 template <typename Value, typename Allocators>

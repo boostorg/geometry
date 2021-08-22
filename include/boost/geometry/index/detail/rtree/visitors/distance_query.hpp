@@ -17,8 +17,12 @@
 
 #include <queue>
 
+#include <boost/geometry/index/detail/distance_predicates.hpp>
 #include <boost/geometry/index/detail/predicates.hpp>
 #include <boost/geometry/index/detail/priority_dequeue.hpp>
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
+#include <boost/geometry/index/detail/translator.hpp>
+#include <boost/geometry/index/parameters.hpp>
 
 namespace boost { namespace geometry { namespace index {
 
