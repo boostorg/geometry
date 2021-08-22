@@ -5,8 +5,8 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2020.
-// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,7 +22,7 @@
 #include <boost/geometry/index/detail/algorithms/comparable_distance_far.hpp>
 #include <boost/geometry/index/detail/algorithms/comparable_distance_centroid.hpp>
 #include <boost/geometry/index/detail/algorithms/path_intersection.hpp>
-
+#include <boost/geometry/index/detail/predicates.hpp>
 #include <boost/geometry/index/detail/tags.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
