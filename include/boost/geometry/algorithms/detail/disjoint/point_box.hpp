@@ -5,9 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -23,12 +22,13 @@
 
 #include <cstddef>
 
+#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-#include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 
 namespace boost { namespace geometry
 {

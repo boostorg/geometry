@@ -3,6 +3,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -31,7 +35,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 
 
-template <typename G, int Expected>
+template <typename G, size_t Expected>
 void test_geometry()
 {
     BOOST_CHECK_EQUAL(bg::dimension<G>::type::value, Expected);
@@ -66,9 +70,9 @@ int test_main(int, char* [])
     test_geometry<boost::tuple<double, double>, 2>();
     test_geometry<boost::tuple<double, double, double>, 3>();
 
-    test_all<bg::model::point<int, 2, bg::cs::cartesian>, 2 >();
-    test_all<bg::model::point<float, 2, bg::cs::cartesian>, 2 >();
-    test_all<bg::model::point<double, 2, bg::cs::cartesian>, 2 >();
+    test_all<bg::model::point<int, 2, bg::cs::cartesian>, 2>();
+    test_all<bg::model::point<float, 2, bg::cs::cartesian>, 2>();
+    test_all<bg::model::point<double, 2, bg::cs::cartesian>, 2>();
 
     return 0;
 }

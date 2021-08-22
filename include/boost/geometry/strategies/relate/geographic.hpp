@@ -13,6 +13,7 @@
 
 // TEMP - move to strategy
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
+#include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 #include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>

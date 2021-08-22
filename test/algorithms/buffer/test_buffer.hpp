@@ -24,7 +24,6 @@
 #include <fstream>
 #include <iomanip>
 
-#include <boost/foreach.hpp>
 #include <geometry_test_common.hpp>
 #include <expectation_limits.hpp>
 
@@ -161,12 +160,12 @@ void test_buffer(std::string const& caseid,
 
     typedef typename bg::tag<Geometry>::type tag;
     // TODO use something different here:
-    std::string type = boost::is_same<tag, bg::polygon_tag>::value ? "poly"
-        : boost::is_same<tag, bg::linestring_tag>::value ? "line"
-        : boost::is_same<tag, bg::point_tag>::value ? "point"
-        : boost::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
-        : boost::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
-        : boost::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
+    std::string type = std::is_same<tag, bg::polygon_tag>::value ? "poly"
+        : std::is_same<tag, bg::linestring_tag>::value ? "line"
+        : std::is_same<tag, bg::point_tag>::value ? "point"
+        : std::is_same<tag, bg::multi_polygon_tag>::value ? "multipoly"
+        : std::is_same<tag, bg::multi_linestring_tag>::value ? "multiline"
+        : std::is_same<tag, bg::multi_point_tag>::value ? "multipoint"
         : ""
         ;
 
@@ -184,8 +183,8 @@ void test_buffer(std::string const& caseid,
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
     if ( BOOST_GEOMETRY_CONDITION((
-            boost::is_same<tag, bg::point_tag>::value 
-         || boost::is_same<tag, bg::multi_point_tag>::value )) )
+            std::is_same<tag, bg::point_tag>::value 
+         || std::is_same<tag, bg::multi_point_tag>::value )) )
     {
         join_name.clear();
     }

@@ -3,8 +3,8 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -141,7 +141,7 @@ void test_all()
         test_one<multi_linestring_type, polygon>("mikado4_small", mikado4, join_round32, end_flat, 1930.785, 10.0);
     }
 
-    if (! BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, float>::value)))
+    if (! BOOST_GEOMETRY_CONDITION((std::is_same<coor_type, float>::value)))
     {
         // Coordinates in one linestring vary so much that
         // length = geometry::math::sqrt(dx * dx + dy * dy); returns a value of inf for length

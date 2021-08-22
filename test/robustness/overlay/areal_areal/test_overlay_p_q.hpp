@@ -1,7 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
-//
+
 // Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -13,8 +18,6 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-
-#include <boost/typeof/typeof.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -274,12 +277,12 @@ static bool test_overlay_p_q(std::string const& caseid,
 
         if (settings.also_difference)
         {
-            for (BOOST_AUTO(it, out_d1.begin()); it != out_d1.end(); ++it)
+            for (auto it = out_d1.begin(); it != out_d1.end(); ++it)
             {
                 mapper.map(*it,
                     "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
             }
-            for (BOOST_AUTO(it, out_d2.begin()); it != out_d2.end(); ++it)
+            for (auto it = out_d2.begin(); it != out_d2.end(); ++it)
             {
                 mapper.map(*it,
                     "opacity:0.8;fill:none;stroke:rgb(255,0,255);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");

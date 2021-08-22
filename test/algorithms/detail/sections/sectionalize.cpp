@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -102,7 +102,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
 
     // Check if sections are consecutive and consistent
     int previous_index = -1;
-    BOOST_FOREACH(typename sections::value_type const& sec, s)
+    for (typename sections::value_type const& sec : s)
     {
         if (sec.begin_index > 0)
         {

@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -24,7 +24,6 @@
 #include "../setop_output_type.hpp"
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/foreach.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -41,47 +40,26 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 
-#include <boost/geometry/strategies/strategies.hpp>
-
 #include <boost/geometry/io/wkt/wkt.hpp>
-
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
 
+#include <boost/geometry/strategies/strategies.hpp>
+
+
 struct ut_settings : public ut_base_settings
 {
-    ut_settings()
-        : percentage(0.001)
-    {}
-
-    double percentage;
+    double percentage = 0.001;
+    bool ignore_validity_on_invalid_input = true;
 };
-
-#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
-template <typename Geometry>
-inline void check_input_validity(std::string const& caseid, int case_index,
-                Geometry const& geometry)
-{
-    std::string message;
-    if (!bg::is_valid(geometry, message))
-    {
-        std::cout << caseid << " Input ["
-                  << case_index << "] not valid" << std::endl
-                  << "   ("  << message << ")" << std::endl;
-    }
-}
-#endif
-
-
 
 template <typename Range>
 inline std::size_t num_points(Range const& rng, bool add_for_open = false)
 {
     std::size_t result = 0;
-    for (typename boost::range_iterator<Range const>::type it = boost::begin(rng);
-            it != boost::end(rng); ++it)
+    for (auto it = boost::begin(rng); it != boost::end(rng); ++it)
     {
         result += bg::num_points(*it, add_for_open);
     }
@@ -102,15 +80,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     typedef typename setop_output_type<OutputType>::type result_type;
     result_type clip;
 
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-    std::cout << "*** UNION " << caseid << std::endl;
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_CHECK_VALID_INPUT)
-    check_input_validity(caseid, 0, g1);
-    check_input_validity(caseid, 1, g2);
-#endif
-
     // Check normal behaviour
     bg::union_(g1, g2, clip);
 
@@ -130,7 +99,8 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     if (settings.test_validity())
     {
         std::string message;
-        bool const valid = check_validity<result_type>::apply(clip, caseid, g1, g2, message);
+        bool const valid = check_validity<result_type>::apply(clip, caseid,
+            g1, g2, message, settings.ignore_validity_on_invalid_input);
         BOOST_CHECK_MESSAGE(valid,
             "union: " << caseid << " not valid: " << message
             << " type: " << (type_for_assert_message<G1, G2>()));
@@ -139,8 +109,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
     typename bg::default_area_result<OutputType>::type area = 0;
     std::size_t n = 0;
     std::size_t holes = 0;
-    for (typename result_type::iterator it = clip.begin();
-            it != clip.end(); ++it)
+    for (auto it = clip.begin(); it != clip.end(); ++it)
     {
         area += bg::area(*it);
         holes += bg::num_interior_rings(*it);
@@ -158,9 +127,7 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
 
         typename bg::default_area_result<OutputType>::type area_inserted = 0;
         int index = 0;
-        for (typename result_type::iterator it = inserted.begin();
-                it != inserted.end();
-                ++it, ++index)
+        for (auto it = inserted.begin(); it != inserted.end(); ++it, ++index)
         {
             // Skip the empty polygon created above to avoid the empty_input_exception
             if (! bg::is_empty(*it))

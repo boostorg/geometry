@@ -62,13 +62,13 @@ struct sequence_element {};
 template <std::size_t I, typename T, typename ...Ts>
 struct sequence_element<I, type_sequence<T, Ts...>>
 {
-    typedef typename sequence_element<I - 1, type_sequence<Ts...>>::type type;
+    using type = typename sequence_element<I - 1, type_sequence<Ts...>>::type;
 };
 
 template <typename T, typename ...Ts>
 struct sequence_element<0, type_sequence<T, Ts...>>
 {
-    typedef T type;
+    using type = T;
 };
 
 template <std::size_t I, typename T, T J, T ...Js>
@@ -125,6 +125,7 @@ struct sequence_empty
 {};
 
 
+// Defines type member for the first type in sequence that satisfies UnaryPred.
 template
 <
     typename Sequence,
@@ -151,13 +152,13 @@ template <template <typename> class UnaryPred>
 struct sequence_find_if<type_sequence<>, UnaryPred>
 {
     // TODO: This is technically incorrect because void can be stored in a type_sequence
-    typedef void type;
+    using type = void;
 };
 
 
 // sequence_merge<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<A, B, C, D>
-// sequence_<integer_sequence<A, B>, integer_sequence<C, D>>::type is
+// sequence_merge<integer_sequence<A, B>, integer_sequence<C, D>>::type is
 //   integer_sequence<A, B, C, D>
 template <typename ...Sequences>
 struct sequence_merge;
@@ -190,6 +191,7 @@ struct sequence_merge<S1, S2, Sequences...>
         >::type;
 };
 
+
 // sequence_combine<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<type_sequence<A, C>, type_sequence<A, D>,
 //                 type_sequence<B, C>, type_sequence<B, D>>
@@ -199,10 +201,10 @@ struct sequence_combine;
 template <typename ...T1s, typename ...T2s>
 struct sequence_combine<type_sequence<T1s...>, type_sequence<T2s...>>
 {
-    template <typename U1, typename ...U2s>
-    using type_sequence_t = type_sequence<type_sequence<U1, U2s>...>;
+    template <typename T1>
+    using type_sequence_t = type_sequence<type_sequence<T1, T2s>...>;
 
-    using type = typename sequence_merge<type_sequence_t<T1s, T2s...>...>::type;
+    using type = typename sequence_merge<type_sequence_t<T1s>...>::type;
 };
 
 // sequence_combine<integer_sequence<T, 1, 2>, integer_sequence<T, 3, 4>>::type is
@@ -211,10 +213,10 @@ struct sequence_combine<type_sequence<T1s...>, type_sequence<T2s...>>
 template <typename T, T ...I1s, T ...I2s>
 struct sequence_combine<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
 {
-    template <T J1, T ...J2s>
-    using type_sequence_t = type_sequence<std::integer_sequence<T, J1, J2s>...>;
+    template <T I1>
+    using type_sequence_t = type_sequence<std::integer_sequence<T, I1, I2s>...>;
 
-    using type = typename sequence_merge<type_sequence_t<I1s, I2s...>...>::type;
+    using type = typename sequence_merge<type_sequence_t<I1s>...>::type;
 };
 
 
@@ -281,6 +283,11 @@ struct sequence_min_element<type_sequence<Ts...>, LessPred>
 {
     using type = typename pack_min_element<LessPred, Ts...>::type;
 };
+
+
+// TODO: Since there are two kinds of parameter packs and sequences there probably should be two
+//   versions of sequence_find_if as well as parameter_pack_min_element and sequence_min_element.
+//   Currently these utilities support only types.
 
 
 } // namespace util

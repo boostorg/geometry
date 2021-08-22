@@ -217,7 +217,8 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
                 bool result = true;
                 traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
                 {
-                    result = visit_or_enqueue(function, std::forward<decltype(g)>(g), queue, it);
+                    result = visit_breadth_first::visit_or_enqueue(
+                                    function, std::forward<decltype(g)>(g), queue, it);
                 }, it);
 
                 if (! result)
@@ -235,7 +236,7 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
             // so this call can be avoided.
             traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
             {
-                set_iterators(std::forward<decltype(g)>(g), it, end);
+                visit_breadth_first::set_iterators(std::forward<decltype(g)>(g), it, end);
             }, queue.front());
             queue.pop_front();
         }

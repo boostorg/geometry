@@ -478,9 +478,10 @@ struct wkt<Geometry, geometry_collection_tag>
     static inline void apply(OutputStream& os, Geometry const& geometry,
                              bool force_closure)
     {
-        output_or_recursive_call(os, geometry, force_closure);
+        wkt::output_or_recursive_call(os, geometry, force_closure);
     }
 
+private:
     template
     <
         typename OutputStream, typename Geom,
@@ -501,7 +502,7 @@ struct wkt<Geometry, geometry_collection_tag>
 
             traits::iter_visit<Geom>::apply([&](auto const& g)
             {
-                output_or_recursive_call(os, g, force_closure);
+                wkt::output_or_recursive_call(os, g, force_closure);
             }, it);
         }
 

@@ -100,6 +100,8 @@ public:
           m_inner_it(other.m_inner_it)
     {}
 
+    flatten_iterator(flatten_iterator const& other) = default;
+
     flatten_iterator& operator=(flatten_iterator const& other)
     {
         m_outer_it = other.m_outer_it;

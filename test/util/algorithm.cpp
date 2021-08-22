@@ -19,17 +19,17 @@
 #include <boost/geometry/util/algorithm.hpp>
 
 
-void test_dimension(bg::util::index_constant<0> index)
+void test_dimension(bg::util::index_constant<0>)
 {
     bool called = false;
-    bg::detail::for_each_index<0>([&](auto index) { called = true; });
+    bg::detail::for_each_index<0>([&](auto) { called = true; });
     BOOST_CHECK(!called);
-    BOOST_CHECK(bg::detail::all_indexes_of<0>([&](auto index) { return true; }) == true);
-    BOOST_CHECK(bg::detail::all_indexes_of<0>([&](auto index) { return false; }) == true);
-    BOOST_CHECK(bg::detail::any_index_of<0>([&](auto index) { return true; }) == false);
-    BOOST_CHECK(bg::detail::any_index_of<0>([&](auto index) { return false; }) == false);
-    BOOST_CHECK(bg::detail::none_index_of<0>([&](auto index) { return true; }) == true);
-    BOOST_CHECK(bg::detail::none_index_of<0>([&](auto index) { return false; }) == true);
+    BOOST_CHECK(bg::detail::all_indexes_of<0>([&](auto) { return true; }) == true);
+    BOOST_CHECK(bg::detail::all_indexes_of<0>([&](auto) { return false; }) == true);
+    BOOST_CHECK(bg::detail::any_index_of<0>([&](auto) { return true; }) == false);
+    BOOST_CHECK(bg::detail::any_index_of<0>([&](auto) { return false; }) == false);
+    BOOST_CHECK(bg::detail::none_index_of<0>([&](auto) { return true; }) == true);
+    BOOST_CHECK(bg::detail::none_index_of<0>([&](auto) { return false; }) == true);
 }
 
 template <std::size_t I>
@@ -60,7 +60,7 @@ void test_dimension(bg::util::index_constant<I>)
             return bg::get<index>(p) == 10;
         }) == false);
     BOOST_CHECK(
-        bg::detail::any_index_of<0>([&](auto index)
+        bg::detail::any_index_of<0>([&](auto)
         {
             return false;
         }) == false);
@@ -70,7 +70,7 @@ void test_dimension(bg::util::index_constant<I>)
             return bg::get<index>(p) == double(I - 1);
         }) == true);
     BOOST_CHECK(
-        bg::detail::none_index_of<0>([&](auto index)
+        bg::detail::none_index_of<0>([&](auto)
         {
             return false;
         }) == true);

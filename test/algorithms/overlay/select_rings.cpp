@@ -2,8 +2,8 @@
 //
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 //
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,14 +12,10 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/foreach.hpp>
-#include <boost/range/algorithm/copy.hpp>
-#include <boost/tuple/tuple.hpp>
-#include <boost/typeof/typeof.hpp>
+#include <initializer_list>
 
 #include <algorithms/test_overlay.hpp>
 
-#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
 
@@ -28,18 +24,15 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 
-#include <boost/assign/list_of.hpp>
-
-
 template
 <
     typename Geometry1,
     typename Geometry2,
     bg::overlay_type OverlayType,
-    typename RingIdVector
+    typename RingId
 >
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
-    RingIdVector const& expected_ids)
+                   std::initializer_list<RingId> const& expected_ids)
 {
     typedef bg::detail::overlay::ring_properties
         <
@@ -68,8 +61,8 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
 
     if (selected.size() <= expected_ids.size())
     {
-        BOOST_AUTO(eit, expected_ids.begin());
-        for(typename map_type::const_iterator it = selected.begin(); it != selected.end(); ++it, ++eit)
+        auto eit = expected_ids.begin();
+        for (auto it = selected.begin(); it != selected.end(); ++it, ++eit)
         {
             bg::ring_identifier const ring_id = it->first;
             BOOST_CHECK_EQUAL(ring_id.source_index, eit->source_index);
@@ -90,21 +83,19 @@ void test_all()
 
     test_geometry<bg::model::polygon<P>, bg::model::polygon<P>, bg::overlay_union>(
         winded[0], winded[1],
-        boost::assign::list_of
-                (rid(0,-1,-1))
-                (rid(0,-1, 0))
-                (rid(0,-1, 1))
-                (rid(0,-1, 3))
-                (rid(1,-1, 1))
-                (rid(1,-1, 2)));
+            { rid(0,-1,-1),
+              rid(0,-1, 0),
+              rid(0,-1, 1),
+              rid(0,-1, 3),
+              rid(1,-1, 1),
+              rid(1,-1, 2) });
 
     test_geometry<bg::model::polygon<P>, bg::model::polygon<P>, bg::overlay_intersection>(
             winded[0], winded[1],
-        boost::assign::list_of
-                (rid(0,-1, 2))
-                (rid(1,-1,-1))
-                (rid(1,-1, 0))
-                (rid(1,-1, 3)));
+                { rid(0,-1, 2),
+                  rid(1,-1,-1),
+                  rid(1,-1, 0),
+                  rid(1,-1, 3), });
 }
 
 
