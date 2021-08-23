@@ -17,6 +17,7 @@
 
 #include <boost/container/allocator_traits.hpp>
 #include <boost/container/vector.hpp>
+#include <boost/core/pointer_traits.hpp>
 
 #include <boost/geometry/index/detail/rtree/options.hpp>
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
