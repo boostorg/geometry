@@ -3,6 +3,10 @@
 
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +14,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-#include <boost/foreach.hpp>
 #include <boost/assert.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -46,13 +49,13 @@ int main()
     testsets.push_back(std::make_pair("testset::queries", "que"));
     testsets.push_back(std::make_pair("testset::additional", "add"));
 
-    BOOST_FOREACH(P const& p, parameters)
+    for (P const& p : parameters)
     {
-        BOOST_FOREACH(TS const& ts, testsets)
+        for (TS const& ts : testsets)
         {
-            BOOST_FOREACH(std::string const& i, indexables)
+            for (std::string const& i : indexables)
             {
-                BOOST_FOREACH(std::string const& d, dimensions)
+                for (std::string const& d : dimensions)
                 {
                     // If the I is Segment, generate only for 2d
                     if ( i == "s" && d != "2" )
@@ -60,7 +63,7 @@ int main()
                         continue;
                     }
 
-                    BOOST_FOREACH(CT const& c, coordinate_types)   
+                    for (CT const& c : coordinate_types)   
                     {
                         std::string filename = std::string() +
                             "rtree_" + boost::get<1>(p) + '_' + ts.second + '_' + i + d + boost::get<1>(c) + ".cpp";
