@@ -414,6 +414,8 @@ struct counting_value
     counting_value(counting_value const& c) : indexable(c.indexable) { counter()++; }
     ~counting_value() { counter()--; }
 
+    counting_value& operator=(counting_value const& c) = default;
+
     static size_t & counter() { static size_t c = 0; return c; }
     Indexable indexable;
 };
