@@ -2,8 +2,8 @@
 
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -31,7 +31,7 @@
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/detail/endian.hpp>
+#include <boost/predef/other/endian.h>
 
 #if CHAR_BIT != 8
 #error Platforms with CHAR_BIT != 8 are not supported
