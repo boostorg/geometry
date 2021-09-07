@@ -1,8 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2020, Oracle and/or its affiliates.
-
+// Copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -290,12 +289,10 @@ struct test_promotion
         {
             tester::template apply<T, long>(case_id);
         }
-#if defined(BOOST_HAS_LONG_LONG)
-        else if (bit_size<boost::long_long_type>() >= min_size)
+        else if (bit_size<long long>() >= min_size)
         {
-            tester::template apply<T, boost::long_long_type>(case_id);
+            tester::template apply<T, long long>(case_id);
         }
-#endif
 #if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
         else if (bit_size<boost::int128_type>() >= min_size)
         {
@@ -360,12 +357,10 @@ struct test_promotion<T, true, false>
         {
             tester::apply<T, std::size_t>(case_id);
         }
-#if defined(BOOST_HAS_LONG_LONG)
-        else if (bit_size<boost::ulong_long_type>() >= min_size)
+        else if (bit_size<unsigned long long>() >= min_size)
         {
-            tester::template apply<T, boost::ulong_long_type>(case_id);
+            tester::template apply<T, unsigned long long>(case_id);
         }
-#endif
 #if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
         else if (bit_size<boost::uint128_type>() >= min_size)
         {
@@ -438,15 +433,13 @@ BOOST_AUTO_TEST_CASE( test_std_size_t )
     test_promotion<std::size_t, true>::apply("size_t");
 }
 
-#ifdef BOOST_HAS_LONG_LONG
 BOOST_AUTO_TEST_CASE( test_long_long )
 {
-    test_promotion<boost::long_long_type>::apply("long long");
-    test_promotion<boost::long_long_type, true>::apply("long long");
-    test_promotion<boost::ulong_long_type>::apply("ulong long");
-    test_promotion<boost::ulong_long_type, true>::apply("ulong long");
+    test_promotion<long long>::apply("long long");
+    test_promotion<long long, true>::apply("long long");
+    test_promotion<unsigned long long>::apply("ulong long");
+    test_promotion<unsigned long long, true>::apply("ulong long");
 }
-#endif
 
 #if defined(BOOST_HAS_INT128) && defined(BOOST_GEOMETRY_ENABLE_INT128)
 BOOST_AUTO_TEST_CASE( test_int128 )

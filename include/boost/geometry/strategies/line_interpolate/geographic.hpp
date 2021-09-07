@@ -1,7 +1,6 @@
 // Boost.Geometry
 
 // Copyright (c) 2021, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -12,6 +11,8 @@
 
 
 #include <boost/geometry/strategies/detail.hpp>
+
+#include <boost/geometry/strategies/distance/detail.hpp>
 
 #include <boost/geometry/strategies/geographic/distance.hpp>
 #include <boost/geometry/strategies/geographic/line_interpolate.hpp>

@@ -60,7 +60,7 @@ jobs:
             git submodule update --init tools/build
             git submodule update --init libs/config
             git submodule update --init tools/boostdep
-            python tools/boostdep/depinst/depinst.py geometry
+            python tools/boostdep/depinst/depinst.py geometry -I index/test
             ./bootstrap.sh
             ./b2 headers
       - run: mkdir $COVERAGE_DIR

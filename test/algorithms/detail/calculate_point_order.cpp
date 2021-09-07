@@ -1,8 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2019, Oracle and/or its affiliates.
-
+// Copyright (c) 2019-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -89,7 +88,7 @@ inline void test_one(std::string const& ring_wkt, bg::order_selector expected)
         std::rotate(boost::begin(ring), boost::begin(ring) + 1, boost::end(ring));
 
         // it seems that area method doesn't work for invalid "opened" polygons
-        //if (! boost::is_same<cs_tag, bg::geographic_tag>::value)
+        //if (! std::is_same<cs_tag, bg::geographic_tag>::value)
         {
             P p = bg::range::front(ring);
             bg::range::push_back(ring, p);

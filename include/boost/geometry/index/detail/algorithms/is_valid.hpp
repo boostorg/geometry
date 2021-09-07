@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +18,7 @@
 #include <cstddef>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {

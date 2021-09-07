@@ -5,8 +5,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -232,10 +232,8 @@ void test_areal()
     TEST_INTERSECTION(ggl_list_20190307_matthieu_1, 2, -1, 0.035136);
     TEST_INTERSECTION(ggl_list_20190307_matthieu_2, 1, -1, 3.64285);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || ! defined(BOOST_GEOMETRY_USE_KRAMER_RULE) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<Polygon, Polygon, Polygon>("buffer_rt_f", buffer_rt_f[0], buffer_rt_f[1],
                 1, 4, expectation_limits(0.00029437, 0.000294380));
-#endif
     test_one<Polygon, Polygon, Polygon>("buffer_rt_g", buffer_rt_g[0], buffer_rt_g[1],
                 1, 0, 2.914213562373);
 
@@ -941,16 +939,14 @@ int test_main(int, char* [])
         test_ticket_10868<long>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
     }
 
-#if defined(BOOST_HAS_LONG_LONG)
-    test_ticket_10868<boost::long_long_type>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
-#endif
+    test_ticket_10868<long long>("MULTIPOLYGON(((33520458 6878575,33480192 14931538,31446819 18947953,30772384 19615678,30101303 19612322,30114725 16928001,33520458 6878575)))");
 #endif
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
     // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(5, 2, 6, 1);
+    BoostGeometryWriteExpectedFailures(6, 2, 7, 1);
 #endif
 
     return 0;

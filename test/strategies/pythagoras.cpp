@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -19,7 +23,8 @@
 #  pragma warning( disable : 4101 )
 #endif
 
-#include <boost/timer.hpp>
+// TODO move this to another non-unit test
+//#include <boost/timer.hpp>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
@@ -289,37 +294,38 @@ void test_all_3d()
     test_all_3d<P, bg::model::point<double, 3, bg::cs::cartesian> >();
 }
 
-template <typename P, typename Strategy>
-void time_compare_s(int const n)
-{
-    boost::timer t;
-    P p1, p2;
-    bg::assign_values(p1, 1, 1);
-    bg::assign_values(p2, 2, 2);
-    Strategy strategy;
-    typename bg::strategy::distance::services::return_type<Strategy, P, P>::type s = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            bg::set<0>(p2, bg::get<0>(p2) + 0.001);
-            s += strategy.apply(p1, p2);
-        }
-    }
-    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
-}
-
-template <typename P>
-void time_compare(int const n)
-{
-    time_compare_s<P, bg::strategy::distance::pythagoras<> >(n);
-    time_compare_s<P, bg::strategy::distance::comparable::pythagoras<> >(n);
-}
+// TODO move this to another non-unit test
+//template <typename P, typename Strategy>
+//void time_compare_s(int const n)
+//{
+//    boost::timer t;
+//    P p1, p2;
+//    bg::assign_values(p1, 1, 1);
+//    bg::assign_values(p2, 2, 2);
+//    Strategy strategy;
+//    typename bg::strategy::distance::services::return_type<Strategy, P, P>::type s = 0;
+//    for (int i = 0; i < n; i++)
+//    {
+//        for (int j = 0; j < n; j++)
+//        {
+//            bg::set<0>(p2, bg::get<0>(p2) + 0.001);
+//            s += strategy.apply(p1, p2);
+//        }
+//    }
+//    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
+//}
+//
+//template <typename P>
+//void time_compare(int const n)
+//{
+//    time_compare_s<P, bg::strategy::distance::pythagoras<> >(n);
+//    time_compare_s<P, bg::strategy::distance::comparable::pythagoras<> >(n);
+//}
 
 int test_main(int, char* [])
 {
     test_integer<int>(true);
-    test_integer<boost::long_long_type>(true);
+    test_integer<long long>(true);
     test_integer<double>(false);
 
     test_all_3d<int[3]>();

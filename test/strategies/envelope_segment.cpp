@@ -1,7 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2018 Oracle and/or its affiliates.
-
+// Copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,8 +11,8 @@
 #include <geometry_test_common.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/strategies/geographic/envelope_segment.hpp>
-#include <boost/geometry/strategies/spherical/envelope_segment.hpp>
+#include <boost/geometry/strategy/geographic/envelope_segment.hpp>
+#include <boost/geometry/strategy/spherical/envelope_segment.hpp>
 
 template
 <

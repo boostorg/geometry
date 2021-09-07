@@ -3,30 +3,25 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+
 #include <iostream>
 
 #include <geometry_test_common.hpp>
 
-#include <boost/array.hpp>
-#include <boost/foreach.hpp>
-
+#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
-
-// TEMP
-#include <boost/geometry/strategies/cartesian.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
@@ -57,7 +52,7 @@ struct sub_range_from_points
     }
 
 private :
-    boost::array<Point, 3> m_points;
+    Point m_points[3];
 };
 
 template <typename P, typename T>
