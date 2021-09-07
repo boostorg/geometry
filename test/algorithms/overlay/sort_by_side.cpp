@@ -4,8 +4,8 @@
 // Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,11 +14,11 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
+#include <boost/geometry/io/wkt/read.hpp>
 
 #include "multi_overlay_cases.hpp"
 
@@ -31,7 +31,7 @@ std::string as_string(std::vector<T> const& v)
 {
     std::stringstream out;
     bool first = true;
-    BOOST_FOREACH(T const& value, v)
+    for (T const& value : v)
     {
         out << (first ? "[" : " , ") << value;
         first = false;
@@ -217,13 +217,11 @@ void test_sort_by_side(std::string const& case_id,
 
 
 // Define two small macro's to avoid repetitions of testcases/names etc
-#define TEST_INT(caseid, exp) { (test_sort_by_side<multi_polygon, bg::overlay_intersection>) \
-    ( #caseid "_int", caseid[0], caseid[1], exp); }
+#define TEST_INTER(caseid, ...) { (test_sort_by_side<multi_polygon, bg::overlay_intersection>) \
+    ( #caseid "_inter", caseid[0], caseid[1], __VA_ARGS__); }
 
-#define TEST_UNION(caseid, exp) { (test_sort_by_side<multi_polygon, bg::overlay_union>) \
-    ( #caseid "_union", caseid[0], caseid[1], exp); }
-
-using boost::assign::list_of;
+#define TEST_UNION(caseid, ...) { (test_sort_by_side<multi_polygon, bg::overlay_union>) \
+    ( #caseid "_union", caseid[0], caseid[1], __VA_ARGS__); }
 
 template <typename T>
 void test_all()
@@ -234,31 +232,31 @@ void test_all()
 
     // Selection of test cases having only one cluster
 
-    TEST_INT(case_64_multi, list_of(1));
-    TEST_INT(case_72_multi, list_of(3));
-    TEST_INT(case_107_multi, list_of(2));
-    TEST_INT(case_123_multi, list_of(3));
-    TEST_INT(case_124_multi, list_of(3));
-    TEST_INT(case_recursive_boxes_10, list_of(2));
-    TEST_INT(case_recursive_boxes_20, list_of(2));
-    TEST_INT(case_recursive_boxes_21, list_of(1));
-    TEST_INT(case_recursive_boxes_22, list_of(0));
+    TEST_INTER(case_64_multi, {1});
+    TEST_INTER(case_72_multi, {3});
+    TEST_INTER(case_107_multi, {2});
+    TEST_INTER(case_123_multi, {3});
+    TEST_INTER(case_124_multi, {3});
+    TEST_INTER(case_recursive_boxes_10, {2});
+    TEST_INTER(case_recursive_boxes_20, {2});
+    TEST_INTER(case_recursive_boxes_21, {1});
+    TEST_INTER(case_recursive_boxes_22, {0});
 
-    TEST_UNION(case_recursive_boxes_46, list_of(2)(1)(2)(1)(1)(2)(1));
+    TEST_UNION(case_recursive_boxes_46, {2, 1, 2, 1, 1, 2, 1});
 
-    TEST_UNION(case_62_multi, list_of(2));
-    TEST_UNION(case_63_multi, list_of(2));
-    TEST_UNION(case_64_multi, list_of(1));
-    TEST_UNION(case_107_multi, list_of(1));
-    TEST_UNION(case_123_multi, list_of(1));
-    TEST_UNION(case_124_multi, list_of(1));
-    TEST_UNION(case_recursive_boxes_10, list_of(1));
-    TEST_UNION(case_recursive_boxes_18, list_of(3));
-    TEST_UNION(case_recursive_boxes_19, list_of(3));
-    TEST_UNION(case_recursive_boxes_20, list_of(2));
-    TEST_UNION(case_recursive_boxes_21, list_of(1));
-    TEST_UNION(case_recursive_boxes_22, list_of(1));
-    TEST_UNION(case_recursive_boxes_23, list_of(3));
+    TEST_UNION(case_62_multi, {2});
+    TEST_UNION(case_63_multi, {2});
+    TEST_UNION(case_64_multi, {1});
+    TEST_UNION(case_107_multi, {1});
+    TEST_UNION(case_123_multi, {1});
+    TEST_UNION(case_124_multi, {1});
+    TEST_UNION(case_recursive_boxes_10, {1});
+    TEST_UNION(case_recursive_boxes_18, {3});
+    TEST_UNION(case_recursive_boxes_19, {3});
+    TEST_UNION(case_recursive_boxes_20, {2});
+    TEST_UNION(case_recursive_boxes_21, {1});
+    TEST_UNION(case_recursive_boxes_22, {1});
+    TEST_UNION(case_recursive_boxes_23, {3});
 }
 
 int test_main(int, char* [])

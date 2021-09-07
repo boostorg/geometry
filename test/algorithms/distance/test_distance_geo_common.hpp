@@ -1,9 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2016-2017, Oracle and/or its affiliates.
-
+// Copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -14,28 +14,17 @@
 #include <iostream>
 #include <string>
 
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/num_interior_rings.hpp>
 
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/multi_point.hpp>
-#include <boost/geometry/geometries/multi_linestring.hpp>
-#include <boost/geometry/geometries/multi_polygon.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
-#include <boost/geometry/algorithms/num_interior_rings.hpp>
-#include <boost/geometry/algorithms/distance.hpp>
-
 #include <boost/geometry/strategies/strategies.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 #include <from_wkt.hpp>
 #include <string_from_type.hpp>
@@ -229,7 +218,7 @@ template <typename Tag> struct dispatch
 };
 
 // Specialization for segments
-template <> struct dispatch<boost::geometry::segment_tag>
+template <> struct dispatch<bg::segment_tag>
 {
     template <typename Segment>
     static inline Segment swap(Segment const& s)
@@ -259,7 +248,7 @@ template <> struct dispatch<boost::geometry::segment_tag>
 };
 
 // Specialization for boxes
-template <> struct dispatch<boost::geometry::box_tag>
+template <> struct dispatch<bg::box_tag>
 {
     template <typename T>
     static inline T swap(T const& t)
@@ -283,7 +272,7 @@ template <> struct dispatch<boost::geometry::box_tag>
 
 
 // Specialization for points
-template <> struct dispatch<boost::geometry::point_tag>
+template <> struct dispatch<bg::point_tag>
 {
     template <typename T>
     static inline T swap(T const& t)
@@ -412,11 +401,11 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 Strategy, Geometry1, Geometry2
             >::type distance_result_from_strategy;
 
-        static const bool same_regular = boost::is_same
+        static const bool same_regular = std::is_same
             <
                 default_distance_result,
                 distance_result_from_strategy
-            >::type::value;
+            >::value;
 
         BOOST_CHECK(same_regular);
 
@@ -482,12 +471,12 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         {
             Geometry1 g1 = dispatch
                 <
-                    typename boost::geometry::tag<Geometry1>::type
+                    typename bg::tag<Geometry1>::type
                 >::swap(geometry1);
 
             Geometry2 g2 = dispatch
                 <
-                    typename boost::geometry::tag<Geometry2>::type
+                    typename bg::tag<Geometry2>::type
                 >::swap(geometry2);
 
             // check distance with given strategy
@@ -510,12 +499,12 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
         {
             Geometry1 g1 = dispatch
                 <
-                    typename boost::geometry::tag<Geometry1>::type
+                    typename bg::tag<Geometry1>::type
                 >::mirror(geometry1);
 
             Geometry2 g2 = dispatch
                 <
-                    typename boost::geometry::tag<Geometry2>::type
+                    typename bg::tag<Geometry2>::type
                 >::mirror(geometry2);
 
             // check distance with given strategy
