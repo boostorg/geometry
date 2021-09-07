@@ -39,6 +39,7 @@
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
@@ -155,6 +156,14 @@ private:
     T dx, dy;
     //T dx_0, dy_0;
 };
+
+template <typename T, typename Geometry, typename CT, typename CSTag>
+struct collected_vector
+    <
+        T, Geometry, strategy::side::side_by_triangle<CT>, CSTag
+    >
+    : collected_vector<T, Geometry, strategy::side::side_robust<CT>, CSTag>
+{};  
 
 // Compatible with spherical_side_formula which currently
 // is the default spherical_equatorial and geographic strategy
