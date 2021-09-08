@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2012-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
@@ -13,6 +13,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
+#define BOOST_GEOMETRY_NO_ROBUSTNESS
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 
 #if defined(_MSC_VER)
 #  pragma warning( disable : 4244 )
