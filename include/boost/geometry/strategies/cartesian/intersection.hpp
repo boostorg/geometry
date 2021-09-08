@@ -68,6 +68,61 @@ namespace boost { namespace geometry
 namespace strategy { namespace intersection
 {
 
+namespace detail_usage
+{
+
+// When calculating the intersection, the information of "a" or "b" can be used.
+// Theoretically this gives equal results, but due to floating point precision
+// there might be tiny differences. These are edge cases.
+// This structure is to determine if "a" or "b" should be used.
+// Prefer the segment closer to the endpoint.
+// If both are about equally close, then prefer the longer segment
+// To avoid hard thresholds, behavior is made fluent.
+// Calculate comparable length indications,
+// the longer the segment (relatively), the lower the value
+// such that the shorter lengths are evaluated higher and will
+// be preferred.
+template <bool IsArithmetic>
+struct use_a
+{
+  template <typename Ct, typename Ev>
+  static bool apply(Ct const& cla, Ct const& clb, Ev const& eva, Ev const& evb)
+  {
+      auto const clm = (std::max)(cla, clb);
+      if (clm <= 0)
+      {
+          return true;
+      }
+
+      // Relative comparible length
+      auto const rcla = Ct(1.0) - cla / clm;
+      auto const rclb = Ct(1.0) - clb / clm;
+
+      // Multipliers for edgevalue (ev) and relative comparible length (rcl)
+      // They determine the balance between edge value (should be larger)
+      // and segment length. In 99.9xx% of the cases there is no difference
+      // at all (if either a or b is used). Therefore the values of the
+      // constants are not sensitive for the majority of the situations.
+      // One known case is #mysql_23023665_6 (difference) which needs mev >= 2
+      Ev const mev = 5;
+      Ev const mrcl = 1;
+
+      return mev * eva + mrcl * rcla > mev * evb + mrcl * rclb;
+  }
+};
+
+// Specialization for non arithmetic types. They will always use "a"
+template <>
+struct use_a<false>
+{
+    template <typename Ct, typename Ev>
+    static bool apply(Ct const& , Ct const& , Ev const& , Ev const& )
+    {
+        return true;
+    }
+};
+
+}
 
 /*!
     \see http://mathworld.wolfram.com/Line-LineIntersection.html
@@ -180,30 +235,12 @@ struct cartesian_segments
         template <typename Point, typename Segment1, typename Segment2>
         void calculate(Point& point, Segment1 const& a, Segment2 const& b) const
         {
-            bool use_a = true;
-
-            // Prefer one segment if one is on or near an endpoint
-            bool const a_near_end = robust_ra.near_end();
-            bool const b_near_end = robust_rb.near_end();
-            if (a_near_end && ! b_near_end)
-            {
-                use_a = true;
-            }
-            else if (b_near_end && ! a_near_end)
-            {
-                use_a = false;
-            }
-            else
-            {
-                // Prefer shorter segment
-                promoted_type const len_a = comparable_length_a();
-                promoted_type const len_b = comparable_length_b();
-                if (len_b < len_a)
-                {
-                    use_a = false;
-                }
-                // else use_a is true but was already assigned like that
-            }
+            bool const use_a
+                = detail_usage::use_a
+                     <
+                         std::is_arithmetic<CoordinateType>::value
+                     >::apply(comparable_length_a(), comparable_length_b(),
+                         robust_ra.edge_value(), robust_rb.edge_value());
 
             if (use_a)
             {
