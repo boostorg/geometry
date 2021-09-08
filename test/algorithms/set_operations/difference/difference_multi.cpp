@@ -155,10 +155,12 @@ void test_areal()
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // 1: Very small sliver for B (discarded when rescaling)
-        // 2: sym difference is not considered as valid
+        // 2: sym difference is not considered as valid (without rescaling
+        //    this is a false negative)
         // 3: with rescaling A is considered as invalid (robustness problem)
         ut_settings settings;
-        settings.sym_difference_validity = false;
+        settings.validity_of_sym = BG_IF_RESCALED(false, true);
+        settings.validity_false_negative_sym = true;
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501,
                              (count_set(1, 4)), expectation_limits(3.75893, 3.75894),
                              (count_set(1, 4)), (expectation_limits(1.776357e-15, 7.661281e-15)),
@@ -172,7 +174,7 @@ void test_areal()
         // Without rescaling, one ring is missing (for a and s)
         ut_settings settings;
         settings.set_test_validity(BG_IF_RESCALED(false, true));
-        settings.sym_difference_validity = BG_IF_RESCALED(false, true);
+        settings.validity_of_sym = BG_IF_RESCALED(false, true);
         TEST_DIFFERENCE_WITH(0, 1, ticket_9081,
                              2, 0.0907392476356186,
                              4, 0.126018011439877,
@@ -211,9 +213,12 @@ void test_areal()
     TEST_DIFFERENCE(issue_888_34, 22, 0.2506824, 6, 0.0253798, 28); // a went wrong
     TEST_DIFFERENCE(issue_888_37, 15, 0.0451408, 65, 0.3014843, 80); // b went wrong
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_DIFFERENCE(issue_888_53, 117, 0.2973268, 17, 0.0525798, 134); // a goes wrong
-#endif
+    {
+        ut_settings settings;
+        settings.validity_false_negative_a = true;
+        settings.validity_false_negative_sym = true;
+        TEST_DIFFERENCE_WITH(0, 1, issue_888_53, 117, 0.2973268, 17, 0.0525798, 134);
+    }
 
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
@@ -472,24 +477,29 @@ void test_specific_areal()
 
     {
         const std::string a_min_b =
-            TEST_DIFFERENCE(ticket_10661, 2, 1441632.5, 2, 13167454, 4);
+            test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661",
+                          ticket_10661[0], ticket_10661[1],
+                          2, -1, expectation_limits(1441632, 1441855),
+                          2, -1, expectation_limits(13167454, 13182415),
+                          count_set(3, 4));
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
             1, 8, 825192.0,
-            1, 10, expectation_limits(27226370, 27842812),
-            1, -1, 825192.0 + 27226370.5);
+            1, 10, expectation_limits(27226148, 27842812),
+            count_set(1, 2));
     }
 
     {
         ut_settings settings;
         settings.sym_difference = false;
 
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4, expectation_limits(7427727.5), 4,
-                             expectation_limits(130083, 131507), 4);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4,
+                             expectation_limits(7427727, 7428108), 4,
+                             expectation_limits(130083, 131823), 4);
         TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2,
-                             expectation_limits(412676, 413184), 2,
-                             expectation_limits(76779, 76925), 4);
+                             expectation_limits(412676, 413469), 2,
+                             expectation_limits(76779, 77038), 4);
     }
 }
 
@@ -516,7 +526,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float.
     // The difference algorithm can generate (additional) slivers
-    BoostGeometryWriteExpectedFailures(28, 15, 19, 10);
+    BoostGeometryWriteExpectedFailures(24, 11, 21, 7);
 #endif
 
     return 0;
