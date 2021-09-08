@@ -19,8 +19,8 @@
 #include <boost/rational.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
 
 namespace boost { namespace geometry
 {
