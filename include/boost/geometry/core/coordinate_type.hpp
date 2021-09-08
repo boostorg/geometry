@@ -22,7 +22,6 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
 
@@ -91,15 +90,6 @@ struct coordinate_type
         <
             typename tag<Geometry>::type,
             typename util::remove_cptrref<Geometry>::type
-        >::type type;
-};
-
-template <typename Geometry>
-struct fp_coordinate_type
-{
-    typedef typename promote_floating_point
-        <
-            typename coordinate_type<Geometry>::type
         >::type type;
 };
 
