@@ -20,12 +20,16 @@
 
 #include <boost/array.hpp>
 #include <boost/core/ignore_unused.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+
 #include <boost/geometry/algorithms/assign.hpp>
+
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/geographic/side.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
@@ -118,7 +122,7 @@ struct cartesian_point_box_by_side
             <
                 within::detail::decide_within
             >(point, box,
-              strategy::side::side_by_triangle<CalculationType>());
+              strategy::side::side_robust<CalculationType>());
     }
 };
 
@@ -189,7 +193,7 @@ struct cartesian_point_box_by_side
             <
                 within::detail::decide_covered_by
             >(point, box,
-              strategy::side::side_by_triangle<CalculationType>());
+              strategy::side::side_robust<CalculationType>());
     }
 };
 
