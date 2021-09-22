@@ -6,6 +6,10 @@
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -13,7 +17,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/extensions/triangulation/strategies/cartesian/in_circle_robust.hpp>
+#include <boost/geometry/strategy/cartesian/in_circle_robust.hpp>
 
 template <typename P>
 void test_all()

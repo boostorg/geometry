@@ -2,8 +2,8 @@
 
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -31,7 +31,7 @@
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/detail/endian.hpp>
+#include <boost/predef/other/endian.h>
 
 #if CHAR_BIT != 8
 #error Platforms with CHAR_BIT != 8 are not supported
@@ -50,10 +50,16 @@ namespace detail { namespace endian
 struct big_endian_tag {};
 struct little_endian_tag {};
 
-#ifdef BOOST_BIG_ENDIAN
+#if defined(BOOST_ENDIAN_BIG_BYTE_AVAILABLE)
 typedef big_endian_tag native_endian_tag;
-#else
+#elif defined(BOOST_ENDIAN_LITTLE_BYTE_AVAILABLE)
 typedef little_endian_tag native_endian_tag;
+#elif defined(BOOST_ENDIAN_BIG_WORD_BYTE_AVAILABLE)
+#error Word-swapped big-endian not supported
+#elif defined(BOOST_ENDIAN_LITTLE_WORD_BYTE_AVAILABLE)
+#error Word-swapped little-endian not supported
+#else
+#error Unknown endian memory ordering
 #endif
 
 // Unrolled loops for loading and storing streams of bytes.
