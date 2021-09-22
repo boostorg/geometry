@@ -622,11 +622,13 @@ struct predicates_check_impl<std::tuple<Ts...>, Tag, First, Last>
     }
 };
 
-template <typename Tag, std::size_t First, std::size_t Last, typename Predicates, typename Value, typename Indexable, typename Strategy>
+template <typename Tag, typename Predicates, typename Value, typename Indexable, typename Strategy>
 inline bool predicates_check(Predicates const& p, Value const& v, Indexable const& i, Strategy const& s)
 {
-    return detail::predicates_check_impl<Predicates, Tag, First, Last>
-        ::apply(p, v, i, s);
+    return detail::predicates_check_impl
+        <
+            Predicates, Tag, 0, predicates_length<Predicates>::value
+        >::apply(p, v, i, s);
 }
 
 // ------------------------------------------------------------------ //
