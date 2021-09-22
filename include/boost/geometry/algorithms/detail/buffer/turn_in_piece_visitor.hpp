@@ -175,7 +175,7 @@ public:
             // unit tests of hard cases start to fail (5 in multi_polygon)
             // But it is acknowlegded that such a threshold depends on the
             // scale of the input.
-            if (state.m_min_distance > 1.0e-5 || ! state.m_close_to_offset)
+            if (state.m_min_distance > 1.0e-4 || ! state.m_close_to_offset)
             {
                 Turn& mutable_turn = m_turns[turn.turn_index];
                 mutable_turn.is_turn_traversable = false;
