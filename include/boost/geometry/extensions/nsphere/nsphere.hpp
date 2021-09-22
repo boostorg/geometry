@@ -5,6 +5,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -22,7 +26,6 @@
 #include <boost/geometry/extensions/nsphere/core/tags.hpp>
 #include <boost/geometry/extensions/nsphere/core/topological_dimension.hpp>
 
-#include <boost/geometry/extensions/nsphere/geometries/concepts/check.hpp>
 #include <boost/geometry/extensions/nsphere/geometries/concepts/nsphere_concept.hpp>
 
 #include <boost/geometry/extensions/nsphere/geometries/nsphere.hpp>

@@ -284,21 +284,12 @@ void test_all()
                               "LINESTRING(2 8,4 0.4,8 1,0 5)",
                               expected("iuu++")("mui=+")("tiu+="));
 
-#if ! ( defined(BOOST_CLANG) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE) )
-
-        // In clang/release mode this testcase gives other results
-
-        // assertion failure in 1.57
-        // FAILING - no assertion failure but the result is not very good
         test_geometry<ls, ls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
                               "LINESTRING(31 -97, -46 57, -20 -4)",
-                              expected("")(""));
+                              expected("iuu++"));
         test_geometry<ls, ls>("LINESTRING(31 -97, -46 57, -20 -4)",
                               "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
-                              expected("")(""));
-
-#endif
-
+                              expected("iuu++"));
     }
 
     // In 1.57 the results of those combinations was different for MinGW

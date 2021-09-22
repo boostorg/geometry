@@ -46,8 +46,6 @@ void test_all()
 {
     typedef bg::model::polygon<P> polygon;
 
-    typedef typename bg::coordinate_type<P>::type ct;
-
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
         3, 12, 2.52636706856656,
@@ -68,10 +66,15 @@ void test_all()
         1, 5, 8.0,
         1, 5, 8.0);
 
-    test_one<polygon, polygon, polygon>("star_comb_15",
-        star_comb_15[0], star_comb_15[1],
-        30, -1, 227.658275102812,
-        30, -1, 480.485775259312);
+    {
+        ut_settings settings;
+        settings.validity_false_negative_sym = true;
+        test_one<polygon, polygon, polygon>("star_comb_15",
+            star_comb_15[0], star_comb_15[1],
+            30, -1, 227.658275102812,
+            30, -1, 480.485775259312,
+            settings);
+    }
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -106,7 +109,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.sym_difference_validity = BG_IF_RESCALED(true, false);
+        settings.validity_false_negative_sym = true;
 
         test_one<polygon, polygon, polygon>("only_hole_intersections1",
             only_hole_intersections[0], only_hole_intersections[1],
@@ -114,7 +117,7 @@ void test_all()
             4, 16, 10.9090909,
             settings);
 
-        test_one<polygon, polygon, polygon>("only_hole_intersection2",
+        test_one<polygon, polygon, polygon>("only_hole_intersections2",
             only_hole_intersections[0], only_hole_intersections[2],
             3, 20, 30.9090909,
             4, 16, 10.9090909,
@@ -144,7 +147,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.sym_difference_validity = BG_IF_RESCALED(false, true);
+        settings.validity_of_sym = BG_IF_RESCALED(false, true);
         test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
             intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
             2, 16, 15.75,
@@ -180,7 +183,6 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.sym_difference_validity = BG_IF_RESCALED(false, true);
         test_one<polygon, polygon, polygon>("intersect_holes_intersect",
             intersect_holes_intersect[0], intersect_holes_intersect[1],
             2, 16, 15.75,
@@ -295,10 +297,9 @@ void test_all()
         1, 61, 10.2717,
         1, 61, 10.2717);
 
-    if ( BOOST_GEOMETRY_CONDITION((std::is_same<ct, double>::value)) )
     {
         ut_settings settings;
-        settings.sym_difference_validity = BG_IF_RESCALED(true, false);
+        settings.validity_false_negative_sym = true;
         TEST_DIFFERENCE_WITH(buffer_mp2, 1, 12.09857, 1, 24.19714,
             count_set(1, 2), settings);
     }
@@ -319,7 +320,7 @@ void test_all()
         ut_settings settings;
         settings.percentage = BG_IF_RESCALED(0.001, 0.1);
         settings.set_test_validity(BG_IF_RESCALED(true, false));
-        settings.sym_difference = BG_IF_RESCALED(true, false);
+        settings.sym_difference = false;
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
@@ -330,18 +331,24 @@ void test_all()
 
         test_one<polygon, polygon, polygon>("isovist",
             isovist1[0], isovist1[1],
-            ignore_count(), -1, 0.279132,
+            ignore_count(), -1, expectation_limits(0.279128, 0.279132),
             ignore_count(), -1, 224.8892,
             settings);
     }
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-      // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
-      // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
-      TEST_DIFFERENCE_WITH(geos_1,
-          ignore_count(), expectation_limits(0.20705, 0.29172),
-          ignore_count(), expectation_limits(0.00060440758, 0.00076856),
-          ignore_count(), ut_settings(0.1, false));
+    {
+        ut_settings settings(0.1);
+        settings.set_test_validity(BG_IF_RESCALED(false, true));
+        settings.validity_false_negative_sym = BG_IF_RESCALED(true, false);
+
+        // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
+        // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
+        TEST_DIFFERENCE_WITH(geos_1,
+            ignore_count(), expectation_limits(0.20705, 0.29172),
+            ignore_count(), expectation_limits(0.00060440758, 0.00076856),
+            ignore_count(), settings);
+    }
 #endif
 
     {
@@ -425,7 +432,7 @@ void test_all()
         // With rescaling, difference of output a-b and a sym b is invalid
         ut_settings settings;
         settings.set_test_validity(BG_IF_RESCALED(false, true));
-        settings.sym_difference_validity = BG_IF_RESCALED(false, true);
+        settings.validity_of_sym = BG_IF_RESCALED(false, true);
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1,
                 count_set(1, 2), 0.18461532,
                 count_set(1, 2), 0.617978,
@@ -563,6 +570,7 @@ void test_all()
     {
         ut_settings settings;
         settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.validity_false_negative_a = true;
         TEST_DIFFERENCE_WITH(issue_838,
             count_set(1, 2), expectation_limits(0.000026, 0.0002823),
             count_set(1, 2), expectation_limits(0.67257, 0.67499),
@@ -583,12 +591,16 @@ void test_all()
     TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
     TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
     {
-        // Without recaling it is invalid
+        // Without rescaling it is invalid
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(true);
         TEST_DIFFERENCE_WITH(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5, settings);
     }
-    TEST_DIFFERENCE(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6);
+    {
+        ut_settings settings;
+        settings.validity_false_negative_sym = true;
+        TEST_DIFFERENCE_WITH(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6, settings);
+    }
 }
 
 
@@ -633,7 +645,7 @@ int test_main(int, char* [])
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
     // Many of the failures are self-intersection points.
-    BoostGeometryWriteExpectedFailures(19, 10, 17, 12);
+    BoostGeometryWriteExpectedFailures(15, 5, 17, 10);
 #endif
 
     return 0;

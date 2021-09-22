@@ -3,9 +3,10 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014, 2015, 2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -30,9 +31,10 @@
 #include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
-#include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -43,7 +45,11 @@ struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
 {
     static auto side()
     {
-        return boost::geometry::strategy::side::side_robust<>();
+        return boost::geometry::strategy::side::side_robust
+            <
+                double,
+                boost::geometry::strategy::side::fp_equals_policy
+            >();
     }
 };
 
@@ -159,15 +165,12 @@ struct test_convex_hull
                       std::size_t size_hull_closed,
                       double expected_area,
                       double expected_perimeter,
-                      bool reverse)
+                      bool /*reverse*/)
     {
-        bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
         static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
 
         // convex_hull_insert() uses the original Geometry as a source of the info
         // about the order and closure
-        std::size_t const size_hull_from_orig = is_original_closed ?
-                    size_hull_closed : size_hull_closed - 1;
         std::size_t const size_hull = is_hull_closed ? size_hull_closed :
                                                        size_hull_closed - 1;
 
@@ -179,14 +182,19 @@ struct test_convex_hull
         check_convex_hull(geometry, hull, size_original, size_hull,
             expected_area, expected_perimeter, false, AreaStrategy());
 
-        // Test version with output iterator and strategy
+        // Do not test with output iterator since it does not support
+        // non-default strategy
+        /*
+        bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
+        std::size_t const size_hull_from_orig = is_original_closed ?
+                    size_hull_closed : size_hull_closed - 1;
         bg::clear(hull);
         bg::detail::convex_hull::convex_hull_insert(
             geometry,
             std::back_inserter(hull.outer()), Strategy());
         check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
             expected_area, expected_perimeter, reverse, AreaStrategy());
-
+        */
     }
 };
 
@@ -249,6 +257,49 @@ struct test_convex_hull<Hull, robust_cartesian, AreaStrategy>
                                                     std::back_inserter(hull.outer()), robust_cartesian());
         check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
                           expected_area, expected_perimeter, reverse, AreaStrategy());
+
+    }
+};
+
+
+template
+<
+    typename Hull
+>
+struct test_convex_hull<Hull, robust_cartesian, precise_cartesian>
+{
+    template <typename Geometry>
+    static void apply(Geometry const& geometry,
+                      std::size_t size_original,
+                      std::size_t size_hull_closed,
+                      double expected_area,
+                      double expected_perimeter,
+                      bool reverse)
+    {
+        bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
+        static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
+
+        // convex_hull_insert() uses the original Geometry as a source of the info
+        // about the order and closure
+        std::size_t const size_hull_from_orig = is_original_closed ?
+                    size_hull_closed : size_hull_closed - 1;
+        std::size_t const size_hull = is_hull_closed ? size_hull_closed :
+                                                       size_hull_closed - 1;
+
+        Hull hull;
+
+        // Test version with strategy
+        bg::clear(hull);
+        bg::convex_hull(geometry, hull.outer(), robust_cartesian());
+        check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+                          expected_perimeter, false, precise_cartesian());
+
+        // Test version with output iterator and strategy
+        bg::clear(hull);
+        bg::detail::convex_hull::convex_hull_insert(geometry,
+                                                    std::back_inserter(hull.outer()), robust_cartesian());
+        check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
+                          expected_area, expected_perimeter, reverse, precise_cartesian());
 
     }
 };
@@ -341,7 +392,5 @@ void test_empty_input()
     bg::convex_hull(geometry, hull);
     BOOST_CHECK_MESSAGE(bg::is_empty(hull), "Output convex hull should be empty" );
 }
-
-
 
 #endif

@@ -28,6 +28,7 @@
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
