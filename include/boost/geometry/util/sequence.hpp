@@ -86,6 +86,19 @@ struct sequence_element<0, std::integer_sequence<T, J, Js...>>
 {};
 
 
+template <typename ...Ts>
+struct pack_front
+{
+    static_assert(sizeof...(Ts) > 0, "Parameter pack can not be empty.");
+};
+
+template <typename T, typename ... Ts>
+struct pack_front<T, Ts...>
+{
+    typedef T type;
+};
+
+
 template <typename Sequence>
 struct sequence_front
     : sequence_element<0, Sequence>
@@ -214,14 +227,14 @@ template
     template <typename, typename> class LessPred,
     typename ...Ts
 >
-struct parameter_pack_min_element;
+struct pack_min_element;
 
 template
 <
     template <typename, typename> class LessPred,
     typename T
 >
-struct parameter_pack_min_element<LessPred, T>
+struct pack_min_element<LessPred, T>
 {
     using type = T;
 };
@@ -231,7 +244,7 @@ template
     template <typename, typename> class LessPred,
     typename T1, typename T2
 >
-struct parameter_pack_min_element<LessPred, T1, T2>
+struct pack_min_element<LessPred, T1, T2>
 {
     using type = std::conditional_t<LessPred<T1, T2>::value, T1, T2>;
 };
@@ -241,13 +254,13 @@ template
     template <typename, typename> class LessPred,
     typename T1, typename T2, typename ...Ts
 >
-struct parameter_pack_min_element<LessPred, T1, T2, Ts...>
+struct pack_min_element<LessPred, T1, T2, Ts...>
 {
-    using type = typename parameter_pack_min_element
+    using type = typename pack_min_element
         <
             LessPred,
-            typename parameter_pack_min_element<LessPred, T1, T2>::type,
-            typename parameter_pack_min_element<LessPred, Ts...>::type
+            typename pack_min_element<LessPred, T1, T2>::type,
+            typename pack_min_element<LessPred, Ts...>::type
         >::type;
 };
 
@@ -268,7 +281,7 @@ template
 >
 struct sequence_min_element<type_sequence<Ts...>, LessPred>
 {
-    using type = typename parameter_pack_min_element<LessPred, Ts...>::type;
+    using type = typename pack_min_element<LessPred, Ts...>::type;
 };
 
 

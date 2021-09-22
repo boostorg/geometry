@@ -11,6 +11,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SELECT_GEOMETRY_TYPE_HPP
 
 #include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -20,6 +23,54 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
+
+
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+struct first_geometry_type
+{
+    using type = Geometry;
+};
+
+template <typename Geometry>
+struct first_geometry_type<Geometry, geometry_collection_tag>
+{
+    template <typename T>
+    using pred = util::bool_constant
+        <
+            ! util::is_dynamic_geometry<T>::value
+            && ! util::is_geometry_collection<T>::value
+        >;
+
+    using type = typename util::sequence_find_if
+        <
+            typename traits::geometry_types<Geometry>::type,
+            pred
+        >::type;
+};
+
+template <typename Geometry>
+struct first_geometry_type<Geometry, dynamic_geometry_tag>
+    : first_geometry_type<Geometry, geometry_collection_tag>
+{};
+
+
+template
+<
+    typename Geometry,
+    bool IsDynamicOrCollection = util::is_dynamic_geometry<Geometry>::value
+                              || util::is_geometry_collection<Geometry>::value
+>
+struct geometry_types
+{
+    using type = util::type_sequence<std::remove_const_t<Geometry>>;
+};
+
+template <typename Geometry>
+struct geometry_types<Geometry, true>
+{
+    using type = typename traits::geometry_types<std::remove_const_t<Geometry>>::type;
+};
+
 
 template
 <
@@ -45,24 +96,6 @@ struct select_geometry_type<Geometry, LessPred, true>
             LessPred
         >
 {};
-
-
-template
-<
-    typename Geometry,
-    bool IsDynamicOrCollection = util::is_dynamic_geometry<Geometry>::value
-                              || util::is_geometry_collection<Geometry>::value
->
-struct geometry_types
-{
-    using type = util::type_sequence<std::remove_const_t<Geometry>>;
-};
-
-template <typename Geometry>
-struct geometry_types<Geometry, true>
-{
-    using type = typename traits::geometry_types<std::remove_const_t<Geometry>>::type;
-};
 
 
 template
