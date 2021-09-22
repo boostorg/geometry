@@ -6,6 +6,7 @@
 // This file was modified by Oracle on 2014-2021.
 // Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -31,8 +32,10 @@
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+#include <boost/geometry/strategy/cartesian/precise_area.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -44,7 +47,11 @@ struct robust_cartesian : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
-        return boost::geometry::strategy::side::side_robust<>();
+        return boost::geometry::strategy::side::side_robust
+            <
+                double,
+                boost::geometry::strategy::side::fp_equals_policy
+            >();
     }
 };
 
@@ -75,6 +82,7 @@ struct sphrerical_side_by_cross_track : boost::geometry::strategies::convex_hull
 
 struct precise_cartesian : boost::geometry::strategies::area::cartesian<>
 {
+    // Technically this should be enabled only for non-boxes
     template <typename Geometry>
     static auto area(Geometry const&)
     {
@@ -147,6 +155,7 @@ struct test_convex_hull
         check_convex_hull(geometry, hull, size_original, size_hull,
             expected_area, expected_perimeter, false, AreaStrategy());
 
+        bg::clear(hull);
         bg::convex_hull(geometry, hull, Strategy());
 
         using point_t = typename bg::point_type<Hull>::type;
@@ -207,7 +216,34 @@ struct test_convex_hull<Hull, robust_cartesian, AreaStrategy>
         bg::convex_hull(geometry, hull.outer(), robust_cartesian());
         check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
                           expected_perimeter, false, AreaStrategy());
+    }
+};
 
+
+template
+<
+    typename Hull
+>
+struct test_convex_hull<Hull, robust_cartesian, precise_cartesian>
+{
+    template <typename Geometry>
+    static void apply(Geometry const& geometry,
+                      std::size_t size_original,
+                      std::size_t size_hull_closed,
+                      double expected_area,
+                      double expected_perimeter,
+                      bool )
+    {
+        static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
+        std::size_t const size_hull = is_hull_closed ? size_hull_closed :
+                                                       size_hull_closed - 1;
+
+        // Test version with strategy
+        Hull hull;
+        bg::convex_hull(geometry, hull.outer(), robust_cartesian());
+
+        check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+                          expected_perimeter, false, precise_cartesian());
     }
 };
 
@@ -235,7 +271,6 @@ void test_geometry_order(std::string const& wkt,
 
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
-
 
     test_convex_hull<hull_type, Strategy, AreaStrategy>::apply(geometry, size_original,
         size_hull_closed, expected_area, expected_perimeter, !Clockwise);
@@ -305,7 +340,6 @@ void test_empty_input()
     bg::convex_hull(geometry, hull);
     BOOST_CHECK_MESSAGE(bg::is_empty(hull), "Output convex hull should be empty" );
 }
-
 
 
 #endif

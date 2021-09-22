@@ -1079,17 +1079,9 @@ public:
     template <typename Predicates, typename OutIter>
     size_type query(Predicates const& predicates, OutIter out_it) const
     {
-        if ( !m_members.root )
-            return 0;
-
-        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        static const bool is_distance_predicate = 0 < distance_predicates_count;
-        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
-            "Only one distance predicate can be passed.",
-            Predicates);
-
-        return query_dispatch(predicates, out_it,
-                              std::integral_constant<bool, is_distance_predicate>());
+        return m_members.root
+             ? query_dispatch(predicates, out_it)
+             : 0;
     }
 
     /*!
@@ -1183,6 +1175,15 @@ public:
         return const_query_iterator();
     }
 
+private:
+    template <typename Predicates>
+    using query_iterator_t = std::conditional_t
+        <
+            detail::predicates_count_distance<Predicates>::value == 0,
+            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
+            detail::rtree::iterators::distance_query_iterator<members_holder, Predicates>
+        >;
+
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
 private:
 #endif
@@ -1240,38 +1241,15 @@ private:
     \return             The iterator pointing at the begin of the query range.
     */
     template <typename Predicates>
-    std::conditional_t
-        <
-            detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-            detail::rtree::iterators::distance_query_iterator
-                <
-                    members_holder, Predicates,
-                    detail::predicates_find_distance<Predicates>::value
-                >
-        >
-    qbegin_(Predicates const& predicates) const
+    query_iterator_t<Predicates> qbegin_(Predicates const& predicates) const
     {
-        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+        BOOST_GEOMETRY_STATIC_ASSERT((detail::predicates_count_distance<Predicates>::value <= 1),
             "Only one distance predicate can be passed.",
             Predicates);
 
-        typedef std::conditional_t
-            <
-                detail::predicates_count_distance<Predicates>::value == 0,
-                detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-                detail::rtree::iterators::distance_query_iterator
-                    <
-                        members_holder, Predicates,
-                        detail::predicates_find_distance<Predicates>::value
-                    >
-            > iterator_type;
-
-        if ( !m_members.root )
-            return iterator_type(m_members.parameters(), m_members.translator(), predicates);
-
-        return iterator_type(m_members.root, m_members.parameters(), m_members.translator(), predicates);
+        return m_members.root
+             ? query_iterator_t<Predicates>(m_members, predicates)
+             : query_iterator_t<Predicates>(predicates);
     }
 
     /*!
@@ -1307,35 +1285,13 @@ private:
     \return             The iterator pointing at the end of the query range.
     */
     template <typename Predicates>
-    std::conditional_t
-        <
-            detail::predicates_count_distance<Predicates>::value == 0,
-            detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-            detail::rtree::iterators::distance_query_iterator
-                <
-                    members_holder, Predicates,
-                    detail::predicates_find_distance<Predicates>::value
-                >
-        >
-    qend_(Predicates const& predicates) const
+    query_iterator_t<Predicates> qend_(Predicates const& predicates) const
     {
-        static const std::size_t distance_predicates_count = detail::predicates_count_distance<Predicates>::value;
-        BOOST_GEOMETRY_STATIC_ASSERT((distance_predicates_count <= 1),
+        BOOST_GEOMETRY_STATIC_ASSERT((detail::predicates_count_distance<Predicates>::value <= 1),
             "Only one distance predicate can be passed.",
             Predicates);
 
-        typedef std::conditional_t
-            <
-                detail::predicates_count_distance<Predicates>::value == 0,
-                detail::rtree::iterators::spatial_query_iterator<members_holder, Predicates>,
-                detail::rtree::iterators::distance_query_iterator
-                    <
-                        members_holder, Predicates,
-                        detail::predicates_find_distance<Predicates>::value
-                    >
-            > iterator_type;
-
-        return iterator_type(m_members.parameters(), m_members.translator(), predicates);
+        return query_iterator_t<Predicates>(m_members.parameters(), m_members.translator(), predicates);
     }
 
     /*!
@@ -1436,10 +1392,9 @@ public:
     */
     const_iterator begin() const
     {
-        if ( !m_members.root )
-            return const_iterator();
-
-        return const_iterator(m_members.root);
+        return m_members.root
+             ? const_iterator(m_members.root)
+             : const_iterator();
     }
 
     /*!
@@ -1894,15 +1849,16 @@ private:
     \par Exception-safety
     strong
     */
-    template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, std::false_type /*is_distance_predicate*/) const
+    template
+    <
+        typename Predicates, typename OutIter,
+        std::enable_if_t<(detail::predicates_count_distance<Predicates>::value == 0), int> = 0
+    >
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it) const
     {
         detail::rtree::visitors::spatial_query<members_holder, Predicates, OutIter>
-            find_v(m_members.parameters(), m_members.translator(), predicates, out_it);
-
-        detail::rtree::apply_visitor(find_v, *m_members.root);
-
-        return find_v.found_count;
+            query(m_members, predicates, out_it);
+        return query.apply(m_members);
     }
 
     /*!
@@ -1911,22 +1867,21 @@ private:
     \par Exception-safety
     strong
     */
-    template <typename Predicates, typename OutIter>
-    size_type query_dispatch(Predicates const& predicates, OutIter out_it, std::true_type /*is_distance_predicate*/) const
+    template
+    <
+        typename Predicates, typename OutIter,
+        std::enable_if_t<(detail::predicates_count_distance<Predicates>::value > 0), int> = 0
+    >
+    size_type query_dispatch(Predicates const& predicates, OutIter out_it) const
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(m_members.root, "The root must exist");
+        BOOST_GEOMETRY_STATIC_ASSERT((detail::predicates_count_distance<Predicates>::value == 1),
+                                     "Only one distance predicate can be passed.",
+                                     Predicates);
 
-        static const std::size_t distance_predicate_index = detail::predicates_find_distance<Predicates>::value;
-        detail::rtree::visitors::distance_query<
-            members_holder,
-            Predicates,
-            distance_predicate_index,
-            OutIter
-        > distance_v(m_members.parameters(), m_members.translator(), predicates, out_it);
+        detail::rtree::visitors::distance_query<members_holder, Predicates>
+            distance_v(m_members, predicates);
 
-        detail::rtree::apply_visitor(distance_v, *m_members.root);
-
-        return distance_v.finish();
+        return distance_v.apply(m_members, out_it);
     }
     
     /*!

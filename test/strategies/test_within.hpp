@@ -21,6 +21,8 @@
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+
 #include <boost/geometry/strategies/cartesian/point_in_poly_franklin.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_poly_crossings_multiply.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
@@ -28,7 +30,6 @@
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 
 // TEMP

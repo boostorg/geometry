@@ -18,35 +18,9 @@
 #ifndef BOOST_GEOMETRY_UTIL_PROMOTE_FLOATING_POINT_HPP
 #define BOOST_GEOMETRY_UTIL_PROMOTE_FLOATING_POINT_HPP
 
+#include <boost/config/header_deprecated.hpp>
+BOOST_HEADER_DEPRECATED("boost/geometry/core/coordinate_promotion.hpp")
 
-#include <type_traits>
-
-
-namespace boost { namespace geometry
-{
-
-
-/*!
-    \brief Meta-function converting, if necessary, to "a floating point" type
-    \details
-        - if input type is integer, type is double
-        - else type is input type
-    \ingroup utility
- */
-
-template <typename T, typename PromoteIntegerTo = double>
-struct promote_floating_point
-{
-    typedef std::conditional_t
-        <
-            std::is_integral<T>::value,
-            PromoteIntegerTo,
-            T
-        > type;
-};
-
-
-}} // namespace boost::geometry
-
+#include <boost/geometry/core/coordinate_promotion.hpp>
 
 #endif // BOOST_GEOMETRY_UTIL_PROMOTE_FLOATING_POINT_HPP

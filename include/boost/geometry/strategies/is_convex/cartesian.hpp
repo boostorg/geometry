@@ -11,10 +11,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_IS_CONVEX_CARTESIAN_HPP
 
 
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/is_convex/services.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 
 
 namespace boost { namespace geometry

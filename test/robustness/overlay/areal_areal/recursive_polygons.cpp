@@ -1,13 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
+#define BOOST_GEOMETRY_NO_ROBUSTNESS
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 
 #include <test_overlay_p_q.hpp>
 
@@ -174,8 +176,10 @@ int main(int argc, char** argv)
             ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
             ("size", po::value<int>(&field_size)->default_value(10), "Size of the field")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
+#endif
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;
@@ -193,7 +197,7 @@ int main(int argc, char** argv)
 
         bool triangular = form != "box";
 
-
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
         if (ccw && open)
         {
             test_all<default_test_type, false, false>(seed, count, field_size, level, triangular, settings);
@@ -207,6 +211,7 @@ int main(int argc, char** argv)
             test_all<default_test_type, true, false>(seed, count, field_size, level, triangular, settings);
         }
         else
+#endif
         {
             test_all<default_test_type, true, true>(seed, count, field_size, level, triangular, settings);
         }

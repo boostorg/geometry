@@ -5,6 +5,10 @@
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -157,7 +161,9 @@ inline int fast_expansion_sum_zeroelim(
         int n = InSize2)
 {
     std::array<RealNumber, 2> Qh;
-    int i_e = 0, i_f = 0, i_h = 0;
+    int i_e = 0;
+    int i_f = 0;
+    int i_h = 0;
     if (std::abs(f[0]) > std::abs(e[0]))
     {
         Qh[0] = e[i_e++];
@@ -282,14 +288,16 @@ inline RealNumber orient2dtail(vec2d<RealNumber> const& p1,
                                std::array<RealNumber, 2>& t4,
                                std::array<RealNumber, 2>& t5_01,
                                std::array<RealNumber, 2>& t6_01,
-                               RealNumber const& magnitude
-                               )
+                               RealNumber const& magnitude)
 {
     t5_01[1] = two_product_tail(t1[0], t2[0], t5_01[0]);
     t6_01[1] = two_product_tail(t3[0], t4[0], t6_01[0]);
     std::array<RealNumber, 4> tA_03 = two_two_expansion_diff(t5_01, t6_01);
     RealNumber det = std::accumulate(tA_03.begin(), tA_03.end(), static_cast<RealNumber>(0));
-    if(Robustness == 1) return det;
+    if (Robustness == 1)
+    {
+        return det;
+    }
     // see p.39, mind the different definition of epsilon for error bound
     RealNumber B_relative_bound =
           (1 + 3 * std::numeric_limits<RealNumber>::epsilon())
@@ -347,29 +355,37 @@ inline RealNumber orient2dtail(vec2d<RealNumber> const& p1,
     return(D[D_nz - 1]);
 }
 
-// see page 38, Figure 21 for the calculations, notation follows the notation in the figure.
+// see page 38, Figure 21 for the calculations, notation follows the notation
+// in the figure.
 template
 <
     typename RealNumber,
-    std::size_t Robustness = 3
+    std::size_t Robustness = 3,
+    typename EpsPolicy
 >
 inline RealNumber orient2d(vec2d<RealNumber> const& p1,
                            vec2d<RealNumber> const& p2,
-                           vec2d<RealNumber> const& p3)
+                           vec2d<RealNumber> const& p3,
+                           EpsPolicy& eps_policy)
 {
-    if(Robustness == 0)
-    {
-        return (p1.x - p3.x) * (p2.y - p3.y) - (p1.y - p3.y) * (p2.x - p3.x);
-    }
     std::array<RealNumber, 2> t1, t2, t3, t4;
     t1[0] = p1.x - p3.x;
     t2[0] = p2.y - p3.y;
     t3[0] = p1.y - p3.y;
     t4[0] = p2.x - p3.x;
+
+    eps_policy = EpsPolicy(t1[0], t2[0], t3[0], t4[0]);
+
     std::array<RealNumber, 2> t5_01, t6_01;
     t5_01[0] = t1[0] * t2[0];
     t6_01[0] = t3[0] * t4[0];
     RealNumber det = t5_01[0] - t6_01[0];
+
+    if (Robustness == 0)
+    {
+        return det;
+    }
+
     RealNumber const magnitude = std::abs(t5_01[0]) + std::abs(t6_01[0]);
 
     // see p.39, mind the different definition of epsilon for error bound
@@ -388,7 +404,8 @@ inline RealNumber orient2d(vec2d<RealNumber> const& p1,
         //obvious
         return det;
     }
-    return orient2dtail<RealNumber, Robustness>(p1, p2, p3, t1, t2, t3, t4, t5_01, t6_01, magnitude);
+    return orient2dtail<RealNumber, Robustness>(p1, p2, p3, t1, t2, t3, t4,
+                                                t5_01, t6_01, magnitude);
 }
 
 // This method adaptively computes increasingly precise approximations of the following
