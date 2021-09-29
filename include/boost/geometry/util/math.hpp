@@ -139,6 +139,12 @@ struct equals_factor_policy
         return factor;
     }
 
+    template <typename E>
+    void multiply_epsilon(E const& multiplier)
+    {
+        factor *= multiplier;
+    }
+
     T factor;
 };
 
@@ -153,6 +159,8 @@ struct equals_factor_policy<T, false>
     {
         return T(1);
     }
+
+    void multiply_epsilon(T const& ) {}
 };
 
 template <typename Type,

@@ -316,7 +316,15 @@ public :
         // then take a point (or more) further back.
         // The limit of offset avoids theoretical infinite loops.
         // In practice it currently walks max 1 point back in all cases.
-        double const tolerance = 1.0e9;
+        // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
+        using ct_type = typename geometry::select_most_precise
+            <
+                typename geometry::coordinate_type<Point>::type,
+                double
+            >::type;
+
+        ct_type const tolerance = 1000000000;
+
         int offset = 0;
         while (approximately_equals(point_from, turn.point, tolerance)
                && offset > -10)

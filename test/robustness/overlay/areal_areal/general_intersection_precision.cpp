@@ -38,6 +38,7 @@ static std::string case_b[2] =
     "MULTIPOLYGON(((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4 3,4 7,2 7)))"
     };
 
+// Union should deliver 14.0
 static std::string case_c[2] =
     {
     "MULTIPOLYGON(((0 0,0 4,2 4,2 3,4 3,4 0,0 0)))",
@@ -49,7 +50,7 @@ struct test_settings
     bool verbose{false};
     bool do_output{false};
 
-    // Settings currently not modifiable, and still giving quite some errors
+    // Settings currently not modifiable
     double start_bound{1.0e-2};
     double step_factor{50.0};  // on each side -> 100 steps per factor
     int max_factor{10000};
@@ -61,7 +62,6 @@ bool test_overlay(std::string const& caseid,
         double expected_area,
         test_settings const& settings)
 {
-
     typedef typename boost::range_value<Geometry>::type geometry_out;
     typedef bg::detail::overlay::overlay
         <
@@ -96,8 +96,8 @@ bool test_overlay(std::string const& caseid,
     overlay::apply(g1, g2, robust_policy, std::back_inserter(result),
                    strategy, visitor);
 
-    const double detected_area = bg::area(result);
-    if (std::fabs(detected_area - expected_area) > 0.01)
+    auto const detected_area = bg::area(result);
+    if (std::fabs(detected_area - expected_area) > 0.1)
     {
         if (settings.do_output)
         {

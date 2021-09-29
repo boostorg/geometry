@@ -24,7 +24,8 @@
 #include <boost/multiprecision/cpp_bin_float.hpp>
 
 template <typename T>
-struct string_from_type {};
+struct string_from_type
+{ static std::string name() { return "?"; }  };
 
 template <> struct string_from_type<void>
 { static std::string name() { return "v"; }  };
@@ -47,7 +48,8 @@ template <> struct string_from_type<int>
 template <> struct string_from_type<long>
 { static std::string name() { return "l"; }  };
 
-template <> struct string_from_type<boost::multiprecision::cpp_bin_float_100>
+template <typename Backend>
+struct string_from_type<boost::multiprecision::number<Backend>>
 { static std::string name() { return "m"; }  };
 
 // this is what g++ and clang++ use

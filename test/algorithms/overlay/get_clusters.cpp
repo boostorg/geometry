@@ -93,7 +93,7 @@ int test_main(int, char* [])
     using fp = bg::model::point<float, 2, bg::cs::cartesian>;
     using dp = bg::model::point<double, 2, bg::cs::cartesian>;
     using ep = bg::model::point<long double, 2, bg::cs::cartesian>;
-    test_get_clusters<fp>(1.0e-8f);
+    test_get_clusters<fp>(1.0e-4);
     test_get_clusters<dp>(1.0e-13);
     test_get_clusters<ep>(1.0e-16);
     return 0;

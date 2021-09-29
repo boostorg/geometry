@@ -128,7 +128,8 @@ struct base_turn_handler
         }
 
         auto const dm = get_distance_measure(range_p.at(range_index), range_p.at(range_index + 1), range_q.at(point_index));
-        return dm.measure == 0 ? 0 : dm.measure > 0 ? 1 : -1;
+        static decltype(dm.measure) const zero = 0;
+        return dm.measure == zero ? 0 : dm.measure > zero ? 1 : -1;
     }
 
     template
