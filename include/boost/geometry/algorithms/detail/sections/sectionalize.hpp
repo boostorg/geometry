@@ -783,22 +783,24 @@ inline void enlarge_sections(Sections& sections, Strategy const&)
 
     // It makes section a tiny bit too large, which might cause (a small number)
     // of more comparisons
-    for (typename boost::range_iterator<Sections>::type it = boost::begin(sections);
-        it != boost::end(sections);
-        ++it)
+    for (auto& section : sections)
     {
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
         detail::sectionalize::expand_by_epsilon
             <
                 typename Strategy::cs_tag
-            >::apply(it->bounding_box);
+            >::apply(section.bounding_box);
 
 #else
         // Expand the box to avoid missing any intersection. The amount is
         // should be larger than epsilon. About the value itself: the smaller
         // it is, the higher the risk to miss intersections. The larger it is,
         // the more comparisons are made. So it should be on the high side.
-        detail::buffer::buffer_box(it->bounding_box, 0.001, it->bounding_box);
+        using gt = decltype(section.bounding_box);
+        using ct = typename geometry::coordinate_type<gt>::type;
+        ct const tolerance = ct(1) / ct(1000);
+        detail::buffer::buffer_box(section.bounding_box, tolerance,
+                                   section.bounding_box);
 #endif
     }
 }

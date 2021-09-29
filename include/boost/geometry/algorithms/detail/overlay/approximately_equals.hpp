@@ -23,7 +23,7 @@ namespace detail { namespace overlay
 
 template <typename Point1, typename Point2, typename E>
 inline bool approximately_equals(Point1 const& a, Point2 const& b,
-                                 E const& multiplier)
+                                 E const& epsilon_multiplier)
 {
     using coor_t = typename select_coordinate_type<Point1, Point2>::type;
     using calc_t = typename geometry::select_most_precise<coor_t, E>::type;
@@ -34,7 +34,7 @@ inline bool approximately_equals(Point1 const& a, Point2 const& b,
     calc_t const& b1 = geometry::get<1>(b);
 
     math::detail::equals_factor_policy<calc_t> policy(a0, b0, a1, b1);
-    policy.factor *= multiplier;
+    policy.multiply_epsilon(epsilon_multiplier);
 
     return math::detail::equals_by_policy(a0, b0, policy)
         && math::detail::equals_by_policy(a1, b1, policy);

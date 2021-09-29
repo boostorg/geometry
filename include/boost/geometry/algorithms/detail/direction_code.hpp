@@ -79,7 +79,8 @@ struct direction_code_impl<cartesian_tag>
         }
 
         calc_t const sv = arithmetic::side_value(line, point);
-        return sv == 0 ? 0 : sv > 0 ? 1 : -1;
+        static calc_t const zero = 0;
+        return sv == zero ? 0 : sv > zero ? 1 : -1;
     }
 };
 

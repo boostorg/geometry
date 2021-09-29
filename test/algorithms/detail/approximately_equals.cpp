@@ -96,5 +96,10 @@ int test_main(int, char* [])
     test_all<bg::model::point<double, 2, bg::cs::cartesian>>(m, 23);
     test_all<bg::model::point<float, 2, bg::cs::cartesian>>(m, 23);
 
+    // MP is not a floating point type, therefore approximately_equal
+    // is behaves as exact and returns only true if they are identical.
+    // This takes 334 steps (then "d" above is 0.0)
+    test_all<bg::model::point<mp_test_type, 2, bg::cs::cartesian>>(m, 334);
+
     return 0;
 }
