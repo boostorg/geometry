@@ -28,9 +28,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -41,15 +38,18 @@
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/visit.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/centroid/cartesian.hpp>
@@ -61,6 +61,7 @@
 
 #include <boost/geometry/util/algorithm.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 #include <boost/geometry/views/closeable_view.hpp>
 
@@ -540,9 +541,9 @@ struct centroid<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct centroid
 {
     template <typename Point, typename Strategy>
@@ -553,37 +554,22 @@ struct centroid
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct centroid<Geometry, dynamic_geometry_tag>
 {
     template <typename Point, typename Strategy>
-    struct visitor: boost::static_visitor<void>
+    static inline void apply(Geometry const& geometry,
+                             Point& out,
+                             Strategy const& strategy)
     {
-        Point& m_out;
-        Strategy const& m_strategy;
-
-        visitor(Point& out, Strategy const& strategy)
-        : m_out(out), m_strategy(strategy)
-        {}
-
-        template <typename Geometry>
-        void operator()(Geometry const& geometry) const
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            centroid<Geometry>::apply(geometry, m_out, m_strategy);
-        }
-    };
-
-    template <typename Point, typename Strategy>
-    static inline void
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          Point& out,
-          Strategy const& strategy)
-    {
-        boost::apply_visitor(visitor<Point, Strategy>(out, strategy), geometry);
+            centroid<util::remove_cref_t<decltype(g)>>::apply(g, out, strategy);
+        }, geometry);
     }
 };
 
-} // namespace resolve_variant
+} // namespace resolve_dynamic
 
 
 /*!
@@ -604,10 +590,9 @@ struct centroid<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 
 */
 template<typename Geometry, typename Point, typename Strategy>
-inline void centroid(Geometry const& geometry, Point& c,
-        Strategy const& strategy)
+inline void centroid(Geometry const& geometry, Point& c, Strategy const& strategy)
 {
-    resolve_variant::centroid<Geometry>::apply(geometry, c, strategy);
+    resolve_dynamic::centroid<Geometry>::apply(geometry, c, strategy);
 }
 
 
