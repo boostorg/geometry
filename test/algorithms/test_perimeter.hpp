@@ -2,6 +2,11 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -15,6 +20,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
@@ -35,6 +41,16 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter)
         << std::endl;
     std::cout << out.str();
 #endif
+
+    BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
+
+    boost::variant<Geometry> v(geometry);
+    perimeter = bg::perimeter(v);
+
+    BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
+
+    bg::model::geometry_collection<boost::variant<Geometry>> gc{v};
+    perimeter = bg::perimeter(gc);
 
     BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
 }
@@ -58,6 +74,16 @@ void test_perimeter(Geometry const& geometry, long double expected_perimeter, St
 #endif
 
     BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
+
+    boost::variant<Geometry> v(geometry);
+    perimeter = bg::perimeter(v, strategy);
+
+    BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
+
+    bg::model::geometry_collection<boost::variant<Geometry>> gc{v};
+    perimeter = bg::perimeter(gc, strategy);
+
+    BOOST_CHECK_CLOSE(perimeter, expected_perimeter, 0.0001);
 }
 
 template <typename Geometry>
@@ -65,12 +91,7 @@ void test_geometry(std::string const& wkt, double expected_perimeter)
 {
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
-    boost::variant<Geometry> v(geometry);
-
     test_perimeter(geometry, expected_perimeter);
-#if !defined(BOOST_GEOMETRY_TEST_DEBUG)
-    test_perimeter(v, expected_perimeter);
-#endif
 }
 
 template <typename Geometry, typename Strategy>
