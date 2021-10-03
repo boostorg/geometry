@@ -3,9 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2017-2021.
+// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -32,6 +31,9 @@
 
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+
+#include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 
@@ -271,6 +273,85 @@ struct self_get_turn_points
 #endif // DOXYGEN_NO_DISPATCH
 
 
+namespace resolve_strategy
+{
+
+template
+<
+    bool Reverse,
+    typename AssignPolicy,
+    typename Strategies,
+    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
+>
+struct self_get_turn_points
+{
+    template
+    <
+        typename Geometry,
+        typename RobustPolicy,
+        typename Turns,
+        typename InterruptPolicy
+    >
+    static inline void apply(Geometry const& geometry,
+                             Strategies const& strategies,
+                             RobustPolicy const& robust_policy,
+                             Turns& turns,
+                             InterruptPolicy& interrupt_policy,
+                             int source_index,
+                             bool skip_adjacent)
+    {
+        using turn_policy = detail::overlay::get_turn_info<AssignPolicy>;
+
+        dispatch::self_get_turn_points
+                <
+                    Reverse,
+                    typename tag<Geometry>::type,
+                    Geometry,
+                    turn_policy
+                >::apply(geometry, strategies, robust_policy, turns, interrupt_policy,
+                         source_index, skip_adjacent);
+    }
+};
+
+template <bool Reverse, typename AssignPolicy, typename Strategy>
+struct self_get_turn_points<Reverse, AssignPolicy, Strategy, false>
+{
+    template
+    <
+        typename Geometry,
+        typename RobustPolicy,
+        typename Turns,
+        typename InterruptPolicy
+    >
+    static inline void apply(Geometry const& geometry,
+                             Strategy const& strategy,
+                             RobustPolicy const& robust_policy,
+                             Turns& turns,
+                             InterruptPolicy& interrupt_policy,
+                             int source_index,
+                             bool skip_adjacent)
+    {
+        using strategies::relate::services::strategy_converter;
+
+        self_get_turn_points
+            <
+                Reverse,
+                AssignPolicy,
+                decltype(strategy_converter<Strategy>::get(strategy))
+            >::apply(geometry,
+                     strategy_converter<Strategy>::get(strategy),
+                     robust_policy,
+                     turns,
+                     interrupt_policy,
+                     source_index,
+                     skip_adjacent);
+    }
+};
+
+
+} // namespace resolve_strategy
+
+
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace self_get_turn_points
 {
@@ -282,13 +363,13 @@ template
     bool Reverse,
     typename AssignPolicy,
     typename Geometry,
-    typename IntersectionStrategy,
+    typename Strategy,
     typename RobustPolicy,
     typename Turns,
     typename InterruptPolicy
 >
 inline void self_turns(Geometry const& geometry,
-                       IntersectionStrategy const& strategy,
+                       Strategy const& strategy,
                        RobustPolicy const& robust_policy,
                        Turns& turns,
                        InterruptPolicy& interrupt_policy,
@@ -297,14 +378,9 @@ inline void self_turns(Geometry const& geometry,
 {
     concepts::check<Geometry const>();
 
-    typedef detail::overlay::get_turn_info<detail::overlay::assign_null_policy> turn_policy;
-
-    dispatch::self_get_turn_points
+    resolve_strategy::self_get_turn_points
             <
-                Reverse,
-                typename tag<Geometry>::type,
-                Geometry,
-                turn_policy
+                Reverse, AssignPolicy, Strategy
             >::apply(geometry, strategy, robust_policy, turns, interrupt_policy,
                      source_index, skip_adjacent);
 }
@@ -351,12 +427,11 @@ inline void self_turns(Geometry const& geometry,
             geometry::point_order<Geometry>::value
         >::value;
 
-    detail::self_get_turn_points::self_turns
+    resolve_strategy::self_get_turn_points
             <
-                reverse,
-                AssignPolicy
-            >(geometry, strategy, robust_policy, turns, interrupt_policy,
-              source_index, skip_adjacent);
+                reverse, AssignPolicy, Strategy
+            >::apply(geometry, strategy, robust_policy, turns, interrupt_policy,
+                     source_index, skip_adjacent);
 }
 
 
