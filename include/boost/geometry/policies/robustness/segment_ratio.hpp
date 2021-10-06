@@ -119,7 +119,8 @@ struct possibly_collinear<Type, false>
     template <typename Ratio, typename Threshold>
     static inline bool apply(Ratio const& ratio, Threshold)
     {
-        return ratio.denominator() == 0;
+        static Type const zero = 0;
+        return ratio.denominator() == zero;
     }
 };
 
@@ -216,14 +217,14 @@ public :
     {
         // Minimal normalization
         // 1/-4 => -1/4, -1/-4 => 1/4
-        if (m_denominator < 0)
+        if (m_denominator < zero_instance())
         {
             m_numerator = -m_numerator;
             m_denominator = -m_denominator;
         }
 
         m_approximation =
-            m_denominator == 0 ? 0
+            m_denominator == zero_instance() ? 0
             : (
                 boost::numeric_cast<floating_point_type>(m_numerator) * scale()
                 / boost::numeric_cast<floating_point_type>(m_denominator)
@@ -235,12 +236,12 @@ public :
     inline bool on_segment() const
     {
         // e.g. 0/4 or 4/4 or 2/4
-        return m_numerator >= 0 && m_numerator <= m_denominator;
+        return m_numerator >= zero_instance() && m_numerator <= m_denominator;
     }
     inline bool in_segment() const
     {
         // e.g. 1/4
-        return m_numerator > 0 && m_numerator < m_denominator;
+        return m_numerator > zero_instance() && m_numerator < m_denominator;
     }
     inline bool on_end() const
     {
@@ -250,7 +251,7 @@ public :
     inline bool left() const
     {
         // e.g. -1/4
-        return m_numerator < 0;
+        return m_numerator < zero_instance();
     }
     inline bool right() const
     {
@@ -335,6 +336,11 @@ private :
     {
         static floating_point_type const fp_scale{1000000.0};
         return fp_scale;
+    }
+
+    static inline Type zero_instance()
+    {
+        return 0;
     }
 };
 

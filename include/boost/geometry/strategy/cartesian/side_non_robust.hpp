@@ -87,7 +87,7 @@ public:
                 );
         PromotedType const zero = PromotedType();
 
-        return sv == 0 ? 0 : sv > zero ? 1 : -1;
+        return sv == zero ? 0 : sv > zero ? 1 : -1;
     }
 
 };

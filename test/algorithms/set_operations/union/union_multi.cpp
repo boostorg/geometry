@@ -201,6 +201,10 @@ void test_areal()
     TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
     TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
+    TEST_UNION(case_multi_rectangular, 1, 1, -1, 33125);
+    TEST_UNION(case_multi_diagonal, 1, 2, -1, 5350);
+    TEST_UNION(case_multi_hard, 1, 0, -1, 22);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_1",
         case_recursive_boxes_1[0], case_recursive_boxes_1[1],
         1, 1, 16, 97.0);
@@ -409,7 +413,7 @@ void test_areal()
         ticket_12118[0], ticket_12118[1],
         1, -1, 27, 2221.38713);
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // No output if rescaling is done
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_12125",
         ticket_12125[0], ticket_12125[1],

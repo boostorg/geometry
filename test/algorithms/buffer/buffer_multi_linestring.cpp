@@ -212,6 +212,19 @@ void test_all()
     }
 #endif
 
+    {
+        // This issue was detected for CCW order and only CW is tested by default.
+        using polygon_ccw = bg::model::polygon<P, ! Clockwise>;
+        test_one
+            <
+                multi_linestring_type, polygon_ccw
+            >("mysql_33353637_macos11",
+              "MULTILINESTRING((0 10,10 0),(10 0,0 0),(0 0,10 10))",
+              bg::strategy::buffer::join_miter(10),
+              end_round32,
+              1, 0, 35307.0646,
+              100.0);
+    }
 }
 
 
