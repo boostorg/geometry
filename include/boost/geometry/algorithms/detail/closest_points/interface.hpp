@@ -14,6 +14,7 @@
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/dispatch/closest_points.hpp>
+#include <boost/geometry/algorithms/distance.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -63,7 +64,13 @@ struct closest_points
                 Tag2, Tag1, StrategyTag,
                 false
             >::apply(g2, g1, shortest_seg, strategy);
-        //TODO: reverse shortest_seg
+        
+        Segment temp;
+        set<0,0>(temp, get<1,0>(shortest_seg));
+        set<0,1>(temp, get<1,1>(shortest_seg));
+        set<1,0>(temp, get<0,0>(shortest_seg));
+        set<1,1>(temp, get<0,1>(shortest_seg));
+        shortest_seg = temp;
     }
 };
 
@@ -91,12 +98,12 @@ struct closest_points
         dispatch::closest_points
             <
                 Geometry1, Geometry2, Strategy
-            >::apply(geometry1, geometry2, strategy);
+            >::apply(geometry1, geometry2, shortest_seg, strategy);
     }
 };
-/*
+
 template <typename Strategy>
-struct is_strategy_converter_specialized
+struct is_strategy_converter_specialized_cp
 {
     typedef strategies::closest_points::services::strategy_converter<Strategy> converter;
     static const bool value = ! std::is_same
@@ -105,14 +112,14 @@ struct is_strategy_converter_specialized
             strategies::detail::not_implemented
         >::value;
 };
-*/
+
 template <typename Strategy>
 struct closest_points<Strategy, false>
 {
     template
     <
         typename Geometry1, typename Geometry2, typename Segment, typename S,
-        std::enable_if_t<is_strategy_converter_specialized<S>::value, int> = 0
+        std::enable_if_t<is_strategy_converter_specialized_cp<S>::value, int> = 0
     >
     static inline void
     apply(Geometry1 const& geometry1,
@@ -120,19 +127,19 @@ struct closest_points<Strategy, false>
           Segment& shortest_seg,
           S const& strategy)
     {
-        //typedef strategies::closest_points::services::strategy_converter<Strategy> converter;
-        //typedef decltype(converter::get(strategy)) strategy_type;
+        typedef strategies::closest_points::services::strategy_converter<Strategy> converter;
+        typedef decltype(converter::get(strategy)) strategy_type;
 
-        //dispatch::closest_points
-        //<
-        //    Geometry1, Geometry2, strategy_type
-        //>::apply(geometry1, geometry2, converter::get(strategy));
+        dispatch::closest_points
+        <
+            Geometry1, Geometry2, strategy_type
+        >::apply(geometry1, geometry2, shortest_seg, converter::get(strategy));
     }
 
     template
     <
         typename Geometry1, typename Geometry2, typename Segment, typename S,
-        std::enable_if_t<! is_strategy_converter_specialized<S>::value, int> = 0
+        std::enable_if_t<! is_strategy_converter_specialized_cp<S>::value, int> = 0
     >
     static inline void
     apply(Geometry1 const& geometry1,
@@ -140,16 +147,16 @@ struct closest_points<Strategy, false>
           Segment& shortest_seg,
           S const& strategy)
     {
-        //typedef strategies::closest_points::services::custom_strategy_converter
-        //    <
-        //        Geometry1, Geometry2, Strategy
-        //    > converter;
-        //typedef decltype(converter::get(strategy)) strategy_type;
+        typedef strategies::closest_points::services::custom_strategy_converter
+            <
+                Geometry1, Geometry2, Strategy
+            > converter;
+        typedef decltype(converter::get(strategy)) strategy_type;
 
-        //dispatch::closest_points
-        //<
-        //    Geometry1, Geometry2, strategy_type
-        //>::apply(geometry1, geometry2, converter::get(strategy));
+        dispatch::closest_points
+        <
+            Geometry1, Geometry2, strategy_type
+        >::apply(geometry1, geometry2, converter::get(strategy));
     }
 };
 
