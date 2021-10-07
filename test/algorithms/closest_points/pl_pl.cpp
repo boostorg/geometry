@@ -19,8 +19,8 @@ namespace bg = boost::geometry;
 
 //===========================================================================
 
-template <typename Point, typename Strategy>
-void test_closest_points_point_point(Strategy const& strategy)
+template <typename Point, typename Strategies>
+void test_closest_points_point_point(Strategies const& strategies)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -34,18 +34,18 @@ void test_closest_points_point_point(Strategy const& strategy)
     tester::apply("POINT(1 1)",
                   "POINT(0 0)",
                   "SEGMENT(1 1,0 0)",
-                  strategy);
+                  strategies);
 
     tester::apply("POINT(1 1)",
                   "POINT(1 1)",
                   "SEGMENT(1 1,1 1)",
-                  strategy);
+                  strategies);
 }
 
 //===========================================================================
 
-template <typename Point, typename Strategy>
-void test_closest_points_point_multi_point(Strategy const& strategy)
+template <typename Point, typename Strategies>
+void test_closest_points_point_multi_point(Strategies const& strategies)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -60,18 +60,18 @@ void test_closest_points_point_multi_point(Strategy const& strategy)
     tester::apply("POINT(0 0)",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
-                  strategy);
+                  strategies);
 
     tester::apply("POINT(2 0)",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(2 0,2 0)",
-                  strategy);
+                  strategies);
 }
 
 //===========================================================================
 
-template <typename Point, typename Strategy>
-void test_closest_points_multi_point_multi_point(Strategy const& strategy)
+template <typename Point, typename Strategies>
+void test_closest_points_multi_point_multi_point(Strategies const& strategies)
 {
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
@@ -86,16 +86,16 @@ void test_closest_points_multi_point_multi_point(Strategy const& strategy)
     tester::apply("MULTIPOINT((-1 -1),(0 0))",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(0 0,0 1)",
-                  strategy);
+                  strategies);
 
     tester::apply("MULTIPOINT((1 1),(0 0))",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
                   "SEGMENT(1 1,1 1)",
-                  strategy);
+                  strategies);
 }
 
-template <typename Point, typename Strategy>
-void test_variant(Strategy const& strategy)
+template <typename Point, typename Strategies>
+void test_variant(Strategies const& strategies)
 {
     typedef Point point_type;
     typedef bg::model::segment<point_type> segment_type;
@@ -117,12 +117,12 @@ void test_variant(Strategy const& strategy)
     v2 = point2;
     segment_type res;
     bg::read_wkt("SEGMENT(1 3,2 3)", res);
-    compute_result(v1, v2, res, strategy, false);
+    compute_result(v1, v2, res, strategies, false);
 
     v1 = point1;
     v2 = mpoint;
     bg::read_wkt("SEGMENT(1 3,1 1)", res);
-    compute_result(v1, v2, res, strategy, false);
+    compute_result(v1, v2, res, strategies, false);
 
 }
 
@@ -131,21 +131,21 @@ void test_variant(Strategy const& strategy)
 //===========================================================================
 //===========================================================================
 
-template <typename Point, typename Strategy>
-void test_all_pl_pl(Strategy pp_strategy)
+template <typename Point, typename Strategies>
+void test_all_pl_pl(Strategies strategies)
 {
-    test_closest_points_point_point<Point>(pp_strategy);
-    test_closest_points_point_multi_point<Point>(pp_strategy);
-    //test_closest_points_multi_point_multi_point<Point>(pp_strategy);
+    test_closest_points_point_point<Point>(strategies);
+    test_closest_points_point_multi_point<Point>(strategies);
+    //test_closest_points_multi_point_multi_point<Point>(strategies);
 
-    //test_variant<Point>(pp_strategy);
+    //test_variant<Point>(strategies);
 
-    //test_more_empty_input_pointlike_pointlike<Point>(pp_strategy);
+    //test_more_empty_input_pointlike_pointlike<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
 {
-    test_all_pl_pl<car_point>(cartesian_pp());
+    test_all_pl_pl<car_point>(cartesian());
 
     //test_all_pl_pl<sph_point>(spherical_pp());
     //test_all_pl_pl<sph_point>(spherical_pp(bg::formula::mean_radius

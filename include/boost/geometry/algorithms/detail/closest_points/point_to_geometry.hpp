@@ -319,6 +319,7 @@ public:
             // the point is outside the exterior ring, so its distance
             // to the polygon is its distance to the polygon's exterior ring
             per_ring::apply(point, exterior_ring(polygon), shortest_seg, strategies);
+            return;
         }
 
         // Check interior rings
@@ -376,7 +377,7 @@ public:
     }
 };
 
-/*
+
 // this is called only for multipolygons, hence the change in the
 // template parameter name MultiGeometry to MultiPolygon
 template <typename Point, typename MultiPolygon, typename Strategies>
@@ -384,22 +385,28 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategies, true>
 {
     typedef distance::return_t<Point, MultiPolygon, Strategies> return_type;
 
-    static inline return_type apply(Point const& point,
-                                    MultiPolygon const& multipolygon,
-                                    Strategies const& strategies)
+    template <typename Segment>
+    static inline void apply(Point const& point,
+                             MultiPolygon const& multipolygon,
+                             Segment& shortest_seg,
+                             Strategies const& strategies)
     {
         if (within::covered_by_point_geometry(point, multipolygon, strategies))
         {
-            return return_type(0);
+            set<0,0>(shortest_seg, get<0>(point));
+            set<0,1>(shortest_seg, get<1>(point));
+            set<1,0>(shortest_seg, get<0>(point));
+            set<1,1>(shortest_seg, get<1>(point));
+            return;
         }
 
         return point_to_multigeometry
             <
                 Point, MultiPolygon, Strategies, false
-            >::apply(point, multipolygon, strategies);
+            >::apply(point, multipolygon, shortest_seg, strategies);
     }
 };
-*/
+
 
 }} // namespace detail::closest_points
 #endif // DOXYGEN_NO_DETAIL
