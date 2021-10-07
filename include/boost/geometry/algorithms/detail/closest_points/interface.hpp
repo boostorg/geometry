@@ -156,7 +156,7 @@ struct closest_points<Strategy, false>
         dispatch::closest_points
         <
             Geometry1, Geometry2, strategy_type
-        >::apply(geometry1, geometry2, converter::get(strategy));
+        >::apply(geometry1, geometry2, shortest_seg, converter::get(strategy));
     }
 };
 

@@ -50,10 +50,10 @@ typedef bg::model::point
 
 // pt-pt
 typedef bg::strategies::closest_points::cartesian<double> cartesian_pp;
-/*
-// pt-seg
-typedef bg::strategy::closest_points::cartesian_point_segment<double> cartesian_ps;
 
+// pt-seg
+typedef bg::strategies::closest_points::cartesian<double> cartesian_ps;
+/*
 // pt-box
 typedef bg::strategy::closest_points::cartesian_point_box<double> cartesian_pb;
 

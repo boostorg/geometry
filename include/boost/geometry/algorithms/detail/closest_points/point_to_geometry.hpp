@@ -90,15 +90,23 @@ template
 >
 struct point_to_segment
 {
-    static inline auto apply(Point const& point, Segment const& segment,
-                             Strategies const& strategies)
+    template <typename OutputSegment>
+    static inline void apply(Point const& point, Segment const& segment,
+                             OutputSegment& shortest_seg, Strategies const& strategies)
     {
         typename point_type<Segment>::type p[2];
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
         boost::ignore_unused(strategies);
-        return strategies.closest_points(point, segment).apply(point, p[0], p[1]);
+
+        auto closest_point = 
+        strategies.closest_points(point, segment).apply(point, p[0], p[1]);
+
+        set<0,0>(shortest_seg, get<0>(point));
+        set<0,1>(shortest_seg, get<1>(point));
+        set<1,0>(shortest_seg, get<0>(closest_point));
+        set<1,1>(shortest_seg, get<1>(closest_point));      
     }
 };
 /*
@@ -356,10 +364,15 @@ public:
                                        strategies.comparable_distance(point, multigeometry),
                                        cd);
         
-        set<0,0>(shortest_seg, get<0>(point));
-        set<0,1>(shortest_seg, get<1>(point));
-        set<1,0>(shortest_seg, get<0>(*it_min));
-        set<1,1>(shortest_seg, get<1>(*it_min));
+        dispatch::closest_points
+            <
+                Point,
+                typename std::iterator_traits
+                    <
+                        typename selector_type::iterator_type
+                    >::value_type,
+                Strategies
+            >::apply(point, *it_min, shortest_seg, strategies);
     }
 };
 
