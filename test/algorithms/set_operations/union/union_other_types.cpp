@@ -113,6 +113,7 @@ int test_main(int, char* [])
 
     using bg::model::d2::point_xy;
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     // Standard floating point types
     test_areal<point_xy<float>>({exclude::hard});
     test_areal<point_xy<double>>({});
@@ -121,23 +122,30 @@ int test_main(int, char* [])
     // Standard integer types
     test_areal<point_xy<std::int16_t>>({exclude::fp});
     test_areal<point_xy<std::int32_t>>({exclude::fp});
+#endif
     test_areal<point_xy<std::int64_t>>({exclude::fp});
 
     // Boost multi precision (integer)
     test_areal<point_xy<bm::int128_t>>({exclude::fp});
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<point_xy<bm::checked_int128_t>>({exclude::fp});
+#endif
 
     // Boost multi precision (floating point)
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<point_xy<bm::number<bm::cpp_bin_float<5>>>>();
     test_areal<point_xy<bm::number<bm::cpp_bin_float<10>>>>();
     test_areal<point_xy<bm::number<bm::cpp_bin_float<50>>>>();
+#endif
     test_areal<point_xy<bm::number<bm::cpp_bin_float<100>>>>();
 
     test_areal<point_xy<bm::number<bm::cpp_dec_float<50>>>>({});
 
     // Boost multi precision (rational)
     test_areal<point_xy<bm::cpp_rational>>({exclude::fp});
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<point_xy<bm::checked_cpp_rational>>({exclude::fp});
+#endif
 
     // Boost multi precision float128 wrapper, is currently NOT supported
     // and it is limited to certain compilers anyway
@@ -146,8 +154,10 @@ int test_main(int, char* [])
     // Boost rational (tests compilation)
     // (the rectangular case is correct; other input might give wrong results)
     // The int16 version throws a <zero denominator> exception
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<point_xy<boost::rational<std::int16_t>>>({exclude::all});
     test_areal<point_xy<boost::rational<std::int32_t>>>({exclude::fp});
+#endif
     test_areal<point_xy<boost::rational<std::int64_t>>>({exclude::fp});
 
     return 0;
