@@ -28,7 +28,7 @@
 
 #include <boost/geometry/algorithms/detail/envelope/areal.hpp>
 #include <boost/geometry/algorithms/detail/envelope/box.hpp>
-#include <boost/geometry/algorithms/detail/envelope/geometry_collection.hpp>.hpp>
+#include <boost/geometry/algorithms/detail/envelope/geometry_collection.hpp>
 #include <boost/geometry/algorithms/detail/envelope/linear.hpp>
 #include <boost/geometry/algorithms/detail/envelope/multipoint.hpp>
 #include <boost/geometry/algorithms/detail/envelope/point.hpp>
