@@ -98,7 +98,7 @@ struct input_geometry_collection_proxy
     {
         detail::visit_breadth_first([&](auto const& g)
         {
-            call_for_non_boxes(g, fun);
+            input_geometry_collection_proxy::call_for_non_boxes(g, fun);
             return true;
         }, m_geometry);
 
@@ -262,7 +262,7 @@ struct convex_hull<GeometryCollection, geometry_collection_tag>
         std::vector<ring_type> box_rings;
         detail::visit_breadth_first([&](auto const& g)
         {
-            add_ring_for_box(box_rings, g, strategy);
+            convex_hull::add_ring_for_box(box_rings, g, strategy);
             return true;
         }, geometry);
 
