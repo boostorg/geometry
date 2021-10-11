@@ -31,39 +31,6 @@ template <typename Strategy> struct tag
         Strategy);
 };
 
-template <typename Strategy, typename P1, typename P2>
-struct return_type
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
-        "Not implemented for this Strategy.",
-        Strategy, P1, P2);
-};
-
-
-template <typename Strategy> struct comparable_type
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
-        "Not implemented for this Strategy.",
-        Strategy);
-};
-
-template <typename Strategy> struct get_comparable
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
-        "Not implemented for this Strategy.",
-        Strategy);
-};
-
-template <typename Strategy, typename P1, typename P2>
-struct result_from_distance
-{
-    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
-        "Not implemented for this Strategy.",
-        Strategy, P1, P2);
-};
-
-
-
 
 // Default strategy
 
