@@ -99,26 +99,6 @@ struct cartesian
         return strategy::distance::projected_point<CalculationType,
             strategy::distance::comparable::pythagoras<CalculationType>>();
     }
-
-
-    // TODO: used only to get the type in
-    // distance::creturn_t<Point, Range, Strategies> cd_min;
-    template <typename Geometry1, typename Geometry2>
-    static auto distance(Geometry1 const&, Geometry2 const&,
-                         distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::comparable::pythagoras<CalculationType>();
-    }
-
-    
-    template <typename Geometry1, typename Geometry2>
-    static auto distance(Geometry1 const&, Geometry2 const&,
-                         distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::projected_point<CalculationType,
-            strategy::distance::comparable::pythagoras<CalculationType>>();
-    }
-
 };
 
 

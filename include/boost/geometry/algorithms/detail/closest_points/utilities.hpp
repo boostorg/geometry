@@ -10,6 +10,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_UTILITIES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_UTILITIES_HPP
 
+#include <boost/geometry/strategies/distance.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -43,6 +45,20 @@ struct swap_segment_points
     }
 };
         
+
+template <typename Geometry1, typename Geometry2, typename Strategies>
+using strategy_t = decltype(
+    std::declval<Strategies>().comparable_distance(std::declval<Geometry1>(), std::declval<Geometry2>()));
+
+
+template <typename Geometry1, typename Geometry2, typename Strategies>
+using creturn_t = typename strategy::distance::services::return_type
+    <
+        strategy_t<Geometry1, Geometry2, Strategies>,
+        typename point_type<Geometry1>::type,
+        typename point_type<Geometry2>::type
+    >::type;
+
 }} // namespace detail::closest_points
 
 }} // namespace boost::geometry

@@ -135,7 +135,7 @@ public:
             return;
         }
 
-        distance::creturn_t<Point, Range, Strategies> cd_min;
+        closest_points::creturn_t<Point, Range, Strategies> cd_min;
 
         auto it_pair = point_to_point_range::apply(point, 
                                                    boost::begin(range),
@@ -282,7 +282,7 @@ public:
     {
         using selector_type = distance::iterator_selector<MultiGeometry const>;
 
-        distance::creturn_t<Point, MultiGeometry, Strategies> cd;
+        closest_points::creturn_t<Point, MultiGeometry, Strategies> cd;
 
         typename selector_type::iterator_type it_min
             = geometry_to_range::apply(point,

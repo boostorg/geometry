@@ -109,10 +109,10 @@ public:
         multiply_value(v, b);
         add_point(projected, v);
 
-        PointOfSegment pro;
-        geometry::convert(projected, pro);
+        PointOfSegment projected_point_of_segment;
+        geometry::convert(projected, projected_point_of_segment);
 
-        return pro;
+        return projected_point_of_segment;
     }
 
 };
