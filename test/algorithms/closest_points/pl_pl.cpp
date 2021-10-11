@@ -28,8 +28,8 @@ void test_closest_points_point_point(Strategies const& strategies)
     std::cout << "point/point closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, Point, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<Point, Point, Segment>;
 
     tester::apply("POINT(1 1)",
                   "POINT(0 0)",
@@ -53,9 +53,9 @@ void test_closest_points_point_multi_point(Strategies const& strategies)
     std::cout << "point/multi-point closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef test_geometry<Point, MultiPoint, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using tester = test_geometry<Point, MultiPoint, Segment>;
 
     tester::apply("POINT(0 0)",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
@@ -79,9 +79,9 @@ void test_closest_points_multi_point_multi_point(Strategies const& strategies)
     std::cout << "multi-point/multi-point closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef test_geometry<MultiPoint, MultiPoint, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using tester = test_geometry<MultiPoint, MultiPoint, Segment>;
 
     tester::apply("MULTIPOINT((-1 -1),(0 0))",
                   "MULTIPOINT((1 1),(2 0),(0 1),(2 1))",
@@ -97,10 +97,10 @@ void test_closest_points_multi_point_multi_point(Strategies const& strategies)
 template <typename Point, typename Strategies>
 void test_variant(Strategies const& strategies)
 {
-    typedef Point point_type;
-    typedef bg::model::segment<point_type> segment_type;
-    typedef bg::model::multi_point<point_type> mp_type;
-    typedef boost::variant<point_type, mp_type> variant_type;
+    using point_type = Point;
+    using segment_type = bg::model::segment<point_type>;
+    using mp_type = bg::model::multi_point<point_type>;
+    using variant_type = boost::variant<point_type, mp_type>;
 
     point_type point1;
     bg::read_wkt("POINT(1 3)", point1);

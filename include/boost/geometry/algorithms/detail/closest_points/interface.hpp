@@ -13,7 +13,10 @@
 #include <boost/concept_check.hpp>
 
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
+#include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
+
 #include <boost/geometry/algorithms/dispatch/closest_points.hpp>
+
 #include <boost/geometry/algorithms/distance.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -65,12 +68,7 @@ struct closest_points
                 false
             >::apply(g2, g1, shortest_seg, strategy);
         
-        Segment temp;
-        set<0,0>(temp, get<1,0>(shortest_seg));
-        set<0,1>(temp, get<1,1>(shortest_seg));
-        set<1,0>(temp, get<0,0>(shortest_seg));
-        set<1,1>(temp, get<0,1>(shortest_seg));
-        shortest_seg = temp;
+        detail::closest_points::swap_segment_points::apply(shortest_seg);        
     }
 };
 
@@ -105,7 +103,7 @@ struct closest_points
 template <typename Strategy>
 struct is_strategy_converter_specialized_cp
 {
-    typedef strategies::closest_points::services::strategy_converter<Strategy> converter;
+    using converter = strategies::closest_points::services::strategy_converter<Strategy>;
     static const bool value = ! std::is_same
         <
             decltype(converter::get(std::declval<Strategy>())),
@@ -127,8 +125,8 @@ struct closest_points<Strategy, false>
           Segment& shortest_seg,
           S const& strategy)
     {
-        typedef strategies::closest_points::services::strategy_converter<Strategy> converter;
-        typedef decltype(converter::get(strategy)) strategy_type;
+        using converter = strategies::closest_points::services::strategy_converter<Strategy>;
+        using strategy_type = decltype(converter::get(strategy));
 
         dispatch::closest_points
         <
@@ -147,11 +145,11 @@ struct closest_points<Strategy, false>
           Segment& shortest_seg,
           S const& strategy)
     {
-        typedef strategies::closest_points::services::custom_strategy_converter
+        using converter = strategies::closest_points::services::custom_strategy_converter
             <
                 Geometry1, Geometry2, Strategy
-            > converter;
-        typedef decltype(converter::get(strategy)) strategy_type;
+            >;
+        using strategy_type = decltype(converter::get(strategy));
 
         dispatch::closest_points
         <
@@ -170,10 +168,10 @@ struct closest_points<default_strategy, false>
           Segment& shortest_seg,
           default_strategy)
     {
-        typedef typename strategies::closest_points::services::default_strategy
+        using strategy_type = typename strategies::closest_points::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type strategy_type;
+            >::type;
 
         dispatch::closest_points
             <

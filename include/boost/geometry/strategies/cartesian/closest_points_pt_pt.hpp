@@ -29,7 +29,7 @@ namespace services
 template <>
 struct tag<dummy_pt_pt>
 {
-    typedef strategy_tag_distance_point_point type;
+    using type = strategy_tag_distance_point_point;
 };
 
 
@@ -39,7 +39,7 @@ struct default_strategy
         point_tag, point_tag, Point1, Point2, cartesian_tag, cartesian_tag
     >
 {
-    typedef dummy_pt_pt type;
+    using type = dummy_pt_pt;
 };
 
 

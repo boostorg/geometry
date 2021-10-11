@@ -30,107 +30,33 @@ namespace bg = boost::geometry;
 //===========================================================================
 // point types
 
-typedef bg::model::point<double, 2, bg::cs::cartesian> car_point;
+using car_point = bg::model::point<double, 2, bg::cs::cartesian>;
 
-typedef bg::model::point
+using sph_point = bg::model::point
         <
             double, 2,
             bg::cs::spherical_equatorial<bg::degree>
-        > sph_point;
+        >;
 
-typedef bg::model::point
+using geo_point = bg::model::point
         <
             double, 2,
             bg::cs::geographic<bg::degree>
-        > geo_point;
+        >;
 
 //===========================================================================
 
-// cartesian strategies
+using cartesian = bg::strategies::closest_points::cartesian<double>;
 
-// pt-pt
-typedef bg::strategies::closest_points::cartesian<double> cartesian;
+//using spherical = bg::strategy::closest_points::spherical<double>;
 
-// pt-seg
-//typedef bg::strategies::closest_points::cartesian<double> cartesian_ps;
-/*
-// pt-box
-typedef bg::strategy::closest_points::cartesian_point_box<double> cartesian_pb;
+//using = bg::strategy::closest_points::geographic
+//                      <bg::strategy::andoyer> andoyer;
+//using = bg::strategy::closest_points::geographic
+//                      <bg::strategy::thomas> thomas;
+//using = bg::strategy::closest_points::geographic
+//                      <bg::strategy::vincenty> vincenty;
 
-// box-box
-typedef bg::strategy::closest_points::cartesian_box_box<double> cartesian_bb;
-
-// seg-box
-typedef bg::strategy::closest_points::cartesian_segment_box<double> cartesian_sb;
-
-//===========================================================================
-
-// spherical strategies
-
-// pt-pt
-typedef bg::strategy::closest_points::spherical
-                      <double> spherical_pp;
-
-// pt-seg
-typedef bg::strategy::closest_points::cross_track
-                      <double> spherical_ps;
-
-// pt-box
-typedef bg::strategy::closest_points::cross_track_point_box
-                      <double> spherical_pb;
-
-// box-box
-typedef bg::strategy::closest_points::cross_track_box_box
-                      <double> spherical_bb;
-
-// box-box
-typedef bg::strategy::closest_points::spherical_segment_box
-                      <double> spherical_sb;
-
-//===========================================================================
-
-// geographic strategies
-
-// pt-pt
-typedef bg::strategy::closest_points::geographic
-                      <bg::strategy::andoyer> andoyer_pp;
-typedef bg::strategy::closest_points::geographic
-                      <bg::strategy::thomas> thomas_pp;
-typedef bg::strategy::closest_points::geographic
-                      <bg::strategy::vincenty> vincenty_pp;
-
-// pt-seg
-typedef bg::strategy::closest_points::geographic_cross_track
-                      <bg::strategy::andoyer> andoyer_ps;
-typedef bg::strategy::closest_points::geographic_cross_track
-                      <bg::strategy::thomas> thomas_ps;
-typedef bg::strategy::closest_points::geographic_cross_track
-                      <bg::strategy::vincenty> vincenty_ps;
-
-//pt-box
-typedef bg::strategy::closest_points::geographic_cross_track_point_box
-                      <bg::strategy::andoyer> andoyer_pb;
-typedef bg::strategy::closest_points::geographic_cross_track_point_box
-                      <bg::strategy::thomas> thomas_pb;
-typedef bg::strategy::closest_points::geographic_cross_track_point_box
-                      <bg::strategy::vincenty> vincenty_pb;
-
-//box-box
-typedef bg::strategy::closest_points::geographic_cross_track_box_box
-                      <bg::strategy::andoyer> andoyer_bb;
-typedef bg::strategy::closest_points::geographic_cross_track_box_box
-                      <bg::strategy::thomas> thomas_bb;
-typedef bg::strategy::closest_points::geographic_cross_track_box_box
-                      <bg::strategy::vincenty> vincenty_bb;
-
-//segment-box
-typedef bg::strategy::closest_points::geographic_segment_box
-                      <bg::strategy::andoyer> andoyer_sb;
-typedef bg::strategy::closest_points::geographic_segment_box
-                      <bg::strategy::thomas> thomas_sb;
-typedef bg::strategy::closest_points::geographic_segment_box
-                      <bg::strategy::vincenty> vincenty_sb;
-*/
 //===========================================================================
 
 template <typename Segment>
@@ -353,7 +279,7 @@ struct test_geometry
                              bool swap_geometries = true,
                              bool default_strategy = false)
     {
-        typedef typename bg::cs_tag<Geometry1>::type CS_tag;
+        using CS_tag = typename bg::cs_tag<Geometry1>::type;
 
         Geometry1 geometry1;
         bg::read_wkt(wkt1, geometry1);

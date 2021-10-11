@@ -54,19 +54,19 @@ public:
     {
         assert_dimension_equal<Point, PointOfSegment>();
 
-        typedef typename calculation_type<Point, PointOfSegment>::type calculation_type;
+        using calculation_type = typename calculation_type<Point, PointOfSegment>::type;
 
         // A projected point of points in Integer coordinates must be able to be
         // represented in FP.
-        typedef model::point
+        using fp_point_type = model::point
             <
                 calculation_type,
                 dimension<PointOfSegment>::value,
                 typename coordinate_system<PointOfSegment>::type
-            > fp_point_type;
+            >;
 
         // For convenience
-        typedef fp_point_type fp_vector_type;
+        using fp_vector_type = fp_point_type;
 
         /*
             Algorithm [p: (px,py), p1: (x1,y1), p2: (x2,y2)]
@@ -124,7 +124,7 @@ namespace services
 template <typename CalculationType, typename Strategy>
 struct tag<projected_point<CalculationType, Strategy> >
 {
-    typedef strategy_tag_distance_point_segment type;
+    using type = strategy_tag_distance_point_segment;
 };
 
 
@@ -135,11 +135,11 @@ struct default_strategy
         cartesian_tag, cartesian_tag, Strategy
     >
 {
-    typedef typename default_strategy
+    using type = typename default_strategy
         <
             point_tag, segment_tag, Point, PointOfSegment,
             cartesian_tag, cartesian_tag, Strategy
-        >::type type;
+        >::type;
 };
 
 

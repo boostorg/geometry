@@ -28,11 +28,11 @@ void test_closest_points_point_polygon_or_ring(Strategies const& strategies)
     std::cout << "point/polygon or ring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::ring<Point> Ring;
-    typedef bg::model::polygon<Point> Polygon;
+    using Segment = bg::model::segment<Point>;
+    using Ring = bg::model::ring<Point>;
+    using Polygon = bg::model::polygon<Point>;
 
-    typedef test_geometry<Point, Ring, Segment> tester;
+    using tester = test_geometry<Point, Ring, Segment>;
 
     tester::apply("POINT(1 1)",
                   "POLYGON((0 0,1 0,0 1,0 0))",
@@ -46,7 +46,7 @@ void test_closest_points_point_polygon_or_ring(Strategies const& strategies)
                   "SEGMENT(0.4 0.4,0.4 0.4)",
                   strategies);
 
-    typedef test_geometry<Point, Polygon, Segment> tester2;
+    using tester2 = test_geometry<Point, Polygon, Segment>;
 
     tester2::apply("POINT(1 1)",
                    "POLYGON((0 0,1 0,0 1,0 0))",
@@ -94,9 +94,9 @@ void test_closest_points_point_box(Strategies const& strategies)
     std::cout << "point/box closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::box<Point> Box;
-    typedef test_geometry<Point, Box, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using Box = bg::model::box<Point>;
+    using tester = test_geometry<Point, Box, Segment>;
 
     //all 8 possible placements of point around box
     tester::apply("POINT(5 25)",
@@ -165,10 +165,10 @@ void test_closest_points_point_multi_polygon(Strategies const& strategies)
     std::cout << "point/multi-polygon closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::polygon<Point> Polygon;
-    typedef bg::model::multi_polygon<Polygon> MultiPolygon;
-    typedef test_geometry<Point, MultiPolygon, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using Polygon = bg::model::polygon<Point>;
+    using MultiPolygon = bg::model::multi_polygon<Polygon>;
+    using tester = test_geometry<Point, MultiPolygon, Segment>;
 
     tester::apply("POINT(1 1)",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
@@ -204,11 +204,11 @@ void test_closest_points_multi_point_polygon_or_ring(Strategies const& strategie
     std::cout << "multi-point/polygon or ring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef bg::model::ring<Point> Ring;
-    typedef bg::model::polygon<Point> Polygon;
-    typedef test_geometry<MultiPoint, Ring, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using Ring = bg::model::ring<Point>;
+    using Polygon = bg::model::polygon<Point>;
+    using tester = test_geometry<MultiPoint, Ring, Segment>;
 
     tester::apply("MULTIPOINT((2 1),(1 1))",
                   "POLYGON((0 0,1 0,0 1,0 0))",
@@ -229,7 +229,7 @@ void test_closest_points_multi_point_polygon_or_ring(Strategies const& strategie
                   "SEGMENT(0.01 0.01,0.01 0.01)",
                   strategies);
 
-    typedef test_geometry<MultiPoint, Polygon, Segment> tester2;
+    using tester2 = test_geometry<MultiPoint, Polygon, Segment>;
 
     tester2::apply("MULTIPOINT((2 1),(1 1))",
                    "POLYGON((0 0,1 0,0 1,0 0))",
@@ -257,11 +257,11 @@ void test_closest_points_multi_point_multi_polygon(Strategies const& strategies)
     std::cout << "multi-point/multi-polygon closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef bg::model::polygon<Point> Polygon;
-    typedef bg::model::multi_polygon<Polygon> MultiPolygon;
-    typedef test_geometry<MultiPoint, MultiPolygon, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using Polygon = bg::model::polygon<Point>;
+    using MultiPolygon = bg::model::multi_polygon<Polygon>;
+    using tester = test_geometry<MultiPoint, MultiPolygon, Segment>;
 
     tester::apply("MULTIPOINT((2 1),(1 1))",
                   "MULTIPOLYGON(((0 0,1 0,0 1,0 0)),\
@@ -295,10 +295,10 @@ void test_closest_points_multi_point_box(Strategies const& strategies)
     std::cout << "multi-point/box closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef bg::model::box<Point> Box;
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef test_geometry<MultiPoint, Box, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using Box = bg::model::box<Point>;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using tester = test_geometry<MultiPoint, Box, Segment>;
 
     tester::apply("MULTIPOINT(5 25,0 0,0 20)",
                   "BOX(10 10,20 20)",

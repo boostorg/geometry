@@ -29,8 +29,8 @@ void test_closest_points_point_segment(Strategies const& strategies)
     std::cout << "point/segment closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, Segment, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<Point, Segment, Segment>;
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
@@ -65,8 +65,8 @@ void test_closest_points_point_segment_diff_spheroid(Strategies const& strategie
               << std::endl;
 #endif
 
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, Segment, Segment> tester;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<Point, Segment, Segment>;
 
     tester::apply("POINT(1 1)",
                   "SEGMENT(0 1,1 0)",
@@ -90,9 +90,9 @@ void test_closest_points_point_linestring(Strategies const& strategies)
     std::cout << "point/linestring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::linestring<Point> Linestring;
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, Linestring, Segment> tester;
+    using Linestring = bg::model::linestring<Point>;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<Point, Linestring, Segment>;
 
     tester::apply("POINT(1 1)",
                   "LINESTRING(3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
@@ -124,10 +124,10 @@ void test_closest_points_point_multi_linestring(Strategies const& strategies)
     std::cout << "point/multi_linestring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::linestring<Point> Linestring;
-    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<Point, MultiLinestring, Segment> tester;
+    using Linestring = bg::model::linestring<Point>;
+    using MultiLinestring = bg::model::multi_linestring<Linestring>;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<Point, MultiLinestring, Segment>;
 
     tester::apply("POINT(1 1)",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
@@ -159,9 +159,9 @@ void test_closest_points_multi_point_segment(Strategies const& strategies)
     std::cout << "multi point/segment closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<MultiPoint, Segment, Segment> tester;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<MultiPoint, Segment, Segment>;
 
     tester::apply("MULTIPOINT((2 0),(1 1),(1 2))",
                   "SEGMENT(0 1,1 0)",
@@ -193,10 +193,10 @@ void test_closest_points_multi_point_linestring(Strategies const& strategies)
     std::cout << "multi point/linestring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef bg::model::linestring<Point> Linestring;
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<MultiPoint, Linestring, Segment> tester;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using Linestring = bg::model::linestring<Point>;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<MultiPoint, Linestring, Segment>;
 
     tester::apply("MULTIPOINT((2 0),(1 1),(3 0))",
                   "LINESTRING(4 2,3 2, 1 3, 0 3, 0 1, 1 0, 0 0)",
@@ -228,11 +228,11 @@ void test_closest_points_multi_point_multi_linestring(Strategies const& strategi
     std::cout << "multi point/multi linestring closest_points tests" << std::endl;
 #endif
 
-    typedef bg::model::multi_point<Point> MultiPoint;
-    typedef bg::model::linestring<Point> Linestring;
-    typedef bg::model::multi_linestring<Linestring> MultiLinestring;
-    typedef bg::model::segment<Point> Segment;
-    typedef test_geometry<MultiPoint, MultiLinestring, Segment> tester;
+    using MultiPoint = bg::model::multi_point<Point>;
+    using Linestring = bg::model::linestring<Point>;
+    using MultiLinestring = bg::model::multi_linestring<Linestring>;
+    using Segment = bg::model::segment<Point>;
+    using tester = test_geometry<MultiPoint, MultiLinestring, Segment>;
 
     tester::apply("MULTIPOINT((5 0),(1 1),(6 0))",
                   "MULTILINESTRING((3 2, 1 3, 0 3, 0 1, 1 0, 0 0),(2 0,3 1,4 0))",
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
     //test_all_pl_l<geo_point>(thomas_ps());
     //test_all_pl_l<geo_point>(vincenty_ps());
 
-    //typedef bg::srs::spheroid<double> stype;
+    //using = bg::srs::spheroid<double> stype;
 
     //test_closest_points_point_segment_diff_spheroid<geo_point>
     //        (andoyer_ps(stype(5000000,6000000)));
