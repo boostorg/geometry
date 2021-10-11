@@ -174,7 +174,7 @@ struct cartesian_segments
             // Up to now, division was postponed. Here we divide using numerator/
             // denominator. In case of integer this results in an integer
             // division.
-            BOOST_GEOMETRY_ASSERT(ratio.denominator() != 0);
+            BOOST_GEOMETRY_ASSERT(ratio.denominator() != typename SegmentRatio::int_type(0));
 
             typedef typename promote_integral<CoordinateType>::type calc_type;
 
