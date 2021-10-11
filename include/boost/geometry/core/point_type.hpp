@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -21,10 +21,12 @@
 
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/geometry_types.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
 
@@ -134,6 +136,36 @@ struct point_type<multi_polygon_tag, MultiPolygon>
             polygon_tag,
             typename boost::range_value<MultiPolygon>::type
         >::type type;
+};
+
+
+template <typename DynamicGeometry>
+struct point_type<dynamic_geometry_tag, DynamicGeometry>
+{
+    using geometry_t = typename util::sequence_front
+        <
+            typename traits::geometry_types<DynamicGeometry>::type
+        >::type;
+    using type = typename point_type
+        <
+            typename tag<geometry_t>::type,
+            typename util::remove_cptrref<geometry_t>::type
+        >::type;
+};
+
+
+template <typename GeometryCollection>
+struct point_type<geometry_collection_tag, GeometryCollection>
+{
+    using geometry_t = typename util::sequence_front
+        <
+            typename traits::geometry_types<GeometryCollection>::type
+        >::type;
+    using type = typename point_type
+        <
+            typename tag<geometry_t>::type,
+            typename util::remove_cptrref<geometry_t>::type
+        >::type;
 };
 
 

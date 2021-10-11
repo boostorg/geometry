@@ -21,6 +21,7 @@
 
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
@@ -97,6 +98,10 @@ void test_envelope(std::string const& wkt,
     check_result<box_type, bg::dimension<Geometry>::type::value>
             ::apply(b, x1, y1, z1, x2, y2, z2);
 
+    bg::model::geometry_collection<boost::variant<Geometry>> gc{v};
+    bg::envelope(gc, b);
+    check_result<box_type, bg::dimension<Geometry>::type::value>
+            ::apply(b, x1, y1, z1, x2, y2, z2);
 }
 
 

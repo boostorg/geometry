@@ -31,15 +31,13 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
@@ -50,7 +48,9 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
@@ -59,6 +59,8 @@
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>
+
+#include <boost/geometry/util/type_traits_std.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
 #include <boost/geometry/io/dsv/write.hpp>
@@ -297,6 +299,23 @@ struct simplify_range_insert
         {
             impl.apply(range, out, max_distance, strategies);
         }
+    }
+};
+
+
+struct simplify_copy_assign
+{
+    template
+    <
+        typename In, typename Out, typename Distance,
+        typename Impl, typename Strategies
+    >
+    static inline void apply(In const& in, Out& out,
+                             Distance const& ,
+                             Impl const& ,
+                             Strategies const& )
+    {
+        out = in;
     }
 };
 
@@ -615,6 +634,17 @@ struct simplify<Point, point_tag>
     }
 };
 
+template <typename Segment>
+struct simplify<Segment, segment_tag>
+    : detail::simplify::simplify_copy_assign
+{};
+
+template <typename Box>
+struct simplify<Box, box_tag>
+    : detail::simplify::simplify_copy_assign
+{};
+
+
 // Linestring, keep 2 points (unless those points are the same)
 template <typename Linestring>
 struct simplify<Linestring, linestring_tag>
@@ -803,9 +833,9 @@ struct simplify_insert<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct simplify
 {
     template <typename Distance, typename Strategy>
@@ -818,43 +848,46 @@ struct simplify
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct simplify<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct simplify<Geometry, dynamic_geometry_tag>
 {
     template <typename Distance, typename Strategy>
-    struct visitor: boost::static_visitor<void>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
     {
-        Distance const& m_max_distance;
-        Strategy const& m_strategy;
-
-        visitor(Distance const& max_distance, Strategy const& strategy)
-            : m_max_distance(max_distance)
-            , m_strategy(strategy)
-        {}
-
-        template <typename Geometry>
-        void operator()(Geometry const& geometry, Geometry& out) const
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            simplify<Geometry>::apply(geometry, out, m_max_distance, m_strategy);
-        }
-    };
-
-    template <typename Distance, typename Strategy>
-    static inline void
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& out,
-          Distance const& max_distance,
-          Strategy const& strategy)
-    {
-        boost::apply_visitor(
-            visitor<Distance, Strategy>(max_distance, strategy),
-            geometry,
-            out
-        );
+            using geom_t = util::remove_cref_t<decltype(g)>;
+            geom_t o;
+            simplify<geom_t>::apply(g, o, max_distance, strategy);
+            out = std::move(o);
+        }, geometry);
     }
 };
 
-} // namespace resolve_variant
+template <typename Geometry>
+struct simplify<Geometry, geometry_collection_tag>
+{
+    template <typename Distance, typename Strategy>
+    static inline void apply(Geometry const& geometry,
+                             Geometry& out,
+                             Distance const& max_distance,
+                             Strategy const& strategy)
+    {
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            using geom_t = util::remove_cref_t<decltype(g)>;
+            geom_t o;
+            simplify<geom_t>::apply(g, o, max_distance, strategy);
+            traits::emplace_back<Geometry>::apply(out, std::move(o));
+            return true;
+        }, geometry);
+    }
+};
+
+} // namespace resolve_dynamic
 
 
 /*!
@@ -882,7 +915,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 
     geometry::clear(out);
 
-    resolve_variant::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
+    resolve_dynamic::simplify<Geometry>::apply(geometry, out, max_distance, strategy);
 }
 
 

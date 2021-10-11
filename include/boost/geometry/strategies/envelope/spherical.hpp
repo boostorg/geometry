@@ -79,6 +79,13 @@ struct spherical
     {
         return strategy::envelope::spherical<CalculationType>();
     }
+
+    template <typename Geometry, typename Box>
+    static auto envelope(Geometry const&, Box const&,
+                         typename util::enable_if_geometry_collection_t<Geometry> * = nullptr)
+    {
+        return strategy::envelope::spherical<CalculationType>();
+    }
 };
 
 
