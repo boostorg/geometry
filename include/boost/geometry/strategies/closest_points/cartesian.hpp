@@ -59,32 +59,32 @@ struct cartesian
                 strategy::distance::pythagoras<CalculationType>
             >();
     }
-
+/*
     template <typename Geometry1, typename Geometry2>
     static auto closest_points(Geometry1 const&, Geometry2 const&,
                                distance::detail::enable_if_pb_t<Geometry1, Geometry2> * = nullptr)
     {
-        //return strategy::distance::pythagoras_point_box<CalculationType>();
+        return strategy::distance::pythagoras_point_box<CalculationType>();
     }
 
     template <typename Geometry1, typename Geometry2>
     static auto closest_points(Geometry1 const&, Geometry2 const&,
                                distance::detail::enable_if_sb_t<Geometry1, Geometry2> * = nullptr)
     {
-        //return strategy::distance::cartesian_segment_box
-        //    <
-        //        CalculationType,
-        //        strategy::distance::pythagoras<CalculationType>
-        //    >();
+        return strategy::distance::cartesian_segment_box
+            <
+                CalculationType,
+                strategy::distance::pythagoras<CalculationType>
+            >();
     }
 
     template <typename Geometry1, typename Geometry2>
     static auto closest_points(Geometry1 const&, Geometry2 const&,
                                distance::detail::enable_if_bb_t<Geometry1, Geometry2> * = nullptr)
     {
-        //return strategy::distance::pythagoras_box_box<CalculationType>();
+        return strategy::distance::pythagoras_box_box<CalculationType>();
     }
-
+*/
     template <typename Geometry1, typename Geometry2>
     static auto comparable_distance(Geometry1 const&, Geometry2 const&,
                                     distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
@@ -96,8 +96,8 @@ struct cartesian
     static auto comparable_distance(Geometry1 const&, Geometry2 const&,
                                     distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
     {
-        //TODO: compute the comparable distance
-        return strategy::distance::projected_point<CalculationType>();
+        return strategy::distance::projected_point<CalculationType,
+            strategy::distance::comparable::pythagoras<CalculationType>>();
     }
 
 
@@ -115,7 +115,8 @@ struct cartesian
     static auto distance(Geometry1 const&, Geometry2 const&,
                          distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
     {
-        return strategy::distance::projected_point<CalculationType>();
+        return strategy::distance::projected_point<CalculationType,
+            strategy::distance::comparable::pythagoras<CalculationType>>();
     }
 
 };

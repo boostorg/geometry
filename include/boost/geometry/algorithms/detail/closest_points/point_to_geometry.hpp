@@ -64,20 +64,6 @@ struct point_to_point
         set_segment_from_points::apply(p1, p2, shortest_seg);
     }
 };
-/*
-// TEMP?
-// called by geometry_to_range
-template <typename P1, typename P2, typename Strategy>
-struct point_to_point<P1, P2, Strategy, false>
-{
-    static inline
-    auto apply(P1 const& p1, P2 const& p2, Strategy const& strategy)
-    {
-        boost::ignore_unused(strategy);
-        return strategy.apply(p1, p2);
-    }
-};
-*/
 
 template
 <
@@ -102,25 +88,8 @@ struct point_to_segment
         set_segment_from_points::apply(point, closest_point, shortest_seg);    
     }
 };
+
 /*
-// TEMP?
-// called by geometry_to_range
-template <typename Point, typename Segment, typename Strategy>
-struct point_to_segment<Point, Segment, Strategy, false>
-{
-    static inline auto apply(Point const& point, Segment const& segment,
-                             Strategy const& strategy)
-    {
-        typename point_type<Segment>::type p[2];
-        geometry::detail::assign_point_from_index<0>(segment, p[0]);
-        geometry::detail::assign_point_from_index<1>(segment, p[1]);
-
-        boost::ignore_unused(strategy);
-        return strategy.apply(point, p[0], p[1]);
-    }
-};
-
-
 template
 <
     typename Point, typename Box, typename Strategies,
@@ -133,20 +102,6 @@ struct point_to_box
     {
         boost::ignore_unused(strategies);
         return strategies.closest_points(point, box).apply(point, box);
-    }
-};
-
-
-// TEMP?
-// called by geometry_to_range
-template <typename Point, typename Box, typename Strategy>
-struct point_to_box<Point, Box, Strategy, false>
-{
-    static inline auto apply(Point const& point, Box const& box,
-                             Strategy const& strategy)
-    {
-        boost::ignore_unused(strategy);
-        return strategy.apply(point, box);
     }
 };
 */
