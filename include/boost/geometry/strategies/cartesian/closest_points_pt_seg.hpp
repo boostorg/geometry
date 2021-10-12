@@ -117,36 +117,6 @@ public:
 
 };
 
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-namespace services
-{
-
-template <typename CalculationType, typename Strategy>
-struct tag<projected_point<CalculationType, Strategy> >
-{
-    using type = strategy_tag_distance_point_segment;
-};
-
-
-template <typename PointOfSegment, typename Point, typename Strategy>
-struct default_strategy
-    <
-        segment_tag, point_tag, PointOfSegment, Point,
-        cartesian_tag, cartesian_tag, Strategy
-    >
-{
-    using type = typename default_strategy
-        <
-            point_tag, segment_tag, Point, PointOfSegment,
-            cartesian_tag, cartesian_tag, Strategy
-        >::type;
-};
-
-
-} // namespace services
-#endif // DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-
 }} // namespace strategy::closest_points
 
 

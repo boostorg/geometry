@@ -137,10 +137,15 @@ public:
 
         closest_points::creturn_t<Point, Range, Strategies> cd_min;
 
+        auto comparable_distance = strategy::distance::services::get_comparable
+            <
+                decltype(strategies.distance(point, range))
+            >::apply(strategies.distance(point, range));
+        
         auto it_pair = point_to_point_range::apply(point, 
                                                    boost::begin(range),
                                                    boost::end(range), 
-                                                   strategies.comparable_distance(point, range), 
+                                                   comparable_distance,
                                                    cd_min);
         
         auto closest_point = strategies.closest_points(point, range)
@@ -284,11 +289,16 @@ public:
 
         closest_points::creturn_t<Point, MultiGeometry, Strategies> cd;
 
+        auto comparable_distance = strategy::distance::services::get_comparable
+            <
+                decltype(strategies.distance(point, multigeometry))
+            >::apply(strategies.distance(point, multigeometry));
+
         typename selector_type::iterator_type it_min
             = geometry_to_range::apply(point,
                                        selector_type::begin(multigeometry),
                                        selector_type::end(multigeometry),
-                                       strategies.comparable_distance(point, multigeometry),
+                                       comparable_distance,
                                        cd);
         
         dispatch::closest_points
@@ -343,8 +353,7 @@ namespace dispatch
 template <typename P1, typename P2, typename Strategy>
 struct closest_points
     <
-        P1, P2, Strategy, point_tag, point_tag,
-        strategy_tag_distance_point_point, false
+        P1, P2, Strategy, point_tag, point_tag, false
     > : detail::closest_points::point_to_point<P1, P2, Strategy>
 {};
 
@@ -352,8 +361,7 @@ struct closest_points
 template <typename Point, typename Linestring, typename Strategy>
 struct closest_points
     <
-        Point, Linestring, Strategy, point_tag, linestring_tag,
-        strategy_tag_distance_point_segment, false
+        Point, Linestring, Strategy, point_tag, linestring_tag, false
     > : detail::closest_points::point_to_range<Point, Linestring, closed, Strategy>
 {};
 
@@ -361,8 +369,7 @@ struct closest_points
 template <typename Point, typename Ring, typename Strategy>
 struct closest_points
     <
-        Point, Ring, Strategy, point_tag, ring_tag,
-        strategy_tag_distance_point_segment, false
+        Point, Ring, Strategy, point_tag, ring_tag, false
     > : detail::closest_points::point_to_ring
         <
             Point, Ring, closure<Ring>::value, Strategy
@@ -373,8 +380,7 @@ struct closest_points
 template <typename Point, typename Polygon, typename Strategy>
 struct closest_points
     <
-        Point, Polygon, Strategy, point_tag, polygon_tag,
-        strategy_tag_distance_point_segment, false
+        Point, Polygon, Strategy, point_tag, polygon_tag, false
     > : detail::closest_points::point_to_polygon
         <
             Point, Polygon, closure<Polygon>::value, Strategy
@@ -385,8 +391,7 @@ struct closest_points
 template <typename Point, typename Segment, typename Strategy>
 struct closest_points
     <
-        Point, Segment, Strategy, point_tag, segment_tag,
-        strategy_tag_distance_point_segment, false
+        Point, Segment, Strategy, point_tag, segment_tag, false
     > : detail::closest_points::point_to_segment<Point, Segment, Strategy>
 {};
 
@@ -403,8 +408,7 @@ struct closest_points
 template<typename Point, typename MultiPoint, typename Strategy>
 struct closest_points
     <
-        Point, MultiPoint, Strategy, point_tag, multi_point_tag,
-        strategy_tag_distance_point_point, false
+        Point, MultiPoint, Strategy, point_tag, multi_point_tag, false
     > : detail::closest_points::point_to_multigeometry
         <
             Point, MultiPoint, Strategy
@@ -415,8 +419,7 @@ struct closest_points
 template<typename Point, typename MultiLinestring, typename Strategy>
 struct closest_points
     <
-        Point, MultiLinestring, Strategy, point_tag, multi_linestring_tag,
-        strategy_tag_distance_point_segment, false
+        Point, MultiLinestring, Strategy, point_tag, multi_linestring_tag, false
     > : detail::closest_points::point_to_multigeometry
         <
             Point, MultiLinestring, Strategy
@@ -427,8 +430,7 @@ struct closest_points
 template<typename Point, typename MultiPolygon, typename Strategy>
 struct closest_points
     <
-        Point, MultiPolygon, Strategy, point_tag, multi_polygon_tag,
-        strategy_tag_distance_point_segment, false
+        Point, MultiPolygon, Strategy, point_tag, multi_polygon_tag, false
     > : detail::closest_points::point_to_multigeometry
         <
             Point, MultiPolygon, Strategy
@@ -439,13 +441,11 @@ struct closest_points
 template <typename Point, typename Linear, typename Strategy>
 struct closest_points
     <
-         Point, Linear, Strategy, point_tag, linear_tag,
-         strategy_tag_distance_point_segment, false
+         Point, Linear, Strategy, point_tag, linear_tag, false
     > : closest_points
         <
             Point, Linear, Strategy,
-            point_tag, typename tag<Linear>::type,
-            strategy_tag_distance_point_segment, false
+            point_tag, typename tag<Linear>::type, false
         >
 {};
 
@@ -453,13 +453,11 @@ struct closest_points
 template <typename Point, typename Areal, typename Strategy>
 struct closest_points
     <
-         Point, Areal, Strategy, point_tag, areal_tag,
-         strategy_tag_distance_point_segment, false
+         Point, Areal, Strategy, point_tag, areal_tag, false
     > : closest_points
         <
             Point, Areal, Strategy,
-            point_tag, typename tag<Areal>::type,
-            strategy_tag_distance_point_segment, false
+            point_tag, typename tag<Areal>::type, false
         >
 {};
 

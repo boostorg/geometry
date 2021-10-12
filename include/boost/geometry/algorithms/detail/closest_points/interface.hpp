@@ -17,7 +17,7 @@
 
 #include <boost/geometry/algorithms/dispatch/closest_points.hpp>
 
-#include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/algorithms/detail/distance/interface.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -46,16 +46,14 @@ template
     typename Geometry2, 
     typename Strategy,
     typename Tag1, 
-    typename Tag2, 
-    typename StrategyTag
+    typename Tag2
 >
 struct closest_points
 <
     Geometry1, Geometry2, Strategy,
-    Tag1, Tag2, StrategyTag,
-    true
+    Tag1, Tag2, true
 >
-    : closest_points<Geometry2, Geometry1, Strategy, Tag2, Tag1, StrategyTag, false>
+    : closest_points<Geometry2, Geometry1, Strategy, Tag2, Tag1, false>
 {
     template <typename Segment>
     static inline void apply(Geometry1 const& g1, Geometry2 const& g2,
@@ -64,8 +62,7 @@ struct closest_points
         closest_points
             <
                 Geometry2, Geometry1, Strategy,
-                Tag2, Tag1, StrategyTag,
-                false
+                Tag2, Tag1, false
             >::apply(g2, g1, shortest_seg, strategy);
         
         detail::closest_points::swap_segment_points::apply(shortest_seg);        
@@ -80,11 +77,7 @@ struct closest_points
 namespace resolve_strategy
 {
 
-template
-<
-    typename Strategy,
-    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategy>::value
->
+template<typename Strategy>
 struct closest_points
 {
     template <typename Geometry1, typename Geometry2, typename Segment>
@@ -100,66 +93,8 @@ struct closest_points
     }
 };
 
-template <typename Strategy>
-struct is_strategy_converter_specialized_cp
-{
-    using converter = strategies::closest_points::services::strategy_converter<Strategy>;
-    static const bool value = ! std::is_same
-        <
-            decltype(converter::get(std::declval<Strategy>())),
-            strategies::detail::not_implemented
-        >::value;
-};
-
-template <typename Strategy>
-struct closest_points<Strategy, false>
-{
-    template
-    <
-        typename Geometry1, typename Geometry2, typename Segment, typename S,
-        std::enable_if_t<is_strategy_converter_specialized_cp<S>::value, int> = 0
-    >
-    static inline void
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          Segment& shortest_seg,
-          S const& strategy)
-    {
-        using converter = strategies::closest_points::services::strategy_converter<Strategy>;
-        using strategy_type = decltype(converter::get(strategy));
-
-        dispatch::closest_points
-        <
-            Geometry1, Geometry2, strategy_type
-        >::apply(geometry1, geometry2, shortest_seg, converter::get(strategy));
-    }
-
-    template
-    <
-        typename Geometry1, typename Geometry2, typename Segment, typename S,
-        std::enable_if_t<! is_strategy_converter_specialized_cp<S>::value, int> = 0
-    >
-    static inline void
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          Segment& shortest_seg,
-          S const& strategy)
-    {
-        using converter = strategies::closest_points::services::custom_strategy_converter
-            <
-                Geometry1, Geometry2, Strategy
-            >;
-        using strategy_type = decltype(converter::get(strategy));
-
-        dispatch::closest_points
-        <
-            Geometry1, Geometry2, strategy_type
-        >::apply(geometry1, geometry2, shortest_seg, converter::get(strategy));
-    }
-};
-
 template <>
-struct closest_points<default_strategy, false>
+struct closest_points<default_strategy>
 {
     template <typename Geometry1, typename Geometry2, typename Segment>
     static inline void
@@ -203,174 +138,8 @@ struct closest_points
     }
 };
 
-/*
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
-{
-    template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-                    Geometry2,
-                    Strategy
-                >::type
-        >
-    {
-        Geometry2 const& m_geometry2;
-        Strategy const& m_strategy;
+//TODO: Add support for DG/GC
 
-        visitor(Geometry2 const& geometry2,
-                Strategy const& strategy)
-            : m_geometry2(geometry2),
-              m_strategy(strategy)
-        {}
-
-        template <typename Geometry1>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry1 const& geometry1) const
-        {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                    <
-                        Strategy
-                    >(geometry1, m_geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            Geometry2,
-            Strategy
-        >::type
-    apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
-          Geometry2 const& geometry2,
-          Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
-    }
-};
-
-
-template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
-{
-    template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    Geometry1,
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-                    Strategy
-                >::type
-        >
-    {
-        Geometry1 const& m_geometry1;
-        Strategy const& m_strategy;
-
-        visitor(Geometry1 const& geometry1,
-                Strategy const& strategy)
-            : m_geometry1(geometry1),
-              m_strategy(strategy)
-        {}
-
-        template <typename Geometry2>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry2 const& geometry2) const
-        {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                <
-                    Strategy
-                >(m_geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            Geometry1,
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            Strategy
-        >::type
-    apply(
-        Geometry1 const& geometry1,
-        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
-        Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
-    }
-};
-
-
-template
-<
-    BOOST_VARIANT_ENUM_PARAMS(typename T1),
-    BOOST_VARIANT_ENUM_PARAMS(typename T2)
->
-struct distance
-    <
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
-    >
-{
-    template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-                    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>,
-                    Strategy
-                >::type
-        >
-    {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Geometry1, typename Geometry2>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry1 const& geometry1, Geometry2 const& geometry2) const
-        {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                <
-                    Strategy
-                >(geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>,
-            Strategy
-        >::type
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
-          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
-          Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry1, geometry2);
-    }
-};
-*/
 } // namespace resolve_variant
 
 
@@ -407,8 +176,6 @@ inline void closest_points(Geometry1 const& geometry1,
 {
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
-
-    geometry::clear(shortest_seg);
 
     detail::throw_on_empty_input(geometry1);
     detail::throw_on_empty_input(geometry2);
