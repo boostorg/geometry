@@ -86,8 +86,11 @@ struct strategy_converter<strategy::area::geographic<FP, SO, S, CT> >
             : strategies::area::geographic<FP, S, CT>(spheroid)
         {}
 
+        using strategies::area::geographic<FP, S, CT>::area;
+
         template <typename Geometry>
-        auto area(Geometry const&) const
+        auto area(Geometry const&,
+                  std::enable_if_t<! util::is_box<Geometry>::value> * = nullptr) const
         {
             return strategy::area::geographic<FP, SO, S, CT>(this->m_spheroid);
         }
