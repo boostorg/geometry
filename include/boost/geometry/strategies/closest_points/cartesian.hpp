@@ -26,7 +26,7 @@
 #include <boost/geometry/strategies/closest_points/services.hpp>
 
 //#include <boost/geometry/strategies/normalize.hpp>
-#include <boost/geometry/strategies/relate/cartesian.hpp>
+#include <boost/geometry/strategies/distance/cartesian.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -39,7 +39,7 @@ namespace strategies { namespace closest_points
 
 template <typename CalculationType = void>
 struct cartesian
-    : public strategies::relate::cartesian<CalculationType>
+    : public strategies::distance::cartesian<CalculationType>
 {
     template <typename Geometry1, typename Geometry2>
     static auto closest_points(Geometry1 const&, Geometry2 const&,
@@ -77,19 +77,6 @@ struct cartesian
         return strategy::distance::pythagoras_box_box<CalculationType>();
     }
 */
-    template <typename Geometry1, typename Geometry2>
-    static auto distance(Geometry1 const&, Geometry2 const&,
-                                    distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::pythagoras<CalculationType>();
-    }
-
-    template <typename Geometry1, typename Geometry2>
-    static auto distance(Geometry1 const&, Geometry2 const&,
-                                    distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::projected_point<CalculationType>();
-    }
 };
 
 
