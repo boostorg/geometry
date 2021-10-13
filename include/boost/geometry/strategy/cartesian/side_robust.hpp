@@ -18,6 +18,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP
 
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
 
 #include <boost/geometry/strategies/side.hpp>
@@ -177,6 +178,7 @@ public:
 
 };
 
+#ifdef BOOST_GEOMETRY_USE_RESCALING
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 namespace services
@@ -190,6 +192,7 @@ struct default_strategy<cartesian_tag, CalculationType>
 
 }
 
+#endif
 #endif
 
 }} // namespace strategy::side
