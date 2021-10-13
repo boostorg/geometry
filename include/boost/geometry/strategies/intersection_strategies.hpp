@@ -19,8 +19,6 @@
 #include <boost/geometry/policies/relate/intersection_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
-
 #include <boost/geometry/strategies/intersection.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
 #include <boost/geometry/strategies/side.hpp>

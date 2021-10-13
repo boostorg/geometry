@@ -15,6 +15,7 @@
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/is_convex/services.hpp>
 #include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 
 namespace boost { namespace geometry
