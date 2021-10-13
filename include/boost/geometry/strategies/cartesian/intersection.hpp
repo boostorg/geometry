@@ -38,7 +38,6 @@
 #include <boost/geometry/strategy/cartesian/envelope.hpp>
 #include <boost/geometry/strategy/cartesian/expand_box.hpp>
 #include <boost/geometry/strategy/cartesian/expand_segment.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
@@ -439,7 +438,9 @@ struct cartesian_segments
             return Policy::disjoint();
         }
 
-        typedef side::side_robust<CalculationType> side_strategy_type;
+        using side_strategy_type
+            = typename side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
         side_info sides;
         sides.set<0>(side_strategy_type::apply(q1, q2, p1),
                      side_strategy_type::apply(q1, q2, p2));
