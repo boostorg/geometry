@@ -192,7 +192,9 @@ struct cartesian_point_box_by_side
     template <typename Point, typename Box>
     static bool apply(Point const& point, Box const& box)
     {
-        using side_strategy_type = typename strategy::side::services::default_strategy<cartesian_tag, CalculationType>::type;
+        using side_strategy_type
+            = typename strategy::side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
         return within::detail::point_in_box_by_side
             <
                 within::detail::decide_covered_by

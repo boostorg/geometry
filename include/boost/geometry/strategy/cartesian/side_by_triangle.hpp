@@ -24,16 +24,14 @@
 
 #include <type_traits>
 
+#include <boost/geometry/core/config.hpp>
 #include <boost/geometry/arithmetic/determinant.hpp>
 
 #include <boost/geometry/core/access.hpp>
 
-#include <boost/geometry/strategies/cartesian/disjoint_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/side.hpp>
-
-#include <boost/geometry/strategy/cartesian/envelope.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -253,6 +251,23 @@ private:
         return strategy::within::cartesian_point_point::apply(p1, p2);
     }
 };
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
+
+namespace services
+{
+
+template <typename CalculationType>
+struct default_strategy<cartesian_tag, CalculationType>
+{
+    typedef side_by_triangle<CalculationType> type;
+};
+
+}
+
+#endif
+#endif
 
 }} // namespace strategy::side
 
