@@ -10,13 +10,14 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 
+#include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/closest_points/services.hpp>
 
 
 namespace boost { namespace geometry
 {
 
-namespace strategy 
+namespace strategy { namespace closest_points
 {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -91,8 +92,8 @@ struct compute_closest_point_to_segment
 }
 #endif // DOXYGEN_NO_DETAIL
 
-namespace closest_points 
-{
+//namespace closest_points 
+//{
 
 template
 <

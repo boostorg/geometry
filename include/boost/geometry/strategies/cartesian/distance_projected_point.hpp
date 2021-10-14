@@ -105,7 +105,7 @@ public:
 
         typedef typename calculation_type<Point, PointOfSegment>::type calculation_type;
         
-        auto closest_point = strategy::detail::compute_closest_point_to_segment
+        auto closest_point = closest_points::detail::compute_closest_point_to_segment
             <calculation_type>::apply(p, p1, p2);
 
         return Strategy().apply(p, closest_point);
