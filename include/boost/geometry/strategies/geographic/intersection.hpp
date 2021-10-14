@@ -96,19 +96,19 @@ struct geographic_segments
             }
             else if (ip_flag == ipi_at_a1)
             {
-                detail::assign_point_from_index<0>(a, point);
+                geometry::detail::assign_point_from_index<0>(a, point);
             }
             else if (ip_flag == ipi_at_a2)
             {
-                detail::assign_point_from_index<1>(a, point);
+                geometry::detail::assign_point_from_index<1>(a, point);
             }
             else if (ip_flag == ipi_at_b1)
             {
-                detail::assign_point_from_index<0>(b, point);
+                geometry::detail::assign_point_from_index<0>(b, point);
             }
             else // ip_flag == ipi_at_b2
             {
-                detail::assign_point_from_index<1>(b, point);
+                geometry::detail::assign_point_from_index<1>(b, point);
             }
         }
 
