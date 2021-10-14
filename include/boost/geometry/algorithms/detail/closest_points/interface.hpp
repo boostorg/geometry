@@ -44,25 +44,23 @@ template
 <
     typename Geometry1, 
     typename Geometry2, 
-    typename Strategy,
     typename Tag1, 
     typename Tag2
 >
 struct closest_points
 <
-    Geometry1, Geometry2, Strategy,
+    Geometry1, Geometry2,
     Tag1, Tag2, true
 >
-    : closest_points<Geometry2, Geometry1, Strategy, Tag2, Tag1, false>
+    : closest_points<Geometry2, Geometry1, Tag2, Tag1, false>
 {
-    template <typename Segment>
+    template <typename Segment, typename Strategy>
     static inline void apply(Geometry1 const& g1, Geometry2 const& g2,
                              Segment& shortest_seg, Strategy const& strategy)
     {
         closest_points
             <
-                Geometry2, Geometry1, Strategy,
-                Tag2, Tag1, false
+                Geometry2, Geometry1, Tag2, Tag1, false
             >::apply(g2, g1, shortest_seg, strategy);
         
         detail::closest_points::swap_segment_points::apply(shortest_seg);        
@@ -88,7 +86,7 @@ struct closest_points
     {
         dispatch::closest_points
             <
-                Geometry1, Geometry2, Strategy
+                Geometry1, Geometry2
             >::apply(geometry1, geometry2, shortest_seg, strategy);
     }
 };
@@ -110,7 +108,7 @@ struct closest_points<default_strategy>
 
         dispatch::closest_points
             <
-                Geometry1, Geometry2, strategy_type
+                Geometry1, Geometry2
             >::apply(geometry1, geometry2, shortest_seg, strategy_type());
     }
 };

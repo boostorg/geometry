@@ -50,14 +50,9 @@ namespace boost { namespace geometry
 namespace detail { namespace closest_points
 {
 
-template
-<
-    typename P1, typename P2, typename Strategies,
-    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
->
 struct point_to_point
 {
-    template <typename Segment>
+    template <typename P1, typename P2, typename Segment, typename Strategies>
     static inline void apply(P1 const& p1, P2 const& p2,  
                              Segment& shortest_seg, Strategies const& strategies)
     {
@@ -65,14 +60,9 @@ struct point_to_point
     }
 };
 
-template
-<
-    typename Point, typename Segment, typename Strategies,
-    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
->
 struct point_to_segment
 {
-    template <typename OutputSegment>
+    template <typename Point, typename Segment, typename OutputSegment, typename Strategies>
     static inline void apply(Point const& point, Segment const& segment,
                              OutputSegment& shortest_seg, Strategies const& strategies)
     {
@@ -90,14 +80,10 @@ struct point_to_segment
 };
 
 /*
-template
-<
-    typename Point, typename Box, typename Strategies,
-    bool IsUmbrella = strategies::detail::is_umbrella_strategy<Strategies>::value
->
 struct point_to_box
 {
-    static inline auto apply(Point const& point, Box const& box,
+    template<typename Point, typename Box, typename Strategies>
+static inline auto apply(Point const& point, Box const& box,
                              Strategies const& strategies)
     {
         boost::ignore_unused(strategies);
@@ -106,29 +92,21 @@ struct point_to_box
 };
 */
 
-template
-<
-    typename Point,
-    typename Range,
-    closure_selector Closure,
-    typename Strategies
->
+template <closure_selector Closure>
 class point_to_range
 {
-private:
-
-    using point_to_point_range = detail::closest_feature::point_to_point_range
-        <
-            Point, Range, Closure
-        >;
-
 public:
 
-    template <typename Segment>
+    template <typename Point, typename Range, typename Segment, typename Strategies>
     static inline void apply(Point const& point, Range const& range,
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
+        using point_to_point_range = detail::closest_feature::point_to_point_range
+            <
+                Point, Range, Closure
+            >;
+
         if (boost::size(range) == 0)
         {
             set_segment_from_points::apply(point, point, shortest_seg);
@@ -156,16 +134,10 @@ public:
 };
 
 
-template
-<
-    typename Point,
-    typename Ring,
-    closure_selector Closure,
-    typename Strategies
->
+template<closure_selector Closure>
 struct point_to_ring
 {
-    template <typename Segment>
+    template <typename Point, typename Ring, typename Segment, typename Strategies>
     static inline auto apply(Point const& point,
                              Ring const& ring,
                              Segment& shortest_seg,
@@ -179,7 +151,7 @@ struct point_to_ring
         {
             point_to_range
             <
-                Point, Ring, closure<Ring>::value, Strategies
+                closure<Ring>::value
             >::apply(point, ring, shortest_seg, strategies);
         }
             
@@ -187,29 +159,27 @@ struct point_to_ring
 };
 
 
-template
-<
-    typename Point,
-    typename Polygon,
-    closure_selector Closure,
-    typename Strategies
->
+template <closure_selector Closure>
 class point_to_polygon
 {
-    using per_ring = point_to_range
-        <
-            Point, typename ring_type<Polygon>::type, Closure, Strategies
-        >;
-
+    template <typename Polygon>
     struct distance_to_interior_rings
     {
-        template <typename InteriorRingIterator, typename Segment>
+        template 
+        <
+            typename Point, 
+            typename InteriorRingIterator, 
+            typename Segment, 
+            typename Strategies
+        >
         static inline void apply(Point const& point,
                                  InteriorRingIterator first,
                                  InteriorRingIterator last,
                                  Segment& shortest_seg,
                                  Strategies const& strategies)
         {
+            using per_ring = point_to_range<Closure>;
+
             for (InteriorRingIterator it = first; it != last; ++it)
             {
                 if (within::within_point_geometry(point, *it, strategies))
@@ -224,7 +194,13 @@ class point_to_polygon
             set_segment_from_points::apply(point, point, shortest_seg); 
         }
 
-        template <typename InteriorRings, typename Segment>
+        template 
+        <
+            typename Point, 
+            typename InteriorRings, 
+            typename Segment, 
+            typename Strategies
+        >
         static inline void apply(Point const& point, InteriorRings const& interior_rings,
                                  Segment& shortest_seg, Strategies const& strategies)
         {
@@ -238,12 +214,20 @@ class point_to_polygon
 
 
 public:
-    template <typename Segment>
+    template 
+    <
+        typename Point, 
+        typename Polygon, 
+        typename Segment, 
+        typename Strategies
+    >
     static inline void apply(Point const& point,
                              Polygon const& polygon,
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
+        using per_ring = point_to_range<Closure>;
+
         if (! within::covered_by_point_geometry(point, exterior_ring(polygon),
                                                 strategies))
         {
@@ -254,19 +238,17 @@ public:
         }
 
         // Check interior rings
-        distance_to_interior_rings::apply(point,
-                                          interior_rings(polygon),
-                                          shortest_seg,
-                                          strategies);
+        distance_to_interior_rings<Polygon>::apply(point,
+                                                   interior_rings(polygon),
+                                                   shortest_seg,
+                                                   strategies);
     }
 };
 
 
 template
 <
-    typename Point,
     typename MultiGeometry,
-    typename Strategies,
     bool CheckCoveredBy = std::is_same
         <
             typename tag<MultiGeometry>::type, multi_polygon_tag
@@ -279,7 +261,12 @@ private:
 
 public:
 
-    template <typename Segment>
+    template 
+    <
+        typename Point,
+        typename Segment,
+        typename Strategies
+    >
     static inline void apply(Point const& point,
                              MultiGeometry const& multigeometry,
                              Segment& shortest_seg,
@@ -307,8 +294,7 @@ public:
                 typename std::iterator_traits
                     <
                         typename selector_type::iterator_type
-                    >::value_type,
-                Strategies
+                    >::value_type
             >::apply(point, *it_min, shortest_seg, strategies);
     }
 };
@@ -316,10 +302,15 @@ public:
 
 // this is called only for multipolygons, hence the change in the
 // template parameter name MultiGeometry to MultiPolygon
-template <typename Point, typename MultiPolygon, typename Strategies>
-struct point_to_multigeometry<Point, MultiPolygon, Strategies, true>
+template <typename MultiPolygon>
+struct point_to_multigeometry<MultiPolygon, true>
 {
-    template <typename Segment>
+    template 
+    <
+        typename Point,
+        typename Segment,
+        typename Strategies
+    >
     static inline void apply(Point const& point,
                              MultiPolygon const& multipolygon,
                              Segment& shortest_seg,
@@ -333,7 +324,7 @@ struct point_to_multigeometry<Point, MultiPolygon, Strategies, true>
 
         return point_to_multigeometry
             <
-                Point, MultiPolygon, Strategies, false
+                MultiPolygon, false
             >::apply(point, multipolygon, shortest_seg, strategies);
     }
 };
@@ -350,113 +341,104 @@ namespace dispatch
 {
 
 
-template <typename P1, typename P2, typename Strategy>
+template <typename P1, typename P2>
 struct closest_points
     <
-        P1, P2, Strategy, point_tag, point_tag, false
-    > : detail::closest_points::point_to_point<P1, P2, Strategy>
+        P1, P2, point_tag, point_tag, false
+    > : detail::closest_points::point_to_point
 {};
 
 
-template <typename Point, typename Linestring, typename Strategy>
+template <typename Point, typename Linestring>
 struct closest_points
     <
-        Point, Linestring, Strategy, point_tag, linestring_tag, false
-    > : detail::closest_points::point_to_range<Point, Linestring, closed, Strategy>
+        Point, Linestring, point_tag, linestring_tag, false
+    > : detail::closest_points::point_to_range<closed>
 {};
 
 
-template <typename Point, typename Ring, typename Strategy>
+template <typename Point, typename Ring>
 struct closest_points
     <
-        Point, Ring, Strategy, point_tag, ring_tag, false
+        Point, Ring, point_tag, ring_tag, false
     > : detail::closest_points::point_to_ring
         <
-            Point, Ring, closure<Ring>::value, Strategy
+            closure<Ring>::value
         >
 {};
 
 
-template <typename Point, typename Polygon, typename Strategy>
+template <typename Point, typename Polygon>
 struct closest_points
     <
-        Point, Polygon, Strategy, point_tag, polygon_tag, false
+        Point, Polygon, point_tag, polygon_tag, false
     > : detail::closest_points::point_to_polygon
         <
-            Point, Polygon, closure<Polygon>::value, Strategy
+            closure<Polygon>::value
         >
 {};
 
 
-template <typename Point, typename Segment, typename Strategy>
+template <typename Point, typename Segment>
 struct closest_points
     <
-        Point, Segment, Strategy, point_tag, segment_tag, false
-    > : detail::closest_points::point_to_segment<Point, Segment, Strategy>
+        Point, Segment, point_tag, segment_tag, false
+    > : detail::closest_points::point_to_segment
 {};
 
 /*
-template <typename Point, typename Box, typename Strategy>
+template <typename Point, typename Box>
 struct closest_points
     <
-         Point, Box, Strategy, point_tag, box_tag,
+         Point, Box, point_tag, box_tag,
          strategy_tag_distance_point_box, false
-    > : detail::closest_points::point_to_box<Point, Box, Strategy>
+    > : detail::closest_points::point_to_box<Point, Box>
 {};
 */
 
-template<typename Point, typename MultiPoint, typename Strategy>
+template<typename Point, typename MultiPoint>
 struct closest_points
     <
-        Point, MultiPoint, Strategy, point_tag, multi_point_tag, false
-    > : detail::closest_points::point_to_multigeometry
-        <
-            Point, MultiPoint, Strategy
-        >
+        Point, MultiPoint, point_tag, multi_point_tag, false
+    > : detail::closest_points::point_to_multigeometry<MultiPoint>
 {};
 
 
-template<typename Point, typename MultiLinestring, typename Strategy>
+template<typename Point, typename MultiLinestring>
 struct closest_points
     <
-        Point, MultiLinestring, Strategy, point_tag, multi_linestring_tag, false
-    > : detail::closest_points::point_to_multigeometry
-        <
-            Point, MultiLinestring, Strategy
-        >
+        Point, MultiLinestring, point_tag, multi_linestring_tag, false
+    > : detail::closest_points::point_to_multigeometry<MultiLinestring>
 {};
 
 
-template<typename Point, typename MultiPolygon, typename Strategy>
+template<typename Point, typename MultiPolygon>
 struct closest_points
     <
-        Point, MultiPolygon, Strategy, point_tag, multi_polygon_tag, false
-    > : detail::closest_points::point_to_multigeometry
-        <
-            Point, MultiPolygon, Strategy
-        >
+        Point, MultiPolygon, point_tag, multi_polygon_tag, false
+    > : detail::closest_points::point_to_multigeometry<MultiPolygon>
 {};
 
 
-template <typename Point, typename Linear, typename Strategy>
+template <typename Point, typename Linear>
 struct closest_points
     <
-         Point, Linear, Strategy, point_tag, linear_tag, false
+         Point, Linear, point_tag, linear_tag, false
     > : closest_points
         <
-            Point, Linear, Strategy,
+            Point, Linear,
             point_tag, typename tag<Linear>::type, false
         >
 {};
 
 
-template <typename Point, typename Areal, typename Strategy>
+template <typename Point, typename Areal>
 struct closest_points
     <
-         Point, Areal, Strategy, point_tag, areal_tag, false
+         Point, Areal, point_tag, areal_tag, false
     > : closest_points
         <
-            Point, Areal, Strategy,
+            Point, Areal,
             point_tag, typename tag<Areal>::type, false
         >
 {};

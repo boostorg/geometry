@@ -34,10 +34,6 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2, 
-    typename Strategy = typename strategies::closest_points::services::default_strategy
-        <
-            Geometry1, Geometry2
-        >::type,
     typename Tag1 = typename tag_cast
         <
             typename tag<Geometry1>::type,
