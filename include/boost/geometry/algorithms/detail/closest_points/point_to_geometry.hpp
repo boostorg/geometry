@@ -114,7 +114,7 @@ public:
         }
 
         closest_points::creturn_t<Point, Range, Strategies> cd_min;
-
+        
         auto comparable_distance = strategy::distance::services::get_comparable
             <
                 decltype(strategies.distance(point, range))

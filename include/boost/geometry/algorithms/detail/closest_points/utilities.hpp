@@ -43,19 +43,21 @@ struct swap_segment_points
     }
 };
 
-
 template <typename Geometry1, typename Geometry2, typename Strategies>
 using distance_strategy_t = decltype(
     std::declval<Strategies>().distance(std::declval<Geometry1>(), std::declval<Geometry2>()));
 
-
 template <typename Geometry1, typename Geometry2, typename Strategies>
 using creturn_t = typename strategy::distance::services::return_type
     <
-        distance_strategy_t<Geometry1, Geometry2, Strategies>,
+        typename strategy::distance::services::comparable_type
+            <
+                distance_strategy_t<Geometry1, Geometry2, Strategies>
+            >::type,
         typename point_type<Geometry1>::type,
         typename point_type<Geometry2>::type
     >::type;
+
 
 }} // namespace detail::closest_points
 
