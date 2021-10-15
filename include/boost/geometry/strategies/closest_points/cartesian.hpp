@@ -45,11 +45,7 @@ struct cartesian
     static auto closest_points(Geometry1 const&, Geometry2 const&,
                                distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
     {
-        return strategy::closest_points::projected_point
-            <
-                CalculationType,
-                strategy::distance::pythagoras<CalculationType>
-            >();
+        return strategy::closest_points::projected_point<CalculationType>();
     }
 /*
     template <typename Geometry1, typename Geometry2>

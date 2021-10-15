@@ -92,13 +92,9 @@ struct compute_closest_point_to_segment
 }
 #endif // DOXYGEN_NO_DETAIL
 
-//namespace closest_points 
-//{
-
 template
 <
-    typename CalculationType = void,
-    typename Strategy = distance::pythagoras<CalculationType>
+    typename CalculationType = void
 >
 class projected_point
 {
@@ -109,16 +105,17 @@ public:
     // Integer coordinates can still result in FP distances.
     // There is a division, which must be represented in FP.
     // So promote.
+
     template <typename Point, typename PointOfSegment>
     struct calculation_type
         : promote_floating_point
           <
-              typename strategy::distance::services::return_type
-                  <
-                      Strategy,
-                      Point,
-                      PointOfSegment
-                  >::type
+            typename select_most_precise
+                <
+                    typename coordinate_type<Point>::type,
+                    typename coordinate_type<PointOfSegment>::type,
+                    CalculationType
+                >::type
           >
     {};
 
