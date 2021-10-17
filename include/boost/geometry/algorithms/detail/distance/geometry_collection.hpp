@@ -126,7 +126,8 @@ inline auto collection_to_collection(GeometryCollection1 const& collection1,
             {
                 result_t const d = dispatch::distance
                     <
-                        util::remove_cref_t<decltype(g1)>, util::remove_cref_t<decltype(g2)>, Strategies
+                        util::remove_cref_t<decltype(g1)>, util::remove_cref_t<decltype(g2)>,
+                        Strategies
                     >::apply(g1, g2, strategies);
                 if (is_first)
                 {

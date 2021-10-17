@@ -189,18 +189,6 @@ struct visit_breadth_first<Geometry, dynamic_geometry_tag>
 namespace detail
 {
 
-// NOTE: This specialization works partially like std::visit and partially like
-//   std::ranges::for_each. If the argument is rvalue reference then the elements
-//   are passed into the function as rvalue references as well. This is consistent
-//   with std::visit but different than std::ranges::for_each. It's done this way
-//   because visit_breadth_first is also specialized for static and dynamic geometries
-//   which and references for them has to be propagated like that. If this is not
-//   desireable then the support for other kinds of geometries should be dropped and
-//   this algorithm should work only for geometry collection.
-//   This is not a problem right now because only non-rvalue references are passed
-//   but in the future there might be some issues. Consider e.g. passing a temporary
-//   mutable proxy range as geometry collection. In such case the elements would be
-//   passed as rvalue references which would be incorrect.
 template <bool PassIterator = false>
 struct visit_breadth_first_impl
 {
@@ -314,9 +302,10 @@ namespace dispatch
 //   are passed into the function as rvalue references as well. This is consistent
 //   with std::visit but different than std::ranges::for_each. It's done this way
 //   because visit_breadth_first is also specialized for static and dynamic geometries
-//   which and references for them has to be propagated like that. If this is not
+//   and references for them has to be propagated like that. If this is not
 //   desireable then the support for other kinds of geometries should be dropped and
-//   this algorithm should work only for geometry collection.
+//   this algorithm should work only for geometry collection. Or forwarding of rvalue
+//   references should simply be dropped entirely.
 //   This is not a problem right now because only non-rvalue references are passed
 //   but in the future there might be some issues. Consider e.g. passing a temporary
 //   mutable proxy range as geometry collection. In such case the elements would be
