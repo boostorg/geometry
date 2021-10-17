@@ -491,6 +491,24 @@ void test_variant()
     //BOOST_CHECK_CLOSE(bg::distance(point, v2, s), bg::distance(point, point, s), 0.0001);
 }
 
+template <typename T>
+void test_geometry_collection()
+{
+    using point_type = bg::model::point<T, 2, bg::cs::cartesian>;
+    using segment_type = bg::model::segment<point_type>;
+    using box_type = bg::model::box<point_type>;
+    using variant_type = boost::variant<point_type, segment_type, box_type>;
+    using gc_type = bg::model::geometry_collection<variant_type>;
+
+    point_type p1 {1, 3}, p2 {2, 3};
+    segment_type s1 {{2, 2}, {4, 4}}, s2 {{3, 2}, {5, 4}};
+    gc_type gc1 {p1, s1}, gc2 {p2, s2};
+
+    BOOST_CHECK_CLOSE(bg::distance(p1, gc2), bg::distance(p1, p2), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(gc1, s2), bg::distance(s1, s2), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(gc1, gc2), bg::distance(s1, s2), 0.0001);
+}
+
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
@@ -524,6 +542,8 @@ int test_main(int, char* [])
 
     test_variant<double>();
     test_variant<int>();
+
+    test_geometry_collection<double>();
 
     return 0;
 }

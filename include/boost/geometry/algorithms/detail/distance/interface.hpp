@@ -8,7 +8,6 @@
 
 // This file was modified by Oracle on 2014-2021.
 // Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -28,6 +27,7 @@
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/visit.hpp>
 
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -92,10 +92,9 @@ template
 struct distance
 {
     template <typename Geometry1, typename Geometry2>
-    static inline typename distance_result<Geometry1, Geometry2, Strategy>::type
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          Strategy const& strategy)
+    static inline auto apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return dispatch::distance
             <
@@ -123,11 +122,9 @@ struct distance<Strategy, false>
         typename Geometry1, typename Geometry2, typename S,
         std::enable_if_t<is_strategy_converter_specialized<S>::value, int> = 0
     >
-    static inline
-    typename distance_result<Geometry1, Geometry2, S>::type
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          S const& strategy)
+    static inline auto apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             S const& strategy)
     {
         typedef strategies::distance::services::strategy_converter<Strategy> converter;
         typedef decltype(converter::get(strategy)) strategy_type;
@@ -143,11 +140,9 @@ struct distance<Strategy, false>
         typename Geometry1, typename Geometry2, typename S,
         std::enable_if_t<! is_strategy_converter_specialized<S>::value, int> = 0
     >
-    static inline
-    typename distance_result<Geometry1, Geometry2, S>::type
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          S const& strategy)
+    static inline auto apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             S const& strategy)
     {
         typedef strategies::distance::services::custom_strategy_converter
             <
@@ -166,11 +161,9 @@ template <>
 struct distance<default_strategy, false>
 {
     template <typename Geometry1, typename Geometry2>
-    static inline
-    typename distance_result<Geometry1, Geometry2, default_strategy>::type
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          default_strategy)
+    static inline auto apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             default_strategy)
     {
         typedef typename strategies::distance::services::default_strategy
             <
@@ -187,18 +180,22 @@ struct distance<default_strategy, false>
 } // namespace resolve_strategy
 
 
-namespace resolve_variant
+namespace resolve_dynamic
 {
 
 
-template <typename Geometry1, typename Geometry2>
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename Tag1 = typename geometry::tag<Geometry1>::type,
+    typename Tag2 = typename geometry::tag<Geometry2>::type
+>
 struct distance
 {
     template <typename Strategy>
-    static inline typename distance_result<Geometry1, Geometry2, Strategy>::type
-    apply(Geometry1 const& geometry1,
-          Geometry2 const& geometry2,
-          Strategy const& strategy)
+    static inline auto apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return resolve_strategy::distance
             <
@@ -208,174 +205,72 @@ struct distance
 };
 
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
-struct distance<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
+template <typename DynamicGeometry1, typename Geometry2, typename Tag2>
+struct distance<DynamicGeometry1, Geometry2, dynamic_geometry_tag, Tag2>
 {
     template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-                    Geometry2,
-                    Strategy
-                >::type
-        >
+    static inline auto apply(DynamicGeometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
-        Geometry2 const& m_geometry2;
-        Strategy const& m_strategy;
-
-        visitor(Geometry2 const& geometry2,
-                Strategy const& strategy)
-            : m_geometry2(geometry2),
-              m_strategy(strategy)
-        {}
-
-        template <typename Geometry1>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry1 const& geometry1) const
+        using result_t = typename geometry::distance_result<DynamicGeometry1, Geometry2, Strategy>::type;
+        result_t result = 0;
+        traits::visit<DynamicGeometry1>::apply([&](auto const& g1)
         {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                    <
-                        Strategy
-                    >(geometry1, m_geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            Geometry2,
-            Strategy
-        >::type
-    apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry1,
-          Geometry2 const& geometry2,
-          Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(geometry2, strategy), geometry1);
+            result = resolve_strategy::distance
+                        <
+                            Strategy
+                        >::apply(g1, geometry2, strategy);
+        }, geometry1);
+        return result;
     }
 };
 
 
-template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct distance<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry1, typename DynamicGeometry2, typename Tag1>
+struct distance<Geometry1, DynamicGeometry2, Tag1, dynamic_geometry_tag>
 {
     template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    Geometry1,
-                    variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-                    Strategy
-                >::type
-        >
+    static inline auto apply(Geometry1 const& geometry1,
+                             DynamicGeometry2 const& geometry2,
+                             Strategy const& strategy)
     {
-        Geometry1 const& m_geometry1;
-        Strategy const& m_strategy;
-
-        visitor(Geometry1 const& geometry1,
-                Strategy const& strategy)
-            : m_geometry1(geometry1),
-              m_strategy(strategy)
-        {}
-
-        template <typename Geometry2>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry2 const& geometry2) const
+        using result_t = typename geometry::distance_result<Geometry1, DynamicGeometry2, Strategy>::type;
+        result_t result = 0;
+        traits::visit<DynamicGeometry2>::apply([&](auto const& g2)
         {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                <
-                    Strategy
-                >(m_geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            Geometry1,
-            variant<BOOST_VARIANT_ENUM_PARAMS(T)>,
-            Strategy
-        >::type
-    apply(
-        Geometry1 const& geometry1,
-        const variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry2,
-        Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(geometry1, strategy), geometry2);
+            result = resolve_strategy::distance
+                        <
+                            Strategy
+                        >::apply(geometry1, g2, strategy);
+        }, geometry2);
+        return result;
     }
 };
 
 
-template
-<
-    BOOST_VARIANT_ENUM_PARAMS(typename T1),
-    BOOST_VARIANT_ENUM_PARAMS(typename T2)
->
-struct distance
-    <
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>
-    >
+template <typename DynamicGeometry1, typename DynamicGeometry2>
+struct distance<DynamicGeometry1, DynamicGeometry2, dynamic_geometry_tag, dynamic_geometry_tag>
 {
     template <typename Strategy>
-    struct visitor: static_visitor
-        <
-            typename distance_result
-                <
-                    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-                    boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>,
-                    Strategy
-                >::type
-        >
+    static inline auto apply(DynamicGeometry1 const& geometry1,
+                             DynamicGeometry2 const& geometry2,
+                             Strategy const& strategy)
     {
-        Strategy const& m_strategy;
-
-        visitor(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Geometry1, typename Geometry2>
-        typename distance_result<Geometry1, Geometry2, Strategy>::type
-        operator()(Geometry1 const& geometry1, Geometry2 const& geometry2) const
+        using result_t = typename geometry::distance_result<DynamicGeometry1, DynamicGeometry2, Strategy>::type;
+        result_t result = 0;
+        traits::visit<DynamicGeometry1, DynamicGeometry2>::apply([&](auto const& g1, auto const& g2)
         {
-            return distance
-                <
-                    Geometry1,
-                    Geometry2
-                >::template apply
-                <
-                    Strategy
-                >(geometry1, geometry2, m_strategy);
-        }
-    };
-
-    template <typename Strategy>
-    static inline typename distance_result
-        <
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)>,
-            boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)>,
-            Strategy
-        >::type
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T1)> const& geometry1,
-          boost::variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2,
-          Strategy const& strategy)
-    {
-        return boost::apply_visitor(visitor<Strategy>(strategy), geometry1, geometry2);
+            result = resolve_strategy::distance
+                        <
+                            Strategy
+                        >::apply(g1, g2, strategy);
+        }, geometry1, geometry2);
+        return result;
     }
 };
 
-} // namespace resolve_variant
+} // namespace resolve_dynamic
 
 
 /*!
@@ -415,10 +310,9 @@ for distance, it is probably so that there is no specialization
 for return_type<...> for your strategy.
 */
 template <typename Geometry1, typename Geometry2, typename Strategy>
-inline typename distance_result<Geometry1, Geometry2, Strategy>::type
-distance(Geometry1 const& geometry1,
-         Geometry2 const& geometry2,
-         Strategy const& strategy)
+inline auto distance(Geometry1 const& geometry1,
+                     Geometry2 const& geometry2,
+                     Strategy const& strategy)
 {
     concepts::check<Geometry1 const>();
     concepts::check<Geometry2 const>();
@@ -426,7 +320,7 @@ distance(Geometry1 const& geometry1,
     detail::throw_on_empty_input(geometry1);
     detail::throw_on_empty_input(geometry2);
 
-    return resolve_variant::distance
+    return resolve_dynamic::distance
                <
                    Geometry1,
                    Geometry2
@@ -448,13 +342,9 @@ distance(Geometry1 const& geometry1,
 \qbk{[include reference/algorithms/distance.qbk]}
  */
 template <typename Geometry1, typename Geometry2>
-inline typename default_distance_result<Geometry1, Geometry2>::type
-distance(Geometry1 const& geometry1,
-         Geometry2 const& geometry2)
+inline auto distance(Geometry1 const& geometry1,
+                     Geometry2 const& geometry2)
 {
-    concepts::check<Geometry1 const>();
-    concepts::check<Geometry2 const>();
-
     return geometry::distance(geometry1, geometry2, default_strategy());
 }
 
