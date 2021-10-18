@@ -54,7 +54,7 @@ struct point_to_point
 {
     template <typename P1, typename P2, typename Segment, typename Strategies>
     static inline void apply(P1 const& p1, P2 const& p2,  
-                             Segment& shortest_seg, Strategies const& strategies)
+                             Segment& shortest_seg, Strategies const&)
     {
         set_segment_from_points::apply(p1, p2, shortest_seg);
     }

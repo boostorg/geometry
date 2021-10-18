@@ -13,8 +13,6 @@
 
 #define BOOST_GEOMETRY_TEST_DEBUG_CLOSEST_POINTS
 
-//#include <boost/geometry.hpp>
-
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
