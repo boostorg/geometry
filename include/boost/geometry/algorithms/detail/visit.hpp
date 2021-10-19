@@ -213,7 +213,7 @@ struct visit_breadth_first_impl
                 bool result = true;
                 traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
                 {
-                    result = visit_or_enqueue<PassIterator>(
+                    result = visit_breadth_first_impl::visit_or_enqueue<PassIterator>(
                                     function, std::forward<decltype(g)>(g), queue, it);
                 }, it);
 
@@ -232,7 +232,7 @@ struct visit_breadth_first_impl
             // so this call can be avoided.
             traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
             {
-                set_iterators(std::forward<decltype(g)>(g), it, end);
+                visit_breadth_first_impl::set_iterators(std::forward<decltype(g)>(g), it, end);
             }, queue.front());
             queue.pop_front();
         }
