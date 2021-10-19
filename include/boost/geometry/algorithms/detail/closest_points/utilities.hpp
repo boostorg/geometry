@@ -20,8 +20,8 @@ namespace detail { namespace closest_points
 
 struct set_segment_from_points
 {
-    template <typename Point, typename Segment>
-    static inline void apply(Point const& p1, Point const& p2, Segment& segment)
+    template <typename Point1, typename Point2, typename Segment>
+    static inline void apply(Point1 const& p1, Point2 const& p2, Segment& segment)
     {
         assign_point_to_index<0>(p1, segment);
         assign_point_to_index<1>(p2, segment);
