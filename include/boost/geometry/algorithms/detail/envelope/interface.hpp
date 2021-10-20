@@ -22,16 +22,14 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_ENVELOPE_INTERFACE_HPP
 
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
 #include <boost/geometry/algorithms/dispatch/envelope.hpp>
 
 #include <boost/geometry/core/coordinate_system.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -39,6 +37,7 @@
 #include <boost/geometry/strategies/envelope/services.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
+#include <boost/geometry/util/type_traits_std.hpp>
 
 
 namespace boost { namespace geometry
@@ -98,10 +97,10 @@ struct envelope<default_strategy, false>
 
 } // namespace resolve_strategy
 
-namespace resolve_variant
+namespace resolve_dynamic
 {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag = typename tag<Geometry>::type>
 struct envelope
 {
     template <typename Box, typename Strategy>
@@ -117,38 +116,22 @@ struct envelope
 };
 
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct envelope<Geometry, dynamic_geometry_tag>
 {
     template <typename Box, typename Strategy>
-    struct visitor: boost::static_visitor<void>
+    static inline void apply(Geometry const& geometry,
+                             Box& box,
+                             Strategy const& strategy)
     {
-        Box& m_box;
-        Strategy const& m_strategy;
-
-        visitor(Box& box, Strategy const& strategy)
-            : m_box(box)
-            , m_strategy(strategy)
-        {}
-
-        template <typename Geometry>
-        void operator()(Geometry const& geometry) const
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            envelope<Geometry>::apply(geometry, m_box, m_strategy);
-        }
-    };
-
-    template <typename Box, typename Strategy>
-    static inline void
-    apply(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-          Box& box,
-          Strategy const& strategy)
-    {
-        boost::apply_visitor(visitor<Box, Strategy>(box, strategy), geometry);
+            envelope<util::remove_cref_t<decltype(g)>>::apply(g, box, strategy);
+        }, geometry);
     }
 };
 
-} // namespace resolve_variant
+} // namespace resolve_dynamic
 
 
 /*!
@@ -172,7 +155,7 @@ struct envelope<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 template<typename Geometry, typename Box, typename Strategy>
 inline void envelope(Geometry const& geometry, Box& mbr, Strategy const& strategy)
 {
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy);
+    resolve_dynamic::envelope<Geometry>::apply(geometry, mbr, strategy);
 }
 
 /*!
@@ -193,7 +176,7 @@ inline void envelope(Geometry const& geometry, Box& mbr, Strategy const& strateg
 template<typename Geometry, typename Box>
 inline void envelope(Geometry const& geometry, Box& mbr)
 {
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr, default_strategy());
+    resolve_dynamic::envelope<Geometry>::apply(geometry, mbr, default_strategy());
 }
 
 
@@ -219,7 +202,7 @@ template<typename Box, typename Geometry, typename Strategy>
 inline Box return_envelope(Geometry const& geometry, Strategy const& strategy)
 {
     Box mbr;
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr, strategy);
+    resolve_dynamic::envelope<Geometry>::apply(geometry, mbr, strategy);
     return mbr;
 }
 
@@ -242,7 +225,7 @@ template<typename Box, typename Geometry>
 inline Box return_envelope(Geometry const& geometry)
 {
     Box mbr;
-    resolve_variant::envelope<Geometry>::apply(geometry, mbr, default_strategy());
+    resolve_dynamic::envelope<Geometry>::apply(geometry, mbr, default_strategy());
     return mbr;
 }
 

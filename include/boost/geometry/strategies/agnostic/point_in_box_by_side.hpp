@@ -26,7 +26,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+#include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
@@ -118,11 +118,14 @@ struct cartesian_point_box_by_side
     template <typename Point, typename Box>
     static inline bool apply(Point const& point, Box const& box)
     {
+        using side_strategy_type
+            = typename strategy::side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
+
         return within::detail::point_in_box_by_side
             <
                 within::detail::decide_within
-            >(point, box,
-              strategy::side::side_robust<CalculationType>());
+            >(point, box, side_strategy_type());
     }
 };
 
@@ -189,11 +192,13 @@ struct cartesian_point_box_by_side
     template <typename Point, typename Box>
     static bool apply(Point const& point, Box const& box)
     {
+        using side_strategy_type
+            = typename strategy::side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
         return within::detail::point_in_box_by_side
             <
                 within::detail::decide_covered_by
-            >(point, box,
-              strategy::side::side_robust<CalculationType>());
+            >(point, box, side_strategy_type());
     }
 };
 

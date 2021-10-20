@@ -6,6 +6,10 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -67,6 +71,12 @@ int test_main(int, char* [])
     typedef bg::model::polygon<point, true, false> open_polygon;
     typedef bg::model::multi_polygon<open_polygon> open_multi_polygon;
 
+    using variant = boost::variant<linestring, polygon>;
+    using open_variant = boost::variant<linestring, open_polygon>;
+
+    using geometry_collection = bg::model::geometry_collection<variant>;
+    using open_geometry_collection = bg::model::geometry_collection<open_variant>;
+
     test_num_points<point>("POINT(0 0)", 1u);
     test_num_points<linestring>("LINESTRING(0 0,1 1)", 2u);
     test_num_points<segment>("LINESTRING(0 0,1 1)", 2u);
@@ -88,6 +98,12 @@ int test_main(int, char* [])
     test_num_points<open_polygon>("POLYGON((0 0,10 10,0 10,0 0))", 3u, 4u);
     test_num_points<open_multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0)),((0 10,1 10,1 9)))", 7u, 9u);
     test_num_points<open_multi_polygon>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 10,1 10,1 9,0 10)))", 7u, 9u);
+
+    test_num_points<variant>("POLYGON((0 0,1 1,0 1,0 0))", 4u);
+    test_num_points<open_variant>("POLYGON((0 0,1 1,0 1))", 3u, 4u);
+
+    test_num_points<geometry_collection>("GEOMETRYCOLLECTION(POLYGON((0 0,1 1,0 1,0 0)),LINESTRING(0 0,1 1))", 6u);
+    test_num_points<open_geometry_collection>("GEOMETRYCOLLECTION(POLYGON((0 0,1 1,0 1)),LINESTRING(0 0,1 1))", 5u, 6u);
 
     return 0;
 }

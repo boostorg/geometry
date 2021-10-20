@@ -11,11 +11,11 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CONVEX_HULL_CARTESIAN_HPP
 
+#include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/convex_hull/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 
@@ -42,7 +42,10 @@ public:
 
     static auto side()
     {
-        return strategy::side::side_robust<CalculationType>();
+        using side_strategy_type
+            = typename strategy::side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
+        return side_strategy_type();
     }
 };
 

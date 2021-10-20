@@ -1,13 +1,15 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+
+#include <boost/variant/variant.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -159,6 +161,17 @@ inline void test_geometry(std::string const& wkt, Check const& check)
         bg::densify(g, o, max_distance);
 
         check_result(g, o, max_distance, def_s, check);
+
+        using variant_t = boost::variant<G, typename bg::point_type<G>::type>;
+        variant_t v = g, vo;
+        bg::densify(v, vo, max_distance);
+
+        check(v, vo, def_s);
+
+        bg::model::geometry_collection<variant_t> gc{v}, gco;
+        bg::densify(gc, gco, max_distance);
+
+        check(gc, gco, def_s);
     }
 
     {

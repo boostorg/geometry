@@ -2,6 +2,11 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,10 +23,23 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/simplify.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/variant/variant.hpp>
 
+
+template <typename Geometry, typename Tag = typename bg::tag<Geometry>::type>
+struct boost_variant_type
+{
+    using type = boost::variant<Geometry, typename bg::point_type<Geometry>::type>;
+};
+
+template <typename Geometry>
+struct boost_variant_type<Geometry, bg::point_tag>
+{
+    using type = boost::variant<Geometry>;
+};
 
 template
 <
@@ -158,8 +176,9 @@ void test_geometry(std::string const& wkt,
     bg::read_wkt(wkt, geometry);
     bg::read_wkt(expected_wkt, expected);
 
-    boost::variant<Geometry> v(geometry);
-
+    using variant_t = typename boost_variant_type<Geometry>::type;
+    variant_t v(geometry);
+    
     // Define default strategy for testing
     typedef bg::strategy::simplify::douglas_peucker
         <
@@ -167,14 +186,26 @@ void test_geometry(std::string const& wkt,
             bg::strategy::distance::projected_point<double>
         > dp;
 
+    BOOST_CONCEPT_ASSERT((bg::concepts::SimplifyStrategy<dp, point_type>));
+
     check_geometry(geometry, expected, distance);
     check_geometry(v, expected, distance);
-
-
-    BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<dp, point_type>) );
-
+    
     check_geometry(geometry, expected, distance, dp());
     check_geometry(v, expected, distance, dp());
+
+    // For now check GC here because it's not supported by equals()
+    {
+        using gc_t = bg::model::geometry_collection<variant_t>;
+        gc_t gc{v};
+        gc_t gc_simplified;
+        bg::simplify(gc, gc_simplified, distance);
+        bg::detail::visit_breadth_first([&](auto const& g)
+        {
+            test_equality<Geometry>::apply(g, expected);
+            return false;
+        }, gc_simplified);
+    }
 
     // Check inserter (if applicable)
     test_inserter
@@ -217,7 +248,7 @@ void test_geometry(std::string const& wkt,
     bg::correct_closure(geometry);
     bg::correct_closure(expected);
 
-    boost::variant<Geometry> v(geometry);
+    typename boost_variant_type<Geometry>::type v(geometry);
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::SimplifyStrategy<Strategy,
                            typename bg::point_type<Geometry>::type>) );
