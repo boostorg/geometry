@@ -17,7 +17,7 @@
 #include <boost/geometry/algorithms/detail/closest_points/linear_to_linear.hpp>
 //#include <boost/geometry/algorithms/detail/closest_points/linear_or_areal_to_areal.hpp>
 //#include <boost/geometry/algorithms/detail/closest_points/linear_to_box.hpp>
-//#include <boost/geometry/algorithms/detail/closest_points/geometry_to_segment_or_box.hpp>
+#include <boost/geometry/algorithms/detail/closest_points/geometry_to_segment_or_box.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/segment_to_segment.hpp>
 //#include <boost/geometry/algorithms/detail/closest_points/segment_to_box.hpp>
 //#include <boost/geometry/algorithms/detail/closest_points/box_to_box.hpp>
