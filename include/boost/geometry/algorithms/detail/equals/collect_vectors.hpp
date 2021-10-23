@@ -39,8 +39,6 @@
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 
@@ -48,29 +46,21 @@
 namespace boost { namespace geometry
 {
 
-// Since these vectors (though ray would be a better name) are used in the
-// implementation of equals() for Areal geometries the internal representation
-// should be consistent with the side strategy.
 template
 <
     typename T,
     typename Geometry,
-    typename SideStrategy,
     typename CSTag = typename cs_tag<Geometry>::type
 >
 struct collected_vector
     : nyi::not_implemented_tag
 {};
 
-// compatible with side_robust cartesian strategy
-template <typename T, typename Geometry, typename CT, typename CSTag>
-struct collected_vector
-    <
-        T, Geometry, strategy::side::side_robust<CT>, CSTag
-    >
+template <typename T, typename Geometry>
+struct collected_vector<T, Geometry, cartesian_tag>
 {
     typedef T type;
-    
+
     inline collected_vector()
     {}
 
@@ -96,8 +86,7 @@ struct collected_vector
 
     bool normalize()
     {
-        T magnitude = math::sqrt(
-            boost::numeric_cast<T>(dx * dx + dy * dy));
+        T magnitude = math::sqrt(boost::numeric_cast<T>(dx * dx + dy * dy));
 
         // NOTE: shouldn't here math::equals() be called?
         if (magnitude > 0)
@@ -157,25 +146,14 @@ private:
     //T dx_0, dy_0;
 };
 
-template <typename T, typename Geometry, typename CT, typename CSTag>
-struct collected_vector
-    <
-        T, Geometry, strategy::side::side_by_triangle<CT>, CSTag
-    >
-    : collected_vector<T, Geometry, strategy::side::side_robust<CT>, CSTag>
-{};  
-
 // Compatible with spherical_side_formula which currently
 // is the default spherical_equatorial and geographic strategy
 // so CSTag is spherical_equatorial_tag or geographic_tag
-template <typename T, typename Geometry, typename CT, typename CSTag>
-struct collected_vector
-    <
-        T, Geometry, strategy::side::spherical_side_formula<CT>, CSTag
-    >
+template <typename T, typename Geometry>
+struct collected_vector<T, Geometry, spherical_equatorial_tag>
 {
     typedef T type;
-    
+
     typedef typename geometry::detail::cs_angular_units<Geometry>::type units_type;
     typedef model::point<T, 2, cs::spherical_equatorial<units_type> > point_type;
     typedef model::point<T, 3, cs::cartesian> vector_type;
@@ -270,26 +248,12 @@ private:
 };
 
 // Specialization for spherical polar
-template <typename T, typename Geometry, typename CT>
-struct collected_vector
-    <
-        T, Geometry,
-        strategy::side::spherical_side_formula<CT>,
-        spherical_polar_tag
-    >
-    : public collected_vector
-        <
-            T, Geometry,
-            strategy::side::spherical_side_formula<CT>,
-            spherical_equatorial_tag
-        >
+template <typename T, typename Geometry>
+struct collected_vector<T, Geometry, spherical_polar_tag>
+    : public collected_vector<T, Geometry, spherical_equatorial_tag>
 {
-    typedef collected_vector
-        <
-            T, Geometry,
-            strategy::side::spherical_side_formula<CT>,
-            spherical_equatorial_tag
-        > base_type;
+    typedef T type;
+    using base_type = collected_vector<T, Geometry, spherical_equatorial_tag>;
 
     collected_vector() {}
 
@@ -348,15 +312,11 @@ private:
             return;
         }
 
-        typedef typename boost::range_size<Collection>::type collection_size_t;
-        collection_size_t c_old_size = boost::size(collection);
-
-        typedef typename boost::range_iterator<ClosedClockwiseRange const>::type iterator;
-
+        auto c_old_size = boost::size(collection);
         bool is_first = true;
-        iterator it = boost::begin(range);
+        auto it = boost::begin(range);
 
-        for (iterator prev = it++; it != boost::end(range); prev = it++)
+        for (auto prev = it++; it != boost::end(range); prev = it++)
         {
             typename boost::range_value<Collection>::type v(*prev, *it);
 
@@ -375,13 +335,10 @@ private:
         }
 
         // If first one has same direction as last one, remove first one
-        collection_size_t collected_count = boost::size(collection) - c_old_size;
-        if ( collected_count > 1 )
+        if (boost::size(collection) > c_old_size + 1)
         {
-            typedef typename boost::range_iterator<Collection>::type c_iterator;
-            c_iterator first = range::pos(collection, c_old_size);
-
-            if (collection.back().next_is_collinear(*first) )
+            auto first = range::pos(collection, c_old_size);
+            if (collection.back().next_is_collinear(*first))
             {
                 //collection.erase(first);
                 // O(1) instead of O(N)
