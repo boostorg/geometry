@@ -1,0 +1,215 @@
+// Boost.Geometry (aka GGL, Generic Geometry Library)
+
+// Copyright (c) 2021, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
+// Licensed under the Boost Software License version 1.0.
+// http://www.boost.org/users/license.html
+
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_LINEAR_OR_AREAL_TO_AREAL_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_LINEAR_OR_AREAL_TO_AREAL_HPP
+
+#include <boost/geometry/algorithms/detail/closest_points/linear_to_linear.hpp>
+#include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+
+#include <boost/geometry/core/point_type.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+namespace boost { namespace geometry
+{
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace closest_points
+{
+
+template <bool is_multi>
+struct set_first_point_of_linestring_or_multilinestring
+{
+    template <typename Linear, typename Segment>
+    static void apply(Linear const& linear,
+                      Segment& shortest_seg)
+    {
+        set_segment_from_points::apply(*boost::begin(linear), 
+                                       *boost::begin(linear), 
+                                       shortest_seg);
+    }
+};
+
+template <>
+struct set_first_point_of_linestring_or_multilinestring<true>
+{
+    template <typename Linear, typename Segment>
+    static void apply(Linear const& linear,
+                      Segment& shortest_seg)
+    {
+        set_segment_from_points::apply(*boost::begin(*boost::begin(linear)), 
+                                       *boost::begin(*boost::begin(linear)), 
+                                       shortest_seg); 
+    }
+};
+
+
+struct linear_to_areal
+{
+    template <typename Linear, typename Areal, typename Segment, typename Strategies>
+    static inline void apply(Linear const& linear,
+                             Areal const& areal,
+                             Segment& shortest_seg,
+                             Strategies const& strategies)
+    {
+        using most_precise_type = typename select_coordinate_type
+                <
+                    Linear,
+                    Areal
+                >::type;
+
+        using point_type = typename std::conditional
+        <
+            std::is_same<coordinate_type<Linear>, most_precise_type>::value,
+            typename point_type<Linear>::type,
+            typename point_type<Areal>::type
+        >::type;
+
+        using linestring_type = geometry::model::linestring<point_type>;
+        
+        /* TODO: currently intersection does not support tupled input
+         *       this should be implemented directly with dynamic geometries
+        using polygon_type = geometry::model::polygon<point_type>;
+        std::tuple
+        <
+            geometry::model::multi_point<point_type>, 
+            geometry::model::multi_linestring<linestring_type>,
+            geometry::model::multi_polygon<polygon_type>
+        > tp;
+        bool intersect_tp = geometry::intersection(linear, areal, tp, strategies);
+        */
+            
+        geometry::model::multi_point<point_type> mp_out;
+        geometry::intersection(linear, areal, mp_out, strategies);
+        
+        if (! boost::empty(mp_out))
+        {
+            set_segment_from_points::apply(*boost::begin(mp_out), 
+                                           *boost::begin(mp_out), 
+                                           shortest_seg);
+            return;
+        }
+        
+        // if there are no intersection points then the linear geometry (or part of it)
+        // is inside the areal; return any point of this part
+        geometry::model::multi_linestring<linestring_type> ln_out;
+        geometry::intersection(linear, areal, ln_out, strategies); 
+        
+        if (! boost::empty(ln_out))
+        {
+            set_segment_from_points::apply(*boost::begin(*boost::begin(ln_out)), 
+                                           *boost::begin(*boost::begin(ln_out)), 
+                                           shortest_seg); 
+            return;
+        }
+        
+        linear_to_linear::apply(linear, areal, shortest_seg, strategies, false);
+    }
+/*
+    template <typename Linear, typename Areal, typename Segment, typename Strategies>
+    static inline void apply(Areal const& areal,
+                             Linear const& linear,
+                             Segment& shortest_seg,
+                             Strategies const& strategies)
+    {
+        return apply(linear, areal, shortest_seg, strategies);
+    }
+    */
+};
+
+struct areal_to_linear
+{
+    template <typename Linear, typename Areal, typename Segment, typename Strategies>
+    static inline void apply(Areal const& areal,
+                             Linear const& linear,
+                             Segment& shortest_seg,
+                             Strategies const& strategies)
+    {
+        linear_to_areal::apply(linear, areal, shortest_seg, strategies);
+        detail::closest_points::swap_segment_points::apply(shortest_seg);
+        return;
+    }
+    
+};
+
+struct areal_to_areal
+{
+    template <typename Areal1, typename Areal2, typename Segment, typename Strategies>
+    static inline void apply(Areal1 const& areal1,
+                             Areal2 const& areal2,
+                             Segment& shortest_seg,
+                             Strategies const& strategies)
+    {
+        
+        if ( geometry::intersects(areal1, areal2, strategies) )
+        {
+            using point_type = typename point_type<Areal1>::type;
+            geometry::model::multi_point<point_type> mp_out;
+            bool intersect = geometry::intersection(areal1, areal2, mp_out, strategies);
+            if (! boost::empty(mp_out))
+            {
+                set_segment_from_points::apply(*boost::begin(mp_out), 
+                                               *boost::begin(mp_out), 
+                                               shortest_seg);
+            }
+            return;
+        }
+
+        linear_to_linear::apply(areal1, areal2, shortest_seg, strategies, false);
+    }
+};
+
+
+}} // namespace detail::closest_points
+#endif // DOXYGEN_NO_DETAIL
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+template <typename Linear, typename Areal>
+struct closest_points
+    <
+        Linear, Areal, 
+        linear_tag, areal_tag, 
+        false
+    >
+    : detail::closest_points::linear_to_areal
+{};
+
+template <typename Areal, typename Linear>
+struct closest_points
+    <
+        Areal, Linear,
+        areal_tag, linear_tag, 
+        false
+    >
+    : detail::closest_points::areal_to_linear
+{};
+
+template <typename Areal1, typename Areal2>
+struct closest_points
+    <
+        Areal1, Areal2,
+        areal_tag, areal_tag, 
+        false
+    >
+    : detail::closest_points::areal_to_areal
+{};
+
+
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+}} // namespace boost::geometry
+
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_LINEAR_OR_AREAL_TO_AREAL_HPP

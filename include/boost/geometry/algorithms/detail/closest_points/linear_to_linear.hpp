@@ -49,6 +49,7 @@ struct linear_to_linear
                     typename point_type<Linear1>::type,
                     Linear2
                 >::apply(*points_begin(linear1), linear2, shortest_seg, strategies);
+            return;
         }
 
         if (geometry::num_points(linear2) == 1)
@@ -58,6 +59,8 @@ struct linear_to_linear
                     typename point_type<Linear2>::type,
                     Linear1
                 >::apply(*points_begin(linear2), linear1, shortest_seg, strategies);
+            detail::closest_points::swap_segment_points::apply(shortest_seg);
+            return;
         }
 
         if (geometry::num_segments(linear1) < geometry::num_segments(linear2))
@@ -68,7 +71,8 @@ struct linear_to_linear
                 linear1,
                 shortest_seg,
                 strategies);
-
+            detail::closest_points::swap_segment_points::apply(shortest_seg);
+            return;
         }
 
         point_or_segment_range_to_geometry_rtree::apply(

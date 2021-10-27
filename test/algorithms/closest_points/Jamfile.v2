@@ -13,5 +13,6 @@ test-suite boost-geometry-algorithms-closest_points
     [ run pl_ar.cpp       : : : : algorithms_closest_points_pl_ar ]
     [ run pl_l.cpp        : : : : algorithms_closest_points_pl_l ]
     [ run pl_pl.cpp       : : : : algorithms_closest_points_pl_pl ]
+    [ run l_ar.cpp        : : : : algorithms_closest_points_l_ar ]
     [ run l_l.cpp         : : : : algorithms_closest_points_l_l ]
     ;
