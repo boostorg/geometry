@@ -1,29 +1,25 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+
 #include <geometry_test_common.hpp>
+
+#include <tuple>
+
+#include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/strategies/cartesian/intersection.hpp>
-#include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
-#include <boost/geometry/strategies/cartesian/point_in_point.hpp>
-
-#include <boost/tuple/tuple.hpp>
-
-// TEMP
-#include <boost/geometry/strategies/cartesian.hpp>
-#include <boost/geometry/strategies/geographic.hpp>
-#include <boost/geometry/strategies/spherical.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 
 typedef bg::model::point<double, 2, bg::cs::cartesian> Pt;
@@ -33,12 +29,6 @@ typedef bg::model::ring<Pt> R;
 typedef bg::model::multi_point<Pt> MPt;
 typedef bg::model::multi_linestring<Ls> MLs;
 typedef bg::model::multi_polygon<Po> MPo;
-
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
-
-#include <tuple>
-
-#endif
 
 template <typename G>
 inline void check(std::string const& wkt1,
@@ -83,8 +73,6 @@ inline void check(std::string const& wkt1,
         check(wkt1, wkt2, pair.second, out_str);
 }
 
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
-
 template <int I>
 inline void check(std::string const& wkt1,
                   std::string const& wkt2,
@@ -94,22 +82,13 @@ inline void check(std::string const& wkt1,
     check(wkt1, wkt2, std::get<I>(tup), out_str);
 }
 
-#endif
-
 template <typename Geometry>
-struct out_id
-    : boost::mpl::if_c
-        <
-            boost::is_base_of<bg::pointlike_tag, typename bg::tag<Geometry>::type>::value,
-            boost::mpl::int_<0>,
-            typename boost::mpl::if_c
-                <
-                    boost::is_base_of<bg::linear_tag, typename bg::tag<Geometry>::type>::value,
-                    boost::mpl::int_<1>,
-                    boost::mpl::int_<2>
-                >::type
-        >::type
-{};
+using out_id = std::integral_constant
+    <
+        int,
+        (bg::util::is_pointlike<Geometry>::value ? 0 :
+            (bg::util::is_linear<Geometry>::value ? 1 : 2))
+    >;
 
 template <typename In1, typename In2, typename Tup>
 inline void test_one(std::string const& in1_str,
@@ -403,10 +382,7 @@ int test_main(int, char* [])
 {
     test_pair<std::pair<MPt, MLs> >();
     test_tuple<boost::tuple<MPt, MLs, MPo> >();
-
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
     test_tuple<std::tuple<MPt, MLs, MPo> >();
-#endif
 
     return 0;
 }

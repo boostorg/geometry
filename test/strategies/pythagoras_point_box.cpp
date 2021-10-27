@@ -5,9 +5,8 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -29,7 +28,9 @@
 #endif
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/timer.hpp>
+
+// TODO move this to another non-unit test
+//#include <boost/timer.hpp>
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
@@ -365,8 +366,8 @@ inline void test_integer(bool check_types)
 
     if (check_types)
     {
-        BOOST_CHECK((boost::is_same<distance_type, double>::type::value));
-        BOOST_CHECK((boost::is_same<cdistance_type, boost::long_long_type>::type::value));
+        BOOST_CHECK((std::is_same<distance_type, double>::type::value));
+        BOOST_CHECK((std::is_same<cdistance_type, long long>::type::value));
     }
 }
 
@@ -394,41 +395,43 @@ void test_all_3d()
     test_all_3d<P, bg::model::point<double, 3, bg::cs::cartesian> >();
 }
 
-template <typename P, typename Strategy>
-void time_compare_s(int const n)
-{
-    typedef bg::model::box<P> box_type;
 
-    boost::timer t;
-    P p;
-    box_type b;
-    bg::assign_values(b, 0, 0, 1, 1);
-    bg::assign_values(p, 2, 2);
-    Strategy strategy;
-    typename bg::strategy::distance::services::return_type
-        <
-            Strategy, P, box_type
-        >::type s = 0;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            bg::set<0>(p, bg::get<0>(p) + 0.001);
-            s += strategy.apply(p, b);
-        }
-    }
-    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
-}
-
-template <typename P>
-inline void time_compare(int const n)
-{
-    time_compare_s<P, bg::strategy::distance::pythagoras_point_box<> >(n);
-    time_compare_s
-        <
-            P, bg::strategy::distance::comparable::pythagoras_point_box<>
-        >(n);
-}
+// TODO move this to another non-unit test
+//template <typename P, typename Strategy>
+//void time_compare_s(int const n)
+//{
+//    typedef bg::model::box<P> box_type;
+//
+//    boost::timer t;
+//    P p;
+//    box_type b;
+//    bg::assign_values(b, 0, 0, 1, 1);
+//    bg::assign_values(p, 2, 2);
+//    Strategy strategy;
+//    typename bg::strategy::distance::services::return_type
+//        <
+//            Strategy, P, box_type
+//        >::type s = 0;
+//    for (int i = 0; i < n; i++)
+//    {
+//        for (int j = 0; j < n; j++)
+//        {
+//            bg::set<0>(p, bg::get<0>(p) + 0.001);
+//            s += strategy.apply(p, b);
+//        }
+//    }
+//    std::cout << "s: " << s << " t: " << t.elapsed() << std::endl;
+//}
+//
+//template <typename P>
+//inline void time_compare(int const n)
+//{
+//    time_compare_s<P, bg::strategy::distance::pythagoras_point_box<> >(n);
+//    time_compare_s
+//        <
+//            P, bg::strategy::distance::comparable::pythagoras_point_box<>
+//        >(n);
+//}
 
 
 
@@ -436,7 +439,7 @@ inline void time_compare(int const n)
 BOOST_AUTO_TEST_CASE( test_integer_all )
 {
     test_integer<int>(true);
-    test_integer<boost::long_long_type>(true);
+    test_integer<long long>(true);
     test_integer<double>(false);
 }
 

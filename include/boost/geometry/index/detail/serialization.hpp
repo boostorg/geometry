@@ -2,6 +2,10 @@
 //
 // Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
 //
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+//
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -9,10 +13,20 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+
 //#include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
 //#include <boost/serialization/nvp.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/geometries/box.hpp>
+
+#include <boost/geometry/index/parameters.hpp>
+#include <boost/geometry/index/detail/rtree/node/concept.hpp>
+#include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>
 
 // TODO
 // how about using the unsigned type capable of storing Max in compile-time versions?
@@ -26,7 +40,13 @@
 //   each geometry save without this info
 
 // TODO - move to index/detail/serialization.hpp
-namespace boost { namespace geometry { namespace index { namespace detail {
+namespace boost { namespace geometry { namespace index {
+
+// Forward declaration
+template <typename Value, typename Options, typename IndexableGetter, typename EqualTo, typename Allocator>
+class rtree;
+
+namespace detail {
 
 // TODO - use boost::move?
 template<typename T>

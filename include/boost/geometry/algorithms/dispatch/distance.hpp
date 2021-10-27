@@ -70,6 +70,29 @@ struct distance_strategy_type<Geometry1, Geometry2, Strategies, true, true>
 
 template
 <
+    typename Geometry1, typename Geometry2, typename Strategies,
+    bool IsDynamicOrGC = util::is_dynamic_geometry<Geometry1>::value
+                      || util::is_dynamic_geometry<Geometry2>::value
+                      || util::is_geometry_collection<Geometry1>::value
+                      || util::is_geometry_collection<Geometry2>::value
+>
+struct distance_strategy_tag
+{
+    using type = void;
+};
+
+template <typename Geometry1, typename Geometry2, typename Strategies>
+struct distance_strategy_tag<Geometry1, Geometry2, Strategies, false>
+{
+    using type = typename strategy::distance::services::tag
+        <
+            typename distance_strategy_type<Geometry1, Geometry2, Strategies>::type
+        >::type;
+};
+
+
+template
+<
     typename Geometry1, typename Geometry2,
     typename Strategy = typename strategies::distance::services::default_strategy
         <
@@ -91,11 +114,11 @@ template
             linear_tag,
             areal_tag
         >::type,
-    typename StrategyTag = typename strategy::distance::services::tag
+    typename StrategyTag = typename distance_strategy_tag
         <
-            typename distance_strategy_type<Geometry1, Geometry2, Strategy>::type
+            Geometry1, Geometry2, Strategy
         >::type,
-    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
+    bool Reverse = reverse_dispatch<Geometry1, Geometry2>::value
 >
 struct distance : not_implemented<Tag1, Tag2>
 {};

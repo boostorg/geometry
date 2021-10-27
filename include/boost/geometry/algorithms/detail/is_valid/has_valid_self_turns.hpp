@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -54,11 +54,6 @@ private:
             CSTag
         >::type rescale_policy_type;
 
-    typedef detail::overlay::get_turn_info
-        <
-            detail::overlay::assign_null_policy
-        > turn_policy;
-
 public:
     typedef detail::overlay::turn_info
         <
@@ -88,12 +83,11 @@ public:
             > interrupt_policy;
 
         // Calculate self-turns, skipping adjacent segments
-        detail::self_get_turn_points::self_turns<false, turn_policy>(geometry,
-                                          strategy,
-                                          robust_policy,
-                                          turns,
-                                          interrupt_policy,
-                                          0, true);
+        detail::self_get_turn_points::self_turns
+            <
+                false, detail::overlay::assign_null_policy
+            >(geometry, strategy, robust_policy, turns, interrupt_policy,
+              0, true);
 
         if (interrupt_policy.has_intersections)
         {

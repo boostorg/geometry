@@ -182,6 +182,22 @@ struct enable_if_segment
 template <typename Geometry, typename T = void>
 using enable_if_segment_t = typename enable_if_segment<Geometry, T>::type;
 
+template <typename Geometry, typename T = void>
+struct enable_if_linestring
+    : std::enable_if<is_linestring<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_linestring_t = typename enable_if_linestring<Geometry, T>::type;
+
+template <typename Geometry, typename T = void>
+struct enable_if_multi_linestring
+    : std::enable_if<is_multi_linestring<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_multi_linestring_t = typename enable_if_multi_linestring<Geometry, T>::type;
+
 
 template <typename Geometry, typename T = void>
 struct enable_if_polylinear
@@ -209,6 +225,30 @@ struct enable_if_box
 template <typename Geometry, typename T = void>
 using enable_if_box_t = typename enable_if_box<Geometry, T>::type;
 
+template <typename Geometry, typename T = void>
+struct enable_if_ring
+    : std::enable_if<is_ring<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_ring_t = typename enable_if_ring<Geometry, T>::type;
+
+template <typename Geometry, typename T = void>
+struct enable_if_polygon
+    : std::enable_if<is_polygon<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_polygon_t = typename enable_if_polygon<Geometry, T>::type;
+
+template <typename Geometry, typename T = void>
+struct enable_if_multi_polygon
+    : std::enable_if<is_multi_polygon<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_multi_polygon_t = typename enable_if_multi_polygon<Geometry, T>::type;
+
 
 template <typename Geometry, typename T = void>
 struct enable_if_polygonal
@@ -235,6 +275,23 @@ struct enable_if_polysegmental
 
 template <typename Geometry, typename T = void>
 using enable_if_polysegmental_t = typename enable_if_polysegmental<Geometry, T>::type;
+
+
+template <typename Geometry, typename T = void>
+struct enable_if_dynamic_geometry
+    : std::enable_if<is_dynamic_geometry<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_dynamic_geometry_t = typename enable_if_dynamic_geometry<Geometry, T>::type;
+
+template <typename Geometry, typename T = void>
+struct enable_if_geometry_collection
+    : std::enable_if<is_geometry_collection<Geometry>::value, T>
+{};
+
+template <typename Geometry, typename T = void>
+using enable_if_geometry_collection_t = typename enable_if_geometry_collection<Geometry, T>::type;
 
 
 } // namespace util

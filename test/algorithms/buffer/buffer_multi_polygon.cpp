@@ -3,8 +3,8 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016.
-// Modifications copyright (c) 2016, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -657,7 +657,7 @@ void test_all()
         join_round32, end_round32, 0.0, -10.0);
 
     // Check cases with extreme coordinates on assertions
-    if (BOOST_GEOMETRY_CONDITION((boost::is_same<coor_type, double>::value)))
+    if (BOOST_GEOMETRY_CONDITION((std::is_same<coor_type, double>::value)))
     {
         test_one<multi_polygon_type, polygon_type>("mysql_report_2015_07_05_1",
             mysql_report_2015_07_05_1,
@@ -686,7 +686,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(5, 1, 3, 4);
+    BoostGeometryWriteExpectedFailures(3, 1, 3, 3);
 #endif
 
     return 0;

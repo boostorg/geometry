@@ -20,6 +20,7 @@ void test_spikes_in_ticket_8364()
 {
     ut_settings ignore_validity;
     ignore_validity.set_test_validity(false);
+    ignore_validity.validity_of_sym = false;
 
     // See: https://svn.boost.org/trac/boost/ticket/8364
     //_TPolygon<T> polygon( "MULTIPOLYGON(((1031 1056,3232 1056,3232 2856,1031 2856)))" );
@@ -30,44 +31,27 @@ void test_spikes_in_ticket_8364()
     //polygon -= _TPolygon<T>( "MULTIPOLYGON(((1032 2556,1032 2130,1778 2556)),((3234 2580,2136 2760,1778 2556,3234 2556)))" ); USED IN STEP 4
     // NOTE: polygons below are closed and clockwise
 
-    typedef typename bg::coordinate_type<P>::type ct;
     typedef bg::model::polygon<P, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
     // The difference of polygons below result in a spike. The spike should be there, it was also generated in ttmath,
     // and (e.g.) in SQL Server. However, using int-coordinates, the spike makes the polygon invalid. Therefore it is now (since August 2013) checked and removed.
 
-#ifdef BOOST_GEOMETRY_TEST_FAILURES
-    // TODO: commented working at ii/validity, this changes the area slightly, to be checked
     // So using int's, the spike is removed automatically. Therefore there is one polygon less, and less points. Also area differs
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step3",
         "MULTIPOLYGON(((3232 2532,2136 2790,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2532)))",
         "MULTIPOLYGON(((1032 2130,2052 2712,1032 1764,1032 2130)),((3234 2580,3234 2532,2558 2690,3234 2580)),((2558 2690,2136 2760,2052 2712,2136 2790,2558 2690)))",
-        2,
-        if_typed<ct, int>(19, 22),
-        if_typed<ct, int>(2775595.5, 2775256.487954), // SQL Server: 2775256.47588724
-        3,
-        -1, // don't check point-count
-        if_typed<ct, int>(7893.0, 7810.487954), // SQL Server: 7810.48711165739
-        if_typed<ct, int>(1, 5),
-        -1,
-        if_typed<ct, int>(2783349.5, 2775256.487954 + 7810.487954),
-        ignore_validity);
-#endif
+        count_set(2, 3), -1, expectation_limits(2775256, 2775610), // SQL Server: 2775256.47588724
+        3, -1, expectation_limits(7810, 7893), // SQL Server: 7810.48711165739
+        count_set(2, 6), ignore_validity);
 
     // TODO: behaviour is not good yet. It is changed at introduction of self-turns.
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step4",
         "MULTIPOLYGON(((2567 2688,2136 2790,2052 2712,1032 2130,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2580,2567 2688)))",
         "MULTIPOLYGON(((1032 2556,1778 2556,1032 2130,1032 2556)),((3234 2580,3234 2556,1778 2556,2136 2760,3234 2580)))",
-        if_typed<ct, int>(1, 2),
-        if_typed<ct, int>(17, 20),
-        if_typed<ct, int>(2615783.5, 2616029.559567), // SQL Server: 2616029.55616044
-        1,
-        if_typed<ct, int>(9, 11),
-        if_typed<ct, int>(161133.5, 161054.559567), // SQL Server: 161054.560110092
-        if_typed<ct, int>(1, 3),
-        if_typed<ct, int>(25, 31),
-        if_typed<ct, int>(2776875.5, 2616029.559567 + 161054.559567));
+        count_set(1, 2), -1, expectation_limits(2615783, 2616030), // SQL Server: 2616029.55616044
+        1, -1, expectation_limits(161054, 161134), // SQL Server: 161054.560110092
+        count_set(1, 3), ignore_validity);
 }
 
 template <typename P, bool ClockWise, bool Closed>
@@ -76,7 +60,6 @@ void test_spikes_in_ticket_8365()
     // See: https://svn.boost.org/trac/boost/ticket/8365
     // NOTE: polygons below are closed and clockwise
 
-    typedef typename bg::coordinate_type<P>::type ct;
     typedef bg::model::polygon<P, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
 
@@ -85,13 +68,11 @@ void test_spikes_in_ticket_8365()
         "MULTIPOLYGON(((5388 1560,4650 1722,3912 1884,4650 1398)),((2442 3186,1704 3348,966 2700,1704 3024)))",
         2,
         18,
-        if_typed<ct, int>(7975092.5, 7975207.6047877), // SQL Server:
+        expectation_limits(7975092.5, 7975207.6047877),
         2,
         -1,
-        if_typed<ct, int>(196.5, 197.1047877), // SQL Server:
-        if_typed<ct, int>(3, 4),
-        -1,
-        if_typed<ct, int>(7975092.5 + 196.5, 7975207.6047877 + 197.1047877));
+        expectation_limits(196.5, 198.5),
+        count_set(2, 4));
 }
 
 
@@ -109,6 +90,7 @@ int test_main(int, char* [])
     test_spikes_in_ticket_8364<bg::model::d2::point_xy<int>, false, false>();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, true, true >();
     test_spikes_in_ticket_8365<bg::model::d2::point_xy<int>, false, false >();
+
     return 0;
 }
 

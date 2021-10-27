@@ -4,6 +4,7 @@
 // Copyright (c) 2018, 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -204,13 +205,13 @@ void test_car()
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
     // The following type of test is not robust;
     // (1 3) could be missing due to floating point round off errors
-    //test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-    //                                (1.2 2)(1 2.2)(1 2.6)(1 3))");
+    //test<LS,MP>(l1, 0.1, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)"
+    //                                "(1.2 2)(1 2.2)(1 2.6)(1 3))");
     // Tests are more robust if you directly pass the distance
-    test_distance<LS,MP>(l1, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)\
-                                             (1.2 2)(1 2.2)(1 2.6)(1 3))");
-    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.36 1)(1.72 1)(2 1.08)(2 1.44)(2 1.8)\
-                                      (1.84 2)(1.48 2)(1.12 2)(1 2.24)(1 2.6)(1 2.96))");
+    test_distance<LS,MP>(l1, 0.4, "MULTIPOINT((1.4 1)(1.8 1)(2 1.2)(2 1.6)(2 2)(1.6 2)"
+                                             "(1.2 2)(1 2.2)(1 2.6)(1 3))");
+    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.36 1)(1.72 1)(2 1.08)(2 1.44)(2 1.8)"
+                                      "(1.84 2)(1.48 2)(1.12 2)(1 2.24)(1 2.6)(1 2.96))");
     test<LS,MP>(l1, 0.21, "MULTIPOINT((1.84 1)(2 1.68)(1.48 2)(1 2.36))");
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.6)(1 2.2))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6 2))");
@@ -241,18 +242,18 @@ void test_sph()
     test<LS,P>(l1, 1,   "POINT(1 3)");
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))");
-    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.35999 1.00004)(1.71997 1.00003)\
-                                      (2 1.07995)(2 1.43988)(2 1.79981)(1.84016 2.00004)\
-                                      (1.48001 2.00008)(1.11986 2.00003)(1 2.24014)\
-                                      (1 2.60008)(1 2.96001))");
+    test<LS,MP>(l1, 0.09, "MULTIPOINT((1.35999 1.00004)(1.71997 1.00003)"
+                                     "(2 1.07995)(2 1.43988)(2 1.79981)(1.84016 2.00004)"
+                                     "(1.48001 2.00008)(1.11986 2.00003)(1 2.24014)"
+                                     "(1 2.60008)(1 2.96001))");
     test<LS,MP>(l1, 0.21, "MULTIPOINT((1.83997 1.00002)(2 1.67983)(1.48001 2.00008)(1 2.36012))");
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.5998477098527744)(1 2.2001522994279883))");
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6000609543036084 2.0000730473928678))");
     test<LS,MP>(l1, 1, "MULTIPOINT((1 3))");
 
-    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.3014893312120446 1.0006787676128222)\
-                                     (11.600850053156366 1.0085030143490989)\
-                                     (17.9002174825842 1.0041514208039872))");
+    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.3014893312120446 1.0006787676128222)"
+                                    "(11.600850053156366 1.0085030143490989)"
+                                    "(17.9002174825842 1.0041514208039872))");
 }
 
 template <typename Strategy>
@@ -294,18 +295,18 @@ void test_geo(Strategy str)
     test<LS,P>(l1, 1,   "POINT(1 3)", str);
 
     test<LS,MP>(l1, 0, "MULTIPOINT((1 1))", str);
-    test<LS,MP>(l1, 0.11, "MULTIPOINT((1.43851 1.00004)(1.87702 1.00002)(2 1.31761)\
-                (2 1.75901)(1.80081 2.00005)(1.3621 2.00007)\
-                (1 2.07708)(1 2.51847)(1 2.95986))", str);
-    test<LS,MP>(l1, 0.21, "MULTIPOINT((1.83716 1.00002)(2 1.67875)(1.48176 2.00008)\
-                                      (1 2.35796))", str);
+    test<LS,MP>(l1, 0.11, "MULTIPOINT((1.43851 1.00004)(1.87702 1.00002)(2 1.31761)"
+                                     "(2 1.75901)(1.80081 2.00005)(1.3621 2.00007)"
+                                     "(1 2.07708)(1 2.51847)(1 2.95986))", str);
+    test<LS,MP>(l1, 0.21, "MULTIPOINT((1.83716 1.00002)(2 1.67875)(1.48176 2.00008)"
+                                     "(1 2.35796))", str);
     test<LS,MP>(l1, 0.4, "MULTIPOINT((2 1.598498298996567)(1 2.1974612279909937))", str);
     test<LS,MP>(l1, 0.6, "MULTIPOINT((1.6013936980010324 2.0000734568388099))", str);
     test<LS,MP>(l1, 1, "MULTIPOINT((1 3))", str);
 
-    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.306157814 1.0006937303)\
-                                     (11.60351281 1.0085614548123072)\
-                                     (17.90073492 1.004178475142552))", str);
+    test<LS,MP>(l2, 0.3, "MULTIPOINT((5.306157814 1.0006937303)"
+                                    "(11.60351281 1.0085614548123072)"
+                                    "(17.90073492 1.004178475142552))", str);
 }
 
 template <typename Strategy>

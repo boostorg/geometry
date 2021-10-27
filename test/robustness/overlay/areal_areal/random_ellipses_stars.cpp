@@ -1,13 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
+#define BOOST_GEOMETRY_NO_ROBUSTNESS
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 
 #include <test_overlay_p_q.hpp>
 
@@ -166,11 +168,13 @@ void test_type(int seed, int count, p_q_settings const& settings)
 template <bool Clockwise, bool Closed>
 void test_all(std::string const& type, int seed, int count, p_q_settings settings)
 {
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     if (type == "float")
     {
         test_type<float, Clockwise, Closed>(seed, count, settings);
     }
     else if (type == "double")
+#endif
     {
         test_type<double, Clockwise, Closed>(seed, count, settings);
     }
@@ -187,7 +191,7 @@ int main(int argc, char** argv)
 
         int count = 1;
         int seed = static_cast<unsigned int>(std::time(0));
-        std::string type = "float";
+        std::string type = "double";
         bool ccw = false;
         bool open = false;
         p_q_settings settings;
@@ -197,9 +201,11 @@ int main(int argc, char** argv)
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
             ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
-            ("type", po::value<std::string>(&type)->default_value("float"), "Type (float,double)")
+            ("type", po::value<std::string>(&type)->default_value("double"), "Type (float,double)")
+#endif
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;
@@ -214,6 +220,7 @@ int main(int argc, char** argv)
             return 1;
         }
 
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
         if (ccw && open)
         {
             test_all<false, false>(type, seed, count, settings);
@@ -227,6 +234,7 @@ int main(int argc, char** argv)
             test_all<true, false>(type, seed, count, settings);
         }
         else
+#endif
         {
             test_all<true, true>(type, seed, count, settings);
         }

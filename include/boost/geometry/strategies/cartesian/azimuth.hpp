@@ -14,10 +14,10 @@
 #include <cmath>
 
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 
 #include <boost/geometry/strategies/azimuth.hpp>
 
-#include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry

@@ -24,6 +24,7 @@
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/algorithms/envelope.hpp>
@@ -37,7 +38,6 @@
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 // TEMP

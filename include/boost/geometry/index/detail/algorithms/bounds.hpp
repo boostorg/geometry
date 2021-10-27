@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2020.
-// Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2021.
+// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -14,6 +14,11 @@
 
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_BOUNDS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_BOUNDS_HPP
+
+#include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
+#include <boost/geometry/algorithms/detail/envelope/interface.hpp>
+#include <boost/geometry/algorithms/detail/expand/interface.hpp>
 
 #include <boost/geometry/index/detail/bounded_view.hpp>
 

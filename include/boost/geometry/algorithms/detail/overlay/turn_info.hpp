@@ -138,6 +138,11 @@ struct turn_info
     {
         return cluster_id > 0;
     }
+    inline bool is_self() const
+    {
+        return operations[0].seg_id.source_index
+                == operations[1].seg_id.source_index;
+    }
 
 private :
     inline bool has12(operation_type type1, operation_type type2) const

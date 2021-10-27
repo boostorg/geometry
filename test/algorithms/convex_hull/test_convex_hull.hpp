@@ -3,9 +3,10 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
@@ -16,8 +17,6 @@
 #ifndef BOOST_GEOMETRY_TEST_CONVEX_HULL_HPP
 #define BOOST_GEOMETRY_TEST_CONVEX_HULL_HPP
 
-#include <boost/variant/variant.hpp>
-
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/convex_hull.hpp>
@@ -26,12 +25,17 @@
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/perimeter.hpp>
 
+#include <boost/geometry/geometries/adapted/boost_variant.hpp>
+#include <boost/geometry/geometries/geometry_collection.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+
 #include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/strategies/area/services.hpp>
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
 
-#include <boost/geometry/strategy/cartesian/side_robust.hpp>
+#include <boost/geometry/strategy/cartesian/precise_area.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategy/cartesian/side_non_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/precise_area.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -39,15 +43,19 @@
 #include <boost/geometry/geometries/polygon.hpp>
 
 
-struct robust_cartesian : boost::geometry::strategies::detail::cartesian_base
+struct robust_cartesian : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
-        return boost::geometry::strategy::side::side_robust<>();
+        return boost::geometry::strategy::side::side_robust
+            <
+                double,
+                boost::geometry::strategy::side::fp_equals_policy
+            >();
     }
 };
 
-struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesian_base
+struct non_robust_cartesian_fast : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
@@ -55,7 +63,7 @@ struct non_robust_cartesian_fast : boost::geometry::strategies::detail::cartesia
     }
 };
 
-struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian_base
+struct non_robust_cartesian_sbt : boost::geometry::strategies::convex_hull::cartesian<>
 {
     static auto side()
     {
@@ -64,7 +72,7 @@ struct non_robust_cartesian_sbt : boost::geometry::strategies::detail::cartesian
 };
 
 template <typename CalculationType = void>
-struct sphrerical_side_by_cross_track : boost::geometry::strategies::detail::spherical_base<void>
+struct sphrerical_side_by_cross_track : boost::geometry::strategies::convex_hull::spherical<>
 {
     static auto side()
     {
@@ -72,8 +80,9 @@ struct sphrerical_side_by_cross_track : boost::geometry::strategies::detail::sph
     }
 };
 
-struct precise_cartesian : boost::geometry::strategies::detail::cartesian_base
+struct precise_cartesian : boost::geometry::strategies::area::cartesian<>
 {
+    // Technically this should be enabled only for non-boxes
     template <typename Geometry>
     static auto area(Geometry const&)
     {
@@ -119,31 +128,6 @@ void check_convex_hull(Geometry const& geometry, Hull const& hull,
     }
 }
 
-namespace resolve_variant {
-
-struct closure_visitor : public boost::static_visitor<bg::closure_selector>
-{
-    template <typename Geometry>
-    bg::closure_selector operator()(Geometry const&) const
-    {
-        return bg::closure<Geometry>::value;
-    }
-};
-
-template <typename Geometry>
-inline bg::closure_selector get_closure(Geometry const&)
-{
-    return bg::closure<Geometry>::value;
-}
-
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-inline bg::closure_selector get_closure(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& v)
-{
-    return boost::apply_visitor(closure_visitor(), v);
-}
-
-} // namespace resolve_variant
-
 
 template
 <
@@ -159,34 +143,39 @@ struct test_convex_hull
                       std::size_t size_hull_closed,
                       double expected_area,
                       double expected_perimeter,
-                      bool reverse)
+                      bool )
     {
-        bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
         static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
-
-        // convex_hull_insert() uses the original Geometry as a source of the info
-        // about the order and closure
-        std::size_t const size_hull_from_orig = is_original_closed ?
-                    size_hull_closed : size_hull_closed - 1;
         std::size_t const size_hull = is_hull_closed ? size_hull_closed :
                                                        size_hull_closed - 1;
 
         Hull hull;
-
-        // Test version with strategy
-        bg::clear(hull);
         bg::convex_hull(geometry, hull.outer(), Strategy());
+
         check_convex_hull(geometry, hull, size_original, size_hull,
             expected_area, expected_perimeter, false, AreaStrategy());
 
-        // Test version with output iterator and strategy
         bg::clear(hull);
-        bg::detail::convex_hull::convex_hull_insert(
-            geometry,
-            std::back_inserter(hull.outer()), Strategy());
-        check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
-            expected_area, expected_perimeter, reverse, AreaStrategy());
+        bg::convex_hull(geometry, hull, Strategy());
 
+        using point_t = typename bg::point_type<Hull>::type;
+        using var_t = boost::variant<Hull, bg::model::linestring<point_t>, point_t>;
+        using gc_t = bg::model::geometry_collection<var_t>;
+
+        var_t var;
+        bg::convex_hull(geometry, var, Strategy());
+
+        gc_t gc;
+        bg::convex_hull(geometry, gc, Strategy());
+
+        BOOST_CHECK(var.which() == gc[0].which());
+
+        if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[1], Strategy()))
+            BOOST_CHECK(gc[0].which() == 2); // GC stores point
+        else if (bg::detail::equals::equals_point_point(hull.outer()[0], hull.outer()[2], Strategy()))
+            BOOST_CHECK(gc[0].which() == 1); // GC stores linestring
+        else
+            BOOST_CHECK(gc[0].which() == 0); // GC stores polygon
     }
 };
 
@@ -204,29 +193,14 @@ struct test_convex_hull<Hull, robust_cartesian, AreaStrategy>
                       std::size_t size_hull_closed,
                       double expected_area,
                       double expected_perimeter,
-                      bool reverse)
+                      bool )
     {
-        bool const is_original_closed = resolve_variant::get_closure(geometry) != bg::open;
         static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
-
-        // convex_hull_insert() uses the original Geometry as a source of the info
-        // about the order and closure
-        std::size_t const size_hull_from_orig = is_original_closed ?
-                    size_hull_closed : size_hull_closed - 1;
         std::size_t const size_hull = is_hull_closed ? size_hull_closed :
                                                        size_hull_closed - 1;
 
-        Hull hull;
-
-        // Test version with output iterator
-        bg::detail::convex_hull::convex_hull_insert(geometry,
-                                                    std::back_inserter(hull.outer()));
-        check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
-                          expected_area, expected_perimeter, reverse,
-                          AreaStrategy());
-
         // Test version with ring as output
-        bg::clear(hull);
+        Hull hull;
         bg::convex_hull(geometry, hull.outer());
         check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
                           expected_perimeter, false, AreaStrategy());
@@ -242,14 +216,34 @@ struct test_convex_hull<Hull, robust_cartesian, AreaStrategy>
         bg::convex_hull(geometry, hull.outer(), robust_cartesian());
         check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
                           expected_perimeter, false, AreaStrategy());
+    }
+};
 
-        // Test version with output iterator and strategy
-        bg::clear(hull);
-        bg::detail::convex_hull::convex_hull_insert(geometry,
-                                                    std::back_inserter(hull.outer()), robust_cartesian());
-        check_convex_hull(geometry, hull, size_original, size_hull_from_orig,
-                          expected_area, expected_perimeter, reverse, AreaStrategy());
 
+template
+<
+    typename Hull
+>
+struct test_convex_hull<Hull, robust_cartesian, precise_cartesian>
+{
+    template <typename Geometry>
+    static void apply(Geometry const& geometry,
+                      std::size_t size_original,
+                      std::size_t size_hull_closed,
+                      double expected_area,
+                      double expected_perimeter,
+                      bool )
+    {
+        static bool const is_hull_closed = bg::closure<Hull>::value != bg::open;
+        std::size_t const size_hull = is_hull_closed ? size_hull_closed :
+                                                       size_hull_closed - 1;
+
+        // Test version with strategy
+        Hull hull;
+        bg::convex_hull(geometry, hull.outer(), robust_cartesian());
+
+        check_convex_hull(geometry, hull, size_original, size_hull, expected_area,
+                          expected_perimeter, false, precise_cartesian());
     }
 };
 
@@ -278,12 +272,17 @@ void test_geometry_order(std::string const& wkt,
     Geometry geometry;
     bg::read_wkt(wkt, geometry);
 
-
     test_convex_hull<hull_type, Strategy, AreaStrategy>::apply(geometry, size_original,
         size_hull_closed, expected_area, expected_perimeter, !Clockwise);
 
-    boost::variant<Geometry> v(geometry);
+    using variant_t = boost::variant<Geometry>;
+
+    variant_t v(geometry);
     test_convex_hull<hull_type, Strategy, AreaStrategy>::apply(v, size_original,
+        size_hull_closed, expected_area, expected_perimeter, !Clockwise);
+
+    bg::model::geometry_collection<variant_t> gc = { v };
+    test_convex_hull<hull_type, Strategy, AreaStrategy>::apply(gc, size_original,
         size_hull_closed, expected_area, expected_perimeter, !Clockwise);
 }
 
@@ -341,7 +340,6 @@ void test_empty_input()
     bg::convex_hull(geometry, hull);
     BOOST_CHECK_MESSAGE(bg::is_empty(hull), "Output convex hull should be empty" );
 }
-
 
 
 #endif

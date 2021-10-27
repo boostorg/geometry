@@ -13,6 +13,8 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 
+#include <boost/geometry/core/coordinate_promotion.hpp>
+
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
@@ -26,7 +28,6 @@
 #include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
-#include <boost/geometry/util/promote_floating_point.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 namespace boost { namespace geometry

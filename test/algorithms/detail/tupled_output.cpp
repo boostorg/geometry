@@ -1,8 +1,7 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2019 Oracle and/or its affiliates.
-
+// Copyright (c) 2019-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -34,14 +33,14 @@ template <typename TupleM, typename TupleS>
 void test_range_values()
 {
     typedef typename bgd::tupled_range_values<TupleM>::type tuple_s;
-    BOOST_CHECK_EQUAL((boost::is_same<tuple_s, TupleS>::value), true);
+    BOOST_CHECK_EQUAL((std::is_same<tuple_s, TupleS>::value), true);
 }
 
 template <typename TupleM, typename TupleBI>
 void test_back_inserters()
 {
     typedef typename bgd::tupled_back_inserters<TupleM>::type tuple_bi;
-    BOOST_CHECK_EQUAL((boost::is_same<tuple_bi, TupleBI>::value), true);
+    BOOST_CHECK_EQUAL((std::is_same<tuple_bi, TupleBI>::value), true);
 
     TupleM tup;
     bgd::tupled_back_inserters<TupleM>::apply(tup);

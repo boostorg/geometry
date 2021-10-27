@@ -60,7 +60,7 @@ jobs:
             git submodule update --init tools/build
             git submodule update --init libs/config
             git submodule update --init tools/boostdep
-            python tools/boostdep/depinst/depinst.py geometry
+            python tools/boostdep/depinst/depinst.py geometry -I index/test
             ./bootstrap.sh
             ./b2 headers
       - run: mkdir $COVERAGE_DIR
@@ -407,15 +407,15 @@ jobs:
           root: ~/project
           paths:
             - shared-coverage/index_rtree_exceptions
-  index_varray:
+  index_detail:
     <<: *config
     steps:
       - *attach_workspace
-      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh index_varray index/test//boost-geometry-index-varray
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh index_detail index/test//boost-geometry-index-detail
       - persist_to_workspace:
           root: ~/project
           paths:
-            - shared-coverage/index_varray
+            - shared-coverage/index_detail
 
   coverage:
     <<: *config
@@ -494,7 +494,7 @@ requires_4: &requires_4
     - index_rtree
     - index_rtree_b2d
     - index_rtree_exceptions
-    - index_varray
+    - index_detail
     - cs_undefined
 
 only_master_develop: &only_master_develop
@@ -630,7 +630,7 @@ workflows:
       - index_rtree_exceptions:
           <<: *requires_3
           <<: *only_master_develop
-      - index_varray:
+      - index_detail:
           <<: *requires_3
           <<: *only_master_develop
       - cs_undefined:

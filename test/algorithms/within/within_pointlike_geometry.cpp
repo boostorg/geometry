@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2015, 2016, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -154,19 +154,19 @@ void test_spherical_geographic()
 {
     bg::model::polygon<Point> wrangel;
 
-    typename boost::mpl::if_
+    std::conditional_t
         <
-            boost::is_same<typename bg::cs_tag<Point>::type, bg::geographic_tag>,
+            std::is_same<typename bg::cs_tag<Point>::type, bg::geographic_tag>::value,
             bg::strategy::within::geographic_winding<Point>,
             bg::strategy::within::spherical_winding<Point>
-        >::type ws;
+        > ws;
 
-    typename boost::mpl::if_
+    std::conditional_t
         <
-            boost::is_same<typename bg::cs_tag<Point>::type, bg::geographic_tag>,
+            std::is_same<typename bg::cs_tag<Point>::type, bg::geographic_tag>::value,
             bg::strategy::side::geographic<>,
             bg::strategy::side::spherical_side_formula<>
-        >::type ss;
+        > ss;
 
     boost::ignore_unused(ws, ss);
 
@@ -390,8 +390,8 @@ void test_large_integers()
 
 void test_tickets()
 {
-    typedef boost::geometry::model::d2::point_xy<double> pt;
-    typedef boost::geometry::model::ring<pt> ring;
+    typedef bg::model::d2::point_xy<double> pt;
+    typedef bg::model::ring<pt> ring;
 
     // https://svn.boost.org/trac/boost/ticket/9628
     {
@@ -408,9 +408,9 @@ void test_tickets()
 
         pt p( -12260.669324773118, 54820.312032458634 );
 
-        //boost::geometry::correct(r);
+        //bg::correct(r);
 
-        bool within = boost::geometry::within(p, r);
+        bool within = bg::within(p, r);
         BOOST_CHECK_EQUAL(within, false);
     }
     // similar
@@ -423,7 +423,7 @@ void test_tickets()
 
         pt p( -13826.0, 54820.312032458634 );
 
-        bool within = boost::geometry::within(p, r);
+        bool within = bg::within(p, r);
         BOOST_CHECK_EQUAL(within, false);
     }
 
@@ -433,9 +433,9 @@ void test_tickets()
         ring r;
         bg::read_wkt("POINT(0.1377 5.00)", p);
         bg::read_wkt("POLYGON((0.1277 4.97,  0.1277 5.00, 0.1278 4.9999999999999982, 0.1278 4.97, 0.1277 4.97))", r);
-        bool within = boost::geometry::within(p, r);
+        bool within = bg::within(p, r);
         BOOST_CHECK_EQUAL(within, false);
-        bool covered_by = boost::geometry::covered_by(p, r);
+        bool covered_by = bg::covered_by(p, r);
         BOOST_CHECK_EQUAL(covered_by, false);
     }
 }
