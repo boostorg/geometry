@@ -234,7 +234,6 @@ BOOST_AUTO_TEST_CASE( equals_segment_segment_geo )
     test_segment_segment<bgm::point<long double, 2, cs_type> >("geo");
 }
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
 // This version uses collect_vectors (because its side
 // strategy is spherical_side_formula) and fails
 BOOST_AUTO_TEST_CASE( equals_ring_ring_se)
@@ -247,7 +246,6 @@ BOOST_AUTO_TEST_CASE( equals_ring_ring_se)
                                         "POLYGON((10 50,10 51,11 50,10 50))",
                                         true);
 }
-#endif
 
 BOOST_AUTO_TEST_CASE( equals_ring_ring_geo )
 {
