@@ -62,7 +62,7 @@ void test_all()
     test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt >(
         polygon_wkt2, 5, 5, 1163.5247524752476);
     test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast >(
-        polygon_wkt2, 5, 4, 1163.5247524752476);
+        polygon_wkt2, 5, 5, 1163.5247524752476);
     test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt >(
         polygon_wkt2, 5, 4, 1163.5247524752476);
 
@@ -79,7 +79,7 @@ void test_all()
     test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt, precise_cartesian >(
         polygon_wkt3, 5, 4, -1.4210854715202004e-14);
     test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast, precise_cartesian >(
-        polygon_wkt3, 5, 4, 1.4210854715202004e-14);
+        polygon_wkt3, 5, 4, -1.4210854715202004e-14);
     test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt >(
         polygon_wkt3, 5, 5, 1.69333333333333265e-13);
 

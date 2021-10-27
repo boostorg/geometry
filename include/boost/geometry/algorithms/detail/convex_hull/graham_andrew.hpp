@@ -23,19 +23,18 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/range/begin.hpp>
-#include <boost/range/empty.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/size.hpp>
-
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/spherical.hpp>
+
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -45,13 +44,15 @@ namespace boost { namespace geometry
 namespace detail { namespace convex_hull
 {
 
-template <typename Geometry, typename Point, typename Less>
-inline void get_extremes(Geometry const& geometry,
+// TODO: All of the copies could be avoided if this function stored pointers to points.
+//       But would it be possible considering that a range can return proxy reference?
+template <typename InputProxy, typename Point, typename Less>
+inline void get_extremes(InputProxy const& in_proxy,
                          Point& left, Point& right,
                          Less const& less)
 {
     bool first = true;
-    geometry::detail::for_each_range(geometry, [&](auto const& range)
+    in_proxy.for_each_range([&](auto const& range)
     {
         if (boost::empty(range))
         {
@@ -107,19 +108,13 @@ inline void get_extremes(Geometry const& geometry,
 }
 
 
-template
-<
-    typename Geometry,
-    typename Point,
-    typename Container,
-    typename SideStrategy
->
-inline void assign_ranges(Geometry const& geometry,
+template <typename InputProxy, typename Point, typename Container, typename SideStrategy>
+inline void assign_ranges(InputProxy const& in_proxy,
                           Point const& most_left, Point const& most_right,
                           Container& lower_points, Container& upper_points,
                           SideStrategy const& side)
 {
-    geometry::detail::for_each_range(geometry, [&](auto const& range)
+    in_proxy.for_each_range([&](auto const& range)
     {
         // Put points in one of the two output sequences
         for (auto it = boost::begin(range); it != boost::end(range); ++it)
@@ -145,33 +140,16 @@ inline void assign_ranges(Geometry const& geometry,
 }
 
 
-template <typename Range, typename Less>
-inline void sort(Range& range, Less const& less)
-{
-    std::sort(boost::begin(range), boost::end(range), less);
-}
-
-} // namespace convex_hull
-
-
 /*!
 \brief Graham scan algorithm to calculate convex hull
  */
-template <typename InputGeometry, typename OutputPoint>
+template <typename InputPoint>
 class graham_andrew
 {
-public :
-    typedef OutputPoint point_type;
-    typedef InputGeometry geometry_type;
-
-private:
-
-    typedef typename cs_tag<point_type>::type cs_tag;
-
+    typedef InputPoint point_type;
     typedef typename std::vector<point_type> container_type;
     typedef typename std::vector<point_type>::const_iterator iterator;
     typedef typename std::vector<point_type>::const_reverse_iterator rev_iterator;
-
 
     class partitions
     {
@@ -182,14 +160,23 @@ private:
         container_type m_copied_input;
     };
 
-
 public:
-    typedef partitions state_type;
+    template <typename InputProxy, typename OutputRing, typename Strategy>
+    static void apply(InputProxy const& in_proxy, OutputRing & out_ring, Strategy& strategy)
+    {
+        partitions state;
 
-    template <typename Strategy>
-    inline void apply(InputGeometry const& geometry,
-                      partitions& state,
-                      Strategy& strategy) const
+        apply(in_proxy, state, strategy);
+
+        result(state,
+               range::back_inserter(out_ring),
+               geometry::point_order<OutputRing>::value == clockwise,
+               geometry::closure<OutputRing>::value != open);
+    }
+
+private:
+    template <typename InputProxy, typename Strategy>
+    static void apply(InputProxy const& in_proxy, partitions& state, Strategy& strategy)
     {
         // First pass.
         // Get min/max (in most cases left / right) points
@@ -203,14 +190,12 @@ public:
         // For symmetry and to get often more balanced lower/upper halves
         // we keep it.
 
-        typedef typename geometry::point_type<InputGeometry>::type point_type;
-
         point_type most_left, most_right;
 
         // TODO: User-defined CS-specific less-compare
         geometry::less<point_type> less;
 
-        detail::convex_hull::get_extremes(geometry, most_left, most_right, less);
+        detail::convex_hull::get_extremes(in_proxy, most_left, most_right, less);
 
         container_type lower_points, upper_points;
 
@@ -219,13 +204,13 @@ public:
         // Bounding left/right points
         // Second pass, now that extremes are found, assign all points
         // in either lower, either upper
-        detail::convex_hull::assign_ranges(geometry, most_left, most_right,
+        detail::convex_hull::assign_ranges(in_proxy, most_left, most_right,
                               lower_points, upper_points,
                               side_strategy);
 
         // Sort both collections, first on x(, then on y)
-        detail::convex_hull::sort(lower_points, less);
-        detail::convex_hull::sort(upper_points, less);
+        std::sort(boost::begin(lower_points), boost::end(lower_points), less);
+        std::sort(boost::begin(upper_points), boost::end(upper_points), less);
 
         // And decide which point should be in the final hull
         build_half_hull<-1>(lower_points, state.m_lower_hull,
@@ -235,26 +220,6 @@ public:
                            most_left, most_right,
                            side_strategy);
     }
-
-
-    template <typename OutputIterator>
-    inline void result(partitions const& state,
-                       OutputIterator out,
-                       bool clockwise,
-                       bool closed) const
-    {
-        if (clockwise)
-        {
-            output_ranges(state.m_upper_hull, state.m_lower_hull, out, closed);
-        }
-        else
-        {
-            output_ranges(state.m_lower_hull, state.m_upper_hull, out, closed);
-        }
-    }
-
-
-private:
 
     template <int Factor, typename SideStrategy>
     static inline void build_half_hull(container_type const& input,
@@ -301,6 +266,19 @@ private:
 
 
     template <typename OutputIterator>
+    static void result(partitions const& state, OutputIterator out, bool clockwise, bool closed)
+    {
+        if (clockwise)
+        {
+            output_ranges(state.m_upper_hull, state.m_lower_hull, out, closed);
+        }
+        else
+        {
+            output_ranges(state.m_lower_hull, state.m_upper_hull, out, closed);
+        }
+    }
+
+    template <typename OutputIterator>
     static inline void output_ranges(container_type const& first,
                                      container_type const& second,
                                      OutputIterator out,
@@ -327,7 +305,7 @@ private:
 };
 
 
-} // namespace detail
+}} // namespace detail::convex_hull
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

@@ -128,7 +128,8 @@ struct base_turn_handler
         }
 
         auto const dm = get_distance_measure(range_p.at(range_index), range_p.at(range_index + 1), range_q.at(point_index));
-        return dm.measure == 0 ? 0 : dm.measure > 0 ? 1 : -1;
+        static decltype(dm.measure) const zero = 0;
+        return dm.measure == zero ? 0 : dm.measure > zero ? 1 : -1;
     }
 
     template
@@ -241,33 +242,45 @@ struct base_turn_handler
         BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
-        ti.operations[IndexP].remaining_distance = distance_measure(ti.point, range_p.at(index_p));
-        ti.operations[IndexQ].remaining_distance = distance_measure(ti.point, range_q.at(index_q));
+        bool const p_in_range = index_p < range_p.size();
+        bool const q_in_range = index_q < range_q.size();
+        ti.operations[IndexP].remaining_distance
+            = p_in_range
+              ? distance_measure(ti.point, range_p.at(index_p))
+              : 0;
+        ti.operations[IndexQ].remaining_distance
+            = q_in_range
+              ? distance_measure(ti.point, range_q.at(index_q))
+              : 0;
 
-        // pk/q2 is considered as collinear, but there might be
-        // a tiny measurable difference. If so, use that.
-        // Calculate pk // qj-qk
-        bool const p_closer =
-                ti.operations[IndexP].remaining_distance
-                <  ti.operations[IndexQ].remaining_distance;
-        auto const dm
+        if (p_in_range && q_in_range)
+        {
+            // pk/q2 is considered as collinear, but there might be
+            // a tiny measurable difference. If so, use that.
+            // Calculate pk // qj-qk
+            bool const p_closer
+                = ti.operations[IndexP].remaining_distance
+                  <  ti.operations[IndexQ].remaining_distance;
+            auto const dm
                 = p_closer
                 ? get_distance_measure(range_q.at(index_q - 1),
                     range_q.at(index_q), range_p.at(index_p))
                 : get_distance_measure(range_p.at(index_p - 1),
                     range_p.at(index_p), range_q.at(index_q));
 
-        if (! dm.is_zero())
-        {
-            // Not truely collinear, distinguish for union/intersection
-            // If p goes left (positive), take that for a union
-            bool const p_left = p_closer ? dm.is_positive() : dm.is_negative();
+            if (! dm.is_zero())
+            {
+                // Not truely collinear, distinguish for union/intersection
+                // If p goes left (positive), take that for a union
+                bool const p_left
+                    = p_closer ? dm.is_positive() : dm.is_negative();
 
-            ti.operations[IndexP].operation = p_left
-                        ? operation_union : operation_intersection;
-            ti.operations[IndexQ].operation = p_left
-                        ? operation_intersection : operation_union;
-            return;
+                ti.operations[IndexP].operation = p_left
+                            ? operation_union : operation_intersection;
+                ti.operations[IndexQ].operation = p_left
+                            ? operation_intersection : operation_union;
+                return;
+            }
         }
 #endif
 

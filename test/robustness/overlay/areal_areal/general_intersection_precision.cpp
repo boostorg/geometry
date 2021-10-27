@@ -1,19 +1,23 @@
 // Boost.Geometry
 // Robustness Test
 
-// Copyright (c) 2019 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2019-2021 Barend Gehrels, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
+
+#define BOOST_GEOMETRY_NO_ROBUSTNESS
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
-
-#include <boost/type_traits/is_same.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -34,19 +38,30 @@ static std::string case_b[2] =
     "MULTIPOLYGON(((-1 -1,-1 8,8 8,8 -1,-1 -1),(2 7,2 3,4 3,4 7,2 7)))"
     };
 
+// Union should deliver 14.0
 static std::string case_c[2] =
     {
     "MULTIPOLYGON(((0 0,0 4,2 4,2 3,4 3,4 0,0 0)))",
     "MULTIPOLYGON(((1 1,0 1,0 3,1 3,1 1)))"
     };
 
+struct test_settings
+{
+    bool verbose{false};
+    bool do_output{false};
+
+    // Settings currently not modifiable
+    double start_bound{1.0e-2};
+    double step_factor{50.0};  // on each side -> 100 steps per factor
+    int max_factor{10000};
+};
+
 template <bg::overlay_type OverlayType, typename Geometry>
 bool test_overlay(std::string const& caseid,
         Geometry const& g1, Geometry const& g2,
         double expected_area,
-        bool do_output)
+        test_settings const& settings)
 {
-
     typedef typename boost::range_value<Geometry>::type geometry_out;
     typedef bg::detail::overlay::overlay
         <
@@ -60,9 +75,9 @@ bool test_overlay(std::string const& caseid,
             OverlayType
         > overlay;
 
-    typedef typename bg::strategy::intersection::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
-            typename bg::cs_tag<Geometry>::type
+            Geometry, Geometry
         >::type strategy_type;
 
     strategy_type strategy;
@@ -81,10 +96,10 @@ bool test_overlay(std::string const& caseid,
     overlay::apply(g1, g2, robust_policy, std::back_inserter(result),
                    strategy, visitor);
 
-    const double detected_area = bg::area(result);
-    if (std::fabs(detected_area - expected_area) > 0.01)
+    auto const detected_area = bg::area(result);
+    if (std::fabs(detected_area - expected_area) > 0.1)
     {
-        if (do_output)
+        if (settings.do_output)
         {
             std::cout << "ERROR: " << caseid << std::setprecision(18)
                       << " detected=" << detected_area
@@ -116,9 +131,9 @@ template <bg::overlay_type OverlayType, typename MultiPolygon>
 std::size_t test_case(std::size_t& error_count,
         std::size_t case_index, std::size_t i, std::size_t j,
         std::size_t min_vertex_index, std::size_t max_vertex_index,
-        double x, double y, double expectation,
+        double offset_x, double offset_y, double expectation,
         MultiPolygon const& poly1, MultiPolygon const& poly2,
-        bool do_output)
+        test_settings const settings)
 {
     std::size_t n = 0;
     for (std::size_t k = min_vertex_index; k <= max_vertex_index; k++, ++n)
@@ -128,21 +143,23 @@ std::size_t test_case(std::size_t& error_count,
         switch (case_index)
         {
             case 2 :
-                update(bg::interior_rings(poly2_adapted.front()).front(), x, y, k);
+                update(bg::interior_rings(poly2_adapted.front()).front(), offset_x, offset_y, k);
                 break;
             default :
-                update(bg::exterior_ring(poly2_adapted.front()), x, y, k);
+                update(bg::exterior_ring(poly2_adapted.front()), offset_x, offset_y, k);
                 break;
         }
 
         std::ostringstream out;
         out << "case_" << i << "_" << j << "_" << k;
-        if (! test_overlay<OverlayType>(out.str(), poly1, poly2_adapted, expectation, do_output))
+        if (! test_overlay<OverlayType>(out.str(), poly1, poly2_adapted, expectation, settings))
         {
-            if (error_count == 0)
+            if (error_count == 0 && ! settings.do_output)
             {
                 // First failure is always reported
-                test_overlay<OverlayType>(out.str(), poly1, poly2_adapted, expectation, true);
+                test_settings adapted = settings;
+                adapted.do_output = true;
+                test_overlay<OverlayType>(out.str(), poly1, poly2_adapted, expectation, adapted);
             }
             error_count++;
         }
@@ -153,7 +170,7 @@ std::size_t test_case(std::size_t& error_count,
 template <typename T, bool Clockwise, bg::overlay_type OverlayType>
 std::size_t test_all(std::size_t case_index, std::size_t min_vertex_index,
                      std::size_t max_vertex_index,
-                     double expectation, bool do_output)
+                     double expectation, test_settings const& settings)
 {
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
     typedef bg::model::polygon<point_type, Clockwise> polygon;
@@ -175,21 +192,25 @@ std::size_t test_all(std::size_t case_index, std::size_t min_vertex_index,
 
     std::size_t error_count = 0;
     std::size_t n = 0;
-    for (double factor = 1.0; factor > 1.0e-10; factor /= 10.0)
+    for (int factor = 1; factor < settings.max_factor; factor *= 2)
     {
         std::size_t i = 0;
-        double const bound = 1.0e-5 * factor;
-        double const step = 1.0e-6 * factor;
-        for (double x = -bound; x <= bound; x += step, ++i)
+        double const bound = settings.start_bound / factor;
+        double const step = bound / settings.step_factor;
+        if (settings.verbose)
+        {
+            std::cout << "--> use " << bound << " " << step << std::endl;
+        }
+        for (double offset_x = -bound; offset_x <= bound; offset_x += step, ++i)
         {
             std::size_t j = 0;
-            for (double y = -bound; y <= bound; y += step, ++j, ++n)
+            for (double offset_y = -bound; offset_y <= bound; offset_y += step, ++j, ++n)
             {
                 n += test_case<OverlayType>(error_count,
                                             case_index, i, j,
-                                       min_vertex_index, max_vertex_index,
-                                       x, y, expectation,
-                                       poly1, poly2, do_output);
+                                            min_vertex_index, max_vertex_index,
+                                            offset_x, offset_y, expectation,
+                                            poly1, poly2, settings);
             }
         }
     }
@@ -203,22 +224,17 @@ std::size_t test_all(std::size_t case_index, std::size_t min_vertex_index,
 
 int test_main(int argc, char** argv)
 {
-    typedef double coordinate_type;
+    BoostGeometryWriteTestConfiguration();
+    using coor_t = default_test_type;
 
-    const double factor = argc > 1 ? atof(argv[1]) : 2.0;
-    const bool do_output = argc > 2 && atol(argv[2]) == 1;
+    test_settings settings;
+    settings.do_output = argc > 2 && atol(argv[2]) == 1;
 
-    std::cout << std::endl << " -> TESTING "
-              << string_from_type<coordinate_type>::name()
-              << " " << factor
-              << std::endl;
-
-    test_all<coordinate_type, true, bg::overlay_union>(1, 0, 3, 22.0, do_output);
-    test_all<coordinate_type, true, bg::overlay_union>(2, 0, 3, 73.0, do_output);
-    test_all<coordinate_type, true, bg::overlay_intersection>(3, 1, 2, 2.0, do_output);
-    test_all<coordinate_type, true, bg::overlay_union>(3, 1, 2, 14.0, do_output);
+    // Test three polygons, for the last test two types of intersections
+    test_all<coor_t, true, bg::overlay_union>(1, 0, 3, 22.0, settings);
+    test_all<coor_t, true, bg::overlay_union>(2, 0, 3, 73.0, settings);
+    test_all<coor_t, true, bg::overlay_intersection>(3, 1, 2, 2.0, settings);
+    test_all<coor_t, true, bg::overlay_union>(3, 1, 2, 14.0, settings);
 
     return 0;
- }
-
-
+}

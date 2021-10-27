@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -62,13 +62,13 @@ struct sequence_element {};
 template <std::size_t I, typename T, typename ...Ts>
 struct sequence_element<I, type_sequence<T, Ts...>>
 {
-    typedef typename sequence_element<I - 1, type_sequence<Ts...>>::type type;
+    using type = typename sequence_element<I - 1, type_sequence<Ts...>>::type;
 };
 
 template <typename T, typename ...Ts>
 struct sequence_element<0, type_sequence<T, Ts...>>
 {
-    typedef T type;
+    using type = T;
 };
 
 template <std::size_t I, typename T, T J, T ...Js>
@@ -84,6 +84,19 @@ template <typename T, T J, T ...Js>
 struct sequence_element<0, std::integer_sequence<T, J, Js...>>
     : std::integral_constant<T, J>
 {};
+
+
+template <typename ...Ts>
+struct pack_front
+{
+    static_assert(sizeof...(Ts) > 0, "Parameter pack can not be empty.");
+};
+
+template <typename T, typename ... Ts>
+struct pack_front<T, Ts...>
+{
+    typedef T type;
+};
 
 
 template <typename Sequence>
@@ -112,6 +125,7 @@ struct sequence_empty
 {};
 
 
+// Defines type member for the first type in sequence that satisfies UnaryPred.
 template
 <
     typename Sequence,
@@ -138,77 +152,71 @@ template <template <typename> class UnaryPred>
 struct sequence_find_if<type_sequence<>, UnaryPred>
 {
     // TODO: This is technically incorrect because void can be stored in a type_sequence
-    typedef void type;
+    using type = void;
 };
 
 
-// merge<type_sequence<A, B>, type_sequence<C, D>>::type is
+// sequence_merge<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<A, B, C, D>
-// merge<integer_sequence<A, B>, integer_sequence<C, D>>::type is
+// sequence_merge<integer_sequence<A, B>, integer_sequence<C, D>>::type is
 //   integer_sequence<A, B, C, D>
 template <typename ...Sequences>
-struct merge;
+struct sequence_merge;
 
 template <typename S>
-struct merge<S>
+struct sequence_merge<S>
 {
-    typedef S type;
+    using type = S;
 };
 
 template <typename ...T1s, typename ...T2s>
-struct merge<type_sequence<T1s...>, type_sequence<T2s...>>
+struct sequence_merge<type_sequence<T1s...>, type_sequence<T2s...>>
 {
-    typedef type_sequence<T1s..., T2s...> type;
+    using type = type_sequence<T1s..., T2s...>;
 };
 
 template <typename T, T ...I1s, T ...I2s>
-struct merge<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
+struct sequence_merge<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
 {
-    typedef std::integer_sequence<T, I1s..., I2s...> type;
+    using type = std::integer_sequence<T, I1s..., I2s...>;
 };
 
 template <typename S1, typename S2, typename ...Sequences>
-struct merge<S1, S2, Sequences...>
+struct sequence_merge<S1, S2, Sequences...>
 {
-    typedef typename merge
+    using type = typename sequence_merge
         <
-            typename merge<S1, S2>::type,
-            typename merge<Sequences...>::type
-        >::type type;
+            typename sequence_merge<S1, S2>::type,
+            typename sequence_merge<Sequences...>::type
+        >::type;
 };
 
 
-// combine<type_sequence<A, B>, type_sequence<C, D>>::type is
+// sequence_combine<type_sequence<A, B>, type_sequence<C, D>>::type is
 //   type_sequence<type_sequence<A, C>, type_sequence<A, D>,
 //                 type_sequence<B, C>, type_sequence<B, D>>
 template <typename Sequence1, typename Sequence2>
-struct combine;
+struct sequence_combine;
 
 template <typename ...T1s, typename ...T2s>
-struct combine<type_sequence<T1s...>, type_sequence<T2s...>>
+struct sequence_combine<type_sequence<T1s...>, type_sequence<T2s...>>
 {
-    template <typename U1, typename ...U2s>
-    using type_sequence_t = type_sequence<type_sequence<U1, U2s>...>;
+    template <typename T1>
+    using type_sequence_t = type_sequence<type_sequence<T1, T2s>...>;
 
-    typedef typename merge
-        <
-            type_sequence_t<T1s, T2s...>...
-        >::type type;
+    using type = typename sequence_merge<type_sequence_t<T1s>...>::type;
 };
 
-// combine<integer_sequence<T, 1, 2>, integer_sequence<T, 3, 4>>::type is
+// sequence_combine<integer_sequence<T, 1, 2>, integer_sequence<T, 3, 4>>::type is
 //   type_sequence<integer_sequence<T, 1, 3>, integer_sequence<T, 1, 4>,
 //                 integer_sequence<T, 2, 3>, integer_sequence<T, 2, 4>>
 template <typename T, T ...I1s, T ...I2s>
-struct combine<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
+struct sequence_combine<std::integer_sequence<T, I1s...>, std::integer_sequence<T, I2s...>>
 {
-    template <T J1, T ...J2s>
-    using type_sequence_t = type_sequence<std::integer_sequence<T, J1, J2s>...>;
+    template <T I1>
+    using type_sequence_t = type_sequence<std::integer_sequence<T, I1, I2s>...>;
 
-    typedef typename merge
-        <
-            type_sequence_t<I1s, I2s...>...
-        >::type type;
+    using type = typename sequence_merge<type_sequence_t<I1s>...>::type;
 };
 
 
@@ -219,16 +227,16 @@ template
     template <typename, typename> class LessPred,
     typename ...Ts
 >
-struct select_pack_element;
+struct pack_min_element;
 
 template
 <
     template <typename, typename> class LessPred,
     typename T
 >
-struct select_pack_element<LessPred, T>
+struct pack_min_element<LessPred, T>
 {
-    typedef T type;
+    using type = T;
 };
 
 template
@@ -236,9 +244,9 @@ template
     template <typename, typename> class LessPred,
     typename T1, typename T2
 >
-struct select_pack_element<LessPred, T1, T2>
+struct pack_min_element<LessPred, T1, T2>
 {
-    typedef std::conditional_t<LessPred<T1, T2>::value, T1, T2> type;
+    using type = std::conditional_t<LessPred<T1, T2>::value, T1, T2>;
 };
 
 template
@@ -246,14 +254,14 @@ template
     template <typename, typename> class LessPred,
     typename T1, typename T2, typename ...Ts
 >
-struct select_pack_element<LessPred, T1, T2, Ts...>
+struct pack_min_element<LessPred, T1, T2, Ts...>
 {
-    typedef typename select_pack_element
+    using type = typename pack_min_element
         <
             LessPred,
-            typename select_pack_element<LessPred, T1, T2>::type,
-            typename select_pack_element<LessPred, Ts...>::type
-        >::type type;
+            typename pack_min_element<LessPred, T1, T2>::type,
+            typename pack_min_element<LessPred, Ts...>::type
+        >::type;
 };
 
 
@@ -264,35 +272,22 @@ template
     typename Sequence,
     template <typename, typename> class LessPred    
 >
-struct select_element;
+struct sequence_min_element;
 
 template
 <
     typename ...Ts,
     template <typename, typename> class LessPred
 >
-struct select_element<type_sequence<Ts...>, LessPred>
+struct sequence_min_element<type_sequence<Ts...>, LessPred>
 {
-    typedef typename select_pack_element<LessPred, Ts...>::type type;
+    using type = typename pack_min_element<LessPred, Ts...>::type;
 };
 
 
-// Selects least pair sequence of elements from a parameter pack based on
-// LessPred<xxx_sequence<T11, T12>, xxx_sequence<T21, T22>>::value comparison
-template
-<
-    typename Sequence1,
-    typename Sequence2,
-    template <typename, typename> class LessPred
->
-struct select_combination_element
-{
-    typedef typename select_element
-        <
-            typename combine<Sequence1, Sequence2>::type,
-            LessPred
-        >::type type;
-};
+// TODO: Since there are two kinds of parameter packs and sequences there probably should be two
+//   versions of sequence_find_if as well as parameter_pack_min_element and sequence_min_element.
+//   Currently these utilities support only types.
 
 
 } // namespace util

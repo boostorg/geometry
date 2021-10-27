@@ -2,6 +2,10 @@
 #
 # Copyright (c) 2011-2013 Adam Wulkiewicz, Lodz, Poland.
 #
+# This file was modified by Oracle on 2021.
+# Modifications copyright (c) 2021 Oracle and/or its affiliates.
+# Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -16,12 +20,12 @@ project boost-geometry-index-test
         <toolset>msvc:<asynch-exceptions>on
         <toolset>msvc:<cxxflags>/bigobj
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
-        <define>BOOST_NO_AUTO_PTR # disable the deprecated std::auto_ptr support in SmartPtr and Core
         <library>/boost/timer//boost_timer
     ;
 
-test-suite boost-geometry-index-varray
+test-suite boost-geometry-index-detail
     :
+    [ run minmax_heap.cpp ]
     [ run varray_old.cpp ]
     [ run varray.cpp ]
     ;

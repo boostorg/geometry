@@ -6,9 +6,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2021.
+// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,9 +21,6 @@
 
 #include <sstream>
 
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
@@ -188,19 +184,18 @@ struct test_variant_different_default_strategy
 
         variant_type v1, v2;
     
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type, variant_type, bg::default_strategy
-                        >::type,
-                    typename bg::comparable_distance_result
-                        <
-                            point_type, point_type, bg::default_strategy
-                        >::type
-                >
-        ));
+        using variant_cdistance_t = typename bg::comparable_distance_result
+            <
+                variant_type, variant_type, bg::default_strategy
+            >::type;
+        using cdistance_t =  typename bg::comparable_distance_result
+            <
+                point_type, point_type, bg::default_strategy
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<variant_cdistance_t, cdistance_t>::value),
+            "Unexpected result type",
+            variant_cdistance_t, cdistance_t);
 
         // Default strategy
         v1 = point;
@@ -261,27 +256,23 @@ struct test_variant_same_default_strategy
 
         variant_type v1, v2;
     
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type, variant_type, bg::default_strategy
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
+        using variant_cdistance_t = typename bg::comparable_distance_result
+            <
+                variant_type, variant_type, bg::default_strategy
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<variant_cdistance_t, ExpectedResultType>::value),
+            "Unexpected result type",
+            variant_cdistance_t, ExpectedResultType);
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            point_type, point_type, bg::default_strategy
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
+        using cdistance_t = typename bg::comparable_distance_result
+            <
+                point_type, point_type, bg::default_strategy
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<cdistance_t, ExpectedResultType>::value),
+            "Unexpected result type",
+            cdistance_t, ExpectedResultType);
 
         // Default strategy
         v1 = point;
@@ -352,27 +343,23 @@ struct test_variant_with_strategy
 
         strategy_type strategy;
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type, variant_type, strategy_type
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
+        using variant_cdistance_t = typename bg::comparable_distance_result
+            <
+                variant_type, variant_type, strategy_type
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<variant_cdistance_t, ExpectedResultType>::value),
+            "Unexpected result type",
+            variant_cdistance_t, ExpectedResultType);
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            segment_type, linestring_type, strategy_type
-                        >::type,
-                    ExpectedResultType
-                >
-        ));
+        using cdistance_t = typename bg::comparable_distance_result
+            <
+                segment_type, linestring_type, strategy_type
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<cdistance_t, ExpectedResultType>::value),
+            "Unexpected result type",
+            cdistance_t, ExpectedResultType);
 
         // Passed strategy
         v1 = seg;
@@ -422,7 +409,7 @@ struct test_variant_with_strategy
     }
 };
 
-template <typename T, bool IsIntergral = boost::is_integral<T>::value>
+template <typename T, bool IsIntergral = std::is_integral<T>::value>
 struct check_result
 {
     template <typename ExpectedResult>
@@ -459,23 +446,21 @@ struct test_variant_boxes
 
         variant_type v1 = box1, v2 = box2;
 
-        typedef typename boost::mpl::if_c
+        typedef typename std::conditional
             <
-                boost::is_float<T>::value,
+                std::is_floating_point<T>::value,
                 double,
                 typename bg::util::detail::default_integral::type
             >::type expected_result_type;
 
-        BOOST_MPL_ASSERT((
-            boost::is_same
-                <
-                    typename bg::comparable_distance_result
-                        <
-                            variant_type, variant_type, bg::default_strategy
-                        >::type,
-                    expected_result_type
-                >
-        ));
+        using variant_cdistance_t = typename bg::comparable_distance_result
+            <
+                variant_type, variant_type, bg::default_strategy
+            >::type;
+        BOOST_GEOMETRY_STATIC_ASSERT(
+            (std::is_same<variant_cdistance_t, expected_result_type>::value),
+            "Unexpected result type",
+            variant_cdistance_t, expected_result_type);
 
         // Default strategy
         check_result<T>::apply(bg::comparable_distance(v1, v2),
@@ -491,7 +476,7 @@ struct test_variant_boxes
 int test_main(int, char* [])
 {
     test_double_result_from_integer<int>();
-    test_double_result_from_integer<boost::long_long_type>();
+    test_double_result_from_integer<long long>();
 
     test_all<bg::model::d2::point_xy<float> >();
     test_all<bg::model::d2::point_xy<double> >();

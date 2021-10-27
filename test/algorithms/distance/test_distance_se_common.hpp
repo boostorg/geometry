@@ -1,8 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,30 +11,20 @@
 #ifndef BOOST_GEOMETRY_TEST_DISTANCE_SE_COMMON_HPP
 #define BOOST_GEOMETRY_TEST_DISTANCE_SE_COMMON_HPP
 
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <iostream>
+#endif
+
 #include <string>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_integral.hpp>
-#include <boost/type_traits/is_same.hpp>
-
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
-#include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/geometries/linestring.hpp>
-#include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/geometries/ring.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/geometries/multi_point.hpp>
-#include <boost/geometry/geometries/multi_linestring.hpp>
-#include <boost/geometry/geometries/multi_polygon.hpp>
-
-#include <boost/geometry/io/wkt/write.hpp>
-#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
+
+#include <boost/geometry/io/wkt/write.hpp>
+#include <boost/geometry/io/dsv/write.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 
@@ -192,11 +181,11 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 Strategy, Geometry1, Geometry2
             >::type distance_result_from_strategy;
 
-        static const bool same_regular = boost::is_same
+        static const bool same_regular = std::is_same
             <
                 default_distance_result,
                 distance_result_from_strategy
-            >::type::value;
+            >::value;
 
         BOOST_CHECK(same_regular);
 
@@ -212,11 +201,11 @@ struct test_distance_of_geometries<Geometry1, Geometry2, 0, 0>
                 Geometry2
             >::type comparable_distance_result_from_strategy;
 
-        static const bool same_comparable = boost::is_same
+        static const bool same_comparable = std::is_same
             <
                 default_comparable_distance_result,
                 comparable_distance_result_from_strategy
-            >::type::value;
+            >::value;
         
         BOOST_CHECK( same_comparable );
 

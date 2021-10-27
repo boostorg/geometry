@@ -181,20 +181,16 @@ struct visit_breadth_first<Geometry, dynamic_geometry_tag>
     }
 };
 
-// NOTE: This specialization works partially like std::visit and partially like
-//   std::ranges::for_each. If the argument is rvalue reference then the elements
-//   are passed into the function as rvalue references as well. This is consistent
-//   with std::visit but different than std::ranges::for_each. It's done this way
-//   because visit_breadth_first is also specialized for static and dynamic geometries
-//   which and references for them has to be propagated like that. If this is not
-//   desireable then the support for other kinds of geometries should be dropped and
-//   this algorithm should work only for geometry collection.
-//   This is not a problem right now because only non-rvalue references are passed
-//   but in the future there might be some issues. Consider e.g. passing a temporary
-//   mutable proxy range as geometry collection. In such case the elements would be
-//   passed as rvalue references which would be incorrect.
-template <typename Geometry>
-struct visit_breadth_first<Geometry, geometry_collection_tag>
+} // namespace dispatch
+#endif // DOXYGEN_NO_DISPATCH
+
+
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
+template <bool PassIterator = false>
+struct visit_breadth_first_impl
 {
     template <typename F, typename Geom>
     static bool apply(F function, Geom && geom)
@@ -217,7 +213,8 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
                 bool result = true;
                 traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
                 {
-                    result = visit_or_enqueue(function, std::forward<decltype(g)>(g), queue, it);
+                    result = visit_breadth_first_impl::visit_or_enqueue<PassIterator>(
+                                    function, std::forward<decltype(g)>(g), queue, it);
                 }, it);
 
                 if (! result)
@@ -235,7 +232,7 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
             // so this call can be avoided.
             traits::iter_visit<util::remove_cref_t<Geom>>::apply([&](auto && g)
             {
-                set_iterators(std::forward<decltype(g)>(g), it, end);
+                visit_breadth_first_impl::set_iterators(std::forward<decltype(g)>(g), it, end);
             }, queue.front());
             queue.pop_front();
         }
@@ -246,7 +243,7 @@ struct visit_breadth_first<Geometry, geometry_collection_tag>
 private:
     template
     <
-        typename F, typename Geom, typename Iterator,
+        bool PassIter, typename F, typename Geom, typename Iterator,
         std::enable_if_t<util::is_geometry_collection<Geom>::value, int> = 0
     >
     static bool visit_or_enqueue(F &, Geom &&, std::deque<Iterator> & queue, Iterator iter)
@@ -256,12 +253,21 @@ private:
     }
     template
     <
-        typename F, typename Geom, typename Iterator,
-        std::enable_if_t<! util::is_geometry_collection<Geom>::value, int> = 0
+        bool PassIter, typename F, typename Geom, typename Iterator,
+        std::enable_if_t<! util::is_geometry_collection<Geom>::value && ! PassIter, int> = 0
     >
     static bool visit_or_enqueue(F & f, Geom && g, std::deque<Iterator> & , Iterator)
     {
         return f(std::forward<Geom>(g));
+    }
+    template
+    <
+        bool PassIter, typename F, typename Geom, typename Iterator,
+        std::enable_if_t<! util::is_geometry_collection<Geom>::value && PassIter, int> = 0
+    >
+    static bool visit_or_enqueue(F & f, Geom && g, std::deque<Iterator> & , Iterator iter)
+    {
+        return f(std::forward<Geom>(g), iter);
     }
 
     template
@@ -282,6 +288,32 @@ private:
     static void set_iterators(Geom &&, Iterator &, Iterator &)
     {}
 };
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch
+{
+
+// NOTE: This specialization works partially like std::visit and partially like
+//   std::ranges::for_each. If the argument is rvalue reference then the elements
+//   are passed into the function as rvalue references as well. This is consistent
+//   with std::visit but different than std::ranges::for_each. It's done this way
+//   because visit_breadth_first is also specialized for static and dynamic geometries
+//   and references for them has to be propagated like that. If this is not
+//   desireable then the support for other kinds of geometries should be dropped and
+//   this algorithm should work only for geometry collection. Or forwarding of rvalue
+//   references should simply be dropped entirely.
+//   This is not a problem right now because only non-rvalue references are passed
+//   but in the future there might be some issues. Consider e.g. passing a temporary
+//   mutable proxy range as geometry collection. In such case the elements would be
+//   passed as rvalue references which would be incorrect.
+template <typename Geometry>
+struct visit_breadth_first<Geometry, geometry_collection_tag>
+    : detail::visit_breadth_first_impl<>
+{};
 
 
 } // namespace dispatch

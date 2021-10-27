@@ -24,10 +24,10 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategy/cartesian/expand_point.hpp>
+#include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
-#include <boost/geometry/strategies/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/within.hpp>
 
@@ -116,7 +116,9 @@ public:
             else // count == 2 || count == -2
             {
                 // 1 left, -1 right
-                typedef side::side_by_triangle<CalculationType> side_strategy_type;
+                using side_strategy_type
+                    = typename side::services::default_strategy
+                        <cartesian_tag, CalculationType>::type;
                 side = side_strategy_type::apply(s1, s2, point);
             }
             

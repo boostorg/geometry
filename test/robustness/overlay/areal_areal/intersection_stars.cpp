@@ -1,13 +1,17 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Robustness Test
 
-// Copyright (c) 2009-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
+#define BOOST_GEOMETRY_NO_ROBUSTNESS
+#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+
+// NOTE: there is no randomness here. Count is to measure performance
 
 #include <test_overlay_p_q.hpp>
 
@@ -109,12 +113,14 @@ void test_type(int count, int min_points, int max_points, T rotation, p_q_settin
 template <typename T>
 void test_all(std::string const& type, int count, int min_points, int max_points, T rotation, p_q_settings settings)
 {
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     if (type == "float")
     {
         settings.tolerance = 1.0e-3;
         test_type<float, float>(count, min_points, max_points, rotation, settings);
     }
     else if (type == "double")
+#endif
     {
         test_type<double, double>(count, min_points, max_points, rotation, settings);
     }
@@ -130,7 +136,7 @@ int main(int argc, char** argv)
 
         int count = 1;
         //int seed = static_cast<unsigned int>(std::time(0));
-        std::string type = "float";
+        std::string type = "double";
         int min_points = 9;
         int max_points = 9;
         bool ccw = false;
@@ -140,15 +146,17 @@ int main(int argc, char** argv)
 
         description.add_options()
             ("help", "Help message")
-            //("seed", po::value<int>(&seed), "Initialization seed for random generator")
+           // ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
             ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
             ("min_points", po::value<int>(&min_points)->default_value(9), "Minimum number of points")
             ("max_points", po::value<int>(&max_points)->default_value(9), "Maximum number of points")
             ("rotation", po::value<double>(&rotation)->default_value(1.0e-13), "Rotation angle")
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
             ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
-            ("type", po::value<std::string>(&type)->default_value("float"), "Type (float,double)")
+            ("type", po::value<std::string>(&type)->default_value("double"), "Type (float,double)")
+#endif
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;

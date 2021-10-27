@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/distance/comparable.hpp>
 #include <boost/geometry/strategies/distance/detail.hpp>
 #include <boost/geometry/strategies/simplify/services.hpp>
 

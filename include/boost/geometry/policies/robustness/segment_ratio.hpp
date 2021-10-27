@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,8 +19,8 @@
 #include <boost/rational.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/geometry/util/promote_floating_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -53,8 +53,8 @@ struct less<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
-        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != Type(0));
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != Type(0));
         Type const a = lhs.numerator() / lhs.denominator();
         Type const b = rhs.numerator() / rhs.denominator();
         return ! geometry::math::equals(a, b)
@@ -86,8 +86,8 @@ struct equal<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
-        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != Type(0));
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != Type(0));
         Type const a = lhs.numerator() / lhs.denominator();
         Type const b = rhs.numerator() / rhs.denominator();
         return geometry::math::equals(a, b);
@@ -119,7 +119,8 @@ struct possibly_collinear<Type, false>
     template <typename Ratio, typename Threshold>
     static inline bool apply(Ratio const& ratio, Threshold)
     {
-        return ratio.denominator() == 0;
+        static Type const zero = 0;
+        return ratio.denominator() == zero;
     }
 };
 
@@ -135,11 +136,16 @@ struct possibly_collinear<Type, false>
 template <typename Type>
 class segment_ratio
 {
-public :
-    typedef Type numeric_type;
+    // Type used for the approximation (a helper value)
+    // and for the edge value (0..1) (a helper function).
+    using floating_point_type =
+        typename detail::promoted_to_floating_point<Type>::type;
 
     // Type-alias for the type itself
-    typedef segment_ratio<Type> thistype;
+    using thistype = segment_ratio<Type>;
+
+public:
+    using int_type = Type;
 
     inline segment_ratio()
         : m_numerator(0)
@@ -212,31 +218,31 @@ public :
     {
         // Minimal normalization
         // 1/-4 => -1/4, -1/-4 => 1/4
-        if (m_denominator < 0)
+        if (m_denominator < zero_instance())
         {
             m_numerator = -m_numerator;
             m_denominator = -m_denominator;
         }
 
         m_approximation =
-            m_denominator == 0 ? 0
+            m_denominator == zero_instance() ? 0
             : (
-                boost::numeric_cast<fp_type>(m_numerator) * scale()
-                / boost::numeric_cast<fp_type>(m_denominator)
+                boost::numeric_cast<floating_point_type>(m_numerator) * scale()
+                / boost::numeric_cast<floating_point_type>(m_denominator)
             );
     }
 
-    inline bool is_zero() const { return math::equals(m_numerator, 0); }
+    inline bool is_zero() const { return math::equals(m_numerator, Type(0)); }
     inline bool is_one() const { return math::equals(m_numerator, m_denominator); }
     inline bool on_segment() const
     {
         // e.g. 0/4 or 4/4 or 2/4
-        return m_numerator >= 0 && m_numerator <= m_denominator;
+        return m_numerator >= zero_instance() && m_numerator <= m_denominator;
     }
     inline bool in_segment() const
     {
         // e.g. 1/4
-        return m_numerator > 0 && m_numerator < m_denominator;
+        return m_numerator > zero_instance() && m_numerator < m_denominator;
     }
     inline bool on_end() const
     {
@@ -246,7 +252,7 @@ public :
     inline bool left() const
     {
         // e.g. -1/4
-        return m_numerator < 0;
+        return m_numerator < zero_instance();
     }
     inline bool right() const
     {
@@ -254,21 +260,16 @@ public :
         return m_numerator > m_denominator;
     }
 
-    inline bool near_end() const
+    //! Returns a value between 0.0 and 1.0
+    //! 0.0 means: exactly in the middle
+    //! 1.0 means: exactly on one of the edges (or even over it)
+    inline floating_point_type edge_value() const
     {
-        if (left() || right())
-        {
-            return false;
-        }
-
-        static fp_type const small_part_of_scale = scale() / 100;
-        return m_approximation < small_part_of_scale
-            || m_approximation > scale() - small_part_of_scale;
-    }
-
-    inline bool close_to(thistype const& other) const
-    {
-        return geometry::math::abs(m_approximation - other.m_approximation) < 50;
+        using fp = floating_point_type;
+        fp const one{1.0};
+        floating_point_type const result
+                = fp(2) * geometry::math::abs(fp(0.5) - m_approximation / scale());
+        return result > one ? one : result;
     }
 
     template <typename Threshold>
@@ -313,19 +314,7 @@ public :
     }
 #endif
 
-
-
 private :
-    // NOTE: if this typedef is used then fp_type is non-fundamental type
-    // if Type is non-fundamental type
-    //typedef typename promote_floating_point<Type>::type fp_type;
-
-    // TODO: What with user-defined numeric types?
-    //       Shouldn't here is_integral be checked?
-    typedef std::conditional_t
-        <
-            std::is_floating_point<Type>::value, Type, double
-        > fp_type;
 
     Type m_numerator;
     Type m_denominator;
@@ -335,12 +324,24 @@ private :
     // Boost.Rational is used if the approximations are close.
     // Reason: performance, Boost.Rational does a GCD by default and also the
     // comparisons contain while-loops.
-    fp_type m_approximation;
+    floating_point_type m_approximation;
 
-
-    static inline fp_type scale()
+    inline bool close_to(thistype const& other) const
     {
-        return 1000000.0;
+        static floating_point_type const threshold{50.0};
+        return geometry::math::abs(m_approximation - other.m_approximation)
+                < threshold;
+    }
+
+    static inline floating_point_type scale()
+    {
+        static floating_point_type const fp_scale{1000000.0};
+        return fp_scale;
+    }
+
+    static inline Type zero_instance()
+    {
+        return 0;
     }
 };
 

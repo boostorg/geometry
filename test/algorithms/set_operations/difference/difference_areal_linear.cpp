@@ -3,9 +3,8 @@
 
 // Copyright (c) 2010-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2021.
+// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -116,7 +115,7 @@ void test_areal_linear()
     test_one_lp<LineString, LineString, Polygon>("case26", "LINESTRING(4 0,4 3,4 5,7 5)", poly_9, 2, 5, 5.0);
     test_one_lp<LineString, LineString, Polygon>("case27", "LINESTRING(4 4,4 5,5 5)", poly_9, 1, 3, 2.0);
 
-    if (BOOST_GEOMETRY_CONDITION( (! boost::is_same<ct, float>::value)) )
+    if (BOOST_GEOMETRY_CONDITION( (! std::is_same<ct, float>::value)) )
     {
         // Fails for float
         test_one_lp<LineString, LineString, Polygon>("case28",
@@ -241,8 +240,8 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<double> >();
 
     test_ticket_10835<int>
-        ("MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1020 2986))",
-         "MULTILINESTRING((5239 2113,5233 2114),(4794 2205,1460 2895))");
+        ("MULTILINESTRING((5239 2113,5232 2115),(4794 2205,1020 2986))",
+         "MULTILINESTRING((5239 2113,5232 2115),(4794 2205,1460 2895))");
 
     test_ticket_10835<double>
         ("MULTILINESTRING((5239 2113,5232.52 2114.34),(4794.39 2205,1020 2986))",

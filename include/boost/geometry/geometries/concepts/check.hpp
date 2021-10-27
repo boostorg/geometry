@@ -22,6 +22,8 @@
 #include <boost/concept_check.hpp>
 #include <boost/concept/requires.hpp>
 
+#include <boost/geometry/algorithms/detail/select_geometry_type.hpp>
+
 #include <boost/geometry/geometries/concepts/concept_type.hpp>
 #include <boost/geometry/geometries/concepts/box_concept.hpp>
 #include <boost/geometry/geometries/concepts/dynamic_geometry_concept.hpp>
@@ -38,7 +40,6 @@
 
 namespace boost { namespace geometry { namespace concepts
 {
-
 
 /*!
     \brief Checks, in compile-time, the concept of any geometry
@@ -69,7 +70,11 @@ inline void check_concepts_and_equal_dimensions()
 {
     check<Geometry1>();
     check<Geometry2>();
-    assert_dimension_equal<Geometry1, Geometry2>();
+    assert_dimension_equal
+        <
+            typename geometry::detail::first_geometry_type<Geometry1>::type,
+            typename geometry::detail::first_geometry_type<Geometry2>::type
+        >();
 }
 
 

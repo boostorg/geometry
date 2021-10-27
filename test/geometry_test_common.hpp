@@ -4,6 +4,10 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2021.
+// Modifications copyright (c) 2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -50,7 +54,6 @@
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/foreach.hpp>
 
 #include <string_from_type.hpp>
 
@@ -132,18 +135,18 @@ struct mathematical_policy
 
 struct ut_base_settings
 {
-    explicit ut_base_settings(bool val = true)
+    explicit ut_base_settings(bool validity = true)
         : m_test_validity(true)
     {
-        set_test_validity(val);
+        set_test_validity(validity);
     }
 
-    inline void set_test_validity(bool val)
+    inline void set_test_validity(bool validity)
     {
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-        boost::ignore_unused(val);
+        boost::ignore_unused(validity);
 #else
-        m_test_validity = val;
+        m_test_validity = validity;
 #endif
     }
 
@@ -171,14 +174,14 @@ using default_test_type = double;
 template <typename CoordinateType, typename Specified, typename T>
 inline T if_typed(T value_typed, T value)
 {
-    return boost::is_same<CoordinateType, Specified>::value ? value_typed : value;
+    return std::is_same<CoordinateType, Specified>::value ? value_typed : value;
 }
 
 //! Compile time function for expectations depending on high precision
 template <typename CoordinateType, typename T1, typename T2>
 inline T1 const& bg_if_mp(T1 const& value_mp, T2 const& value)
 {
-    return boost::is_same<CoordinateType, mp_test_type>::type::value ? value_mp : value;
+    return std::is_same<CoordinateType, mp_test_type>::type::value ? value_mp : value;
 }
 
 //! Macro for expectations depending on rescaling
@@ -206,11 +209,6 @@ inline void BoostGeometryWriteTestConfiguration()
 #endif
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     std::cout << "  - Using rescaling" << std::endl;
-#endif
-#if defined(BOOST_GEOMETRY_USE_KRAMER_RULE)
-    std::cout << "  - Using Kramer rule" << std::endl;
-#else
-    std::cout << "  - Using general form" << std::endl;
 #endif
 #if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     std::cout << "  - Testing only one type" << std::endl;

@@ -19,7 +19,12 @@
 
 #include <boost/core/ignore_unused.hpp>
 
+#include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
+
 #include <boost/geometry/index/detail/algorithms/content.hpp>
+#include <boost/geometry/index/detail/rtree/node/concept.hpp>
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
+#include <boost/geometry/index/detail/rtree/visitors/insert.hpp>
 
 namespace boost { namespace geometry { namespace index {
 

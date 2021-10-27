@@ -3,9 +3,8 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
+// This file was modified by Oracle on 2017-2021.
 // Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -353,21 +352,20 @@ inline typename geometry::coordinate_type<Point1>::type
 template <typename Turns>
 inline void calculate_remaining_distance(Turns& turns)
 {
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type op_type;
+    using turn_type = typename boost::range_value<Turns>::type;
+    using op_type = typename turn_type::turn_operation_type;
 
-    for (typename boost::range_iterator<Turns>::type
-            it = boost::begin(turns);
-         it != boost::end(turns);
-         ++it)
+    typename op_type::comparable_distance_type const zero_distance = 0;
+
+    for (auto it = boost::begin(turns); it != boost::end(turns); ++it)
     {
         turn_type& turn = *it;
 
         op_type& op0 = turn.operations[0];
         op_type& op1 = turn.operations[1];
 
-        if (op0.remaining_distance != 0
-         || op1.remaining_distance != 0)
+        if (op0.remaining_distance != zero_distance
+         || op1.remaining_distance != zero_distance)
         {
             continue;
         }
