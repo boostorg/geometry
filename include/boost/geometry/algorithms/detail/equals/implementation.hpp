@@ -167,6 +167,12 @@ struct equals_by_collection
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
+        using cs_tag = typename Strategy::cs_tag;
+
+        static_assert(std::is_same<cs_tag, spherical_tag>::value
+                      || std::is_same<cs_tag, cartesian_tag>::value,
+                      "requires a strategy for cartesian or spherical");
+
         if (! TrivialCheck::apply(geometry1, geometry2, strategy))
         {
             return false;
@@ -181,9 +187,15 @@ struct equals_by_collection
                 double
             >::type;
 
-        using collected_vector_type = geometry::collected_vector
+        using collected_vector_type = std::conditional_t
             <
-                calculation_type, Geometry1
+                std::is_same<cs_tag, spherical_tag>::value,
+                collected_vector_spherical
+                    <
+                        calculation_type,
+                        typename geometry::point_type<Geometry1>::type
+                    >,
+                collected_vector_cartesian<calculation_type>
             >;
 
         std::vector<collected_vector_type> c1, c2;
@@ -199,7 +211,7 @@ struct equals_by_collection
         std::sort(c1.begin(), c1.end());
         std::sort(c2.begin(), c2.end());
 
-        // Just check if these vectors are equal.
+        // Check if these vectors are equal.
         return std::equal(c1.begin(), c1.end(), c2.begin());
     }
 };
@@ -218,26 +230,19 @@ struct equals_by_relate
 template <typename Strategy, typename CsTag>
 struct use_collect_vectors
 {
-  static constexpr bool value = false;
+    static constexpr bool value = false;
 };
 
 template <typename Strategy>
 struct use_collect_vectors<Strategy, cartesian_tag>
 {
-  static constexpr bool value = true;
+    static constexpr bool value = true;
 };
 
 template <typename CV, typename CsTag>
 struct use_collect_vectors<strategy::side::spherical_side_formula<CV>, CsTag>
 {
-  static constexpr bool value = true;
-};
-
-template <typename CV>
-struct use_collect_vectors<strategy::side::spherical_side_formula<CV>,
-        geographic_tag>
-{
-  static constexpr bool value = false;
+    static constexpr bool value = true;
 };
 
 // Use either collect_vectors or relate
@@ -255,8 +260,11 @@ struct equals_by_collection_or_relate
         using side_strategy = decltype(std::declval<Strategy>().side());
         using implementation = std::conditional_t
             <
-                use_collect_vectors<side_strategy,
-                     typename cs_tag<Geometry1>::type>::value,
+                use_collect_vectors
+                <
+                    side_strategy,
+                    typename Strategy::cs_tag
+                >::value,
                 equals_by_collection<TrivialCheck>,
                 equals_by_relate<Geometry1, Geometry2>
             >;
