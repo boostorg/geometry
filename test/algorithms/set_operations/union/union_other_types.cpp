@@ -142,11 +142,7 @@ int test_main(int, char* [])
     test_areal<point_xy<bm::number<bm::cpp_dec_float<50>>>>({});
 
     // Boost multi precision (rational)
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // TODO: enable this again, it currently fails on develop branch, maybe
-    // because of a recent change in boost::multiprecision
     test_areal<point_xy<bm::cpp_rational>>({exclude::fp});
-#endif
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<point_xy<bm::checked_cpp_rational>>({exclude::fp});
 #endif
