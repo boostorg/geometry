@@ -159,6 +159,33 @@ struct length_check
 };
 */
 
+
+// Small helper structure do decide to use collect_vectors, or not
+template <typename Strategy, typename CsTag>
+struct use_collect_vectors
+{
+    static constexpr bool value = false;
+};
+
+template <typename Strategy>
+struct use_collect_vectors<Strategy, cartesian_tag>
+{
+    static constexpr bool value = true;
+
+    template <typename T, typename Point>
+    using type = collected_vector_cartesian<T>;
+};
+
+template <typename CV>
+struct use_collect_vectors<strategy::side::spherical_side_formula<CV>, spherical_tag>
+{
+    static constexpr bool value = true;
+
+    template <typename T, typename Point>
+    using type = collected_vector_spherical<T, Point>;
+};
+
+
 template <typename TrivialCheck>
 struct equals_by_collection
 {
@@ -167,12 +194,6 @@ struct equals_by_collection
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        using cs_tag = typename Strategy::cs_tag;
-
-        static_assert(std::is_same<cs_tag, spherical_tag>::value
-                      || std::is_same<cs_tag, cartesian_tag>::value,
-                      "requires a strategy for cartesian or spherical");
-
         if (! TrivialCheck::apply(geometry1, geometry2, strategy))
         {
             return false;
@@ -187,16 +208,15 @@ struct equals_by_collection
                 double
             >::type;
 
-        using collected_vector_type = std::conditional_t
+        using collected_vector_type = typename use_collect_vectors
             <
-                std::is_same<cs_tag, spherical_tag>::value,
-                collected_vector_spherical
-                    <
-                        calculation_type,
-                        typename geometry::point_type<Geometry1>::type
-                    >,
-                collected_vector_cartesian<calculation_type>
-            >;
+                decltype(std::declval<Strategy>().side()),
+                typename Strategy::cs_tag
+            >::template type
+                <
+                    calculation_type,
+                    typename geometry::point_type<Geometry1>::type
+                >;
 
         std::vector<collected_vector_type> c1, c2;
 
@@ -226,25 +246,6 @@ struct equals_by_relate
         >
 {};
 
-// Small helper structure do decide to use collect_vectors, or not
-template <typename Strategy, typename CsTag>
-struct use_collect_vectors
-{
-    static constexpr bool value = false;
-};
-
-template <typename Strategy>
-struct use_collect_vectors<Strategy, cartesian_tag>
-{
-    static constexpr bool value = true;
-};
-
-template <typename CV, typename CsTag>
-struct use_collect_vectors<strategy::side::spherical_side_formula<CV>, CsTag>
-{
-    static constexpr bool value = true;
-};
-
 // Use either collect_vectors or relate
 // NOTE: the result could be conceptually different for invalid
 // geometries in different coordinate systems because collect_vectors
@@ -252,24 +253,35 @@ struct use_collect_vectors<strategy::side::spherical_side_formula<CV>, CsTag>
 template<typename TrivialCheck>
 struct equals_by_collection_or_relate
 {
-    template <typename Geometry1, typename Geometry2, typename Strategy>
+    template <typename Strategy>
+    using use_vectors = use_collect_vectors
+        <
+            decltype(std::declval<Strategy>().side()),
+            typename Strategy::cs_tag
+        >;
+
+    template
+    <
+        typename Geometry1, typename Geometry2, typename Strategy,
+        std::enable_if_t<use_vectors<Strategy>::value, int> = 0
+    >
     static inline bool apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        using side_strategy = decltype(std::declval<Strategy>().side());
-        using implementation = std::conditional_t
-            <
-                use_collect_vectors
-                <
-                    side_strategy,
-                    typename Strategy::cs_tag
-                >::value,
-                equals_by_collection<TrivialCheck>,
-                equals_by_relate<Geometry1, Geometry2>
-            >;
+        return equals_by_collection<TrivialCheck>::apply(geometry1, geometry2, strategy);
+    }
 
-        return implementation::apply(geometry1, geometry2, strategy);
+    template
+    <
+        typename Geometry1, typename Geometry2, typename Strategy,
+        std::enable_if_t<! use_vectors<Strategy>::value, int> = 0
+    >
+    static inline bool apply(Geometry1 const& geometry1,
+                             Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        return equals_by_relate<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
     }
 };
 
