@@ -233,3 +233,32 @@ BOOST_AUTO_TEST_CASE( equals_segment_segment_geo )
     test_segment_segment<bgm::point<double, 2, cs_type> >("geo");
     test_segment_segment<bgm::point<long double, 2, cs_type> >("geo");
 }
+
+// This version uses collect_vectors (because its side
+// strategy is spherical_side_formula) and fails
+BOOST_AUTO_TEST_CASE( equals_ring_ring_se)
+{
+    using cs_type = bg::cs::spherical_equatorial<bg::degree> ;
+    using ring_type = bgm::ring<bgm::point<double, 2, cs_type> >;
+
+    test_geometry<ring_type, ring_type>("ring_simplex",
+                                        "POLYGON((10 50,10 51,11 50,10 50))",
+                                        "POLYGON((10 50,10 51,11 50,10 50))",
+                                        true);
+}
+
+BOOST_AUTO_TEST_CASE( equals_ring_ring_geo )
+{
+    using cs_type = bg::cs::geographic<bg::degree> ;
+    using ring_type = bgm::ring<bgm::point<double, 2, cs_type> >;
+
+    test_geometry<ring_type, ring_type>("ring_simplex",
+                                        "POLYGON((10 50,10 51,11 50,10 50))",
+                                        "POLYGON((10 50,10 51,11 50,10 50))",
+                                        true);
+
+    test_geometry<ring_type, ring_type>("ring_simplex_false",
+                                        "POLYGON((10 50,10 51,11 50,10 50))",
+                                        "POLYGON((10 50,10 51.01,11 50,10 50))",
+                                        false);
+}

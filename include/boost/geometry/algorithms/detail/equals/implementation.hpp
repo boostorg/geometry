@@ -159,27 +159,6 @@ struct length_check
 };
 */
 
-
-template <typename Geometry1, typename Geometry2, typename Strategy>
-struct collected_vector
-{
-    typedef typename geometry::select_most_precise
-        <
-            typename select_coordinate_type
-                <
-                    Geometry1, Geometry2
-                >::type,
-            double
-        >::type calculation_type;
-
-    typedef geometry::collected_vector
-        <
-            calculation_type,
-            Geometry1,
-            decltype(std::declval<Strategy>().side())
-        > type;
-};
-
 template <typename TrivialCheck>
 struct equals_by_collection
 {
@@ -188,15 +167,36 @@ struct equals_by_collection
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
+        using cs_tag = typename Strategy::cs_tag;
+
+        static_assert(std::is_same<cs_tag, spherical_tag>::value
+                      || std::is_same<cs_tag, cartesian_tag>::value,
+                      "requires a strategy for cartesian or spherical");
+
         if (! TrivialCheck::apply(geometry1, geometry2, strategy))
         {
             return false;
         }
 
-        typedef typename collected_vector
+        using calculation_type = typename geometry::select_most_precise
             <
-                Geometry1, Geometry2, Strategy
-            >::type collected_vector_type;
+                typename select_coordinate_type
+                    <
+                        Geometry1, Geometry2
+                    >::type,
+                double
+            >::type;
+
+        using collected_vector_type = std::conditional_t
+            <
+                std::is_same<cs_tag, spherical_tag>::value,
+                collected_vector_spherical
+                    <
+                        calculation_type,
+                        typename geometry::point_type<Geometry1>::type
+                    >,
+                collected_vector_cartesian<calculation_type>
+            >;
 
         std::vector<collected_vector_type> c1, c2;
 
@@ -211,7 +211,7 @@ struct equals_by_collection
         std::sort(c1.begin(), c1.end());
         std::sort(c2.begin(), c2.end());
 
-        // Just check if these vectors are equal.
+        // Check if these vectors are equal.
         return std::equal(c1.begin(), c1.end(), c2.begin());
     }
 };
@@ -226,9 +226,26 @@ struct equals_by_relate
         >
 {};
 
-// If collect_vectors which is a SideStrategy-dispatched optimization
-// is implemented in a way consistent with the Intersection/Side Strategy
-// then collect_vectors is used, otherwise relate is used.
+// Small helper structure do decide to use collect_vectors, or not
+template <typename Strategy, typename CsTag>
+struct use_collect_vectors
+{
+    static constexpr bool value = false;
+};
+
+template <typename Strategy>
+struct use_collect_vectors<Strategy, cartesian_tag>
+{
+    static constexpr bool value = true;
+};
+
+template <typename CV, typename CsTag>
+struct use_collect_vectors<strategy::side::spherical_side_formula<CV>, CsTag>
+{
+    static constexpr bool value = true;
+};
+
+// Use either collect_vectors or relate
 // NOTE: the result could be conceptually different for invalid
 // geometries in different coordinate systems because collect_vectors
 // and relate treat invalid geometries differently.
@@ -240,35 +257,19 @@ struct equals_by_collection_or_relate
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        typedef std::is_base_of
+        using side_strategy = decltype(std::declval<Strategy>().side());
+        using implementation = std::conditional_t
             <
-                nyi::not_implemented_tag,
-                typename collected_vector
-                    <
-                        Geometry1, Geometry2, Strategy
-                    >::type
-            > enable_relate_type;
+                use_collect_vectors
+                <
+                    side_strategy,
+                    typename Strategy::cs_tag
+                >::value,
+                equals_by_collection<TrivialCheck>,
+                equals_by_relate<Geometry1, Geometry2>
+            >;
 
-        return apply(geometry1, geometry2, strategy, enable_relate_type());
-    }
-
-private:
-    template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
-                             Strategy const& strategy,
-                             std::false_type /*enable_relate*/)
-    {
-        return equals_by_collection<TrivialCheck>::apply(geometry1, geometry2, strategy);
-    }
-
-    template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
-                             Strategy const& strategy,
-                             std::true_type /*enable_relate*/)
-    {
-        return equals_by_relate<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+        return implementation::apply(geometry1, geometry2, strategy);
     }
 };
 
