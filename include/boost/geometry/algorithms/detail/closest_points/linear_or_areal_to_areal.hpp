@@ -113,16 +113,6 @@ struct linear_to_areal
         
         linear_to_linear::apply(linear, areal, shortest_seg, strategies, false);
     }
-/*
-    template <typename Linear, typename Areal, typename Segment, typename Strategies>
-    static inline void apply(Areal const& areal,
-                             Linear const& linear,
-                             Segment& shortest_seg,
-                             Strategies const& strategies)
-    {
-        return apply(linear, areal, shortest_seg, strategies);
-    }
-    */
 };
 
 struct areal_to_linear
@@ -148,21 +138,61 @@ struct areal_to_areal
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
+        using most_precise_type = typename select_coordinate_type
+                <
+                    Areal1,
+                    Areal2
+                >::type;
+
+        using point_type = typename std::conditional
+        <
+            std::is_same<coordinate_type<Areal1>, most_precise_type>::value,
+            typename point_type<Areal1>::type,
+            typename point_type<Areal2>::type
+        >::type;
+
+        using linestring_type = geometry::model::linestring<point_type>;
+        using polygon_type = geometry::model::polygon<point_type>;
         
-        if ( geometry::intersects(areal1, areal2, strategies) )
+        /* TODO: currently intersection does not support tupled input
+         *       this should be implemented directly with dynamic geometries
+        */
+            
+        geometry::model::multi_point<point_type> mp_out;
+        geometry::intersection(areal1, areal2, mp_out, strategies);
+        
+        if (! boost::empty(mp_out))
         {
-            using point_type = typename point_type<Areal1>::type;
-            geometry::model::multi_point<point_type> mp_out;
-            bool intersect = geometry::intersection(areal1, areal2, mp_out, strategies);
-            if (! boost::empty(mp_out))
-            {
-                set_segment_from_points::apply(*boost::begin(mp_out), 
-                                               *boost::begin(mp_out), 
-                                               shortest_seg);
-            }
+            set_segment_from_points::apply(*boost::begin(mp_out), 
+                                           *boost::begin(mp_out), 
+                                           shortest_seg);
+            return;
+        }
+        
+        // if there are no intersection points then the linear geometry (or part of it)
+        // is inside the areal; return any point of this part
+        geometry::model::multi_linestring<linestring_type> ln_out;
+        geometry::intersection(areal1, areal2, ln_out, strategies); 
+        
+        if (! boost::empty(ln_out))
+        {
+            set_segment_from_points::apply(*boost::begin(*boost::begin(ln_out)), 
+                                           *boost::begin(*boost::begin(ln_out)), 
+                                           shortest_seg); 
             return;
         }
 
+        geometry::model::multi_polygon<polygon_type> pl_out;
+        geometry::intersection(areal1, areal2, pl_out, strategies); 
+        
+        if (! boost::empty(pl_out))
+        {
+            set_segment_from_points::apply(*boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
+                                           *boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
+                                           shortest_seg); 
+            return;
+        }
+        
         linear_to_linear::apply(areal1, areal2, shortest_seg, strategies, false);
     }
 };
