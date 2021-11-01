@@ -13,13 +13,14 @@
 
 #include <type_traits>
 
-#include <boost/geometry/strategy/spherical/envelope.hpp>
+#include <boost/geometry/strategy/spherical/envelope.hpp> // Not used, for backward compatibility
 #include <boost/geometry/strategy/spherical/envelope_box.hpp>
-#include <boost/geometry/strategy/spherical/envelope_point.hpp>
+#include <boost/geometry/strategy/spherical/envelope_boxes.hpp>
 #include <boost/geometry/strategy/spherical/envelope_multipoint.hpp>
+#include <boost/geometry/strategy/spherical/envelope_point.hpp>
+#include <boost/geometry/strategy/spherical/envelope_range.hpp>
 #include <boost/geometry/strategy/spherical/envelope_segment.hpp>
 
-#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/envelope/services.hpp>
 #include <boost/geometry/strategies/expand/spherical.hpp>
 
@@ -47,44 +48,54 @@ struct spherical
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_point_t<Geometry> * = nullptr)
+                         util::enable_if_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_point();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_multi_point_t<Geometry> * = nullptr)
+                         util::enable_if_multi_point_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_multipoint();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_box_t<Geometry> * = nullptr)
+                         util::enable_if_box_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_box();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_segment_t<Geometry> * = nullptr)
+                         util::enable_if_segment_t<Geometry> * = nullptr)
     {
         return strategy::envelope::spherical_segment<CalculationType>();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_polysegmental_t<Geometry> * = nullptr)
+                         std::enable_if_t
+                            <
+                                util::is_linestring<Geometry>::value
+                             || util::is_ring<Geometry>::value
+                             || util::is_polygon<Geometry>::value
+                            > * = nullptr)
     {
-        return strategy::envelope::spherical<CalculationType>();
+        return strategy::envelope::spherical_range<CalculationType>();
     }
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
-                         typename util::enable_if_geometry_collection_t<Geometry> * = nullptr)
+                         std::enable_if_t
+                            <
+                                util::is_multi_linestring<Geometry>::value
+                             || util::is_multi_polygon<Geometry>::value
+                             || util::is_geometry_collection<Geometry>::value
+                            > * = nullptr)
     {
-        return strategy::envelope::spherical<CalculationType>();
+        return strategy::envelope::spherical_boxes();
     }
 };
 

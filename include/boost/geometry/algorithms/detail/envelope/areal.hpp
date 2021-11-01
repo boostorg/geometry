@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2018 Oracle and/or its affiliates.
+// Copyright (c) 2018-2021 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -39,11 +39,14 @@ struct envelope_polygon
 
         if (geometry::is_empty(ext_ring))
         {
+            // use dummy multi polygon to get the strategy because there is no multi ring concept
+            using strategy_t = decltype(strategy.envelope(detail::dummy_multi_polygon(),
+                                                          detail::dummy_box()));
             // if the exterior ring is empty, consider the interior rings
             envelope_multi_range
                 <
                     envelope_range
-                >::apply(interior_rings(polygon), mbr, strategy);
+                >::template apply<strategy_t>(interior_rings(polygon), mbr, strategy);
         }
         else
         {
