@@ -19,4 +19,5 @@ test-suite boost-geometry-algorithms-equals
     [ run equals.cpp             : : : : algorithms_equals ]
     [ run equals_multi.cpp       : : : : algorithms_equals_multi ]
     [ run equals_on_spheroid.cpp : : : : algorithms_equals_on_spheroid ]
+    [ run equals_sph.cpp         : : : : algorithms_equals_sph ]
     ;
