@@ -84,6 +84,70 @@ struct linear_to_linear
     }
 };
 
+struct segment_to_linear
+{
+    template <typename Segment, typename Linear, typename OutSegment, typename Strategies>
+    static inline void apply(Segment const& segment,
+                             Linear const& linear,
+                             OutSegment& shortest_seg,                       
+                             Strategies const& strategies,
+                             bool = false)
+    {
+        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
+        linestring_type linestring;
+        convert(segment, linestring);
+        return linear_to_linear::apply(linestring, linear, shortest_seg, strategies);
+/*
+        if (geometry::num_points(segment) == 1)
+        {
+            using segment_point_type = typename point_type<Segment>::type;
+            segment_point_type point;
+            detail::assign_point_from_index<0>(segment, point);
+            dispatch::closest_points
+                <
+                    segment_point_type,
+                    Segment
+                >::apply(point, linear, shortest_seg, strategies);
+            return;
+        }
+
+        if (geometry::num_points(linear) == 1)
+        {
+            dispatch::closest_points
+                <
+                    typename point_type<Linear>::type,
+                    Segment
+                >::apply(*points_begin(linear), segment, shortest_seg, strategies);
+            detail::closest_points::swap_segment_points::apply(shortest_seg);
+            return;
+        }
+
+        point_or_segment_range_to_geometry_rtree::apply(
+            geometry::segments_begin(linear),
+            geometry::segments_end(linear),
+            segment,
+            shortest_seg,
+            strategies);
+        detail::closest_points::swap_segment_points::apply(shortest_seg);
+        return;
+*/
+    }
+};
+
+struct linear_to_segment
+{
+    template <typename Linear, typename Segment, typename OutSegment, typename Strategies>
+    static inline void apply(Linear const& linear,
+                             Segment const& segment,
+                             OutSegment& shortest_seg,                       
+                             Strategies const& strategies,
+                             bool = false)
+    {
+        segment_to_linear::apply(segment, linear, shortest_seg, strategies);
+        detail::closest_points::swap_segment_points::apply(shortest_seg);
+        return;
+    }
+};
 
 }} // namespace detail::closest_points
 #endif // DOXYGEN_NO_DETAIL
@@ -100,6 +164,24 @@ struct closest_points
         linear_tag, linear_tag, 
         false
     > : detail::closest_points::linear_to_linear
+{};
+
+template <typename Segment, typename Linear>
+struct closest_points
+    <
+        Segment, Linear, 
+        segment_tag, linear_tag,
+        false
+    > : detail::closest_points::segment_to_linear
+{};
+
+template <typename Linear, typename Segment>
+struct closest_points
+    <
+        Linear, Segment, 
+        linear_tag, segment_tag,
+        false
+    > : detail::closest_points::linear_to_segment
 {};
 
 } // namespace dispatch

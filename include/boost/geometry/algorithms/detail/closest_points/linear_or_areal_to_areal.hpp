@@ -98,8 +98,8 @@ struct linear_to_areal
             return;
         }
         
-        // if there are no intersection points then the linear geometry (or part of it)
-        // is inside the areal; return any point of this part
+        // if there are no intersection points then check if the linear geometry 
+        // (or part of it) is inside the areal and return any point of this part
         geometry::model::multi_linestring<linestring_type> ln_out;
         geometry::intersection(linear, areal, ln_out, strategies); 
         
@@ -128,6 +128,37 @@ struct areal_to_linear
         return;
     }
     
+};
+
+struct segment_to_areal
+{
+    template <typename Segment, typename Areal, typename OutSegment, typename Strategies>
+    static inline void apply(Segment const& segment,
+                             Areal const& areal,
+                             OutSegment& shortest_seg,                       
+                             Strategies const& strategies,
+                             bool = false)
+    {
+        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
+        linestring_type linestring;
+        convert(segment, linestring);
+        return linear_to_areal::apply(linestring, areal, shortest_seg, strategies);
+    }
+};
+
+struct areal_to_segment
+{
+    template <typename Areal, typename Segment, typename OutSegment, typename Strategies>
+    static inline void apply(Areal const& areal,
+                             Segment const& segment,
+                             OutSegment& shortest_seg,                       
+                             Strategies const& strategies,
+                             bool = false)
+    {
+        segment_to_areal::apply(segment, areal, shortest_seg, strategies);
+        detail::closest_points::swap_segment_points::apply(shortest_seg);
+        return;
+    }
 };
 
 struct areal_to_areal
@@ -210,7 +241,7 @@ template <typename Linear, typename Areal>
 struct closest_points
     <
         Linear, Areal, 
-        linear_tag, areal_tag, 
+        linear_tag, areal_tag,
         false
     >
     : detail::closest_points::linear_to_areal
@@ -224,6 +255,26 @@ struct closest_points
         false
     >
     : detail::closest_points::areal_to_linear
+{};
+
+template <typename Segment, typename Areal>
+struct closest_points
+    <
+        Segment, Areal, 
+        segment_tag, areal_tag,
+        false
+    >
+    : detail::closest_points::segment_to_areal
+{};
+
+template <typename Areal, typename Segment>
+struct closest_points
+    <
+        Areal, Segment,
+        areal_tag, segment_tag, 
+        false
+    >
+    : detail::closest_points::areal_to_segment
 {};
 
 template <typename Areal1, typename Areal2>

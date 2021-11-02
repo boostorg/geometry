@@ -956,8 +956,8 @@ void test_closest_points_multi_linestring_box(Strategies const& strategies)
 template <typename Point, typename Strategies>
 void test_all_l_ar(Strategies strategies)
 {
-    //test_closest_points_segment_polygon_or_ring<Point>(strategies);
-    //test_closest_points_segment_multi_polygon<Point>(strategies);
+    test_closest_points_segment_polygon_or_ring<Point>(strategies);
+    test_closest_points_segment_multi_polygon<Point>(strategies);
     //test_closest_points_segment_box<Point>(strategies);
 
     test_closest_points_linestring_polygon_or_ring<Point>(strategies);

@@ -349,7 +349,7 @@ public:
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
+/*
 template <typename Linear, typename Segment>
 struct closest_points
     <
@@ -358,7 +358,7 @@ struct closest_points
         false
     > : detail::closest_points::geometry_to_segment_or_box<Linear, Segment>
 {};
-
+*/
 /*
 template <typename Areal, typename Segment, typename Strategy>
 struct distance
