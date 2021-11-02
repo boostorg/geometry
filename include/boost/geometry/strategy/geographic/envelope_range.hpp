@@ -14,13 +14,14 @@
 #include <boost/geometry/strategy/geographic/expand_segment.hpp>
 #include <boost/geometry/strategy/spherical/envelope_range.hpp>
 
+// TEMP - get rid of this dependency
+#include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
+
 namespace boost { namespace geometry
 {
 
 namespace strategy { namespace envelope
 {
-
-// TODO: divide into geographic_linestring and geographic_ring
 
 template
 <
@@ -28,29 +29,76 @@ template
     typename Spheroid = geometry::srs::spheroid<double>,
     typename CalculationType = void
 >
-class geographic_range
+class geographic_linestring
 {
 public:
     using model_type = Spheroid;
 
-    geographic_range()
+    geographic_linestring()
         : m_spheroid()
     {}
 
-    explicit geographic_range(Spheroid const& spheroid)
+    explicit geographic_linestring(Spheroid const& spheroid)
         : m_spheroid(spheroid)
     {}
 
     template <typename Range, typename Box>
     void apply(Range const& range, Box& mbr) const
     {
-        detail::spheroidal_range(range, mbr,
-                                 envelope::geographic_segment
+        detail::spheroidal_linestring(range, mbr,
+                                      envelope::geographic_segment
+                                        <
+                                            FormulaPolicy, Spheroid, CalculationType
+                                        >(m_spheroid),
+                                      expand::geographic_segment
+                                        <
+                                            FormulaPolicy, Spheroid, CalculationType
+                                        >(m_spheroid));
+    }
+
+    Spheroid model() const
+    {
+        return m_spheroid;
+    }
+
+private:
+    Spheroid m_spheroid;
+};
+
+template
+<
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = geometry::srs::spheroid<double>,
+    typename CalculationType = void
+>
+class geographic_ring
+{
+public:
+    using model_type = Spheroid;
+
+    geographic_ring()
+        : m_spheroid()
+    {}
+
+    explicit geographic_ring(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
+    {}
+
+    template <typename Range, typename Box>
+    void apply(Range const& range, Box& mbr) const
+    {
+        detail::spheroidal_ring(range, mbr,
+                                envelope::geographic_segment
                                     <
                                         FormulaPolicy, Spheroid, CalculationType
                                     >(m_spheroid),
-                                 expand::geographic_segment
+                                expand::geographic_segment
                                     <
+                                        FormulaPolicy, Spheroid, CalculationType
+                                    >(m_spheroid),
+                                within::geographic_winding
+                                    <
+                                        void, void,
                                         FormulaPolicy, Spheroid, CalculationType
                                     >(m_spheroid));
     }

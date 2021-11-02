@@ -39,6 +39,11 @@ struct envelope_polygon
 
         if (geometry::is_empty(ext_ring))
         {
+            // TODO: In spherical and geographic this is ambiguous. A hole technically is a ring
+            // defining the outside so the envelope would cover more than half of the globe.
+            // So depending on what we want we could consider reversing holes before passing them
+            // below.
+
             // use dummy multi polygon to get the strategy because there is no multi ring concept
             using strategy_t = decltype(strategy.envelope(detail::dummy_multi_polygon(),
                                                           detail::dummy_box()));

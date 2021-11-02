@@ -14,6 +14,7 @@
 #include <type_traits>
 
 #include <boost/geometry/algorithms/detail/distance/segment_to_box.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
 #include <boost/geometry/strategies/normalize.hpp>

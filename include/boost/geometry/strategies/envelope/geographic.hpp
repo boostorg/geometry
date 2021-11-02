@@ -78,14 +78,23 @@ public:
 
     template <typename Geometry, typename Box>
     auto envelope(Geometry const&, Box const&,
+                  util::enable_if_linestring_t<Geometry> * = nullptr) const
+    {
+        return strategy::envelope::geographic_linestring
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(base_t::m_spheroid);
+    }
+
+    template <typename Geometry, typename Box>
+    auto envelope(Geometry const&, Box const&,
                   std::enable_if_t
                     <
-                        util::is_linestring<Geometry>::value
-                     || util::is_ring<Geometry>::value
+                        util::is_ring<Geometry>::value
                      || util::is_polygon<Geometry>::value
                     > * = nullptr) const
     {
-        return strategy::envelope::geographic_range
+        return strategy::envelope::geographic_ring
             <
                 FormulaPolicy, Spheroid, CalculationType
             >(base_t::m_spheroid);

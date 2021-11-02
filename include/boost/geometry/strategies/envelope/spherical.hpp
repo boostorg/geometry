@@ -76,14 +76,20 @@ struct spherical
 
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&,
+                         util::enable_if_linestring_t<Geometry> * = nullptr)
+    {
+        return strategy::envelope::spherical_linestring<CalculationType>();
+    }
+
+    template <typename Geometry, typename Box>
+    static auto envelope(Geometry const&, Box const&,
                          std::enable_if_t
                             <
-                                util::is_linestring<Geometry>::value
-                             || util::is_ring<Geometry>::value
+                                util::is_ring<Geometry>::value
                              || util::is_polygon<Geometry>::value
                             > * = nullptr)
     {
-        return strategy::envelope::spherical_range<CalculationType>();
+        return strategy::envelope::spherical_ring<CalculationType>();
     }
 
     template <typename Geometry, typename Box>
