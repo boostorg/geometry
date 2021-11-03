@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -140,7 +140,7 @@ void test_all_pl_pl(Strategies strategies)
 
     //test_variant<Point>(strategies);
 
-    //test_more_empty_input_pointlike_pointlike<Point>(strategies);
+    test_more_empty_input_pointlike_pointlike<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )

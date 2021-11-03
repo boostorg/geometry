@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -279,7 +279,7 @@ void test_all_l_l(Strategies strategies)
     test_closest_points_linestring_multi_linestring<Point>(strategies);
     test_closest_points_multi_linestring_multi_linestring<Point>(strategies);
 
-    //test_more_empty_input_linear_linear<Point>(ps_strategy);
+    test_more_empty_input_linear_linear<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_linear_linear )

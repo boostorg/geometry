@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -331,7 +331,7 @@ void test_all_pl_ar(Strategies strategies)
     test_closest_points_multi_point_multi_polygon<Point>(strategies);
     //test_closest_points_multi_point_box<Point>(strategies);
 
-    //test_more_empty_input_pointlike_areal<Point>(strategies);
+    test_more_empty_input_pointlike_areal<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
