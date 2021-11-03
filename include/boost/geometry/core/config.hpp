@@ -14,6 +14,16 @@
 
 #include <boost/config.hpp>
 
+// Flip around the default. This is targeted to tests. As soon as the default changes,
+// some unit tests (tagged by _alternative) are tested with the non-default.
+#if defined(BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
+  #if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
+    #undef BOOST_GEOMETRY_NO_ROBUSTNESS
+  #else
+    #define BOOST_GEOMETRY_NO_ROBUSTNESS
+  #endif
+#endif
+
 // NOTE: workaround for VC++ 12 (aka 2013): cannot specify explicit initializer for arrays
 #if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #define BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
