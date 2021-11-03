@@ -2710,20 +2710,40 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
 #endif
 
     // From disjoint  https://svn.boost.org/trac/boost/ticket/9162
+    // Polygons containing poles
     tester::apply("r22cw",
                   from_wkt<G>("POLYGON((0 80,-90 80,-180 80,90 80,0 80))"),
                   -180, 80, 180, 90);
     tester::apply("r23cw",
                   from_wkt<G>("POLYGON((0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
                   -180, -90, 180, -80);
+    // Polygons greater than half of the globe
     tester::apply("r24cw",
                   from_wkt<G>("POLYGON((0 80,90 80,-180 80,-90 80,0 80))"),
                   -180, -90, 180, 82.892923889553458);
     tester::apply("r25cw",
                   from_wkt<G>("POLYGON((0 -80,-90 -80,-180 -80,90 -80,0 -80))"),
                   -180, -82.892923889553458, 180, 90);
+    // Normal test case
     tester::apply("r26cw",
                   from_wkt<G>("POLYGON((30 0,30 30,90 30, 90 0, 30 0))"),
                   30, 0, 90, 33.690067525979771);
+
+    // Invalid polygons with holes containing poles
+    tester::apply("r27cw",
+                  from_wkt<G>("POLYGON((),(0 80,90 80,-180 80,-90 80,0 80))"),
+                  -180, 80, 180, 90);
+    tester::apply("r28cw",
+                  from_wkt<G>("POLYGON((),(0 -80,-90 -80,-180 -80,90 -80,0 -80))"),
+                  -180, -90, 180, -80);
+
+    typedef bg::model::polygon<point_type, false> G2;
+    typedef test_envelope_on_sphere_or_spheroid<G2, B> tester2;
+    tester2::apply("r27ccw",
+                   from_wkt<G2>("POLYGON((),(0 80,-90 80,-180 80,90 80,0 80))"),
+                   -180, 80, 180, 90);
+    tester2::apply("r28ccw",
+                   from_wkt<G2>("POLYGON((),(0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
+                   -180, -90, 180, -80);
 }
 
