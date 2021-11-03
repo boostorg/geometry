@@ -136,7 +136,7 @@ void test_all_pl_pl(Strategies strategies)
 {
     test_closest_points_point_point<Point>(strategies);
     test_closest_points_point_multi_point<Point>(strategies);
-    //test_closest_points_multi_point_multi_point<Point>(strategies);
+    test_closest_points_multi_point_multi_point<Point>(strategies);
 
     //test_variant<Point>(strategies);
 

@@ -265,11 +265,11 @@ void test_all_pl_l(Strategies strategies)
     test_closest_points_point_linestring<Point>(strategies);
     test_closest_points_point_multi_linestring<Point>(strategies);
 
-    //test_closest_points_multi_point_segment<Point>(ps_strategy);
-    //test_closest_points_multi_point_linestring<Point>(ps_strategy);
-    //test_closest_points_multi_point_multi_linestring<Point>(ps_strategy);
+    test_closest_points_multi_point_segment<Point>(strategies);
+    test_closest_points_multi_point_linestring<Point>(strategies);
+    test_closest_points_multi_point_multi_linestring<Point>(strategies);
 
-    //test_more_empty_input_pointlike_linear<Point>(ps_strategy);
+    //test_more_empty_input_pointlike_linear<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )

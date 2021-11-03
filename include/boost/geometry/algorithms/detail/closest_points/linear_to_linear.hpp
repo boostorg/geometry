@@ -97,40 +97,6 @@ struct segment_to_linear
         linestring_type linestring;
         convert(segment, linestring);
         return linear_to_linear::apply(linestring, linear, shortest_seg, strategies);
-/*
-        if (geometry::num_points(segment) == 1)
-        {
-            using segment_point_type = typename point_type<Segment>::type;
-            segment_point_type point;
-            detail::assign_point_from_index<0>(segment, point);
-            dispatch::closest_points
-                <
-                    segment_point_type,
-                    Segment
-                >::apply(point, linear, shortest_seg, strategies);
-            return;
-        }
-
-        if (geometry::num_points(linear) == 1)
-        {
-            dispatch::closest_points
-                <
-                    typename point_type<Linear>::type,
-                    Segment
-                >::apply(*points_begin(linear), segment, shortest_seg, strategies);
-            detail::closest_points::swap_segment_points::apply(shortest_seg);
-            return;
-        }
-
-        point_or_segment_range_to_geometry_rtree::apply(
-            geometry::segments_begin(linear),
-            geometry::segments_end(linear),
-            segment,
-            shortest_seg,
-            strategies);
-        detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
-*/
     }
 };
 

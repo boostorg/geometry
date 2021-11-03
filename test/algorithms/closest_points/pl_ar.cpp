@@ -327,8 +327,8 @@ void test_all_pl_ar(Strategies strategies)
     test_closest_points_point_multi_polygon<Point>(strategies);
     //test_closest_points_point_box<Point>(strategies);
 
-    //test_closest_points_multi_point_polygon_or_ring<Point>(strategies);
-    //test_closest_points_multi_point_multi_polygon<Point>(strategies);
+    test_closest_points_multi_point_polygon_or_ring<Point>(strategies);
+    test_closest_points_multi_point_multi_polygon<Point>(strategies);
     //test_closest_points_multi_point_box<Point>(strategies);
 
     //test_more_empty_input_pointlike_areal<Point>(strategies);

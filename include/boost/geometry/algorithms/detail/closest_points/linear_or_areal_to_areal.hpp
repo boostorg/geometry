@@ -127,7 +127,6 @@ struct areal_to_linear
         detail::closest_points::swap_segment_points::apply(shortest_seg);
         return;
     }
-    
 };
 
 struct segment_to_areal
