@@ -309,7 +309,7 @@ void set_operation_output(std::string const& set_op_id,
     mapper.map(g2, "stroke-opacity:1;stroke:rgb(153,204,0);stroke-width:4");
     mapper.map(g1, "stroke-opacity:1;stroke:rgb(51,51,153);stroke-width:2");
 
-    BOOST_AUTO_TPL(it, output.begin());
+    auto it = output.begin();
     for (; it != output.end(); ++it)
     {
         if ( boost::size(*it) == 2
