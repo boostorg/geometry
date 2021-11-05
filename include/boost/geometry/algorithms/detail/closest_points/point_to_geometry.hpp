@@ -120,14 +120,14 @@ public:
                 decltype(strategies.distance(point, range))
             >::apply(strategies.distance(point, range));
         
-        auto it_pair = point_to_point_range::apply(point, 
-                                                   boost::begin(range),
-                                                   boost::end(range), 
-                                                   comparable_distance,
-                                                   cd_min);
+        auto closest_segment = point_to_point_range::apply(point, 
+                                                           boost::begin(range),
+                                                           boost::end(range), 
+                                                           comparable_distance,
+                                                           cd_min);
         
         auto closest_point = strategies.closest_points(point, range)
-            .apply(point, it_pair->first, it_pair->second);
+            .apply(point, *closest_segment.first, *closest_segment.second);
 
         set_segment_from_points::apply(point, closest_point, shortest_seg);        
     }

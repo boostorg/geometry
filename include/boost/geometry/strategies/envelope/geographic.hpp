@@ -86,6 +86,16 @@ public:
                 FormulaPolicy, Spheroid, CalculationType
             >(base_t::m_spheroid);
     }
+
+    template <typename Geometry, typename Box>
+    auto envelope(Geometry const&, Box const&,
+                  typename util::enable_if_geometry_collection_t<Geometry> * = nullptr) const
+    {
+        return strategy::envelope::geographic
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(base_t::m_spheroid);
+    }
 };
 
 

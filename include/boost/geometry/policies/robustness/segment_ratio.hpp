@@ -2,8 +2,8 @@
 
 // Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2021.
+// Modifications copyright (c) 2016-2021 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -53,8 +53,8 @@ struct less<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
-        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != Type(0));
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != Type(0));
         Type const a = lhs.numerator() / lhs.denominator();
         Type const b = rhs.numerator() / rhs.denominator();
         return ! geometry::math::equals(a, b)
@@ -86,8 +86,8 @@ struct equal<Type, false>
     template <typename Ratio>
     static inline bool apply(Ratio const& lhs, Ratio const& rhs)
     {
-        BOOST_GEOMETRY_ASSERT(lhs.denominator() != 0);
-        BOOST_GEOMETRY_ASSERT(rhs.denominator() != 0);
+        BOOST_GEOMETRY_ASSERT(lhs.denominator() != Type(0));
+        BOOST_GEOMETRY_ASSERT(rhs.denominator() != Type(0));
         Type const a = lhs.numerator() / lhs.denominator();
         Type const b = rhs.numerator() / rhs.denominator();
         return geometry::math::equals(a, b);
@@ -144,7 +144,8 @@ class segment_ratio
     // Type-alias for the type itself
     using thistype = segment_ratio<Type>;
 
-public :
+public:
+    using int_type = Type;
 
     inline segment_ratio()
         : m_numerator(0)
@@ -231,7 +232,7 @@ public :
             );
     }
 
-    inline bool is_zero() const { return math::equals(m_numerator, 0); }
+    inline bool is_zero() const { return math::equals(m_numerator, Type(0)); }
     inline bool is_one() const { return math::equals(m_numerator, m_denominator); }
     inline bool on_segment() const
     {

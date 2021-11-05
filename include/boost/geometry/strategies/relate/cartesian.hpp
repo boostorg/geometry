@@ -158,7 +158,10 @@ public:
 
     static auto side()
     {
-        return strategy::side::side_robust<CalculationType>();
+        using side_strategy_type
+            = typename strategy::side::services::default_strategy
+                <cartesian_tag, CalculationType>::type;
+        return side_strategy_type();
     }
 
     // within

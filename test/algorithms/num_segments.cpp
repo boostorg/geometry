@@ -1,9 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -288,4 +289,17 @@ BOOST_AUTO_TEST_CASE( test_variant )
 
     variant_geometry = p_closed;
     tester::apply(variant_geometry, 4);
+}
+
+BOOST_AUTO_TEST_CASE( test_geometry_collection )
+{
+    using variant = boost::variant<linestring, polygon_cw_closed>;
+    using geometry_collection = bg::model::geometry_collection<variant>;
+
+    using tester = test_num_segments<geometry_collection>;
+
+    geometry_collection gc;
+    bg::read_wkt("GEOMETRYCOLLECTION(LINESTRING(0 0,1 1,2 2),POLYGON((0 0,0 1,1 1,1 0,0 0)))", gc);
+
+    tester::apply(gc, 6);
 }

@@ -51,7 +51,7 @@ void test_spikes_in_ticket_8364()
         "MULTIPOLYGON(((1032 2556,1778 2556,1032 2130,1032 2556)),((3234 2580,3234 2556,1778 2556,2136 2760,3234 2580)))",
         count_set(1, 2), -1, expectation_limits(2615783, 2616030), // SQL Server: 2616029.55616044
         1, -1, expectation_limits(161054, 161134), // SQL Server: 161054.560110092
-        count_set(1, 3));
+        count_set(1, 3), ignore_validity);
 }
 
 template <typename P, bool ClockWise, bool Closed>
