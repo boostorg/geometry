@@ -12,7 +12,7 @@
 
 #include <boost/geometry/algorithms/detail/closest_points/range_to_geometry_rtree.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
-#include <boost/geometry/algorithms/dispatch/distance.hpp>
+
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/num_segments.hpp>
 
@@ -21,8 +21,6 @@
 #include <boost/geometry/iterators/point_iterator.hpp>
 #include <boost/geometry/iterators/segment_iterator.hpp>
 
-#include <boost/geometry/strategies/distance.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -30,7 +28,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace closest_points
 {
-
 
 
 struct linear_to_linear
@@ -93,10 +90,11 @@ struct segment_to_linear
                              Strategies const& strategies,
                              bool = false)
     {
-        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
+        using linestring_type = geometry::model::linestring
+            <typename point_type<Segment>::type>;
         linestring_type linestring;
         convert(segment, linestring);
-        return linear_to_linear::apply(linestring, linear, shortest_seg, strategies);
+        linear_to_linear::apply(linestring, linear, shortest_seg, strategies);
     }
 };
 
@@ -111,7 +109,6 @@ struct linear_to_segment
     {
         segment_to_linear::apply(segment, linear, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 

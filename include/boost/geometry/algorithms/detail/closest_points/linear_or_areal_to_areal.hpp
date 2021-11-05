@@ -12,6 +12,7 @@
 
 #include <boost/geometry/algorithms/detail/closest_points/linear_to_linear.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
+
 #include <boost/geometry/algorithms/intersection.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
@@ -24,33 +25,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace closest_points
 {
-
-template <bool is_multi>
-struct set_first_point_of_linestring_or_multilinestring
-{
-    template <typename Linear, typename Segment>
-    static void apply(Linear const& linear,
-                      Segment& shortest_seg)
-    {
-        set_segment_from_points::apply(*boost::begin(linear), 
-                                       *boost::begin(linear), 
-                                       shortest_seg);
-    }
-};
-
-template <>
-struct set_first_point_of_linestring_or_multilinestring<true>
-{
-    template <typename Linear, typename Segment>
-    static void apply(Linear const& linear,
-                      Segment& shortest_seg)
-    {
-        set_segment_from_points::apply(*boost::begin(*boost::begin(linear)), 
-                                       *boost::begin(*boost::begin(linear)), 
-                                       shortest_seg); 
-    }
-};
-
 
 struct linear_to_areal
 {
@@ -125,7 +99,6 @@ struct areal_to_linear
     {
         linear_to_areal::apply(linear, areal, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 
@@ -138,10 +111,11 @@ struct segment_to_areal
                              Strategies const& strategies,
                              bool = false)
     {
-        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
+        using linestring_type = geometry::model::linestring
+            <typename point_type<Segment>::type>;
         linestring_type linestring;
         convert(segment, linestring);
-        return linear_to_areal::apply(linestring, areal, shortest_seg, strategies);
+        linear_to_areal::apply(linestring, areal, shortest_seg, strategies);
     }
 };
 
@@ -156,7 +130,6 @@ struct areal_to_segment
     {
         segment_to_areal::apply(segment, areal, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 
@@ -217,9 +190,10 @@ struct areal_to_areal
         
         if (! boost::empty(pl_out))
         {
-            set_segment_from_points::apply(*boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
-                                           *boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
-                                           shortest_seg); 
+            set_segment_from_points::apply(
+                *boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
+                *boost::begin(boost::geometry::exterior_ring(*boost::begin(pl_out))), 
+                shortest_seg); 
             return;
         }
         

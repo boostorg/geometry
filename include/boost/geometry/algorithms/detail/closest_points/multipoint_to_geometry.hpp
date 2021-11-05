@@ -10,9 +10,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_MULTIPOINT_TO_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_MULTIPOINT_TO_GEOMETRY_HPP
 
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/size.hpp>
+#include <iterator>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
@@ -24,8 +22,6 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/linestring.hpp>
-
-#include <boost/geometry/strategies/tags.hpp>
 
 
 namespace boost { namespace geometry
@@ -50,23 +46,23 @@ struct multipoint_to_multipoint
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
-        if (boost::size(multipoint1) < boost::size(multipoint2))
+        if (std::size(multipoint1) < std::size(multipoint2))
         {
             point_or_segment_range_to_geometry_rtree::apply(
-                boost::begin(multipoint2),
-                boost::end(multipoint2),
+                std::begin(multipoint2),
+                std::end(multipoint2),
                 multipoint1,
                 shortest_seg,
                 strategies);
             detail::closest_points::swap_segment_points::apply(shortest_seg);
             return;
         }
-        return point_or_segment_range_to_geometry_rtree::apply(
-                boost::begin(multipoint1),
-                boost::end(multipoint1),
-                multipoint2,
-                shortest_seg,
-                strategies);
+        point_or_segment_range_to_geometry_rtree::apply(
+            std::begin(multipoint1),
+            std::end(multipoint1),
+            multipoint2,
+            shortest_seg,
+            strategies);
     }
 };
 
@@ -84,9 +80,9 @@ struct multipoint_to_linear
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
-        return point_or_segment_range_to_geometry_rtree::apply(
-            boost::begin(multipoint),
-            boost::end(multipoint),
+        point_or_segment_range_to_geometry_rtree::apply(
+            std::begin(multipoint),
+            std::end(multipoint),
             linear,
             shortest_seg,
             strategies);
@@ -109,7 +105,6 @@ struct linear_to_multipoint
     {
         multipoint_to_linear::apply(multipoint, linear, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 
@@ -135,7 +130,6 @@ struct segment_to_multipoint
         convert(segment, linestring);
         multipoint_to_linear::apply(multipoint, linestring, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 
@@ -159,7 +153,7 @@ struct multipoint_to_segment
             >;
         linestring_type linestring;
         convert(segment, linestring);
-        return multipoint_to_linear::apply(multipoint, linestring, shortest_seg, 
+        multipoint_to_linear::apply(multipoint, linestring, shortest_seg, 
             strategies);
     }
 };
@@ -214,7 +208,7 @@ public:
             
         }
 
-        return point_or_segment_range_to_geometry_rtree::apply(
+        point_or_segment_range_to_geometry_rtree::apply(
             std::begin(multipoint),
             std::end(multipoint),
             areal,
@@ -239,7 +233,6 @@ struct areal_to_multipoint
     {
         multipoint_to_areal::apply(multipoint, areal, shortest_seg, strategies);
         detail::closest_points::swap_segment_points::apply(shortest_seg);
-        return;
     }
 };
 
