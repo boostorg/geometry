@@ -127,7 +127,7 @@ public:
                                                    cd_min);
         
         auto closest_point = strategies.closest_points(point, range)
-            .apply(point, *it_pair.first, *it_pair.second);
+            .apply(point, it_pair->first, it_pair->second);
 
         set_segment_from_points::apply(point, closest_point, shortest_seg);        
     }

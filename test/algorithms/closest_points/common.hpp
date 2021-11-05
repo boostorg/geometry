@@ -60,14 +60,14 @@ using cartesian = bg::strategies::closest_points::cartesian<double>;
 template <typename Segment>
 static inline Segment swap(Segment const& s)
 {
-    Segment s_swaped;
+    Segment swapped;
 
-    bg::set<0, 0>(s_swaped, bg::get<1, 0>(s));
-    bg::set<0, 1>(s_swaped, bg::get<1, 1>(s));
-    bg::set<1, 0>(s_swaped, bg::get<0, 0>(s));
-    bg::set<1, 1>(s_swaped, bg::get<0, 1>(s));
+    bg::set<0, 0>(swapped, bg::get<1, 0>(s));
+    bg::set<0, 1>(swapped, bg::get<1, 1>(s));
+    bg::set<1, 0>(swapped, bg::get<0, 0>(s));
+    bg::set<1, 1>(swapped, bg::get<0, 1>(s));
 
-    return s_swaped;
+    return swapped;
 }
 
 template <int i, int j, typename Segment>
@@ -102,7 +102,7 @@ void compute_result(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
                     Segment const& exp_resulting_segment,
                     Strategy const& strategy,
-                    bool const& default_strategy)
+                    bool default_strategy)
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG_CLOSEST_POINTS
     //std::cout << "CS: " << typeid(typename bg::cs_tag<Geometry1>::type).name()
@@ -137,14 +137,13 @@ void compute_result(Geometry1 const& geometry1,
                     Geometry2 const& geometry2,
                     Segment const& exp_resulting_segment,
                     Strategy const& strategy,
-                    bool const& swap_geometries,
-                    bool const& default_strategy)
+                    bool swap_geometries,
+                    bool default_strategy)
 {
     compute_result(geometry1, geometry2, exp_resulting_segment, strategy,
                    default_strategy);
     if (swap_geometries)
     {
-        //TODO: enable
         // swap input geometries and expected segment
         compute_result(geometry2, geometry1,
                        swap(exp_resulting_segment), strategy,
