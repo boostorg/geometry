@@ -46,11 +46,11 @@ struct multipoint_to_multipoint
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
-        if (std::size(multipoint1) < std::size(multipoint2))
+        if (boost::size(multipoint1) < boost::size(multipoint2))
         {
             point_or_segment_range_to_geometry_rtree::apply(
-                std::begin(multipoint2),
-                std::end(multipoint2),
+                boost::begin(multipoint2),
+                boost::end(multipoint2),
                 multipoint1,
                 shortest_seg,
                 strategies);
@@ -58,8 +58,8 @@ struct multipoint_to_multipoint
             return;
         }
         point_or_segment_range_to_geometry_rtree::apply(
-            std::begin(multipoint1),
-            std::end(multipoint1),
+            boost::begin(multipoint1),
+            boost::end(multipoint1),
             multipoint2,
             shortest_seg,
             strategies);
@@ -81,8 +81,8 @@ struct multipoint_to_linear
                              Strategies const& strategies)
     {
         point_or_segment_range_to_geometry_rtree::apply(
-            std::begin(multipoint),
-            std::end(multipoint),
+            boost::begin(multipoint),
+            boost::end(multipoint),
             linear,
             shortest_seg,
             strategies);
@@ -198,19 +198,19 @@ public:
         covered_by_areal<Areal, Strategies> predicate(areal, strategies);
 
         auto it = std::find_if(
-                std::begin(multipoint),
-                std::end(multipoint),
+                boost::begin(multipoint),
+                boost::end(multipoint),
                 predicate);
         
-        if (it != std::end(multipoint))
+        if (it != boost::end(multipoint))
         {
             return set_segment_from_points::apply(*it, *it, shortest_seg);
             
         }
 
         point_or_segment_range_to_geometry_rtree::apply(
-            std::begin(multipoint),
-            std::end(multipoint),
+            boost::begin(multipoint),
+            boost::end(multipoint),
             areal,
             shortest_seg,
             strategies);
