@@ -47,32 +47,6 @@ struct cartesian
     {
         return strategy::closest_points::projected_point<CalculationType>();
     }
-/*
-    template <typename Geometry1, typename Geometry2>
-    static auto closest_points(Geometry1 const&, Geometry2 const&,
-                               distance::detail::enable_if_pb_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::pythagoras_point_box<CalculationType>();
-    }
-
-    template <typename Geometry1, typename Geometry2>
-    static auto closest_points(Geometry1 const&, Geometry2 const&,
-                               distance::detail::enable_if_sb_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::cartesian_segment_box
-            <
-                CalculationType,
-                strategy::distance::pythagoras<CalculationType>
-            >();
-    }
-
-    template <typename Geometry1, typename Geometry2>
-    static auto closest_points(Geometry1 const&, Geometry2 const&,
-                               distance::detail::enable_if_bb_t<Geometry1, Geometry2> * = nullptr)
-    {
-        return strategy::distance::pythagoras_box_box<CalculationType>();
-    }
-*/
 };
 
 
