@@ -14,8 +14,8 @@
 #include <boost/geometry/strategy/geographic/expand_segment.hpp>
 #include <boost/geometry/strategy/spherical/envelope_range.hpp>
 
-// TEMP - get rid of this dependency
-#include <boost/geometry/strategies/geographic/point_in_poly_winding.hpp>
+// Get rid of this dependency?
+#include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 
 namespace boost { namespace geometry
 {
@@ -96,11 +96,11 @@ public:
                                     <
                                         FormulaPolicy, Spheroid, CalculationType
                                     >(m_spheroid),
-                                within::geographic_winding
+                                within::detail::spherical_winding_base
                                     <
-                                        void, void,
-                                        FormulaPolicy, Spheroid, CalculationType
-                                    >(m_spheroid));
+                                        envelope::detail::side_of_pole<CalculationType>,
+                                        CalculationType
+                                    >());
     }
 
     Spheroid model() const

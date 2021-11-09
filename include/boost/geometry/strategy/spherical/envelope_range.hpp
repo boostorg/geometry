@@ -18,8 +18,7 @@
 #include <boost/geometry/strategy/spherical/expand_segment.hpp>
 #include <boost/geometry/views/closeable_view.hpp>
 
-// TEMP - get rid of these dependencies
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
+// Get rid of this dependency?
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 
 
@@ -73,8 +72,87 @@ inline void spheroidal_linestring(Range const& range, Box& mbr,
 }
 
 
-template <typename Ring, typename WithinStrategy>
-inline bool pole_within(bool north_pole, Ring const& ring, WithinStrategy const& within_strategy)
+// Side of pole WRT segment which doesn't contain it.
+template <typename CalculationType = void>
+struct side_of_pole
+{
+    typedef spherical_tag cs_tag;
+
+    template <typename P>
+    static inline int apply(P const& p1, P const& p2, P const& p)
+    {
+        using calc_t = typename promote_floating_point
+            <
+                typename select_calculation_type_alt
+                    <
+                        CalculationType, P
+                    >::type
+            >::type;
+
+        using units_t = typename geometry::detail::cs_angular_units<P>::type;
+        using constants = math::detail::constants_on_spheroid<calc_t, units_t>;
+
+        calc_t const c0 = 0;
+        calc_t const pi = constants::half_period();
+
+        calc_t const lon1 = get<0>(p1);
+        calc_t const lat1 = get<1>(p1);
+        calc_t const lon2 = get<0>(p2);
+        calc_t const lat2 = get<1>(p2);
+        calc_t const lat = get<1>(p);
+
+        calc_t const s_lon_diff = math::longitude_distance_signed<units_t>(lon1, lon2);
+        bool const s_vertical = math::equals(s_lon_diff, c0)
+                             || math::equals(s_lon_diff, pi);
+        // Side of vertical segment is 0 for both poles.
+        if (s_vertical)
+        {
+            return 0;
+        }
+
+        // This strategy shouldn't be called in this case but just in case
+        // check if segment starts at a pole
+        if (math::equals(lat, lat1) || math::equals(lat, lat2))
+        {
+            return 0;
+        }
+
+        // -1 is rhs
+        //  1 is lhs
+        if (lat >= c0) // north pole
+        {
+            return s_lon_diff < c0 ? -1 : 1;
+        }
+        else // south pole
+        {
+            return s_lon_diff > c0 ? -1 : 1;
+        }
+    }
+};
+
+
+template <typename Point, typename Range, typename Strategy>
+inline int point_in_range(Point const& point, Range const& range, Strategy const& strategy)
+{
+    typename Strategy::state_type state;
+
+    auto it = boost::begin(range);
+    auto const end = boost::end(range);
+    for (auto previous = it++ ; it != end ; ++previous, ++it )
+    {
+        if ( ! strategy.apply(point, *previous, *it, state) )
+        {
+            break;
+        }
+    }
+
+    return strategy.result(state);
+}
+
+
+template <typename Ring, typename PoleWithinStrategy>
+inline bool pole_within(bool north_pole, Ring const& ring,
+                        PoleWithinStrategy const& pole_within_strategy)
 {
     if (boost::size(ring) < core_detail::closure::minimum_ring_size
                                 <
@@ -99,14 +177,18 @@ inline bool pole_within(bool north_pole, Ring const& ring, WithinStrategy const&
         geometry::set<1>(point, constants_t::min_latitude());
     }
     geometry::detail::closed_clockwise_view<Ring const> view(ring);
-    return geometry::detail::within::point_in_range(point, view, within_strategy) > 0;
+    return point_in_range(point, view, pole_within_strategy) > 0;
 }
 
-template <typename Range, typename Box, typename EnvelopeStrategy, typename ExpandStrategy, typename WithinStrategy>
+template
+<
+    typename Range, typename Box,
+    typename EnvelopeStrategy, typename ExpandStrategy, typename PoleWithinStrategy
+>
 inline void spheroidal_ring(Range const& range, Box& mbr,
                             EnvelopeStrategy const& envelope_strategy,
                             ExpandStrategy const& expand_strategy,
-                            WithinStrategy const& within_strategy)
+                            PoleWithinStrategy const& pole_within_strategy)
 {
     geometry::detail::closed_view<Range const> closed_range(range);
 
@@ -121,9 +203,9 @@ inline void spheroidal_ring(Range const& range, Box& mbr,
     coord_t const lon_max = geometry::get<1, 0>(mbr);
     // If box covers the whole longitude range it is possible that the ring contains
     // one of the poles.
-    // TODO: Technically it is possible that a reversed ring may cover more than
+    // Technically it is possible that a reversed ring may cover more than
     // half of the globe and mbr of it's linear ring may be small and not cover the
-    // longitude range.
+    // longitude range. We currently don't support such rings.
     if (lon_max - lon_min >= two_pi)
     {
         coord_t const lat_n_pole = constants_t::max_latitude();
@@ -140,20 +222,16 @@ inline void spheroidal_ring(Range const& range, Box& mbr,
             lat_max = lat_n_pole;
         }
 
-        // TODO - implement something simpler than within strategy because here
-        // we know that neither min nor max is a pole so there is no segment which
-        // contains a pole, no endpoint, no vertex at pole, there are no antipodal
-        // points. So many special cases can be ignored.
         if (lat_max < lat_n_pole)
         {
-            if (pole_within(true, range, within_strategy))
+            if (pole_within(true, range, pole_within_strategy))
             {
                 lat_max = lat_n_pole;
             }
         }
         if (lat_min > lat_s_pole)
         {
-            if (pole_within(false, range, within_strategy))
+            if (pole_within(false, range, pole_within_strategy))
             {
                 lat_min = lat_s_pole;
             }
@@ -190,7 +268,11 @@ public:
         detail::spheroidal_ring(range, mbr,
                                 envelope::spherical_segment<CalculationType>(),
                                 expand::spherical_segment<CalculationType>(),
-                                within::spherical_winding<void, void, CalculationType>());
+                                within::detail::spherical_winding_base
+                                    <
+                                        envelope::detail::side_of_pole<CalculationType>,
+                                        CalculationType
+                                    >());
     }
 };
 

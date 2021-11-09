@@ -2736,14 +2736,20 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     tester::apply("r28cw",
                   from_wkt<G>("POLYGON((),(0 -80,-90 -80,-180 -80,90 -80,0 -80))"),
                   -180, -90, 180, -80);
-
-    typedef bg::model::polygon<point_type, false> G2;
-    typedef test_envelope_on_sphere_or_spheroid<G2, B> tester2;
-    tester2::apply("r27ccw",
-                   from_wkt<G2>("POLYGON((),(0 80,-90 80,-180 80,90 80,0 80))"),
-                   -180, 80, 180, 90);
-    tester2::apply("r28ccw",
-                   from_wkt<G2>("POLYGON((),(0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
-                   -180, -90, 180, -80);
 }
 
+BOOST_AUTO_TEST_CASE(envelope_ccw_ring)
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::polygon<point_type, false> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("r27ccw",
+                  from_wkt<G>("POLYGON((),(0 80,-90 80,-180 80,90 80,0 80))"),
+                  -180, 80, 180, 90);
+    tester::apply("r28ccw",
+                  from_wkt<G>("POLYGON((),(0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
+                  -180, -90, 180, -80);
+}
