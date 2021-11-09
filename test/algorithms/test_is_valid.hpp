@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -48,8 +49,6 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/is_valid.hpp>
-
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 
 #include <from_wkt.hpp>
 
@@ -98,17 +97,18 @@ struct is_convertible_to_closed<Ring, bg::ring_tag, bg::open>
 template <typename Polygon>
 struct is_convertible_to_closed<Polygon, bg::polygon_tag, bg::open>
 {
-    typedef typename bg::ring_type<Polygon>::type ring_type;
+    using ring_type = typename bg::ring_type<Polygon>::type;
 
     template <typename InteriorRings>
     static inline
     bool apply_to_interior_rings(InteriorRings const& interior_rings)
     {
-        return bg::detail::check_iterator_range
-            <
-                is_convertible_to_closed<ring_type>
-            >::apply(boost::begin(interior_rings),
-                     boost::end(interior_rings));
+        return boost::end(interior_rings) == std::find_if(
+            boost::begin(interior_rings),
+            boost::end(interior_rings),
+            []( auto const& ring ){ return ! is_convertible_to_closed
+                <decltype(ring)>::apply(ring); }
+        );
     }
 
     static inline bool apply(Polygon const& polygon)
@@ -121,16 +121,16 @@ struct is_convertible_to_closed<Polygon, bg::polygon_tag, bg::open>
 template <typename MultiPolygon>
 struct is_convertible_to_closed<MultiPolygon, bg::multi_polygon_tag, bg::open>
 {
-    typedef typename boost::range_value<MultiPolygon>::type polygon;
+    using polygon_type = typename boost::range_value<MultiPolygon>::type;
 
     static inline bool apply(MultiPolygon const& multi_polygon)
     {
-        return bg::detail::check_iterator_range
-            <
-                is_convertible_to_closed<polygon>,
-                false // do not allow empty multi-polygon
-            >::apply(boost::begin(multi_polygon),
-                     boost::end(multi_polygon));
+        return boost::end(multi_polygon) == std::find_if(
+            boost::begin(multi_polygon),
+            boost::end(multi_polygon),
+            []( auto const& polygon ){ return ! is_convertible_to_closed
+                <polygon_type>::apply(polygon); }
+        ) && !boost::empty(multi_polygon); // do not allow empty multi-polygon
     }
 };
 

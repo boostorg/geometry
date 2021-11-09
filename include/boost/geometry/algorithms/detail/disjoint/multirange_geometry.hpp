@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -16,7 +17,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 
@@ -40,9 +40,9 @@ public:
     {}
 
     template <typename QueryGeometry>
-    inline bool apply(QueryGeometry const& query_geometry) const
+    inline bool operator()(QueryGeometry const& query_geometry) const
     {
-        return BinaryPredicate::apply(query_geometry, m_geometry, m_strategy);
+        return ! BinaryPredicate::apply(query_geometry, m_geometry, m_strategy);
     }
 
 private:
@@ -59,7 +59,7 @@ struct multirange_constant_size_geometry
                              ConstantSizeGeometry const& constant_size_geometry,
                              Strategy const& strategy)
     {
-        typedef unary_disjoint_geometry_to_query_geometry
+        using unary_predicate_type = unary_disjoint_geometry_to_query_geometry
             <
                 ConstantSizeGeometry,
                 Strategy,
@@ -68,13 +68,12 @@ struct multirange_constant_size_geometry
                         typename boost::range_value<MultiRange>::type,
                         ConstantSizeGeometry
                     >
-            > unary_predicate_type;
+            >;
 
-        return detail::check_iterator_range
-            <
-                unary_predicate_type
-            >::apply(boost::begin(multirange), boost::end(multirange),
-                     unary_predicate_type(constant_size_geometry, strategy));
+        return boost::end(multirange) == 
+            std::find_if(boost::begin(multirange),
+                         boost::end(multirange), 
+                         unary_predicate_type(constant_size_geometry, strategy));
     }
 
     template <typename Strategy>

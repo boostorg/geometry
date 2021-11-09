@@ -8,8 +8,9 @@
 // This file was modified by Oracle on 2013-2021.
 // Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -40,7 +41,6 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
@@ -141,28 +141,26 @@ struct disjoint_segment_areal
 template <typename Segment, typename Polygon>
 class disjoint_segment_areal<Segment, Polygon, polygon_tag>
 {
-private:
+    
     template <typename InteriorRings, typename Strategy>
     static inline
     bool check_interior_rings(InteriorRings const& interior_rings,
                               Segment const& segment,
                               Strategy const& strategy)
     {
-        typedef typename boost::range_value<InteriorRings>::type ring_type;
+        using ring_type = typename boost::range_value<InteriorRings>::type;
 
-        typedef unary_disjoint_geometry_to_query_geometry
+        using unary_predicate_type = unary_disjoint_geometry_to_query_geometry
             <
                 Segment,
                 Strategy,
                 disjoint_range_segment_or_box<ring_type, Segment>
-            > unary_predicate_type;
-                
-        return check_iterator_range
-            <
-                unary_predicate_type
-            >::apply(boost::begin(interior_rings),
-                     boost::end(interior_rings),
-                     unary_predicate_type(segment, strategy));
+            >;
+
+        return boost::end(interior_rings) == 
+            std::find_if(boost::begin(interior_rings),
+                         boost::end(interior_rings), 
+                         unary_predicate_type(segment, strategy));     
     }
 
 
