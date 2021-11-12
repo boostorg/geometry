@@ -19,7 +19,7 @@
 //#include <boost/geometry/strategies/spherical/distance_pythagoras_point_box.hpp>
 //#include <boost/geometry/strategies/spherical/distance_segment_box.hpp>
 
-//#include <boost/geometry/strategies/spherical/closest_points_pt_seg.hpp>
+#include <boost/geometry/strategies/spherical/closest_points_pt_seg.hpp>
 
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance/detail.hpp>
@@ -36,16 +36,54 @@ namespace boost { namespace geometry
 namespace strategies { namespace closest_points
 {
 
-template <typename CalculationType = void>
-struct spherical
-    : public strategies::distance::spherical<CalculationType>
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
 {
-    //template <typename Geometry1, typename Geometry2>
-    //static auto closest_points(Geometry1 const&, Geometry2 const&,
-    //    distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
-    //{
-    //    return strategy::closest_points::projected_point<CalculationType>();
-    //}
+
+template <typename RadiusTypeOrSphere, typename CalculationType>
+class spherical
+    : public strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>
+{
+    using base_t = strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>;
+
+public:
+    spherical() = default;
+
+    template <typename RadiusOrSphere>
+    explicit spherical(RadiusOrSphere const& radius_or_sphere)
+        : base_t(radius_or_sphere)
+    {}
+
+    template <typename Geometry1, typename Geometry2>
+    static auto closest_points(Geometry1 const&, Geometry2 const&,
+        distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
+    {
+        return strategy::closest_points::cross_track<CalculationType>();
+    }
+    
+};
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+template
+<
+    typename RadiusTypeOrSphere = double,
+    typename CalculationType = void
+>
+class spherical
+    : public strategies::closest_points::detail::spherical<RadiusTypeOrSphere, CalculationType>
+{
+    using base_t = strategies::closest_points::detail::spherical<RadiusTypeOrSphere, CalculationType>;
+
+public:
+    spherical() = default;
+
+    template <typename RadiusOrSphere>
+    explicit spherical(RadiusOrSphere const& radius_or_sphere)
+        : base_t(radius_or_sphere)
+    {}
 };
 
 

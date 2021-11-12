@@ -455,12 +455,9 @@ BOOST_AUTO_TEST_CASE( test_all_areal_areal )
 {
     test_all_ar_ar<car_point>(cartesian());
 
-    //double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
-
-    //test_all_ar_ar<sph_point>(spherical_ps(), spherical_bb(), spherical_sb());
-    //test_all_ar_ar<sph_point>(spherical_ps(radius),
-    //                          spherical_bb(radius),
-    //                          spherical_sb(radius));
+    test_all_ar_ar<sph_point>(spherical());
+    test_all_ar_ar<sph_point>(spherical(
+        bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
 
     //test_all_ar_ar<geo_point>(andoyer_ps(), andoyer_bb(), andoyer_sb());
     //test_all_ar_ar<geo_point>(thomas_ps(), thomas_bb(), thomas_sb());

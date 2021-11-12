@@ -148,8 +148,8 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
     test_all_pl_pl<car_point>(cartesian());
 
     test_all_pl_pl<sph_point>(spherical());
-    //test_all_pl_pl<sph_point>(spherical_pp(bg::formula::mean_radius
-    //                                       <double>(bg::srs::spheroid<double>())));
+    test_all_pl_pl<sph_point>(spherical(
+        bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
 
     //test_all_pl_pl<geo_point>(andoyer_pp());
     //test_all_pl_pl<geo_point>(thomas_pp());
