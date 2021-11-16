@@ -280,17 +280,17 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
     test_all_pl_l<sph_point>(spherical(
         bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
     
-    //test_all_pl_l<geo_point>(andoyer_ps());
-    //test_all_pl_l<geo_point>(thomas_ps());
-    //test_all_pl_l<geo_point>(vincenty_ps());
+    test_all_pl_l<geo_point>(andoyer());
+    test_all_pl_l<geo_point>(thomas());
+    test_all_pl_l<geo_point>(vincenty());
 
-    //using = bg::srs::spheroid<double> stype;
+    using stype = bg::srs::spheroid<double>;
 
-    //test_closest_points_point_segment_diff_spheroid<geo_point>
-    //        (andoyer_ps(stype(5000000,6000000)));
+    test_closest_points_point_segment_diff_spheroid<geo_point>
+        (andoyer(stype(5000000,6000000)));
 }
 
-/*
+
 
 // tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747
 
@@ -307,22 +307,16 @@ void closest_path_tester(std::string point_wkt,
         >;
     using segment_type = bg::model::segment<point_type>;
 
-    bg::strategies::closest_points::geographic_cross_track<>
-        closest_point_strategy;
-    bg::strategies::distance::geographic_cross_track<>
-        cross_track_strategy;
-    bg::strategies::distance::geographic<> distance_strategy;
-
     point_type point;
     segment_type segment;
 
     bg::read_wkt(point_wkt, point);
     bg::read_wkt(segment_wkt, segment);
 
-    const auto distance = bg::distance(point, segment, cross_track_strategy);
+    const auto distance = bg::distance(point, segment);
 
     segment_type projection;
-    bg::closest_points(point, segment, projection, closest_point_strategy);
+    bg::closest_points(point, segment, projection);
 
     auto p0 = point_type(bg::get<0,0>(projection), bg::get<0,1>(projection));
     auto p1 = point_type(bg::get<1,0>(projection), bg::get<1,1>(projection));
@@ -344,6 +338,8 @@ void closest_path_tester(std::string point_wkt,
 #endif
 
     BOOST_CHECK_CLOSE_FRACTION(distance, dist1, error);
+    BOOST_CHECK_CLOSE_FRACTION(dist1, dist2, error);
+    BOOST_CHECK(dist3 == 0);
 }
 
 BOOST_AUTO_TEST_CASE(closest_path_test_1)
@@ -399,5 +395,3 @@ BOOST_AUTO_TEST_CASE(clostest_path_test_6)
     closest_path_tester<double>(point_wkt, segment_wkt, 1e-6);
     closest_path_tester<long double>(point_wkt, segment_wkt, 1e-20);
 }
-
-*/

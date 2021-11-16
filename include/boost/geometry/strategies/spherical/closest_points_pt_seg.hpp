@@ -83,7 +83,6 @@ public:
                       PointOfSegment const& sp1, 
                       PointOfSegment const& sp2) const
     {
-
         using CT = typename calculation_type<Point, PointOfSegment>::type;
         
         // http://williams.best.vwh.net/avform.htm#XTE

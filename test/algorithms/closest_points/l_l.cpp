@@ -290,8 +290,7 @@ BOOST_AUTO_TEST_CASE( test_all_linear_linear )
     test_all_l_l<sph_point>(spherical(
         bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
 
-    //test_all_l_l<geo_point>(andoyer_ps());
-    //test_all_l_l<geo_point>(thomas_ps());
-    //test_all_l_l<geo_point>(vincenty_ps());
-
+    test_all_l_l<geo_point>(andoyer());
+    test_all_l_l<geo_point>(thomas());
+    test_all_l_l<geo_point>(vincenty());
 }

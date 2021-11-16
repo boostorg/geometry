@@ -55,10 +55,11 @@ public:
     {}
 
     template <typename Geometry1, typename Geometry2>
-    static auto closest_points(Geometry1 const&, Geometry2 const&,
-        distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr)
+    auto closest_points(Geometry1 const&, Geometry2 const&,
+        distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
     {
-        return strategy::closest_points::cross_track<CalculationType>();
+        return strategy::closest_points::cross_track<CalculationType>(
+            base_t::radius());
     }
     
 };
