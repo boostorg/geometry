@@ -34,15 +34,14 @@
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/strategies/geographic/intersection.hpp>
 
-#include <boost/geometry/formulas/vincenty_direct.hpp>
-
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
-#include <boost/geometry/formulas/result_direct.hpp>
 #include <boost/geometry/formulas/mean_radius.hpp>
+#include <boost/geometry/formulas/result_direct.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
+#include <boost/geometry/formulas/vincenty_direct.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
 #include <boost/geometry/io/dsv/write.hpp>

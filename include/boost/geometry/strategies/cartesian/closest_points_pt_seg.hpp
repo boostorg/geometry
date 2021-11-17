@@ -10,9 +10,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 
+#include <boost/geometry/core/coordinate_promotion.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/closest_points/services.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -33,12 +36,12 @@ struct compute_closest_point_to_segment
     {
         // A projected point of points in Integer coordinates must be able to be
         // represented in FP.
-        typedef model::point
+        using fp_point_type = model::point
             <
                 CalculationType,
                 dimension<PointOfSegment>::value,
                 typename coordinate_system<PointOfSegment>::type
-            > fp_point_type;
+            >;
 
         // For convenience
         using fp_vector_type = fp_point_type;
