@@ -29,6 +29,8 @@
 
 #include "test_get_turns_ll_invariance.hpp"
 
+#include <string_from_type.hpp>
+
 namespace bg = ::boost::geometry;
 
 
@@ -297,9 +299,15 @@ void set_operation_output(std::string const& set_op_id,
     typedef typename bg::point_type<G1>::type point_type;
 
     std::ostringstream filename;
-    filename << "svgs/" << set_op_id << "_" << caseid << ".svg";
+    filename << "ops_" + set_op_id + "_"
+        << caseid << "_"
+        << string_from_type<coordinate_type>::name()
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
+        << "_rescaled"
+#endif
+        << ".svg";
 
-    std::ofstream svg(filename.str().c_str());
+    std::ofstream svg(filename.str());
 
     bg::svg_mapper<point_type> mapper(svg, 500, 500);
 

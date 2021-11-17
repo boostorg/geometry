@@ -313,7 +313,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, G3 const& g3,
     using coordinate_type = typename bg::coordinate_type<point_type>::type;
 
     std::ostringstream filename;
-    filename << "union_"
+    filename << "case_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
