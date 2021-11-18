@@ -240,12 +240,12 @@ struct areal_areal
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
-        boost::geometry::get_turns
-                <
-                    detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
-                    detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
-                    detail::overlay::assign_null_policy
-                >(geometry1, geometry2, strategy, detail::no_rescale_policy(), turns, policy);
+        geometry::get_turns
+            <
+                detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
+                detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
+                detail::overlay::assign_null_policy
+            >(geometry1, geometry2, strategy, detail::no_rescale_policy(), turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2, strategy)

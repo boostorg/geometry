@@ -334,14 +334,10 @@ public:
                                strategy);
         }
 
-#if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
         if (enter_count != 0)
         {
-            BOOST_THROW_EXCEPTION(inconsistent_turns_exception());
+           return oit;
         }
-#else
-        BOOST_GEOMETRY_ASSERT(enter_count == 0);
-#endif
 
         return process_end(entered, linestring,
                            current_segment_id, current_piece,
