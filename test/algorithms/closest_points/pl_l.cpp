@@ -290,8 +290,6 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
         (andoyer(stype(5000000,6000000)));
 }
 
-
-
 // tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747
 
 template <typename CT>
