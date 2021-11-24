@@ -32,6 +32,58 @@
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 
+namespace detail
+{
+
+template <typename Ring, typename cstag = typename bg::cs_tag<Ring>::type>
+struct get_labelpoint
+{
+    using point_type = typename bg::point_type<Ring>::type;
+
+    template <typename Piece>
+    static point_type apply(Ring const& , Piece const& piece)
+    {
+        return piece.m_label_point;
+    }
+};
+
+template <typename Ring>
+struct get_labelpoint<Ring, bg::cartesian_tag>
+{
+    using point_type = typename bg::point_type<Ring>::type;
+
+    template <typename Piece>
+    static point_type apply(Ring const& ring, Piece const& piece)
+    {
+        // Centroid is currently only available for cartesian
+        return ring.empty()
+                ? piece.m_label_point
+                : bg::return_centroid<point_type>(ring);
+    }
+};
+
+}
+
+template <typename Ring, typename Piece>
+inline typename bg::point_type<Ring>::type
+get_labelpoint(Ring const& ring, Piece const& piece)
+{
+    if ((piece.type == bg::strategy::buffer::buffered_concave
+         || piece.type == bg::strategy::buffer::buffered_flat_end)
+        && ring.size() >= 2u)
+    {
+        // Return a point between the first two points on the ring
+        typename bg::point_type<Ring>::type result;
+        bg::set<0>(result, (bg::get<0>(ring[0]) + bg::get<0>(ring[1])) / 2.0);
+        bg::set<1>(result, (bg::get<1>(ring[0]) + bg::get<1>(ring[1])) / 2.0);
+        return result;
+    }
+    else
+    {
+        // Return the piece's labelpoint or the centroid
+        return detail::get_labelpoint<Ring>::apply(ring, piece);
+    }
+}
 
 inline char piece_type_char(bg::strategy::buffer::piece_type const& type)
 {
@@ -111,8 +163,8 @@ private :
     inline void map_turns(Turns const& turns, bool label_good_turns, bool label_wrong_turns)
     {
         namespace bgdb = boost::geometry::detail::buffer;
-        typedef typename boost::range_value<Turns const>::type turn_type;
-        typedef typename turn_type::point_type point_type;
+        using turn_type = typename boost::range_value<Turns const>::type;
+        using point_type = typename turn_type::point_type;
 
         std::map<point_type, int, bg::less<point_type> > offsets;
 
@@ -124,18 +176,15 @@ private :
             }
 
             bool is_good = true;
-            char color = 'g';
             std::string fill = "fill:rgb(0,255,0);";
             if (! it->is_turn_traversable)
             {
                 fill = "fill:rgb(255,0,0);";
-                color = 'r';
                 is_good = false;
             }
             if (it->blocked())
             {
                 fill = "fill:rgb(128,128,128);";
-                color = '-';
                 is_good = false;
             }
 
@@ -187,9 +236,8 @@ private :
                 OffsettedRings const& offsetted_rings,
                 bool do_pieces, bool do_indices)
     {
-        typedef typename boost::range_value<Pieces const>::type piece_type;
-        typedef typename boost::range_value<OffsettedRings const>::type ring_type;
-        typedef typename bg::point_type<ring_type>::type point_type;
+        using piece_type = typename boost::range_value<Pieces const>::type ;
+        using ring_type = typename boost::range_value<OffsettedRings const>::type;
 
         for (auto it = boost::begin(pieces); it != boost::end(pieces); ++it)
         {
@@ -210,15 +258,17 @@ private :
 #endif
 
             // NOTE: ring is returned by copy here
-            auto const& corner = piece.m_piece_border.get_full_ring();
+            auto const corner = piece.m_piece_border.get_full_ring();
 
             if (m_zoom && do_pieces)
             {
                 try
                 {
                     std::string style = "opacity:0.3;stroke:rgb(0,0,0);stroke-width:1;";
-                    typedef typename bg::point_type<Box>::type point_type;
-                    bg::model::multi_polygon<bg::model::polygon<point_type> > clipped;
+                    bg::model::multi_polygon
+                        <
+                            bg::model::polygon<typename bg::point_type<Box>::type>
+                        > clipped;
                     bg::intersection(ring, m_alternate_box, clipped);
                     m_mapper.map(clipped,
                         piece.type == bg::strategy::buffer::buffered_segment
@@ -251,19 +301,9 @@ private :
                     << piece.first_seg_id.segment_index
                     << ".." << piece.beyond_last_segment_index - 1
                        ;
-                point_type label_point
-                        = corner.empty()
-                        ? piece.m_label_point
-                        : bg::return_centroid<point_type>(corner);
 
-                if ((piece.type == bg::strategy::buffer::buffered_concave
-                     || piece.type == bg::strategy::buffer::buffered_flat_end)
-                    && corner.size() >= 2u)
-                {
-                    bg::set<0>(label_point, (bg::get<0>(corner[0]) + bg::get<0>(corner[1])) / 2.0);
-                    bg::set<1>(label_point, (bg::get<1>(corner[0]) + bg::get<1>(corner[1])) / 2.0);
-                }
-                m_mapper.text(label_point, out.str(), "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
+                m_mapper.text(get_labelpoint(corner, piece), out.str(),
+                    "fill:rgb(255,0,0);font-family='Arial';font-size:10px;", 5, 5);
             }
         }
     }
@@ -307,7 +347,6 @@ public :
 
     buffer_svg_mapper(std::string const& casename)
         : m_casename(casename)
-        , m_zoom(false)
     {
         bg::assign_inverse(m_alternate_box);
     }
@@ -359,11 +398,11 @@ public :
     template <typename Mapper, typename Geometry, typename Strategy, typename RescalePolicy>
     void map_self_ips(Mapper& mapper, Geometry const& geometry, Strategy const& strategy, RescalePolicy const& rescale_policy)
     {
-        typedef bg::detail::overlay::turn_info
+        using turn_info = bg::detail::overlay::turn_info
         <
             Point,
             typename bg::detail::segment_ratio_type<Point, RescalePolicy>::type
-        > turn_info;
+        >;
 
         std::vector<turn_info> turns;
 
@@ -445,8 +484,8 @@ private :
         }
     }
 
+    bool m_zoom{false};
     bg::model::box<Point> m_alternate_box;
-    bool m_zoom;
     std::string m_casename;
 };
 

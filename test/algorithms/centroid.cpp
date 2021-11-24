@@ -217,8 +217,6 @@ void test_large_integers()
     BOOST_CHECK_EQUAL(bg::get<1>(int_centroid), bg::get<1>(double_centroid_as_int));
 }
 
-//#include <to_svg.hpp>
-
 void test_large_doubles()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> point;
@@ -238,9 +236,6 @@ void test_large_doubles()
     point pt_near_moved;
     bg::set<0>(pt_near_moved, bg::get<0>(pt_near) + 1074000.0);
     bg::set<1>(pt_near_moved, bg::get<1>(pt_near) + 703000.0);
-
-    //geom_to_svg(poly_far, pt_far, "far.svg");
-    //geom_to_svg(poly_near, pt_near, "near.svg");
 
     double d = bg::distance(pt_far, pt_near_moved);
     BOOST_CHECK(d < 0.1);
