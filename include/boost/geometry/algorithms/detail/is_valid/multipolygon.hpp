@@ -257,9 +257,9 @@ private:
 
 
     template <typename VisitPolicy, typename Strategy>
-    struct per_polygon
+    struct is_invalid_polygon
     {
-        per_polygon(VisitPolicy& policy, Strategy const& strategy)
+        is_invalid_polygon(VisitPolicy& policy, Strategy const& strategy)
             : m_policy(policy)
             , m_strategy(strategy)
         {}
@@ -291,10 +291,9 @@ public:
         // check validity of all polygons ring
         debug_phase::apply(1);
 
-        if (! (boost::end(multipolygon) == std::find_if(
-            boost::begin(multipolygon),
-            boost::end(multipolygon),
-            per_polygon<VisitPolicy, Strategy>(visitor, strategy))))
+        auto const end = boost::end(multipolygon);
+        if (std::find_if(boost::begin(multipolygon), end,
+            is_invalid_polygon<VisitPolicy, Strategy>(visitor, strategy)) != end)
         {
             return false;
         }

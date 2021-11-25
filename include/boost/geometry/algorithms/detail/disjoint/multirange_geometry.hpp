@@ -30,11 +30,11 @@ namespace detail { namespace disjoint
 
 
 template <typename Geometry, typename Strategy, typename BinaryPredicate>
-class unary_disjoint_geometry_to_query_geometry
+class unary_not_disjoint_geometry_to_query_geometry
 {
 public:
-    unary_disjoint_geometry_to_query_geometry(Geometry const& geometry,
-                                              Strategy const& strategy)
+    unary_not_disjoint_geometry_to_query_geometry(Geometry const& geometry,
+                                                  Strategy const& strategy)
         : m_geometry(geometry)
         , m_strategy(strategy)
     {}
@@ -59,7 +59,7 @@ struct multirange_constant_size_geometry
                              ConstantSizeGeometry const& constant_size_geometry,
                              Strategy const& strategy)
     {
-        using unary_predicate_type = unary_disjoint_geometry_to_query_geometry
+        using not_disjoint = unary_not_disjoint_geometry_to_query_geometry
             <
                 ConstantSizeGeometry,
                 Strategy,
@@ -70,10 +70,9 @@ struct multirange_constant_size_geometry
                     >
             >;
 
-        return boost::end(multirange) == 
-            std::find_if(boost::begin(multirange),
-                         boost::end(multirange), 
-                         unary_predicate_type(constant_size_geometry, strategy));
+        auto const end = boost::end(multirange);
+        return std::find_if(boost::begin(multirange), end, 
+            not_disjoint(constant_size_geometry, strategy)) == end;
     }
 
     template <typename Strategy>

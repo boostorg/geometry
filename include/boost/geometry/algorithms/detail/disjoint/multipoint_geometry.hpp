@@ -64,14 +64,14 @@ class multipoint_multipoint
 {
 private:
     template <typename Iterator, typename CSTag>
-    class unary_disjoint_predicate
+    class unary_not_disjoint_predicate
         : geometry::less<void, -1, CSTag>
     {
     private:
         typedef geometry::less<void, -1, CSTag> base_type;
 
     public:
-        unary_disjoint_predicate(Iterator first, Iterator last)
+        unary_not_disjoint_predicate(Iterator first, Iterator last)
             : base_type(), m_first(first), m_last(last)
         {}
 
@@ -105,16 +105,15 @@ public:
 
         std::sort(points1.begin(), points1.end(), less_type());
 
-        using predicate_type = unary_disjoint_predicate
+        using predicate_type = unary_not_disjoint_predicate
             <
                 typename std::vector<point1_type>::const_iterator,
                 cs_tag
             >;
 
-        return boost::end(multipoint2) == find_if(
-            boost::begin(multipoint2),
-            boost::end(multipoint2),
-            predicate_type(points1.begin(), points1.end()));
+        auto const end = boost::end(multipoint2);
+        return find_if(boost::begin(multipoint2), end, 
+            predicate_type(points1.begin(), points1.end())) == end;
     }
 };
 

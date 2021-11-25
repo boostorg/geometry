@@ -261,9 +261,9 @@ struct is_simple_multilinestring
 {
 private:
     template <typename Strategy>
-    struct per_linestring
+    struct not_simple
     {
-        per_linestring(Strategy const& strategy)
+        not_simple(Strategy const& strategy)
             : m_strategy(strategy)
         {}
 
@@ -285,12 +285,17 @@ public:
     static inline bool apply(MultiLinestring const& multilinestring,
                              Strategy const& strategy)
     {
-        using per_ls = per_linestring<Strategy>;
+        // check each of the linestrings for simplicity
+        // but do not compute self-intersections yet; these will be
+        // computed for the entire multilinestring
+        // return true for empty multilinestring
 
-        auto first = boost::begin(multilinestring);
-        auto last = boost::end(multilinestring);
+        using not_simple = not_simple<Strategy>; // do not compute self-intersections
+ 
+        auto const first = boost::begin(multilinestring);
+        auto const last = boost::end(multilinestring);
 
-        if ( ! (last == std::find_if(first, last, per_ls(strategy))))
+        if ( last != std::find_if(first, last, not_simple(strategy)))
         {
             return false;
         }

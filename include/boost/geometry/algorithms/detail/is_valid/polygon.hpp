@@ -86,9 +86,9 @@ class is_valid_polygon
 protected:
 
     template <typename VisitPolicy, typename Strategy>
-    struct per_ring
+    struct is_invalid_ring
     {
-        per_ring(VisitPolicy& policy, Strategy const& strategy)
+        is_invalid_ring(VisitPolicy& policy, Strategy const& strategy)
             : m_policy(policy)
             , m_strategy(strategy)
         {}
@@ -111,10 +111,9 @@ protected:
                                          VisitPolicy& visitor,
                                          Strategy const& strategy)
     {
-        return boost::end(interior_rings) == std::find_if(
-            boost::begin(interior_rings),
-            boost::end(interior_rings),
-            per_ring<VisitPolicy, Strategy>(visitor, strategy));
+        auto const end = boost::end(interior_rings);
+        return std::find_if(boost::begin(interior_rings), end,
+            is_invalid_ring<VisitPolicy, Strategy>(visitor, strategy)) == end;
     }
 
     struct has_valid_rings

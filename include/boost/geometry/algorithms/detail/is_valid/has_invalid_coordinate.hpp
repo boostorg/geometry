@@ -80,26 +80,19 @@ struct indexed_has_invalid_coordinate
 
 struct range_has_invalid_coordinate
 {
-private:
-    struct point_has_valid_coordinates
-    {
-        template <typename Point>
-        inline bool operator()(Point const& point)
-        {
-            return point_has_invalid_coordinate::apply(point);
-        }
-    };
-
-public:
     template <typename Geometry, typename VisitPolicy>
     static inline bool apply(Geometry const& geometry, VisitPolicy& visitor)
     {
         boost::ignore_unused(visitor);
 
-        bool const has_valid_coordinates = geometry::points_end(geometry) == 
-            std::find_if(geometry::points_begin(geometry),
-                         geometry::points_end(geometry),
-                         point_has_valid_coordinates());
+        auto const points_end = geometry::points_end(geometry);
+        bool const has_valid_coordinates = std::find_if
+            (
+                geometry::points_begin(geometry), points_end,
+                []( auto const& point ){ 
+                    return point_has_invalid_coordinate::apply(point); 
+                }
+            ) == points_end;
 
         return has_valid_coordinates
             ?

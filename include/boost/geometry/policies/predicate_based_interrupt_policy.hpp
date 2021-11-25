@@ -43,12 +43,15 @@ struct stateless_predicate_based_interrupt_policy
     template <typename Range>
     inline bool apply(Range const& range)
     {
-        has_intersections = ! (boost::end(range) == std::find_if(
-            boost::begin(range), 
-            boost::end(range),
-            []( auto const& turn ){ 
-                return ! IsAcceptableTurnPredicate::apply(turn); }
-        ) || (AllowEmptyTurnRange && boost::empty(range)));
+        // if there is at least one unacceptable turn in the range, return true
+        auto const end = boost::end(range);
+        bool const has_unacceptable_turn = std::find_if(boost::begin(range), end,
+            [](auto const& turn) { 
+                return ! IsAcceptableTurnPredicate::apply(turn);
+            }) != end;
+        
+        has_intersections = has_unacceptable_turn
+                && !(AllowEmptyTurnRange && boost::empty(range));
 
         return has_intersections;
     }
@@ -78,13 +81,15 @@ struct predicate_based_interrupt_policy
     template <typename Range>
     inline bool apply(Range const& range)
     {
-        // if there is at least one unacceptable turn in the range, return false
-        has_intersections = ! (boost::end(range) == std::find_if(
-            boost::begin(range), 
-            boost::end(range),
-            [&]( auto const& turn ){ 
-                return ! m_predicate.apply(turn); }
-        ) || (AllowEmptyTurnRange && boost::empty(range)));
+        // if there is at least one unacceptable turn in the range, return true
+        auto const end = boost::end(range); 
+        bool const has_unacceptable_turn = std::find_if(boost::begin(range), end,
+            [&]( auto const& turn ) { 
+                return ! m_predicate.apply(turn);
+            }) != end;
+        
+        has_intersections = has_unacceptable_turn
+            && !(AllowEmptyTurnRange && boost::empty(range));
 
         return has_intersections;
     }

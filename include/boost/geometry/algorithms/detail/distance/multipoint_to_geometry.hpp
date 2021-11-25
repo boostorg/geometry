@@ -46,7 +46,6 @@ struct multipoint_to_multipoint
                                     Strategies const& strategies)
     {
         if (boost::size(multipoint2) < boost::size(multipoint1))
-
         {
             return point_or_segment_range_to_geometry_rtree
                 <
@@ -128,9 +127,9 @@ public:
     {
         covered_by_areal predicate(areal, strategies);
 
-        if (boost::end(multipoint) == std::find_if(boost::begin(multipoint),
-                                                   boost::end(multipoint),
-                                                   predicate))
+        auto const end = boost::end(multipoint);
+        if (! boost::empty(multipoint) && 
+            std::find_if(boost::begin(multipoint), end, predicate) == end)
         {
             return detail::distance::point_or_segment_range_to_geometry_rtree
                 <

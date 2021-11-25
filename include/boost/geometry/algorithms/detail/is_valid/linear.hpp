@@ -166,10 +166,9 @@ public:
 
         using per_ls = per_linestring<VisitPolicy, Strategy>;
 
-        return boost::end(multilinestring) == std::find_if(
-            boost::begin(multilinestring),
-            boost::end(multilinestring),
-            per_ls(visitor, strategy));
+        auto const end = boost::end(multilinestring);
+        return std::find_if(boost::begin(multilinestring), end, 
+            per_ls(visitor, strategy)) == end;
     }
 };
 

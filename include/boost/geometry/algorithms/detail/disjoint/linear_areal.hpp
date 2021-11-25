@@ -150,17 +150,16 @@ class disjoint_segment_areal<Segment, Polygon, polygon_tag>
     {
         using ring_type = typename boost::range_value<InteriorRings>::type;
 
-        using unary_predicate_type = unary_disjoint_geometry_to_query_geometry
+        using unary_predicate_type = unary_not_disjoint_geometry_to_query_geometry
             <
                 Segment,
                 Strategy,
                 disjoint_range_segment_or_box<ring_type, Segment>
             >;
 
-        return boost::end(interior_rings) == 
-            std::find_if(boost::begin(interior_rings),
-                         boost::end(interior_rings), 
-                         unary_predicate_type(segment, strategy));     
+        auto const end = boost::end(interior_rings);
+        return std::find_if(boost::begin(interior_rings), end, 
+                            unary_predicate_type(segment, strategy)) == end;
     }
 
 
