@@ -12,7 +12,6 @@
 
 
 #include <from_wkt.hpp>
-#include <to_svg.hpp>
 
 #include <algorithm>
 #include <fstream>
