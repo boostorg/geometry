@@ -20,6 +20,28 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.78]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/894 894] Optimization and refactoring of rtree queries.
+* [@https://github.com/boostorg/geometry/pull/913 913] DynamicGeometry and GeometryCollection support in various algorithms (undocumented for now).
+* [@https://github.com/boostorg/geometry/pull/922 922] DynamicGeometry and GeometryCollection support in distance (undocumented for now).
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/867 867] Poor performance of rtree query iterator with nearest predicate for big k.
+* [@https://github.com/boostorg/geometry/issues/870 870] Compilation error in boost::geometry::self_turns.
+* [@https://github.com/boostorg/geometry/issues/896 896] Assertion failure in get_turns with BOOST_GEOMETRY_NO_ROBUSTNESS.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/906 906] Invalid result of buffer on macos-11 with clang-12.
+* [@https://github.com/boostorg/geometry/pull/921 921] Compilation errors with c++20 (various compilers) and gcc-5.
+* Various fixes in set operations and buffer.
+
+[/=================]
 [heading Boost 1.77]
 [/=================]
 
