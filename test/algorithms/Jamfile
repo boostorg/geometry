@@ -67,6 +67,7 @@ build-project area ;
 build-project buffer ;
 build-project covered_by ;
 build-project convex_hull ;
+build-project closest_points ;
 build-project crosses ;
 build-project detail ;
 build-project disjoint ;
