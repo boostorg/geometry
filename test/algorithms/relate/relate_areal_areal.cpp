@@ -13,7 +13,6 @@
 
 #include "test_relate.hpp"
 
-//#include <to_svg.hpp>
 
 template <typename P>
 void test_polygon_polygon()

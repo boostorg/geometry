@@ -12,8 +12,6 @@
 
 #include "test_relate.hpp"
 
-//TEST
-//#include <to_svg.hpp>
 
 template <typename P>
 void test_linestring_linestring()
@@ -174,8 +172,6 @@ void test_linestring_linestring()
     test_geometry<ls, ls>("LINESTRING(1 0,1 0)", "LINESTRING(0 0,1 0)", "F0FFFF102");
     test_geometry<ls, ls>("LINESTRING(1 0,1 0)", "LINESTRING(1 0,1 0)", "0FFFFFFF2");
     test_geometry<ls, ls>("LINESTRING(1 0,1 0)", "LINESTRING(0 0,0 0)", "FF0FFF0F2");
-
-    //to_svg<ls, ls>("LINESTRING(0 0,5 0)", "LINESTRING(5 0,10 0,5 5,5 0)", "test_relate_00.svg");
 
     // INVALID LINESTRINGS
     // 1-point LS (a Point) NOT disjoint
