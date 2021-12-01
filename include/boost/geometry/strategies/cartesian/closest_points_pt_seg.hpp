@@ -10,9 +10,12 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CLOSEST_POINTS_PT_SEG_HPP
 
+#include <boost/geometry/core/coordinate_promotion.hpp>
+
+#include <boost/geometry/geometries/point.hpp>
+
 #include <boost/geometry/strategies/cartesian/distance_pythagoras.hpp>
 #include <boost/geometry/strategies/closest_points/services.hpp>
-
 
 namespace boost { namespace geometry
 {
