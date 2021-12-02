@@ -17,8 +17,6 @@
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
 
-//TEST
-//#include <to_svg.hpp>
 
 template <typename T>
 void test_all()
@@ -36,9 +34,6 @@ void test_all()
         test_geometry<poly, poly>("POLYGON((-8042 -1485,-8042 250,-8042 250,15943 254,15943 -1485,-8042 -1485))",
                                   "POLYGON((-7901 -1485,-7901 529,-7901 529, 15802 544, 15802 -1485, -7901 -1485))",
                                   expected("iiu")("iui")("mcc")("cui"));
-        //to_svg<poly, poly>("POLYGON((-8042 -1485,-8042 250,15943 254,15943 -1485,-8042 -1485))",
-        //                   "POLYGON((-7901 -1485,-7901 529,15802 544, 15802 -1485, -7901 -1485))",
-        //                   "poly_poly_1.svg");
         test_geometry<poly, poly>("POLYGON((-7901 -1485,-7901 529,-7901 529, 15802 544, 15802 -1485, -7901 -1485))",
                                   "POLYGON((-8042 -1485,-8042 250,-8042 250,15943 254,15943 -1485,-8042 -1485))",
                                   expected("iui")("iiu")("mcc")("ciu"));
