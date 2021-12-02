@@ -31,7 +31,8 @@ reference: generated documentation QBK files (by doxygen_xml2qbk)
 src: examples used in documentation and tools (doxygen_xml2qbk)
 
 Per new algorithm (e.g. foo), one should add:
-1) in file boost/geometry/algorithms/foo.hpp, include a "\ingroup foo" in the doxygen comments
+1) in file boost/geometry/algorithms/foo.hpp, include a "\ingroup foo" in the doxygen comments 
+   (if a directory is created e.g. boost/geometry/algorithms/detail/foo the path should be added in doc/doxy/Doxyfile)
 2) in file doc/doxy/doxygen_input/groups/groups.hpp, define the group "foo"
 3) in file doc/make_qbk.py, include the algorithm "foo"
 4) in file doc/reference.qbk, include the foo.qbk ([include generated/foo.qbk])
