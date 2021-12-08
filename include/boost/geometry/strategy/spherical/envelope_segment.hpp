@@ -125,7 +125,6 @@ private:
                                         CalculationType const& a2)
     {
         // azimuths a1 and a2 are assumed to be in radians
-        BOOST_GEOMETRY_ASSERT(! math::equals(a1, a2));
 
         static CalculationType const pi_half = math::half_pi<CalculationType>();
 
@@ -163,12 +162,6 @@ private:
 
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);
-
-        if (math::equals(a1, a2))
-        {
-            // the segment must lie on the equator or is very short or is meridian
-            return;
-        }
 
         if (lat1 > lat2)
         {
