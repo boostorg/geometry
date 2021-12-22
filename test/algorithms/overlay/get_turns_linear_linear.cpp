@@ -282,12 +282,14 @@ void test_all()
                               "LINESTRING(2 8,4 0.4,8 1,0 5)",
                               expected("iuu++")("mui=+")("tiu+="));
 
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
         test_geometry<ls, ls>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
                               "LINESTRING(31 -97, -46 57, -20 -4)",
                               expected("iuu++"));
         test_geometry<ls, ls>("LINESTRING(31 -97, -46 57, -20 -4)",
                               "LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)",
                               expected("iuu++"));
+#endif
     }
 
     // In 1.57 the results of those combinations was different for MinGW

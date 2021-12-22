@@ -477,6 +477,28 @@ BOOST_AUTO_TEST_CASE( test_intersection_linestring_linestring )
          from_wkt<ML>("MULTILINESTRING((1 0,1 1))"),
          "lli25"
          );
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    {
+        // This test fails if side_by_triangle is used in intersection
+        ut_settings settings;
+        settings.tolerance = 1.0e-9;
+        settings.test_alternative_side_strategy = true;
+        settings.test_default_strategy = BG_IF_TEST_FAILURES;
+        settings.test_explicit_strategy = BG_IF_TEST_FAILURES;
+        settings.test_invariance = BG_IF_TEST_FAILURES;
+
+        tester::apply
+                (from_wkt<L>("LINESTRING(-2305843009213693956 4611686018427387906, -33 -92, 78 83)"),
+                 from_wkt<L>("LINESTRING(31 -97, -46 57, -20 -4)"),
+                 from_wkt<ML>("MULTILINESTRING((1.39042821159 -37.7808564232,1.39042821159 -37.7808564232))"),
+                 "lli26",
+                 settings
+                 );
+    }
+#endif
+
+
 }
 
 
