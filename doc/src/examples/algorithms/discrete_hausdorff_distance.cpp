@@ -21,7 +21,7 @@ int main()
     typedef boost::geometry::model::linestring<point_type> linestring_type;
 
     linestring_type ls1, ls2;
-    boost::geometry::read_wkt("LINESTRING(0 0,1 1,1 2,2 1,2 2)", ls2);
+    boost::geometry::read_wkt("LINESTRING(0 0,1 1,1 2,2 1,2 2)", ls1);
     boost::geometry::read_wkt("LINESTRING(1 0,0 1,1 1,2 1,3 1)", ls2);
 
     double res = boost::geometry::discrete_hausdorff_distance(ls1, ls2);
