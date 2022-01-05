@@ -85,11 +85,11 @@ void test_closest_points_segment_linestring(Strategies const& strategies)
                   strategies, true, true);
 
     //geometries intersect
-//    tester::apply("SEGMENT(0 0,1 1)",
-//                  "LINESTRING(0 2,0 1,1 0,2 0)",
-//                  "SEGMENT(0.5 0.5,0.5 0.5)",
-//                  "SEGMENT(0.5 0.500057,0.5 0.500057)",
-//                  strategies);
+    tester::apply("SEGMENT(0 0,1 1)",
+                  "LINESTRING(0 2,0 1,1 0,2 0)",
+                  "SEGMENT(0.5 0.5,0.5 0.5)",
+                  "SEGMENT(0.5 0.500057,0.5 0.500057)",
+                  strategies);
 }
 
 //===========================================================================
@@ -167,11 +167,11 @@ void test_closest_points_segment_multi_linestring(Strategies const& strategies)
                   strategies, true, true);
 
     //geometries intersect
-//    tester::apply("SEGMENT(0 0,1 1)",
-//                 "MULTILINESTRING((0 2,0 1,1 0,2 0)(1 0,3 0))",
-//                  "SEGMENT(0.5 0.5,0.5 0.5)",
-//                  "SEGMENT(0.5 0.500057,0.5 0.500057)",
-//                  strategies);
+    tester::apply("SEGMENT(0 0,1 1)",
+                 "MULTILINESTRING((0 2,0 1,1 0,2 0)(1 0,3 0))",
+                  "SEGMENT(0.5 0.5,0.5 0.5)",
+                  "SEGMENT(0.5 0.500057,0.5 0.500057)",
+                  strategies);
 }
 
 //===========================================================================

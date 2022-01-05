@@ -34,23 +34,20 @@ struct linear_to_areal
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
-        using most_precise_type = typename select_coordinate_type
-                <
-                    Linear,
-                    Areal
-                >::type;
+        using most_precise_type = typename select_coordinate_type<Linear, Areal>::type;
 
         using point_type = typename std::conditional
-        <
-            std::is_same<coordinate_type<Linear>, most_precise_type>::value,
-            typename point_type<Linear>::type,
-            typename point_type<Areal>::type
-        >::type;
+            <
+                std::is_same<typename coordinate_type<Linear>::type, most_precise_type>::value,
+                typename point_type<Linear>::type,
+                typename point_type<Areal>::type
+            >::type;
 
         using linestring_type = geometry::model::linestring<point_type>;
         
-        /* TODO: currently intersection does not support tupled input
-         *       this should be implemented directly with dynamic geometries
+        /* TODO: currently intersection does not support some cases of tupled input
+         *       such as linestring - multipolygon
+         *       this could be implemented directly with dynamic geometries
         using polygon_type = geometry::model::polygon<point_type>;
         std::tuple
         <
@@ -111,8 +108,7 @@ struct segment_to_areal
                              Strategies const& strategies,
                              bool = false)
     {
-        using linestring_type = geometry::model::linestring
-            <typename point_type<Segment>::type>;
+        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
         linestring_type linestring;
         convert(segment, linestring);
         linear_to_areal::apply(linestring, areal, shortest_seg, strategies);
@@ -141,18 +137,14 @@ struct areal_to_areal
                              Segment& shortest_seg,
                              Strategies const& strategies)
     {
-        using most_precise_type = typename select_coordinate_type
-                <
-                    Areal1,
-                    Areal2
-                >::type;
+        using most_precise_type = typename select_coordinate_type<Areal1, Areal2>::type;
 
         using point_type = typename std::conditional
-        <
-            std::is_same<coordinate_type<Areal1>, most_precise_type>::value,
-            typename point_type<Areal1>::type,
-            typename point_type<Areal2>::type
-        >::type;
+            <
+                std::is_same<typename coordinate_type<Areal1>::type, most_precise_type>::value,
+                typename point_type<Areal1>::type,
+                typename point_type<Areal2>::type
+            >::type;
 
         using linestring_type = geometry::model::linestring<point_type>;
         using polygon_type = geometry::model::polygon<point_type>;

@@ -68,7 +68,7 @@ namespace detail
             CalculationType lon = geometry::get_as_radian<0>(p);
             CalculationType lat = geometry::get_as_radian<1>(p);
 
-            CalculationType crs_AD = geometry::formula::spherical_azimuth
+            CalculationType const crs_AD = geometry::formula::spherical_azimuth
                 <
                     CalculationType, 
                     false
@@ -549,28 +549,7 @@ template
 class cross_track
 {
 public :
-    using equals_point_point_strategy_type = within::spherical_point_point;
-
-    using relate_segment_segment_strategy_type = intersection::spherical_segments
-        <
-            CalculationType
-        >;
-
-    static inline relate_segment_segment_strategy_type get_relate_segment_segment_strategy()
-    {
-        return relate_segment_segment_strategy_type();
-    }
-
-    using point_in_geometry_strategy_type = within::spherical_winding
-        <
-            void, void, CalculationType
-        >;
-
-    static inline point_in_geometry_strategy_type get_point_in_geometry_strategy()
-    {
-        return point_in_geometry_strategy_type();
-    }
-
+    
     template <typename Point, typename PointOfSegment>
     struct return_type
         : promote_floating_point

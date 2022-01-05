@@ -27,8 +27,7 @@ void test_empty_input(Geometry1 const& geometry1,
     {
         return;
     }
-    BOOST_CHECK_MESSAGE(false,
-                        "A empty_input_exception should have been thrown");
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown");
 
     try
     {
@@ -38,8 +37,7 @@ void test_empty_input(Geometry1 const& geometry1,
     {
         return;
     }
-    BOOST_CHECK_MESSAGE(false,
-                        "A empty_input_exception should have been thrown");
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown");
 
     try
     {
@@ -49,8 +47,7 @@ void test_empty_input(Geometry1 const& geometry1,
     {
         return;
     }
-    BOOST_CHECK_MESSAGE(false,
-                        "A empty_input_exception should have been thrown");
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown");
 
     try
     {
@@ -60,8 +57,7 @@ void test_empty_input(Geometry1 const& geometry1,
     {
         return;
     }
-    BOOST_CHECK_MESSAGE(false,
-                        "A empty_input_exception should have been thrown");
+    BOOST_CHECK_MESSAGE(false, "A empty_input_exception should have been thrown");
 }
 
 

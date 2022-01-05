@@ -85,6 +85,19 @@ class geographic_cross_track
             false,
             true
         >;
+    
+    template <typename Point, typename PointOfSegment>
+    struct calculation_type
+        : promote_floating_point
+          <
+              typename select_calculation_type
+                  <
+                      Point,
+                      PointOfSegment,
+                      CalculationType
+                  >::type
+          >
+    {};
 
 public :
     explicit geographic_cross_track(Spheroid const& spheroid = Spheroid())
@@ -103,7 +116,7 @@ public :
 
             model::point
                 <
-                    typename base_t::template return_type<Point, PointOfSegment>::type,
+                    typename calculation_type<Point, PointOfSegment>::type,
                     dimension<PointOfSegment>::value,
                     typename coordinate_system<PointOfSegment>::type
                 > cp;

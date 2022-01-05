@@ -27,10 +27,6 @@ namespace boost { namespace geometry
 namespace strategies { namespace closest_points
 {
 
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-
 template
 <
     typename FormulaPolicy = geometry::strategy::andoyer,
@@ -43,6 +39,7 @@ class geographic
     using base_t = strategies::distance::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
+    
     geographic() = default;
 
     explicit geographic(Spheroid const& spheroid)
@@ -50,8 +47,8 @@ public:
     {}
 
     template <typename Geometry1, typename Geometry2>
-    auto closest_points(Geometry1 const&, Geometry2 const&, 
-        distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
+    auto closest_points(Geometry1 const&, Geometry2 const&,
+                        distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
     {
         return strategy::closest_points::geographic_cross_track
             <
@@ -60,40 +57,6 @@ public:
                 CalculationType
             >(base_t::m_spheroid);
     }
-   
-};
-
-
-} // namespace detail
-#endif // DOXYGEN_NO_DETAIL
-
-template
-<
-    typename FormulaPolicy = strategy::andoyer,
-    typename Spheroid = srs::spheroid<double>,
-    typename CalculationType = void
->
-class geographic
-    : public strategies::closest_points::detail::geographic
-        <
-            FormulaPolicy, 
-            Spheroid, 
-            CalculationType
-        >
-{
-    using base_t = strategies::closest_points::detail::geographic
-        <
-            FormulaPolicy, 
-            Spheroid, 
-            CalculationType
-        >;
-
-public:
-    geographic() = default;
-
-    explicit geographic(Spheroid const& spheroid)
-        : base_t(spheroid)
-    {}
 };
 
 
@@ -101,13 +64,7 @@ namespace services
 {
 
 template <typename Geometry1, typename Geometry2>
-struct default_strategy
-<
-    Geometry1, 
-    Geometry2, 
-    geographic_tag, 
-    geographic_tag
->
+struct default_strategy<Geometry1, Geometry2, geographic_tag, geographic_tag>
 {
     using type = strategies::closest_points::geographic<>;
 };

@@ -672,7 +672,7 @@ struct buffered_piece_collection
         {
             // Make sure the closing point is identical (they are calculated
             // separately by different pieces)
-            range::back(added) = range::front(added);
+            range::back(added) = range::added);
         }
 
         for (std::size_t i = first_piece_index; i < boost::size(m_pieces); i++)

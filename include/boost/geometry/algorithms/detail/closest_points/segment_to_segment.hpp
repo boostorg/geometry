@@ -87,26 +87,15 @@ public:
 
         closest_points::creturn_t<Segment1, Segment2, Strategies> d[4];
         
-        //TODO: this could be simplified by getting distance strategy in a unique way
-        d[0] = strategy::distance::services::get_comparable
-            <
-                decltype(strategies.distance(cp0, q[0]))
-            >::apply(strategies.distance(cp0, q[0])).apply(cp0, q[0]);
-        d[1] = strategy::distance::services::get_comparable
-            <
-                decltype(strategies.distance(cp1, q[1]))
-            >::apply(strategies.distance(cp1, q[1])).apply(cp1, q[1]);
-        d[2] = strategy::distance::services::get_comparable
-            <
-                decltype(strategies.distance(p[0], cp2))
-            >::apply(strategies.distance(p[0], cp2)).apply(p[0], cp2);
-        d[3] = strategy::distance::services::get_comparable
-            <
-                decltype(strategies.distance(p[1], cp3))
-            >::apply(strategies.distance(p[1], cp3)).apply(p[1], cp3);
+        auto const cds = strategies::distance::detail::make_comparable(strategies)
+            .distance(detail::dummy_point(), detail::dummy_point());
+        
+        d[0] = cds.apply(cp0, q[0]);
+        d[1] = cds.apply(cp1, q[1]);
+        d[2] = cds.apply(p[0], cp2);
+        d[3] = cds.apply(p[1], cp3);
 
-        std::size_t imin = std::distance(boost::addressof(d[0]),
-                                         std::min_element(d, d + 4));    
+        std::size_t imin = std::distance(boost::addressof(d[0]), std::min_element(d, d + 4));    
         
         switch (imin)
         {
