@@ -42,7 +42,6 @@
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
-#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -729,79 +728,28 @@ struct sectionalize_multi
     }
 };
 
-// TODO: If it depends on CS it should probably be made into strategy.
-// For now implemented here because of ongoing work on robustness
-//   the fact that it interferes with detail::buffer::buffer_box
-//   and that we probably need a general strategy for defining epsilon in
-//   various coordinate systems, e.g. for point comparison, enlargement of
-//   bounding boxes, etc.
-template <typename CSTag>
-struct expand_by_epsilon
-    : not_implemented<CSTag>
-{};
-
-template <>
-struct expand_by_epsilon<cartesian_tag>
-{
-    template <typename Box>
-    static inline void apply(Box & box)
-    {
-        detail::expand_by_epsilon(box);
-    }
-};
-
-template <>
-struct expand_by_epsilon<spherical_tag>
-{
-    template <typename Box>
-    static inline void apply(Box & box)
-    {
-        typedef typename coordinate_type<Box>::type coord_t;
-        static const coord_t eps = std::is_same<coord_t, float>::value
-            ? coord_t(1e-6)
-            : coord_t(1e-12);
-        detail::expand_by_epsilon(box, eps);
-    }
-};
-
-// TODO: In geographic CS it should probably also depend on FormulaPolicy.
-template <>
-struct expand_by_epsilon<geographic_tag>
-    : expand_by_epsilon<spherical_tag>
-{};
-
 template <typename Sections, typename Strategy>
 inline void enlarge_sections(Sections& sections, Strategy const&)
 {
-    // Enlarge sections slightly, this should be consistent with math::equals()
-    // and with the tolerances used in general_form intersections.
-    // This avoids missing turns.
-    
-    // Points and Segments are equal-compared WRT machine epsilon, but Boxes aren't
-    // Enlarging Boxes ensures that they correspond to the bound objects,
-    // Segments in this case, since Sections are collections of Segments.
+    // Expand the box to avoid missing any intersection. The amount is
+    // should be larger than epsilon. About the value itself: the smaller
+    // it is, the higher the risk to miss intersections. The larger it is,
+    // the more comparisons are made, which is not harmful for the result
+    // (but it might be for the performance).
+    // So it should be on the high side.
 
-    // It makes section a tiny bit too large, which might cause (a small number)
-    // of more comparisons
+    // Use a compilable and workable epsilon for all types, for example:
+    // - for double :~ 2.22e-13
+    // - for float  :~ 1e-4
+    // - for Boost.Multiprecision (50) :~ 5.35e-48
+    // - for Boost.Rational : 0/1
+
     for (auto& section : sections)
     {
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        detail::sectionalize::expand_by_epsilon
-            <
-                typename Strategy::cs_tag
-            >::apply(section.bounding_box);
-
-#else
-        // Expand the box to avoid missing any intersection. The amount is
-        // should be larger than epsilon. About the value itself: the smaller
-        // it is, the higher the risk to miss intersections. The larger it is,
-        // the more comparisons are made. So it should be on the high side.
         using gt = decltype(section.bounding_box);
         using ct = typename geometry::coordinate_type<gt>::type;
-        ct const tolerance = ct(1) / ct(1000);
-        detail::buffer::buffer_box(section.bounding_box, tolerance,
-                                   section.bounding_box);
-#endif
+        static ct const eps = math::scaled_epsilon<ct>(1000);
+        expand_by_epsilon(section.bounding_box, eps);
     }
 }
 
