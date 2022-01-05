@@ -2074,6 +2074,15 @@ BOOST_AUTO_TEST_CASE( envelope_sphere_linestring )
                   from_wkt<G>("LINESTRING(-170 0,160 0)"),
                   160, 0, 190, 0);
 
+    // https://github.com/boostorg/geometry/issues/935
+    tester::apply("github_issue_935",
+                  from_wkt<G>("LINESTRING(4.5055430885891123e-05 -2.7518149670422367e-06,\
+                                          4.5055130529987143e-05 8.2400127103300943e-07,\
+                                          4.5054830174083163e-05 4.3998175091082556e-06)"),
+                  4.5054830174083163e-05, -2.7518149670422367e-06,
+                  4.5055430885891123e-05, 4.3998175091082556e-06);
+
+
     double eps = std::numeric_limits<double>::epsilon();
     double heps = eps / 2;
 
@@ -2205,6 +2214,14 @@ BOOST_AUTO_TEST_CASE( envelope_spheroid_linestring )
     tester::apply("l10c",
                   from_wkt<G>("LINESTRING(-170 0,160 0)"),
                   160, 0, 190, 0);
+
+    // https://github.com/boostorg/geometry/issues/935
+    tester::apply("github_issue_935",
+                  from_wkt<G>("LINESTRING(4.5055430885891123e-05 -2.7518149670422367e-06,\
+                                          4.5055130529987143e-05 8.2400127103300943e-07,\
+                                          4.5054830174083163e-05 4.3998175091082556e-06)"),
+                  4.5054830174083163e-05, -2.7518149670422367e-06,
+                  4.5055430885891123e-05, 4.3998175091082556e-06);
 
     double eps = std::numeric_limits<double>::epsilon();
     double heps = eps / 2;

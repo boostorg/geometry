@@ -83,6 +83,8 @@ struct get_turn_info_linear_linear
 
             case 'm' :
             {
+                using handler = touch_interior<TurnInfo, verify_policy_ll>;
+
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_touch_interior, out,
@@ -92,15 +94,10 @@ struct get_turn_info_linear_linear
                 }
                 else
                 {
-                    typedef touch_interior
-                        <
-                            TurnInfo
-                        > policy;
-
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1)
                     {
-                        policy::template apply<0>(range_p, range_q, tp,
+                        handler::template apply<0>(range_p, range_q, tp,
                                                   inters.i_info(), inters.d_info(),
                                                   inters.sides(),
                                                   umbrella_strategy);
@@ -108,7 +105,7 @@ struct get_turn_info_linear_linear
                     else
                     {
                         // Swap p/q
-                        policy::template apply<1>(range_q, range_p, tp,
+                        handler::template apply<1>(range_q, range_p, tp,
                                                   inters.i_info(), inters.d_info(),
                                                   inters.swapped_sides(),
                                                   umbrella_strategy);
@@ -142,6 +139,8 @@ struct get_turn_info_linear_linear
             break;
             case 't' :
             {
+                using handler = touch<TurnInfo, verify_policy_ll>;
+
                 // Both touch (both arrive there)
                 if ( get_turn_info_for_endpoint<false, true>
                         ::apply(range_p, range_q,
@@ -152,10 +151,10 @@ struct get_turn_info_linear_linear
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(range_p, range_q, tp,
-                                           inters.i_info(), inters.d_info(),
-                                           inters.sides(),
-                                           umbrella_strategy);
+                    handler::apply(range_p, range_q, tp,
+                                   inters.i_info(), inters.d_info(),
+                                   inters.sides(),
+                                   umbrella_strategy);
 
                     // workarounds for touch<> not taking spikes into account starts here
                     // those was discovered empirically
@@ -275,6 +274,8 @@ struct get_turn_info_linear_linear
             break;
             case 'e':
             {
+                using handler = equal<TurnInfo, verify_policy_ll>;
+
                 if ( get_turn_info_for_endpoint<true, true>
                         ::apply(range_p, range_q,
                                 tp_model, inters, method_equal, out,
@@ -291,7 +292,7 @@ struct get_turn_info_linear_linear
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(range_p, range_q, tp,
+                        handler::apply(range_p, range_q, tp,
                             inters.i_info(), inters.d_info(), inters.sides(),
                             umbrella_strategy);
 
@@ -351,7 +352,9 @@ struct get_turn_info_linear_linear
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(range_p, range_q, tp,
+                            using handler = equal<TurnInfo, verify_policy_ll>;
+
+                            handler::apply(range_p, range_q, tp,
                                 inters.i_info(), inters.d_info(), inters.sides(),
                                 umbrella_strategy);
 
@@ -364,8 +367,10 @@ struct get_turn_info_linear_linear
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(range_p, range_q,
-                                    tp, inters.i_info(), inters.d_info(), inters.sides());
+                            using handler = collinear<TurnInfo, verify_policy_ll>;
+                            handler::apply(range_p, range_q, tp,
+                                           inters.i_info(), inters.d_info(),
+                                           inters.sides());
 
                             //method_replace = method_touch_interior;
                             //spike_op = operation_continue;

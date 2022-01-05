@@ -567,7 +567,7 @@ struct sym_difference<default_strategy, false>
                              Collection & output_collection,
                              default_strategy)
     {
-        typedef typename strategy::relate::services::default_strategy
+        typedef typename strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2
             >::type strategy_type;

@@ -61,13 +61,23 @@ namespace detail_dispatch
 
 template <typename CalculationType, typename CsTag>
 struct get_distance_measure
-        : not_implemented<CsTag>
-{};
+{
+    // By default the distance measure is zero, no side difference
+    using result_type = detail::distance_measure<CalculationType>;
+
+    template <typename SegmentPoint, typename Point>
+    static result_type apply(SegmentPoint const& , SegmentPoint const& ,
+                             Point const& )
+    {
+        const result_type result;
+        return result;
+    }
+};
 
 template <typename CalculationType>
 struct get_distance_measure<CalculationType, cartesian_tag>
 {
-    typedef detail::distance_measure<CalculationType> result_type;
+    using result_type = detail::distance_measure<CalculationType>;
 
     template <typename SegmentPoint, typename Point>
     static result_type apply(SegmentPoint const& p1, SegmentPoint const& p2,
@@ -77,36 +87,12 @@ struct get_distance_measure<CalculationType, cartesian_tag>
         // It is not a real distance and purpose is
         // to detect small differences in collinearity
 
-        typedef model::infinite_line<CalculationType> line_type;
-        line_type const line = detail::make::make_infinite_line<CalculationType>(p1, p2);
+        auto const line = detail::make::make_infinite_line<CalculationType>(p1, p2);
         result_type result;
         result.measure = arithmetic::side_value(line, p);
         return result;
     }
 };
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, spherical_tag>
-{
-    typedef detail::distance_measure<CalculationType> result_type;
-
-    template <typename SegmentPoint, typename Point>
-    static result_type apply(SegmentPoint const& , SegmentPoint const& ,
-                             Point const& )
-    {
-        // TODO, optional
-        result_type result;
-        return result;
-    }
-};
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, geographic_tag>
-        : get_distance_measure<CalculationType, spherical_tag> {};
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, spherical_equatorial_tag>
-        : get_distance_measure<CalculationType, spherical_tag> {};
 
 } // namespace detail_dispatch
 

@@ -178,23 +178,6 @@ public:
 
 };
 
-#ifdef BOOST_GEOMETRY_USE_RESCALING
-#ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
-
-namespace services
-{
-
-template <typename CalculationType>
-struct default_strategy<cartesian_tag, CalculationType>
-{
-    typedef side_robust<CalculationType> type;
-};
-
-}
-
-#endif
-#endif
-
 }} // namespace strategy::side
 
 }} // namespace boost::geometry
