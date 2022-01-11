@@ -55,6 +55,38 @@ void test_closest_points_point_segment(Strategies const& strategies)
 
 //===========================================================================
 
+template <typename InputPoint, typename OutputPoint, typename Strategies>
+void test_closest_points_point_segment_integral(Strategies const& strategies)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG_CLOSEST_POINTS
+    std::cout << std::endl;
+    std::cout << "point/segment closest_points tests" << std::endl;
+#endif
+
+    using InputSegment = bg::model::segment<InputPoint>;
+    using OutputSegment = bg::model::segment<OutputPoint>;
+    using tester = test_geometry<InputPoint, InputSegment, OutputSegment>;
+
+    tester::apply("POINT(1 1)",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
+                  "SEGMENT(1 1,0.503314 0.496737)",
+                  strategies);
+
+    using tester_integral_output = test_geometry<InputPoint, InputSegment, InputSegment>;
+    
+    tester_integral_output::apply("POINT(1 1)",
+                                  "SEGMENT(0 1,1 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  strategies);              
+}
+
+//===========================================================================
+
 template <typename Point, typename Strategies>
 void test_closest_points_point_segment_diff_spheroid(Strategies const& strategies)
 {
@@ -288,6 +320,9 @@ BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 
     test_closest_points_point_segment_diff_spheroid<geo_point>
         (andoyer(stype(5000000,6000000)));
+
+    using int_car_point = bg::model::point<int, 2, bg::cs::cartesian>;
+    test_closest_points_point_segment_integral<int_car_point, car_point>(cartesian());
 }
 
 // tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747

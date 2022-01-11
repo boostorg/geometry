@@ -14,9 +14,7 @@
 #define CREATE_SVG_CLOSEST_POINTS_HPP
 
 #include <fstream>
-#if defined(HAVE_SVG)
-#  include <boost/geometry/io/svg/svg_mapper.hpp>
-#endif
+#include <boost/geometry/io/svg/svg_mapper.hpp>
 
 template
 <
