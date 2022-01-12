@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -327,24 +327,23 @@ void test_all_pl_ar(Strategies strategies)
     test_closest_points_point_multi_polygon<Point>(strategies);
     //test_closest_points_point_box<Point>(strategies);
 
-    //test_closest_points_multi_point_polygon_or_ring<Point>(strategies);
-    //test_closest_points_multi_point_multi_polygon<Point>(strategies);
+    test_closest_points_multi_point_polygon_or_ring<Point>(strategies);
+    test_closest_points_multi_point_multi_polygon<Point>(strategies);
     //test_closest_points_multi_point_box<Point>(strategies);
 
-    //test_more_empty_input_pointlike_areal<Point>(strategies);
+    test_more_empty_input_pointlike_areal<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_areal )
 {
     test_all_pl_ar<car_point>(cartesian());
 
-    //double radius = bg::formula::mean_radius<double>(bg::srs::spheroid<double>());
+    test_all_pl_ar<sph_point>(spherical());
+    test_all_pl_ar<sph_point>(spherical(
+        bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
 
-    //test_all_pl_ar<sph_point>(spherical_ps(), spherical_pb());
-    //test_all_pl_ar<sph_point>(spherical_ps(radius), spherical_pb(radius));
-
-    //test_all_pl_ar<geo_point>(andoyer_ps(), andoyer_pb());
-    //test_all_pl_ar<geo_point>(thomas_ps(), thomas_pb());
-    //test_all_pl_ar<geo_point>(vincenty_ps(), vincenty_pb());
+    test_all_pl_ar<geo_point>(andoyer());
+    test_all_pl_ar<geo_point>(thomas());
+    test_all_pl_ar<geo_point>(vincenty());
 }
 

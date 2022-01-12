@@ -46,14 +46,11 @@ using geo_point = bg::model::point
 
 using cartesian = bg::strategies::closest_points::cartesian<double>;
 
-//using spherical = bg::strategy::closest_points::spherical<double>;
+using spherical = bg::strategies::closest_points::spherical<double>;
 
-//using = bg::strategy::closest_points::geographic
-//                      <bg::strategy::andoyer> andoyer;
-//using = bg::strategy::closest_points::geographic
-//                      <bg::strategy::thomas> thomas;
-//using = bg::strategy::closest_points::geographic
-//                      <bg::strategy::vincenty> vincenty;
+using andoyer = bg::strategies::closest_points::geographic<bg::strategy::andoyer>;
+using thomas = bg::strategies::closest_points::geographic<bg::strategy::andoyer>;
+using vincenty = bg::strategies::closest_points::geographic<bg::strategy::andoyer>;
 
 //===========================================================================
 

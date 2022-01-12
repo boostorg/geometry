@@ -36,12 +36,12 @@ struct compute_closest_point_to_segment
     {
         // A projected point of points in Integer coordinates must be able to be
         // represented in FP.
-        typedef model::point
+        using fp_point_type = model::point
             <
                 CalculationType,
                 dimension<PointOfSegment>::value,
                 typename coordinate_system<PointOfSegment>::type
-            > fp_point_type;
+            >;
 
         // For convenience
         using fp_vector_type = fp_point_type;

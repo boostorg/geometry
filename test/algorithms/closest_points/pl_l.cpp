@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 #include <boost/geometry/algorithms/length.hpp>
 
 namespace bg = boost::geometry;
@@ -51,6 +51,38 @@ void test_closest_points_point_segment(Strategies const& strategies)
                   "SEGMENT(1 1,0.499962 0.500095)",
                   "SEGMENT(1 1,0.503314 0.496737)",
                   strategies, true, true);
+}
+
+//===========================================================================
+
+template <typename InputPoint, typename OutputPoint, typename Strategies>
+void test_closest_points_point_segment_integral(Strategies const& strategies)
+{
+
+#ifdef BOOST_GEOMETRY_TEST_DEBUG_CLOSEST_POINTS
+    std::cout << std::endl;
+    std::cout << "point/segment closest_points tests" << std::endl;
+#endif
+
+    using InputSegment = bg::model::segment<InputPoint>;
+    using OutputSegment = bg::model::segment<OutputPoint>;
+    using tester = test_geometry<InputPoint, InputSegment, OutputSegment>;
+
+    tester::apply("POINT(1 1)",
+                  "SEGMENT(0 1,1 0)",
+                  "SEGMENT(1 1,0.5 0.5)",
+                  "SEGMENT(1 1,0.499962 0.500095)",
+                  "SEGMENT(1 1,0.503314 0.496737)",
+                  strategies);
+
+    using tester_integral_output = test_geometry<InputPoint, InputSegment, InputSegment>;
+    
+    tester_integral_output::apply("POINT(1 1)",
+                                  "SEGMENT(0 1,1 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  "SEGMENT(1 1,0 0)",
+                                  strategies);              
 }
 
 //===========================================================================
@@ -265,32 +297,33 @@ void test_all_pl_l(Strategies strategies)
     test_closest_points_point_linestring<Point>(strategies);
     test_closest_points_point_multi_linestring<Point>(strategies);
 
-    //test_closest_points_multi_point_segment<Point>(ps_strategy);
-    //test_closest_points_multi_point_linestring<Point>(ps_strategy);
-    //test_closest_points_multi_point_multi_linestring<Point>(ps_strategy);
+    test_closest_points_multi_point_segment<Point>(strategies);
+    test_closest_points_multi_point_linestring<Point>(strategies);
+    test_closest_points_multi_point_multi_linestring<Point>(strategies);
 
-    //test_more_empty_input_pointlike_linear<Point>(ps_strategy);
+    test_more_empty_input_pointlike_linear<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_linear )
 {
     test_all_pl_l<car_point>(cartesian());
 
-    //test_all_pl_l<sph_point>(spherical_ps());
-    //test_all_pl_l<sph_point>(spherical_ps(bg::formula::mean_radius
-    //                                      <double>(bg::srs::spheroid<double>())));
+    test_all_pl_l<sph_point>(spherical());
+    test_all_pl_l<sph_point>(spherical(
+        bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
+    
+    test_all_pl_l<geo_point>(andoyer());
+    test_all_pl_l<geo_point>(thomas());
+    test_all_pl_l<geo_point>(vincenty());
 
-    //test_all_pl_l<geo_point>(andoyer_ps());
-    //test_all_pl_l<geo_point>(thomas_ps());
-    //test_all_pl_l<geo_point>(vincenty_ps());
+    using stype = bg::srs::spheroid<double>;
 
-    //using = bg::srs::spheroid<double> stype;
+    test_closest_points_point_segment_diff_spheroid<geo_point>
+        (andoyer(stype(5000000,6000000)));
 
-    //test_closest_points_point_segment_diff_spheroid<geo_point>
-    //        (andoyer_ps(stype(5000000,6000000)));
+    using int_car_point = bg::model::point<int, 2, bg::cs::cartesian>;
+    test_closest_points_point_segment_integral<int_car_point, car_point>(cartesian());
 }
-
-/*
 
 // tests from https://github.com/boostorg/geometry/pull/707#issuecomment-786650747
 
@@ -307,22 +340,16 @@ void closest_path_tester(std::string point_wkt,
         >;
     using segment_type = bg::model::segment<point_type>;
 
-    bg::strategies::closest_points::geographic_cross_track<>
-        closest_point_strategy;
-    bg::strategies::distance::geographic_cross_track<>
-        cross_track_strategy;
-    bg::strategies::distance::geographic<> distance_strategy;
-
     point_type point;
     segment_type segment;
 
     bg::read_wkt(point_wkt, point);
     bg::read_wkt(segment_wkt, segment);
 
-    const auto distance = bg::distance(point, segment, cross_track_strategy);
+    const auto distance = bg::distance(point, segment);
 
     segment_type projection;
-    bg::closest_points(point, segment, projection, closest_point_strategy);
+    bg::closest_points(point, segment, projection);
 
     auto p0 = point_type(bg::get<0,0>(projection), bg::get<0,1>(projection));
     auto p1 = point_type(bg::get<1,0>(projection), bg::get<1,1>(projection));
@@ -344,6 +371,8 @@ void closest_path_tester(std::string point_wkt,
 #endif
 
     BOOST_CHECK_CLOSE_FRACTION(distance, dist1, error);
+    BOOST_CHECK_CLOSE_FRACTION(dist1, dist2, error);
+    BOOST_CHECK(dist3 == 0);
 }
 
 BOOST_AUTO_TEST_CASE(closest_path_test_1)
@@ -399,5 +428,3 @@ BOOST_AUTO_TEST_CASE(clostest_path_test_6)
     closest_path_tester<double>(point_wkt, segment_wkt, 1e-6);
     closest_path_tester<long double>(point_wkt, segment_wkt, 1e-20);
 }
-
-*/

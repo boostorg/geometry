@@ -13,7 +13,7 @@
 #endif
 
 #include "common.hpp"
-//#include "test_empty_geometry.hpp"
+#include "empty_geometry.hpp"
 
 namespace bg = boost::geometry;
 
@@ -136,22 +136,22 @@ void test_all_pl_pl(Strategies strategies)
 {
     test_closest_points_point_point<Point>(strategies);
     test_closest_points_point_multi_point<Point>(strategies);
-    //test_closest_points_multi_point_multi_point<Point>(strategies);
+    test_closest_points_multi_point_multi_point<Point>(strategies);
 
     //test_variant<Point>(strategies);
 
-    //test_more_empty_input_pointlike_pointlike<Point>(strategies);
+    test_more_empty_input_pointlike_pointlike<Point>(strategies);
 }
 
 BOOST_AUTO_TEST_CASE( test_all_pointlike_pointlike )
 {
     test_all_pl_pl<car_point>(cartesian());
 
-    //test_all_pl_pl<sph_point>(spherical_pp());
-    //test_all_pl_pl<sph_point>(spherical_pp(bg::formula::mean_radius
-    //                                       <double>(bg::srs::spheroid<double>())));
+    test_all_pl_pl<sph_point>(spherical());
+    test_all_pl_pl<sph_point>(spherical(
+        bg::formula::mean_radius<double>(bg::srs::spheroid<double>())));
 
-    //test_all_pl_pl<geo_point>(andoyer_pp());
-    //test_all_pl_pl<geo_point>(thomas_pp());
-    //test_all_pl_pl<geo_point>(vincenty_pp());
+    test_all_pl_pl<geo_point>(andoyer());
+    test_all_pl_pl<geo_point>(thomas());
+    test_all_pl_pl<geo_point>(vincenty());
 }

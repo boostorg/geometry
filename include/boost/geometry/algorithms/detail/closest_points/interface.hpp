@@ -156,11 +156,15 @@ struct closest_points
 \param strategy \param_strategy{closest_points}
 \note The strategy can be a point-point strategy. In case of distance point-line/point-polygon
     it may also be a point-segment strategy.
+
 \qbk{distinguish,with strategy}
+
 \qbk{
+
 [heading Example]
 [closest_points_strategy]
 [closest_points_strategy_output]
+
 [heading See also]
 \* [link geometry.reference.algorithms.distance distance]
 }
@@ -196,10 +200,13 @@ inline void closest_points(Geometry1 const& geometry1,
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
 \param shortest_seg Output segment containing the closest points
+
 \qbk{
+
 [heading Example]
 [closest_points]
 [closest_points_output]
+
 [heading See also]
 \* [link geometry.reference.algorithms.distance distance]
 }
