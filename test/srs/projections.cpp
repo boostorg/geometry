@@ -232,6 +232,7 @@ void test_all()
     test_forward<P>("wag5", 4.897000, 52.371000, 379647.914735, 6771982.379506, "+proj=wag5 +ellps=WGS84 +units=m");
     test_forward<P>("wag6", 4.897000, 52.371000, 446107.907415, 5523551.121434, "+proj=wag6 +ellps=WGS84 +units=m");
     test_forward<P>("wag7", 4.897000, 52.371000, 366407.198644, 6169832.906560, "+proj=wag7 +ellps=WGS84 +units=m");
+    test_forward<P>("webmerc", 4.897000, 52.1849, 545131.546415, 6833633.829215, "+proj=webmerc +ellps=WGS84 +units=m");
     test_forward<P>("weren", 4.897000, 52.371000, 402668.037596, 7243190.025762, "+proj=weren +ellps=WGS84 +units=m");
     test_forward<P>("wink1", 4.897000, 52.371000, 438979.742911, 5829913.052335, "+proj=wink1 +ellps=WGS84 +units=m");
     test_forward<P>("wink2", 4.897000, 52.371000, 472810.645318, 6313461.757868, "+proj=wink2 +ellps=WGS84 +units=m");
@@ -344,6 +345,7 @@ void test_all()
     test_inverse<P>("wag4", 365021.547713, 6300040.998324, 4.897000, 52.371000, "+proj=wag4 +ellps=WGS84 +units=m");
     test_inverse<P>("wag5", 379647.914735, 6771982.379506, 4.897000, 52.371000, "+proj=wag5 +ellps=WGS84 +units=m");
     test_inverse<P>("wag6", 446107.907415, 5523551.121434, 4.897000, 52.371000, "+proj=wag6 +ellps=WGS84 +units=m");
+    test_inverse<P>("webmerc", 545131.546415, 6833633.829215, 4.897000, 52.1849, "+proj=webmerc +ellps=WGS84 +units=m");
     test_inverse<P>("weren", 402668.037596, 7243190.025762, 4.897000, 52.371000, "+proj=weren +ellps=WGS84 +units=m"); // F/I: 0.003779
     test_inverse<P>("wink1", 438979.742911, 5829913.052335, 4.897000, 52.371000, "+proj=wink1 +ellps=WGS84 +units=m");
 

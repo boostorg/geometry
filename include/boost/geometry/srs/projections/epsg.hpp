@@ -1857,6 +1857,7 @@ namespace detail
             //{3848},
             //{3849},
             //{3850},
+            {3857, srs::dpar::parameters<>(proj_webmerc)(lon_0,0)(x_0,0)(y_0,0)(ellps_wgs84)(srs::dpar::datum_wgs84)(units_m)(no_defs)},
             {3920, srs::dpar::parameters<>(proj_utm)(zone,20)(ellps_clrk66)(towgs84,srs::detail::towgs84<>(11,72,-101,0,0,0,0))(units_m)(no_defs)},
             {3942, srs::dpar::parameters<>(proj_lcc)(lat_1,41.25)(lat_2,42.75)(lat_0,42)(lon_0,3)(x_0,1700000)(y_0,1200000)(ellps_grs80)(towgs84,srs::detail::towgs84<>(0,0,0,0,0,0,0))(units_m)(no_defs)},
             {3943, srs::dpar::parameters<>(proj_lcc)(lat_1,42.25)(lat_2,43.75)(lat_0,43)(lon_0,3)(x_0,1700000)(y_0,2200000)(ellps_grs80)(towgs84,srs::detail::towgs84<>(0,0,0,0,0,0,0))(units_m)(no_defs)},

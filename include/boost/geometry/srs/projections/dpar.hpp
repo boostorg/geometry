@@ -292,6 +292,7 @@ enum value_proj
     proj_wag2,
     proj_wag3,
     proj_wag7,
+    proj_webmerc,
     proj_wink1,
     proj_wink2
 };
