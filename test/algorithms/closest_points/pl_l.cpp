@@ -1,9 +1,10 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -389,7 +390,7 @@ BOOST_AUTO_TEST_CASE(clostest_path_test_2)
     auto point_wkt = "POINT(11.921418190002441406 50.316425323486328125)";
     auto segment_wkt = "SEGMENT(11.9214920 50.3161678,11.9212341 50.3161381)";
 
-    closest_path_tester<double>(point_wkt, segment_wkt, 1e-20);
+    closest_path_tester<double>(point_wkt, segment_wkt, 1e-12);
     closest_path_tester<long double>(point_wkt, segment_wkt, 1e-8);
 }
 
@@ -417,7 +418,7 @@ BOOST_AUTO_TEST_CASE(clostest_path_test_5)
     auto segment_wkt = "SEGMENT(11.8958402 50.3155918,11.8953426 50.3155504)";
 
     closest_path_tester<double>(point_wkt, segment_wkt, 1e-6);
-    closest_path_tester<long double>(point_wkt, segment_wkt, 1e-20);
+    closest_path_tester<long double>(point_wkt, segment_wkt, 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE(clostest_path_test_6)
