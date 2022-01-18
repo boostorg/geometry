@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -313,19 +313,11 @@ struct dissolver_generic
         typedef typename geometry::point_type<value_type>::type point_type;
         typedef model::box<point_type> box_type;
 
-        typename Strategy::envelope_strategy_type const
-            envelope_strategy = strategy.get_envelope_strategy();
-        typename Strategy::template area_strategy<value_type>::type const
-            area_strategy = strategy.template get_area_strategy<value_type>();
-
-        for(typename boost::range_iterator<Vector const>::type
-            it = boost::begin(v);
-            it != boost::end(v);
-            ++it, ++index)
+        for (auto it = boost::begin(v); it != boost::end(v); ++it, ++index)
         {
             helper.push_back(dissolve_helper<box_type>(index,
-                    geometry::return_envelope<box_type>(*it, envelope_strategy),
-                    geometry::area(*it, area_strategy),
+                    geometry::return_envelope<box_type>(*it, strategy),
+                    geometry::area(*it, strategy),
                     source));
         }
     }
