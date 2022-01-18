@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018-2021.
-// Modifications copyright (c) 2018-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2022.
+// Modifications copyright (c) 2018-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -428,6 +428,8 @@ public :
             return;
         }
 
+        bool const is_closed = closure<Ring>::value == closed;
+
         // TODO: instead of area() use calculate_point_order() ?
 
         int const input_sign = area_sign(geometry::area(ring, strategies));
@@ -439,7 +441,8 @@ public :
         // (duplicate end point will be simplified away)
         typedef typename geometry::point_type<Ring>::type point_type;
 
-        std::vector<point_type> rotated(size);
+        std::vector<point_type> rotated;
+        rotated.reserve(size + 1); // 1 because open rings are closed
 
         // Closing point (but it will not start here)
         std::size_t index = 0;
@@ -472,13 +475,28 @@ public :
                 continue;
             }
 
-            std::rotate_copy(boost::begin(ring), range::pos(ring, index),
-                             boost::end(ring), rotated.begin());
+            // Do not duplicate the closing point
+            auto rot_end = boost::end(ring);
+            std::size_t rot_index = index;
+            if (is_closed && size > 1)
+            {
+                --rot_end;
+                if (rot_index == size - 1) { rot_index = 0; }
+            }
+
+            std::rotate_copy(boost::begin(ring), range::pos(ring, rot_index),
+                             rot_end, std::back_inserter(rotated));
 
             // Close the rotated copy
-            rotated.push_back(range::at(ring, index));
+            rotated.push_back(range::at(ring, rot_index));
 
             simplify_range<0>::apply(rotated, out, max_distance, impl, strategies);
+
+            // Open output if needed
+            if (! is_closed && boost::size(out) > 1)
+            {
+                range::pop_back(out);
+            }
 
             // TODO: instead of area() use calculate_point_order() ?
 
@@ -507,7 +525,7 @@ public :
 
             // Prepare next try
             visited_indexes.insert(index);
-            rotated.resize(size);
+            rotated.clear();
         }
     }
 };
