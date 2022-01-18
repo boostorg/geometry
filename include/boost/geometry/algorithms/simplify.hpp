@@ -56,6 +56,7 @@
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/distance/comparable.hpp>
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>
@@ -388,29 +389,27 @@ private :
     static std::size_t get_opposite(std::size_t index, Ring const& ring,
                                     Strategies const& strategies)
     {
-        // TODO: Use Pt-Pt distance strategy instead?
-        // TODO: Use comparable distance strategy
+        // TODO: Instead of calling the strategy call geometry::comparable_distance() ?
 
-        auto distance_strategy = strategies.distance(detail::dummy_point(), detail::dummy_segment());
+        auto const cdistance_strategy = strategies::distance::detail::make_comparable(strategies)
+            .distance(detail::dummy_point(), detail::dummy_point());
 
-        typedef typename geometry::point_type<Ring>::type point_type;
-        typedef decltype(distance_strategy.apply(std::declval<point_type>(),
-            std::declval<point_type>(), std::declval<point_type>())) distance_type;
+        using point_type = typename geometry::point_type<Ring>::type;
+        using cdistance_type = decltype(cdistance_strategy.apply(
+            std::declval<point_type>(), std::declval<point_type>()));
 
         // Verify if it is NOT the case that all points are less than the
         // simplifying distance. If so, output is empty.
-        distance_type max_distance(-1);
+        cdistance_type max_cdistance(-1);
 
         point_type const& point = range::at(ring, index);
         std::size_t i = 0;
         for (auto it = boost::begin(ring); it != boost::end(ring); ++it, ++i)
         {
-            // This actually is point-segment distance but will result
-            // in point-point distance
-            distance_type dist = distance_strategy.apply(*it, point, point);
-            if (dist > max_distance)
+            cdistance_type const cdistance = cdistance_strategy.apply(*it, point);
+            if (cdistance > max_cdistance)
             {
-                max_distance = dist;
+                max_cdistance = cdistance;
                 index = i;
             }
         }
