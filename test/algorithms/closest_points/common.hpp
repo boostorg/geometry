@@ -1,17 +1,16 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
 #ifndef BOOST_GEOMETRY_TEST_ALGORITHMS_CLOSEST_POINTS_COMMON_HPP
 #define BOOST_GEOMETRY_TEST_ALGORITHMS_CLOSEST_POINTS_COMMON_HPP
-
-#define BOOST_GEOMETRY_TEST_DEBUG_CLOSEST_POINTS
 
 #include <boost/geometry/core/tags.hpp>
 
