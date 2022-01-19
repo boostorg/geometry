@@ -6,6 +6,10 @@
 // Contributed and/or modified by Tinko Bartels,
 //   as part of Google Summer of Code 2019 program.
 
+// This file was modified by Oracle on 2022.
+// Modifications copyright (c) 2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -18,10 +22,11 @@
 template <typename P>
 void test_all()
 {
-    typedef bg::strategy::side::side_robust<double, 3> side3;
-    typedef bg::strategy::side::side_robust<double, 2> side2;
-    typedef bg::strategy::side::side_robust<double, 1> side1;
-    typedef bg::strategy::side::side_robust<double, 0> side0;
+    using namespace bg::strategy::side;
+    using side3 = side_robust<double, epsilon_equals_policy, 3>;
+    using side2 = side_robust<double, epsilon_equals_policy, 2>;
+    using side1 = side_robust<double, epsilon_equals_policy, 1>;
+    using side0 = side_robust<double, epsilon_equals_policy, 0>;
 
     P col1(1.0, 1.0), col2(2.0, 2.0), col3(3.0, 3.0);
     int col3r = side3::apply(col1, col2, col3);
