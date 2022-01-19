@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -72,14 +72,16 @@ inline void spheroidal_linestring(Range const& range, Box& mbr,
 }
 
 
-// Side of pole WRT segment which doesn't contain it.
+// This strategy is intended to be used together with winding strategy to check
+// if ring/polygon has a pole in its interior or exterior. It is not intended
+// for checking if the pole is on the boundary.
 template <typename CalculationType = void>
 struct side_of_pole
 {
     typedef spherical_tag cs_tag;
 
     template <typename P>
-    static inline int apply(P const& p1, P const& p2, P const& p)
+    static inline int apply(P const& p1, P const& p2, P const& pole)
     {
         using calc_t = typename promote_floating_point
             <
@@ -99,7 +101,7 @@ struct side_of_pole
         calc_t const lat1 = get<1>(p1);
         calc_t const lon2 = get<0>(p2);
         calc_t const lat2 = get<1>(p2);
-        calc_t const lat = get<1>(p);
+        calc_t const lat_pole = get<1>(pole);
 
         calc_t const s_lon_diff = math::longitude_distance_signed<units_t>(lon1, lon2);
         bool const s_vertical = math::equals(s_lon_diff, c0)
@@ -112,14 +114,14 @@ struct side_of_pole
 
         // This strategy shouldn't be called in this case but just in case
         // check if segment starts at a pole
-        if (math::equals(lat, lat1) || math::equals(lat, lat2))
+        if (math::equals(lat_pole, lat1) || math::equals(lat_pole, lat2))
         {
             return 0;
         }
 
         // -1 is rhs
         //  1 is lhs
-        if (lat >= c0) // north pole
+        if (lat_pole >= c0) // north pole
         {
             return s_lon_diff < c0 ? -1 : 1;
         }
@@ -140,7 +142,7 @@ inline int point_in_range(Point const& point, Range const& range, Strategy const
     auto const end = boost::end(range);
     for (auto previous = it++ ; it != end ; ++previous, ++it )
     {
-        if ( ! strategy.apply(point, *previous, *it, state) )
+        if (! strategy.apply(point, *previous, *it, state))
         {
             break;
         }
@@ -150,8 +152,8 @@ inline int point_in_range(Point const& point, Range const& range, Strategy const
 }
 
 
-template <typename Ring, typename PoleWithinStrategy>
-inline bool pole_within(bool north_pole, Ring const& ring,
+template <typename T, typename Ring, typename PoleWithinStrategy>
+inline bool pole_within(T const& lat_pole, Ring const& ring,
                         PoleWithinStrategy const& pole_within_strategy)
 {
     if (boost::size(ring) < core_detail::closure::minimum_ring_size
@@ -168,22 +170,18 @@ inline bool pole_within(bool north_pole, Ring const& ring,
     using constants_t = math::detail::constants_on_spheroid<coord_t, units_t>;
     point_t point;
     geometry::assign_zero(point);
-    if (north_pole)
-    {
-        geometry::set<1>(point, constants_t::max_latitude());
-    }
-    else
-    {
-        geometry::set<1>(point, constants_t::min_latitude());
-    }
+    geometry::set<1>(point, lat_pole);
     geometry::detail::closed_clockwise_view<Ring const> view(ring);
     return point_in_range(point, view, pole_within_strategy) > 0;
 }
 
 template
 <
-    typename Range, typename Box,
-    typename EnvelopeStrategy, typename ExpandStrategy, typename PoleWithinStrategy
+    typename Range,
+    typename Box,
+    typename EnvelopeStrategy,
+    typename ExpandStrategy,
+    typename PoleWithinStrategy
 >
 inline void spheroidal_ring(Range const& range, Box& mbr,
                             EnvelopeStrategy const& envelope_strategy,
@@ -224,14 +222,14 @@ inline void spheroidal_ring(Range const& range, Box& mbr,
 
         if (lat_max < lat_n_pole)
         {
-            if (pole_within(true, range, pole_within_strategy))
+            if (pole_within(lat_n_pole, range, pole_within_strategy))
             {
                 lat_max = lat_n_pole;
             }
         }
         if (lat_min > lat_s_pole)
         {
-            if (pole_within(false, range, pole_within_strategy))
+            if (pole_within(lat_s_pole, range, pole_within_strategy))
             {
                 lat_min = lat_s_pole;
             }
