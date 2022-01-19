@@ -1,11 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2021 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2022.
+// Modifications copyright (c) 2015-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -216,7 +215,7 @@ struct turn_info_verification_functions
     static inline void set_both_verified(
             UniqueSubRange1 const& range_p,
             UniqueSubRange2 const& range_q,
-            UmbrellaStrategy const&,
+            UmbrellaStrategy const& umbrella_strategy,
             std::size_t index_p, std::size_t index_q,
             TurnInfo& ti)
     {
@@ -246,9 +245,11 @@ struct turn_info_verification_functions
             auto const dm
                 = p_closer
                 ? get_distance_measure(range_q.at(index_q - 1),
-                    range_q.at(index_q), range_p.at(index_p))
+                                       range_q.at(index_q), range_p.at(index_p),
+                                       umbrella_strategy)
                 : get_distance_measure(range_p.at(index_p - 1),
-                    range_p.at(index_p), range_q.at(index_q));
+                                       range_p.at(index_p), range_q.at(index_q),
+                                       umbrella_strategy);
 
             if (! dm.is_zero())
             {
@@ -298,11 +299,13 @@ struct turn_info_verification_functions
     template
     <
         typename UniqueSubRange1,
-        typename UniqueSubRange2
+        typename UniqueSubRange2,
+        typename UmbrellaStrategy
     >
     static inline int verified_side(int side,
                                     UniqueSubRange1 const& range_p,
                                     UniqueSubRange2 const& range_q,
+                                    UmbrellaStrategy const& umbrella_strategy,
                                     int index_p, int index_q)
     {
         if (side == 0
@@ -319,7 +322,8 @@ struct turn_info_verification_functions
 
             auto const dm = get_distance_measure(range_p.at(index_p),
                                                  range_p.at(index_p + 1),
-                                                 range_q.at(index_q));
+                                                 range_q.at(index_q),
+                                                 umbrella_strategy);
             static decltype(dm.measure) const zero = 0;
             return dm.measure == zero ? 0 : dm.measure > zero ? 1 : -1;
         }
@@ -507,7 +511,8 @@ struct touch_interior : public base_turn_handler
             // Q intersects on interior of P and continues collinearly
             if (side_qk_q == side_qi_p)
             {
-                fun::template both_collinear<index_p, index_q>(range_p, range_q, umbrella_strategy, 1, 2, ti);
+                fun::template both_collinear<index_p, index_q>(range_p, range_q, umbrella_strategy,
+                                                               1, 2, ti);
             }
             else
             {
@@ -546,10 +551,13 @@ struct touch : public base_turn_handler
     template
     <
         typename UniqueSubRange1,
-        typename UniqueSubRange2
+        typename UniqueSubRange2,
+        typename UmbrellaStrategy
     >
     static inline bool handle_imperfect_touch(UniqueSubRange1 const& range_p,
-            UniqueSubRange2 const& range_q, TurnInfo& ti)
+                                              UniqueSubRange2 const& range_q,
+                                              UmbrellaStrategy const& umbrella_strategy,
+                                              TurnInfo& ti)
     {
         if (! BOOST_GEOMETRY_CONDITION(VerifyPolicy::use_handle_imperfect_touch))
         {
@@ -579,8 +587,10 @@ struct touch : public base_turn_handler
         // >----->P     qj is LEFT of P1 and pi is LEFT of Q2
         //              (the other way round is also possible)
 
-        auto const dm_qj_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(1));
-        auto const dm_pi_q2 = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(0));
+        auto const dm_qj_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(1),
+                                                   umbrella_strategy);
+        auto const dm_pi_q2 = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(0),
+                                                   umbrella_strategy);
 
         if (dm_qj_p1.measure > 0 && dm_pi_q2.measure > 0)
         {
@@ -595,8 +605,10 @@ struct touch : public base_turn_handler
             return true;
         }
 
-        auto const dm_pj_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(1));
-        auto const dm_qi_p2 = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(0));
+        auto const dm_pj_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(1),
+                                                   umbrella_strategy);
+        auto const dm_qi_p2 = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(0),
+                                                   umbrella_strategy);
 
         if (dm_pj_q1.measure > 0 && dm_qi_p2.measure > 0)
         {
@@ -637,8 +649,12 @@ struct touch : public base_turn_handler
 
         int const side_pk_q1 = has_pk ? side.pk_wrt_q1() : 0;
 
-        int const side_qi_p1 = fun::verified_side(dir_info.sides.template get<1, 0>(), range_p, range_q, 0, 0);
-        int const side_qk_p1 = has_qk ? fun::verified_side(side.qk_wrt_p1(), range_p, range_q, 0, 2) : 0;
+        int const side_qi_p1 = fun::verified_side(dir_info.sides.template get<1, 0>(),
+                                                  range_p, range_q, umbrella_strategy, 0, 0);
+        int const side_qk_p1 = has_qk
+                             ? fun::verified_side(side.qk_wrt_p1(), range_p, range_q,
+                                                  umbrella_strategy, 0, 2)
+                             : 0;
 
         // If Qi and Qk are both at same side of Pi-Pj,
         // or collinear (so: not opposite sides)
@@ -663,7 +679,7 @@ struct touch : public base_turn_handler
             {
                 if (side_qk_p1 == 0 && side_pk_q1 == 0
                     && has_qk && has_qk
-                    && handle_imperfect_touch(range_p, range_q, ti))
+                    && handle_imperfect_touch(range_p, range_q, umbrella_strategy, ti))
                 {
                     // If q continues collinearly (opposite) with p, it should be blocked
                     // but (FP) not if there is just a tiny space in between
@@ -673,7 +689,8 @@ struct touch : public base_turn_handler
                 // (#BRL2)
                 if (side_pk_q2 == 0 && ! block_q)
                 {
-                    fun::template both_collinear<0, 1>(range_p, range_q, umbrella_strategy, 2, 2, ti);
+                    fun::template both_collinear<0, 1>(range_p, range_q, umbrella_strategy,
+                                                       2, 2, ti);
                     return;
                 }
 
@@ -750,7 +767,10 @@ struct touch : public base_turn_handler
         {
             // The qi/qk are opposite to each other, w.r.t. p1
             // From left to right or from right to left
-            int const side_pk_p = has_pk ? fun::verified_side(side.pk_wrt_p1(), range_p, range_p, 0, 2) : 0;
+            int const side_pk_p = has_pk
+                                ? fun::verified_side(side.pk_wrt_p1(), range_p, range_p,
+                                                     umbrella_strategy, 0, 2)
+                                : 0;
             bool const right_to_left = side_qk_p1 == 1;
 
             // If p turns into direction of qi (1,2)
@@ -842,9 +862,11 @@ struct equal : public base_turn_handler
             // Without rescaling, to check for union/intersection,
             // try to check side values (without any thresholds)
             auto const dm_pk_q2
-               = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(2));
+               = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(2),
+                                      umbrella_strategy);
             auto const dm_qk_p2
-               = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(2));
+               = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(2),
+                                      umbrella_strategy);
 
             if (dm_qk_p2.measure != dm_pk_q2.measure)
             {

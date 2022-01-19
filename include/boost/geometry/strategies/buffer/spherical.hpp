@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,11 +12,7 @@
 
 
 #include <boost/geometry/strategies/buffer/services.hpp>
-#include <boost/geometry/strategies/distance/detail.hpp>
-#include <boost/geometry/strategies/relate/spherical.hpp>
-
-#include <boost/geometry/strategies/spherical/distance_cross_track.hpp>
-#include <boost/geometry/strategies/spherical/distance_haversine.hpp>
+#include <boost/geometry/strategies/distance/spherical.hpp>
 
 
 namespace boost { namespace geometry
@@ -31,9 +27,9 @@ template
     typename CalculationType = void
 >
 class spherical
-    : public strategies::relate::detail::spherical<RadiusTypeOrSphere, CalculationType>
+    : public strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>
 {
-    using base_t = strategies::relate::detail::spherical<RadiusTypeOrSphere, CalculationType>;
+    using base_t = strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>;
 
 public:
     spherical() = default;
@@ -42,19 +38,6 @@ public:
     explicit spherical(RadiusOrSphere const& radius_or_sphere)
         : base_t(radius_or_sphere)
     {}
-
-    // Additional strategies for simplify()
-
-    template <typename Geometry1, typename Geometry2>
-    auto distance(Geometry1 const&, Geometry2 const&,
-                  distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
-    {
-        return strategy::distance::cross_track
-            <
-                CalculationType,
-                strategy::distance::haversine<typename base_t::radius_type, CalculationType>
-            >(base_t::radius());
-    }
 };
 
 
