@@ -111,9 +111,9 @@ public:
                 cs_tag
             >;
 
-        auto const end = boost::end(multipoint2);
-        return find_if(boost::begin(multipoint2), end, 
-            predicate_type(points1.begin(), points1.end())) == end;
+        return none_of(boost::begin(multipoint2),
+                       boost::end(multipoint2),
+                       predicate_type(points1.begin(), points1.end()));
     }
 };
 

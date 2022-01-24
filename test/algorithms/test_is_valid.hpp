@@ -103,11 +103,11 @@ struct is_convertible_to_closed<Polygon, bg::polygon_tag, bg::open>
     static inline
     bool apply_to_interior_rings(InteriorRings const& interior_rings)
     {
-        auto const end = boost::end(interior_rings);
-        return std::find_if(boost::begin(interior_rings), end, 
-            []( auto const& ring ){ 
-                return ! is_convertible_to_closed<ring_type>::apply(ring);
-            }) == end;
+        return std::none_of(boost::begin(interior_rings),
+                            boost::end(interior_rings), 
+                            []( auto const& ring ){ 
+                                return ! is_convertible_to_closed<ring_type>::apply(ring);
+                            });
     }
 
     static inline bool apply(Polygon const& polygon)
@@ -124,14 +124,11 @@ struct is_convertible_to_closed<MultiPolygon, bg::multi_polygon_tag, bg::open>
 
     static inline bool apply(MultiPolygon const& multi_polygon)
     {
-        auto const end = boost::end(multi_polygon);
         return !boost::empty(multi_polygon) &&  // do not allow empty multi-polygon
-            std::find_if(
-                boost::begin(multi_polygon), end,
-                []( auto const& polygon ){ 
-                    return ! is_convertible_to_closed<polygon_type>::apply(polygon); 
-                }
-            ) == end; 
+            std::none_of(boost::begin(multi_polygon), boost::end(multi_polygon),
+                         []( auto const& polygon ){ 
+                             return ! is_convertible_to_closed<polygon_type>::apply(polygon); 
+                         }); 
     }
 };
 

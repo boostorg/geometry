@@ -292,10 +292,9 @@ public:
 
         using not_simple = not_simple<Strategy>; // do not compute self-intersections
  
-        auto const first = boost::begin(multilinestring);
-        auto const last = boost::end(multilinestring);
-
-        if ( last != std::find_if(first, last, not_simple(strategy)))
+        if (std::any_of(boost::begin(multilinestring), 
+                        boost::end(multilinestring), 
+                        not_simple(strategy)))
         {
             return false;
         }

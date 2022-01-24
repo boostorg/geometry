@@ -291,9 +291,8 @@ public:
         // check validity of all polygons ring
         debug_phase::apply(1);
 
-        auto const end = boost::end(multipolygon);
-        if (std::find_if(boost::begin(multipolygon), end,
-            is_invalid_polygon<VisitPolicy, Strategy>(visitor, strategy)) != end)
+        if (std::any_of(boost::begin(multipolygon), boost::end(multipolygon),
+                        is_invalid_polygon<VisitPolicy, Strategy>(visitor, strategy)))
         {
             return false;
         }

@@ -157,9 +157,9 @@ class disjoint_segment_areal<Segment, Polygon, polygon_tag>
                 disjoint_range_segment_or_box<ring_type, Segment>
             >;
 
-        auto const end = boost::end(interior_rings);
-        return std::find_if(boost::begin(interior_rings), end, 
-                            unary_predicate_type(segment, strategy)) == end;
+        return std::none_of(boost::begin(interior_rings),
+                            boost::end(interior_rings), 
+                            unary_predicate_type(segment, strategy));                    
     }
 
 

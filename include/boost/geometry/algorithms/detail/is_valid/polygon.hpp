@@ -111,9 +111,9 @@ protected:
                                          VisitPolicy& visitor,
                                          Strategy const& strategy)
     {
-        auto const end = boost::end(interior_rings);
-        return std::find_if(boost::begin(interior_rings), end,
-            is_invalid_ring<VisitPolicy, Strategy>(visitor, strategy)) == end;
+        return std::none_of(boost::begin(interior_rings), 
+                            boost::end(interior_rings),
+                            is_invalid_ring<VisitPolicy, Strategy>(visitor, strategy));
     }
 
     struct has_valid_rings

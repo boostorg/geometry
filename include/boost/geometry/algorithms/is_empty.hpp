@@ -62,10 +62,8 @@ class polygon_is_empty
     template <typename InteriorRings>
     static inline bool check_interior_rings(InteriorRings const& interior_rings)
     {
-        auto const end = boost::end(interior_rings);
-        return std::find_if(boost::begin(interior_rings), end,
-            []( auto const& range ){ return ! boost::empty(range); }) 
-            == end;
+        return std::none_of(boost::begin(interior_rings), boost::end(interior_rings),
+                            []( auto const& range ){ return ! boost::empty(range); });    
     }
 
 public:
@@ -83,10 +81,9 @@ struct multi_is_empty
     template <typename MultiGeometry>
     static inline bool apply(MultiGeometry const& multigeometry)
     {
-        auto const end = boost::end(multigeometry); 
-        return std::find_if(boost::begin(multigeometry), end, 
-            []( auto const& range ){ return ! Policy::apply(range); })
-            == end;
+        return std::none_of(boost::begin(multigeometry), 
+                            boost::end(multigeometry), 
+                            []( auto const& range ){ return ! Policy::apply(range); });
     }
 };
 

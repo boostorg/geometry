@@ -70,9 +70,9 @@ struct multirange_constant_size_geometry
                     >
             >;
 
-        auto const end = boost::end(multirange);
-        return std::find_if(boost::begin(multirange), end, 
-            not_disjoint(constant_size_geometry, strategy)) == end;
+        return std::none_of(boost::begin(multirange),
+                            boost::end(multirange), 
+                            not_disjoint(constant_size_geometry, strategy));
     }
 
     template <typename Strategy>
