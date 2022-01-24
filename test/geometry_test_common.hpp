@@ -207,8 +207,13 @@ inline void BoostGeometryWriteTestConfiguration()
 #if defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG)
     std::cout << "  - Debug mode" << std::endl;
 #endif
+#if defined(BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
+    std::cout << "  - Flipping the robustness alternative" << std::endl;
+#endif
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     std::cout << "  - Using rescaling" << std::endl;
+#else
+    std::cout << "  - No rescaling" << std::endl;
 #endif
 #if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     std::cout << "  - Testing only one type" << std::endl;

@@ -25,9 +25,9 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/strategies/spherical/side_by_cross_track.hpp>
-//#include <boost/geometry/strategies/spherical/side_via_plane.hpp>
 #include <boost/geometry/strategies/spherical/ssf.hpp>
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
+#include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 
 #include <boost/geometry/strategies/geographic/mapping_ssf.hpp>
 #include <boost/geometry/strategies/geographic/side_andoyer.hpp>

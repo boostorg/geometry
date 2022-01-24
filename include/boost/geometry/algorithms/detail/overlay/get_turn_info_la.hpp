@@ -95,7 +95,7 @@ struct get_turn_info_linear_areal
                 }
                 else
                 {
-                    typedef touch_interior<TurnInfo> handler;
+                    using handler = touch_interior<TurnInfo, verify_policy_la>;
 
                     // If Q (1) arrives (1)
                     if ( inters.d_info().arrival[1] == 1 )
@@ -150,7 +150,8 @@ struct get_turn_info_linear_areal
                 }
                 else 
                 {
-                    touch<TurnInfo>::apply(range_p, range_q, tp,
+                    using handler = touch<TurnInfo, verify_policy_la>;
+                    handler::apply(range_p, range_q, tp,
                         inters.i_info(), inters.d_info(), inters.sides(),
                         umbrella_strategy);
 
@@ -246,7 +247,8 @@ struct get_turn_info_linear_areal
                     {
                         // Both equal
                         // or collinear-and-ending at intersection point
-                        equal<TurnInfo>::apply(range_p, range_q, tp,
+                        using handler = equal<TurnInfo, verify_policy_la>;
+                        handler::apply(range_p, range_q, tp,
                             inters.i_info(), inters.d_info(), inters.sides(),
                             umbrella_strategy);
 
@@ -295,7 +297,8 @@ struct get_turn_info_linear_areal
                         if ( inters.d_info().arrival[0] == 0 )
                         {
                             // Collinear, but similar thus handled as equal
-                            equal<TurnInfo>::apply(range_p, range_q, tp,
+                            using handler = equal<TurnInfo, verify_policy_la>;
+                            handler::apply(range_p, range_q, tp,
                                 inters.i_info(), inters.d_info(), inters.sides(),
                                 umbrella_strategy);
 
@@ -304,8 +307,9 @@ struct get_turn_info_linear_areal
                         }
                         else
                         {
-                            collinear<TurnInfo>::apply(range_p, range_q, tp,
-                                inters.i_info(), inters.d_info(), inters.sides());
+                            using handler = collinear<TurnInfo, verify_policy_la>;
+                            handler::apply(range_p, range_q, tp, inters.i_info(),
+                                           inters.d_info(), inters.sides());
 
                             //method_replace = method_touch_interior;
                             //version = append_collinear;

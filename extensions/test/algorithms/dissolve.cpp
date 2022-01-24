@@ -3,6 +3,10 @@
 
 // Copyright (c) 2010-2017 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2022.
+// Modifications copyright (c) 2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -203,7 +207,7 @@ struct map_visitor
     {
         typedef typename boost::range_value<Turns>::type turn_type;
         std::size_t index = 0;
-        BOOST_FOREACH(turn_type const& turn, turns)
+        for (turn_type const& turn : turns)
         {
             switch (phase)
             {
@@ -242,7 +246,7 @@ struct map_visitor
     void visit_generated_rings(Rings const& rings)
     {
         typedef typename boost::range_value<Rings>::type ring_type;
-        BOOST_FOREACH(ring_type const& ring, rings)
+        for (ring_type const& ring : rings)
         {
             double const area = bg::area(ring);
             std::string const color = area < 0 ? "rgb(255,0,0)" : "rgb(0,0,255)";
@@ -347,26 +351,26 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
         std::size_t expected_point_count,
         ut_settings const& settings)
 {
-    typedef typename bg::coordinate_type<Geometry>::type coordinate_type;
+    using coordinate_type = typename bg::coordinate_type<Geometry>::type;
 
     static const bool is_line = bg::geometry_id<GeometryOut>::type::value == 2;
 
     //std::cout << bg::area(geometry) << std::endl;
 
-    typedef bg::model::multi_polygon<GeometryOut> multi_polygon;
+    using multi_polygon = bg::model::multi_polygon<GeometryOut>;
     multi_polygon dissolved1;
 
     // Check dispatch::dissolve
     {
-        typedef typename bg::strategy::intersection::services::default_strategy
+        using strategy_type = typename bg::strategies::relate::services::default_strategy
             <
-                typename bg::cs_tag<Geometry>::type
-            >::type strategy_type;
+                Geometry, Geometry
+            >::type;
 
-        typedef typename bg::rescale_policy_type
+        using rescale_policy_type = typename bg::rescale_policy_type
             <
                 typename bg::point_type<Geometry>::type
-            >::type rescale_policy_type;
+            >::type;
 
         rescale_policy_type robust_policy
                 = bg::get_rescale_policy<rescale_policy_type>(geometry);
@@ -385,10 +389,10 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
 
         std::ofstream svg(filename.str().c_str());
 
-        typedef bg::svg_mapper
+        using mapper_type = bg::svg_mapper
             <
                 typename bg::point_type<Geometry>::type
-            > mapper_type;
+            >;
 
         mapper_type mapper(svg, 500, 500);
         mapper.add(geometry);
@@ -408,7 +412,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
                      strategy, visitor);
 
 #if defined(TEST_WITH_SVG)
-        BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
+        for (GeometryOut& dissolved : dissolved1)
         {
            mapper.map(dissolved, "fill-opacity:0.1;fill:rgb(255,0,0);"
                       "stroke-opacity:0.4;stroke:rgb(255,0,255);stroke-width:3;"
@@ -428,7 +432,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     }
 
     // Make output unique (TODO: this should probably be moved to dissolve itself)
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
+    for (GeometryOut& dissolved : dissolved1)
     {
         bg::unique(dissolved);
     }
@@ -437,7 +441,7 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     std::size_t holes = 0;
     std::size_t count = 0;
 
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved1)
+    for (GeometryOut& dissolved : dissolved1)
     {
         length_or_area +=
             is_line ? bg::length(dissolved) : bg::area(dissolved);
@@ -471,11 +475,11 @@ void test_dissolve(std::string const& caseid, Geometry const& geometry,
     multi_polygon dissolved3;
     bg::dissolve(geometry, dissolved3);
 
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved2)
+    for (GeometryOut& dissolved : dissolved2)
     {
         bg::unique(dissolved);
     }
-    BOOST_FOREACH(GeometryOut& dissolved, dissolved3)
+    for (GeometryOut& dissolved : dissolved3)
     {
         bg::unique(dissolved);
     }

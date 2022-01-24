@@ -3,8 +3,8 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2022.
+// Modifications copyright (c) 2020-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -84,9 +84,9 @@ void test_all()
             115057490003226.125, ut_settings(1.0));
 
     {
-        typename bg::strategies::relate::services::default_strategy
+        typename bg::strategies::buffer::services::default_strategy
             <
-                multi_point_type, multi_point_type
+                multi_point_type
             >::type strategy;
 
         multi_point_type g;
