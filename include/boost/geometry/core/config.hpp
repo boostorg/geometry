@@ -35,8 +35,8 @@
 
 // Rescaling is turned on, unless NO_ROBUSTNESS is defined
 // In future versions of Boost.Geometry, it will be turned off by default
-#if ! defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-#define BOOST_GEOMETRY_USE_RESCALING
+#if !defined(BOOST_GEOMETRY_NO_ROBUSTNESS) && !defined(BOOST_GEOMETRY_USE_RESCALING)
+  #define BOOST_GEOMETRY_USE_RESCALING
 #endif
 
 #endif // BOOST_GEOMETRY_CORE_CONFIG_HPP

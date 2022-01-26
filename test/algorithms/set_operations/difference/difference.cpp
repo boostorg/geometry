@@ -612,9 +612,9 @@ void test_specific()
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
-        1, 11, 3371540,
-        1, 4, 385,
-        1, 16, 3371540 + 385);
+        1, 11, 3370444,
+        1, 4, 383,
+        2, 16, 3370444 + 383);
 
     test_one<polygon, polygon, polygon>("ticket_10658",
         ticket_10658[0], ticket_10658[1],
@@ -623,11 +623,12 @@ void test_specific()
 
     test_one<polygon, polygon, polygon>("ticket_11121",
         ticket_11121[0], ticket_11121[1],
-        2, 8, 489763.5,
-        1, 4, 6731652.0);
+        2, 8, 489904.5,
+        1, 4, 6755355,
+        1);
 
     // Generates spikes, both a-b and b-a
-    TEST_DIFFERENCE(ticket_11676, 2, 2537992.5, 2, 294963.5, 3);
+    TEST_DIFFERENCE(ticket_11676, 2, 2537404.5, 2, 295353, 3);
 }
 
 int test_main(int, char* [])
