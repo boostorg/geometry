@@ -86,13 +86,13 @@ struct range_has_invalid_coordinate
         boost::ignore_unused(visitor);
 
         auto const points_end = geometry::points_end(geometry);
-        bool const has_valid_coordinates = std::find_if
+        bool const has_valid_coordinates = std::none_of
             (
                 geometry::points_begin(geometry), points_end,
                 []( auto const& point ){ 
                     return point_has_invalid_coordinate::apply(point); 
                 }
-            ) == points_end;
+            );
 
         return has_valid_coordinates
             ?

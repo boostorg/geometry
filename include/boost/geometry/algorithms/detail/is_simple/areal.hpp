@@ -49,12 +49,12 @@ template <typename InteriorRings, typename Strategy>
 inline bool are_simple_interior_rings(InteriorRings const& interior_rings,
                                       Strategy const& strategy)
 {
-    return std::none_of(boost::begin(interior_rings), 
-                        boost::end(interior_rings),
-                        [&](auto const& r)
-                        {
-                            return ! is_simple_ring(r, strategy);
-                        }); // non-simple ring not found
+    return std::all_of(boost::begin(interior_rings),
+                       boost::end(interior_rings),
+                       [&](auto const& r)
+                       {
+                           return is_simple_ring(r, strategy);
+                       }); // non-simple ring not found
     // allow empty ring
 }
 

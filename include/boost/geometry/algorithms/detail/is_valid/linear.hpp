@@ -142,7 +142,7 @@ class is_valid
         template <typename Linestring>
         inline bool operator()(Linestring const& linestring) const
         {
-            return ! detail::is_valid::is_valid_linestring
+            return detail::is_valid::is_valid_linestring
                 <
                     Linestring
                 >::apply(linestring, m_policy, m_strategy);
@@ -166,9 +166,9 @@ public:
 
         using per_ls = per_linestring<VisitPolicy, Strategy>;
 
-        return std::none_of(boost::begin(multilinestring), 
-                            boost::end(multilinestring), 
-                            per_ls(visitor, strategy));
+        return std::all_of(boost::begin(multilinestring), 
+                           boost::end(multilinestring),
+                           per_ls(visitor, strategy));
     }
 };
 

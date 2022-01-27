@@ -13,7 +13,6 @@
 #include <iterator>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/range_to_geometry_rtree.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
 #include <boost/geometry/algorithms/dispatch/closest_points.hpp>

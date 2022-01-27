@@ -292,8 +292,8 @@ public:
 
         using not_simple = not_simple<Strategy>; // do not compute self-intersections
  
-        if (std::any_of(boost::begin(multilinestring), 
-                        boost::end(multilinestring), 
+        if (std::any_of(boost::begin(multilinestring),
+                        boost::end(multilinestring),
                         not_simple(strategy)))
         {
             return false;
