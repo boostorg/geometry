@@ -12,8 +12,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_DEFINE_STREAM_OPERATOR_SEGMENT_RATIO
-//#define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
-//#define BOOST_GEOMETRY_OVERLAY_NO_THROW
 
 #include <iostream>
 #include <iomanip>
