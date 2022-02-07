@@ -120,12 +120,13 @@ void test_all(std::string const& expected_normal, std::string const& expected_la
 
 int test_main(int, char* [])
 {
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_all<double>("-5000000 -3000000", "-5000000 -3000000");
     test_all<long double>("-5000000 -3000000", "-5000000 -3000000");
     test_all<int>("0 1", "0 1000");
     test_all<long long>("0 1", "0 1000");
     //    test_all<short int>(); // compiles but overflows
-
+#endif
     return 0;
 }
 

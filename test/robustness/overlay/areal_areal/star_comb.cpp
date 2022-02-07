@@ -8,8 +8,14 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
+
+#ifndef BOOST_GEOMETRY_NO_ROBUSTNESS
 #define BOOST_GEOMETRY_NO_ROBUSTNESS
+#endif
+
+#ifndef BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
+#endif
 
 #include <test_overlay_p_q.hpp>
 
