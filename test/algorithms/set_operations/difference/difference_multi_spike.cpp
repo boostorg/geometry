@@ -41,17 +41,17 @@ void test_spikes_in_ticket_8364()
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step3",
         "MULTIPOLYGON(((3232 2532,2136 2790,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2532)))",
         "MULTIPOLYGON(((1032 2130,2052 2712,1032 1764,1032 2130)),((3234 2580,3234 2532,2558 2690,3234 2580)),((2558 2690,2136 2760,2052 2712,2136 2790,2558 2690)))",
-        count_set(2, 3), -1, expectation_limits(2775256, 2775610), // SQL Server: 2775256.47588724
-        3, -1, expectation_limits(7810, 7893), // SQL Server: 7810.48711165739
-        count_set(2, 6), ignore_validity);
+        count_set(1, 2, 3), -1, expectation_limits(2774644, 2775610), // SQL Server: 2775256.47588724
+        3, -1, expectation_limits(7810, 7903), // SQL Server: 7810.48711165739
+        count_set(2, 3, 6), ignore_validity);
 
     // TODO: behaviour is not good yet. It is changed at introduction of self-turns.
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8364_step4",
         "MULTIPOLYGON(((2567 2688,2136 2790,2052 2712,1032 2130,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2580,2567 2688)))",
         "MULTIPOLYGON(((1032 2556,1778 2556,1032 2130,1032 2556)),((3234 2580,3234 2556,1778 2556,2136 2760,3234 2580)))",
-        count_set(1, 2), -1, expectation_limits(2615783, 2616030), // SQL Server: 2616029.55616044
-        1, -1, expectation_limits(161054, 161134), // SQL Server: 161054.560110092
-        count_set(1, 3), ignore_validity);
+        count_set(1, 2), -1, expectation_limits(2615783, 2616400), // SQL Server: 2616029.55616044
+        1, -1, expectation_limits(160954, 161134), // SQL Server: 161054.560110092
+        count_set(1, 2, 3), ignore_validity);
 }
 
 template <typename P, bool ClockWise, bool Closed>
@@ -74,10 +74,6 @@ void test_spikes_in_ticket_8365()
         expectation_limits(196.5, 198.5),
         count_set(2, 4));
 }
-
-
-
-
 
 int test_main(int, char* [])
 {
