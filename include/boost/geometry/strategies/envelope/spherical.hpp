@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2020-2021, Oracle and/or its affiliates.
+// Copyright (c) 2020-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -13,7 +13,6 @@
 
 #include <type_traits>
 
-#include <boost/geometry/strategy/spherical/envelope.hpp> // Not used, for backward compatibility
 #include <boost/geometry/strategy/spherical/envelope_box.hpp>
 #include <boost/geometry/strategy/spherical/envelope_boxes.hpp>
 #include <boost/geometry/strategy/spherical/envelope_multipoint.hpp>

@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -45,15 +45,15 @@ public:
     template <typename Range, typename Box>
     void apply(Range const& range, Box& mbr) const
     {
-        detail::spheroidal_linestring(range, mbr,
-                                      envelope::geographic_segment
-                                        <
-                                            FormulaPolicy, Spheroid, CalculationType
-                                        >(m_spheroid),
-                                      expand::geographic_segment
-                                        <
-                                            FormulaPolicy, Spheroid, CalculationType
-                                        >(m_spheroid));
+        auto const envelope_s = envelope::geographic_segment
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(m_spheroid);
+        auto const expand_s = expand::geographic_segment
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(m_spheroid);
+        detail::spheroidal_linestring(range, mbr, envelope_s, expand_s);
     }
 
     Spheroid model() const
@@ -87,20 +87,19 @@ public:
     template <typename Range, typename Box>
     void apply(Range const& range, Box& mbr) const
     {
-        detail::spheroidal_ring(range, mbr,
-                                envelope::geographic_segment
-                                    <
-                                        FormulaPolicy, Spheroid, CalculationType
-                                    >(m_spheroid),
-                                expand::geographic_segment
-                                    <
-                                        FormulaPolicy, Spheroid, CalculationType
-                                    >(m_spheroid),
-                                within::detail::spherical_winding_base
-                                    <
-                                        envelope::detail::side_of_pole<CalculationType>,
-                                        CalculationType
-                                    >());
+        auto const envelope_s = envelope::geographic_segment
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(m_spheroid);
+        auto const expand_s = expand::geographic_segment
+            <
+                FormulaPolicy, Spheroid, CalculationType
+            >(m_spheroid);
+        auto const within_s = within::detail::spherical_winding_base
+            <
+                envelope::detail::side_of_pole<CalculationType>, CalculationType
+            >();
+        detail::spheroidal_ring(range, mbr, envelope_s, expand_s, within_s);
     }
 
     Spheroid model() const
