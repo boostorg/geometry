@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2021.
+// Modifications copyright (c) 2013-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -33,7 +33,6 @@
 #include <boost/geometry/algorithms/detail/envelope/segment.hpp>
 #include <boost/geometry/algorithms/detail/normalize.hpp>
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
-#include <boost/geometry/algorithms/envelope.hpp>
 
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 

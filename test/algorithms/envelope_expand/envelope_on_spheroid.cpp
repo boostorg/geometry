@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015-2021, Oracle and/or its affiliates.
+// Copyright (c) 2015-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -2510,16 +2510,18 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     typedef bg::model::box<point_type> B;
     typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
 
-    //double const eps = std::numeric_limits<double>::epsilon();
+    double const eps = std::numeric_limits<double>::epsilon();
 
     tester::apply("r01cw",
                   from_wkt<G>("POLYGON((0 10,0 45,50 10,0 10))"),
                   0, 10, 50, 45);
-#if 0
+
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that contains both the north and south poles in its interior
     tester::apply("r01cw-r",
                   from_wkt<G>("POLYGON((0 10,50 10,0 45,0 10))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that contains the north pole in its interior
     tester::apply("r02cw",
@@ -2545,10 +2547,12 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   -180, -90, 180, -10);
     //                  -180, -19.42540014068282, 180, 90);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that has the north pole as vertex and contains the south pole
     tester::apply("r04cw",
                   from_wkt<G>("POLYGON((0 0,-50 90,-50 0,0 0))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that has the north pole as vertex
     tester::apply("r04cw-r",
@@ -2578,10 +2582,12 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((0 0,-50 0,-50 90,0 0))"),
                   -50, 0, 0, 90);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that goes through the south pole and contains the north pole
     tester::apply("r09cw",
                   from_wkt<G>("POLYGON((0 0,0 -90,50 0,0 0))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that goes through the south pole
     tester::apply("r09cw-r",
@@ -2616,11 +2622,13 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((100 45,0 45,-100 45,-100 90,100 45))"),
                   -100, 45, 100, 90);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that represents the complement of a spherical cap
     // near the north pole
     tester::apply("r13cw-r",
                   from_wkt<G>("POLYGON((-100 45,0 45,100 45,100 90,-100 45))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that represents the complement of a spherical cap
     // that touches the south pole
@@ -2628,10 +2636,12 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-100 45,0 45,100 45,100 -90,-100 45))"),
                   -100, -90, 100, 57.26759279038765);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that represents a spherical cap that touches the south pole
     tester::apply("r14cw-r",
                   from_wkt<G>("POLYGON((100 45,0 45,-100 45,-100 -90,100 45))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring with edge that goes through the south pole
     tester::apply("r15cw",
@@ -2649,6 +2659,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-50 -80,-50 -40,-30 -40,-30 -80,-50 -80))"),
                   -50, -80.14892388341609, -30, -40);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that lies in the lower hemisphere and contains both poles
     tester::apply("r16-r",
                   from_wkt<G>("POLYGON((-50 -80,-30 -80,-30 -40,-50 -40,-50 -80))"),
@@ -2658,26 +2669,31 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
     tester::apply("r17cw",
                   from_wkt<G>("POLYGON((50 0,50 -90,100 0,50 0))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that goes through the south pole
     tester::apply("r17cw-r",
                   from_wkt<G>("POLYGON((50 0,100 0,100 -90,50 0))"),
                   50, -90, 100, 0);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that goes through the south pole and contains the north pole
     tester::apply("r18cw",
                   from_wkt<G>("POLYGON((50 0,50 -90,460 0,50 0))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that goes through the south pole
     tester::apply("r18cw-r",
                   from_wkt<G>("POLYGON((50 0,460 0,100 -90,50 0))"),
                   50, -90, 100, 0);
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that goes through the south pole and contains the north pole
     tester::apply("r19cw",
                   from_wkt<G>("POLYGON((50 0,50 -90,-260 0,50 0))"),
                   -180, -90, 180, 90);
+#endif
 
     // ring that goes through the south pole
     tester::apply("r19cw-r",
@@ -2689,10 +2705,12 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((10 0,10 90,20 0,20 -90,10 0))"),
                   10, -90, 20, 90); // SUCCEEDS FOR WRONG REASON
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that goes through both poles
     tester::apply("r20cw-r",
                   from_wkt<G>("POLYGON((10 0,10 -90,20 0,20 90,10 0))"),
-        -180, -90, 180, 90); // FAILS NOW
+                  -180, -90, 180, 90);
+#endif
 
     // ring that goes through both poles and its boundary forms
     // a great circle
@@ -2700,11 +2718,55 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-10 0,-10 90,170 0,170 -90,-10 0))"),
                   -10, -90, 170, 90); // SUCCEEDS FOR WRONG REASON
 
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
     // ring that goes through both poles and its boundary forms
     // a great circle
     tester::apply("r21cw-r",
                   from_wkt<G>("POLYGON((-10 0,-10 -90,170 0,170 90,-10 0))"),
-                  170, -90, 350, 90); // FAILS NOW
+                  170, -90, 350, 90);
 #endif
+
+    // From disjoint  https://svn.boost.org/trac/boost/ticket/9162
+    // Polygons containing poles
+    tester::apply("r22cw",
+                  from_wkt<G>("POLYGON((0 80,-90 80,-180 80,90 80,0 80))"),
+                  -180, 80, 180, 90);
+    tester::apply("r23cw",
+                  from_wkt<G>("POLYGON((0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
+                  -180, -90, 180, -80);
+    // Polygons greater than half of the globe
+    tester::apply("r24cw",
+                  from_wkt<G>("POLYGON((0 80,90 80,-180 80,-90 80,0 80))"),
+                  -180, -90, 180, 82.892923889553458);
+    tester::apply("r25cw",
+                  from_wkt<G>("POLYGON((0 -80,-90 -80,-180 -80,90 -80,0 -80))"),
+                  -180, -82.892923889553458, 180, 90);
+    // Normal test case
+    tester::apply("r26cw",
+                  from_wkt<G>("POLYGON((30 0,30 30,90 30, 90 0, 30 0))"),
+                  30, 0, 90, 33.690067525979771);
+
+    // Invalid polygons with holes containing poles
+    tester::apply("r27cw",
+                  from_wkt<G>("POLYGON((),(0 80,90 80,-180 80,-90 80,0 80))"),
+                  -180, 80, 180, 90);
+    tester::apply("r28cw",
+                  from_wkt<G>("POLYGON((),(0 -80,-90 -80,-180 -80,90 -80,0 -80))"),
+                  -180, -90, 180, -80);
 }
 
+BOOST_AUTO_TEST_CASE(envelope_ccw_ring)
+{
+    typedef bg::cs::spherical_equatorial<bg::degree> coordinate_system_type;
+    typedef bg::model::point<double, 2, coordinate_system_type> point_type;
+    typedef bg::model::polygon<point_type, false> G;
+    typedef bg::model::box<point_type> B;
+    typedef test_envelope_on_sphere_or_spheroid<G, B> tester;
+
+    tester::apply("r27ccw",
+                  from_wkt<G>("POLYGON((),(0 80,-90 80,-180 80,90 80,0 80))"),
+                  -180, 80, 180, 90);
+    tester::apply("r28ccw",
+                  from_wkt<G>("POLYGON((),(0 -80,90 -80,-180 -80,-90 -80,0 -80))"),
+                  -180, -90, 180, -80);
+}
