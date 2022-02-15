@@ -2,6 +2,7 @@
 
 // Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -36,7 +37,6 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
@@ -261,16 +261,16 @@ struct is_simple_multilinestring
 {
 private:
     template <typename Strategy>
-    struct per_linestring
+    struct not_simple
     {
-        per_linestring(Strategy const& strategy)
+        not_simple(Strategy const& strategy)
             : m_strategy(strategy)
         {}
 
         template <typename Linestring>
-        inline bool apply(Linestring const& linestring) const
+        inline bool operator()(Linestring const& linestring) const
         {
-            return detail::is_simple::is_simple_linestring
+            return ! detail::is_simple::is_simple_linestring
                 <
                     Linestring,
                     false // do not compute self-intersections
@@ -285,19 +285,16 @@ public:
     static inline bool apply(MultiLinestring const& multilinestring,
                              Strategy const& strategy)
     {
-        typedef per_linestring<Strategy> per_ls;
-
         // check each of the linestrings for simplicity
         // but do not compute self-intersections yet; these will be
         // computed for the entire multilinestring
-        if ( ! detail::check_iterator_range
-                 <
-                     per_ls, // do not compute self-intersections
-                     true // allow empty multilinestring
-                 >::apply(boost::begin(multilinestring),
-                          boost::end(multilinestring),
-                          per_ls(strategy))
-             )
+        // return true for empty multilinestring
+
+        using not_simple = not_simple<Strategy>; // do not compute self-intersections
+ 
+        if (std::any_of(boost::begin(multilinestring),
+                        boost::end(multilinestring),
+                        not_simple(strategy)))
         {
             return false;
         }

@@ -94,9 +94,8 @@ struct multi_point_geometry_eb<Geometry, linestring_tag>
         template <typename Point, typename Strategy>
         bool apply(Point const& boundary_point, Strategy const& strategy)
         {
-            if ( std::find_if(m_points.begin(), m_points.end(),
-                              find_pred<Point, Strategy>(boundary_point, strategy))
-                    == m_points.end() )
+            if ( std::none_of(m_points.begin(), m_points.end(),
+                              find_pred<Point, Strategy>(boundary_point, strategy)))
             {
                 m_boundary_found = true;
                 return false;
