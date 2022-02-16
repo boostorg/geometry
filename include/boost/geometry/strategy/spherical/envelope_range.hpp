@@ -165,9 +165,6 @@ inline bool pole_within(T const& lat_pole, Ring const& ring,
     }
 
     using point_t = typename geometry::point_type<Ring>::type;
-    using coord_t = typename geometry::coordinate_type<point_t>::type;
-    using units_t = typename geometry::detail::cs_angular_units<point_t>::type;
-    using constants_t = math::detail::constants_on_spheroid<coord_t, units_t>;
     point_t point;
     geometry::assign_zero(point);
     geometry::set<1>(point, lat_pole);
