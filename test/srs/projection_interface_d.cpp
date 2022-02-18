@@ -1,7 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,11 +38,10 @@ int test_main(int, char*[])
         projection<> prj = epsg(2000);
         
         prj.forward(pt_ll, pt_xy);
-        test::check_geometry(pt_xy, "POINT(9413505.3284665551 237337.74515944949)", 0.001);
+        test::check_geometry(pt_xy, "POINT(9523653.0229229201 246619.70872460317)", 0.001);
 
         prj.inverse(pt_xy, pt_ll2);
-        // TODO: investigate this wierd result
-        test::check_geometry(pt_ll2, "POINT(-2.4463131191981073 1.5066638962045082)", 0.001);
+        test::check_geometry(pt_ll2, "POINT(0.99999999979234933 0.99999999988133992)", 0.001);
 
         projection<> prj2 = esri(37001);
         projection<> prj3 = iau2000(19900);
