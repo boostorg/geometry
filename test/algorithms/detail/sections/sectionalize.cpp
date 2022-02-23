@@ -45,18 +45,15 @@
 template <int DimensionCount, typename Geometry>
 void test_sectionalize_part()
 {
-    typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::model::box<point_type> box_type;
+    using point_type = typename bg::point_type<Geometry>::type;
+    using box_type = bg::model::box<point_type>;
 
-    typedef bg::sections<box_type, DimensionCount> sections_type;
-    typedef typename boost::range_value<sections_type>::type section_type;
+    using sections_type = bg::sections<box_type, DimensionCount>;
+    using section_type = typename boost::range_value<sections_type>::type;
 
-    typedef std::integer_sequence<std::size_t, 0> dimension_list;
+    using dimension_list = std::integer_sequence<std::size_t, 0>;
 
-    typedef bg::detail::sectionalize::sectionalize_part
-        <
-            point_type, dimension_list
-        > sectionalize_part;
+    using sectionalize_part = bg::detail::sectionalize::sectionalize_part<dimension_list>;
 
     sections_type sections;
     section_type section;
@@ -90,9 +87,9 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
 
     static const std::size_t dimension_count = bg::util::sequence_size<DimensionVector>::value;
 
-    typedef typename bg::point_type<G>::type point;
-    typedef bg::model::box<point> box;
-    typedef bg::sections<box, dimension_count> sections;
+    using point = typename bg::point_type<G>::type;
+    using box = bg::model::box<point>;
+    using sections= bg::sections<box, dimension_count>;
 
     sections s;
     bg::sectionalize<Reverse, DimensionVector>(g,
@@ -162,7 +159,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
 
         std::ofstream svg(filename.str().c_str());
 
-        typedef typename bg::point_type<G>::type point_type;
+        using point_type = typename bg::point_type<G>::type;
         bg::svg_mapper<point_type> mapper(svg, 500, 500);
 
         mapper.add(g);
@@ -215,8 +212,8 @@ void test_sectionalize(std::string const& caseid, std::string const& wkt,
     G g;
     bg::read_wkt(wkt, g);
 
-    typedef std::integer_sequence<std::size_t, 0, 1> dim2;
-    typedef std::integer_sequence<std::size_t, 0> dim1;
+    using dim2 = std::integer_sequence<std::size_t, 0, 1>;
+    using dim1 = std::integer_sequence<std::size_t, 0>;
 
     test_sectionalize<dim2, Reverse>(caseid + "_d2", g, count2, s2, d2, max_count);
     test_sectionalize<dim1, Reverse>(caseid + "_d1", g, count1, s1, d1, max_count);
@@ -295,8 +292,7 @@ void test_all()
         5, "0..2|2..4|4..5|5..8|8..9", "+|DUP|+|DUP|.");
 
 
-    typedef bg::model::box<P> B;
-    test_sectionalize<B, false>("box2", "BOX(0 0,4 4)",
+    test_sectionalize<bg::model::box<P>, false>("box2", "BOX(0 0,4 4)",
             4, "0..1|1..2|2..3|3..4", ". +|+ .|. -|- .",
             4, "0..1|1..2|2..3|3..4", ".|+|.|-");
 
@@ -314,7 +310,7 @@ void test_all()
         31, "", "", 100);
 
     {
-        typedef std::integer_sequence<std::size_t, 1> only_y_dim;
+        using only_y_dim = std::integer_sequence<std::size_t, 1>;
         bg::model::polygon<P> pol;
         bg::read_wkt(vertical, pol);
         test_sectionalize<only_y_dim, false>("vertical_y", pol, 22, "", "", 100);
@@ -330,8 +326,8 @@ void test_all()
 
 void test_large_integers()
 {
-    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
-    typedef bg::model::point<double, 2, bg::cs::cartesian> double_point_type;
+    using int_point_type = bg::model::point<int, 2, bg::cs::cartesian>;
+    using double_point_type = bg::model::point<double, 2, bg::cs::cartesian>;
 
     std::string const polygon_li = "POLYGON((1872000 528000,1872000 192000,1536119 192000,1536000 528000,1200000 528000,1200000 863880,1536000 863880,1872000 863880,1872000 528000))";
     bg::model::polygon<int_point_type> int_poly;
@@ -339,7 +335,7 @@ void test_large_integers()
     bg::read_wkt(polygon_li, int_poly);
     bg::read_wkt(polygon_li, double_poly);
 
-    typedef std::integer_sequence<std::size_t, 0> dimensions;
+    using dimensions = std::integer_sequence<std::size_t, 0>;
     bg::sections<bg::model::box<int_point_type>, 1> int_sections;
     bg::sections<bg::model::box<double_point_type>, 1> double_sections;
 

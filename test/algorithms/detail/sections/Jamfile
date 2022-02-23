@@ -15,6 +15,7 @@
 
 test-suite boost-geometry-algorithms-detail-sections
     : 
-    [ run sectionalize.cpp     : : : : algorithms_sectionalize ]
-    [ run range_by_section.cpp : : : : algorithms_range_by_section ]
+    [ run sectionalize.cpp       : : : : algorithms_sectionalize ]
+    [ run sectionalize_const.cpp : : : : algorithms_sectionalize_const ]
+    [ run range_by_section.cpp   : : : : algorithms_range_by_section ]
      ;
