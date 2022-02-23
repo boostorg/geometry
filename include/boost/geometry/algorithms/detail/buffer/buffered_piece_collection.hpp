@@ -798,11 +798,10 @@ struct buffered_piece_collection
 
     inline void sectionalize(piece const& pc, buffered_ring<Ring> const& ring)
     {
-        typedef geometry::detail::sectionalize::sectionalize_part
+        using sectionalizer = geometry::detail::sectionalize::sectionalize_part
         <
-            point_type,
             std::integer_sequence<std::size_t, 0, 1> // x,y dimension
-        > sectionalizer;
+        >;
 
         // Create a ring-identifier. The source-index is the piece index
         // The multi_index is as in this collection (the ring), but not used here
