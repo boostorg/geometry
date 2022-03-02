@@ -21,6 +21,7 @@ test-suite boost-geometry-algorithms-overlay
     [ run get_ring.cpp                     : : : : algorithms_get_ring ]
     [ run get_turn_info.cpp                : : : : algorithms_get_turn_info ]
     [ run get_turns.cpp                    : : : : algorithms_get_turns ]
+    [ run get_turns_const.cpp              : : : : algorithms_get_turns_const ]
     [ run get_turns_areal_areal.cpp        : : : : algorithms_get_turns_areal_areal ]
     [ run get_turns_areal_areal_sph.cpp    : : : : algorithms_get_turns_areal_areal_sph ]
     [ run get_turns_linear_areal.cpp       : : : : algorithms_get_turns_linear_areal ]
