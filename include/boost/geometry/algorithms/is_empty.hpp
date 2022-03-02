@@ -2,6 +2,7 @@
 
 // Copyright (c) 2015-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -16,7 +17,6 @@
 #include <boost/range/end.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -62,10 +62,8 @@ class polygon_is_empty
     template <typename InteriorRings>
     static inline bool check_interior_rings(InteriorRings const& interior_rings)
     {
-        return check_iterator_range
-            <
-                range_is_empty, true // allow empty range
-            >::apply(boost::begin(interior_rings), boost::end(interior_rings));
+        return std::all_of(boost::begin(interior_rings), boost::end(interior_rings),
+                           []( auto const& range ){ return boost::empty(range); });
     }
 
 public:
@@ -83,12 +81,10 @@ struct multi_is_empty
     template <typename MultiGeometry>
     static inline bool apply(MultiGeometry const& multigeometry)
     {
-        return check_iterator_range
-            <
-                Policy, true // allow empty range
-            >::apply(boost::begin(multigeometry), boost::end(multigeometry));
+        return std::all_of(boost::begin(multigeometry), 
+                           boost::end(multigeometry), 
+                           []( auto const& range ){ return Policy::apply(range); });
     }
-    
 };
 
 }} // namespace detail::is_empty

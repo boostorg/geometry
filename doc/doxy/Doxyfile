@@ -182,6 +182,7 @@ INPUT                  = . .. ../../../../boost/geometry/core \
                          ../../../../boost/geometry/algorithms \
                          ../../../../boost/geometry/algorithms/detail \
                          ../../../../boost/geometry/algorithms/detail/buffer \
+                         ../../../../boost/geometry/algorithms/detail/closest_points \
                          ../../../../boost/geometry/algorithms/detail/comparable_distance \
                          ../../../../boost/geometry/algorithms/detail/convex_hull \
                          ../../../../boost/geometry/algorithms/detail/covered_by \

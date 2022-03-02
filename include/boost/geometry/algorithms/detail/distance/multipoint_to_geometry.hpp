@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021 Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -16,7 +17,6 @@
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/distance/range_to_geometry_rtree.hpp>
 #include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
@@ -46,7 +46,6 @@ struct multipoint_to_multipoint
                                     Strategies const& strategies)
     {
         if (boost::size(multipoint2) < boost::size(multipoint1))
-
         {
             return point_or_segment_range_to_geometry_rtree
                 <
@@ -103,16 +102,16 @@ template <typename MultiPoint, typename Areal, typename Strategies>
 class multipoint_to_areal
 {
 private:
-    struct not_covered_by_areal
+    struct covered_by_areal
     {
-        not_covered_by_areal(Areal const& areal, Strategies const& strategy)
+        covered_by_areal(Areal const& areal, Strategies const& strategy)
             : m_areal(areal), m_strategy(strategy)
         {}
 
         template <typename Point>
-        inline bool apply(Point const& point) const
+        inline bool operator()(Point const& point) const
         {
-            return !geometry::covered_by(point, m_areal, m_strategy);
+            return geometry::covered_by(point, m_areal, m_strategy);
         }
 
         Areal const& m_areal;
@@ -126,14 +125,10 @@ public:
                                     Areal const& areal,
                                     Strategies const& strategies)
     {
-        not_covered_by_areal predicate(areal, strategies);
+        covered_by_areal predicate(areal, strategies);
 
-        if (check_iterator_range
-                <
-                    not_covered_by_areal, false
-                >::apply(boost::begin(multipoint),
-                         boost::end(multipoint),
-                         predicate))
+        if (! boost::empty(multipoint) && 
+            std::none_of(boost::begin(multipoint), boost::end(multipoint), predicate))
         {
             return detail::distance::point_or_segment_range_to_geometry_rtree
                 <

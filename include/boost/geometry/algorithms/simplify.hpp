@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018-2021.
-// Modifications copyright (c) 2018-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2022.
+// Modifications copyright (c) 2018-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -56,6 +56,7 @@
 #include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/distance/comparable.hpp>
 #include <boost/geometry/strategies/simplify/cartesian.hpp>
 #include <boost/geometry/strategies/simplify/geographic.hpp>
 #include <boost/geometry/strategies/simplify/spherical.hpp>
@@ -388,29 +389,27 @@ private :
     static std::size_t get_opposite(std::size_t index, Ring const& ring,
                                     Strategies const& strategies)
     {
-        // TODO: Use Pt-Pt distance strategy instead?
-        // TODO: Use comparable distance strategy
+        // TODO: Instead of calling the strategy call geometry::comparable_distance() ?
 
-        auto distance_strategy = strategies.distance(detail::dummy_point(), detail::dummy_segment());
+        auto const cdistance_strategy = strategies::distance::detail::make_comparable(strategies)
+            .distance(detail::dummy_point(), detail::dummy_point());
 
-        typedef typename geometry::point_type<Ring>::type point_type;
-        typedef decltype(distance_strategy.apply(std::declval<point_type>(),
-            std::declval<point_type>(), std::declval<point_type>())) distance_type;
+        using point_type = typename geometry::point_type<Ring>::type;
+        using cdistance_type = decltype(cdistance_strategy.apply(
+            std::declval<point_type>(), std::declval<point_type>()));
 
         // Verify if it is NOT the case that all points are less than the
         // simplifying distance. If so, output is empty.
-        distance_type max_distance(-1);
+        cdistance_type max_cdistance(-1);
 
         point_type const& point = range::at(ring, index);
         std::size_t i = 0;
         for (auto it = boost::begin(ring); it != boost::end(ring); ++it, ++i)
         {
-            // This actually is point-segment distance but will result
-            // in point-point distance
-            distance_type dist = distance_strategy.apply(*it, point, point);
-            if (dist > max_distance)
+            cdistance_type const cdistance = cdistance_strategy.apply(*it, point);
+            if (cdistance > max_cdistance)
             {
-                max_distance = dist;
+                max_cdistance = cdistance;
                 index = i;
             }
         }
@@ -428,6 +427,8 @@ public :
             return;
         }
 
+        bool const is_closed = closure<Ring>::value == closed;
+
         // TODO: instead of area() use calculate_point_order() ?
 
         int const input_sign = area_sign(geometry::area(ring, strategies));
@@ -439,7 +440,8 @@ public :
         // (duplicate end point will be simplified away)
         typedef typename geometry::point_type<Ring>::type point_type;
 
-        std::vector<point_type> rotated(size);
+        std::vector<point_type> rotated;
+        rotated.reserve(size + 1); // 1 because open rings are closed
 
         // Closing point (but it will not start here)
         std::size_t index = 0;
@@ -472,13 +474,28 @@ public :
                 continue;
             }
 
-            std::rotate_copy(boost::begin(ring), range::pos(ring, index),
-                             boost::end(ring), rotated.begin());
+            // Do not duplicate the closing point
+            auto rot_end = boost::end(ring);
+            std::size_t rot_index = index;
+            if (is_closed && size > 1)
+            {
+                --rot_end;
+                if (rot_index == size - 1) { rot_index = 0; }
+            }
+
+            std::rotate_copy(boost::begin(ring), range::pos(ring, rot_index),
+                             rot_end, std::back_inserter(rotated));
 
             // Close the rotated copy
-            rotated.push_back(range::at(ring, index));
+            rotated.push_back(range::at(ring, rot_index));
 
             simplify_range<0>::apply(rotated, out, max_distance, impl, strategies);
+
+            // Open output if needed
+            if (! is_closed && boost::size(out) > 1)
+            {
+                range::pop_back(out);
+            }
 
             // TODO: instead of area() use calculate_point_order() ?
 
@@ -507,7 +524,7 @@ public :
 
             // Prepare next try
             visited_indexes.insert(index);
-            rotated.resize(size);
+            rotated.clear();
         }
     }
 };

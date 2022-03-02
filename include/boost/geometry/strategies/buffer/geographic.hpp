@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,10 +12,7 @@
 
 
 #include <boost/geometry/strategies/buffer/services.hpp>
-#include <boost/geometry/strategies/distance/detail.hpp>
-#include <boost/geometry/strategies/relate/geographic.hpp>
-
-#include <boost/geometry/strategies/geographic/distance_cross_track.hpp>
+#include <boost/geometry/strategies/distance/geographic.hpp>
 
 
 namespace boost { namespace geometry
@@ -32,9 +29,9 @@ template
     typename CalculationType = void
 >
 class geographic
-    : public strategies::relate::geographic<FormulaPolicy, Spheroid, CalculationType>
+    : public strategies::distance::geographic<FormulaPolicy, Spheroid, CalculationType>
 {
-    using base_t = strategies::relate::geographic<FormulaPolicy, Spheroid, CalculationType>;
+    using base_t = strategies::distance::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
     geographic() = default;
@@ -42,18 +39,6 @@ public:
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)
     {}
-
-    // Additional strategies for simplify()
-
-    template <typename Geometry1, typename Geometry2>
-    auto distance(Geometry1 const&, Geometry2 const&,
-                  distance::detail::enable_if_ps_t<Geometry1, Geometry2> * = nullptr) const
-    {
-        return strategy::distance::geographic_cross_track
-            <
-                FormulaPolicy, Spheroid, CalculationType
-            >(base_t::m_spheroid);
-    }
 };
 
 

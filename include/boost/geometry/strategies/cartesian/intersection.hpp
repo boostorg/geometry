@@ -170,9 +170,8 @@ struct cartesian_segments
                     SegmentRatio const& ratio) const
         {
             // Calculate the intersection point based on segment_ratio
-            // Up to now, division was postponed. Here we divide using numerator/
-            // denominator. In case of integer this results in an integer
-            // division.
+            // The division, postponed until here, is done now. In case of integer this
+            // results in an integer which rounds to the nearest integer.
             BOOST_GEOMETRY_ASSERT(ratio.denominator() != typename SegmentRatio::int_type(0));
 
             typedef typename promote_integral<CoordinateType>::type calc_type;
@@ -185,11 +184,11 @@ struct cartesian_segments
             calc_type const dy_calc = boost::numeric_cast<calc_type>(dy);
 
             set<0>(point, get<0, 0>(segment)
-                   + boost::numeric_cast<CoordinateType>(numerator * dx_calc
-                                                         / denominator));
+                   + boost::numeric_cast<CoordinateType>(
+                         math::divide<calc_type>(numerator * dx_calc, denominator)));
             set<1>(point, get<0, 1>(segment)
-                   + boost::numeric_cast<CoordinateType>(numerator * dy_calc
-                                                         / denominator));
+                   + boost::numeric_cast<CoordinateType>(
+                         math::divide<calc_type>(numerator * dy_calc, denominator)));
         }
 
         template <int Index, int Dim, typename Point, typename Segment>

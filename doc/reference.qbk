@@ -93,6 +93,11 @@
 [endsect]
 
 [include generated/clear.qbk]
+
+[section:closest_points closest_points]
+[include generated/closest_points.qbk]
+[endsect]
+
 [include generated/convert.qbk]
 
 [section:convex_hull convex_hull]

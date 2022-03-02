@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -34,7 +35,6 @@
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/has_valid_self_turns.hpp>
@@ -257,29 +257,30 @@ private:
 
 
     template <typename VisitPolicy, typename Strategy>
-    struct per_polygon
+    struct is_invalid_polygon
     {
-        per_polygon(VisitPolicy& policy, Strategy const& strategy)
+        is_invalid_polygon(VisitPolicy& policy, Strategy const& strategy)
             : m_policy(policy)
             , m_strategy(strategy)
         {}
 
         template <typename Polygon>
-        inline bool apply(Polygon const& polygon) const
+        inline bool operator()(Polygon const& polygon) const
         {
-            return base::apply(polygon, m_policy, m_strategy);
+            return ! base::apply(polygon, m_policy, m_strategy);
         }
 
         VisitPolicy& m_policy;
         Strategy const& m_strategy;
     };
+
 public:
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(MultiPolygon const& multipolygon,
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        typedef debug_validity_phase<MultiPolygon> debug_phase;
+        using debug_phase = debug_validity_phase<MultiPolygon>;
 
         if (BOOST_GEOMETRY_CONDITION(AllowEmptyMultiGeometries)
             && boost::empty(multipolygon))
@@ -290,22 +291,20 @@ public:
         // check validity of all polygons ring
         debug_phase::apply(1);
 
-        if (! detail::check_iterator_range
-                  <
-                      per_polygon<VisitPolicy, Strategy>,
-                      false // do not check for empty multipolygon (done above)
-                  >::apply(boost::begin(multipolygon),
-                           boost::end(multipolygon),
-                           per_polygon<VisitPolicy, Strategy>(visitor, strategy)))
+        if (std::any_of(boost::begin(multipolygon), boost::end(multipolygon),
+                        is_invalid_polygon<VisitPolicy, Strategy>(visitor, strategy)))
         {
             return false;
         }
 
-
         // compute turns and check if all are acceptable
         debug_phase::apply(2);
 
-        typedef has_valid_self_turns<MultiPolygon, typename Strategy::cs_tag> has_valid_turns;
+        using has_valid_turns =  has_valid_self_turns
+            <
+                MultiPolygon, 
+                typename Strategy::cs_tag
+            >;
 
         std::deque<typename has_valid_turns::turn_type> turns;
         bool has_invalid_turns =

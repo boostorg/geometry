@@ -30,26 +30,25 @@ namespace dispatch
 template <typename Collection>
 struct envelope<Collection, geometry_collection_tag>
 {
-    template <typename Geometry, typename Box, typename Strategy>
+    template <typename Geometry, typename Box, typename Strategies>
     static inline void apply(Geometry const& geometry,
                              Box& mbr,
-                             Strategy const& strategy)
+                             Strategies const& strategies)
     {
-        using strategy_t = decltype(strategy.envelope(geometry, mbr));
-        using state_t = typename strategy_t::template multi_state<Box>;
-
-        state_t state;
+        using strategy_t = decltype(strategies.envelope(geometry, mbr));
+        
+        typename strategy_t::template state<Box> state;
         detail::visit_breadth_first([&](auto const& g)
         {
             if (! geometry::is_empty(g))
             {
                 Box b;
-                envelope<util::remove_cref_t<decltype(g)>>::apply(g, b, strategy);
-                state.apply(b);
+                envelope<util::remove_cref_t<decltype(g)>>::apply(g, b, strategies);
+                strategy_t::apply(state, b);
             }
             return true;
         }, geometry);
-        state.result(mbr);
+        strategy_t::result(state, mbr);
     }
 };
 

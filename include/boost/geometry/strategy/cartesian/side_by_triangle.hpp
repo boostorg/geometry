@@ -252,7 +252,6 @@ private:
     }
 };
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
 #ifndef DOXYGEN_NO_STRATEGY_SPECIALIZATIONS
 
 namespace services
@@ -266,7 +265,6 @@ struct default_strategy<cartesian_tag, CalculationType>
 
 }
 
-#endif
 #endif
 
 }} // namespace strategy::side

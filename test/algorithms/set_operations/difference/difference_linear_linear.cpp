@@ -513,11 +513,6 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
 
     {
         ut_settings settings{1e-10};
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) && ! defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Cases failing without rescaling when first linestring is reversed
-        settings.test_reverse_normal = false;
-        settings.test_reverse_reverse = false;
-#endif
 
         tester::apply
             (from_wkt<L>("LINESTRING(8 1, 4 .4,2 8)"),
@@ -1104,10 +1099,6 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 
     {
         ut_settings settings{1e-10};
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) && ! defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Case failing without rescaling for some orders
-        settings.test_normal_normal = false;
-#endif
 
         tester::apply
             (from_wkt<ML>("MULTILINESTRING((1 5, -4.3 -.1), (0 6, 8.6 6, 189.7654 5, 1 3, 6 3, 3 5, 6 2.232432, 0 4), (-6 5, 1 2.232432), (3 -1032.34324, 9 0, 189.7654 1, -1.4 3, 3 189.7654, +.3 10.0002, 1 5, 6 3, 5 1, 9 1, 10.0002 -1032.34324, -0.7654 0, 5 3, 3 4), (2.232432 2.232432, 8.6 +.4, 0.0 2.232432, 4 0, -8.8 10.0002), (1 0, 6 6, 7 2, -0 8.4), (-0.7654 3, +.6 8, 4 -1032.34324, 1 6, 0 4), (0 7, 2 1, 8 -7, 7 -.7, -1032.34324 9), (5 0, 10.0002 4, 8 7, 3 3, -8.1 5))"),
@@ -1120,11 +1111,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
 
     {
         ut_settings settings{1e-10};
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) && ! defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // Case failing without rescaling for some orders
-        settings.test_normal_normal = false;
-        settings.test_normal_reverse = false;
-#endif
+
         tester::apply
             (from_wkt<ML>("MULTILINESTRING((-.4 2, 2.232432 3, 6 9, 8 189.7654, -1032.34324 5.4, 2.232432 9), (-1032.34324 3, 8 -1.6), (0 -.2, 8 1, -.5 7, 6 +.2))"),
              from_wkt<ML>("MULTILINESTRING((-8 1, 4.8 6, 2 +.5), (10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .4, 2 8), (6 7, +.1 7, 0 -.5))"),

@@ -42,7 +42,6 @@
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
-#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -87,7 +86,7 @@ template
 >
 struct section
 {
-    typedef Box box_type;
+    using box_type = Box;
     static std::size_t const dimension_count = DimensionCount;
 
     int directions[DimensionCount];
@@ -134,7 +133,7 @@ struct section
 template <typename Box, std::size_t DimensionCount>
 struct sections : std::vector<section<Box, DimensionCount> >
 {
-    typedef Box box_type;
+    using box_type = Box;
     static std::size_t const value = DimensionCount;
 };
 
@@ -161,16 +160,14 @@ template
 >
 struct get_direction_loop
 {
-    typedef typename util::sequence_element<Index, DimensionVector>::type dimension;
+    using dimension = typename util::sequence_element<Index, DimensionVector>::type;
 
     template <typename Segment>
     static inline void apply(Segment const& seg,
                 int directions[Count])
     {
-        typedef typename coordinate_type<Segment>::type coordinate_type;
-
-        coordinate_type const c0 = geometry::get<0, dimension::value>(seg);
-        coordinate_type const c1 = geometry::get<1, dimension::value>(seg);
+        auto const& c0 = geometry::get<0, dimension::value>(seg);
+        auto const& c1 = geometry::get<1, dimension::value>(seg);
 
         directions[Index] = c1 > c0 ? 1 : c1 < c0 ? -1 : 0;
 
@@ -193,14 +190,14 @@ template
 >
 struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
 {
-    typedef typename util::sequence_element<0, DimensionVector>::type dimension;
+    using dimension = typename util::sequence_element<0, DimensionVector>::type;
 
     template <typename Segment>
     static inline void apply(Segment const& seg,
                 int directions[Count])
     {
-        typedef typename coordinate_type<Segment>::type coordinate_type;
-        typedef typename coordinate_system<Point>::type::units units_t;
+        using coordinate_type = typename coordinate_type<Segment>::type;
+        using units_t = typename coordinate_system<Point>::type::units;
 
         coordinate_type const diff = math::longitude_distance_signed
                                         <
@@ -381,11 +378,7 @@ struct box_next_in_section<cartesian_tag>
 };
 
 /// @brief Helper class to create sections of a part of a range, on the fly
-template
-<
-    typename Point,
-    typename DimensionVector
->
+template<typename DimensionVector>
 struct sectionalize_part
 {
     static const std::size_t dimension_count
@@ -407,18 +400,21 @@ struct sectionalize_part
     {
         boost::ignore_unused(robust_policy);
 
-        typedef typename boost::range_value<Sections>::type section_type;
+        using section_type = typename boost::range_value<Sections>::type;
+        using box_type = typename section_type::box_type;
+        using point_type = typename geometry::point_type<box_type>::type;
+
         BOOST_STATIC_ASSERT
             (
                 section_type::dimension_count
                  == util::sequence_size<DimensionVector>::value
             );
 
-        typedef typename geometry::robust_point_type
+        using robust_point_type = typename geometry::robust_point_type
             <
-                Point,
+                point_type,
                 RobustPolicy
-            >::type robust_point_type;
+            >::type;
 
         std::size_t const count = std::distance(begin, end);
         if (count == 0)
@@ -436,7 +432,7 @@ struct sectionalize_part
         Iterator it = begin;
         robust_point_type previous_robust_point;
         geometry::recalculate(previous_robust_point, *it, robust_policy);
-        
+
         for(Iterator previous = it++;
             it != end;
             ++previous, ++it, index++)
@@ -449,7 +445,7 @@ struct sectionalize_part
             int direction_classes[dimension_count] = {0};
             get_direction_loop
             <
-                Point, DimensionVector, 0, dimension_count
+                point_type, DimensionVector, 0, dimension_count
             >::apply(robust_segment, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
@@ -463,7 +459,7 @@ struct sectionalize_part
                 // (dimension_count might be < dimension<P>::value)
                 if (check_duplicate_loop
                     <
-                        0, geometry::dimension<Point>::type::value
+                        0, geometry::dimension<point_type>::type::value
                     >::apply(robust_segment)
                     )
                 {
@@ -562,7 +558,6 @@ template
 <
     closure_selector Closure,
     bool Reverse,
-    typename Point,
     typename DimensionVector
 >
 struct sectionalize_range
@@ -601,7 +596,7 @@ struct sectionalize_range
             return;
         }
 
-        sectionalize_part<Point, DimensionVector>::apply(sections,
+        sectionalize_part<DimensionVector>::apply(sections,
             boost::begin(view), boost::end(view),
             robust_policy, strategy,
             ring_id, max_count);
@@ -629,23 +624,21 @@ struct sectionalize_polygon
                 ring_identifier ring_id,
                 std::size_t max_count)
     {
-        typedef typename point_type<Polygon>::type point_type;
-        typedef sectionalize_range
+        using sectionalizer = sectionalize_range
             <
-                closure<Polygon>::value, Reverse, point_type, DimensionVector
-            > per_range;
+                closure<Polygon>::value, Reverse, DimensionVector
+            >;
 
         ring_id.ring_index = -1;
-        per_range::apply(exterior_ring(poly), robust_policy, sections,
+        sectionalizer::apply(exterior_ring(poly), robust_policy, sections,
                          strategy, ring_id, max_count);
 
         ring_id.ring_index++;
-        typename interior_return_type<Polygon const>::type
-            rings = interior_rings(poly);
-        for (typename detail::interior_iterator<Polygon const>::type
-                it = boost::begin(rings); it != boost::end(rings); ++it, ++ring_id.ring_index)
+        auto const& rings = interior_rings(poly);
+        for (auto it = boost::begin(rings); it != boost::end(rings);
+             ++it, ++ring_id.ring_index)
         {
-            per_range::apply(*it, robust_policy, sections,
+            sectionalizer::apply(*it, robust_policy, sections,
                              strategy, ring_id, max_count);
         }
     }
@@ -667,7 +660,7 @@ struct sectionalize_box
                 Strategy const& strategy,
                 ring_identifier const& ring_id, std::size_t max_count)
     {
-        typedef typename point_type<Box>::type point_type;
+        using point_type = typename point_type<Box>::type;
 
         assert_dimension<Box, 2>();
 
@@ -693,7 +686,7 @@ struct sectionalize_box
         //       because edges of a box are not geodesic segments
         sectionalize_range
             <
-                closed, false, point_type, DimensionVector
+                closed, false, DimensionVector
             >::apply(points, robust_policy, sections,
                      strategy, ring_id, max_count);
     }
@@ -729,79 +722,28 @@ struct sectionalize_multi
     }
 };
 
-// TODO: If it depends on CS it should probably be made into strategy.
-// For now implemented here because of ongoing work on robustness
-//   the fact that it interferes with detail::buffer::buffer_box
-//   and that we probably need a general strategy for defining epsilon in
-//   various coordinate systems, e.g. for point comparison, enlargement of
-//   bounding boxes, etc.
-template <typename CSTag>
-struct expand_by_epsilon
-    : not_implemented<CSTag>
-{};
-
-template <>
-struct expand_by_epsilon<cartesian_tag>
-{
-    template <typename Box>
-    static inline void apply(Box & box)
-    {
-        detail::expand_by_epsilon(box);
-    }
-};
-
-template <>
-struct expand_by_epsilon<spherical_tag>
-{
-    template <typename Box>
-    static inline void apply(Box & box)
-    {
-        typedef typename coordinate_type<Box>::type coord_t;
-        static const coord_t eps = std::is_same<coord_t, float>::value
-            ? coord_t(1e-6)
-            : coord_t(1e-12);
-        detail::expand_by_epsilon(box, eps);
-    }
-};
-
-// TODO: In geographic CS it should probably also depend on FormulaPolicy.
-template <>
-struct expand_by_epsilon<geographic_tag>
-    : expand_by_epsilon<spherical_tag>
-{};
-
 template <typename Sections, typename Strategy>
 inline void enlarge_sections(Sections& sections, Strategy const&)
 {
-    // Enlarge sections slightly, this should be consistent with math::equals()
-    // and with the tolerances used in general_form intersections.
-    // This avoids missing turns.
-    
-    // Points and Segments are equal-compared WRT machine epsilon, but Boxes aren't
-    // Enlarging Boxes ensures that they correspond to the bound objects,
-    // Segments in this case, since Sections are collections of Segments.
+    // Expand the box to avoid missing any intersection. The amount is
+    // should be larger than epsilon. About the value itself: the smaller
+    // it is, the higher the risk to miss intersections. The larger it is,
+    // the more comparisons are made, which is not harmful for the result
+    // (but it might be for the performance).
+    // So it should be on the high side.
 
-    // It makes section a tiny bit too large, which might cause (a small number)
-    // of more comparisons
+    // Use a compilable and workable epsilon for all types, for example:
+    // - for double :~ 2.22e-13
+    // - for float  :~ 1e-4
+    // - for Boost.Multiprecision (50) :~ 5.35e-48
+    // - for Boost.Rational : 0/1
+
     for (auto& section : sections)
     {
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        detail::sectionalize::expand_by_epsilon
-            <
-                typename Strategy::cs_tag
-            >::apply(section.bounding_box);
-
-#else
-        // Expand the box to avoid missing any intersection. The amount is
-        // should be larger than epsilon. About the value itself: the smaller
-        // it is, the higher the risk to miss intersections. The larger it is,
-        // the more comparisons are made. So it should be on the high side.
         using gt = decltype(section.bounding_box);
         using ct = typename geometry::coordinate_type<gt>::type;
-        ct const tolerance = ct(1) / ct(1000);
-        detail::buffer::buffer_box(section.bounding_box, tolerance,
-                                   section.bounding_box);
-#endif
+        static ct const eps = math::scaled_epsilon<ct>(1000);
+        expand_by_epsilon(section.bounding_box, eps);
     }
 }
 
@@ -850,12 +792,7 @@ struct sectionalize
         false,
         DimensionVector
     >
-    : detail::sectionalize::sectionalize_range
-        <
-            closed, false,
-            typename point_type<LineString>::type,
-            DimensionVector
-        >
+    : detail::sectionalize::sectionalize_range<closed, false, DimensionVector>
 {};
 
 template
@@ -868,7 +805,6 @@ struct sectionalize<ring_tag, Ring, Reverse, DimensionVector>
     : detail::sectionalize::sectionalize_range
         <
             geometry::closure<Ring>::value, Reverse,
-            typename point_type<Ring>::type,
             DimensionVector
         >
 {};
@@ -915,12 +851,7 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionVec
     : detail::sectionalize::sectionalize_multi
         <
             DimensionVector,
-            detail::sectionalize::sectionalize_range
-                <
-                    closed, false,
-                    typename point_type<MultiLinestring>::type,
-                    DimensionVector
-                >
+            detail::sectionalize::sectionalize_range<closed, false, DimensionVector>
         >
 
 {};
@@ -962,7 +893,7 @@ inline void sectionalize(Geometry const& geometry,
 {
     concepts::check<Geometry const>();
 
-    typedef typename boost::range_value<Sections>::type section_type;
+    using section_type = typename boost::range_value<Sections>::type;
 
     // Compiletime check for point type of section boxes
     // and point type related to robust policy
@@ -1015,11 +946,12 @@ inline void sectionalize(Geometry const& geometry,
                          int source_index = 0,
                          std::size_t max_count = 10)
 {
-    typedef typename strategies::envelope::services::default_strategy
+    using box_type = typename Sections::box_type;
+    using strategy_type = typename strategies::envelope::services::default_strategy
         <
             Geometry,
-            model::box<typename point_type<Geometry>::type>
-        >::type strategy_type;
+            box_type
+        >::type;
 
     boost::geometry::sectionalize
         <

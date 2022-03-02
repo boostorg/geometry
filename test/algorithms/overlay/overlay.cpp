@@ -18,10 +18,6 @@
 #include <sstream>
 #include <string>
 
-#if defined(TEST_WITH_SVG)
-#  include <boost/geometry/io/svg/svg_mapper.hpp>
-#endif
-
 #include <geometry_test_common.hpp>
 #include <algorithms/check_validity.hpp>
 
@@ -29,14 +25,11 @@
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-
-//#include <boost/geometry/extensions/algorithms/inverse.hpp>
+#include <boost/geometry/io/wkt/wkt.hpp>
 
 #if defined(TEST_WITH_SVG)
 #  include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
-
-#include <boost/geometry/io/wkt/read.hpp>
 
 #include "multi_overlay_cases.hpp"
 
@@ -71,9 +64,8 @@ struct map_visitor
     template <typename Turns>
     void visit_turns(int phase, Turns const& turns)
     {
-        typedef typename boost::range_value<Turns>::type turn_type;
         int index = 0;
-        for (turn_type const& turn : turns)
+        for (auto const& turn : turns)
         {
             switch (phase)
             {
@@ -128,9 +120,8 @@ struct map_visitor
     template <typename Clusters, typename Turns>
     void visit_clusters(Clusters const& clusters, Turns const& turns)
     {
-        typedef typename boost::range_value<Turns>::type turn_type;
         int index = 0;
-        for (turn_type const& turn : turns)
+        for (auto const& turn : turns)
         {
             if (turn.cluster_id >= 0)
             {
@@ -158,8 +149,6 @@ struct map_visitor
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
     {
-        typedef typename boost::range_value<Turns>::type turn_type;
-
         if (! m_do_output)
         {
             return;
@@ -381,7 +370,7 @@ void test_overlay(std::string const& caseid,
 
     std::ofstream svg(filename.str().c_str());
 
-    typedef bg::svg_mapper<typename bg::point_type<Geometry>::type> svg_mapper;
+    using svg_mapper = bg::svg_mapper<typename bg::point_type<Geometry>::type>;
 
     svg_mapper mapper(svg, 500, 500);
     mapper.add(g1);
@@ -395,8 +384,8 @@ void test_overlay(std::string const& caseid,
 #endif
 
 
-    typedef typename boost::range_value<Geometry>::type geometry_out;
-    typedef bg::detail::overlay::overlay
+    using geometry_out = typename boost::range_value<Geometry>::type ;
+    using overlay = bg::detail::overlay::overlay
         <
             Geometry, Geometry,
             bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
@@ -406,20 +395,20 @@ void test_overlay(std::string const& caseid,
             bg::detail::overlay::do_reverse<bg::point_order<Geometry>::value>::value,
             geometry_out,
             OverlayType
-        > overlay;
+        >;
 
-    typedef typename bg::strategies::relate::services::default_strategy
+    using strategy_type = typename bg::strategies::relate::services::default_strategy
         <
             Geometry, Geometry
-        >::type strategy_type;
+        >::type;
 
     strategy_type strategy;
 
-    typedef typename bg::rescale_overlay_policy_type
+    using rescale_policy_type = typename bg::rescale_overlay_policy_type
     <
         Geometry,
         Geometry
-    >::type rescale_policy_type;
+    >::type;
 
     rescale_policy_type robust_policy
         = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
@@ -474,9 +463,9 @@ void test_overlay(std::string const& caseid,
 template <typename T, bool Clockwise>
 void test_all()
 {
-    typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
-    typedef bg::model::polygon<point_type, Clockwise> polygon;
-    typedef bg::model::multi_polygon<polygon> multi_polygon;
+    using point_type = bg::model::point<T, 2, bg::cs::cartesian>;
+    using polygon = bg::model::polygon<point_type, Clockwise>;
+    using multi_polygon = bg::model::multi_polygon<polygon>;
 
     TEST_UNION(case_multi_simplex, 14.58, 1, 0);
     TEST_INTERSECTION(case_multi_simplex, 6.42, 2, 0);
@@ -510,16 +499,22 @@ void test_all()
     TEST_UNION(case_recursive_boxes_12, 6.0, 6, 0);
     TEST_UNION(case_recursive_boxes_13, 10.25, 3, 0);
 
+    TEST_INTERSECTION(issue_930, 8.3333333, 1, 0);
+}
 
-//    std::cout
-//        << "    \""
-//        << bg::inverse<multi_polygon>(case_65_multi[0], 1.0)
-//        << "\"" << std::endl;
+template <typename T, bool Clockwise>
+void test_integer()
+{
+    using point_type = bg::model::point<T, 2, bg::cs::cartesian>;
+    using polygon = bg::model::polygon<point_type, Clockwise>;
+    using multi_polygon = bg::model::multi_polygon<polygon>;
+
+    TEST_INTERSECTION(issue_930, 10, 1, 0);
 }
 
 int test_main(int, char* [])
 {
+    test_integer<int, true>();
     test_all<double, true>();
-//    test_all<double, false>();
     return 0;
  }

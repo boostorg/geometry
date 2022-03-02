@@ -232,14 +232,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # TODO: Waiting for msvc-14.0, msvc-14.1
-        # https://github.com/actions/virtual-environments/issues/68#issuecomment-596817066
         b2_toolset: [
-          msvc-14.2
+          msvc-14.3
         ]
 
         include:
-          - b2_toolset: msvc-14.2
+          - b2_toolset: msvc-14.3
             b2_cxxstd: 14,17,2a
 
     steps:

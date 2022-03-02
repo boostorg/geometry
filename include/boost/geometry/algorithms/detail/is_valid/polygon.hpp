@@ -2,8 +2,9 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -50,7 +51,6 @@
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/within.hpp>
 
-#include <boost/geometry/algorithms/detail/check_iterator_range.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/complement_graph.hpp>
@@ -86,17 +86,17 @@ class is_valid_polygon
 protected:
 
     template <typename VisitPolicy, typename Strategy>
-    struct per_ring
+    struct is_invalid_ring
     {
-        per_ring(VisitPolicy& policy, Strategy const& strategy)
+        is_invalid_ring(VisitPolicy& policy, Strategy const& strategy)
             : m_policy(policy)
             , m_strategy(strategy)
         {}
 
         template <typename Ring>
-        inline bool apply(Ring const& ring) const
+        inline bool operator()(Ring const& ring) const
         {
-            return detail::is_valid::is_valid_ring
+            return ! detail::is_valid::is_valid_ring
                 <
                     Ring, false, true
                 >::apply(ring, m_policy, m_strategy);
@@ -111,14 +111,9 @@ protected:
                                          VisitPolicy& visitor,
                                          Strategy const& strategy)
     {
-        return
-            detail::check_iterator_range
-                <
-                    per_ring<VisitPolicy, Strategy>,
-                    true // allow for empty interior ring range
-                >::apply(boost::begin(interior_rings),
-                         boost::end(interior_rings),
-                         per_ring<VisitPolicy, Strategy>(visitor, strategy));
+        return std::none_of(boost::begin(interior_rings), 
+                            boost::end(interior_rings),
+                            is_invalid_ring<VisitPolicy, Strategy>(visitor, strategy));
     }
 
     struct has_valid_rings

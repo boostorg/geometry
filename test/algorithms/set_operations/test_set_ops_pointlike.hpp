@@ -30,6 +30,10 @@
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/policies/compare.hpp>
 
+#if defined(TEST_WITH_SVG)
+#include <boost/geometry/io/svg/svg_mapper.hpp>
+#endif
+
 namespace bg = ::boost::geometry;
 
 
@@ -48,15 +52,13 @@ void set_operation_output(std::string const& set_op_id,
     boost::ignore_unused(set_op_id, caseid, g1, g2, output);
 
 #if defined(TEST_WITH_SVG)
-    typedef typename bg::coordinate_type<G1>::type coordinate_type;
-    typedef typename bg::point_type<G1>::type point_type;
 
     std::ostringstream filename;
     filename << "svgs/" << set_op_id << "_" << caseid << ".svg";
 
     std::ofstream svg(filename.str().c_str());
 
-    bg::svg_mapper<point_type> mapper(svg, 500, 500);
+    bg::svg_mapper<typename bg::point_type<G1>::type> mapper(svg, 500, 500);
 
     mapper.add(g1);
     mapper.add(g2);

@@ -4,8 +4,8 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2022.
+// Modifications copyright (c) 2020-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -30,10 +30,11 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template <typename Box>
 struct default_margin_result
 {
-    typedef typename select_most_precise<
-        typename coordinate_type<Box>::type,
-        long double
-    >::type type;
+    using type = typename select_most_precise
+        <
+            typename coordinate_type<Box>::type,
+            double
+        >::type;
 };
 
 //template <typename Box,

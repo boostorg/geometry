@@ -298,11 +298,10 @@ public:
     bool is_outside(TurnInfo const& turn) const
     {
         return m_other_entry_points.empty()
-            || std::find_if(m_other_entry_points.begin(),
+            || std::none_of(m_other_entry_points.begin(),
                             m_other_entry_points.end(),
                             same_single(
-                                turn.operations[other_op_id].seg_id))
-                    == m_other_entry_points.end();
+                                turn.operations[other_op_id].seg_id));
     }
 
     overlay::operation_type get_exit_operation() const

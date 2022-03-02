@@ -440,10 +440,10 @@ void test_specific_areal()
         settings.set_test_validity(false);
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_11674,
-                             count_set(3, 4),
-                             expectation_limits(9105473, 9105782),
-                             5,
-                             expectation_limits(119059, 119424), ignore_count());
+                             count_set(2, 3, 4),
+                             expectation_limits(9105196, 9105705),
+                             6,
+                             expectation_limits(119059, 119757), ignore_count());
     }
 
     {
@@ -458,8 +458,8 @@ void test_specific_areal()
                              expectation_limits(597.0, 598.0), 2);
 
         TEST_DIFFERENCE_WITH(2, 3, ticket_12751,
-                             2, expectation_limits(2537992, 2538306),
-                             2, expectation_limits(294736, 294964),
+                             2, expectation_limits(2537404, 2538306),
+                             2, expectation_limits(294736, 295353),
                              3);
     }
 
@@ -469,9 +469,10 @@ void test_specific_areal()
         ut_settings settings;
         settings.remove_spikes = true;
         settings.sym_difference = false;
+        settings.set_test_validity(false);
         TEST_DIFFERENCE_WITH(0, 1, ticket_12752,
-                             count_set(2, 3), expectation_limits(2776656, 2776693),
-                             3, expectation_limits(7710, 7894),
+                             count_set(2, 3), expectation_limits(2775740, 2776693),
+                             3, expectation_limits(7710, 7903),
                              2);
     }
 
@@ -479,13 +480,13 @@ void test_specific_areal()
         const std::string a_min_b =
             test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661",
                           ticket_10661[0], ticket_10661[1],
-                          2, -1, expectation_limits(1441632, 1441855),
+                          2, -1, expectation_limits(1441855, 1442081),
                           2, -1, expectation_limits(13167454, 13182415),
                           count_set(3, 4));
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
-            1, 8, 825192.0,
+            1, 8, 825640.5,
             1, 10, expectation_limits(27226148, 27842812),
             count_set(1, 2));
     }
@@ -495,9 +496,9 @@ void test_specific_areal()
         settings.sym_difference = false;
 
         TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4,
-                             expectation_limits(7427727, 7428108), 4,
-                             expectation_limits(130083, 131823), 4);
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2,
+                             expectation_limits(7427727, 7428549), 5,
+                             expectation_limits(184653, 184687), 5);
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 1,
                              expectation_limits(412676, 413469), 2,
                              expectation_limits(76779, 77038), 4);
     }
