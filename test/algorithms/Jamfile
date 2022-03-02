@@ -39,6 +39,9 @@ test-suite boost-geometry-algorithms
     [ run is_valid.cpp                 : : : : algorithms_is_valid ]
     [ run is_valid_failure.cpp         : : : : algorithms_is_valid_failure ]
     [ run is_valid_geo.cpp             : : : : algorithms_is_valid_geo ]
+    [ run is_valid.cpp                 : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_is_valid_alternative ]
+    [ run is_valid_failure.cpp         : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_is_valid_failure_alternative ]
+    [ run is_valid_geo.cpp             : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_is_valid_geo_alternative ]
     [ run line_interpolate.cpp         : : : : algorithms_line_interpolate ]
     [ run make.cpp                     : : : : algorithms_make ]
     [ run maximum_gap.cpp              : : : : algorithms_maximum_gap ]
@@ -67,6 +70,7 @@ build-project area ;
 build-project buffer ;
 build-project covered_by ;
 build-project convex_hull ;
+build-project closest_points ;
 build-project crosses ;
 build-project detail ;
 build-project disjoint ;

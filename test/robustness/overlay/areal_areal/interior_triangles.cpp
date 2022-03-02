@@ -8,7 +8,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
-#define BOOST_GEOMETRY_NO_ROBUSTNESS
 #define BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
 
 // NOTE: there is no randomness here. Count is to measure performance

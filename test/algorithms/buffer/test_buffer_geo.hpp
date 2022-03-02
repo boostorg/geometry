@@ -3,8 +3,8 @@
 
 // Copyright (c) 2018-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2022.
+// Modifications copyright (c) 2020-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -51,7 +51,7 @@ void test_one_geo(std::string const& caseid,
     // TODO: If area is for calculation of the orientation of points in a ring
     //   and accuracy is an issue, then instead calculate_point_order should
     //   probably be used instead of area.
-    bg::strategies::relate::geographic
+    bg::strategies::buffer::geographic
         <
             bg::strategy::thomas, bg::srs::spheroid<long double>, long double
         > strategy;

@@ -67,6 +67,31 @@ private:
 #endif // DOXYGEN_NO_DETAIL
 
 
+#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+namespace traits
+{
+
+template <typename Range, closure_selector Closure, order_selector Order>
+struct tag<detail::closed_clockwise_view<Range, Closure, Order> >
+    : geometry::tag<Range>
+{};
+
+template <typename Range, closure_selector Closure, order_selector Order>
+struct point_order<detail::closed_clockwise_view<Range, Closure, Order> >
+{
+    static const order_selector value = clockwise;
+};
+
+template <typename Range, closure_selector Closure, order_selector Order>
+struct closure<detail::closed_clockwise_view<Range, Closure, Order> >
+{
+    static const closure_selector value = closed;
+};
+
+} // namespace traits
+#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+
+
 }} // namespace boost::geometry
 
 

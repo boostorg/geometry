@@ -3,8 +3,8 @@
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2016-2021.
-// Modifications copyright (c) 2016-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2022.
+// Modifications copyright (c) 2016-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -561,8 +561,8 @@ struct buffered_piece_collection
             turn_in_piece_visitor
                 <
                     typename geometry::cs_tag<point_type>::type,
-                    turn_vector_type, piece_vector_type, DistanceStrategy
-                > visitor(m_turns, m_pieces, m_distance_strategy);
+                    turn_vector_type, piece_vector_type, DistanceStrategy, Strategy
+                > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
 
             geometry::partition
                 <
@@ -798,11 +798,10 @@ struct buffered_piece_collection
 
     inline void sectionalize(piece const& pc, buffered_ring<Ring> const& ring)
     {
-        typedef geometry::detail::sectionalize::sectionalize_part
+        using sectionalizer = geometry::detail::sectionalize::sectionalize_part
         <
-            point_type,
             std::integer_sequence<std::size_t, 0, 1> // x,y dimension
-        > sectionalizer;
+        >;
 
         // Create a ring-identifier. The source-index is the piece index
         // The multi_index is as in this collection (the ring), but not used here

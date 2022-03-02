@@ -3,8 +3,8 @@
 
 // Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2022.
+// Modifications copyright (c) 2020-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -103,7 +103,7 @@ Border setup_piece_border(Ring& ring, Ring& original,
 
     typedef typename bg::point_type<Ring>::type point_type;
 
-    bg::strategies::relate::cartesian<> strategy;
+    bg::strategies::buffer::cartesian<> strategy;
 
     border.get_properties_of_border(false, point_type(), strategy);
 
@@ -155,10 +155,11 @@ template <typename Point, typename Border, typename Mapper>
 void test_point(std::string const& wkt, bool expected, Border const& border,
                 Mapper& mapper, std::string const& color)
 {
+    bg::strategies::buffer::cartesian<> strategy;
     typename Border::state_type state;
     Point point;
     bg::read_wkt(wkt, point);
-    border.point_on_piece(point, false, false, state);
+    border.point_on_piece(point, strategy, false, false, state);
     bool const on_piece = state.code() == 1;
     BOOST_CHECK_MESSAGE(on_piece == expected,
                         " expected: " << expected

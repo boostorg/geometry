@@ -20,6 +20,14 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.79]
+[/=================]
+
+[*Major change]
+
+* [@https://github.com/boostorg/geometry/pull/977 977] Rescaling is turned off by default. This avoids many related bugs in set operations and buffer
+
+[/=================]
 [heading Boost 1.78]
 [/=================]
 
