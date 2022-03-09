@@ -40,12 +40,13 @@ struct assign_policy
     static bool const include_degenerate = IncludeDegenerate;
 };
 
-// GET_TURNS
+// turn retriever, calling get_turns
 
 template
 <
     typename Geometry1,
     typename Geometry2,
+    typename Point,
     typename GetTurnPolicy = detail::get_turns::get_turn_info_type
         <
             Geometry1, Geometry2, assign_policy<>
@@ -53,8 +54,6 @@ template
 >
 struct get_turns
 {
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-
     template <typename Strategy>
     struct robust_policy_type
         : geometry::rescale_overlay_policy_type
@@ -72,16 +71,16 @@ struct get_turns
     >
     struct turn_info_type
     {
-        typedef typename segment_ratio_type<point1_type, RobustPolicy>::type ratio_type;
-        typedef overlay::turn_info
+        using ratio_type = typename segment_ratio_type<Point, RobustPolicy>::type;
+        using type = overlay::turn_info
             <
-                point1_type,
+                Point,
                 ratio_type,
                 typename detail::get_turns::turn_operation_type
                     <
-                        Geometry1, Geometry2, ratio_type
+                        Geometry1, Geometry2, Point, ratio_type
                     >::type
-            > type;
+            >;
     };
 
     template <typename Turns, typename InterruptPolicy, typename Strategy>

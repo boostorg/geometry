@@ -87,6 +87,7 @@ struct check_turn_less
             <
                 Geometry1,
                 Geometry2,
+                typename bg::point_type<Geometry1>::type,
                 bg::detail::get_turns::get_turn_info_type
                     <
                         Geometry1, Geometry2, assign_policy<>

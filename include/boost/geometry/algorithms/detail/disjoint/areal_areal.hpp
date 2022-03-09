@@ -30,6 +30,8 @@
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/segment_box.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
 #include <boost/geometry/algorithms/for_each.hpp>
 
 
@@ -46,7 +48,8 @@ inline bool point_on_border_covered_by(Geometry1 const& geometry1,
                                        Geometry2 const& geometry2,
                                        Strategy const& strategy)
 {
-    typename geometry::point_type<Geometry1>::type pt;
+    using point_type = typename geometry::point_type<Geometry1>::type;
+    typename helper_geometry<point_type>::type pt;
     return geometry::point_on_border(pt, geometry1)
         && geometry::covered_by(pt, geometry2, strategy);
 }

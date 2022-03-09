@@ -84,6 +84,7 @@ private:
             <
                 LinearGeometry1,
                 LinearGeometry2,
+                typename bg::point_type<LinearGeometry1>::type,
                 bg_detail::get_turns::get_turn_info_type
                     <
                         LinearGeometry1,
@@ -109,7 +110,7 @@ public:
 
         typedef typename bg_detail::relate::turns::get_turns
             <
-                Linear1, Linear2
+                Linear1, Linear2, typename bg::point_type<Linear1>::type
             >::template turn_info_type<strategy_type>::type turn_info;
 
         typedef std::vector<turn_info> turns_container;
