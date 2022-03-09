@@ -184,6 +184,7 @@ void check_geometry_range(Geometry1 const& g1,
             <
                 Geometry1,
                 Geometry2,
+                point_type,
                 segment_ratio_type
             >::type
         > turn_info;

@@ -368,8 +368,8 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
 template <boundary_query BoundaryQuery,
           typename Point,
           typename BoundaryChecker>
-static inline bool is_endpoint_on_boundary(Point const& pt,
-                                           BoundaryChecker & boundary_checker)
+inline bool is_endpoint_on_boundary(Point const& pt,
+                                    BoundaryChecker & boundary_checker)
 {
     return boundary_checker.template is_endpoint_boundary<BoundaryQuery>(pt);
 }
@@ -378,10 +378,10 @@ template <boundary_query BoundaryQuery,
           typename IntersectionPoint,
           typename OperationInfo,
           typename BoundaryChecker>
-static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
-                                     OperationInfo const& operation_info,
-                                     BoundaryChecker & boundary_checker,
-                                     segment_identifier const& seg_id)
+inline bool is_ip_on_boundary(IntersectionPoint const& ip,
+                              OperationInfo const& operation_info,
+                              BoundaryChecker & boundary_checker,
+                              segment_identifier const& seg_id)
 {
     boost::ignore_unused(seg_id);
 

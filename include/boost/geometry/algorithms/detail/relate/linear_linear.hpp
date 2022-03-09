@@ -33,6 +33,8 @@
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -68,7 +70,7 @@ public:
         }
 
         std::size_t const count = boost::size(linestring);
-        
+
         // invalid input
         if ( count < 2 )
         {
@@ -117,9 +119,6 @@ struct linear_linear
 {
     static const bool interruption_enabled = true;
 
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-    typedef typename geometry::point_type<Geometry2>::type point2_type;
-
     template <typename Result, typename Strategy>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                              Result & result,
@@ -133,9 +132,11 @@ struct linear_linear
             return;
 
         // get and analyse turns
+        using point_type = typename geometry::point_type<Geometry1>::type;
+        using mutable_point_type = typename helper_geometry<point_type>::type;
         typedef typename turns::get_turns
             <
-                Geometry1, Geometry2
+                Geometry1, Geometry2, mutable_point_type
             >::template turn_info_type<Strategy>::type turn_type;
         std::vector<turn_type> turns;
 
@@ -145,6 +146,7 @@ struct linear_linear
             <
                 Geometry1,
                 Geometry2,
+                mutable_point_type,
                 detail::get_turns::get_turn_info_type<Geometry1, Geometry2, turns::assign_policy<true> >
             >::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
 
@@ -164,7 +166,7 @@ struct linear_linear
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
-        
+
         if ( turns.empty() )
             return;
 
@@ -190,7 +192,7 @@ struct linear_linear
 
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
-        
+
         if ( may_update<interior, interior, '1', true>(result)
           || may_update<interior, boundary, '0', true>(result)
           || may_update<interior, exterior, '1', true>(result)
@@ -225,7 +227,7 @@ struct linear_linear
         inline bool apply(Range const& turns)
         {
             typedef typename boost::range_iterator<Range const>::type iterator;
-            
+
             for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
                 if ( it->operations[0].operation == overlay::operation_intersection
@@ -296,8 +298,8 @@ struct linear_linear
                 // degenerated turn
                 if ( op == overlay::operation_continue
                   && it->method == overlay::method_none
-                  && m_exit_watcher.is_outside(*it) 
-                  /*&& ( m_exit_watcher.get_exit_operation() == overlay::operation_none 
+                  && m_exit_watcher.is_outside(*it)
+                  /*&& ( m_exit_watcher.get_exit_operation() == overlay::operation_none
                     || ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it) )*/ )
                 {
                     // TODO: rewrite the above condition
@@ -336,7 +338,7 @@ struct linear_linear
                                                   boundary_checker.strategy()) )
                 {
                     m_exit_watcher.reset_detected_exit();
-                    
+
                     // not the last IP
                     update<interior, exterior, '1', transpose_result>(res);
                 }
@@ -524,7 +526,7 @@ struct linear_linear
                                                                              it->operations[other_op_id],
                                                                              other_boundary_checker,
                                                                              other_id);
-                        
+
                         // if current IP is on boundary of the geometry
                         if ( this_b )
                         {
@@ -570,7 +572,7 @@ struct linear_linear
                                 update<boundary, exterior, '0', transpose_result>(res);
                             }
                         }
-                            
+
                     }
                 }
             }
@@ -613,7 +615,7 @@ struct linear_linear
                     turn_ptr = m_degenerated_turn_ptr;
                 else if ( m_previous_turn_ptr )
                     turn_ptr = m_previous_turn_ptr;
-                
+
                 if ( turn_ptr )
                 {
                     segment_identifier const& prev_seg_id = turn_ptr->operations[op_id].seg_id;
