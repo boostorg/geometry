@@ -128,19 +128,17 @@ namespace projections
 
                     xy_y *= this->m_proj_parm.czech;
                     xy_x *= this->m_proj_parm.czech;
+                    if (this->m_proj_parm.czech == 1) std::swap(xy_x, xy_y);
                 }
 
                 // INVERSE(e_inverse)  ellipsoid
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(Parameters const& par, T xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    T u, deltav, s, d, eps, rho, fi1, xy0;
+                    T u, deltav, s, d, eps, rho, fi1;
                     int i;
 
-                    // TODO: replace with std::swap()
-                    xy0 = xy_x;
-                    xy_x = xy_y;
-                    xy_y = xy0;
+                    if (this->m_proj_parm.czech == -1) std::swap(xy_x, xy_y);
 
                     xy_x *= this->m_proj_parm.czech;
                     xy_y *= this->m_proj_parm.czech;
