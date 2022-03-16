@@ -2611,6 +2611,7 @@ namespace detail
             //{5819},
             //{5820},
             //{5821},
+            {6247, srs::dpar::parameters<>(proj_col_urban)(lon_0,-74.1465916666667)(lat_0,4.68048611111111)(x_0,92334.879)(y_0,109320.965)(h_0,2550)(ellps_grs80)(srs::dpar::datum_wgs84)(units_m)(no_defs)},
             //{7400},
             //{7401},
             //{7402},

@@ -2,8 +2,9 @@
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017, 2018, 2019.
-// Modifications copyright (c) 2017-2019, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017, 2018, 2019, 2022.
+// Modifications copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -259,7 +260,7 @@ namespace projections
 
         // Factory entry(s)
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(krovak_entry, krovak_ellipsoid)
-        
+
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(krovak_init)
         {
             BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(krovak, krovak_entry)

@@ -508,6 +508,8 @@ inline parameters<T> pj_init(Params const& params)
         BOOST_THROW_EXCEPTION( projection_exception(error_k_less_than_zero) );
     }
 
+    //pin.h0 = pj_get_param_f<T, srs::spar::h_0>(params, "h_0", srs::dpar::h_0);
+
     /* set units */
     pj_init_units<T, false>(params, pin.to_meter, pin.fr_meter, 1., 1.);
     pj_init_units<T, true>(params, pin.vto_meter, pin.vfr_meter, pin.to_meter, pin.fr_meter);

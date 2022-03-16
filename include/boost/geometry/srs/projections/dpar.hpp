@@ -1,6 +1,7 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2020, Oracle and/or its affiliates.
+// Copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -208,6 +209,7 @@ enum value_proj
     proj_cc,
     proj_cea,
     proj_chamb,
+    proj_col_urban,
     proj_collg,
     proj_crast,
     proj_denoy,
@@ -335,7 +337,7 @@ enum name_f
     es,
     f,
     h,
-    //h_0, // currently not used
+    h_0,
     k = 7,
     k_0,
     m, // also used for M
@@ -662,7 +664,7 @@ struct parameter
     parameter(value_units v)
         : m_id(units), m_value(int(v))
     {}
-    
+
 private:
     typedef boost::variant
         <
@@ -701,7 +703,7 @@ public:
     {
         return m_value.which() == srs::detail::find_type_index<variant_type, V>::value;
     }
-    
+
 private:
     int m_id;
     variant_type m_value;

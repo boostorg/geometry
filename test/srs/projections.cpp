@@ -117,6 +117,7 @@ void test_all()
     test_forward<P>("cc", 4.897000, 52.371000, 545131.546415, 8273513.720038, "+proj=cc +ellps=WGS84 +units=m");
     test_forward<P>("cea", 4.897000, 52.371000, -738753.247401, 5031644.669407, "+proj=cea +ellps=WGS84 +units=m +lon_0=11d32'00E");
     test_forward<P>("chamb", 4.897000, 52.371000, -3221300.532044, 872840.127676, "+proj=chamb +ellps=WGS84 +units=m +lat_1=52 +lon_1=5 +lat_2=30 +lon_2=80 +lat_3=20 +lon_3=-50");
+    test_forward<P>("col_urban", -74.25000002299999835, 4.7999999945000002555, 80859.03040773406974, 122543.17368443853047, "+proj=col_urban +lat_0=4.68048611111111 +lon_0=-74.1465916666667 +x_0=92334.879 +y_0=109320.965 +h_0=2550 +ellps=GRS80");
     test_forward<P>("collg", 4.897000, 52.371000, 280548.640940, 6148862.475491, "+proj=collg +ellps=WGS84 +units=m");
     test_forward<P>("crast", 4.897000, 52.371000, 340944.220871, 5874029.522010, "+proj=crast +ellps=WGS84 +units=m");
     test_forward<P>("denoy", 4.897000, 52.371000, 382253.324398, 5829913.052335, "+proj=denoy +ellps=WGS84 +units=m");
@@ -247,6 +248,7 @@ void test_all()
     test_inverse<P>("cass", 333274.431072, 5815921.803069, 4.897007, 52.371001, "+proj=cass +ellps=WGS84 +units=m"); // F/I: 0.460628
     test_inverse<P>("cc", 545131.546415, 8273513.720038, 4.897000, 52.371000, "+proj=cc +ellps=WGS84 +units=m");
     test_inverse<P>("cea", -738753.247401, 5031644.669407, 4.897000, 52.371000, "+proj=cea +ellps=WGS84 +units=m +lon_0=11d32'00E");
+    test_inverse<P>("col_urban", 80859.03040773406974, 122543.17368443853047, -74.25000002299999835, 4.7999999945000002555, "+proj=col_urban +lat_0=4.68048611111111 +lon_0=-74.1465916666667 +x_0=92334.879 +y_0=109320.965 +h_0=2550 +ellps=GRS80");
     test_inverse<P>("collg", 280548.640940, 6148862.475491, 4.897000, 52.371000, "+proj=collg +ellps=WGS84 +units=m");
     test_inverse<P>("crast", 340944.220871, 5874029.522010, 4.897000, 52.371000, "+proj=crast +ellps=WGS84 +units=m");
     test_inverse<P>("eck1", 356112.818167, 5371202.270688, 4.897000, 52.371000, "+proj=eck1 +ellps=WGS84 +units=m");
