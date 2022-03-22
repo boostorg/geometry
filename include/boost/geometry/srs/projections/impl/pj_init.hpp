@@ -354,7 +354,7 @@ inline void pj_init_pm(srs::detail::proj4_parameters const& params, T& val)
         }
         BOOST_CATCH_END
     }
-    
+
     val = 0.0;
 }
 
@@ -449,7 +449,7 @@ inline parameters<T> pj_init(Params const& params)
     // NOTE: proj4 gets defaults from "proj_def.dat".
     // In Boost.Geometry this is emulated by manually setting them in
     // pj_ell_init and projections aea, lcc and lagrng
-    
+
     /* set datum parameters */
     pj_datum_init(params, pin);
 
@@ -507,8 +507,6 @@ inline parameters<T> pj_init(Params const& params)
     if (pin.k0 <= 0.) {
         BOOST_THROW_EXCEPTION( projection_exception(error_k_less_than_zero) );
     }
-
-    //pin.h0 = pj_get_param_f<T, srs::spar::h_0>(params, "h_0", srs::dpar::h_0);
 
     /* set units */
     pj_init_units<T, false>(params, pin.to_meter, pin.fr_meter, 1., 1.);

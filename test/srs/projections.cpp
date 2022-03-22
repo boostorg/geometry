@@ -357,6 +357,34 @@ void test_all()
     //test_inverse<P>("stere", 828919.243654, 12511653.499743, 2.183333, 41.383333, "+proj=stere +ellps=WGS84 +units=m +lat_ts=30n"); // F/I: 1238647.010132 // DIFFERENCE proj4/ggl: 4588423, (0.000000, 0.000000)
 }
 
+template <typename P>
+void test_both(std::string const& name,
+               double lon, double lat,
+               typename bg::coordinate_type<P>::type x,
+               typename bg::coordinate_type<P>::type y,
+               std::string const& parameters)
+{
+    test_forward<P>(name, lon, lat, x, y, parameters);
+    test_inverse<P>(name, x, y, lon, lat, parameters);
+}
+
+
+template <typename P>
+void test_srs()
+{
+    // Examples from IOGP Publication 373-7-2 - Geomatics Guidance Note number 7, part 2 December 2021
+
+    // EPSG:9810 Polar Stereographic (variant A), SRS EPSG:5041
+    test_both<P>("stere", 44.000000007, 73.000000003, 3320416.7473, 632668.43168,
+        "+proj=stere +lat_0=90 +lon_0=0 +k_0=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs");
+    // EPSG:9829 Polar Stereographic (variant B), SRS EPSG:2985
+    test_both<P>("stere", 120, -75, 7255380.7933, 7053389.5606,
+        "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=70 +k=1 +x_0=6000000 +y_0=6000000 +datum=WGS84 +units=m +no_defs");
+    // EPSG:9830 Polar Stereographic (variant C), SRS EPSG:2985
+    test_both<P>("stere", 140.07140000999999074, -66.605227791000004345, 303169.52, 244055.72,
+        "+proj=stere +lat_0=-90 +lat_ts=-67 +lon_0=140 +x_0=300000 +y_0=200000 +a=6378388.297 +rf=297  +units=m +no_defs +variant_c");
+}
+
 int test_main(int, char* [])
 {
     //test_all<int[2]>();
@@ -369,6 +397,8 @@ int test_main(int, char* [])
 
     // Leave only one here, because this divides compilation time with 6 or 7
     test_all<bg::model::d2::point_xy<long double> >();
+
+    test_srs<bg::model::d2::point_xy<long double> >();
 
     return 0;
 }

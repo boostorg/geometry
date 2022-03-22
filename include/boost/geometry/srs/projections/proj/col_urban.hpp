@@ -150,7 +150,7 @@ namespace projections
 
         // Factory entry(s)
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_ENTRY_FI(col_urban_entry, col_urban_spheroid)
-        
+
         BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_BEGIN(col_urban_init)
         {
             BOOST_GEOMETRY_PROJECTIONS_DETAIL_FACTORY_INIT_ENTRY(col_urban, col_urban_entry);
