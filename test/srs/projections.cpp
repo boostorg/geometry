@@ -5,8 +5,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2018.
-// Modifications copyright (c) 2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018, 2022.
+// Modifications copyright (c) 2018, 2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -40,11 +41,12 @@
 
 namespace srs = bg::srs;
 
-inline void check(double v, double ve, std::string const& name, std::string const& axis)
+inline void check(double v, double ve, std::string const& name,
+                  std::string const& axis, double tol)
 {
     //BOOST_CHECK_CLOSE(v, ve, 0.001);
 
-    bool ok = ::boost::test_tools::check_is_close_t()(v, ve, ::boost::math::fpc::percent_tolerance(0.001));
+    bool ok = ::boost::test_tools::check_is_close_t()(v, ve, ::boost::math::fpc::percent_tolerance(tol));
     BOOST_CHECK_MESSAGE((ok), name << " " << axis << " -> " << v << " != " << ve);
 }
 
@@ -53,7 +55,8 @@ void test_forward(std::string const& name,
               double lon, double lat,
               typename bg::coordinate_type<P>::type x,
               typename bg::coordinate_type<P>::type y,
-              std::string const& parameters)
+              std::string const& parameters,
+              double tol = 0.001)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > lonlat_type;
@@ -69,8 +72,8 @@ void test_forward(std::string const& name,
 
     //std::cout << std::setprecision(16) << bg::get<0>(xy) << " " << bg::get<1>(xy) << std::endl;
 
-    check(bg::get<0>(xy), x, name, "x");
-    check(bg::get<1>(xy), y, name, "y");
+    check(bg::get<0>(xy), x, name, "x", tol);
+    check(bg::get<1>(xy), y, name, "y", tol);
 }
 
 template <typename P>
@@ -78,7 +81,8 @@ void test_inverse(std::string const& name,
               typename bg::coordinate_type<P>::type x,
               typename bg::coordinate_type<P>::type y,
               double lon, double lat,
-              std::string const& parameters)
+              std::string const& parameters,
+              double tol = 0.001)
 {
     typedef typename bg::coordinate_type<P>::type coord_type;
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<bg::degree> > lonlat_type;
@@ -94,8 +98,8 @@ void test_inverse(std::string const& name,
 
     //std::cout << std::setprecision(16) << bg::get<0>(ll) << " " << bg::get<1>(ll) << std::endl;
 
-    check(bg::get<0>(ll), lon, name, "lon");
-    check(bg::get<1>(ll), lat, name, "lat");
+    check(bg::get<0>(ll), lon, name, "lon", tol);
+    check(bg::get<1>(ll), lat, name, "lat", tol);
 }
 
 
@@ -362,10 +366,11 @@ void test_both(std::string const& name,
                double lon, double lat,
                typename bg::coordinate_type<P>::type x,
                typename bg::coordinate_type<P>::type y,
-               std::string const& parameters)
+               std::string const& parameters,
+               double tol = 0.001)
 {
-    test_forward<P>(name, lon, lat, x, y, parameters);
-    test_inverse<P>(name, x, y, lon, lat, parameters);
+    test_forward<P>(name, lon, lat, x, y, parameters, tol);
+    test_inverse<P>(name, x, y, lon, lat, parameters, tol);
 }
 
 
@@ -374,15 +379,37 @@ void test_srs()
 {
     // Examples from IOGP Publication 373-7-2 - Geomatics Guidance Note number 7, part 2 December 2021
 
+    // EPSG:9812 Hotine Oblique Mercator (variant A), SRS EPSG: 3079
+    test_both<P>("omerc", 117, 12, -4893794.70,12634529.87,
+         "+proj=omerc +lat_0=45.30916666666666 +lonc=-86 +alpha=337.25556 +k_0=0.9996 \
+         +x_0=2546731.496 +y_0=-4354009.816 +no_off +gamma=337.25556 +ellps=GRS80 \
+         +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
+    // EPSG:9813 Laborde Oblique Mercator, SRS EPSG: 29701
+    test_both<P>("omerc", 44.45757, -16.189799986, -4893794.70,12634529.87,
+         "+proj=labrd  +lat_0=-18.9 +lon_0=44.1 +azi=18.9 +k=0.9995 +x_0=400000 +y_0=800000
+         +ellps=intl +pm=paris");
+     // EPSG:9815 Hotine Oblique Mercator (variant B), SRS EPSG: 9815
+    test_both<P>("omerc", 115.80550545, 5.3872536023, 679245.73, 596562.78,
+        "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 \
+         +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 \
+         +units=m +no_defs");
+    // EPSG:9809 Oblique Stereographic, SRS EPSG: 28992
+    test_both<P>("sterea", 5.9999999931, 53.000000025, 196105.283, 557057.739,
+        "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 \
+         +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 \
+         +units=m +no_defs");
     // EPSG:9810 Polar Stereographic (variant A), SRS EPSG:5041
     test_both<P>("stere", 44.000000007, 73.000000003, 3320416.7473, 632668.43168,
-        "+proj=stere +lat_0=90 +lon_0=0 +k_0=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs");
+        "+proj=stere +lat_0=90 +lon_0=0 +k_0=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m\
+         +no_defs");
     // EPSG:9829 Polar Stereographic (variant B), SRS EPSG:2985
     test_both<P>("stere", 120, -75, 7255380.7933, 7053389.5606,
-        "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=70 +k=1 +x_0=6000000 +y_0=6000000 +datum=WGS84 +units=m +no_defs");
+        "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=70 +k=1 +x_0=6000000 +y_0=6000000 +datum=WGS84\
+         +units=m +no_defs");
     // EPSG:9830 Polar Stereographic (variant C), SRS EPSG:2985
     test_both<P>("stere", 140.07140000999999074, -66.605227791000004345, 303169.52, 244055.72,
-        "+proj=stere +lat_0=-90 +lat_ts=-67 +lon_0=140 +x_0=300000 +y_0=200000 +a=6378388.297 +rf=297  +units=m +no_defs +variant_c");
+        "+proj=stere +lat_0=-90 +lat_ts=-67 +lon_0=140 +x_0=300000 +y_0=200000 +a=6378388.297\
+         +rf=297  +units=m +no_defs +variant_c");
 }
 
 int test_main(int, char* [])

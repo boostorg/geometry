@@ -415,7 +415,8 @@ enum name_be
     r_v, // originally R_V
     rescale, // 70
     south,
-    variant_c
+    variant_c, // BG specific
+    no_off
 };
 
 /*enum name_catalog
