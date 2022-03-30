@@ -416,7 +416,8 @@ enum name_be
     rescale, // 70
     south,
     variant_c, // BG specific
-    no_off
+    no_off,
+    hyperbolic
 };
 
 /*enum name_catalog

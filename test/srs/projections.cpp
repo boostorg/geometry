@@ -380,16 +380,16 @@ void test_srs()
     // Examples from IOGP Publication 373-7-2 - Geomatics Guidance Note number 7, part 2 December 2021
 
     // EPSG:9812 Hotine Oblique Mercator (variant A), SRS EPSG: 3079
-    test_both<P>("omerc", 117, 12, -4893794.70,12634529.87,
+    test_both<P>("omerc_A", 117, 12, -4893794.70,12634529.87,
          "+proj=omerc +lat_0=45.30916666666666 +lonc=-86 +alpha=337.25556 +k_0=0.9996 \
          +x_0=2546731.496 +y_0=-4354009.816 +no_off +gamma=337.25556 +ellps=GRS80 \
          +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-    // EPSG:9813 Laborde Oblique Mercator, SRS EPSG: 29701
-    test_both<P>("omerc", 44.45757, -16.189799986, -4893794.70,12634529.87,
-         "+proj=labrd  +lat_0=-18.9 +lon_0=44.1 +azi=18.9 +k=0.9995 +x_0=400000 +y_0=800000
-         +ellps=intl +pm=paris");
+    // EPSG:9813 Laborde Oblique Mercator, SRS EPSG: 8441
+    test_both<P>("labrd", 44.45757, -16.189799986, 188333.848, 1098841.091,
+         "+proj=labrd +a=6378388 +rf=297 +towgs84=-198.383,-240.517,-107.909,0,0,0,0 +no_defs\
+          +lat_0=-18.9 +lon_0=46.4372291666667 +x_0=400000 +y_0=800000 +k_0=0.9995 +azi=18.9");
      // EPSG:9815 Hotine Oblique Mercator (variant B), SRS EPSG: 9815
-    test_both<P>("omerc", 115.80550545, 5.3872536023, 679245.73, 596562.78,
+    test_both<P>("omerc_B", 115.80550545, 5.3872536023, 679245.73, 596562.78,
         "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 \
          +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 \
          +units=m +no_defs");
@@ -410,6 +410,10 @@ void test_srs()
     test_both<P>("stere", 140.07140000999999074, -66.605227791000004345, 303169.52, 244055.72,
         "+proj=stere +lat_0=-90 +lat_ts=-67 +lon_0=140 +x_0=300000 +y_0=200000 +a=6378388.297\
          +rf=297  +units=m +no_defs +variant_c");
+    // EPSG:9833 Hyperbolic Cassini-Soldner, SRS EPSG:3139
+    test_both<P>("cass", 179.99433651, -16.841456514, 322174, 268950,
+        "+proj=cass +hyperbolic +lat_0=-16.25 +lon_0=179.33333332 +x_0=251727.9155424\
+         +y_0=334519.953768 +towgs84=51,391,-36,0,0,0,0");
 }
 
 int test_main(int, char* [])
