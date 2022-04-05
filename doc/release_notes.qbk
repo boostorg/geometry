@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015-2021.
-  Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015-2022.
+  Modifications copyright (c) 2015-2022, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -25,7 +25,25 @@
 
 [*Major change]
 
-* [@https://github.com/boostorg/geometry/pull/977 977] Rescaling is turned off by default. This avoids many related bugs in set operations and buffer
+* [@https://github.com/boostorg/geometry/pull/977 977] Rescaling is turned off by default. This avoids many related bugs in set operations and buffer.
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/961 961] Added Web Mercator projection.
+* [@https://github.com/boostorg/geometry/pull/966 966] More efficient cartesian distance strategy used in simplify.
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/956 956] Result of simplify algorithm with incorrect closure.
+* [@https://github.com/boostorg/geometry/issues/962 962] Runtime error in R-tree deserialization due to load factor.
+* [@https://github.com/boostorg/geometry/issues/971 971] R-tree insertion time impacted by use of long double on ARM platforms.
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/936 936] Envelope of polygon containing pole.
+* [@https://github.com/boostorg/geometry/pull/948 948] Spherical and geographic envelope for near meridian segments.
+* [@https://github.com/boostorg/geometry/pull/974 974] Spheroidal normalization utilities for NaN coordinates.
+* Various fixes in set operations and buffer.
 
 [/=================]
 [heading Boost 1.78]
