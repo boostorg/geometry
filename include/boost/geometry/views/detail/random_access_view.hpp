@@ -156,36 +156,36 @@ namespace traits
 {
 
 template<typename GeometryCollection, bool IsRandomAccess, bool IsRecursive>
-struct tag<detail::random_access_view<GeometryCollection, IsRandomAccess, IsRecursive>>
+struct tag<geometry::detail::random_access_view<GeometryCollection, IsRandomAccess, IsRecursive>>
 {
     using type = geometry_collection_tag;
 };
 
 
 template <typename GeometryCollection>
-struct iter_visit<detail::random_access_view<GeometryCollection, false, false>>
+struct iter_visit<geometry::detail::random_access_view<GeometryCollection, false, false>>
     : geometry::detail::random_access_view_iter_visit<GeometryCollection>
 {};
 
 template <typename GeometryCollection>
-struct iter_visit<detail::random_access_view<GeometryCollection, true, true>>
+struct iter_visit<geometry::detail::random_access_view<GeometryCollection, true, true>>
     : geometry::detail::random_access_view_iter_visit<GeometryCollection>
 {};
 
 template <typename GeometryCollection>
-struct iter_visit<detail::random_access_view<GeometryCollection, false, true>>
+struct iter_visit<geometry::detail::random_access_view<GeometryCollection, false, true>>
     : geometry::detail::random_access_view_iter_visit<GeometryCollection>
 {};
 
 
 template <typename GeometryCollection, bool IsRandomAccess>
-struct geometry_types<detail::random_access_view<GeometryCollection, IsRandomAccess, false>>
+struct geometry_types<geometry::detail::random_access_view<GeometryCollection, IsRandomAccess, false>>
     : geometry_types<GeometryCollection>
 {};
 
 template <typename GeometryCollection, bool IsRandomAccess>
-struct geometry_types<detail::random_access_view<GeometryCollection, IsRandomAccess, true>>
-    : detail::remove_geometry_collections
+struct geometry_types<geometry::detail::random_access_view<GeometryCollection, IsRandomAccess, true>>
+    : geometry::detail::remove_geometry_collections
         <
             typename traits::geometry_types
                 <
