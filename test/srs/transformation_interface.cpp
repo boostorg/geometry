@@ -1,7 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017, Oracle and/or its affiliates.
+// Copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -195,10 +196,9 @@ int test_main(int, char*[])
     test_combinations("+proj=longlat +ellps=clrk80 +units=m +no_defs",
                       "+proj=tmerc +lat_0=0 +lon_0=-62 +k=0.9995000000000001 +x_0=400000 +y_0=0 +ellps=clrk80 +units=m +no_defs",
                       "POINT(1 1)",
-                      "POINT(9413505.3284665551 237337.74515944949)",
-                      "POINT(9413505.3284665551 237337.74515944949)",
-                      // this result seems to be wrong, it's the same with projection
-                      "POINT(-2.4463131191981073 1.5066638962045082)");
+                      "POINT(9523653.0229229201 246619.70872460317)",
+                      "POINT(9523653.0229229201 246619.70872460317)",
+                      "POINT(0.99999999979234933 0.99999999988133992)");
     
     return 0;
 }

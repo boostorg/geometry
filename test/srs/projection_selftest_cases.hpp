@@ -1,7 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2017-2018, Oracle and/or its affiliates.
+// Copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -3557,10 +3558,10 @@ static const projection_case projection_cases[] = {
             {-2, 1},
             {-2,-1}
         },{
-            { 222650.79679577847,  110642.22941192707},
-            { 222650.79679577847, -110642.22941192707},
-            {-222650.79679577847,  110642.22941192707},
-            {-222650.79679577847, -110642.22941192707}
+            { 222650.7967975855, 110642.2294119332},
+            { 222650.7967975855, -110642.2294119332},
+            {-222650.7967975855, 110642.2294119332},
+            {-222650.7967975855, -110642.2294119332}
         },{
             { 200, 100},
             { 200,-100},
