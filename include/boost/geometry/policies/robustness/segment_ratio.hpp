@@ -225,7 +225,7 @@ public:
         }
 
         m_approximation =
-            m_denominator == zero_instance() ? 0
+            m_denominator == zero_instance() ? floating_point_type{0}
             : (
                 boost::numeric_cast<floating_point_type>(m_numerator) * scale()
                 / boost::numeric_cast<floating_point_type>(m_denominator)
