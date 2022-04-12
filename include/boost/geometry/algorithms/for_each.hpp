@@ -277,7 +277,10 @@ struct fe_segment_range_with_closure<open>
     template <typename Range, typename Functor>
     static inline bool apply(Range& range, Functor&& f)
     {
-        fe_segment_range_with_closure<closed>::apply(range, f);
+        if (! fe_segment_range_with_closure<closed>::apply(range, f))
+        {
+            return false;
+        }
 
         auto const begin = boost::begin(range);
         auto end = boost::end(range);
