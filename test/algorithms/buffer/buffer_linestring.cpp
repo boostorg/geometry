@@ -108,6 +108,7 @@ static std::string const mysql_25662426a = "LINESTRING(170 4756, 168 4756, 168 4
 
 static std::string const issue_596 = "LINESTRING(292979.660 6688731.370, 292979.600 6688733.420, 292979.540 6688735.440, 292979.540 6688735.500)";
 static std::string const issue_803 = "LINESTRING(2773.6899360413681 -17.493356405074767,2767.9084041267429 -9.0288291122330797,2765.7403296587586 -1.6929054585683376,2765.3273630934282 6.6613381477509392e-16,2762.8495637014462 10.157432751410026,2759.9587977441333 24.829280059133669,2756.3453402974928 38.372523727680374,2752.0091913615238 45.708447381345117)";
+static std::string const issue_988 = "LINESTRING(0.10144 0.034912,0.106079 0.035156,0.109375 0.034302,0.114502 0.035889,0.116333 0.036743,0.117065 0.036499,0.121582 0.035156,0.12439 0.029175,0.123779 0.026978,0.12146 0.025513,0.119507 0.025513,0.118164 0.025513,0.114624 0.025757,0.111694 0.026001,0.108887 0.02832,0.105957 0.028442,0.099854 0.027344,0.095581 0.029419,0.093506 0.031128,0.090576 0.032593,0.085571 0.032959,0.082153 0.035522,0.081421 0.039307,0.082275 0.044067,0.083862 0.047485,0.08606 0.049805,0.087891 0.051025,0.090942 0.05188,0.094727 0.051392,0.100098 0.050049,0.10144 0.05249,0.100952 0.054932,0.098633 0.05835,0.098267 0.062134,0.098755 0.064697,0.098511 0.067383,0.113892 0.068848,0.110718 0.065552,0.109619 0.064331,0.111084 0.063965,0.118042 0.0625,0.115234 0.049805,0.117676 0.049194,0.118774 0.046997,0.119385 0.04541,0.119507 0.043945,0.116089 0.041138,0.116089 0.041016,0.11438 0.040894,0.11145 0.041016,0.109009 0.042114,0.106079 0.04248,0.102417 0.041138,0.102051 0.040039)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -204,8 +205,10 @@ void test_all()
     test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, settings, 3.0);
     test_one<linestring, polygon>("curve", curve, join_miter, end_flat, 58.7371, 5.0, settings, 3.0);
 
+#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_flat, 74.25, 3.0);
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_round, 116.6336, 3.0);
+#endif
 
     test_one<linestring, polygon>("chained2", chained2, join_round, end_flat, 11.3137, 2.5, settings, 1.5);
     test_one<linestring, polygon>("chained3", chained3, join_round, end_flat, 16.9706, 2.5, settings, 1.5);
@@ -307,6 +310,17 @@ void test_all()
         test_one<linestring, polygon>("issue_803", issue_803, join_miter, end_round(36), 1664.3714, 10.0);
         test_one<linestring, polygon>("issue_803", issue_803, join_round(36), end_round(36), 1664.0528, 10.0);
     }
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
+    {
+        // Cases sensible to the value of state.m_min_distance and "close_to_offset"
+        using bg::strategy::buffer::join_round;
+        using bg::strategy::buffer::end_round;
+        test_one<linestring, polygon>("issue_988_a", issue_988, join_round(8), end_round(8), 0.0029235, 0.010068);
+        test_one<linestring, polygon>("issue_988_b", issue_988, join_round(32), end_round(32), 0.0029614, 0.0101);
+        test_one<linestring, polygon>("issue_988_c", issue_988, join_round(32), end_round(32), 0.0031514, 0.011);
+    }
+#endif
 
     test_one<linestring, polygon>("mysql_report_2015_06_11",
             mysql_report_2015_06_11, join_round32, end_round32,
