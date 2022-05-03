@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -19,6 +19,8 @@
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
+
+#include <boost/geometry/geometries/helper_geometry.hpp>
 
 #include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
@@ -46,7 +48,6 @@ template
 <
     typename Geometry1,
     typename Geometry2,
-    typename Point,
     typename GetTurnPolicy = detail::get_turns::get_turn_info_type
         <
             Geometry1, Geometry2, assign_policy<>
@@ -54,6 +55,11 @@ template
 >
 struct get_turns
 {
+    using turn_point_type = typename helper_geometry
+        <
+            typename geometry::point_type<Geometry1>::type
+        >::type;
+
     template <typename Strategy>
     struct robust_policy_type
         : geometry::rescale_overlay_policy_type
@@ -71,14 +77,14 @@ struct get_turns
     >
     struct turn_info_type
     {
-        using ratio_type = typename segment_ratio_type<Point, RobustPolicy>::type;
+        using ratio_type = typename segment_ratio_type<turn_point_type, RobustPolicy>::type;
         using type = overlay::turn_info
             <
-                Point,
+                turn_point_type,
                 ratio_type,
                 typename detail::get_turns::turn_operation_type
                     <
-                        Geometry1, Geometry2, Point, ratio_type
+                        Geometry1, Geometry2, turn_point_type, ratio_type
                     >::type
             >;
     };
@@ -166,7 +172,7 @@ struct less_op_xxx_linear
 
 template <std::size_t OpId>
 struct less_op_linear_linear
-    : less_op_xxx_linear< OpId, op_to_int<0,2,3,1,4,0> >
+    : less_op_xxx_linear< OpId, op_to_int<0,2,3,1,4,0> > // xuic
 {};
 
 template <std::size_t OpId>
@@ -269,7 +275,7 @@ struct less_other_multi_index
 
 // sort turns by G1 - source_index == 0 by:
 // seg_id -> distance and coordinates -> operation
-template <std::size_t OpId, typename LessOp, typename CSTag>
+template <std::size_t OpId, typename LessOp, typename Strategy>
 struct less
 {
     BOOST_STATIC_ASSERT(OpId < 2);
@@ -277,14 +283,8 @@ struct less
     template <typename Turn>
     static inline bool use_fraction(Turn const& left, Turn const& right)
     {
-        typedef typename geometry::strategy::within::services::default_strategy
-            <
-                typename Turn::point_type, typename Turn::point_type,
-                point_tag, point_tag,
-                pointlike_tag, pointlike_tag,
-                typename tag_cast<CSTag, spherical_tag>::type,
-                typename tag_cast<CSTag, spherical_tag>::type
-            >::type eq_pp_strategy_type;
+        using eq_pp_strategy_type = decltype(std::declval<Strategy>().relate(
+            detail::dummy_point(), detail::dummy_point()));
 
         static LessOp less_op;
 

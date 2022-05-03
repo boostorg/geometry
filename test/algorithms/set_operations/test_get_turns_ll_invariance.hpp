@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2014-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -84,7 +84,6 @@ private:
             <
                 LinearGeometry1,
                 LinearGeometry2,
-                typename bg::point_type<LinearGeometry1>::type,
                 bg_detail::get_turns::get_turn_info_type
                     <
                         LinearGeometry1,
@@ -110,7 +109,7 @@ public:
 
         typedef typename bg_detail::relate::turns::get_turns
             <
-                Linear1, Linear2, typename bg::point_type<Linear1>::type
+                Linear1, Linear2
             >::template turn_info_type<strategy_type>::type turn_info;
 
         typedef std::vector<turn_info> turns_container;

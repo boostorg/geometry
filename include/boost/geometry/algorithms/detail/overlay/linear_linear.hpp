@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -160,14 +160,10 @@ protected:
 
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
-        using point_type = typename geometry::point_type<LinearGeometry1>::type;
-        using mutable_point_type = typename helper_geometry<point_type>::type;
-
         geometry::detail::relate::turns::get_turns
             <
                 LinearGeometry1,
                 LinearGeometry2,
-                mutable_point_type,
                 detail::get_turns::get_turn_info_type
                 <
                     LinearGeometry1,
@@ -235,13 +231,10 @@ public:
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        using point_type = typename geometry::point_type<Linear1>::type;
-        using mutable_point_type = typename helper_geometry<point_type>::type;
         typedef typename detail::relate::turns::get_turns
             <
                 Linear1,
                 Linear2,
-                mutable_point_type,
                 detail::get_turns::get_turn_info_type
                     <
                         Linear1,

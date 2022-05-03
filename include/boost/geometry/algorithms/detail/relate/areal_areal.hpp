@@ -208,9 +208,6 @@ struct areal_areal
 
     static const bool interruption_enabled = true;
 
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-    typedef typename geometry::point_type<Geometry2>::type point2_type;
-
     template <typename Result, typename Strategy>
     static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                              Result & result,
@@ -225,22 +222,17 @@ struct areal_areal
             return;
 
         // get and analyse turns
-        using point_type = typename geometry::point_type<Geometry1>::type;
-        using mutable_point_type = typename helper_geometry<point_type>::type;
-
-        typedef typename turns::get_turns
+        using turn_type = typename turns::get_turns
             <
-                Geometry1, Geometry2, mutable_point_type
-            >::template turn_info_type<Strategy>::type turn_type;
+                Geometry1, Geometry2
+            >::template turn_info_type<Strategy>::type;
         std::vector<turn_type> turns;
 
         interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);
 
-        turns::get_turns<Geometry1, Geometry2, mutable_point_type>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
+        turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
         if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
-
-        typedef typename Strategy::cs_tag cs_tag;
 
         no_turns_aa_pred<Geometry2, Result, Strategy, false>
             pred1(geometry2, result, strategy);
@@ -264,8 +256,8 @@ struct areal_areal
           || may_update<exterior, interior, '2'>(result) )
         {
             // sort turns
-            typedef turns::less<0, turns::less_op_areal_areal<0>, cs_tag> less;
-            std::sort(turns.begin(), turns.end(), less());
+            using less_t = turns::less<0, turns::less_op_areal_areal<0>, Strategy>;
+            std::sort(turns.begin(), turns.end(), less_t());
 
             /*if ( may_update<interior, exterior, '2'>(result)
               || may_update<boundary, exterior, '1'>(result)
@@ -304,8 +296,8 @@ struct areal_areal
           || may_update<exterior, interior, '2', true>(result) )
         {
             // sort turns
-            typedef turns::less<1, turns::less_op_areal_areal<1>, cs_tag> less;
-            std::sort(turns.begin(), turns.end(), less());
+            using less_t = turns::less<1, turns::less_op_areal_areal<1>, Strategy>;
+            std::sort(turns.begin(), turns.end(), less_t());
 
             /*if ( may_update<interior, exterior, '2', true>(result)
               || may_update<boundary, exterior, '1', true>(result)
@@ -357,9 +349,7 @@ struct areal_areal
         template <typename Range>
         inline bool apply(Range const& turns)
         {
-            typedef typename boost::range_iterator<Range const>::type iterator;
-
-            for (iterator it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
+            for (auto it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
                 per_turn<0>(*it);
                 per_turn<1>(*it);
@@ -657,10 +647,9 @@ struct areal_areal
                 return;
             }
 
-            typename detail::sub_range_return_type<Geometry const>::type
-                range_ref = detail::sub_range(geometry, seg_id);
+            auto const& sub_range = detail::sub_range(geometry, seg_id);
 
-            if ( boost::empty(range_ref) )
+            if ( boost::empty(sub_range) )
             {
                 // TODO: throw an exception?
                 return; // ignore
@@ -673,7 +662,7 @@ struct areal_areal
             // TODO: optimize! e.g. use spatial index
             // O(N) - running it in a loop gives O(NM)
             using detail::within::point_in_geometry;
-            int const pig = point_in_geometry(range::front(range_ref),
+            int const pig = point_in_geometry(range::front(sub_range),
                                               other_geometry,
                                               m_point_in_areal_strategy);
 
