@@ -558,6 +558,28 @@ struct difference
     }
 };
 
+template <typename Geometry1, typename Geometry2, typename Collection, typename Tag1, typename Tag2>
+struct difference
+    <
+        Geometry1, Geometry2, Collection,
+        Tag1, Tag2, geometry_collection_tag
+    >
+{
+    template <typename Strategy>
+    static void apply(Geometry1 const& geometry1,
+                      Geometry2 const& geometry2,
+                      Collection & output_collection,
+                      Strategy const& strategy)
+    {
+        using gc1_view_t = geometry::detail::geometry_collection_view<Geometry1>;
+        using gc2_view_t = geometry::detail::geometry_collection_view<Geometry2>;
+        difference
+            <
+                gc1_view_t, gc2_view_t, Collection
+            >::apply(gc1_view_t(geometry1), gc2_view_t(geometry2), output_collection, strategy);
+    }
+};
+
 
 } // namespace resolve_collection
 
