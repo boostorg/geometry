@@ -159,11 +159,33 @@ void test_g_gc_gc()
     check_one(out, expected);
 }
 
+void test_g_g_gc()
+{
+    const char* mpo_cstr = "MULTIPOLYGON(((0 0, 0 10, 10 10, 10 0, 0 0), (1 1, 5 1, 5 5, 1 5, 1 1)), ((3 3, 3 4, 4 4, 4 3, 3 3)))";
+    const char* po_cstr = "POLYGON((4 0, 4 10, 6 10, 6 0, 4 0))";
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOLYGON(((0 0, 0 10, 4 10, 4 5, 1 5, 1 1, 4 1, 4 0, 0 0)), ((3 3, 3 4, 4 4, 4 3, 3 3)), ((6 0, 6 10, 10 10, 10 0, 6 0)))"
+    ")";
+
+    mpo_t mpo;
+    po_t po;
+    gc_t expected;    
+    bg::read_wkt(mpo_cstr, mpo);
+    bg::read_wkt(po_cstr, po);
+    bg::read_wkt(expected_cstr, expected);
+
+    gc_t out;
+    bg::difference(mpo, po, out);
+
+    check_one(out, expected);
+}
+
 int test_main(int, char* [])
 {
     test_gc_gc_gc();
     test_gc_g_gc();
     test_g_gc_gc();
+    test_g_g_gc();
 
     return 0;
 }
