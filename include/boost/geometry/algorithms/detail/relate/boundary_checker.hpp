@@ -15,7 +15,6 @@
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
-//#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
@@ -83,8 +82,8 @@ private:
 
 
 template <typename Point, typename Strategy, typename Out>
-inline void copy_pts_boundary_points(Point const& front_pt, Point const& back_pt,
-                                     Strategy const& strategy, Out & boundary_points)
+inline void copy_boundary_points(Point const& front_pt, Point const& back_pt,
+                                 Strategy const& strategy, Out & boundary_points)
 {
     using mutable_point_type = typename Out::value_type;
     // linear ring or point - no boundary
@@ -109,35 +108,35 @@ inline void copy_pts_boundary_points(Point const& front_pt, Point const& back_pt
 }
 
 template <typename Segment, typename Strategy, typename Out>
-inline void copy_seg_boundary_points(Segment const& seg, Strategy const& strategy,
-                                     Out & boundary_points)
+inline void copy_boundary_points_of_seg(Segment const& seg, Strategy const& strategy,
+                                        Out & boundary_points)
 {
     typename Out::value_type front_pt, back_pt;
     assign_point_from_index<0>(seg, front_pt);
     assign_point_from_index<1>(seg, back_pt);
-    copy_pts_boundary_points(front_pt, back_pt, strategy, boundary_points);
+    copy_boundary_points(front_pt, back_pt, strategy, boundary_points);
 }
 
 template <typename Linestring, typename Strategy, typename Out>
-inline void copy_ls_boundary_points(Linestring const& ls, Strategy const& strategy,
-                                    Out & boundary_points)
+inline void copy_boundary_points_of_ls(Linestring const& ls, Strategy const& strategy,
+                                       Out & boundary_points)
 {
     // empty or point - no boundary
     if (boost::size(ls) >= 2)
     {
         auto const& front_pt = range::front(ls);
         auto const& back_pt = range::back(ls);
-        copy_pts_boundary_points(front_pt, back_pt, strategy, boundary_points);
+        copy_boundary_points(front_pt, back_pt, strategy, boundary_points);
     }
 }
 
 template <typename MultiLinestring, typename Strategy, typename Out>
-inline void copy_mls_boundary_points(MultiLinestring const& mls, Strategy const& strategy,
-                                     Out & boundary_points)
+inline void copy_boundary_points_of_mls(MultiLinestring const& mls, Strategy const& strategy,
+                                        Out & boundary_points)
 {
     for (auto it = boost::begin(mls); it != boost::end(mls); ++it)
     {
-        copy_ls_boundary_points(*it, strategy, boundary_points);
+        copy_boundary_points_of_ls(*it, strategy, boundary_points);
     }
 }
 
@@ -172,7 +171,7 @@ public:
             //boundary_points.clear();
             m_boundary_points.reserve(multi_count * 2);
 
-            copy_mls_boundary_points(m_geometry, m_strategy, m_boundary_points);
+            copy_boundary_points_of_mls(m_geometry, m_strategy, m_boundary_points);
 
             std::sort(m_boundary_points.begin(), m_boundary_points.end(), less_type());
 
@@ -201,97 +200,6 @@ private:
     Geometry const& m_geometry;
     Strategy const& m_strategy;
 };
-
-// NOTE: In case it was needed in the future. Commented-out for now.
-/*
-template <typename Geometry, typename Strategy>
-class boundary_checker<Geometry, Strategy, geometry_collection_tag>
-{
-    using point_type = typename point_type<Geometry>::type;
-    using mutable_point_type = typename helper_geometry<point_type>::type;
-
-public:
-    boundary_checker(Geometry const& g, Strategy const& s)
-        : m_is_filled(false), m_geometry(g), m_strategy(s)
-    {}
-
-    // First call O(NlogN)
-    // Each next call O(logN)
-    template <typename Point>
-    bool is_endpoint_boundary(Point const& pt) const
-    {
-        using less_t = geometry::less<mutable_point_type, -1, typename Strategy::cs_tag>;
-
-        auto multi_count = boost::size(m_geometry);
-
-        if (multi_count < 1)
-        {
-            return false;
-        }
-
-        if (! m_is_filled)
-        {
-            //boundary_points.clear();
-            m_boundary_points.reserve(multi_count * 2);
-
-            detail::visit_breadth_first([&](auto const& g)
-            {
-                add_boundary_points(g);
-                return true;
-            }, m_geometry);
-
-            std::sort(m_boundary_points.begin(),
-                      m_boundary_points.end(),
-                      less_t());
-
-            m_is_filled = true;
-        }
-
-        auto const equal_range = std::equal_range(m_boundary_points.begin(),
-                                                  m_boundary_points.end(),
-                                                  pt,
-                                                  less_t());
-
-        std::size_t const equal_points_count = boost::size(equal_range);
-        return equal_points_count % 2 != 0;// && equal_points_count > 0; // the number is odd and > 0
-    }
-
-    Strategy const& strategy() const
-    {
-        return m_strategy;
-    }
-
-private:
-    template <typename Geom, std::enable_if_t<util::is_multi_linestring<Geom>::value, int> = 0>
-    void add_boundary_points(Geom const& geom) const
-    {
-        copy_mls_boundary_points(geom, m_strategy, m_boundary_points);
-    }
-
-    template <typename Geom, std::enable_if_t<util::is_linestring<Geom>::value, int> = 0>
-    void add_boundary_points(Geom const& geom) const
-    {
-        copy_ls_boundary_points(geom, m_strategy, m_boundary_points);
-    }
-
-    template <typename Geom, std::enable_if_t<util::is_segment<Geom>::value, int> = 0>
-    void add_boundary_points(Geom const& geom) const
-    {
-        copy_seg_boundary_points(geom, m_strategy, m_boundary_points);
-    }
-
-    template <typename Geom, std::enable_if_t<! util::is_linear<Geom>::value, int> = 0>
-    void add_boundary_points(Geom const& ) const
-    {}
-
-    mutable bool m_is_filled;
-    // TODO: store references/pointers instead of converted points?
-    mutable std::vector<mutable_point_type> m_boundary_points;
-
-    Geometry const& m_geometry;
-    Strategy const& m_strategy;
-};
-*/
 
 
 }} // namespace detail::relate
