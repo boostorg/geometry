@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015-2020, Oracle and/or its affiliates.
+// Copyright (c) 2015-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -87,7 +87,6 @@ struct check_turn_less
             <
                 Geometry1,
                 Geometry2,
-                typename bg::point_type<Geometry1>::type,
                 bg::detail::get_turns::get_turn_info_type
                     <
                         Geometry1, Geometry2, assign_policy<>
