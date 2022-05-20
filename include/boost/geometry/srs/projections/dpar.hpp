@@ -487,6 +487,11 @@ enum name_units
     vunits
 };
 
+enum name_axis
+{
+    axis = 86 // 3 element list of numbers
+};
+
 template <typename T>
 struct parameter
 {
@@ -660,6 +665,17 @@ struct parameter
     }
 #endif
 
+    parameter(name_axis id, std::initializer_list<int> v)
+        : m_id(id)
+        , m_value(srs::detail::axis(v))
+    {
+        std::size_t n = v.size();
+        if (n != 3)
+        {
+            BOOST_THROW_EXCEPTION( projection_exception("Invalid number of axis elements. Should be 3.") );
+        }
+    }
+
     parameter(name_units id, value_units v)
         : m_id(id), m_value(int(v))
     {}
@@ -694,6 +710,7 @@ public:
     bool is_id_equal(name_sweep const& id) const { return m_id == int(id); }
     bool is_id_equal(name_towgs84 const& id) const { return m_id == int(id); }
     bool is_id_equal(name_units const& id) const { return m_id == int(id); }
+    bool is_id_equal(name_axis const& id) const { return m_id == int(id); }
 
     template <typename V>
     V const& get_value() const

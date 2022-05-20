@@ -493,6 +493,17 @@ struct towgs84
 #endif
 };
 
+struct axis
+    : srs::detail::axis
+{
+    typedef srs::detail::axis base_t;
+
+    axis(int const& v0, int const& v1, int const& v2)
+        : base_t(v0, v1, v2)
+    {}
+    axis(std::initializer_list<int> l) : base_t(l) {}
+};
+
 template <typename Units>
 struct vunits
 {
