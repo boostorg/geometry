@@ -27,7 +27,6 @@
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/static_assert.hpp>
-#include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -37,6 +36,9 @@
 #include <boost/geometry/strategies/line_interpolate/cartesian.hpp>
 #include <boost/geometry/strategies/line_interpolate/geographic.hpp>
 #include <boost/geometry/strategies/line_interpolate/spherical.hpp>
+
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/type_traits.hpp>
 
 namespace boost { namespace geometry
 {
@@ -131,7 +133,7 @@ struct interpolate_range
                                p,
                                diff_distance);
                 Policy::apply(p, pointlike);
-                if (std::is_same<typename tag<PointLike>::type, point_tag>::value)
+                if ( BOOST_GEOMETRY_CONDITION(util::is_point<PointLike>::value) )
                 {
                     return;
                 }
