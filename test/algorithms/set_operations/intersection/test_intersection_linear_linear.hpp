@@ -19,7 +19,9 @@
 #include "../test_set_ops_linear_linear.hpp"
 #include "../alternative_robustness_strategy.hpp"
 #include <from_wkt.hpp>
+#ifdef TEST_WITH_SVG
 #include <to_svg.hpp>
+#endif
 
 
 //! Contains (optional) settings such as tolerance
