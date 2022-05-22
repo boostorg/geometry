@@ -190,7 +190,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, G3 const& g3,
 
     bg::detail::relate::turns::get_turns
         <
-            G1, G2, point_type, turn_policy
+            G1, G2, turn_policy
         >::apply(turns, g1, g2, interrupt_policy, strategy);
     {
         using less = bg::detail::relate::turns::less
@@ -200,7 +200,7 @@ inline void to_svg(G1 const& g1, G2 const& g2, G3 const& g3,
                     <
                         0, bg::detail::relate::turns::op_to_int<>
                     >,
-                typename bg::cs_tag<G1>::type
+                strategy_type
             >;
         std::sort(boost::begin(turns), boost::end(turns), less());
     }

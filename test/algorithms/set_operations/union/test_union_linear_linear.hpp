@@ -18,7 +18,9 @@
 #include <boost/geometry/geometry.hpp>
 #include "../test_set_ops_linear_linear.hpp"
 #include <from_wkt.hpp>
+#ifdef TEST_WITH_SVG
 #include <to_svg.hpp>
+#endif
 
 
 //==================================================================
@@ -82,6 +84,10 @@ private:
         // Check normal behaviour
         bg::clear(mls_output);
         bg::union_(geometry1, geometry2, mls_output);
+
+#ifdef TEST_WITH_SVG
+       to_svg(geometry1, geometry2, mls_output, case_id);
+#endif
 
         check_result(geometry1, geometry2, mls_output, mls_union1, case_id, tolerance);
 
@@ -158,9 +164,6 @@ public:
     {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "test case: " << case_id << std::endl;
-        std::stringstream sstr;
-        sstr << "svgs/" << case_id << ".svg";
-        to_svg(geometry1, geometry2, sstr.str());
 #endif
 
         Geometry1 rg1(geometry1);

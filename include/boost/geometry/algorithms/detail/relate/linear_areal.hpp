@@ -361,7 +361,9 @@ struct linear_areal
         relate::set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+        {
             return;
+        }
 
         // get and analyse turns
         using turn_type = typename turn_info_type<Geometry1, Geometry2, Strategy>::type;
@@ -371,9 +373,9 @@ struct linear_areal
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+        {
             return;
-
-        typedef typename Strategy::cs_tag cs_tag;
+        }
 
         typedef boundary_checker
             <
@@ -395,21 +397,29 @@ struct linear_areal
                     boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+        {
             return;
+        }
 
         no_turns_la_areal_pred<Result, !TransposeResult> pred2(result);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+        {
             return;
+        }
 
         if ( turns.empty() )
+        {
             return;
+        }
 
         // This is set here because in the case if empty Areal geometry were passed
         // those shouldn't be set
         relate::set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+        {
             return;
+        }
 
         {
             sort_dispatch(turns.begin(), turns.end(), strategy, util::is_multi<Geometry2>());
@@ -422,7 +432,9 @@ struct linear_areal
                               strategy);
 
             if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
+            {
                 return;
+            }
         }
 
         // If 'c' (insersection_boundary) was not found we know that any Ls isn't equal to one of the Rings
@@ -552,7 +564,9 @@ struct linear_areal
     static void for_each_equal_range(It first, It last, Pred pred, Comp comp)
     {
         if ( first == last )
+        {
             return;
+        }
 
         It first_equal = first;
         It prev = first;
@@ -565,7 +579,9 @@ struct linear_areal
             }
 
             if ( first == last )
+            {
                 break;
+            }
         }
     }
 
@@ -1305,7 +1321,9 @@ struct linear_areal
                                          Strategy const& strategy)
     {
         if ( first == last )
+        {
             return;
+        }
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
@@ -1315,7 +1333,9 @@ struct linear_areal
                            strategy);
 
             if ( BOOST_GEOMETRY_CONDITION( res.interrupt ) )
+            {
                 return;
+            }
         }
 
         analyser.apply(res, first, last,
