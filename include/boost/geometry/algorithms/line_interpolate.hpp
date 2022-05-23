@@ -37,6 +37,9 @@
 #include <boost/geometry/strategies/line_interpolate/geographic.hpp>
 #include <boost/geometry/strategies/line_interpolate/spherical.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/type_traits.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -130,7 +133,7 @@ struct interpolate_range
                                p,
                                diff_distance);
                 Policy::apply(p, pointlike);
-                if (std::is_same<PointLike, point_t>::value)
+                if ( BOOST_GEOMETRY_CONDITION(util::is_point<PointLike>::value) )
                 {
                     return;
                 }
