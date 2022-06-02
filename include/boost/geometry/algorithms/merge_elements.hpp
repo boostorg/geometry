@@ -109,7 +109,7 @@ template
     typename Geometry, typename It, typename PointLike, typename Linear, typename Areal,
     std::enable_if_t<! is_pla<Geometry>::value, int> = 0
 >
-inline void distribute_element(Geometry const& , It , PointLike& , Linear&, Areal&)
+inline void distribute_element(Geometry const& , It const&, PointLike const& , Linear const&, Areal const&)
 {}
 
 
@@ -128,7 +128,7 @@ template
     typename Geometry, typename MultiGeometry,
     std::enable_if_t<! are_same_kind<Geometry, MultiGeometry>::value, int> = 0
 >
-inline void convert(Geometry const& , MultiGeometry& )
+inline void convert(Geometry const& , MultiGeometry const& )
 {}
 
 
@@ -147,7 +147,7 @@ template
     typename Geometry1, typename Geometry2, typename MultiGeometry, typename Strategy,
     std::enable_if_t<! are_same_kind<Geometry1, Geometry2, MultiGeometry>::value, int> = 0
 >
-inline void union_(Geometry1 const& , Geometry2 const& , MultiGeometry& , Strategy const&)
+inline void union_(Geometry1 const& , Geometry2 const& , MultiGeometry const& , Strategy const&)
 {}
 
 
@@ -201,13 +201,28 @@ inline void merge(RandomIt const first, RandomIt const last, MultiGeometry& out,
             else if (s == 2)
             {
                 MultiGeometry result;
+                // VERSION 1
+//                traits::iter_visit<GeometryCollection>::apply([&](auto const& g1)
+//                {
+//                    traits::iter_visit<GeometryCollection>::apply([&](auto const& g2)
+//                    {
+//                        merge_elements::union_(g1, g2, result, strategy);
+//                    }, (b.first + 1)->second);
+//                }, b.first->second);
+                // VERSION 2
+                // calling iter_visit non-recursively seems to decrease compilation time
+                // greately with GCC
+                MultiGeometry temp1, temp2;
                 traits::iter_visit<GeometryCollection>::apply([&](auto const& g1)
                 {
-                    traits::iter_visit<GeometryCollection>::apply([&](auto const& g2)
-                    {
-                        merge_elements::union_(g1, g2, result, strategy);
-                    }, (b.first + 1)->second);
+                    merge_elements::convert(g1, temp1);
                 }, b.first->second);
+                traits::iter_visit<GeometryCollection>::apply([&](auto const& g2)
+                {
+                    merge_elements::convert(g2, temp2);
+                }, (b.first + 1)->second);
+                geometry::union_(temp1, temp2, result, strategy);
+
                 stack_out.push_back(std::move(result));
                 stack_in.pop_back();
             }
@@ -236,6 +251,14 @@ inline void merge(RandomIt const first, RandomIt const last, MultiGeometry& out,
     }
 
     out = std::move(stack_out.back());
+}
+
+template <typename MultiGeometry, typename Geometry, typename Strategy>
+inline void subtract(MultiGeometry & multi, Geometry const& geometry, Strategy const& strategy)
+{
+    MultiGeometry temp;
+    geometry::difference(multi, geometry, temp, strategy);
+    multi = std::move(temp);
 }
 
 struct merge_gc
@@ -271,8 +294,8 @@ struct merge_gc
         //       we could allow only some combinations and the algorithm below could
         //       normalize GC accordingly.
 
-        multi_point_t multi_point, multi_point2;
-        multi_linestring_t multi_linestring, multi_linestring2;
+        multi_point_t multi_point;
+        multi_linestring_t multi_linestring;
         multi_polygon_t multi_polygon;
 
         std::vector<std::pair<point_t, iterator_t>> pointlike;
@@ -289,24 +312,22 @@ struct merge_gc
         // TODO: merge linear at the end? (difference can break linear rings, their parts would be joined)
         merge<GeometryCollection>(pointlike.begin(), pointlike.end(), multi_point, strategy);
         merge<GeometryCollection>(linear.begin(), linear.end(), multi_linestring, strategy);
-
         merge<GeometryCollection>(areal.begin(), areal.end(), multi_polygon, strategy);
 
         // L \ A
-        geometry::difference(multi_linestring, multi_polygon, multi_linestring2, strategy);
-
-        // (P \ A) \ L
-        geometry::difference(multi_point, multi_polygon, multi_point2, strategy);
-        range::clear(multi_point);
-        geometry::difference(multi_point2, multi_linestring2, multi_point, strategy);
+        subtract(multi_linestring, multi_polygon, strategy);
+        // P \ A
+        subtract(multi_point, multi_polygon, strategy);
+        // P \ L
+        subtract(multi_point, multi_linestring, strategy);
 
         if (! geometry::is_empty(multi_point))
         {
             range::emplace_back(out, std::move(multi_point));
         }
-        if (! geometry::is_empty(multi_linestring2))
+        if (! geometry::is_empty(multi_linestring))
         {
-            range::emplace_back(out, std::move(multi_linestring2));
+            range::emplace_back(out, std::move(multi_linestring));
         }
         if (! geometry::is_empty(multi_polygon))
         {
