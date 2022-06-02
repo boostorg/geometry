@@ -26,10 +26,10 @@ void test_all(std::size_t points_count, std::size_t linestrings_count, std::size
 {
     using pt_t = P;
     using mpt_t = bg::model::multi_point<pt_t>;
-    using seg_t = bg::model::segment<pt_t>;
+    //using seg_t = bg::model::segment<pt_t>;
     using ls_t = bg::model::linestring<pt_t>;
     using mls_t = bg::model::multi_linestring<ls_t>;
-    using box_t = bg::model::box<pt_t>;
+    //using box_t = bg::model::box<pt_t>;
     using ring_t = bg::model::ring<pt_t>;
     using poly_t = bg::model::polygon<pt_t>;
     using mpoly_t = bg::model::multi_polygon<poly_t>;
