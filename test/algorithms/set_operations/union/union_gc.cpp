@@ -72,9 +72,18 @@ void test_gc_gc_gc()
         "MULTIPOINT(9 9, 11 11, 1 9),"
         "POINT(3 2)"
     ")";
+    /*
+    // Result if the elements are subtracted
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "POINT(11 11),"
         "MULTILINESTRING((1 1,2 2,2 4),(2 10,2 11),(2 2,3 3),(2 2,4 2),(10 5,11 5),(5 10,5 11)),"
+        "POLYGON((10 10,10 3,10 0,4 0,0 0,0 10,10 10),(3 4,1 4,1 1,4 1,4 3,3 3,3 4))"
+    ")";
+    */
+    // Result if elements are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOINT((11 11),(3 2),(9 9),(1 9),(0 0),(1 1),(2 2),(3 3),(4 4),(5 5),(6 6),(7 7),(8 8),(10 10)),"
+        "MULTILINESTRING((0 0,2 2,2 11),(2 2,6 6),(5 1,5 9),(2 2,9 2),(5 5,11 5),(5 9,5 11)),"
         "POLYGON((10 10,10 3,10 0,4 0,0 0,0 10,10 10),(3 4,1 4,1 1,4 1,4 3,3 3,3 4))"
     ")";
 
@@ -102,8 +111,19 @@ void test_gc_g_gc()
         "POINT(11 11)"
     ")";
     const char* po_cstr = "POLYGON((4 0, 4 10, 6 10, 6 0, 4 0))";
+    // Result if the elements are subtracted
+    /*
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "MULTILINESTRING((1 1,3 3),(10 5,11 5),(5 10,5 11)),"
+        "POLYGON((10 10,10 3,10 0,4 0,0 0,0 10,10 10),(3 5,1 5,1 1,4 1,4 3,3 3,3 5)),"
+        "LINESTRING(0 0, 2 2, 2 11),"
+        "POINT(11 11)"
+    ")";
+    */
+    // Result if elements are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOINT((0 0),(1 1),(2 2),(3 3),(4 4),(5 5),(6 6),(7 7),(8 8),(9 9),(10 10)),"
+        "MULTILINESTRING((0 0,5 5),(5 5,11 5),(5 5,5 11)),"
         "POLYGON((10 10,10 3,10 0,4 0,0 0,0 10,10 10),(3 5,1 5,1 1,4 1,4 3,3 3,3 5)),"
         "LINESTRING(0 0, 2 2, 2 11),"
         "POINT(11 11)"
@@ -132,9 +152,18 @@ void test_g_gc_gc()
         "MULTIPOINT(9 9, 11 11, 1 9),"
         "POINT(3 2)"
     ")";
+    // Result if the elements are subtracted
+    /*
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "POINT(11 11),"
         "MULTILINESTRING((1 1,3 3),(2 2,4 2)),"
+        "POLYGON((0 10,10 10,10 4,10 0,4 0,0 0,0 10),(3 4,1 4,1 1,4 1,4 3,3 3,3 4))"
+    ")";
+    */
+    // Result if elements are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOINT((3 2),(9 9),(11 11),(1 9)),"
+        "MULTILINESTRING((1 1,6 6),(5 1,5 9),(2 2,9 2)),"
         "POLYGON((0 10,10 10,10 4,10 0,4 0,0 0,0 10),(3 4,1 4,1 1,4 1,4 3,3 3,3 4))"
     ")";
 

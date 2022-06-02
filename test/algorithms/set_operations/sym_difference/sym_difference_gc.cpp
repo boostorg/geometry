@@ -72,8 +72,17 @@ void test_gc_gc_gc()
         "MULTIPOINT(9 9, 11 11, 1 9),"
         "POINT(3 2)"
     ")";
+    // Result if the elements of union are subtracted
+    /*
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "MULTILINESTRING((2 2,4 2),(10 5,11 5),(5 10,5 11),(2 2,2 4),(2 10,2 11)),"
+        "MULTIPOLYGON(((10 4,10 3,10 0,6 0,6 4,10 4)),((6 6,6 10,10 10,10 6,6 6)),((0 6,0 10,4 10,4 6,0 6)),((4 1,4 3,5 3,5 1,4 1)),((4 1,4 0,0 0,0 4,1 4,1 1,4 1)),((1 4,1 5,3 5,3 4,1 4)))"
+    ")";
+    */
+    // Result if the elements of union are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOINT((3 2),(0 0),(7 7),(8 8),(10 10)),"
+        "MULTILINESTRING((2 2,5 2),(0 0,1 1),(10 5,11 5),(5 10,5 11),(2 2,2 4),(2 6,2 11)),"
         "MULTIPOLYGON(((10 4,10 3,10 0,6 0,6 4,10 4)),((6 6,6 10,10 10,10 6,6 6)),((0 6,0 10,4 10,4 6,0 6)),((4 1,4 3,5 3,5 1,4 1)),((4 1,4 0,0 0,0 4,1 4,1 1,4 1)),((1 4,1 5,3 5,3 4,1 4)))"
     ")";
 
@@ -101,8 +110,19 @@ void test_gc_g_gc()
         "POINT(11 11)"
     ")";
     const char* po_cstr = "POLYGON((4 0, 4 10, 6 10, 6 0, 4 0))";
+    // Result if the elements of union are subtracted
+    /*
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "MULTILINESTRING((1 1,3 3),(10 5,11 5),(5 10,5 11)),"
+        "MULTIPOLYGON(((6 10,10 10,10 3,10 0,6 0,6 10)),((4 3,5 3,5 1,4 1,4 3)),((4 3,3 3,3 5,1 5,1 1,4 1,4 0,0 0,0 10,4 10,4 3))),"
+        "LINESTRING(0 0, 2 2, 2 11),"
+        "POINT(11 11)"
+    ")";
+    */
+    // Result if the elements of union are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "MULTIPOINT((0 0),(1 1),(2 2),(3 3),(7 7),(8 8),(9 9),(10 10)),"
+        "MULTILINESTRING((0 0,4 4),(6 5,11 5),(5 10,5 11)),"
         "MULTIPOLYGON(((6 10,10 10,10 3,10 0,6 0,6 10)),((4 3,5 3,5 1,4 1,4 3)),((4 3,3 3,3 5,1 5,1 1,4 1,4 0,0 0,0 10,4 10,4 3))),"
         "LINESTRING(0 0, 2 2, 2 11),"
         "POINT(11 11)"
@@ -131,8 +151,18 @@ void test_g_gc_gc()
         "MULTIPOINT(9 9, 11 11, 1 9),"
         "POINT(3 2)"
     ")";
+    // Result if the elements of union are subtracted
+    /*
     const char* expected_cstr = "GEOMETRYCOLLECTION("
         "MULTILINESTRING((1 1,3 3),(2 2,4 2)),"
+        "MULTIPOLYGON(((6 4,10 4,10 0,6 0,6 4)),((10 6,6 6,6 10,10 10,10 6)),((4 6,0 6,0 10,4 10,4 6)),((5 5,5 3,5 1,4 1,4 4,1 4,1 5,5 5)),((4 1,4 0,0 0,0 4,1 4,1 1,4 1))),"
+        "POINT(11 11)"
+    ")";
+    */
+    // Result if the elements of union are not subtracted
+    const char* expected_cstr = "GEOMETRYCOLLECTION("
+        "POINT(3 2)"
+        "MULTILINESTRING((1 1,3 3),(4 4,5 5),(2 2,5 2)),"
         "MULTIPOLYGON(((6 4,10 4,10 0,6 0,6 4)),((10 6,6 6,6 10,10 10,10 6)),((4 6,0 6,0 10,4 10,4 6)),((5 5,5 3,5 1,4 1,4 4,1 4,1 5,5 5)),((4 1,4 0,0 0,0 4,1 4,1 1,4 1))),"
         "POINT(11 11)"
     ")";
