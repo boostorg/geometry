@@ -605,7 +605,7 @@ private:
                 }, boost::begin(gc2_view) + id.gc_id);
             }
         }
-
+        /*
         // L = L \ A
         {
             multi_linestring_t l;
@@ -623,7 +623,8 @@ private:
             multi_point_t p;
             subtract_greater_topodim(boost::get<0>(out), boost::get<1>(out), p, strategy);
             boost::get<0>(out) = std::move(p);
-        }        
+        }
+        */
     }
 
     template <typename G, typename Strategy, std::enable_if_t<util::is_pointlike<G>::value, int> = 0>
@@ -696,7 +697,7 @@ private:
         geometry::convert(g, a);
         detail::intersection::gc_move_multi_back(geometry_out, a);
     }
-
+    /*
     template <typename Multi1, typename Multi2, typename Strategy>
     static inline void subtract_greater_topodim(Multi1 const& multi1, Multi2 const& multi2, Multi1& multi_out, Strategy const& strategy)
     {
@@ -718,6 +719,7 @@ private:
                 geometry::detail::overlay::do_reverse<geometry::point_order<Multi2>::value, true>::value
             >::apply(multi1, multi2, robust_policy, range::back_inserter(multi_out), strategy);
     }
+    */
 };
 
 template
