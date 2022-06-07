@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2021.
-// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -120,7 +120,7 @@ void check_geometry(Geometry1 const& geometry1,
             << " -> Expected: " << matrix_format(expected1, expected2)
             << " detected: " << res_str);
 
-        typedef typename bg::strategy::relate::services::default_strategy
+        typedef typename bg::strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2
             >::type strategy_type;
@@ -161,7 +161,7 @@ void check_geometry(Geometry1 const& geometry1,
                 << " and " << wkt2
                 << " -> Expected: " << expected1);
 
-            typedef typename bg::strategy::relate::services::default_strategy
+            typedef typename bg::strategies::relate::services::default_strategy
                 <
                     Geometry1, Geometry2
                 >::type strategy_type;
