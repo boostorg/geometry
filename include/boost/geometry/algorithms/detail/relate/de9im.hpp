@@ -391,6 +391,16 @@ struct static_mask_overlaps_type
     : static_mask_overlaps_impl<Geometry1, Geometry2>
 {};
 
+template <typename Geometry1, typename Geometry2>
+struct static_mask_overlaps_d1_eq_d2_type
+    : static_mask_overlaps_impl<Geometry1, Geometry2, 2, 2>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_overlaps_d1_1_d2_1_type
+    : static_mask_overlaps_impl<Geometry1, Geometry2, 1, 1>
+{};
+
 }} // namespace detail::de9im
 #endif // DOXYGEN_NO_DETAIL
 
