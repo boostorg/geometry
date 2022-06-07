@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -342,6 +342,21 @@ struct static_mask_crosses_impl<Geometry1, Geometry2, 1, 1, false>
 template <typename Geometry1, typename Geometry2>
 struct static_mask_crosses_type
     : static_mask_crosses_impl<Geometry1, Geometry2>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_d1_le_d2_type // specific dimensions are not important here
+    : static_mask_crosses_impl<Geometry1, Geometry2, 0, 1>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_d2_le_d1_type // specific dimensions are not important here
+    : static_mask_crosses_impl<Geometry1, Geometry2, 1, 0>
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_crosses_d1_1_d2_1_type
+    : static_mask_crosses_impl<Geometry1, Geometry2, 1, 1>
 {};
 
 // OVERLAPS
