@@ -32,6 +32,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/srs/projection.hpp>
+#include <boost/geometry/srs/transformation.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
@@ -377,43 +378,148 @@ void test_both(std::string const& name,
 template <typename P>
 void test_srs()
 {
-    // Examples from IOGP Publication 373-7-2 - Geomatics Guidance Note number 7, part 2 December 2021
+    // Most examples from IOGP Publication 373-7-2 - Geomatics Guidance Note number 7, part 2 December 2021
 
-    // EPSG:9812 Hotine Oblique Mercator (variant A), SRS EPSG: 3079
-    test_both<P>("omerc_A", 117, 12, -4893794.70,12634529.87,
-         "+proj=omerc +lat_0=45.30916666666666 +lonc=-86 +alpha=337.25556 +k_0=0.9996 \
-         +x_0=2546731.496 +y_0=-4354009.816 +no_off +gamma=337.25556 +ellps=GRS80 \
-         +towgs84=0,0,0,0,0,0,0 +units=m +no_defs");
-    // EPSG:9813 Laborde Oblique Mercator, SRS EPSG: 8441
-    test_both<P>("labrd", 44.45757, -16.189799986, 188333.848, 1098841.091,
-         "+proj=labrd +a=6378388 +rf=297 +towgs84=-198.383,-240.517,-107.909,0,0,0,0 +no_defs\
-          +lat_0=-18.9 +lon_0=46.4372291666667 +x_0=400000 +y_0=800000 +k_0=0.9995 +azi=18.9");
-     // EPSG:9815 Hotine Oblique Mercator (variant B), SRS EPSG: 9815
-    test_both<P>("omerc_B", 115.80550545, 5.3872536023, 679245.73, 596562.78,
-        "+proj=omerc +lat_0=4 +lonc=115 +alpha=53.31582047222222 +k=0.99984 +x_0=590476.87 \
-         +y_0=442857.65 +gamma=53.13010236111111 +ellps=evrstSS +towgs84=-679,669,-48,0,0,0,0 \
-         +units=m +no_defs");
-    // EPSG:9809 Oblique Stereographic, SRS EPSG: 28992
-    test_both<P>("sterea", 5.9999999931, 53.000000025, 196105.283, 557057.739,
-        "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 \
-         +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 \
-         +units=m +no_defs");
-    // EPSG:9810 Polar Stereographic (variant A), SRS EPSG:5041
-    test_both<P>("stere", 44.000000007, 73.000000003, 3320416.7473, 632668.43168,
-        "+proj=stere +lat_0=90 +lon_0=0 +k_0=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m\
-         +no_defs");
-    // EPSG:9829 Polar Stereographic (variant B), SRS EPSG:2985
-    test_both<P>("stere", 120, -75, 7255380.7933, 7053389.5606,
-        "+proj=stere +lat_0=-90 +lat_ts=-71 +lon_0=70 +k=1 +x_0=6000000 +y_0=6000000 +datum=WGS84\
-         +units=m +no_defs");
-    // EPSG:9830 Polar Stereographic (variant C), SRS EPSG:2985
-    test_both<P>("stere", 140.07140000999999074, -66.605227791000004345, 303169.52, 244055.72,
-        "+proj=stere +lat_0=-90 +lat_ts=-67 +lon_0=140 +x_0=300000 +y_0=200000 +a=6378388.297\
-         +rf=297  +units=m +no_defs +variant_c");
-    // EPSG:9833 Hyperbolic Cassini-Soldner, SRS EPSG:3139
-    test_both<P>("cass", 179.99433651, -16.841456514, 322174, 268950,
-        "+proj=cass +hyperbolic +lat_0=-16.25 +lon_0=179.33333332 +x_0=251727.9155424\
-         +y_0=334519.953768 +towgs84=51,391,-36,0,0,0,0 +axis=enu");
+    // Projection method EPSG code, method name, SRS EPSG code
+
+    // EPSG: 1027 Lambert Azimuthal Equal Area (Spherical), 2163
+    test_both<P>("laea_sph", 10, 52, 4392386.64, 5360932.79,
+        "+proj=laea +a=6370997 +b=6370997 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0");
+
+    // EPSG: 1028 Equidistant Cylindrical, 4087
+    test_both<P>("eqc", 10, 52, 1113194.9079327345826 , 5788613.5212502200156,
+        "+proj=eqc +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0");
+
+    // EPSG: 1029 Equidistant Cylindrical (Spherical), 4088
+    test_both<P>("eqc_sph", 10, 52, 1111950.4881760599092 , 5782142.54,
+        "+proj=eqc +a=6371007 +b=6371007 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0");
+
+    // EPSG: 1041 Krovak (North Orientated), 5514
+    test_both<P>("krovak_north", 16.84976999999999947 , 50.209009999999999252, -568991, -1050538.64,
+        "+proj=krovak +a=6377397.155 +rf=299.1528128 +towgs84=589,76,480,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=49.5111111111111 +lon_0=24.8333333333333 +x_0=0 +y_0=0 +k_0=0.9999 +alpha=78.5111111111111");
+
+    // EPSG: 1051 Lambert Conic Conformal (2SP Michigan) 6201
+    test_both<P>("lcc2spMich", -83.166666652999992948 , 43.750000014000001158, 2308333.8, 156159.74,
+        "+proj=lcc +a=6378206.4 +rf=294.9786982138982 +towgs84=-32.3841359,180.4090461,120.8442577,-2.1545854,-0.1498782,0.5742915,8.1049164 +no_defs +to_meter=0.304801 +lat_0=43.3277777777778 +lon_0=-84.3333333333333 +x_0=609601.2192024385 +y_0=0 +k_0=1.0000382 +lat_1=44.1944444444444 +lat_2=45.7");
+
+    // EPSG: 1052 Colombia Urban 6247
+    test_both<P>("col_urban", -74.25000002299999835 , 4.7999999945000002555, 80859.030407742538955 , 122543.1736844380066,
+        "+proj=col_urban +a=6378137 +rf=298.257222101 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=4.68048611111111 +lon_0=-74.1465916666667 +x_0=92334.879 +y_0=109320.965 +h_0=2550");
+
+    // EPSG: 9801 Lambert Conic Conformal (1SP) 24200
+    test_both<P>("lcc1sp", -76.943683174000000236 , 17.93216664699999896, 255966.6, 142493.51,
+        "+proj=lcc +a=6378206.4 +rf=294.9786982138982 +towgs84=-33.722,153.789,94.959,-8.581,-4.478,4.54,8.95 +no_defs +to_meter=1.000000 +lat_0=18 +lon_0=-77 +x_0=250000 +y_0=150000 +lat_1=18 +k_0=1");
+
+    // EPSG: 9802 Lambert Conic Conformal (2SP) 32040
+    test_both<P>("lcc2sp", -95.999999889999998004 , 28.500000182000000848, 2963503.95, 254759.87,
+        "+proj=lcc +a=6378206.4 +rf=294.9786982138982 +towgs84=-32.3841359,180.4090461,120.8442577,-2.1545854,-0.1498782,0.5742915,8.1049164 +no_defs +to_meter=0.304801 +lat_0=27.8333333333333 +lon_0=-99 +x_0=609601.2192024385 +y_0=0 +lat_1=28.3833333333333 +lat_2=30.2833333333333");
+
+    // EPSG: 9803 Lambert Conic Conformal (2SP Belgium) 31300
+    test_both<P>("lcc2spBelg", 5.8073701499999996756 , 50.679572292000003131, 252508.5, 153048.62,
+        "+proj=lcc +a=6378388 +rf=297 +towgs84=-106.8686,52.2978,-103.7239,0.3366,-0.457,1.8422,-1.2747 +no_defs +to_meter=1.000000 +lat_0=90 +lon_0=4.35693972222222 +x_0=150000.01256 +y_0=5400088.4378 +lat_1=49.8333333333333 +lat_2=51.1666666666667");
+
+    // EPSG: 9804 Mercator (variant A) 3002
+    test_both<P>("mercA", 119.99999986000001684 , -3.0000001398000000208, 5009726.57, 569150.8,
+        "+proj=merc +a=6377397.155 +rf=299.1528128 +towgs84=-587.8,519.75,145.76,0,0,0,0 +no_defs +to_meter=1.000000 +lon_0=110 +x_0=3900000 +y_0=900000 +k=0.997");
+
+    // EPSG: 9805 Mercator (variant B) 3388
+    test_both<P>("mercB", 52.999999795999997332 , 52.999999795999997332, 165704.28, 5171848.04,
+        "+proj=merc +a=6378245 +rf=298.3 +towgs84=25,-141,-78.5,0,0.35,0.736,0 +no_defs +to_meter=1.000000 +lon_0=51 +x_0=0 +y_0=0 +lat_ts=42");
+
+    // EPSG: 9806 Cassini-Soldner 30200
+    test_both<P>("cass", -62.000000216000003661 , 10.000000274999999661, 66644.82, 82536.37,
+        "+proj=cass +a=6378293.645208759 +rf=294.26067636926103 +towgs84=-61.702,284.488,472.052,0,0,0,0 +no_defs +to_meter=0.201166 +lat_0=10.4416666666667 +lon_0=-61.3333333333333 +x_0=86501.46392052 +y_0=65379.0134283");
+
+    // EPSG: 9807 Transverse Mercator 27700
+    test_both<P>("tmerc", 0.50000021428999996687 , 50.499999870999999985, 577275, 69740.48,
+        "+proj=tmerc +a=6377563.396 +rf=299.3249646 +towgs84=446.448,-125.157,542.06,0.15,0.247,0.842,-20.489 +no_defs +to_meter=1.000000 +lat_0=49 +lon_0=-2 +x_0=400000 +y_0=-100000 +k_0=0.9996012717");
+
+    // EPSG: 9808 Transverse Mercator (South Orientated) 2053
+    test_both<P>("tmercSouth", 28.282632943999999497 , -25.732028354000000547, 71984.490915335103637 , 2847342.7375604701228,
+        "+proj=tmerc +axis=wsu +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=0 +lon_0=29 +x_0=0 +y_0=0 +k_0=1");
+
+    // EPSG: 9809 Oblique Stereographic 28992
+    test_both<P>("obliquesterea", 5.9999999931000003173 , 53.000000024999998516, 196105.28, 557057.74,
+        "+proj=sterea +a=6377397.155 +rf=299.1528128 +towgs84=565.4171,50.3319,465.5524,-0.398957388243134,0.343987817378283,-1.87740163998045,4.0725 +no_defs +to_meter=1.000000 +lat_0=52.1561605555556 +lon_0=5.38763888888889 +x_0=155000 +y_0=463000 +k=0.9999079");
+
+    // EPSG: 9810 Polar Stereographic (variant A) 5041
+    test_both<P>("polarstereA", 44.000000006999997026 , 73.000000002999996696, 3320416.7472905800678 , 632668.43167817103676,
+        "+proj=stere +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=90 +lon_0=0 +x_0=2000000 +y_0=2000000 +k_0=0.994");
+
+    // EPSG: 9811 New Zealand Map Grid 27200
+    test_both<P>("nzmg", 174.76333600000000956 , -36.848461000000000354, 2667669.23, 6482384.58,
+        "+proj=nzmg +a=6378388 +rf=297 +towgs84=59.47,-5.04,187.44,0.47,-0.1,1.024,-4.5993 +no_defs +to_meter=1.000000");
+
+    // EPSG: 9812 Hotine Oblique Mercator (variant A) 3079
+    test_both<P>("omercA", 117 , 12, -4893794.4284746721387 , 12634528.92927826196,
+        "+proj=omerc +no_off +a=6378137 +rf=298.257222101 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=45.3091666666667 +lonc=-86 +x_0=2546731.496 +y_0=-4354009.816 +k_0=0.9996 +alpha=337.25556 +gamma=337.25556");
+
+    // EPSG: 9813 Laborde Oblique Mercator 8441
+    test_both<P>("labrd", 44.457569999999996924 , -16.189799986000000587, 188333.59, 1100071.08,
+        "+proj=labrd +a=6378388 +rf=297 +towgs84=-198.383,-240.517,-107.909,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=-18.9111111111111 +lon_0=46.4372291666667 +x_0=400000 +y_0=800000 +k_0=0.9995 +azi=18.9111111111111");
+
+    // EPSG: 9815 Hotine Oblique Mercator (variant B) 29873
+    test_both<P>("omercB", 115.80550544999999829 , 5.387253602300000388, 679245.73, 596562.78,
+        "+proj=omerc +a=6377298.556 +rf=300.8017 +towgs84=-679,669,-48,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=4 +lonc=115 +x_0=590476.87 +y_0=442857.65 +k_0=0.99984 +alpha=53.3158204722222 +gamma=53.1301023611111");
+
+    // EPSG: 9817 Lambert Conic Near-Conformal 22700
+    test_both<P>("lccNear", 34.136469742000002725 , 37.521562492999997573, 15708, 623167.19,
+        "+proj=lcc +a=6378249.2 +rf=293.4660212936269 +towgs84=-83.58,-397.54,458.78,-17.595,-2.847,4.256,3.225 +no_defs +to_meter=1.000000 +lat_0=34.65 +lon_0=37.35 +x_0=300000 +y_0=300000 +lat_1=34.65 +k_0=0.9996256");
+
+    // EPSG: 9818 American Polyconic 5880
+    test_both<P>("poly", -45 , -6, 5996378.7098177596927 , 9328349.9440754503012,
+        "+proj=poly +a=6378137 +rf=298.257222101 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=0 +lon_0=-54 +x_0=5000000 +y_0=10000000");
+
+    // EPSG: 9819 Krovak 5513
+    test_both<P>("krovak", 16.84976999999999947 , 50.209009999999999252, 1050536.26, 568991.16,
+        "+proj=krovak +czech +a=6377397.155 +rf=299.1528128 +towgs84=589,76,480,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=49.5111111111111 +lon_0=24.8333333333333 +x_0=0 +y_0=0 +k_0=0.9999");
+
+    // EPSG: 9820 Lambert Azimuthal Equal Area 3035
+    test_both<P>("laea", 5 , 50, 3962799.4509550700895 , 2999718.8531595598906,
+        "+proj=laea +a=6378137 +rf=298.257222101 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000");
+
+    // EPSG: 9822 Albers Equal Area 3174
+    test_both<P>("aea", -78.75 , 42.749999987000002477, 1466492.3057632399723 , 702903.12208127905615,
+        "+proj=aea +a=6378137 +rf=298.257222101 +towgs84=1,1,-1,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=45.568977 +lon_0=-84.455955 +x_0=1000000 +y_0=1000000 +lat_1=42.122774 +lat_2=49.01518");
+
+    // EPSG: 9824 Transverse Mercator Zoned Grid System 32600
+    test_both<P>("utm", 12 , 56, 1798179.0365446016658 , 13588963.310720724985,
+        "+proj=utm +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +zone=6");
+    // EPSG: 9824 32700
+    test_both<P>("utmSouth", 174 , -44, -2617060.1631802432239 , 4328084.4894244493917,
+        "+proj=utm +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +zone=6 +south");
+
+    // EPSG: 9828 Bonne (South Orientated) 5017
+    test_both<P>("bonne", -9.142685 , 38.736946, 87872.79, -3183241.02,
+        "+proj=bonne +lat_1=10 +axis=wsu +a=6377397.155 +rf=299.1528128 +towgs84=631.392,-66.551,481.442,1.09,-4.445,-4.487,-4.43 +no_defs +to_meter=1.000000 +lat_0=39.6777777777778 +lon_0=-8.13190611111111 +x_0=0 +y_0=0");
+
+    // EPSG: 9829 Polar Stereographic (variant B) 3032
+    test_both<P>("polarstereB", 119.99999999999998579 , -75, 7255380.7932583903894 , 7053389.5606101602316,
+        "+proj=stere +lat_0=-90 +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lon_0=70 +x_0=6000000 +y_0=6000000 +lat_ts=-71");
+
+    // EPSG: 9830 Polar Stereographic (variant C) 2985
+    test_both<P>("laea", 140.07140000999999074 , -66.605227791000004345, 303169.52, 244055.72,
+        "+proj=stere +lat_0=-90 +variant_c +a=6378388 +rf=297 +towgs84=365,194,166,0,0,0,0 +no_defs +to_meter=1.000000 +lon_0=140 +x_0=300000 +y_0=200000 +lat_ts=-67");
+
+    // EPSG: 9831 Guam Projection 3993
+    test_both<P>("Guam", 144.63533130999999798 , 13.339038450000000324, 37712.48, 35242,
+        "+proj=aeqd +guam +a=6378206.4 +rf=294.9786982138982 +towgs84=-100,-248,259,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=13.4724663527778 +lon_0=144.748750705556 +x_0=50000 +y_0=50000");
+
+    // EPSG: 9832 Modified Azimuthal Equidistant 3295
+    test_both<P>("AzimuthEq", 138.19302999999999315 , 9.5965258593999998027, 42665.91, 65509.83,
+        "+proj=aeqd +a=6378206.4 +rf=294.9786982138982 +towgs84=-100,-248,259,0,0,0,0 +no_defs +to_meter=1.000000 +lat_0=9.54670833333333 +lon_0=138.168744444444 +x_0=40000 +y_0=60000");
+
+    // EPSG: 9833 Hyperbolic Cassini-Soldner 3139
+    test_both<P>("cass-hyperbolic", 179.99433651000001078 , -16.841456514000000766, 1595642.29, 1343096.93,
+        "+proj=cass +hyperbolic +a=6378306.3696 +rf=293.46630765562986 +towgs84=51,391,-36,0,0,0,0 +no_defs +to_meter=0.201168 +lat_0=-16.2611111111111 +lon_0=179.344444444444 +x_0=251727.91554240003 +y_0=334519.953768");
+
+    // EPSG: 9834 Lambert Cylindrical Equal Area (Spherical) 3410
+    test_both<P>("cea_sph", 10 , 52, 963010.77, 5797285.11,
+        "+proj=cea +a=6371228 +b=6371228 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lon_0=0 +x_0=0 +y_0=0 +lat_ts=30");
+
+    // EPSG: 9835 Lambert Cylindrical Equal Area 6933
+    test_both<P>("lambert_cyl_eq_area", 10 , 52, 964862.80250896397047 , 5775916.830744350329,
+        "+proj=cea +a=6378137 +rf=298.257223563 +towgs84=0,0,0,0,0,0,0 +no_defs +to_meter=1.000000 +lon_0=0 +x_0=0 +y_0=0 +lat_ts=30");
 
     // test +axis argument
     test_both<P>("cass", 179.99433651, -16.841456514, -322174, 268950,

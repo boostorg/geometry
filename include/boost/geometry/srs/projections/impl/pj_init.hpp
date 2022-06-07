@@ -437,7 +437,6 @@ inline void pj_init_axis(Params const& params, parameters<T> & projdef)
     std::string axis = pj_get_param_s(params, "axis");
     if(! axis.empty())
     {
-        //projdef.axis.assign(axis.begin(), axis.end());
         for (std::size_t i = 0; i < axis.length(); ++i)
         {
             switch(axis[i])
@@ -478,7 +477,6 @@ inline void pj_init_axis(Params const& params, parameters<T> & projdef)
     }
 
 }
-
 
 /************************************************************************/
 /*                              pj_init()                               */
