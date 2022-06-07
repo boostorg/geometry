@@ -123,7 +123,7 @@ struct linear_linear
                              Strategy const& strategy)
     {
         // The result should be FFFFFFFFF
-        relate::set<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
+        update<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
 

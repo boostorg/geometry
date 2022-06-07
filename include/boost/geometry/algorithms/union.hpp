@@ -399,30 +399,72 @@ struct gc_element_id
 template <typename GC1View, typename GC2View, typename Strategy, typename IntersectingFun, typename DisjointFun>
 inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view, Strategy const& strategy,
                               IntersectingFun&& intersecting_fun,
-                              DisjointFun&& disjoint_fun)
+                              DisjointFun&& disjoint_fun,
+                              bool group_self = false)
 {
     // NOTE: could be replaced with unordered_map and unordered_set
     std::map<gc_element_id, std::set<gc_element_id>> adjacent;
-    
-    auto const rtree2 = detail::make_rtree_indexes(gc2_view, strategy);
-    // Create adjacency list based on intersecting envelopes of GC elements
-    for (std::size_t i = 0; i < boost::size(gc1_view); ++i)
-    {
-        traits::iter_visit<GC1View>::apply([&](auto const& g1)
-        {
-            using g1_t = util::remove_cref_t<decltype(g1)>;
-            using box1_t = detail::make_rtree_box_t<g1_t>;
-            box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
-            detail::expand_by_epsilon(b1);
 
-            gc_element_id id1 = {0, i};
-            for (auto qit = rtree2.qbegin(index::intersects(b1)); qit != rtree2.qend(); ++qit)
+    // Create adjacency list based on intersecting envelopes of GC elements
+    auto const rtree2 = detail::make_rtree_indexes(gc2_view, strategy);
+    if (! group_self) // group only elements from the other GC?
+    {
+        for (std::size_t i = 0; i < boost::size(gc1_view); ++i)
+        {
+            traits::iter_visit<GC1View>::apply([&](auto const& g1)
             {
-                gc_element_id id2 = {1, qit->second};
+                using g1_t = util::remove_cref_t<decltype(g1)>;
+                using box1_t = detail::make_rtree_box_t<g1_t>;
+                box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
+                detail::expand_by_epsilon(b1);
+
+                gc_element_id id1 = {0, i};
+                for (auto qit = rtree2.qbegin(index::intersects(b1)); qit != rtree2.qend(); ++qit)
+                {
+                    gc_element_id id2 = {1, qit->second};
+                    adjacent[id1].insert(id2);
+                    adjacent[id2].insert(id1);
+                }
+            }, boost::begin(gc1_view) + i);
+        }
+    }
+    else // group elements from the same GCs and the other GC
+    {
+        auto const rtree1 = detail::make_rtree_indexes(gc1_view, strategy);
+        for (auto it1 = rtree1.begin() ; it1 != rtree1.end() ; ++it1)
+        {
+            auto const b1 = it1->first;
+            gc_element_id id1 = {0, it1->second};
+            for (auto qit2 = rtree2.qbegin(index::intersects(b1)); qit2 != rtree2.qend(); ++qit2)
+            {
+                gc_element_id id2 = {1, qit2->second};
                 adjacent[id1].insert(id2);
                 adjacent[id2].insert(id1);
             }
-        }, boost::begin(gc1_view) + i);
+            for (auto qit1 = rtree1.qbegin(index::intersects(b1)); qit1 != rtree1.qend(); ++qit1)
+            {
+                if (id1.gc_id != qit1->second)
+                {
+                    gc_element_id id11 = {0, qit1->second};
+                    adjacent[id1].insert(id11);
+                    adjacent[id11].insert(id1);
+                }
+            }
+        }
+        for (auto it2 = rtree2.begin(); it2 != rtree2.end(); ++it2)
+        {
+            auto const b2 = it2->first;
+            gc_element_id id2 = {1, it2->second};
+            for (auto qit2 = rtree2.qbegin(index::intersects(b2)); qit2 != rtree2.qend(); ++qit2)
+            {
+                if (id2.gc_id != qit2->second)
+                {
+                    gc_element_id id22 = {1, qit2->second};
+                    adjacent[id2].insert(id22);
+                    adjacent[id22].insert(id2);
+                }
+            }
+        }
     }
 
     // Traverse the graph and build connected groups i.e. groups of intersecting envelopes

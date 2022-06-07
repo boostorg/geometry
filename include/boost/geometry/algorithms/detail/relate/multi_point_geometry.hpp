@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2020 Oracle and/or its affiliates.
+// Copyright (c) 2017-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -201,7 +201,7 @@ struct multi_point_single_geometry
             // The default strategy is enough for Point/Box
             if (detail::disjoint::disjoint_point_box(*it, box2, strategy))
             {
-                relate::set<interior, exterior, '0', Transpose>(result);
+                update<interior, exterior, '0', Transpose>(result);
             }
             else
             {
@@ -209,15 +209,15 @@ struct multi_point_single_geometry
 
                 if (in_val > 0) // within
                 {
-                    relate::set<interior, interior, '0', Transpose>(result);
+                    update<interior, interior, '0', Transpose>(result);
                 }
                 else if (in_val == 0)
                 {
-                    relate::set<interior, boundary, '0', Transpose>(result);
+                    update<interior, boundary, '0', Transpose>(result);
                 }
                 else // in_val < 0 - not within
                 {
-                    relate::set<interior, exterior, '0', Transpose>(result);
+                    update<interior, exterior, '0', Transpose>(result);
                 }
             }
 
@@ -239,7 +239,7 @@ struct multi_point_single_geometry
             {
                 // TODO: this is not true if a linestring is degenerated to a point
                 // then the interior has topological dimension = 0, not 1
-                relate::set<exterior, interior, tc_t::interior, Transpose>(result);
+                update<exterior, interior, tc_t::interior, Transpose>(result);
             }
 
             if ( relate::may_update<exterior, boundary, tc_t::boundary, Transpose>(result)
@@ -247,12 +247,12 @@ struct multi_point_single_geometry
             {
                 if (multi_point_geometry_eb<SingleGeometry>::apply(multi_point, tc))
                 {
-                    relate::set<exterior, boundary, tc_t::boundary, Transpose>(result);
+                    update<exterior, boundary, tc_t::boundary, Transpose>(result);
                 }
             }
         }
 
-        relate::set<exterior, exterior, result_dimension<MultiPoint>::value, Transpose>(result);
+        update<exterior, exterior, result_dimension<MultiPoint>::value, Transpose>(result);
     }
 };
 
@@ -364,14 +364,18 @@ class multi_point_multi_geometry_ii_ib
 
                 if (in_val > 0) // within
                 {
-                    relate::set<interior, interior, '0', Transpose>(m_result);
+                    update<interior, interior, '0', Transpose>(m_result);
                 }
                 else if (in_val == 0)
                 {
                     if (m_tc.check_boundary_point(point))
-                        relate::set<interior, boundary, '0', Transpose>(m_result);
+                    {
+                        update<interior, boundary, '0', Transpose>(m_result);
+                    }
                     else
-                        relate::set<interior, interior, '0', Transpose>(m_result);
+                    {
+                        update<interior, interior, '0', Transpose>(m_result);
+                    }
                 }
             }
 
@@ -487,15 +491,19 @@ struct multi_point_multi_geometry_ii_ib_ie
 
                 if (in_val > 0) // within
                 {
-                    relate::set<interior, interior, '0', Transpose>(result);
+                    update<interior, interior, '0', Transpose>(result);
                     found_ii_or_ib = true;
                 }
                 else if (in_val == 0) // on boundary of single
                 {
                     if (tc.check_boundary_point(point))
-                        relate::set<interior, boundary, '0', Transpose>(result);
+                    {
+                        update<interior, boundary, '0', Transpose>(result);
+                    }
                     else
-                        relate::set<interior, interior, '0', Transpose>(result);
+                    {
+                        update<interior, interior, '0', Transpose>(result);
+                    }
                     found_ii_or_ib = true;
                 }
             }
@@ -503,7 +511,7 @@ struct multi_point_multi_geometry_ii_ib_ie
             // neither interior nor boundary found -> exterior
             if (found_ii_or_ib == false)
             {
-                relate::set<interior, exterior, '0', Transpose>(result);
+                update<interior, exterior, '0', Transpose>(result);
             }
 
             if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
@@ -572,7 +580,7 @@ struct multi_point_multi_geometry
             {
                 // TODO: this is not true if a linestring is degenerated to a point
                 // then the interior has topological dimension = 0, not 1
-                relate::set<exterior, interior, tc_t::interior, Transpose>(result);
+                update<exterior, interior, tc_t::interior, Transpose>(result);
             }
 
             if ( relate::may_update<exterior, boundary, tc_t::boundary, Transpose>(result)
@@ -580,12 +588,12 @@ struct multi_point_multi_geometry
             {
                 if (multi_point_geometry_eb<MultiGeometry>::apply(multi_point, tc))
                 {
-                    relate::set<exterior, boundary, tc_t::boundary, Transpose>(result);
+                    update<exterior, boundary, tc_t::boundary, Transpose>(result);
                 }
             }
         }
 
-        relate::set<exterior, exterior, result_dimension<MultiPoint>::value, Transpose>(result);
+        update<exterior, exterior, result_dimension<MultiPoint>::value, Transpose>(result);
     }
 
 };
