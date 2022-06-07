@@ -88,7 +88,7 @@ namespace projections
 
                     if (fabs(fabs(lp_lat) - half_pi) > epsilon) {
                         W = this->m_proj_parm.E / math::pow(pj_tsfn(lp_lat, sin(lp_lat), par.e),
-                            this->m_proj_parm.B);
+                                                            this->m_proj_parm.B);
                         temp = 1. / W;
                         s = .5 * (W - temp);
                         t = .5 * (W + temp);
@@ -103,7 +103,7 @@ namespace projections
                             u = this->m_proj_parm.A * lp_lon;
                         } else {
                             u = this->m_proj_parm.ArB * atan2((s * this->m_proj_parm.cosgam
-                                + V * this->m_proj_parm.singam), temp);
+                                                              + V * this->m_proj_parm.singam), temp);
                         }
                     } else {
                         v = lp_lat > 0 ? this->m_proj_parm.v_pole_n : this->m_proj_parm.v_pole_s;
@@ -176,7 +176,7 @@ namespace projections
                 int alp, gam, no_off = 0;
 
                 proj_parm.no_rot = pj_get_param_b<srs::spar::no_rot>(params, "no_rot",
-                    srs::dpar::no_rot);
+                                                                     srs::dpar::no_rot);
                 alp = pj_param_r<srs::spar::alpha>(params, "alpha", srs::dpar::alpha, alpha_c);
                 gam = pj_param_r<srs::spar::gamma>(params, "gamma", srs::dpar::gamma, gamma);
                 if (alp || gam) {
