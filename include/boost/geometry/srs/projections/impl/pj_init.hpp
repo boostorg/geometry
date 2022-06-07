@@ -478,6 +478,30 @@ inline void pj_init_axis(Params const& params, parameters<T> & projdef)
 
 }
 
+// TODO: implement axis support for other types of parameters
+
+template <typename T>
+inline void pj_init_axis(srs::dpar::parameters<T> const& params, parameters<T> & projdef)
+{}
+
+template <typename Params>
+struct pj_init_axis_static
+{
+    template <typename T>
+    static void apply(Params const& , parameters<T> & projdef)
+    {}
+};
+
+template <typename T, typename ...Ps>
+inline void pj_init_axis(srs::spar::parameters<Ps...> const& params, parameters<T> & projdef)
+{
+    pj_init_axis_static
+        <
+            srs::spar::parameters<Ps...>
+        >::apply(params, projdef);
+}
+
+
 /************************************************************************/
 /*                              pj_init()                               */
 /*                                                                      */
