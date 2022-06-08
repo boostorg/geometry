@@ -917,12 +917,16 @@ struct buffered_piece_collection
     template <typename Range>
     inline void add_side_piece(point_type const& original_point1,
             point_type const& original_point2,
-            Range const& range, bool first)
+            Range const& range, bool is_first, bool is_empty)
     {
         BOOST_GEOMETRY_ASSERT(boost::size(range) >= 2u);
 
-        piece& pc = create_piece(strategy::buffer::buffered_segment, ! first);
-        add_range_to_piece(pc, range, first);
+        auto const piece_type = is_empty
+            ? strategy::buffer::buffered_empty_side
+            : strategy::buffer::buffered_segment;
+
+        piece& pc = create_piece(piece_type, ! is_first);
+        add_range_to_piece(pc, range, is_first);
 
         // Add the four points of the side, starting with the last point of the
         // range, and reversing the order of the originals to keep it clockwise
