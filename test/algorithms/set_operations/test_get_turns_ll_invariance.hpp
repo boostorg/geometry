@@ -155,10 +155,10 @@ public:
         std::sort(boost::begin(rturns_wo_cont), boost::end(rturns_wo_cont),
                   bg_turns::less_seg_fraction_other_op<std::greater<boost::geometry::signed_size_type> >());
 
-        remove_duplicate_turns::apply(turns_all);
-        remove_duplicate_turns::apply(turns_wo_cont);
-        remove_duplicate_turns::apply(rturns_all);
-        remove_duplicate_turns::apply(rturns_wo_cont);
+        remove_duplicate_turns::apply(turns_all, strategy);
+        remove_duplicate_turns::apply(turns_wo_cont, strategy);
+        remove_duplicate_turns::apply(rturns_all, strategy);
+        remove_duplicate_turns::apply(rturns_wo_cont, strategy);
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << std::endl << std::endl;
