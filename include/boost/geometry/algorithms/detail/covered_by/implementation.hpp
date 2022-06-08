@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013-2021.
-// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -48,11 +48,12 @@ struct use_relate
     template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
     {
-        typedef typename detail::de9im::static_mask_covered_by_type
+        return detail::relate::relate_impl
             <
-                Geometry1, Geometry2
-            >::type covered_by_mask;
-        return geometry::relate(geometry1, geometry2, covered_by_mask(), strategy);
+                detail::de9im::static_mask_covered_by_type,
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, strategy);
     }
 };
 
@@ -270,6 +271,23 @@ struct covered_by<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
 template <typename MultiPolygon1, typename MultiPolygon2>
 struct covered_by<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
     : public detail::covered_by::use_relate
+{};
+
+// GC
+
+template <typename Geometry1, typename Geometry2>
+struct covered_by<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag>
+    : detail::covered_by::use_relate
+{};
+
+template <typename Geometry1, typename Geometry2, typename Tag1>
+struct covered_by<Geometry1, Geometry2, Tag1, geometry_collection_tag>
+    : detail::covered_by::use_relate
+{};
+
+template <typename Geometry1, typename Geometry2, typename Tag2>
+struct covered_by<Geometry1, Geometry2, geometry_collection_tag, Tag2>
+    : detail::covered_by::use_relate
 {};
 
 } // namespace dispatch

@@ -294,6 +294,8 @@ struct within<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag
     : public detail::within::use_relate
 {};
 
+// GC
+
 template <typename Geometry1, typename Geometry2>
 struct within<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag>
     : detail::within::use_relate
