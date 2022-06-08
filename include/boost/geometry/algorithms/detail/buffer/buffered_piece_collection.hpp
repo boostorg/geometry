@@ -289,65 +289,6 @@ struct buffered_piece_collection
         , m_robust_policy(robust_policy)
     {}
 
-    inline bool is_following(buffer_turn_info_type const& turn,
-                             buffer_turn_operation_type const& op)
-    {
-        return turn.operations[0].seg_id.segment_index == op.seg_id.segment_index
-            || turn.operations[1].seg_id.segment_index == op.seg_id.segment_index;
-    }
-
-    // Verify if turns which are classified as OK (outside or on border of
-    // offsetted ring) do not traverse through other turns which are classified
-    // as WITHIN (inside a piece). This can happen if turns are nearly colocated
-    // and due to floating point precision just classified as within, while
-    // they should not be within.
-    // In those cases the turns are fine to travel through (and should),
-    // but they are not made startable.
-    template <typename Vector>
-    inline void pretraverse(Vector const& indexed_operations)
-    {
-        // Verify if the turns which are OK don't skip segments
-        typedef typename boost::range_value<Vector>::type indexed_type;
-        buffer_turn_operation_type last_traversable_operation;
-        buffer_turn_info_type last_traversable_turn;
-        bool first = true;
-        for (std::size_t i = 0; i < indexed_operations.size(); i++)
-        {
-            indexed_type const & itop = indexed_operations[i];
-            buffer_turn_info_type const& turn = m_turns[itop.turn_index];
-
-            if (turn.is_turn_traversable && ! first)
-            {
-               // Check previous and next turns. The first is handled
-               BOOST_GEOMETRY_ASSERT(i > 0);
-               indexed_type const& previous_itop = indexed_operations[i - 1];
-               std::size_t const next_index = i + 1 < indexed_operations.size() ? i + 1 : 0;
-               indexed_type const& next_itop = indexed_operations[next_index];
-
-               buffer_turn_info_type& previous_turn = m_turns[previous_itop.turn_index];
-               buffer_turn_info_type& next_turn = m_turns[next_itop.turn_index];
-
-               if (previous_turn.close_to_offset
-                   && is_following(previous_turn, last_traversable_operation))
-               {
-                   previous_turn.is_turn_traversable = true;
-               }
-               else if (next_turn.close_to_offset
-                        && is_following(next_turn, last_traversable_operation))
-               {
-                   next_turn.is_turn_traversable = true;
-               }
-            }
-
-            if (turn.is_turn_traversable)
-            {
-                first = false;
-                last_traversable_operation = *itop.subject;
-                last_traversable_turn = turn;
-            }
-        }
-    }
-
     inline void check_linear_endpoints(buffer_turn_info_type& turn) const
     {
         // TODO this is quadratic. But the #endpoints, expected, is low,
@@ -389,14 +330,6 @@ struct buffered_piece_collection
             ++mit)
         {
             std::sort(mit->second.begin(), mit->second.end(), buffer_less());
-        }
-
-        for (typename mapped_vector_type::iterator mit
-            = mapped_vector.begin();
-            mit != mapped_vector.end();
-            ++mit)
-        {
-            pretraverse(mit->second);
         }
     }
 
