@@ -52,11 +52,9 @@ void test_gc_gc()
                               "GEOMETRYCOLLECTION(LINESTRING(0 0, 1 1), LINESTRING(1 1, 2 2))",
                               "0FFFFF102");
 
-
-    // ERROR
-    /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(5 5, 6 6))",
-                              "2FF1FFFF2");*/
+                              "2FFF1FFF2");
 }
 
 void test_g_gc()

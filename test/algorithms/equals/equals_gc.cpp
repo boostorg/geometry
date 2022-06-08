@@ -29,17 +29,15 @@ void test_gc()
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 4, 4 1))",
                               false);
-    // ERROR in relate
-    /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(5 5, 6 6))",
-                              true);*/
+                              true);
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6), POINT(0 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(5 5, 6 6))",
                               false);
-    // ERROR in relate
-    /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6), POINT(0 6))",
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6), POINT(0 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(5 5, 6 6), POINT(0 6))",
-                              true);*/
+                              true);
     
 
     test_geometry<po_t, gc_t>("POLYGON((0 0,0 5,5 5,5 0,0 0))",

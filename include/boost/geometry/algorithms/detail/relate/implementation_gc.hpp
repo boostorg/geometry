@@ -14,6 +14,8 @@
 
 #include <boost/geometry/algorithms/detail/relate/interface.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
+#include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
@@ -158,32 +160,53 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                 subtract_elements(tuple1, strategy);
                 subtract_elements(tuple2, strategy);
 
+                bool is_ll_handled = false;
+                if (! geometry::is_empty(boost::get<1>(tuple1))
+                    && ! geometry::is_empty(boost::get<1>(tuple2)))
+                {
+                    inters_found[0][1] = true;
+                    inters_found[1][1] = true;
+                    mls2_t mls2_diff_mpo1;
+                    geometry::difference(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_diff_mpo1);
+                    mls1_t mls1_diff_mpo2;
+                    geometry::difference(boost::get<1>(tuple1), boost::get<2>(tuple2), mls1_diff_mpo2);
+                    if (! geometry::is_empty(mls2_diff_mpo1)
+                        && ! geometry::is_empty(mls1_diff_mpo2))
+                    {
+                        is_ll_handled = true;
+                        call_relate(mls1_diff_mpo2, mls2_diff_mpo1, result, strategy);
+                    }
+                }
+                
                 if (! geometry::is_empty(boost::get<2>(tuple1)))
                 {
                     inters_found[0][2] = true;
                     if (! geometry::is_empty(boost::get<2>(tuple2)))
                     {
                         inters_found[1][2] = true;
-                        dispatch::relate
-                            <
-                                mpo1_t, mpo2_t
-                            >::apply(boost::get<2>(tuple1), boost::get<2>(tuple2), result, strategy);
+                        call_relate(boost::get<2>(tuple1), boost::get<2>(tuple2), result, strategy);
                     }
                     if (! geometry::is_empty(boost::get<1>(tuple2)))
                     {
                         inters_found[1][1] = true;
-                        dispatch::relate
-                            <
-                                mpo1_t, mls2_t
-                            >::apply(boost::get<2>(tuple1), boost::get<1>(tuple2), result, strategy);
+                        if (is_ll_handled)
+                        {
+                            mls1_t mls2_inters_mpo1;
+                            geometry::intersection(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_inters_mpo1);
+                            if (! geometry::is_empty(mls2_inters_mpo1))
+                            {
+                                call_relate(boost::get<2>(tuple1), mls2_inters_mpo1, result, strategy);
+                            }
+                        }
+                        else
+                        {
+                            call_relate(boost::get<2>(tuple1), boost::get<1>(tuple2), result, strategy);
+                        }
                     }
                     if (! geometry::is_empty(boost::get<0>(tuple2)))
                     {
                         inters_found[1][0] = true;
-                        dispatch::relate
-                            <
-                                mpo1_t, mpt2_t
-                            >::apply(boost::get<2>(tuple1), boost::get<0>(tuple2), result, strategy);
+                        call_relate(boost::get<2>(tuple1), boost::get<0>(tuple2), result, strategy);
                     }
                 }
                 if (! geometry::is_empty(boost::get<1>(tuple1)))
@@ -192,26 +215,24 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                     if (! geometry::is_empty(boost::get<2>(tuple2)))
                     {
                         inters_found[1][2] = true;
-                        dispatch::relate
-                            <
-                                mls1_t, mpo2_t
-                            >::apply(boost::get<1>(tuple1), boost::get<2>(tuple2), result, strategy);
-                    }
-                    if (! geometry::is_empty(boost::get<1>(tuple2)))
-                    {
-                        inters_found[1][1] = true;
-                        dispatch::relate
-                            <
-                                mls1_t, mls2_t
-                            >::apply(boost::get<1>(tuple1), boost::get<1>(tuple2), result, strategy);
+                        if (is_ll_handled)
+                        {
+                            mls1_t mls1_inters_mpo2;
+                            geometry::intersection(boost::get<1>(tuple1), boost::get<2>(tuple2), mls1_inters_mpo2);
+                            if (! geometry::is_empty(mls1_inters_mpo2))
+                            {
+                                call_relate(mls1_inters_mpo2, boost::get<2>(tuple2), result, strategy);
+                            }
+                        }
+                        else
+                        {
+                            call_relate(boost::get<1>(tuple1), boost::get<2>(tuple2), result, strategy);
+                        }
                     }
                     if (! geometry::is_empty(boost::get<0>(tuple2)))
                     {
                         inters_found[1][0] = true;
-                        dispatch::relate
-                            <
-                                mls1_t, mpt2_t
-                            >::apply(boost::get<1>(tuple1), boost::get<0>(tuple2), result, strategy);
+                        call_relate(boost::get<1>(tuple1), boost::get<0>(tuple2), result, strategy);
                     }
                 }
                 if (! geometry::is_empty(boost::get<0>(tuple1)))
@@ -220,26 +241,17 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                     if (! geometry::is_empty(boost::get<2>(tuple2)))
                     {
                         inters_found[1][2] = true;
-                        dispatch::relate
-                            <
-                                mpt1_t, mpo2_t
-                            >::apply(boost::get<0>(tuple1), boost::get<2>(tuple2), result, strategy);
+                        call_relate(boost::get<0>(tuple1), boost::get<2>(tuple2), result, strategy);
                     }
                     if (! geometry::is_empty(boost::get<1>(tuple2)))
                     {
                         inters_found[1][1] = true;
-                        dispatch::relate
-                            <
-                                mpt1_t, mls2_t
-                            >::apply(boost::get<0>(tuple1), boost::get<1>(tuple2), result, strategy);
+                        call_relate(boost::get<0>(tuple1), boost::get<1>(tuple2), result, strategy);
                     }
                     if (! geometry::is_empty(boost::get<0>(tuple2)))
                     {
                         inters_found[1][0] = true;
-                        dispatch::relate
-                            <
-                                mpt1_t, mpt2_t
-                            >::apply(boost::get<0>(tuple1), boost::get<0>(tuple2), result, strategy);
+                        call_relate(boost::get<0>(tuple1), boost::get<0>(tuple2), result, strategy);
                     }
                 }
             },
@@ -333,24 +345,24 @@ private:
     template <typename Tuple, typename Strategy>
     static inline void subtract_elements(Tuple& tuple, Strategy const& strategy)
     {
-        if (! boost::empty(boost::get<1>(tuple)))
+        if (! geometry::is_empty(boost::get<1>(tuple)))
         {
-            if (! boost::empty(boost::get<2>(tuple)))
+            if (! geometry::is_empty(boost::get<2>(tuple)))
             {
                 typename boost::tuples::element<1, Tuple>::type mls;
                 geometry::difference(boost::get<1>(tuple), boost::get<2>(tuple), mls, strategy);
                 boost::get<1>(tuple) = std::move(mls);
             }
         }
-        if (! boost::empty(boost::get<0>(tuple)))
+        if (! geometry::is_empty(boost::get<0>(tuple)))
         {
-            if (! boost::empty(boost::get<2>(tuple)))
+            if (! geometry::is_empty(boost::get<2>(tuple)))
             {
                 typename boost::tuples::element<0, Tuple>::type mpt;
                 geometry::difference(boost::get<0>(tuple), boost::get<2>(tuple), mpt, strategy);
                 boost::get<0>(tuple) = std::move(mpt);
             }
-            if (! boost::empty(boost::get<1>(tuple)))
+            if (! geometry::is_empty(boost::get<1>(tuple)))
             {
                 typename boost::tuples::element<0, Tuple>::type mpt;
                 geometry::difference(boost::get<0>(tuple), boost::get<1>(tuple), mpt, strategy);
@@ -378,6 +390,17 @@ private:
     static inline bool has_linear_boundary(Geometry const& , Strategy const& )
     {
         return false;
+    }
+
+
+    template <typename Multi1, typename Multi2, typename Result, typename Strategy>
+    static inline void call_relate(Multi1 const& multi1, Multi2 const& multi2,
+                                   Result& result, Strategy const& strategy)
+    {
+        dispatch::relate
+            <
+                Multi1, Multi2
+            >::apply(multi1, multi2, result, strategy);
     }
 };
 
