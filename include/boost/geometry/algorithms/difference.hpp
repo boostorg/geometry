@@ -15,9 +15,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DIFFERENCE_HPP
 
 
+#include <boost/geometry/algorithms/detail/gc_make_rtree.hpp>
 #include <boost/geometry/algorithms/detail/intersection/gc.hpp>
 #include <boost/geometry/algorithms/detail/intersection/multi.hpp>
-#include <boost/geometry/algorithms/detail/make_rtree.hpp>
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/core/geometry_types.hpp>
@@ -395,7 +395,7 @@ struct difference
                       Collection& output_collection,
                       Strategy const& strategy)
     {
-        auto const rtree2 = detail::make_rtree_iterators(geometry2, strategy);
+        auto const rtree2 = detail::gc_make_rtree_iterators(geometry2, strategy);
         detail::visit_breadth_first([&](auto const& g1)
         {
             // multi-point, multi-linestring or multi_polygon
@@ -423,7 +423,7 @@ private:
             geometry::detail::convert_to_output<G1, single_out_t>::apply(g1, out_it);
         }
 
-        using box1_t = detail::make_rtree_box_t<G1>;
+        using box1_t = detail::gc_make_rtree_box_t<G1>;
         box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
         detail::expand_by_epsilon(b1);
 

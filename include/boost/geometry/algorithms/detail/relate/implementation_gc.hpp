@@ -130,7 +130,7 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
         bool has_disjoint = false;
         bool has_disjoint_linear = false;
 
-        detail::union_::gc_group_elements(gc1_view, gc2_view, strategy,
+        detail::gc_group_elements(gc1_view, gc2_view, strategy,
             [&](auto const& inters_group)
             {
                 tuple1_t tuple1;

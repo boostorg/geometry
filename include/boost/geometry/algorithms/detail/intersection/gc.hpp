@@ -12,8 +12,8 @@
 
 #include <tuple>
 
+#include <boost/geometry/algorithms/detail/gc_make_rtree.hpp>
 #include <boost/geometry/algorithms/detail/intersection/interface.hpp>
-#include <boost/geometry/algorithms/detail/make_rtree.hpp>
 #include <boost/geometry/views/detail/geometry_collection_view.hpp>
 
 
@@ -144,7 +144,7 @@ struct intersection
         bool result = false;
         tuple_out_t out;
 
-        auto const rtree2 = detail::make_rtree_iterators(geometry2, strategy);
+        auto const rtree2 = detail::gc_make_rtree_iterators(geometry2, strategy);
         detail::visit_breadth_first([&](auto const& g1)
         {
             bool r = g1_prod_gc2(g1, rtree2, out, strategy);
@@ -166,7 +166,7 @@ private:
     {
         bool result = false;
 
-        using box1_t = detail::make_rtree_box_t<G1>;
+        using box1_t = detail::gc_make_rtree_box_t<G1>;
         box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
         detail::expand_by_epsilon(b1);
 

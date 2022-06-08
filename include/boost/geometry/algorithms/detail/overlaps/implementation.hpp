@@ -24,7 +24,7 @@
 
 #include <boost/geometry/core/access.hpp>
 
-#include <boost/geometry/algorithms/detail/gc.hpp>
+#include <boost/geometry/algorithms/detail/gc_topological_dimension.hpp>
 #include <boost/geometry/algorithms/detail/overlaps/interface.hpp>
 #include <boost/geometry/algorithms/detail/relate/implementation.hpp>
 #include <boost/geometry/algorithms/detail/relate/implementation_gc.hpp>

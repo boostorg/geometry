@@ -22,7 +22,7 @@
 
 #include <cstddef>
 
-#include <boost/geometry/algorithms/detail/gc.hpp>
+#include <boost/geometry/algorithms/detail/gc_topological_dimension.hpp>
 #include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
 #include <boost/geometry/core/access.hpp>
