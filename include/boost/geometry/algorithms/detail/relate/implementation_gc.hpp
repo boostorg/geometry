@@ -166,6 +166,7 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                 {
                     inters_found[0][1] = true;
                     inters_found[1][1] = true;
+                    // ERROR: This is wrong and will create an additional boundary
                     mls2_t mls2_diff_mpo1;
                     geometry::difference(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_diff_mpo1);
                     mls1_t mls1_diff_mpo2;
@@ -191,6 +192,7 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                         inters_found[1][1] = true;
                         if (is_ll_handled)
                         {
+                            // ERROR: This is wrong and will create an additional boundary
                             mls1_t mls2_inters_mpo1;
                             geometry::intersection(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_inters_mpo1);
                             if (! geometry::is_empty(mls2_inters_mpo1))
@@ -217,6 +219,7 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                         inters_found[1][2] = true;
                         if (is_ll_handled)
                         {
+                            // ERROR: This is wrong and will create an additional boundary
                             mls1_t mls1_inters_mpo2;
                             geometry::intersection(boost::get<1>(tuple1), boost::get<2>(tuple2), mls1_inters_mpo2);
                             if (! geometry::is_empty(mls1_inters_mpo2))

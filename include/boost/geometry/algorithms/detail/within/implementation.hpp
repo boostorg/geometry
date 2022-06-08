@@ -30,6 +30,8 @@
 #include <boost/geometry/algorithms/detail/within/multi_point.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/relate/implementation.hpp>
+#include <boost/geometry/algorithms/detail/relate/implementation_gc.hpp>
+#include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -68,11 +70,12 @@ struct use_relate
     template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
     {
-        typedef typename detail::de9im::static_mask_within_type
+        return detail::relate::relate_impl
             <
-                Geometry1, Geometry2
-            >::type within_mask;
-        return geometry::relate(geometry1, geometry2, within_mask(), strategy);
+                detail::de9im::static_mask_within_type,
+                Geometry1,
+                Geometry2
+            >::apply(geometry1, geometry2, strategy);
     }
 };
 
@@ -289,6 +292,21 @@ struct within<MultiPolygon, Polygon, multi_polygon_tag, polygon_tag>
 template <typename MultiPolygon1, typename MultiPolygon2>
 struct within<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon_tag>
     : public detail::within::use_relate
+{};
+
+template <typename Geometry1, typename Geometry2>
+struct within<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag>
+    : detail::within::use_relate
+{};
+
+template <typename Geometry1, typename Geometry2, typename Tag1>
+struct within<Geometry1, Geometry2, Tag1, geometry_collection_tag>
+    : detail::within::use_relate
+{};
+
+template <typename Geometry1, typename Geometry2, typename Tag2>
+struct within<Geometry1, Geometry2, geometry_collection_tag, Tag2>
+    : detail::within::use_relate
 {};
 
 } // namespace dispatch
