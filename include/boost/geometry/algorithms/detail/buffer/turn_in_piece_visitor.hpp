@@ -138,6 +138,11 @@ public:
             return true;
         }
 
+        if (piece.type == geometry::strategy::buffer::buffered_empty_side)
+        {
+            return false;
+        }
+
         if (piece.type == geometry::strategy::buffer::buffered_point)
         {
             // Optimization for a buffer around points: if distance from center
