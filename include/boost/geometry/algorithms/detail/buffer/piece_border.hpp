@@ -225,9 +225,8 @@ struct piece_border
 
 
     // Whatever the return value, the state should be checked.
-    template <typename TurnPoint, typename UmbrellaStrategy, typename State>
+    template <typename TurnPoint, typename State>
     bool point_on_piece(TurnPoint const& point,
-                        UmbrellaStrategy const& umbrella_strategy,
                         bool one_sided, bool is_linear_end_point,
                         State& state) const
     {
@@ -263,20 +262,20 @@ struct piece_border
         {
             // One point. Walk from last offsetted to point, and from point to first offsetted
             continue_processing = step(point, offsetted_back, m_originals[0],
-                                       tir, umbrella_strategy, por_from_offsetted, state)
+                                       tir, por_from_offsetted, state)
                                && step(point, m_originals[0], offsetted_front,
-                                       tir, umbrella_strategy, por_to_offsetted, state);
+                                       tir, por_to_offsetted, state);
         }
         else if (m_original_size == 2)
         {
             // Two original points. Walk from last offsetted point to first original point,
             // then along original, then from second oginal to first offsetted point
             continue_processing = step(point, offsetted_back, m_originals[0],
-                                       tir, umbrella_strategy, por_from_offsetted, state)
+                                       tir, por_from_offsetted, state)
                                && step(point, m_originals[0], m_originals[1],
-                                       tir, umbrella_strategy, por_original, state)
+                                       tir, por_original, state)
                                && step(point, m_originals[1], offsetted_front,
-                                       tir, umbrella_strategy, por_to_offsetted, state);
+                                       tir, por_to_offsetted, state);
         }
 
         if (continue_processing)
@@ -284,7 +283,7 @@ struct piece_border
             // Check the offsetted ring (in rounded joins, these might be
             // several segments)
             walk_offsetted(point, m_ring->begin() + m_begin, m_ring->begin() + m_end,
-                           tir, umbrella_strategy, state);
+                           tir, state);
         }
 
         return true;
@@ -310,11 +309,11 @@ private :
     template
     <
         typename TurnPoint, typename Iterator,
-        typename TiRStrategy, typename UmbrellaStrategy,
+        typename TiRStrategy,
         typename State
     >
     bool walk_offsetted(TurnPoint const& point, Iterator begin, Iterator end,
-                        TiRStrategy const & strategy, UmbrellaStrategy const& umbrella_strategy,
+                        TiRStrategy const & strategy,
                         State& state) const
     {
         Iterator it = begin;
@@ -338,7 +337,7 @@ private :
 
         for (Iterator previous = it++ ; it != beyond ; ++previous, ++it )
         {
-            if (! step(point, *previous, *it, strategy, umbrella_strategy,
+            if (! step(point, *previous, *it, strategy,
                        geometry::strategy::buffer::place_on_ring_offsetted, state))
             {
                 return false;
@@ -347,27 +346,12 @@ private :
         return true;
     }
 
-    template <typename TurnPoint, typename TiRStrategy, typename UmbrellaStrategy, typename State>
+    template <typename TurnPoint, typename TiRStrategy, typename State>
     bool step(TurnPoint const& point, Point const& p1, Point const& p2,
-              TiRStrategy const& strategy, UmbrellaStrategy const& umbrella_strategy,
+              TiRStrategy const& strategy,
               geometry::strategy::buffer::place_on_ring_type place_on_ring, State& state) const
     {
-        // A step between original/offsetted ring is always convex
-        // (unless the join strategy generates points left of it -
-        //  future: convexity might be added to the buffer-join-strategy)
-        // Therefore, if the state count > 0, it means the point is left of it,
-        // and because it is convex, we can stop
-
-        auto const dm = geometry::detail::get_distance_measure(point, p1, p2, umbrella_strategy);
-        if (m_is_convex && dm.measure > 0)
-        {
-            // The point is left of this segment of a convex piece
-            state.m_count = 0;
-            return false;
-        }
-        // Call strategy, and if it is on the border, return false
-        // to stop further processing.
-        return strategy.apply(point, p1, p2, dm, place_on_ring, state);
+        return strategy.apply(point, p1, p2, place_on_ring, m_is_convex, state, get_full_ring());
     }
 
     template <typename It, typename Box, typename Strategy>

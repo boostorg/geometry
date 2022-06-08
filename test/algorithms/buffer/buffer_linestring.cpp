@@ -205,10 +205,8 @@ void test_all()
     test_one<linestring, polygon>("curve", curve, join_round, end_flat, 58.1944, 5.0, settings, 3.0);
     test_one<linestring, polygon>("curve", curve, join_miter, end_flat, 58.7371, 5.0, settings, 3.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_flat, 74.25, 3.0);
     test_one<linestring, polygon>("tripod", tripod, join_miter, end_round, 116.6336, 3.0);
-#endif
 
     test_one<linestring, polygon>("chained2", chained2, join_round, end_flat, 11.3137, 2.5, settings, 1.5);
     test_one<linestring, polygon>("chained3", chained3, join_round, end_flat, 16.9706, 2.5, settings, 1.5);
@@ -313,7 +311,6 @@ void test_all()
 
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     {
-        // Cases sensible to the value of state.m_min_distance and "close_to_offset"
         using bg::strategy::buffer::join_round;
         using bg::strategy::buffer::end_round;
         test_one<linestring, polygon>("issue_988_a", issue_988, join_round(8), end_round(8), 0.0029235, 0.010068);
@@ -337,19 +334,22 @@ void test_all()
     test_one<linestring, polygon>("mysql_23023665_1", mysql_23023665, join_round32, end_flat, 459.1051, 10);
     test_one<linestring, polygon>("mysql_23023665_2", mysql_23023665, join_round32, end_flat, 6877.7097, 50);
 
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_25662426", mysql_25662426, join_round32, end_round32, 1, 0, 1660.6673, 10);
+#endif
 
     // Test behaviour with different buffer sizes, generating internally turns on different locations
     test_one<linestring, polygon>("mysql_25662426a_05", mysql_25662426a, join_round32, end_round32, 27.6156, 0.5);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails without rescaling
     test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_round32, 54.9018, 1.0);
-#endif
     test_one<linestring, polygon>("mysql_25662426a_2", mysql_25662426a, join_round32, end_round32, 103.6072, 2.0);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_25662426a_3", mysql_25662426a, join_round32, end_round32, 152.1163, 3.0);
+#endif
     test_one<linestring, polygon>("mysql_25662426a_4", mysql_25662426a, join_round32, end_round32, 206.4831, 4.0);
     test_one<linestring, polygon>("mysql_25662426a_5", mysql_25662426a, join_round32, end_round32, 266.8505, 5.0);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_25662426a_10", mysql_25662426a, join_round32, end_round32, 660.7355, 10.0);
+#endif
 
     test_one<linestring, polygon>("mysql_25662426a_05", mysql_25662426a, join_round32, end_flat, 26.8352, 0.5);
     test_one<linestring, polygon>("mysql_25662426a_1", mysql_25662426a, join_round32, end_flat, 53.3411, 1.0);
@@ -371,10 +371,7 @@ void test_all()
 
     // Mostly right
     test_one<linestring, polygon>("mysql_25662426a_mostly_right_05", mysql_25662426a, join_round32, end_round32, 14.3419, 0.05, settings, 0.5);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails without rescaling
     test_one<linestring, polygon>("mysql_25662426a_mostly_right_1", mysql_25662426a, join_round32, end_round32, 27.1955, 0.1, settings, 1.0);
-#endif
     test_one<linestring, polygon>("mysql_25662426a_mostly_right_2", mysql_25662426a, join_round32, end_round32, 43.1821, 0.2, settings, 2.0);
     test_one<linestring, polygon>("mysql_25662426a_mostly_right_3", mysql_25662426a, join_round32, end_round32, 54.4337, 0.3, settings, 3.0);
     test_one<linestring, polygon>("mysql_25662426a_mostly_right_4", mysql_25662426a, join_round32, end_round32, 75.6376, 0.4, settings, 4.0);
@@ -386,7 +383,9 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426a_left_1", mysql_25662426a, join_round32, end_round32, 30.1214, 1.0, settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_2", mysql_25662426a, join_round32, end_round32, 66.4858, 2.0, ut_settings(0.01, false), 0.0); // It has a self touching point
     test_one<linestring, polygon>("mysql_25662426a_left_3", mysql_25662426a, join_round32, end_round32, 108.3305, 3.0, settings, 0.0);
+//#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_25662426a_left_4", mysql_25662426a, join_round32, end_round32, 155.5128, 4.0, specific_settings, 0.0);
+//#endif
     test_one<linestring, polygon>("mysql_25662426a_left_5", mysql_25662426a, join_round32, end_round32, 208.1289, 5.0, specific_settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_10", mysql_25662426a, join_round32, end_round32, 554.8818, 10.0, specific_settings, 0.0);
 
