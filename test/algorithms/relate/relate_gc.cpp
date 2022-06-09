@@ -56,10 +56,9 @@ void test_gc_gc()
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(5 5, 6 6))",
                               "2FFF1FFF2");
 
-    // ERROR IN RELATE
-    /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(4 4, 6 6))",
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(4 4, 6 6))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 7 7))",
-                              "10F0FF212");*/
+                              "10F0FF212");
 
     // ERROR IN RELATE
     /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 4, 4 1))",
