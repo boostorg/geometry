@@ -273,23 +273,6 @@ struct covered_by<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon
     : public detail::covered_by::use_relate
 {};
 
-// GC
-
-template <typename Geometry1, typename Geometry2>
-struct covered_by<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag>
-    : detail::covered_by::use_relate
-{};
-
-template <typename Geometry1, typename Geometry2, typename Tag1>
-struct covered_by<Geometry1, Geometry2, Tag1, geometry_collection_tag>
-    : detail::covered_by::use_relate
-{};
-
-template <typename Geometry1, typename Geometry2, typename Tag2>
-struct covered_by<Geometry1, Geometry2, geometry_collection_tag, Tag2>
-    : detail::covered_by::use_relate
-{};
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 

@@ -22,6 +22,8 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
+
 // TODO: those headers probably may be removed
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -33,7 +35,6 @@
 
 #include <boost/geometry/algorithms/detail/intersection/interface.hpp>
 
-#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 

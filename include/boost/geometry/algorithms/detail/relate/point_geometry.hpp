@@ -14,12 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_POINT_GEOMETRY_HPP
 
-#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
-//#include <boost/geometry/algorithms/within.hpp>
-//#include <boost/geometry/algorithms/covered_by.hpp>
-
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
+#include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 
