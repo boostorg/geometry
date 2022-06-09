@@ -12,6 +12,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_IMPLEMENTATION_GC_HPP
 
 
+#include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/detail/relate/interface.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -137,7 +138,9 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
             {
                 tuple1_t tuple1;
                 tuple2_t tuple2;
-
+                
+                // Create MPts, MLss and MPos containing all gc elements from this group
+                // They may potentially intersect each other
                 for (auto const& id : inters_group)
                 {
                     BOOST_GEOMETRY_ASSERT(id.source_id == 0 || id.source_id == 1);
@@ -157,104 +160,158 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                     }
                 }
 
+                // Subtract higher topo-dim elements from elements of lower topo-dim
+                // MPts do not intersect other geometries, MLss and MPos may touch
                 subtract_elements(tuple1, strategy);
                 subtract_elements(tuple2, strategy);
 
-                bool is_ll_handled = false;
-                if (! geometry::is_empty(boost::get<1>(tuple1))
-                    && ! geometry::is_empty(boost::get<1>(tuple2)))
+                // Helpers
+                auto const& mpt1 = boost::get<0>(tuple1);
+                auto const& mls1 = boost::get<1>(tuple1);
+                auto const& mpo1 = boost::get<2>(tuple1);
+                auto const& mpt2 = boost::get<0>(tuple2);
+                auto const& mls2 = boost::get<1>(tuple2);
+                auto const& mpo2 = boost::get<2>(tuple2);
+
+                // Boundary checkers are initialized lazily later if a point has to be checked
+                detail::relate::boundary_checker<mls1_t, Strategy> mls1_boundary(mls1, strategy);
+                detail::relate::boundary_checker<mls2_t, Strategy> mls2_boundary(mls2, strategy);
+
+                // If needed divide MLss into two parts:
+                // - inside Areal of other GC
+                // - outside of other GC Areal to check WRT Linear of other GC
+                // LA/L
+                mls2_t mls2_diff_mpo1, mls2_inters_mpo1;
+                bool is_mls2_divided = false;
+                if (! geometry::is_empty(mls1) && ! geometry::is_empty(mpo1)
+                    && ! geometry::is_empty(mls2))
                 {
-                    inters_found[0][1] = true;
-                    inters_found[1][1] = true;
-                    // ERROR: This is wrong and will create an additional boundary
-                    mls2_t mls2_diff_mpo1;
-                    geometry::difference(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_diff_mpo1);
-                    mls1_t mls1_diff_mpo2;
-                    geometry::difference(boost::get<1>(tuple1), boost::get<2>(tuple2), mls1_diff_mpo2);
-                    if (! geometry::is_empty(mls2_diff_mpo1)
-                        && ! geometry::is_empty(mls1_diff_mpo2))
-                    {
-                        is_ll_handled = true;
-                        call_relate(mls1_diff_mpo2, mls2_diff_mpo1, result, strategy);
-                    }
+                    geometry::difference(mls2, mpo1, mls2_diff_mpo1);
+                    geometry::intersection(mls2, mpo1, mls2_inters_mpo1);
+                    is_mls2_divided = true;
                 }
-                
-                if (! geometry::is_empty(boost::get<2>(tuple1)))
+                // L/LA
+                mls1_t mls1_diff_mpo2, mls1_inters_mpo2;
+                bool is_mls1_divided = false;
+                if (! geometry::is_empty(mls2) && ! geometry::is_empty(mpo2)
+                    && ! geometry::is_empty(mls1))
+                {
+                    geometry::difference(mls1, mpo2, mls1_diff_mpo2);
+                    geometry::intersection(mls1, mpo2, mls1_inters_mpo2);
+                    is_mls1_divided = true;
+                }
+
+                // A/*
+                if (! geometry::is_empty(mpo1))
                 {
                     inters_found[0][2] = true;
-                    if (! geometry::is_empty(boost::get<2>(tuple2)))
+                    // A/A
+                    if (! geometry::is_empty(mpo2))
                     {
                         inters_found[1][2] = true;
-                        call_relate(boost::get<2>(tuple1), boost::get<2>(tuple2), result, strategy);
+                        call_relate(mpo1, mpo2, result, strategy);
                     }
-                    if (! geometry::is_empty(boost::get<1>(tuple2)))
+                    // A/L
+                    if (! geometry::is_empty(mls2))
                     {
                         inters_found[1][1] = true;
-                        if (is_ll_handled)
+                        if (is_mls2_divided)
                         {
-                            // ERROR: This is wrong and will create an additional boundary
-                            mls1_t mls2_inters_mpo1;
-                            geometry::intersection(boost::get<1>(tuple2), boost::get<2>(tuple1), mls2_inters_mpo1);
                             if (! geometry::is_empty(mls2_inters_mpo1))
                             {
-                                call_relate(boost::get<2>(tuple1), mls2_inters_mpo1, result, strategy);
+                                call_relate_al(mpo1, mls2_inters_mpo1, mls2_boundary, result, strategy);
                             }
                         }
                         else
                         {
-                            call_relate(boost::get<2>(tuple1), boost::get<1>(tuple2), result, strategy);
+                            call_relate_al(mpo1, mls2, mls2_boundary, result, strategy);
                         }
                     }
-                    if (! geometry::is_empty(boost::get<0>(tuple2)))
+                    // A/P
+                    if (! geometry::is_empty(mpt2))
                     {
                         inters_found[1][0] = true;
-                        call_relate(boost::get<2>(tuple1), boost::get<0>(tuple2), result, strategy);
+                        call_relate(mpo1, mpt2, result, strategy);
                     }
                 }
-                if (! geometry::is_empty(boost::get<1>(tuple1)))
+                // L/*
+                if (! geometry::is_empty(mls1))
                 {
                     inters_found[0][1] = true;
-                    if (! geometry::is_empty(boost::get<2>(tuple2)))
+                    // L/A
+                    if (! geometry::is_empty(mpo2))
                     {
                         inters_found[1][2] = true;
-                        if (is_ll_handled)
+                        if (is_mls1_divided)
                         {
-                            // ERROR: This is wrong and will create an additional boundary
-                            mls1_t mls1_inters_mpo2;
-                            geometry::intersection(boost::get<1>(tuple1), boost::get<2>(tuple2), mls1_inters_mpo2);
                             if (! geometry::is_empty(mls1_inters_mpo2))
                             {
-                                call_relate(mls1_inters_mpo2, boost::get<2>(tuple2), result, strategy);
+                                call_relate_la(mls1_inters_mpo2, mpo2, mls1_boundary, result, strategy);
                             }
                         }
                         else
                         {
-                            call_relate(boost::get<1>(tuple1), boost::get<2>(tuple2), result, strategy);
+                            call_relate_la(mls1, mpo2, mls1_boundary, result, strategy);
                         }
                     }
-                    if (! geometry::is_empty(boost::get<0>(tuple2)))
-                    {
-                        inters_found[1][0] = true;
-                        call_relate(boost::get<1>(tuple1), boost::get<0>(tuple2), result, strategy);
-                    }
-                }
-                if (! geometry::is_empty(boost::get<0>(tuple1)))
-                {
-                    inters_found[0][0] = true;
-                    if (! geometry::is_empty(boost::get<2>(tuple2)))
-                    {
-                        inters_found[1][2] = true;
-                        call_relate(boost::get<0>(tuple1), boost::get<2>(tuple2), result, strategy);
-                    }
-                    if (! geometry::is_empty(boost::get<1>(tuple2)))
+                    // L/L
+                    if (! geometry::is_empty(mls2))
                     {
                         inters_found[1][1] = true;
-                        call_relate(boost::get<0>(tuple1), boost::get<1>(tuple2), result, strategy);
+                        if (is_mls1_divided && is_mls2_divided)
+                        {
+                            if (! geometry::is_empty(mls1_diff_mpo2) && ! geometry::is_empty(mls2_diff_mpo1))
+                            {
+                                call_relate_ll(mls1_diff_mpo2, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
+                            }
+                        }
+                        else if (is_mls1_divided)
+                        {
+                            if (! geometry::is_empty(mls1_diff_mpo2))
+                            {
+                                call_relate_ll(mls1_diff_mpo2, mls2, mls1_boundary, mls2_boundary, result, strategy);
+                            }
+                        }
+                        else if (is_mls2_divided)
+                        {
+                            if (! geometry::is_empty(mls2_diff_mpo1))
+                            {
+                                call_relate_ll(mls1, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
+                            }
+                        }
+                        else
+                        {
+                            call_relate_ll(mls1, mls2, mls1_boundary, mls2_boundary, result, strategy);
+                        }
                     }
-                    if (! geometry::is_empty(boost::get<0>(tuple2)))
+                    // L/P
+                    if (! geometry::is_empty(mpt2))
                     {
                         inters_found[1][0] = true;
-                        call_relate(boost::get<0>(tuple1), boost::get<0>(tuple2), result, strategy);
+                        call_relate(mls1, mpt2, result, strategy);
+                    }
+                }
+                // P/*
+                if (! geometry::is_empty(mpt1))
+                {
+                    inters_found[0][0] = true;
+                    // P/A
+                    if (! geometry::is_empty(mpo2))
+                    {
+                        inters_found[1][2] = true;
+                        call_relate(mpt1, mpo2, result, strategy);
+                    }
+                    // P/L
+                    if (! geometry::is_empty(mls2))
+                    {
+                        inters_found[1][1] = true;
+                        call_relate(mpt1, mls2, result, strategy);
+                    }
+                    // P/P
+                    if (! geometry::is_empty(mpt2))
+                    {
+                        inters_found[1][0] = true;
+                        call_relate(mpt1, mpt2, result, strategy);
                     }
                 }
             },
@@ -404,6 +461,32 @@ private:
             <
                 Multi1, Multi2
             >::apply(multi1, multi2, result, strategy);
+    }
+
+    template <typename MLs, typename MPo, typename MLsBoundary, typename Result, typename Strategy>
+    static inline void call_relate_la(MLs const& mls, MPo const& mpo,
+                                      MLsBoundary const& mls_boundary,
+                                      Result& result, Strategy const& strategy)
+    {
+        detail::relate::linear_areal<MLs, MPo>::apply(mls, mpo, mls_boundary, result, strategy);
+    }
+
+    template <typename MPo, typename MLs, typename MLsBoundary, typename Result, typename Strategy>
+    static inline void call_relate_al(MPo const& mls, MLs const& mpo,
+                                      MLsBoundary const& mls_boundary,
+                                      Result& result, Strategy const& strategy)
+    {
+        detail::relate::areal_linear<MPo, MLs>::apply(mls, mpo, mls_boundary, result, strategy);
+    }
+
+    template <typename MLs1, typename MLs2, typename MLs1Boundary, typename MLs2Boundary, typename Result, typename Strategy>
+    static inline void call_relate_ll(MLs1 const& mls1, MLs2 const& mls2,
+                                      MLs1Boundary const& mls1_boundary,
+                                      MLs2Boundary const& mls2_boundary,
+                                      Result& result, Strategy const& strategy)
+    {
+        detail::relate::linear_linear<MLs1, MLs2>::apply(mls1, mls2, mls1_boundary, mls2_boundary,
+                                                         result, strategy);
     }
 };
 

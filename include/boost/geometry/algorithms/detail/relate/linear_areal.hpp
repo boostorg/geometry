@@ -355,6 +355,16 @@ struct linear_areal
                              Result & result,
                              Strategy const& strategy)
     {
+        boundary_checker<Geometry1, Strategy> boundary_checker1(geometry1, strategy);
+        apply(geometry1, geometry2, boundary_checker1, result, strategy);
+    }
+
+    template <typename BoundaryChecker1, typename Result, typename Strategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             BoundaryChecker1 const& boundary_checker1,
+                             Result & result,
+                             Strategy const& strategy)
+    {
         // TODO: If Areal geometry may have infinite size, change the following line:
 
         update<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
@@ -376,19 +386,12 @@ struct linear_areal
             return;
         }
 
-        typedef boundary_checker
-            <
-                Geometry1,
-                Strategy
-            > boundary_checker1_type;
-        boundary_checker1_type boundary_checker1(geometry1, strategy);
-
         no_turns_la_linestring_pred
             <
                 Geometry2,
                 Result,
                 Strategy,
-                boundary_checker1_type,
+                BoundaryChecker1,
                 TransposeResult
             > pred1(geometry2,
                     result,
@@ -1473,6 +1476,15 @@ struct areal_linear
                              Strategy const& strategy)
     {
         linear_areal_type::apply(geometry2, geometry1, result, strategy);
+    }
+
+    template <typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             BoundaryChecker2 const& boundary_checker2,
+                             Result & result,
+                             Strategy const& strategy)
+    {
+        linear_areal_type::apply(geometry2, geometry1, boundary_checker2, result, strategy);
     }
 };
 

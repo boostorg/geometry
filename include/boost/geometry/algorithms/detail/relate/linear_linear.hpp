@@ -122,6 +122,18 @@ struct linear_linear
                              Result & result,
                              Strategy const& strategy)
     {
+        boundary_checker<Geometry1, Strategy> boundary_checker1(geometry1, strategy);
+        boundary_checker<Geometry2, Strategy> boundary_checker2(geometry2, strategy);
+        apply(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+    }
+
+    template <typename BoundaryChecker1, typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             BoundaryChecker1 const& boundary_checker1,
+                             BoundaryChecker2 const& boundary_checker2,
+                             Result & result,
+                             Strategy const& strategy)
+    {
         // The result should be FFFFFFFFF
         update<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
@@ -146,16 +158,12 @@ struct linear_linear
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
 
-        typedef boundary_checker<Geometry1, Strategy> boundary_checker1_type;
-        boundary_checker1_type boundary_checker1(geometry1, strategy);
-        disjoint_linestring_pred<Result, boundary_checker1_type, false> pred1(result, boundary_checker1);
+        disjoint_linestring_pred<Result, BoundaryChecker1, false> pred1(result, boundary_checker1);
         for_each_disjoint_geometry_if<0, Geometry1>::apply(turns.begin(), turns.end(), geometry1, pred1);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
 
-        typedef boundary_checker<Geometry2, Strategy> boundary_checker2_type;
-        boundary_checker2_type boundary_checker2(geometry2, strategy);
-        disjoint_linestring_pred<Result, boundary_checker2_type, true> pred2(result, boundary_checker2);
+        disjoint_linestring_pred<Result, BoundaryChecker2, true> pred2(result, boundary_checker2);
         for_each_disjoint_geometry_if<1, Geometry2>::apply(turns.begin(), turns.end(), geometry2, pred2);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
             return;
