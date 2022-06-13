@@ -24,7 +24,6 @@ using var_t = boost::variant<pt_t, ls_t, po_t, mpt_t, mls_t, mpo_t>;
 //using var_t = boost::variant2::variant<pt_t, ls_t, po_t, mpt_t, mls_t, mpo_t>;
 using gc_t = bg::model::geometry_collection<var_t>;
 
-
 void test_gc_gc()
 {
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 10,10 10,10 0,0 0)), LINESTRING(5 10, 10 11, 15 10))",
@@ -60,10 +59,32 @@ void test_gc_gc()
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 7 7))",
                               "10F0FF212");
 
-    // ERROR IN RELATE
-    /*test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 4, 4 1))",
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 4, 4 1))",
                               "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
-                              "2FFF1F102");*/
+                              "2FFF1F102");
+
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(0 0,5 5))",
+                              "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))",
+                              "1FFF0F212");
+
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(0 0,5 5), POINT(6 6))",
+                              "GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), POINT(6 6))",
+                              "1FFF0F212");
+
+    // Error in detail::relate::linear_linear
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(0 0,5 5))",
+                              "GEOMETRYCOLLECTION(LINESTRING(0 0,5 5), LINESTRING(5 5, 6 6))",
+                              "1FF00F102");
+#endif
+
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(0 0,5 5))",
+                              "GEOMETRYCOLLECTION(LINESTRING(0 0,6 6))",
+                              "1FF00F102");
+
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 10,9 10,9 0,0 0)), LINESTRING(5 10, 10 11, 15 10))",
+                              "GEOMETRYCOLLECTION(POLYGON((10 0,10 10,20 10,20 0,10 0)), POINT(15 5))",
+                              "FF2F01212");
 }
 
 void test_g_gc()
