@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -172,6 +172,12 @@ public:
                                    && F2 < Matrix::static_width;
         typedef std::integral_constant<bool, in_bounds> in_bounds_t;
         update_dispatch<F1, F2, D>(in_bounds_t());
+    }
+
+    template <field F1, field F2>
+    inline char get() const
+    {
+        return m_matrix.template get<F1, F2>();
     }
 
 private:
@@ -604,6 +610,12 @@ public:
         {
             base_t::template update<F1, F2, V>();
         }
+    }
+
+    template <field F1, field F2>
+    inline char get() const
+    {
+        return base_t::template get<F1, F2>();
     }
 
 private:
@@ -1095,6 +1107,12 @@ public:
                                  : 2;
 
         update_dispatch<F1, F2, V>(integral_constant<int, version>());
+    }
+
+    template <field F1, field F2>
+    inline char get() const
+    {
+        return base_type::template get<F1, F2>();
     }
 
 private:

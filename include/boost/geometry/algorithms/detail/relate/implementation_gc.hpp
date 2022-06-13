@@ -26,14 +26,15 @@
 #include <boost/geometry/views/detail/geometry_collection_view.hpp>
 
 
-namespace boost { namespace geometry {
+namespace boost { namespace geometry
+{
 
-
-#ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch {
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail { namespace relate
+{
 
 template <typename Geometry1, typename Geometry2>
-struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag, -1, -1, false>
+struct gc_gc
 {
     static const bool interruption_enabled = true;
 
@@ -122,8 +123,8 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                              Result & result,
                              Strategy const& strategy)
     {
-        using gc1_view_t = detail::random_access_view<Geometry1 const>;
-        using gc2_view_t = detail::random_access_view<Geometry2 const>;
+        using gc1_view_t = random_access_view<Geometry1 const>;
+        using gc2_view_t = random_access_view<Geometry2 const>;
         gc1_view_t const gc1_view(geometry1);
         gc2_view_t const gc2_view(geometry2);
 
@@ -133,7 +134,8 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
         bool has_disjoint = false;
         bool has_disjoint_linear = false;
 
-        detail::gc_group_elements(gc1_view, gc2_view, strategy,
+        // TODO: implement breaking mechanism in gc_group_elements
+        gc_group_elements(gc1_view, gc2_view, strategy,
             [&](auto const& inters_group)
             {
                 tuple1_t tuple1;
@@ -173,48 +175,75 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                 auto const& mls2 = boost::get<1>(tuple2);
                 auto const& mpo2 = boost::get<2>(tuple2);
 
-                // Boundary checkers are initialized lazily later if a point has to be checked
-                detail::relate::boundary_checker<mls1_t, Strategy> mls1_boundary(mls1, strategy);
-                detail::relate::boundary_checker<mls2_t, Strategy> mls2_boundary(mls2, strategy);
+                // A/A
+                if (! geometry::is_empty(mpo1) && ! geometry::is_empty(mpo2))
+                {
+                    inters_found[0][2] = true;
+                    inters_found[1][2] = true;
+                    call_relate(mpo1, mpo2, result, strategy);
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // TODO: The problem with this is that these may not be set
+                //   if mask not requireing them is passed.
+                bool is_aa_ii = result.template get<interior, interior>() != 'F';
+                bool is_aa_ie = result.template get<interior, exterior>() != 'F';
+                bool is_aa_ei = result.template get<exterior, interior>() != 'F';
+                // is_aa_ii implies is_aa_checked and non-empty Areal geometries
+                bool are_aa_equal = is_aa_ii && ! is_aa_ie && ! is_aa_ei;
+
+                // Boundary checkers are internally initialized lazily later if a point has to be checked
+                boundary_checker<mls1_t, Strategy> mls1_boundary(mls1, strategy);
+                boundary_checker<mls2_t, Strategy> mls2_boundary(mls2, strategy);
 
                 // If needed divide MLss into two parts:
                 // - inside Areal of other GC
                 // - outside of other GC Areal to check WRT Linear of other GC
-                // LA/L
+                
                 mls2_t mls2_diff_mpo1, mls2_inters_mpo1;
                 bool is_mls2_divided = false;
-                if (! geometry::is_empty(mls1) && ! geometry::is_empty(mpo1)
-                    && ! geometry::is_empty(mls2))
-                {
-                    geometry::difference(mls2, mpo1, mls2_diff_mpo1);
-                    geometry::intersection(mls2, mpo1, mls2_inters_mpo1);
-                    is_mls2_divided = true;
-                }
-                // L/LA
                 mls1_t mls1_diff_mpo2, mls1_inters_mpo2;
                 bool is_mls1_divided = false;
-                if (! geometry::is_empty(mls2) && ! geometry::is_empty(mpo2)
-                    && ! geometry::is_empty(mls1))
+                // If Areal are equal then Linear are outside of both so there is no need to divide
+                if (! are_aa_equal && ! geometry::is_empty(mls1) && ! geometry::is_empty(mls2))
                 {
-                    geometry::difference(mls1, mpo2, mls1_diff_mpo2);
-                    geometry::intersection(mls1, mpo2, mls1_inters_mpo2);
-                    is_mls1_divided = true;
-                }
-
-                // A/*
-                if (! geometry::is_empty(mpo1))
-                {
-                    inters_found[0][2] = true;
-                    // A/A
+                    // LA/L
+                    if (! geometry::is_empty(mpo1))
+                    {
+                        geometry::difference(mls2, mpo1, mls2_diff_mpo1);
+                        geometry::intersection(mls2, mpo1, mls2_inters_mpo1);
+                        is_mls2_divided = true;
+                    }
+                    // L/LA                
                     if (! geometry::is_empty(mpo2))
                     {
-                        inters_found[1][2] = true;
-                        call_relate(mpo1, mpo2, result, strategy);
+                        geometry::difference(mls1, mpo2, mls1_diff_mpo2);
+                        geometry::intersection(mls1, mpo2, mls1_inters_mpo2);
+                        is_mls1_divided = true;
                     }
-                    // A/L
-                    if (! geometry::is_empty(mls2))
+                }
+
+                // A/L
+                if (! geometry::is_empty(mpo1) && ! geometry::is_empty(mls2))
+                {
+                    inters_found[0][2] = true;
+                    inters_found[1][1] = true;
+                    if (is_aa_ii && ! is_aa_ie && ! is_aa_ei && ! geometry::is_empty(mls1))
                     {
-                        inters_found[1][1] = true;
+                        // Equal Areal and both Linear non-empty, calculate only L/L below
+                    }
+                    else if (is_aa_ii && ! is_aa_ie && /*(! is_aa_ei || is_aa_ei) &&*/ geometry::is_empty(mls1))
+                    {
+                        // An alternative would be to calculate L/L with one empty below
+                        mpo1_t empty;
+                        call_relate_al(empty, mls2, mls2_boundary, result, strategy);
+                    }
+                    else
+                    {
                         if (is_mls2_divided)
                         {
                             if (! geometry::is_empty(mls2_inters_mpo1))
@@ -227,21 +256,30 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                             call_relate_al(mpo1, mls2, mls2_boundary, result, strategy);
                         }
                     }
-                    // A/P
-                    if (! geometry::is_empty(mpt2))
-                    {
-                        inters_found[1][0] = true;
-                        call_relate(mpo1, mpt2, result, strategy);
-                    }
                 }
-                // L/*
-                if (! geometry::is_empty(mls1))
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // L/A
+                if (! geometry::is_empty(mls1) && ! geometry::is_empty(mpo2))
                 {
                     inters_found[0][1] = true;
-                    // L/A
-                    if (! geometry::is_empty(mpo2))
+                    inters_found[1][2] = true;
+                    if (is_aa_ii && ! is_aa_ei && ! is_aa_ie && ! geometry::is_empty(mls2))
                     {
-                        inters_found[1][2] = true;
+                        // Equal Areal and both Linear non-empty, calculate only L/L below
+                    }
+                    else if (is_aa_ii && ! is_aa_ei && geometry::is_empty(mls2))
+                    {
+                        // An alternative would be to calculate L/L with one empty below
+                        mpo2_t empty;
+                        call_relate_la(mls1, empty, mls1_boundary, result, strategy);
+                    }
+                    else
+                    {
                         if (is_mls1_divided)
                         {
                             if (! geometry::is_empty(mls1_inters_mpo2))
@@ -254,69 +292,117 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
                             call_relate_la(mls1, mpo2, mls1_boundary, result, strategy);
                         }
                     }
-                    // L/L
-                    if (! geometry::is_empty(mls2))
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // L/L
+                if (! geometry::is_empty(mls1) && ! geometry::is_empty(mls2))
+                {
+                    inters_found[0][1] = true;
+                    inters_found[1][1] = true;
+                    if (is_mls1_divided && is_mls2_divided)
                     {
-                        inters_found[1][1] = true;
-                        if (is_mls1_divided && is_mls2_divided)
+                        if (! geometry::is_empty(mls1_diff_mpo2) && ! geometry::is_empty(mls2_diff_mpo1))
                         {
-                            if (! geometry::is_empty(mls1_diff_mpo2) && ! geometry::is_empty(mls2_diff_mpo1))
-                            {
-                                call_relate_ll(mls1_diff_mpo2, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
-                            }
-                        }
-                        else if (is_mls1_divided)
-                        {
-                            if (! geometry::is_empty(mls1_diff_mpo2))
-                            {
-                                call_relate_ll(mls1_diff_mpo2, mls2, mls1_boundary, mls2_boundary, result, strategy);
-                            }
-                        }
-                        else if (is_mls2_divided)
-                        {
-                            if (! geometry::is_empty(mls2_diff_mpo1))
-                            {
-                                call_relate_ll(mls1, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
-                            }
-                        }
-                        else
-                        {
-                            call_relate_ll(mls1, mls2, mls1_boundary, mls2_boundary, result, strategy);
+                            call_relate_ll(mls1_diff_mpo2, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
                         }
                     }
-                    // L/P
-                    if (! geometry::is_empty(mpt2))
+                    else if (is_mls1_divided)
                     {
-                        inters_found[1][0] = true;
-                        call_relate(mls1, mpt2, result, strategy);
+                        if (! geometry::is_empty(mls1_diff_mpo2))
+                        {
+                            call_relate_ll(mls1_diff_mpo2, mls2, mls1_boundary, mls2_boundary, result, strategy);
+                        }
+                    }
+                    else if (is_mls2_divided)
+                    {
+                        if (! geometry::is_empty(mls2_diff_mpo1))
+                        {
+                            call_relate_ll(mls1, mls2_diff_mpo1, mls1_boundary, mls2_boundary, result, strategy);
+                        }
+                    }
+                    else
+                    {
+                        call_relate_ll(mls1, mls2, mls1_boundary, mls2_boundary, result, strategy);
                     }
                 }
-                // P/*
-                if (! geometry::is_empty(mpt1))
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // A/P
+                if (! geometry::is_empty(mpo1) && ! geometry::is_empty(mpt2))
+                {
+                    inters_found[0][2] = true;
+                    inters_found[1][0] = true;
+                    call_relate(mpo1, mpt2, result, strategy);
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // P/A
+                if (! geometry::is_empty(mpt1) && ! geometry::is_empty(mpo2))
                 {
                     inters_found[0][0] = true;
-                    // P/A
-                    if (! geometry::is_empty(mpo2))
-                    {
-                        inters_found[1][2] = true;
-                        call_relate(mpt1, mpo2, result, strategy);
-                    }
-                    // P/L
-                    if (! geometry::is_empty(mls2))
-                    {
-                        inters_found[1][1] = true;
-                        call_relate(mpt1, mls2, result, strategy);
-                    }
-                    // P/P
-                    if (! geometry::is_empty(mpt2))
-                    {
-                        inters_found[1][0] = true;
-                        call_relate(mpt1, mpt2, result, strategy);
-                    }
+                    inters_found[1][2] = true;
+                    call_relate(mpt1, mpo2, result, strategy);
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // L/P
+                if (! geometry::is_empty(mls1) && ! geometry::is_empty(mpt2))
+                {
+                    inters_found[0][1] = true;
+                    inters_found[1][0] = true;
+                    call_relate(mls1, mpt2, result, strategy);
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // P/L
+                if (! geometry::is_empty(mpt1) && ! geometry::is_empty(mls2))
+                {
+                    inters_found[0][0] = true;
+                    inters_found[1][1] = true;
+                    call_relate(mpt1, mls2, result, strategy);
+                }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
+                // P/P
+                if (! geometry::is_empty(mpt1) && ! geometry::is_empty(mpt2))
+                {
+                    inters_found[0][0] = true;
+                    inters_found[1][0] = true;
+                    call_relate(mpt1, mpt2, result, strategy);
                 }
             },
             [&](auto const& disjoint_group)
             {
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return;
+                }
+
                 for (auto const& id : disjoint_group)
                 {
                     BOOST_GEOMETRY_ASSERT(id.source_id == 0 || id.source_id == 1);
@@ -352,8 +438,6 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection
         // Based on found disjoint geometries as well as those intersecting set exteriors
         if (has_disjoint)
         {
-            using namespace detail::relate;
-
             if (disjoint_found[0][2] == true)
             {
                 update<interior, exterior, '2'>(result);
@@ -438,7 +522,7 @@ private:
     >
     static inline bool has_linear_boundary(Geometry const& geometry, Strategy const& strategy)
     {
-        detail::relate::topology_check<Geometry, Strategy> tc(geometry, strategy);
+        topology_check<Geometry, Strategy> tc(geometry, strategy);
         return tc.has_boundary();
     }
 
@@ -468,7 +552,7 @@ private:
                                       MLsBoundary const& mls_boundary,
                                       Result& result, Strategy const& strategy)
     {
-        detail::relate::linear_areal<MLs, MPo>::apply(mls, mpo, mls_boundary, result, strategy);
+        linear_areal<MLs, MPo>::apply(mls, mpo, mls_boundary, result, strategy);
     }
 
     template <typename MPo, typename MLs, typename MLsBoundary, typename Result, typename Strategy>
@@ -476,7 +560,7 @@ private:
                                       MLsBoundary const& mls_boundary,
                                       Result& result, Strategy const& strategy)
     {
-        detail::relate::areal_linear<MPo, MLs>::apply(mls, mpo, mls_boundary, result, strategy);
+        areal_linear<MPo, MLs>::apply(mls, mpo, mls_boundary, result, strategy);
     }
 
     template <typename MLs1, typename MLs2, typename MLs1Boundary, typename MLs2Boundary, typename Result, typename Strategy>
@@ -485,10 +569,25 @@ private:
                                       MLs2Boundary const& mls2_boundary,
                                       Result& result, Strategy const& strategy)
     {
-        detail::relate::linear_linear<MLs1, MLs2>::apply(mls1, mls2, mls1_boundary, mls2_boundary,
+        linear_linear<MLs1, MLs2>::apply(mls1, mls2, mls1_boundary, mls2_boundary,
                                                          result, strategy);
     }
+
+
 };
+
+
+}} // namespace detail::relate
+#endif // DOXYGEN_NO_DETAIL
+
+
+#ifndef DOXYGEN_NO_DISPATCH
+namespace dispatch {
+
+template <typename Geometry1, typename Geometry2>
+struct relate<Geometry1, Geometry2, geometry_collection_tag, geometry_collection_tag, -1, -1, false>
+    : detail::relate::gc_gc<Geometry1, Geometry2>
+{};
 
 
 template <typename Geometry1, typename Geometry2, typename Tag1, int TopDim1>
@@ -501,7 +600,7 @@ struct relate<Geometry1, Geometry2, Tag1, geometry_collection_tag, TopDim1, -1, 
                              Result & result,
                              Strategy const& strategy)
     {
-        using gc1_view_t = geometry::detail::geometry_collection_view<Geometry1>;
+        using gc1_view_t = detail::geometry_collection_view<Geometry1>;
         relate<gc1_view_t, Geometry2>::apply(gc1_view_t(geometry1), geometry2, result, strategy);
     }
 };
@@ -516,7 +615,7 @@ struct relate<Geometry1, Geometry2, geometry_collection_tag, Tag2, -1, TopDim2, 
                              Result & result,
                              Strategy const& strategy)
     {
-        using gc2_view_t = geometry::detail::geometry_collection_view<Geometry2>;
+        using gc2_view_t = detail::geometry_collection_view<Geometry2>;
         relate<Geometry1, gc2_view_t>::apply(geometry1, gc2_view_t(geometry2), result, strategy);
     }
 };
