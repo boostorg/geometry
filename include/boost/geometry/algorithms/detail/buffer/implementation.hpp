@@ -23,14 +23,17 @@
 #include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 #include <boost/geometry/algorithms/detail/buffer/interface.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp> // for GC
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
+#include <boost/geometry/algorithms/union.hpp> // for GC
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/strategies/buffer/cartesian.hpp>
 #include <boost/geometry/strategies/buffer/geographic.hpp>
 #include <boost/geometry/strategies/buffer/spherical.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/range.hpp>
 
 namespace boost { namespace geometry
 {
@@ -107,6 +110,98 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
                     rescale_policy);
     }
 };
+
+
+template <typename Input, typename Output>
+struct buffer_all<Input, Output, geometry_collection_tag, multi_polygon_tag>
+{
+    template
+    <
+        typename Output,
+        typename DistanceStrategy,
+        typename SideStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename PointStrategy,
+        typename Strategies
+    >
+    static inline void apply(Input const& geometry_in,
+                             Output& geometry_out,
+                             DistanceStrategy const& distance_strategy,
+                             SideStrategy const& side_strategy,
+                             JoinStrategy const& join_strategy,
+                             EndStrategy const& end_strategy,
+                             PointStrategy const& point_strategy,
+                             Strategies const& strategies)
+    {
+        // NOTE: This algorithm merges partial results iteratively.
+        //   We could first gather all of the results and after that
+        //   use some more optimal method like merge_elements().
+        detail::visit_breadth_first([&](auto const& g)
+        {
+            Output buffer_result;
+            buffer_all
+                <
+                    util::remove_cref_t<decltype(g)>, Output
+                >::apply(g, buffer_result, distance_strategy, side_strategy,
+                         join_strategy, end_strategy, point_strategy, strategies);
+
+            if (! geometry::is_empty(buffer_result))
+            {
+                Output union_result;
+                geometry::union_(geometry_out, buffer_result, union_result, strategies);
+                geometry_out = std::move(union_result);
+            }
+
+            return true;
+        }, geometry_in);
+    }
+};
+
+template <typename Input, typename Output>
+struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_tag>
+{
+    template
+    <
+        typename Output,
+        typename DistanceStrategy,
+        typename SideStrategy,
+        typename JoinStrategy,
+        typename EndStrategy,
+        typename PointStrategy,
+        typename Strategies
+    >
+    static inline void apply(Input const& geometry_in,
+                             Output& geometry_out,
+                             DistanceStrategy const& distance_strategy,
+                             SideStrategy const& side_strategy,
+                             JoinStrategy const& join_strategy,
+                             EndStrategy const& end_strategy,
+                             PointStrategy const& point_strategy,
+                             Strategies const& strategies)
+    {
+        // NOTE: We could also allow returning GC containing only polygons.
+        //   We'd have to wrapp them in model::multi_polygon and then
+        //   iteratively emplace_back() into the GC.
+        using mpo_t = typename util::sequence_find_if
+            <
+                typename traits::geometry_types<Output>::type,
+                util::is_multi_polygon
+            >::type;
+        mpo_t result;
+        buffer_all
+            <
+                Input, mpo_t
+            >::apply(geometry_in, result, distance_strategy, side_strategy,
+                     join_strategy, end_strategy, point_strategy, strategies);
+        range::emplace_back(geometry_out, std::move(result));
+    }
+};
+
+template <typename Input, typename Output, typename TagIn>
+struct buffer_all<Input, Output, TagIn, geometry_collection_tag>
+    : buffer_all<Input, Output, geometry_collection_tag, geometry_collection_tag>
+{};
 
 
 } // namespace dispatch
