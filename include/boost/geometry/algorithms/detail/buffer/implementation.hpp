@@ -59,7 +59,6 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
 {
     template
     <
-        typename Output,
         typename DistanceStrategy,
         typename SideStrategy,
         typename JoinStrategy,
@@ -117,7 +116,6 @@ struct buffer_all<Input, Output, geometry_collection_tag, multi_polygon_tag>
 {
     template
     <
-        typename Output,
         typename DistanceStrategy,
         typename SideStrategy,
         typename JoinStrategy,
@@ -163,7 +161,6 @@ struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_ta
 {
     template
     <
-        typename Output,
         typename DistanceStrategy,
         typename SideStrategy,
         typename JoinStrategy,
