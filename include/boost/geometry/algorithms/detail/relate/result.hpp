@@ -44,6 +44,13 @@ enum field { interior = 0, boundary = 1, exterior = 2 };
 // but for safety reasons (STATIC_ASSERT) we should check if parameter D is valid and set() doesn't do that
 // so some additional function could be added, e.g. set_dim()
 
+
+template <typename MatrixOrMask, field F1, field F2>
+using fields_in_bounds = util::bool_constant
+    <
+        (F1 < MatrixOrMask::static_height && F2 < MatrixOrMask::static_width)
+    >;
+
 // --------------- MATRIX ----------------
 
 // matrix
@@ -63,22 +70,28 @@ public:
     
     inline matrix()
     {
-        ::memset(m_array, 'F', static_size);
+        std::fill_n(m_array, static_size, 'F');
     }
 
-    template <field F1, field F2>
+    template
+    <
+        field F1, field F2,
+        std::enable_if_t<fields_in_bounds<matrix, F1, F2>::value, int> = 0
+    >
     inline char get() const
     {
-        BOOST_STATIC_ASSERT(F1 < Height && F2 < Width);
         static const std::size_t index = F1 * Width + F2;
         BOOST_STATIC_ASSERT(index < static_size);
         return m_array[index];
     }
 
-    template <field F1, field F2, char V>
+    template
+    <
+        field F1, field F2, char V,
+        std::enable_if_t<fields_in_bounds<matrix, F1, F2>::value, int> = 0
+    >
     inline void set()
     {
-        BOOST_STATIC_ASSERT(F1 < Height && F2 < Width);
         static const std::size_t index = F1 * Width + F2;
         BOOST_STATIC_ASSERT(index < static_size);
         m_array[index] = V;
@@ -151,27 +164,27 @@ public:
     inline bool may_update() const
     {
         BOOST_STATIC_ASSERT('0' <= D && D <= '9');
-
         char const c = m_matrix.template get<F1, F2>();
         return D > c || c > '9';
     }
 
     template <field F1, field F2, char V>
-    inline void set()
-    {
-        static const bool in_bounds = F1 < Matrix::static_height
-                                   && F2 < Matrix::static_width;
-        typedef std::integral_constant<bool, in_bounds> in_bounds_t;
-        set_dispatch<F1, F2, V>(in_bounds_t());
-    }
-
-    template <field F1, field F2, char D>
     inline void update()
     {
-        static const bool in_bounds = F1 < Matrix::static_height
-                                   && F2 < Matrix::static_width;
-        typedef std::integral_constant<bool, in_bounds> in_bounds_t;
-        update_dispatch<F1, F2, D>(in_bounds_t());
+        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        char const c = m_matrix.template get<F1, F2>();
+        // If c == T and V == T it will be set anyway but that's fine
+        if (V > c || c > '9')
+        {
+            m_matrix.template set<F1, F2, V>();
+        }
+    }
+
+    template <field F1, field F2, char V>
+    inline void set()
+    {
+        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        m_matrix.template set<F1, F2, V>();
     }
 
     template <field F1, field F2>
@@ -181,32 +194,6 @@ public:
     }
 
 private:
-    template <field F1, field F2, char V>
-    inline void set_dispatch(std::true_type)
-    {
-        static const std::size_t index = F1 * Matrix::static_width + F2;
-        BOOST_STATIC_ASSERT(index < Matrix::static_size);
-        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T' || V == 'F');
-        m_matrix.template set<F1, F2, V>();
-    }
-    template <field F1, field F2, char V>
-    inline void set_dispatch(std::false_type)
-    {}
-
-    template <field F1, field F2, char D>
-    inline void update_dispatch(std::true_type)
-    {
-        static const std::size_t index = F1 * Matrix::static_width + F2;
-        BOOST_STATIC_ASSERT(index < Matrix::static_size);
-        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
-        char const c = m_matrix.template get<F1, F2>();
-        if ( D > c || c > '9')
-            m_matrix.template set<F1, F2, D>();
-    }
-    template <field F1, field F2, char D>
-    inline void update_dispatch(std::false_type)
-    {}
-
     Matrix m_matrix;
 };
 
@@ -234,7 +221,7 @@ public:
         }
         if ( it != last )
         {
-            ::memset(it, '*', last - it);
+            std::fill(it, last, '*');
         }
     }
 
@@ -247,18 +234,21 @@ public:
         if ( count > 0 )
         {
             std::for_each(s, s + count, check_char);
-            ::memcpy(m_array, s, count);
+            std::copy_n(s, count, m_array);
         }
         if ( count < static_size )
         {
-            ::memset(m_array + count, '*', static_size - count);
+            std::fill_n(m_array + count, static_size - count, '*');
         }
     }
 
-    template <field F1, field F2>
+    template
+    <
+        field F1, field F2,
+        std::enable_if_t<fields_in_bounds<mask, F1, F2>::value, int> = 0
+    >
     inline char get() const
     {
-        BOOST_STATIC_ASSERT(F1 < Height && F2 < Width);
         static const std::size_t index = F1 * Width + F2;
         BOOST_STATIC_ASSERT(index < static_size);
         return m_array[index];
@@ -581,34 +571,32 @@ public:
     template <field F1, field F2, char D>
     inline bool may_update() const
     {
-        return detail::relate::may_update<F1, F2, D>(
-                    m_mask, base_t::matrix()
-               );
-    }
-
-    template <field F1, field F2, char V>
-    inline void set()
-    {
-        if ( relate::interrupt<F1, F2, V, Interrupt>(m_mask) )
-        {
-            interrupt = true;
-        }
-        else
-        {
-            base_t::template set<F1, F2, V>();
-        }
+        return detail::relate::may_update<F1, F2, D>(m_mask, base_t::matrix());
     }
 
     template <field F1, field F2, char V>
     inline void update()
     {
-        if ( relate::interrupt<F1, F2, V, Interrupt>(m_mask) )
+        if (relate::interrupt<F1, F2, V, Interrupt>(m_mask))
         {
             interrupt = true;
         }
         else
         {
             base_t::template update<F1, F2, V>();
+        }
+    }
+
+    template <field F1, field F2, char V>
+    inline void set()
+    {
+        if (relate::interrupt<F1, F2, V, Interrupt>(m_mask))
+        {
+            interrupt = true;
+        }
+        else
+        {
+            base_t::template set<F1, F2, V>();
         }
     }
 
@@ -1079,24 +1067,6 @@ public:
                     apply(base_type::matrix());
     }
 
-    template <field F1, field F2>
-    static inline bool expects()
-    {
-        return static_should_handle_element<StaticMask, F1, F2>::value;
-    }
-
-    template <field F1, field F2, char V>
-    inline void set()
-    {
-        static const bool interrupt_c = static_interrupt<StaticMask, V, F1, F2, Interrupt>::value;
-        static const bool should_handle = static_should_handle_element<StaticMask, F1, F2>::value;
-        static const int version = interrupt_c ? 0
-                                 : should_handle ? 1
-                                 : 2;
-
-        set_dispatch<F1, F2, V>(integral_constant<int, version>());
-    }
-
     template <field F1, field F2, char V>
     inline void update()
     {
@@ -1109,6 +1079,26 @@ public:
         update_dispatch<F1, F2, V>(integral_constant<int, version>());
     }
 
+    template
+    <
+        field F1, field F2, char V,
+        std::enable_if_t<static_interrupt<StaticMask, V, F1, F2, Interrupt>::value, int> = 0
+    >
+    inline void set()
+    {
+        interrupt = true;
+    }
+
+    template
+    <
+        field F1, field F2, char V,
+        std::enable_if_t<! static_interrupt<StaticMask, V, F1, F2, Interrupt>::value, int> = 0
+    >
+    inline void set()
+    {
+        base_type::template set<F1, F2, V>();
+    }
+
     template <field F1, field F2>
     inline char get() const
     {
@@ -1116,23 +1106,6 @@ public:
     }
 
 private:
-    // Interrupt && interrupt
-    template <field F1, field F2, char V>
-    inline void set_dispatch(integral_constant<int, 0>)
-    {
-        interrupt = true;
-    }
-    // else should_handle
-    template <field F1, field F2, char V>
-    inline void set_dispatch(integral_constant<int, 1>)
-    {
-        base_type::template set<F1, F2, V>();
-    }
-    // else
-    template <field F1, field F2, char V>
-    inline void set_dispatch(integral_constant<int, 2>)
-    {}
-
     // Interrupt && interrupt
     template <field F1, field F2, char V>
     inline void update_dispatch(integral_constant<int, 0>)
@@ -1153,40 +1126,6 @@ private:
 
 // --------------- UTIL FUNCTIONS ----------------
 
-// set
-
-template <field F1, field F2, char V, typename Result>
-inline void set(Result & res)
-{
-    res.template set<F1, F2, V>();
-}
-
-template <field F1, field F2, char V, bool Transpose>
-struct set_dispatch
-{
-    template <typename Result>
-    static inline void apply(Result & res)
-    {
-        res.template set<F1, F2, V>();
-    }
-};
-
-template <field F1, field F2, char V>
-struct set_dispatch<F1, F2, V, true>
-{
-    template <typename Result>
-    static inline void apply(Result & res)
-    {
-        res.template set<F2, F1, V>();
-    }
-};
-
-template <field F1, field F2, char V, bool Transpose, typename Result>
-inline void set(Result & res)
-{
-    set_dispatch<F1, F2, V, Transpose>::apply(res);
-}
-
 // update
 
 template <field F1, field F2, char D, typename Result>
@@ -1195,30 +1134,24 @@ inline void update(Result & res)
     res.template update<F1, F2, D>();
 }
 
-template <field F1, field F2, char D, bool Transpose>
-struct update_result_dispatch
-{
-    template <typename Result>
-    static inline void apply(Result & res)
-    {
-        update<F1, F2, D>(res);
-    }
-};
-
-template <field F1, field F2, char D>
-struct update_result_dispatch<F1, F2, D, true>
-{
-    template <typename Result>
-    static inline void apply(Result & res)
-    {
-        update<F2, F1, D>(res);
-    }
-};
-
-template <field F1, field F2, char D, bool Transpose, typename Result>
+template
+<
+    field F1, field F2, char D, bool Transpose, typename Result,
+    std::enable_if_t<! Transpose, int> = 0
+>
 inline void update(Result & res)
 {
-    update_result_dispatch<F1, F2, D, Transpose>::apply(res);
+    res.template update<F1, F2, D>();
+}
+
+template
+<
+    field F1, field F2, char D, bool Transpose, typename Result,
+    std::enable_if_t<Transpose, int> = 0
+>
+inline void update(Result & res)
+{
+    res.template update<F2, F1, D>();
 }
 
 // may_update
@@ -1229,30 +1162,24 @@ inline bool may_update(Result const& res)
     return res.template may_update<F1, F2, D>();
 }
 
-template <field F1, field F2, char D, bool Transpose>
-struct may_update_result_dispatch
-{
-    template <typename Result>
-    static inline bool apply(Result const& res)
-    {
-        return may_update<F1, F2, D>(res);
-    }
-};
-
-template <field F1, field F2, char D>
-struct may_update_result_dispatch<F1, F2, D, true>
-{
-    template <typename Result>
-    static inline bool apply(Result const& res)
-    {
-        return may_update<F2, F1, D>(res);
-    }
-};
-
-template <field F1, field F2, char D, bool Transpose, typename Result>
+template
+<
+    field F1, field F2, char D, bool Transpose, typename Result,
+    std::enable_if_t<! Transpose, int> = 0
+>
 inline bool may_update(Result const& res)
 {
-    return may_update_result_dispatch<F1, F2, D, Transpose>::apply(res);
+    return res.template may_update<F1, F2, D>();
+}
+
+template
+<
+    field F1, field F2, char D, bool Transpose, typename Result,
+    std::enable_if_t<Transpose, int> = 0
+>
+inline bool may_update(Result const& res)
+{
+    return res.template may_update<F2, F1, D>();
 }
 
 // result_dimension
@@ -1260,11 +1187,9 @@ inline bool may_update(Result const& res)
 template <typename Geometry>
 struct result_dimension
 {
-    BOOST_STATIC_ASSERT(geometry::dimension<Geometry>::value >= 0);
-    static const char value
-        = ( geometry::dimension<Geometry>::value <= 9 ) ?
-            ( '0' + geometry::dimension<Geometry>::value ) :
-              'T';
+    static const std::size_t dim = geometry::dimension<Geometry>::value;
+    BOOST_STATIC_ASSERT(dim >= 0);
+    static const char value = (dim <= 9) ? ('0' + dim) : 'T';
 };
 
 }} // namespace detail::relate

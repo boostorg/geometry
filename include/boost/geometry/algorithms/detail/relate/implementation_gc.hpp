@@ -33,6 +33,74 @@ namespace boost { namespace geometry
 namespace detail { namespace relate
 {
 
+// For fields II IE and EI this handler behaves like matrix_handler.
+// It has to be created at the beginning of processing because it relies on the
+//   fact that all of the fields are set to F and no geometry was handled yet.
+//   This way it can check which fields are required for any mask and matrix
+//   without accessing the internals.
+// An alternative would be to remove this wrapper and always set the matrix
+//   in static_mask_handler even if this is not required.
+template <typename Handler>
+struct aa_handler_wrapper
+{
+    bool interrupt = false;
+
+    explicit aa_handler_wrapper(Handler& handler)
+        : m_handler(handler)
+    {
+        m_overwrite_ii = ! handler.template may_update<interior, interior, '2'>();
+        m_overwrite_ie = ! handler.template may_update<interior, exterior, '2'>();
+        m_overwrite_ei = ! handler.template may_update<exterior, interior, '2'>();
+    }
+
+    template <field F1, field F2, char D>
+    inline bool may_update() const
+    {
+        if ((F1 == interior && F2 == interior && m_overwrite_ii)
+            || (F1 == interior && F2 == exterior && m_overwrite_ie)
+            || (F1 == exterior && F2 == interior && m_overwrite_ei))
+        {
+            char const c = m_handler.template get<F1, F2>();
+            return D > c || c > '9';
+        }
+        else
+        {
+            return m_handler.template may_update<F1, F2, D>();
+        }
+    }
+
+    template <field F1, field F2, char V>
+    inline void update()
+    {
+        if ((F1 == interior && F2 == interior && m_overwrite_ii)
+            || (F1 == interior && F2 == exterior && m_overwrite_ie)
+            || (F1 == exterior && F2 == interior && m_overwrite_ei))
+        {
+            // NOTE: Other handlers first check for potential interruption
+            //   and only after that checks update condition.
+            char const c = m_handler.template get<F1, F2>();
+            // If c == T and V == T it will be set anyway but that's fine.
+            if (V > c || c > '9')
+            {
+                // set may set interrupt flag
+                m_handler.template set<F1, F2, V>();
+            }
+        }
+        else
+        {
+            m_handler.template update<F1, F2, V>();
+        }
+        interrupt = interrupt || m_handler.interrupt;
+    }
+
+private:
+    Handler & m_handler;
+    bool m_overwrite_ii = false;
+    bool m_overwrite_ie = false;
+    bool m_overwrite_ei = false;
+};
+
+
 template <typename Geometry1, typename Geometry2>
 struct gc_gc
 {
@@ -134,7 +202,6 @@ struct gc_gc
         bool has_disjoint = false;
         bool has_disjoint_linear = false;
 
-        // TODO: implement breaking mechanism in gc_group_elements
         gc_group_elements(gc1_view, gc2_view, strategy,
             [&](auto const& inters_group)
             {
@@ -180,16 +247,15 @@ struct gc_gc
                 {
                     inters_found[0][2] = true;
                     inters_found[1][2] = true;
-                    call_relate(mpo1, mpo2, result, strategy);
+                    aa_handler_wrapper<Result> wrapper(result);
+                    call_relate(mpo1, mpo2, wrapper, strategy);
                 }
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
-                // TODO: The problem with this is that these may not be set
-                //   if mask not requireing them is passed.
                 bool is_aa_ii = result.template get<interior, interior>() != 'F';
                 bool is_aa_ie = result.template get<interior, exterior>() != 'F';
                 bool is_aa_ei = result.template get<exterior, interior>() != 'F';
@@ -202,8 +268,7 @@ struct gc_gc
 
                 // If needed divide MLss into two parts:
                 // - inside Areal of other GC
-                // - outside of other GC Areal to check WRT Linear of other GC
-                
+                // - outside of other GC Areal to check WRT Linear of other GC                
                 mls2_t mls2_diff_mpo1, mls2_inters_mpo1;
                 bool is_mls2_divided = false;
                 mls1_t mls1_diff_mpo2, mls1_inters_mpo2;
@@ -236,7 +301,7 @@ struct gc_gc
                     {
                         // Equal Areal and both Linear non-empty, calculate only L/L below
                     }
-                    else if (is_aa_ii && ! is_aa_ie && /*(! is_aa_ei || is_aa_ei) &&*/ geometry::is_empty(mls1))
+                    else if (is_aa_ii && ! is_aa_ie && geometry::is_empty(mls1))
                     {
                         // An alternative would be to calculate L/L with one empty below
                         mpo1_t empty;
@@ -260,7 +325,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // L/A
@@ -296,7 +361,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // L/L
@@ -333,7 +398,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // A/P
@@ -346,7 +411,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // P/A
@@ -359,7 +424,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // L/P
@@ -372,7 +437,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // P/L
@@ -385,7 +450,7 @@ struct gc_gc
 
                 if (BOOST_GEOMETRY_CONDITION(result.interrupt))
                 {
-                    return;
+                    return false;
                 }
 
                 // P/P
@@ -395,14 +460,16 @@ struct gc_gc
                     inters_found[1][0] = true;
                     call_relate(mpt1, mpt2, result, strategy);
                 }
+
+                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
+                {
+                    return false;
+                }
+
+                return true;
             },
             [&](auto const& disjoint_group)
             {
-                if (BOOST_GEOMETRY_CONDITION(result.interrupt))
-                {
-                    return;
-                }
-
                 for (auto const& id : disjoint_group)
                 {
                     BOOST_GEOMETRY_ASSERT(id.source_id == 0 || id.source_id == 1);

@@ -56,7 +56,7 @@ template <typename GC1View, typename GC2View, typename Strategy, typename Inters
 inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view, Strategy const& strategy,
                               IntersectingFun&& intersecting_fun,
                               DisjointFun&& disjoint_fun,
-                              bool group_self = false)
+                              bool const group_self = false)
 {
     // NOTE: gc_make_rtree_indexes() already checks for random-access,
     //   non-recursive geometry collections.
@@ -157,7 +157,10 @@ inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view, 
         }
         if (! group.empty())
         {
-            intersecting_fun(group);
+            if (! intersecting_fun(group))
+            {
+                return;
+            }
         }
     }
 

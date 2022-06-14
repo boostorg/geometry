@@ -471,6 +471,7 @@ struct union_
                 detail::intersection::gc_move_multi_back(geometry_out, boost::get<0>(out));
                 detail::intersection::gc_move_multi_back(geometry_out, boost::get<1>(out));
                 detail::intersection::gc_move_multi_back(geometry_out, boost::get<2>(out));
+                return true;
             },
             [&](auto const& disjoint_group)
             {
