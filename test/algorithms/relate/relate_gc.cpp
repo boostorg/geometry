@@ -85,6 +85,17 @@ void test_gc_gc()
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 10,9 10,9 0,0 0)), LINESTRING(5 10, 10 11, 15 10))",
                               "GEOMETRYCOLLECTION(POLYGON((10 0,10 10,20 10,20 0,10 0)), POINT(15 5))",
                               "FF2F01212");
+
+    {
+        // Test case causing II, IE and EI not to be calculated with static_mask without aa_handler_wrapper
+        gc_t gc1, gc2;
+        bg::read_wkt("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 4, 4 1))", gc1);
+        bg::read_wkt("GEOMETRYCOLLECTION(POLYGON((0 0,0 5,5 5,5 0,0 0)), LINESTRING(1 1, 6 6))", gc2);
+        bool b1 = bg::relate(gc1, gc2, bg::de9im::mask("*F*F1F*02"));
+        bool b2 = bg::relate(gc1, gc2, bg::de9im::static_mask<'*','F','*','F','1','F','*','0','2'>());
+        BOOST_CHECK(b1);
+        BOOST_CHECK(b2);
+    }
 }
 
 void test_g_gc()
