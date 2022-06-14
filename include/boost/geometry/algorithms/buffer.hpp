@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -24,25 +24,21 @@
 
 #include <boost/range/value_type.hpp>
 
-#include <boost/variant/apply_visitor.hpp>
-#include <boost/variant/static_visitor.hpp>
-#include <boost/variant/variant_fwd.hpp>
-
 #include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
+#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/arithmetic/arithmetic.hpp>
+#include <boost/geometry/core/visit.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/util/math.hpp>
-
-#include <boost/geometry/algorithms/detail/buffer/buffer_box.hpp>
-#include <boost/geometry/algorithms/detail/buffer/buffer_inserter.hpp>
-
 #include <boost/geometry/strategies/buffer/cartesian.hpp>
 #include <boost/geometry/strategies/buffer/geographic.hpp>
 #include <boost/geometry/strategies/buffer/spherical.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -77,9 +73,13 @@ struct buffer<BoxIn, BoxOut, box_tag, box_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant {
+namespace resolve_dynamic {
 
-template <typename Geometry>
+template
+<
+    typename Geometry,
+    typename Tag = typename geometry::tag<Geometry>::type
+>
 struct buffer
 {
     template <typename Distance, typename GeometryOut>
@@ -92,44 +92,24 @@ struct buffer
     }
 };
 
-template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
-struct buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
+template <typename Geometry>
+struct buffer<Geometry, dynamic_geometry_tag>
 {
     template <typename Distance, typename GeometryOut>
-    struct visitor: boost::static_visitor<void>
+    static inline void apply(Geometry const& geometry,
+                             Distance const& distance,
+                             Distance const& chord_length,
+                             GeometryOut& out)
     {
-        Distance const& m_distance;
-        Distance const& m_chord_length;
-        GeometryOut& m_out;
-
-        visitor(Distance const& distance,
-                Distance const& chord_length,
-                GeometryOut& out)
-        : m_distance(distance),
-          m_chord_length(chord_length),
-          m_out(out)
-        {}
-
-        template <typename Geometry>
-        void operator()(Geometry const& geometry) const
+        traits::visit<Geometry>::apply([&](auto const& g)
         {
-            buffer<Geometry>::apply(geometry, m_distance, m_chord_length, m_out);
-        }
-    };
-
-    template <typename Distance, typename GeometryOut>
-    static inline void apply(
-        boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry,
-        Distance const& distance,
-        Distance const& chord_length,
-        GeometryOut& out
-    )
-    {
-        boost::apply_visitor(visitor<Distance, GeometryOut>(distance, chord_length, out), geometry);
+            using g_t = util::remove_cref_t<decltype(g)>;
+            buffer<g_t>::apply(g, distance, chord_length, out);
+        }, geometry);
     }
 };
 
-} // namespace resolve_variant
+} // namespace resolve_dynamic
 
 
 /*!
@@ -148,12 +128,12 @@ struct buffer<boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
  */
 template <typename Input, typename Output, typename Distance>
 inline void buffer(Input const& geometry_in, Output& geometry_out,
-            Distance const& distance, Distance const& chord_length = -1)
+                   Distance const& distance, Distance const& chord_length = -1)
 {
     concepts::check<Input const>();
     concepts::check<Output>();
 
-    resolve_variant::buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
+    resolve_dynamic::buffer<Input>::apply(geometry_in, distance, chord_length, geometry_out);
 }
 
 /*!
@@ -170,14 +150,15 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \return \return_calc{buffer}
  */
 template <typename Output, typename Input, typename Distance>
-Output return_buffer(Input const& geometry, Distance const& distance, Distance const& chord_length = -1)
+inline Output return_buffer(Input const& geometry, Distance const& distance,
+                            Distance const& chord_length = -1)
 {
     concepts::check<Input const>();
     concepts::check<Output>();
 
     Output geometry_out;
 
-    resolve_variant::buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
+    resolve_dynamic::buffer<Input>::apply(geometry, distance, chord_length, geometry_out);
 
     return geometry_out;
 }
@@ -216,12 +197,12 @@ template
     typename PointStrategy
 >
 inline void buffer(GeometryIn const& geometry_in,
-                MultiPolygon& geometry_out,
-                DistanceStrategy const& distance_strategy,
-                SideStrategy const& side_strategy,
-                JoinStrategy const& join_strategy,
-                EndStrategy const& end_strategy,
-                PointStrategy const& point_strategy)
+                   MultiPolygon& geometry_out,
+                   DistanceStrategy const& distance_strategy,
+                   SideStrategy const& side_strategy,
+                   JoinStrategy const& join_strategy,
+                   EndStrategy const& end_strategy,
+                   PointStrategy const& point_strategy)
 {
     typedef typename boost::range_value<MultiPolygon>::type polygon_type;
     concepts::check<GeometryIn const>();
