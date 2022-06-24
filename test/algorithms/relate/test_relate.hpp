@@ -120,10 +120,10 @@ void check_geometry(Geometry1 const& geometry1,
             << " -> Expected: " << matrix_format(expected1, expected2)
             << " detected: " << res_str);
 
-        typedef typename bg::strategies::relate::services::default_strategy
+        using strategy_type = typename bg::strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type strategy_type;
+            >::type;
         std::string res_str0 = bg::relation(geometry1, geometry2, strategy_type()).str();
         BOOST_CHECK(res_str == res_str0);
 
@@ -161,10 +161,10 @@ void check_geometry(Geometry1 const& geometry1,
                 << " and " << wkt2
                 << " -> Expected: " << expected1);
 
-            typedef typename bg::strategies::relate::services::default_strategy
+            using strategy_type = typename bg::strategies::relate::services::default_strategy
                 <
                     Geometry1, Geometry2
-                >::type strategy_type;
+                >::type;
             bool result0 = bg::relate(geometry1, geometry2, bg::de9im::mask(expected1), strategy_type());
             BOOST_CHECK(result == result0);
 
