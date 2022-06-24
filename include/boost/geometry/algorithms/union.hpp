@@ -170,20 +170,20 @@ struct union_insert
         false
     >
 {
-    typedef typename geometry::detail::single_tag_from_base_tag
+    using single_tag = typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn
-        >::type single_tag;
+        >::type;
 
-    typedef detail::expect_output
+    using expect_check = detail::expect_output
         <
             Geometry1, Geometry2, SingleTupledOut, single_tag
-        > expect_check;
+        >;
 
-    typedef typename geometry::detail::output_geometry_access
+    using access = typename geometry::detail::output_geometry_access
         <
             SingleTupledOut, single_tag, single_tag
-        > access;
+        >;
 
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
@@ -211,15 +211,15 @@ template
 >
 struct union_insert_tupled_different
 {
-    typedef typename geometry::detail::output_geometry_access
+    using access1 = typename geometry::detail::output_geometry_access
         <
             SingleTupledOut, SingleTag1, SingleTag1
-        > access1;
+        >;
 
-    typedef typename geometry::detail::output_geometry_access
+    using access2 = typename geometry::detail::output_geometry_access
         <
             SingleTupledOut, SingleTag2, SingleTag2
-        > access2;
+        >;
 
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
@@ -287,25 +287,25 @@ struct union_insert
         false
     >
 {
-    typedef typename geometry::detail::single_tag_from_base_tag
+    using single_tag1 = typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn1
-        >::type single_tag1;
+        >::type;
 
-    typedef detail::expect_output
+    using expect_check1 = detail::expect_output
         <
             Geometry1, Geometry2, SingleTupledOut, single_tag1
-        > expect_check1;
+        >;
 
-    typedef typename geometry::detail::single_tag_from_base_tag
+    using single_tag2 = typename geometry::detail::single_tag_from_base_tag
         <
             CastedTagIn2
-        >::type single_tag2;
+        >::type;
 
-    typedef detail::expect_output
+    using expect_check2 = detail::expect_output
         <
             Geometry1, Geometry2, SingleTupledOut, single_tag2
-        > expect_check2;
+        >;
 
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& g1,
@@ -363,11 +363,11 @@ inline OutputIterator union_insert(Geometry1 const& geometry1,
             Geometry1, Geometry2
         >::type strategy;
 
-    typedef typename geometry::rescale_overlay_policy_type
+    using rescale_policy_type = typename geometry::rescale_overlay_policy_type
         <
             Geometry1,
             Geometry2
-        >::type rescale_policy_type;
+        >::type;
 
     rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(
@@ -396,8 +396,13 @@ struct gc_element_id
     }
 };
 
-template <typename GC1View, typename GC2View, typename Strategy, typename IntersectingFun, typename DisjointFun>
-inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view, Strategy const& strategy,
+template
+<
+    typename GC1View, typename GC2View, typename Strategy,
+    typename IntersectingFun, typename DisjointFun
+>
+inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view,
+                              Strategy const& strategy,
                               IntersectingFun&& intersecting_fun,
                               DisjointFun&& disjoint_fun)
 {
@@ -504,17 +509,17 @@ struct union_
     static void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                       GeometryOut & geometry_out, Strategy const& strategy)
     {
-        typedef typename geometry::detail::output_geometry_value
+        using single_out = typename geometry::detail::output_geometry_value
             <
-            GeometryOut
-            >::type single_out;
+                GeometryOut
+            >::type;
 
-        typedef typename geometry::rescale_overlay_policy_type
+        using rescale_policy_type = typename geometry::rescale_overlay_policy_type
             <
                 Geometry1,
                 Geometry2,
                 typename Strategy::cs_tag
-            >::type rescale_policy_type;
+            >::type;
 
         rescale_policy_type robust_policy
                 = geometry::get_rescale_policy<rescale_policy_type>(
@@ -848,11 +853,11 @@ struct union_<default_strategy, false>
                              Collection & output_collection,
                              default_strategy)
     {
-        typedef typename strategies::relate::services::default_strategy
+        using strategy_type = typename strategies::relate::services::default_strategy
             <
                 Geometry1,
                 Geometry2
-            >::type strategy_type;
+            >::type;
 
         union_
             <

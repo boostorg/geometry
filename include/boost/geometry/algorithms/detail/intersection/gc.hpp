@@ -212,10 +212,10 @@ private:
     template <typename Out, typename Strategy, std::enable_if_t<! util::is_pointlike<Out>::value, int> = 0>
     static void call_union(Out const& g1, Out const& g2, Out& out, Strategy const& strategy)
     {
-        typedef typename geometry::rescale_overlay_policy_type
+        using rescale_policy_type = typename geometry::rescale_overlay_policy_type
             <
                 Out, Out, typename Strategy::cs_tag
-            >::type rescale_policy_type;
+            >::type;
         
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(
