@@ -660,7 +660,7 @@ struct static_geometry_type
     using type = typename util::sequence_find_if
         <
             typename traits::geometry_types<DynamicGeometryOut>::type,
-            detail::simplify::has_same_tag_as<StaticGeometryIn>::pred
+            detail::simplify::has_same_tag_as<StaticGeometryIn>::template pred
         >::type;
 
     BOOST_GEOMETRY_STATIC_ASSERT(
