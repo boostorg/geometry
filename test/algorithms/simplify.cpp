@@ -310,28 +310,37 @@ void test_spherical()
 
 
 template <typename P>
-struct ring : std::vector<P>
+struct quad
 {
-    ring(std::initializer_list<P> l)
-        : std::vector<P>(l)
+    using iterator = P const*;
+    using const_iterator = P const*;
+
+    quad(P const& p0, P const& p1, P const& p2, P const& p3)
+        : m_arr{p0, p1, p2, p3, p0}
     {}
+
+    const_iterator begin() const { return m_arr; }
+    const_iterator end() const { return m_arr + 5; }
+
+private:
+    P m_arr[5];
 };
-BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(ring)
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(quad)
 
 void test_different_types()
 {
     using point_t = bg::model::d2::point_xy<double>;
-    using ring_t = ::ring<point_t>;
+    using quad_t = ::quad<point_t>;
     using bg_ring_t = bg::model::ring<point_t>;
-    ring_t ring{{0, 0}, {10, 1}, {20, 2}, {30, 0}, {0, 0}};
+    quad_t quad{{0, 0}, {10, 1}, {20, 2}, {30, 0}};
     bg_ring_t result;
-    bg::simplify(ring, result, 0.1);
+    bg::simplify(quad, result, 0.1);
     BOOST_CHECK(boost::size(result) == 4);
     BOOST_CHECK_CLOSE(bg::area(result), 30.0, 0.00001);
 
-    using var_t = boost::variant<point_t, ring_t>;
+    using var_t = boost::variant<point_t, quad_t>;
     using bg_var_t = boost::variant<point_t, bg_ring_t>;
-    var_t var = ring;
+    var_t var = quad;
     bg_var_t result_var;
     bg::simplify(var, result_var, 0.1);
     BOOST_CHECK(bg::num_points(result_var) == 4);
