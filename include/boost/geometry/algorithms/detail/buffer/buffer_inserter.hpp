@@ -2,8 +2,8 @@
 
 // Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,6 +37,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
@@ -54,11 +56,11 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-template <typename Range, typename DistanceStrategy, typename Strategies>
-inline void simplify_input(Range const& range,
-        DistanceStrategy const& distance,
-        Range& simplified,
-        Strategies const& strategies)
+template <typename RangeIn, typename RangeOut, typename DistanceStrategy, typename Strategies>
+inline void simplify_input(RangeIn const& range,
+                           DistanceStrategy const& distance,
+                           RangeOut& simplified,
+                           Strategies const& strategies)
 {
     // We have to simplify the ring before to avoid very small-scaled
     // features in the original (convex/concave/convex) being enlarged
@@ -524,7 +526,8 @@ struct buffer_inserter_ring
             RobustPolicy const& robust_policy,
             Strategies const& strategies)
     {
-        RingInput simplified;
+        using simplified_ring_t = typename helper_geometry<RingInput>::type;
+        simplified_ring_t simplified;
         detail::buffer::simplify_input(ring, distance, simplified, strategies);
 
         geometry::strategy::buffer::result_code code = geometry::strategy::buffer::result_no_output;
@@ -532,12 +535,12 @@ struct buffer_inserter_ring
         std::size_t n = boost::size(simplified);
         std::size_t const min_points = core_detail::closure::minimum_ring_size
             <
-                geometry::closure<RingInput>::value
+                geometry::closure<simplified_ring_t>::value
             >::value;
 
         if (n >= min_points)
         {
-            detail::closed_clockwise_view<RingInput const> view(simplified);
+            detail::closed_clockwise_view<simplified_ring_t const> view(simplified);
             if (distance.negative())
             {
                 // Walk backwards (rings will be reversed afterwards)
@@ -708,7 +711,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             RobustPolicy const& robust_policy,
             Strategies const& strategies)
     {
-        Linestring simplified;
+        typename helper_geometry<Linestring>::type simplified;
         detail::buffer::simplify_input(linestring, distance, simplified, strategies);
 
         geometry::strategy::buffer::result_code code = geometry::strategy::buffer::result_no_output;
