@@ -3,8 +3,8 @@
 
 // Copyright (c) 2012-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2021.
-// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2022.
+// Modifications copyright (c) 2016-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -12,6 +12,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_buffer.hpp"
+
+#include <boost/geometry/geometries/register/ring.hpp>
+#include <boost/geometry/geometries/register/linestring.hpp>
 
 
 static std::string const simplex
@@ -835,6 +838,69 @@ void test_mixed()
             simplex, join_round, end_flat, 47.4831, 1.5);
 }
 
+
+template <typename P>
+struct triangle_ring
+{
+    triangle_ring(P const& p0, P const& p1, P const& p2)
+        : m_arr{p0, p1, p2, p0}
+    {}
+    using iterator = P const*;
+    using const_iterator = P const*;
+    const_iterator begin() const { return m_arr; }
+    const_iterator end() const { return m_arr + 4; }
+private:
+    P m_arr[4];
+};
+
+template <typename P>
+struct segment_linestring
+{
+    segment_linestring(P const& p0, P const& p1)
+        : m_arr{p0, p1}
+    {}
+    using iterator = P const*;
+    using const_iterator = P const*;
+    const_iterator begin() const { return m_arr; }
+    const_iterator end() const { return m_arr + 2; }
+private:
+    P m_arr[2];
+};
+
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(triangle_ring)
+BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(segment_linestring)
+
+void test_different()
+{
+    using point_t = bg::model::point<default_test_type, 2, bg::cs::cartesian>;
+    using segment_t = segment_linestring<point_t>;
+    using triangle_t = triangle_ring<point_t>;
+    using polygon_t = bg::model::polygon<point_t>;
+    using mpolygon_t = bg::model::multi_polygon<polygon_t>;
+
+    bg::strategy::buffer::distance_symmetric<double> distance_symmetric(1.5);
+    bg::strategy::buffer::side_straight side_straight;
+    bg::strategy::buffer::join_round join_round(100);
+    bg::strategy::buffer::end_flat end_flat;
+    bg::strategy::buffer::point_circle point_circle(100);
+
+    {
+        triangle_t in{{0, 0}, {1, 5}, {6, 1}};
+        mpolygon_t out;
+        bg::buffer(in, out, distance_symmetric, side_straight, join_round, end_flat, point_circle);
+        double a = bg::area(out);
+        BOOST_CHECK_CLOSE(a, 47.9408, 0.1);
+    }
+
+    {
+        segment_t in{{0, 0}, {1, 1}};
+        mpolygon_t out;
+        bg::buffer(in, out, distance_symmetric, side_straight, join_round, end_flat, point_circle);
+        double a = bg::area(out);
+        BOOST_CHECK_CLOSE(a, 4.2426, 0.1);
+    }
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -868,6 +934,8 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     BoostGeometryWriteExpectedFailures(2, 1, 9, 1);
 #endif
+
+    test_different();
 
     return 0;
 }
