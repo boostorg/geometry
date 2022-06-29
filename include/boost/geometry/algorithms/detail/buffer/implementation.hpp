@@ -132,6 +132,10 @@ struct buffer_all<Input, Output, geometry_collection_tag, multi_polygon_tag>
                              PointStrategy const& point_strategy,
                              Strategies const& strategies)
     {
+        // NOTE: The buffer normally calculates everything at once (by pieces) and traverses all
+        //   of them to apply the union operation. Not even by merging elements. But that is
+        //   complex and has led to issues as well. Here intermediate results are calculated
+        //   with buffer and the results are merged afterwards.
         // NOTE: This algorithm merges partial results iteratively.
         //   We could first gather all of the results and after that
         //   use some more optimal method like merge_elements().
@@ -178,7 +182,7 @@ struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_ta
                              Strategies const& strategies)
     {
         // NOTE: We could also allow returning GC containing only polygons.
-        //   We'd have to wrapp them in model::multi_polygon and then
+        //   We'd have to wrap them in model::multi_polygon and then
         //   iteratively emplace_back() into the GC.
         using mpo_t = typename util::sequence_find_if
             <
