@@ -177,10 +177,26 @@ struct iter_visit<geometry::detail::random_access_view<GeometryCollection, false
     : geometry::detail::random_access_view_iter_visit<GeometryCollection>
 {};
 
+template <typename GeometryCollection>
+struct iter_visit<geometry::detail::random_access_view<GeometryCollection, true, false>>
+{
+    template <typename Function, typename Iterator>
+    static void apply(Function && function, Iterator iterator)
+    {
+        geometry::traits::iter_visit
+            <
+                std::remove_const_t<GeometryCollection>
+            >::apply(std::forward<Function>(function), iterator);
+    }
+};
+
 
 template <typename GeometryCollection, bool IsRandomAccess>
 struct geometry_types<geometry::detail::random_access_view<GeometryCollection, IsRandomAccess, false>>
-    : geometry_types<GeometryCollection>
+    : traits::geometry_types
+        <
+            std::remove_const_t<GeometryCollection>
+        >
 {};
 
 template <typename GeometryCollection, bool IsRandomAccess>
