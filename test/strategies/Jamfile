@@ -18,6 +18,8 @@
 test-suite boost-geometry-strategies
     :
     [ run andoyer.cpp                        : : : : strategies_andoyer ]
+    [ run buffer_join.cpp                    : : : : strategies_buffer_join ]
+    [ run buffer_side_straight.cpp           : : : : strategies_buffer_side_straight ]
     [ run cross_track.cpp                    : : : : strategies_cross_track ]
     [ run crossings_multiply.cpp             : : : : strategies_crossings_multiply ]
     [ run distance_default_result.cpp        : : : : strategies_distance_default_result ]
