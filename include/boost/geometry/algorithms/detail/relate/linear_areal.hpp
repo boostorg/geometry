@@ -355,10 +355,19 @@ struct linear_areal
                              Result & result,
                              Strategy const& strategy)
     {
+        boundary_checker<Geometry1, Strategy> boundary_checker1(geometry1, strategy);
+        apply(geometry1, geometry2, boundary_checker1, result, strategy);
+    }
+
+    template <typename BoundaryChecker1, typename Result, typename Strategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             BoundaryChecker1 const& boundary_checker1,
+                             Result & result,
+                             Strategy const& strategy)
+    {
         // TODO: If Areal geometry may have infinite size, change the following line:
 
-        // The result should be FFFFFFFFF
-        relate::set<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
+        update<exterior, exterior, result_dimension<Geometry2>::value, TransposeResult>(result);// FFFFFFFFd, d in [1,9] or T
 
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
         {
@@ -377,19 +386,12 @@ struct linear_areal
             return;
         }
 
-        typedef boundary_checker
-            <
-                Geometry1,
-                Strategy
-            > boundary_checker1_type;
-        boundary_checker1_type boundary_checker1(geometry1, strategy);
-
         no_turns_la_linestring_pred
             <
                 Geometry2,
                 Result,
                 Strategy,
-                boundary_checker1_type,
+                BoundaryChecker1,
                 TransposeResult
             > pred1(geometry2,
                     result,
@@ -415,7 +417,7 @@ struct linear_areal
 
         // This is set here because in the case if empty Areal geometry were passed
         // those shouldn't be set
-        relate::set<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
+        update<exterior, interior, '2', TransposeResult>(result);// FFFFFF2Fd
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
         {
             return;
@@ -440,7 +442,7 @@ struct linear_areal
         // If 'c' (insersection_boundary) was not found we know that any Ls isn't equal to one of the Rings
         if ( !interrupt_policy.is_boundary_found )
         {
-            relate::set<exterior, boundary, '1', TransposeResult>(result);
+            update<exterior, boundary, '1', TransposeResult>(result);
         }
         // Don't calculate it if it's required
         else if ( may_update<exterior, boundary, '1', TransposeResult>(result) )
@@ -468,7 +470,7 @@ struct linear_areal
                     if ( it->operations[1].seg_id.ring_index > -1 )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        relate::set<exterior, boundary, '1', TransposeResult>(result);
+                        update<exterior, boundary, '1', TransposeResult>(result);
                         break;
                     }
                     // if there was some previous ring
@@ -483,7 +485,7 @@ struct linear_areal
                                     single_geometry(geometry2, *prev_seg_id_ptr)) )
                         {
                             // we can be sure that the exterior overlaps the boundary
-                            relate::set<exterior, boundary, '1', TransposeResult>(result);
+                            update<exterior, boundary, '1', TransposeResult>(result);
                             break;
                         }
                     }
@@ -496,7 +498,7 @@ struct linear_areal
                       && prev_seg_id_ptr->ring_index + 1 < it->operations[1].seg_id.ring_index )
                     {
                         // we can be sure that the exterior overlaps the boundary
-                        relate::set<exterior, boundary, '1', TransposeResult>(result);
+                        update<exterior, boundary, '1', TransposeResult>(result);
                         break;
                     }
                 }
@@ -511,7 +513,7 @@ struct linear_areal
                 if ( !has_boundary_inters.result )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    relate::set<exterior, boundary, '1', TransposeResult>(result);
+                    update<exterior, boundary, '1', TransposeResult>(result);
                     break;
                 }
                 // else there is 1d overlap with the boundary so we must analyse the boundary
@@ -534,7 +536,7 @@ struct linear_areal
                     if ( analyser.is_union_detected )
                     {
                         // we can be sure that the boundary of Areal overlaps the exterior of Linear
-                        relate::set<exterior, boundary, '1', TransposeResult>(result);
+                        update<exterior, boundary, '1', TransposeResult>(result);
                         break;
                     }
                 }
@@ -554,7 +556,7 @@ struct linear_areal
                             single_geometry(geometry2, *prev_seg_id_ptr)) )
                 {
                     // we can be sure that the exterior overlaps the boundary
-                    relate::set<exterior, boundary, '1', TransposeResult>(result);
+                    update<exterior, boundary, '1', TransposeResult>(result);
                 }
             }
         }
@@ -1474,6 +1476,15 @@ struct areal_linear
                              Strategy const& strategy)
     {
         linear_areal_type::apply(geometry2, geometry1, result, strategy);
+    }
+
+    template <typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             BoundaryChecker2 const& boundary_checker2,
+                             Result & result,
+                             Strategy const& strategy)
+    {
+        linear_areal_type::apply(geometry2, geometry1, boundary_checker2, result, strategy);
     }
 };
 

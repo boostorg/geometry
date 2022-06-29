@@ -206,7 +206,7 @@ protected:
         turns::remove_duplicate_turns
             <
                 Turns, EnableRemoveDuplicateTurns
-            >::apply(turns);
+            >::apply(turns, strategy);
 
         return detail::overlay::following::linear::follow
             <

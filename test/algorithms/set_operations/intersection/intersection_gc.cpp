@@ -10,6 +10,7 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
 //#include <boost/geometry/geometries/adapted/boost_variant2.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
