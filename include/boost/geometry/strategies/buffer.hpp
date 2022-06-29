@@ -67,6 +67,7 @@ enum piece_type
     buffered_flat_end,
     buffered_point,
     buffered_concave,   // always on the inside
+    buffered_empty_side,  // for one-sided buffers
     piece_type_unknown
 };
 

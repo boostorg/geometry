@@ -389,15 +389,18 @@ std::cout << "traverse" << std::endl;
         // it can be returned or an exception can be thrown.
         return add_rings<GeometryOut>(selected_ring_properties, geometry1, geometry2, rings, out,
                                       strategy,
-                                      OverlayType == overlay_union ? 
 #if defined(BOOST_GEOMETRY_UNION_THROW_INVALID_OUTPUT_EXCEPTION)
+                                      OverlayType == overlay_union ?
                                       add_rings_throw_if_reversed
+                                      : add_rings_ignore_unordered
 #elif defined(BOOST_GEOMETRY_UNION_RETURN_INVALID)
+                                      OverlayType == overlay_union ?
                                       add_rings_add_unordered
+                                      : add_rings_ignore_unordered
 #else
                                       add_rings_ignore_unordered
 #endif
-                                      : add_rings_ignore_unordered);
+                                      );
     }
 
     template <typename RobustPolicy, typename OutputIterator, typename Strategy>

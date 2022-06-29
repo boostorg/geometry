@@ -63,6 +63,8 @@ void test_deg_rad(double factor)
     typedef typename bg::coordinate_type<P>::type coord_type;
     typedef bg::model::point<coord_type, 2, bg::cs::geographic<D> > point_type;
 
+    // colombia urban
+    test_one<6247, point_type, P>(-74.250000023 * factor, 4.7999999945 * factor, 80859.03040773407, 122543.17368443853);
     // sterea
     test_one<28992, point_type, P>(4.897000 * factor, 52.371000 * factor, 121590.388077, 487013.903377);
     // utm

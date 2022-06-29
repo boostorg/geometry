@@ -54,7 +54,7 @@ template
     typename GC, typename Multi,
     std::enable_if_t<gc_can_move_element<GC, Multi>::value, int> = 0
 >
-inline void gc_move_multi_back_(GC& gc, Multi&& multi)
+inline void gc_move_one_elem_multi_back(GC& gc, Multi&& multi)
 {
     range::emplace_back(gc, std::move(*boost::begin(multi)));
 }
@@ -64,7 +64,7 @@ template
     typename GC, typename Multi,
     std::enable_if_t<! gc_can_move_element<GC, Multi>::value && gc_can_convert_element<GC, Multi>::value, int> = 0
 >
-inline void gc_move_multi_back_(GC& gc, Multi&& multi)
+inline void gc_move_one_elem_multi_back(GC& gc, Multi&& multi)
 {
     typename gc_can_convert_element<GC, Multi>::found_type single_out;
     geometry::convert(*boost::begin(multi), single_out);
@@ -76,7 +76,7 @@ template
     typename GC, typename Multi,
     std::enable_if_t<! gc_can_move_element<GC, Multi>::value && ! gc_can_convert_element<GC, Multi>::value, int> = 0
 >
-inline void gc_move_multi_back_(GC& gc, Multi&& multi)
+inline void gc_move_one_elem_multi_back(GC& gc, Multi&& multi)
 {
     range::emplace_back(gc, std::move(multi));
 }
@@ -88,7 +88,7 @@ inline void gc_move_multi_back(GC& gc, Multi&& multi)
     {
         if (boost::size(multi) == 1)
         {
-            gc_move_multi_back_(gc, std::move(multi));
+            gc_move_one_elem_multi_back(gc, std::move(multi));
         }
         else
         {
@@ -178,15 +178,15 @@ private:
                 using g2_t = util::remove_cref_t<decltype(g2)>;                
                 intersection<G1, g2_t, TupleOut>::apply(g1, g2, inters_result, strategy);
 
-                // TODO: If possible unionize based on adjacency lists, i.e. unionize
+                // TODO: If possible merge based on adjacency lists, i.e. merge
                 //       only the intersections of elements that intersect each other
                 //       as subgroups. So the result could contain merged intersections
                 //       of several groups, not only one.
                 // TODO: It'd probably be better to gather all of the parts first
                 //       and then merge them with merge_elements.
-                bool r0 = unionize_result<0>(inters_result, out, strategy);
-                bool r1 = unionize_result<1>(inters_result, out, strategy);
-                bool r2 = unionize_result<2>(inters_result, out, strategy);
+                bool const r0 = merge_result<0>(inters_result, out, strategy);
+                bool const r1 = merge_result<1>(inters_result, out, strategy);
+                bool const r2 = merge_result<2>(inters_result, out, strategy);
                 result = result || r0 || r1 || r2;
             }, qit->second);
         }
@@ -195,14 +195,14 @@ private:
     }
 
     template <std::size_t Index, typename Out, typename Strategy>
-    static bool unionize_result(Out const& inters_result, Out& out, Strategy const& strategy)
+    static bool merge_result(Out const& inters_result, Out& out, Strategy const& strategy)
     {
         auto const& multi_result = boost::get<Index>(inters_result);
         auto& multi_out = boost::get<Index>(out);
         if (! boost::empty(multi_result))
         {
             std::remove_reference_t<decltype(multi_out)> temp_result;
-            call_union(multi_out, multi_result, temp_result, strategy);
+            merge_two(multi_out, multi_result, temp_result, strategy);
             multi_out = std::move(temp_result);
             return true;
         }
@@ -210,12 +210,12 @@ private:
     }
 
     template <typename Out, typename Strategy, std::enable_if_t<! util::is_pointlike<Out>::value, int> = 0>
-    static void call_union(Out const& g1, Out const& g2, Out& out, Strategy const& strategy)
+    static void merge_two(Out const& g1, Out const& g2, Out& out, Strategy const& strategy)
     {
-        typedef typename geometry::rescale_overlay_policy_type
+        using rescale_policy_type = typename geometry::rescale_overlay_policy_type
             <
                 Out, Out, typename Strategy::cs_tag
-            >::type rescale_policy_type;
+            >::type;
         
         rescale_policy_type robust_policy
             = geometry::get_rescale_policy<rescale_policy_type>(
@@ -233,7 +233,7 @@ private:
     }
 
     template <typename Out, typename Strategy, std::enable_if_t<util::is_pointlike<Out>::value, int> = 0>
-    static void call_union(Out const& g1, Out const& g2, Out& out, Strategy const& strategy)
+    static void merge_two(Out const& g1, Out const& g2, Out& out, Strategy const& strategy)
     {
         detail::overlay::union_pointlike_pointlike_point
             <
