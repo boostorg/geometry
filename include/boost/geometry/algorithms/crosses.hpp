@@ -68,8 +68,8 @@ struct crosses<Geometry1, Geometry2, geometry_collection_tag, geometry_collectio
     static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        int dimension1 = detail::gc_topological_dimension(geometry1);
-        int dimension2 = detail::gc_topological_dimension(geometry2);
+        int const dimension1 = detail::gc_topological_dimension(geometry1);
+        int const dimension2 = detail::gc_topological_dimension(geometry2);
 
         if (dimension1 >= 0 && dimension2 >= 0)
         {
