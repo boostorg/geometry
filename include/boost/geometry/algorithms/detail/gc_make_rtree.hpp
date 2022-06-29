@@ -7,8 +7,8 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_MAKE_RTREE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_MAKE_RTREE_HPP
+#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_GC_MAKE_RTREE_HPP
+#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_GC_MAKE_RTREE_HPP
 
 #include <vector>
 
@@ -21,6 +21,7 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/geometry/strategies/index/services.hpp>
+#include <boost/geometry/views/detail/random_access_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -32,7 +33,7 @@ namespace detail
 
 
 template <typename GC>
-using make_rtree_box_t = geometry::model::box
+using gc_make_rtree_box_t = geometry::model::box
     <
         geometry::model::point
             <
@@ -44,9 +45,9 @@ using make_rtree_box_t = geometry::model::box
 
 
 template <typename GC, typename Strategy>
-inline auto make_rtree_iterators(GC& gc, Strategy const& strategy)
+inline auto gc_make_rtree_iterators(GC& gc, Strategy const& strategy)
 {
-    using box_t = make_rtree_box_t<GC>;
+    using box_t = gc_make_rtree_box_t<GC>;
     using iter_t = typename boost::range_iterator<GC>::type;
 
     using rtree_param_t = index::rstar<4>;
@@ -72,12 +73,16 @@ inline auto make_rtree_iterators(GC& gc, Strategy const& strategy)
 
 
 template <typename GCView, typename Strategy>
-inline auto make_rtree_indexes(GCView const& gc, Strategy const& strategy)
+inline auto gc_make_rtree_indexes(GCView const& gc, Strategy const& strategy)
 {
-    // TODO: static_assert for random-access non-recursive GCs
-    //       or only take random_access_view.
+    // Alternatively only take random_access_view<GC>
+    static const bool is_random_access = is_random_access_range<GCView>::value;
+    static const bool is_not_recursive = ! is_geometry_collection_recursive<GCView>::value;
+    BOOST_GEOMETRY_STATIC_ASSERT((is_random_access && is_not_recursive),
+                                 "This algorithm requires random-access, non-recursive geometry collection or view.",
+                                 GCView);
 
-    using box_t = make_rtree_box_t<GCView>;
+    using box_t = gc_make_rtree_box_t<GCView>;
 
     using rtree_param_t = index::rstar<4>;
     using rtree_parameters_t = index::parameters<rtree_param_t, Strategy>;
@@ -110,4 +115,4 @@ inline auto make_rtree_indexes(GCView const& gc, Strategy const& strategy)
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_MAKE_RTREE_HPP
+#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_GC_MAKE_RTREE_HPP

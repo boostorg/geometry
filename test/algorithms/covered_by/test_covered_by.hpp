@@ -4,8 +4,8 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -76,10 +76,10 @@ void test_geometry(std::string const& wkt1,
     boost::variant<Geometry1> v1(geometry1);
     boost::variant<Geometry2> v2(geometry2);
 
-    typedef typename bg::strategy::covered_by::services::default_strategy
+    using strategy_type = typename bg::strategies::relate::services::default_strategy
         <
             Geometry1, Geometry2
-        >::type strategy_type;
+        >::type;
 
     check_geometry(geometry1, geometry2, wkt1, wkt2, expected, no_strategy());
     check_geometry(geometry1, geometry2, wkt1, wkt2, expected, strategy_type());
@@ -108,7 +108,7 @@ template <typename Point, bool Clockwise, bool Closed>
 void test_ordered_ring(std::string const& wkt_point,
         std::string const& wkt_geometry, bool expected)
 {
-    typedef bg::model::ring<Point, Clockwise, Closed> ring_type;
+    using ring_type = bg::model::ring<Point, Clockwise, Closed>;
     ring_type ring;
     Point point;
 

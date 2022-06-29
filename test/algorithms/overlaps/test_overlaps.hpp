@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2015-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2022.
+// Modifications copyright (c) 2015-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,12 +17,10 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/core/ring_type.hpp>
-#include <boost/geometry/algorithms/overlaps.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
-#include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/variant/variant.hpp>
 
+#include <boost/geometry/algorithms/overlaps.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
 
@@ -82,12 +80,19 @@ void test_geometry(std::string const& wkt1,
 
     test_geometry(geometry1, geometry2, wkt1, wkt2, expected, no_strategy());
 
-    typedef typename bg::strategy::relate::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
             Geometry1, Geometry2
         >::type strategy_type;
 
     test_geometry(geometry1, geometry2, wkt1, wkt2, expected, strategy_type());
+
+    boost::variant<Geometry1> v1 = geometry1;
+    boost::variant<Geometry2> v2 = geometry2;
+
+    test_geometry(v1, geometry2, wkt1, wkt2, expected, no_strategy());
+    test_geometry(geometry1, v2, wkt1, wkt2, expected, no_strategy());
+    test_geometry(v1, v2, wkt1, wkt2, expected, no_strategy());
 }
 
 

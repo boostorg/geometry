@@ -627,7 +627,7 @@ struct buffered_piece_collection
             return;
         }
 
-        if (! input_ring.empty())
+        if (! boost::empty(input_ring))
         {
             // Assign the ring to the original_ring collection
             // For rescaling, it is recalculated. Without rescaling, it
@@ -638,8 +638,7 @@ struct buffered_piece_collection
             using view_type = detail::closed_clockwise_view<InputRing const>;
             view_type const view(input_ring);
 
-            for (typename boost::range_iterator<view_type const>::type it =
-                boost::begin(view); it != boost::end(view); ++it)
+            for (auto it = boost::begin(view); it != boost::end(view); ++it)
             {
                 clockwise_ring.push_back(*it);
             }

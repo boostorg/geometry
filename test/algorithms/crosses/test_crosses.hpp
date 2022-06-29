@@ -3,8 +3,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2017.
-// Modifications copyright (c) 2014-2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2022.
+// Modifications copyright (c) 2014-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -21,7 +21,6 @@
 #include <boost/geometry/algorithms/crosses.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
-#include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/variant/variant.hpp>
@@ -63,10 +62,10 @@ void test_geometry(std::string const& wkt1,
         << " -> Expected: " << expected
         << " detected: " << detected);
 
-    typedef typename bg::strategy::relate::services::default_strategy
+    using strategy_type = typename bg::strategies::relate::services::default_strategy
         <
             Geometry1, Geometry2
-        >::type strategy_type;
+        >::type;
 
     detected = call_crosses(geometry1, geometry2, strategy_type());
 
