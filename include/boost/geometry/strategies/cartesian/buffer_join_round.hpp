@@ -149,20 +149,8 @@ public :
             return false;
         }
 
-        // Generate 'vectors'
-        coordinate_type vix = (get<0>(ip) - get<0>(vertex));
-        coordinate_type viy = (get<1>(ip) - get<1>(vertex));
-
-        promoted_type length_i = geometry::math::sqrt(vix * vix + viy * viy);
-        DistanceType const bd = geometry::math::abs(buffer_distance);
-        promoted_type prop = bd / length_i;
-
-        Point bp;
-        set<0>(bp, get<0>(vertex) + vix * prop);
-        set<1>(bp, get<1>(vertex) + viy * prop);
-
         range_out.push_back(perp1);
-        generate_points<promoted_type>(vertex, perp1, perp2, bd, range_out);
+        generate_points<promoted_type>(vertex, perp1, perp2, geometry::math::abs(buffer_distance), range_out);
         range_out.push_back(perp2);
         return true;
     }
