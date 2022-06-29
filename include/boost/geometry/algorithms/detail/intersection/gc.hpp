@@ -184,9 +184,11 @@ private:
                 //       of several groups, not only one.
                 // TODO: It'd probably be better to gather all of the parts first
                 //       and then merge them with merge_elements.
-                bool const r0 = merge_result<0>(inters_result, out, strategy);
-                bool const r1 = merge_result<1>(inters_result, out, strategy);
-                bool const r2 = merge_result<2>(inters_result, out, strategy);
+                // NOTE: template explicitly called because gcc-6 doesn't compile it
+                //       otherwise.
+                bool const r0 = intersection::template merge_result<0>(inters_result, out, strategy);
+                bool const r1 = intersection::template merge_result<1>(inters_result, out, strategy);
+                bool const r2 = intersection::template merge_result<2>(inters_result, out, strategy);
                 result = result || r0 || r1 || r2;
             }, qit->second);
         }
