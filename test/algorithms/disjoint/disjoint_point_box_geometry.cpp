@@ -5,9 +5,8 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015.
-// Modifications copyright (c) 2015, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2022.
+// Modifications copyright (c) 2015-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -95,6 +94,27 @@ void test_all()
         "BOX(1941 2066, 2055 2166)", false);
 }
 
+template <typename P>
+void test_open()
+{
+    using box = bg::model::box<P>;
+    using ring_cw = bg::model::ring<P, true, false>;
+    //using polygon_cw = bg::model::polygon<P, true, false>;
+    //using mpolygon_cw = bg::model::multi_polygon<polygon_cw>;
+    //using ring_ccw = bg::model::ring<P, false, false>;
+    using polygon_ccw = bg::model::polygon<P, false, false>;
+    using mpolygon_ccw = bg::model::multi_polygon<polygon_ccw>;
+    
+    test_disjoint<mpolygon_ccw, box>("issue_837",
+                                     "MULTIPOLYGON(((1992 3240,1992 1440,3792 1800,3792 3240,1992 3240)))",
+                                     "BOX(1941 2066, 2055 2166)", false);
+
+
+    test_disjoint<ring_cw, box>("issue_982",
+                                "POLYGON((139.655 35.346, 139.618 35.342, 139.623 35.358))",
+                                "BOX(139.62 35.34, 139.63 35.35)", false);
+}
+
 
 template <typename P>
 void test_3d()
@@ -115,8 +135,9 @@ void test_3d()
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<float> >();
-    
     test_all<bg::model::d2::point_xy<double> >();
+
+    test_open<bg::model::d2::point_xy<double> >();
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
     

@@ -19,7 +19,9 @@
 #include "../test_set_ops_linear_linear.hpp"
 #include "../check_turn_less.hpp"
 #include <from_wkt.hpp>
+#ifdef TEST_WITH_SVG
 #include <to_svg.hpp>
+#endif
 
 //! Contains (optional) settings such as tolerance
 //! and to skip some test configurations

@@ -284,6 +284,10 @@ struct multi_to_multi: private Policy
 namespace dispatch
 {
 
+// TODO: We could use std::is_assignable instead of std::is_same.
+//   Then we should rather check ! std::is_array<Geometry2>::value
+//   which is Destination.
+
 template
 <
     typename Geometry1, typename Geometry2,

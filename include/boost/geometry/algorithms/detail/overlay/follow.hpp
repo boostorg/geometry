@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2022.
+// Modifications copyright (c) 2014-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -438,8 +438,7 @@ public :
         // for different ring id: c, i, u, x
         typedef relate::turns::less
             <
-                0, relate::turns::less_op_linear_areal_single<0>,
-                typename Strategy::cs_tag
+                0, relate::turns::less_op_linear_areal_single<0>, Strategy
             > turn_less;
         std::sort(boost::begin(turns), boost::end(turns), turn_less());
 

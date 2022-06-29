@@ -34,6 +34,8 @@
 #include <boost/geometry/algorithms/num_geometries.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
+
 #include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 #include <boost/geometry/strategies/relate/cartesian.hpp>
@@ -211,7 +213,8 @@ inline bool point_on_border_within(Geometry1 const& geometry1,
                                    Geometry2 const& geometry2,
                                    Strategy const& strategy)
 {
-    typename geometry::point_type<Geometry1>::type pt;
+    using point_type = typename geometry::point_type<Geometry1>::type;
+    typename helper_geometry<point_type>::type pt;
     return geometry::point_on_border(pt, geometry1)
         && geometry::within(pt, geometry2, strategy);
 }
@@ -235,8 +238,9 @@ struct areal_areal
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        typedef typename geometry::point_type<Geometry1>::type point_type;
-        typedef detail::overlay::turn_info<point_type> turn_info;
+        using point_type = typename geometry::point_type<Geometry1>::type;
+        using mutable_point_type = typename helper_geometry<point_type>::type;
+        using turn_info = detail::overlay::turn_info<mutable_point_type>;
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;

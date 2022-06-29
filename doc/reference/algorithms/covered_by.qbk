@@ -15,7 +15,7 @@
 [heading_conformance_no_ogc __this_function__]
 [note Both PostGIS and Oracle contain an algorithm with the same name and the 
   same functionality.
-  See the [@http://www.postgis.org/docs/ST_CoveredBy.html PostGIS documentation]. 
+  See the [@https://postgis.net/docs/ST_CoveredBy.html PostGIS documentation].
 ]
 
 [include reference/status/covered_by_status.qbk]

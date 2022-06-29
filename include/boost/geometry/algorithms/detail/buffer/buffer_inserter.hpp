@@ -291,7 +291,7 @@ struct buffer_range
                         robust_policy, strategies);
             }
 
-            collection.add_side_piece(*prev, *it, generated_side, first);
+            collection.add_side_piece(*prev, *it, generated_side, first, distance_strategy.empty(side));
 
             if (first && mark_flat)
             {

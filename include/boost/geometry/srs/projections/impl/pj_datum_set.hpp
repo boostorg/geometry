@@ -103,7 +103,7 @@ inline const pj_datums_type<T>* pj_datum_find_datum(srs::dpar::parameters<T> con
 {
     typename srs::dpar::parameters<T>::const_iterator
         it = pj_param_find(params, srs::dpar::datum);
-    
+
     if (it != params.end())
     {
         const pj_datums_type<T>* pj_datums = pj_get_datums<T>().first;
@@ -184,7 +184,7 @@ inline bool pj_datum_find_nadgrids(srs::detail::proj4_parameters const& params,
         {
             std::string::size_type end = snadgrids.find(',', i);
             std::string name = snadgrids.substr(i, end - i);
-                
+
             i = end;
             if (end != std::string::npos)
                 ++i;
@@ -207,7 +207,7 @@ inline bool pj_datum_find_nadgrids(srs::dpar::parameters<T> const& params,
     {
         out = it->template get_value<srs::detail::nadgrids>();
     }
-    
+
     return ! out.empty();
 }
 
@@ -284,7 +284,7 @@ inline bool pj_datum_find_towgs84(srs::dpar::parameters<T> const& params,
 {
     typename srs::dpar::parameters<T>::const_iterator
         it = pj_param_find(params, srs::dpar::towgs84);
-    
+
     if (it != params.end())
     {
         srs::detail::towgs84<T> const&
