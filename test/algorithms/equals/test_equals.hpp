@@ -98,7 +98,7 @@ void test_geometry(std::string const& caseid,
         bg::correct(geometry2);
     }
 
-    typedef typename bg::strategy::relate::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
             Geometry1, Geometry2
         >::type strategy_type;

@@ -376,6 +376,21 @@ void test_linestring_multi_linestring()
     test_geometry<ls, mls>("LINESTRING(5 5,4 4)",
                            "MULTILINESTRING((5 0,5 5,5 10))",
                            "FF10F0102");
+
+    test_geometry<ls, mls>("LINESTRING(0 0,5 5)",
+                           "MULTILINESTRING((0 0,5 5),(5 5,6 6))",
+                           "1FF00F102");
+#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_geometry<ls, mls>("LINESTRING(0 0,5 5)",
+                           "MULTILINESTRING((5 5,6 6),(0 0,5 5))",
+                           "1FF00F102");
+#endif
+    test_geometry<ls, mls>("LINESTRING(0 0,5 5)",
+                           "MULTILINESTRING((6 6,5 5),(0 0,5 5))",
+                           "1FF00F102");
+    test_geometry<ls, mls>("LINESTRING(0 0,5 5)",
+                           "MULTILINESTRING((6 6,5 5),(5 5,0 0))",
+                           "1FF00F102");
 }
 
 template <typename P>

@@ -5,8 +5,8 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -27,12 +27,14 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
+#include <boost/geometry/algorithms/detail/relate/implementation.hpp>
+#include <boost/geometry/algorithms/detail/relate/implementation_gc.hpp>
 #include <boost/geometry/algorithms/detail/relate/relate_impl.hpp>
 #include <boost/geometry/algorithms/detail/touches/interface.hpp>
+#include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/num_geometries.hpp>
-#include <boost/geometry/algorithms/relate.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
@@ -400,14 +402,67 @@ struct touches<Areal1, Areal2, ring_tag, ring_tag, areal_tag, areal_tag, false>
     : detail::touches::areal_areal<Areal1, Areal2>
 {};
 
+// GC
+
+template <typename Geometry1, typename Geometry2>
+struct touches
+    <
+        Geometry1, Geometry2,
+        geometry_collection_tag, geometry_collection_tag,
+        geometry_collection_tag, geometry_collection_tag,
+        false
+    >
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            Geometry1,
+            Geometry2
+        >
+{};
+
+
+template <typename Geometry1, typename Geometry2, typename Tag1, typename CastedTag1>
+struct touches
+    <
+        Geometry1, Geometry2,
+        Tag1, geometry_collection_tag,
+        CastedTag1, geometry_collection_tag,
+        false
+    >
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            Geometry1,
+            Geometry2
+        >
+{};
+
+
+template <typename Geometry1, typename Geometry2, typename Tag2, typename CastedTag2>
+struct touches
+    <
+        Geometry1, Geometry2,
+        geometry_collection_tag, Tag2,
+        geometry_collection_tag, CastedTag2,
+        false
+    >
+    : detail::relate::relate_impl
+        <
+            detail::de9im::static_mask_touches_type,
+            Geometry1,
+            Geometry2
+        >
+{};
+
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 
-namespace resolve_variant
+namespace resolve_dynamic
 {
 
-template <typename Geometry>
+template <typename Geometry, typename Tag>
 struct self_touches
 {
     static bool apply(Geometry const& geometry)
@@ -440,7 +495,7 @@ struct self_touches
     }
 };
 
-}
+} // namespace resolve_dynamic
 
 }} // namespace boost::geometry
 

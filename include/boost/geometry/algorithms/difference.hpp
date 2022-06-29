@@ -15,8 +15,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DIFFERENCE_HPP
 
 
+#include <boost/geometry/algorithms/detail/gc_make_rtree.hpp>
+#include <boost/geometry/algorithms/detail/intersection/gc.hpp>
 #include <boost/geometry/algorithms/detail/intersection/multi.hpp>
-#include <boost/geometry/algorithms/detail/make_rtree.hpp>
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/core/geometry_types.hpp>
@@ -394,7 +395,7 @@ struct difference
                       Collection& output_collection,
                       Strategy const& strategy)
     {
-        auto const rtree2 = detail::make_rtree_iterators(geometry2, strategy);
+        auto const rtree2 = detail::gc_make_rtree_iterators(geometry2, strategy);
         detail::visit_breadth_first([&](auto const& g1)
         {
             // multi-point, multi-linestring or multi_polygon
@@ -405,17 +406,7 @@ struct difference
 
             g1_minus_gc2(g1, rtree2, out, strategy);
 
-            if (! boost::empty(out))
-            {
-                if (boost::size(out) == 1)
-                {
-                    move_single_out(output_collection, out);
-                }
-                else
-                {
-                    range::emplace_back(output_collection, std::move(out));
-                }
-            }
+            detail::intersection::gc_move_multi_back(output_collection, out);
 
             return true;
         }, geometry1);
@@ -432,7 +423,7 @@ private:
             geometry::detail::convert_to_output<G1, single_out_t>::apply(g1, out_it);
         }
 
-        using box1_t = detail::make_rtree_box_t<G1>;
+        using box1_t = detail::gc_make_rtree_box_t<G1>;
         box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
         detail::expand_by_epsilon(b1);
 
@@ -469,50 +460,6 @@ private:
     >
     static void multi_out_minus_g2(MultiOut& , G2 const& , Strategy const& )
     {}
-
-    template <typename Out>
-    struct can_move_single
-    {
-        template <typename G>
-        using is_same_as_single = std::is_same<G, typename boost::range_value<Out>::type>;
-        using gc_types = typename traits::geometry_types<Collection>::type;
-        using found_type = typename util::sequence_find_if<gc_types, is_same_as_single>::type;
-        static const bool value = ! std::is_void<found_type>::value;
-    };
-
-    template <typename Out>
-    struct can_convert_to_single
-    {
-        template <typename G>
-        using has_same_tag_as_single = std::is_same
-            <
-                typename geometry::tag<G>::type,
-                typename geometry::tag<typename boost::range_value<Out>::type>::type
-            >;
-        using gc_types = typename traits::geometry_types<Collection>::type;
-        using found_type = typename util::sequence_find_if<gc_types, has_same_tag_as_single>::type;
-        static const bool value = ! std::is_void<found_type>::value;
-    };
-
-    template <typename Out, std::enable_if_t<can_move_single<Out>::value, int> = 0>
-    static void move_single_out(Collection& gc, Out& out)
-    {
-        range::emplace_back(gc, std::move(*boost::begin(out)));
-    }
-
-    template <typename Out, std::enable_if_t<! can_move_single<Out>::value && can_convert_to_single<Out>::value, int> = 0>
-    static void move_single_out(Collection& gc, Out& out)
-    {
-        typename can_convert_to_single<Out>::found_type single_out;
-        geometry::convert(*boost::begin(out), single_out);
-        range::emplace_back(gc, std::move(single_out));
-    }
-
-    template <typename Out, std::enable_if_t<! can_move_single<Out>::value && ! can_convert_to_single<Out>::value, int> = 0>
-    static void move_single_out(Collection& gc, Out& out)
-    {
-        range::emplace_back(gc, std::move(out));
-    }
 };
 
 

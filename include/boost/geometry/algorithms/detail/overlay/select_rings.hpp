@@ -3,8 +3,8 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -23,12 +23,12 @@
 
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
 #include <boost/geometry/algorithms/detail/interior_iterator.hpp>
-#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
 
 namespace boost { namespace geometry

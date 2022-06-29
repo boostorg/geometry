@@ -76,7 +76,7 @@ void test_geometry(std::string const& wkt1,
     boost::variant<Geometry1> v1(geometry1);
     boost::variant<Geometry2> v2(geometry2);
 
-    typedef typename bg::strategy::within::services::default_strategy
+    typedef typename bg::strategies::relate::services::default_strategy
         <
             Geometry1, Geometry2
         >::type strategy_type;

@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013, 2014, 2017, 2018.
-// Modifications copyright (c) 2013-2018, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2022.
+// Modifications copyright (c) 2013-2022, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -44,15 +44,15 @@ struct point_point
         bool equal = detail::equals::equals_point_point(point1, point2, strategy);
         if ( equal )
         {
-            relate::set<interior, interior, '0'>(result);
+            update<interior, interior, '0'>(result);
         }
         else
         {
-            relate::set<interior, exterior, '0'>(result);
-            relate::set<exterior, interior, '0'>(result);
+            update<interior, exterior, '0'>(result);
+            update<exterior, interior, '0'>(result);
         }
 
-        relate::set<exterior, exterior, result_dimension<Point1>::value>(result);
+        update<exterior, exterior, result_dimension<Point1>::value>(result);
     }
 };
 
@@ -99,7 +99,7 @@ struct point_multipoint
         if ( boost::empty(multi_point) )
         {
             // TODO: throw on empty input?
-            relate::set<interior, exterior, '0', Transpose>(result);
+            update<interior, exterior, '0', Transpose>(result);
             return;
         }
 
@@ -107,20 +107,20 @@ struct point_multipoint
 
         if ( rel.first ) // some point of MP is equal to P
         {
-            relate::set<interior, interior, '0', Transpose>(result);
+            update<interior, interior, '0', Transpose>(result);
 
             if ( rel.second ) // a point of MP was found outside P
             {
-                relate::set<exterior, interior, '0', Transpose>(result);
+                update<exterior, interior, '0', Transpose>(result);
             }
         }
         else
         {
-            relate::set<interior, exterior, '0', Transpose>(result);
-            relate::set<exterior, interior, '0', Transpose>(result);
+            update<interior, exterior, '0', Transpose>(result);
+            update<exterior, interior, '0', Transpose>(result);
         }
 
-        relate::set<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
+        update<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
     }
 };
 
@@ -160,12 +160,12 @@ struct multipoint_multipoint
             }
             else if ( empty1 )
             {
-                relate::set<exterior, interior, '0'>(result);
+                update<exterior, interior, '0'>(result);
                 return;
             }
             else if ( empty2 )
             {
-                relate::set<interior, exterior, '0'>(result);
+                update<interior, exterior, '0'>(result);
                 return;
             }
         }
@@ -180,7 +180,7 @@ struct multipoint_multipoint
             search_both<true, cs_tag>(multi_point2, multi_point1, result);
         }
 
-        relate::set<exterior, exterior, result_dimension<MultiPoint1>::value>(result);
+        update<exterior, exterior, result_dimension<MultiPoint1>::value>(result);
     }
 
     template <bool Transpose, typename CSTag, typename MPt1, typename MPt2, typename Result>
@@ -249,17 +249,17 @@ struct multipoint_multipoint
 // TODO: if I/I is set for one MPt, this won't be changed when the other one in analysed
 //       so if e.g. only I/I must be analysed we musn't check the other MPt
 
-            relate::set<interior, interior, '0', Transpose>(result);
+            update<interior, interior, '0', Transpose>(result);
 
             if ( found_outside ) // some point of MP2 was found outside of MP1
             {
-                relate::set<exterior, interior, '0', Transpose>(result);
+                update<exterior, interior, '0', Transpose>(result);
             }
         }
         else
         {
-            relate::set<interior, exterior, '0', Transpose>(result);
-            relate::set<exterior, interior, '0', Transpose>(result);
+            update<interior, exterior, '0', Transpose>(result);
+            update<exterior, interior, '0', Transpose>(result);
         }
 
         // if no point is intersecting the other MPt then we musn't analyse the reversed case
