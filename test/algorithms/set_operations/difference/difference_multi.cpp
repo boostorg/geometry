@@ -220,6 +220,8 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, issue_888_53, 117, 0.2973268, 17, 0.0525798, 134);
     }
 
+    TEST_DIFFERENCE(issue_900, 0, 0.0, 2, 35, 2);
+
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
@@ -357,11 +359,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_59, 8, 6.5, 7, 7.0, 12);
     TEST_DIFFERENCE(case_recursive_boxes_60, 6, 5.25, 7, 5.25, 11);
     TEST_DIFFERENCE(case_recursive_boxes_61, 2, 1.5, 6, 2.0, 7);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Misses one triangle, should be fixed in traversal.
-    // It is not related to rescaling.
     TEST_DIFFERENCE(case_recursive_boxes_62, 5, 5.0, 11, 5.75, 12);
-#endif
 
     TEST_DIFFERENCE(case_recursive_boxes_63, 9, 10.5, 5, 27.75, 4);
     TEST_DIFFERENCE(case_recursive_boxes_64, 6, 2.75, 7, 4.5, 11);

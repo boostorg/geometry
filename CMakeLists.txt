@@ -4,6 +4,7 @@
 # https://www.boost.org/LICENSE_1_0.txt
 
 cmake_minimum_required(VERSION 3.5...3.16)
+set(CMAKE_CXX_STANDARD 14)
 
 project(boost_geometry VERSION "${BOOST_SUPERPROJECT_VERSION}" LANGUAGES CXX)
 

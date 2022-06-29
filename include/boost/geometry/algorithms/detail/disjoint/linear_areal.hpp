@@ -51,6 +51,7 @@
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
+#include <boost/geometry/geometries/helper_geometry.hpp>
 
 namespace boost { namespace geometry
 {
@@ -70,8 +71,8 @@ struct disjoint_no_intersections_policy
     template <typename Strategy>
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
-        typedef typename point_type<Geometry1>::type point1_type;
-        point1_type p;
+        using point_type = typename point_type<Geometry1>::type;
+        typename helper_geometry<point_type>::type p;
         geometry::point_on_border(p, g1);
 
         return ! geometry::covered_by(p, g2, strategy);

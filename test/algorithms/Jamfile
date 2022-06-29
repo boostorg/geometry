@@ -5,8 +5,8 @@
 # Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 # Copyright (c) 2018 Adam Wulkiewicz, Lodz, Poland.
 #
-# This file was modified by Oracle on 2014-2021.
-# Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
+# This file was modified by Oracle on 2014-2022.
+# Modifications copyright (c) 2014-2022, Oracle and/or its affiliates.
 #
 # Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 # Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -45,6 +45,7 @@ test-suite boost-geometry-algorithms
     [ run line_interpolate.cpp         : : : : algorithms_line_interpolate ]
     [ run make.cpp                     : : : : algorithms_make ]
     [ run maximum_gap.cpp              : : : : algorithms_maximum_gap ]
+    [ run merge_elements.cpp           : : : : algorithms_merge_elements ]
     [ run num_geometries.cpp           : : : : algorithms_num_geometries ]
     [ run num_geometries_multi.cpp     : : : : algorithms_num_geometries_multi ]
     [ run num_interior_rings.cpp       : : : : algorithms_num_interior_rings ]

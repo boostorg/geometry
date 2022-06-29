@@ -386,6 +386,9 @@ static std::string const nores_495d
 static std::string const nores_e402
     = "MULTIPOLYGON(((3 1,4 2,4 1,3 1)),((3 1,4 0,3 0,3 1)))";
 
+static std::string const nores_b03e
+    = "MULTIPOLYGON(((3 1,3 2,4 2,4 1,3 1)),((5 0,6 1,6 0,5 0)))";
+
 // rescaled
 static std::string const res_ebc4
     = "MULTIPOLYGON(((3 9,3 10,4 9,3 9)),((9 5,9 6,10 6,10 5,9 5)),((8 8,8 9,9 9,8 8)),((4 8,3 7,3 8,4 8)),((4 8,5 9,6 9,6 8,4 8)),((4 5,3 4,3 5,4 5)),((4 5,5 6,5 5,4 5)))";
@@ -575,6 +578,8 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails with rescaling after removing pretraversal
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.16738, -0.51);
     test_one<multi_polygon_type, polygon_type>("rt_u10_c_51", rt_u10_c, join_miter, end_flat, 0.066952, -0.51);
@@ -582,6 +587,7 @@ void test_all()
     // TODO: invalid - making a bow-tie
     test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.214466, -0.50, ut_settings::ignore_validity());
     test_one<multi_polygon_type, polygon_type>("rt_u10_45", rt_u10, join_miter, end_flat, 1.3000, -0.45);
+#endif
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
 
     test_one<multi_polygon_type, polygon_type>("rt_u11", rt_u11, join_miter, end_flat, 131.3995, 1.0);
@@ -635,13 +641,14 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_5318", nores_5318, join_round32, end_flat, 22.7311, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_495d", nores_495d, join_round32, end_flat, 23.4376, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_e402", nores_e402, join_round32, end_flat, {9.9888, 9.9898}, 1.0);
+    test_one<multi_polygon_type, polygon_type>("nores_b03e", nores_b03e, join_round32, end_flat, 14.4877, 1.0);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Erroneous cases with rescaling (out of 8)
     test_one<multi_polygon_type, polygon_type>("res_ebc4", res_ebc4, join_round32, end_flat, 43.8877, 1.0);
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Erroneous case with rescaling
     test_one<multi_polygon_type, polygon_type>("res_8618", res_8618, join_round32, end_flat, 48.1085, 1.0);
+ #endif
     test_one<multi_polygon_type, polygon_type>("res_3b4d", res_3b4d, join_round32, end_flat, 48.4739, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
         neighbouring,

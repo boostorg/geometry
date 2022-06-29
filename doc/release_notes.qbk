@@ -29,6 +29,8 @@
 
 [*Improvements]
 
+* [@https://github.com/boostorg/geometry/pull/923 923] Added algorithm closest_points for cartesian point/geometry.
+* [@https://github.com/boostorg/geometry/pull/939 939] Added algorithm closest_points for other coordinate systems and geometry combinations excl. boxes.
 * [@https://github.com/boostorg/geometry/pull/961 961] Added Web Mercator projection.
 * [@https://github.com/boostorg/geometry/pull/966 966] More efficient cartesian distance strategy used in simplify.
 

@@ -7,32 +7,15 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <geometry_test_common.hpp>
+#include <test_geometries/const_point.hpp>
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/register/point.hpp>
+#include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/perimeter.hpp>
+#include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
-class const_point
-{
-public:
-  const_point(double x0, double y0) : x(x0), y(y0) {}
+#include <geometry_test_common.hpp>
 
-  double GetX() const { return x; }
-  double GetY() const { return y; }
-private:
-  double x{0}, y{0};
-};
-
-BOOST_GEOMETRY_REGISTER_POINT_2D_CONST(const_point, double, boost::geometry::cs::cartesian, GetX(), GetY());
-
-using ring_of_const_point = std::vector<const_point>;
-
-// Register a vector of const_pos as a non-const-ring with const points
-namespace boost { namespace geometry { namespace traits {
-    template<> struct tag<ring_of_const_point> { typedef ring_tag type; };
-
-}}}
 
 template <std::size_t Dim, typename Geometry>
 void test_sectionalize_on_const(Geometry const& geometry, std::size_t expected_section_count)
