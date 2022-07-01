@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2022 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013-2022.
 // Modifications copyright (c) 2013-2022, Oracle and/or its affiliates.
@@ -24,6 +24,7 @@
 #include <type_traits>
 
 #include <boost/geometry/algorithms/detail/for_each_range.hpp>
+#include <boost/geometry/algorithms/detail/gc_topological_dimension.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/sub_range.hpp>
@@ -43,6 +44,8 @@
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
+
+#include <boost/geometry/views/detail/geometry_collection_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -270,6 +273,55 @@ struct use_point_in_geometry
     }
 };
 
+// GC
+
+struct gc_gc
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        int const dimension1 = detail::gc_topological_dimension(geometry1);
+        int const dimension2 = detail::gc_topological_dimension(geometry2);
+
+        if (dimension1 == 0 && dimension2 == 0)
+        {
+            return false;
+        }
+        else
+        {
+            return detail::relate::relate_impl
+                <
+                    detail::de9im::static_mask_touches_not_pp_type,
+                    Geometry1,
+                    Geometry2
+                >::apply(geometry1, geometry2, strategy);
+        }
+    }
+};
+
+struct notgc_gc
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        using gc1_view_t = detail::geometry_collection_view<Geometry1>;
+        return gc_gc::apply(gc1_view_t(geometry1), geometry2, strategy);
+    }
+};
+
+struct gc_notgc
+{
+    template <typename Geometry1, typename Geometry2, typename Strategy>
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
+    {
+        using gc2_view_t = detail::geometry_collection_view<Geometry2>;
+        return gc_gc::apply(geometry1, gc2_view_t(geometry2), strategy);
+    }
+};
+
 
 }}
 #endif // DOXYGEN_NO_DETAIL
@@ -412,12 +464,7 @@ struct touches
         geometry_collection_tag, geometry_collection_tag,
         false
     >
-    : detail::relate::relate_impl
-        <
-            detail::de9im::static_mask_touches_type,
-            Geometry1,
-            Geometry2
-        >
+    : detail::touches::gc_gc
 {};
 
 
@@ -429,12 +476,7 @@ struct touches
         CastedTag1, geometry_collection_tag,
         false
     >
-    : detail::relate::relate_impl
-        <
-            detail::de9im::static_mask_touches_type,
-            Geometry1,
-            Geometry2
-        >
+    : detail::touches::notgc_gc
 {};
 
 
@@ -446,12 +488,7 @@ struct touches
         geometry_collection_tag, CastedTag2,
         false
     >
-    : detail::relate::relate_impl
-        <
-            detail::de9im::static_mask_touches_type,
-            Geometry1,
-            Geometry2
-        >
+    : detail::touches::gc_notgc
 {};
 
 
