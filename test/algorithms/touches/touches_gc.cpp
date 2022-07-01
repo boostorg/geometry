@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2022 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -41,6 +43,13 @@ void test_gc()
                                                 " POLYGON((20 10,20 20,30 20,30 10,20 10)), POLYGON((10 20,10 30,20 30,20 20,10 20)))",
                               "GEOMETRYCOLLECTION(POLYGON((10 10,10 20,20 20,20 10,10 10)), LINESTRING(11 11,19 19))",
                               true);
+
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POINT(0 0), POINT(2 2))",
+                              "GEOMETRYCOLLECTION(POINT(0 0), POINT(1 1))",
+                              false);
+    test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POINT(0 0))",
+                              "GEOMETRYCOLLECTION(POINT(0 0))",
+                              false);
 
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POINT(2 2))",
                               "GEOMETRYCOLLECTION(LINESTRING(0 0, 1 1), LINESTRING(1 1, 2 2))",
