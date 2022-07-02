@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2012-2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2022.
 // Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
@@ -37,7 +38,8 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 
-#include <boost/geometry/geometries/helper_geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/ring.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/strategies/side.hpp>
@@ -455,7 +457,7 @@ template
 >
 struct buffer_inserter_ring
 {
-    typedef typename point_type<RingOutput>::type output_point_type;
+    using output_point_type = typename point_type<RingOutput>::type;
 
     template
     <
@@ -526,7 +528,13 @@ struct buffer_inserter_ring
             RobustPolicy const& robust_policy,
             Strategies const& strategies)
     {
-        using simplified_ring_t = typename helper_geometry<RingInput>::type;
+        // Use helper geometry to support non-mutable input Rings
+        using simplified_ring_t = model::ring
+            <
+                output_point_type,
+                point_order<RingInput>::value != counterclockwise,
+                closure<RingInput>::value != open
+            >;
         simplified_ring_t simplified;
         detail::buffer::simplify_input(ring, distance, simplified, strategies);
 
@@ -618,9 +626,8 @@ template
 >
 struct buffer_inserter<linestring_tag, Linestring, Polygon>
 {
-    typedef typename ring_type<Polygon>::type output_ring_type;
-    typedef typename point_type<output_ring_type>::type output_point_type;
-    typedef typename point_type<Linestring>::type input_point_type;
+    using output_ring_type = typename ring_type<Polygon>::type;
+    using output_point_type = typename point_type<output_ring_type>::type;
 
     template
     <
@@ -644,8 +651,8 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
                 Strategies const& strategies,
                 output_point_type& first_p1)
     {
-        input_point_type const& ultimate_point = *(end - 1);
-        input_point_type const& penultimate_point = *(end - 2);
+        output_point_type const& ultimate_point = *(end - 1);
+        output_point_type const& penultimate_point = *(end - 2);
 
         // For the end-cap, we need to have the last perpendicular point on the
         // other side of the linestring. If it is the second pass (right),
@@ -711,7 +718,8 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
             RobustPolicy const& robust_policy,
             Strategies const& strategies)
     {
-        typename helper_geometry<Linestring>::type simplified;
+        // Use helper geometry to support non-mutable input Linestrings
+        model::linestring<output_point_type> simplified;
         detail::buffer::simplify_input(linestring, distance, simplified, strategies);
 
         geometry::strategy::buffer::result_code code = geometry::strategy::buffer::result_no_output;
