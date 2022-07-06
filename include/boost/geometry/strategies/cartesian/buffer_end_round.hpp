@@ -24,8 +24,6 @@
 #include <boost/geometry/strategies/buffer.hpp>
 
 
-#include <boost/geometry/io/wkt/wkt.hpp>
-
 namespace boost { namespace geometry
 {
 

@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013-2022.
 // Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
@@ -273,6 +274,11 @@ struct static_mask_touches_impl<Geometry1, Geometry2, 0, 0>
 {
     typedef geometry::detail::relate::false_mask type;
 };
+
+template <typename Geometry1, typename Geometry2>
+struct static_mask_touches_not_pp_type
+    : static_mask_touches_impl<Geometry1, Geometry2, 2, 2> // dummy dimensions
+{};
 
 template <typename Geometry1, typename Geometry2>
 struct static_mask_touches_type

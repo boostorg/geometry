@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -200,7 +202,6 @@ struct gc_gc
         bool disjoint_found[2][3] = {{false, false, false}, {false, false, false}};
         bool disjoint_linear_boundary_found[2] = {false, false};
         bool has_disjoint = false;
-        bool has_disjoint_linear = false;
 
         gc_group_elements(gc1_view, gc2_view, strategy,
             [&](auto const& inters_group)
