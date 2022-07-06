@@ -506,3 +506,50 @@ int test_main(int, char* [])
 
     return 0;
 }
+
+
+#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+
+//failing with rescaling on
+
+// https://github.com/boostorg/geometry/issues/630
+
+void testIntersection(const std::string& polyString, const std::string& multiPolyString)
+{
+    using namespace boost::geometry;
+    using point2d = model::d2::point_xy<double>;
+    using polygon = model::polygon<point2d, true, false>;
+    using multiPolygon = model::multi_polygon<polygon>;
+
+    polygon poly;
+    multiPolygon multiPoly;
+    multiPolygon result;
+
+    read_wkt(polyString, poly);
+    read_wkt(multiPolyString, multiPoly);
+
+    intersection(multiPoly, poly, result);
+
+    BOOST_CHECK_GE(area(poly), area(result));
+    BOOST_CHECK_EQUAL(!result.empty(), intersects(multiPoly, poly));
+}
+
+BOOST_AUTO_TEST_CASE(Test1)
+{
+    testIntersection("POLYGON((-0.3 -0.1475,-0.3 +0.1475,+0.3 +0.1475,+0.3 -0.1475,-0.3 -0.1475))",
+                    "MULTIPOLYGON(((-0.605 +0.1575,+0.254777333596 +1.0172773336,+1.53436796127 -0.262313294074,+0.674590627671 -1.12209062767,-0.605 +0.1575)))");
+}
+
+BOOST_AUTO_TEST_CASE(Test2)
+{
+    testIntersection("POLYGON((-0.3 -0.1475,-0.3 +0.1475,+0.3 +0.1475,+0.3 -0.1475,-0.3 -0.1475))",
+                    "MULTIPOLYGON(((-1.215 +0.7675000000000001,-0.4962799075873666 +1.486220092412633,+0.665763075292561 +0.324177109532706,-0.05295701712007228 -0.3945429828799273,-1.215 +0.7675000000000001)))");
+}
+
+BOOST_AUTO_TEST_CASE(Test3)
+{
+    testIntersection("POLYGON((-0.3 -0.1475,-0.3 +0.1475,+0.3 +0.1475,+0.3 -0.1475,-0.3 -0.1475))",
+                    "MULTIPOLYGON(((-0.9099999999999999 +0.4625,-0.1912799075873667 +1.181220092412633,+0.9707630752925609 +0.01917710953270602,+0.2520429828799277 -0.6995429828799273,-0.9099999999999999 +0.4625)))");
+}
+
+#endif
