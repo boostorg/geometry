@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2017 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -13,6 +15,7 @@
 #include <boost/geometry/algorithms/make.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
+#include <boost/geometry/io/wkt/write.hpp>
 
 template <typename Geometry1, typename Geometry2>
 inline void test_disjoint_check(bool result, bool expected_result,
