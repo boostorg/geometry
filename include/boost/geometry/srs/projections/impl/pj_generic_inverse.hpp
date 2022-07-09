@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -41,6 +43,9 @@
  * DEALINGS IN THE SOFTWARE.
  ****************************************************************************/
 
+#ifndef BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GENERIC_INVERSE_HPP
+#define BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GENERIC_INVERSE_HPP
+
 #include <algorithm>
 #include <cmath>
 
@@ -56,6 +61,13 @@
  *
  * Starts with initial guess provided by user in lpInitial
  */
+
+
+namespace boost { namespace geometry { namespace projections
+{
+
+namespace detail
+{
 
 template <typename T, typename Parameters, typename Projection>
 void pj_generic_inverse_2d(T const& xy_x,
@@ -118,23 +130,23 @@ void pj_generic_inverse_2d(T const& xy_x,
         {
             // Limit the amplitude of correction to avoid overshoots due to
             // bad initial guess
-            T const delta_lam = std::max(
-                std::min(deltaX * deriv_lam_X + deltaY * deriv_lam_Y, 0.3),
+            T const delta_lam = (std::max)(
+                (std::min)(deltaX * deriv_lam_X + deltaY * deriv_lam_Y, 0.3),
                 -0.3);
             lp_lat -= delta_lam;
-            if (lp_lat < -M_PI)
-                lp_lat = -M_PI;
-            else if (lp_lat > M_PI)
-                lp_lat = M_PI;
+            if (lp_lat < -math::pi<T>())
+                lp_lat = -math::pi<T>();
+            else if (lp_lat > math::pi<T>())
+                lp_lat = math::pi<T>();
         }
 
         if (xy_y != 0)
         {
-            T const delta_phi = std::max(
-                std::min(deltaX * deriv_phi_X + deltaY * deriv_phi_Y, 0.3),
+            T const delta_phi = (std::max)(
+                (std::min)(deltaX * deriv_phi_X + deltaY * deriv_phi_Y, 0.3),
                 -0.3);
             lp_lon -= delta_phi;
-            static T const half_pi = boost::math::constants::half_pi<T>();
+            static T const half_pi = math::half_pi<T>();
             if (lp_lon < -half_pi)
                 lp_lon = -half_pi;
             else if (lp_lon > half_pi)
@@ -143,3 +155,9 @@ void pj_generic_inverse_2d(T const& xy_x,
     }
     //pj_ctx_set_errno(P->ctx, PJD_ERR_NON_CONVERGENT);
 }
+
+} // namespace detail
+
+}}} // namespace boost::geometry::projections
+
+#endif // BOOST_GEOMETRY_PROJECTIONS_IMPL_PJ_GENERIC_INVERSE_HPP
