@@ -3,6 +3,7 @@
 
 # Boost.Build
 stdcerr
+bin/
 
 # Visual Studio (Code)
 /.vs
