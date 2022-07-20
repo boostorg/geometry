@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2019 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2022 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
 // This file was modified by Oracle on 2019-2021.
@@ -90,7 +90,15 @@
 #include <boost/geometry/index/detail/rtree/query_iterators.hpp>
 
 #ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
-// serialization
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_SERIALIZATION
+#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_SERIALIZATION
+#endif
+#ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_ITERATORS
+#define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_ITERATORS
+#endif
+#endif
+
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_SERIALIZATION
 #include <boost/geometry/index/detail/serialization.hpp>
 #endif
 
@@ -312,7 +320,7 @@ private:
     typedef typename members_holder::allocator_traits_type allocator_traits_type;
 
     friend class detail::rtree::utilities::view<rtree>;
-#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_SERIALIZATION
     friend class detail::rtree::private_view<rtree>;
     friend class detail::rtree::const_private_view<rtree>;
 #endif
@@ -1184,7 +1192,9 @@ private:
             detail::rtree::iterators::distance_query_iterator<members_holder, Predicates>
         >;
 
-#ifndef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL
+#ifdef BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_ITERATORS
+public:
+#else
 private:
 #endif
     /*!
