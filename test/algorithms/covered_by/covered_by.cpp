@@ -85,6 +85,21 @@ void test_all()
     test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
         "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
 
+    // test multi-with-one-polygon (trivial case)
+    test_geometry<P, mpoly>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
+    test_geometry<P, mpoly>("POINT(3 3)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
+    test_geometry<P, mpoly>("POINT(0 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", true);
+    test_geometry<P, mpoly>("POINT(4 4)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)))", false);
+
+    // test if it is in one of them
+    std::string multi("MULTIPOLYGON("
+        "((0 0,0 2,2 2,2 0,0 0))"
+        "((3 3,3 6,6 6,6 3,3 3))"
+        ")");
+    test_geometry<P, mpoly>("POINT(4 4)", multi, true);
+    test_geometry<P, mpoly>("POINT(1 1)", multi, true);
+    test_geometry<P, mpoly>("POINT(0 1)", multi, true);
+
 
     // multi_point/A
     test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
@@ -189,8 +204,6 @@ int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
-
-    //test_spherical<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > >();
 
     test_mixed();
     test_3d();
