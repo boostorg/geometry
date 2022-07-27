@@ -123,6 +123,13 @@ void test_all()
     test_geometry<mpt, box_type>("MULTIPOINT(0 0, 1 1)", "BOX(0 0,2 2)", true);
     test_geometry<mpt, box_type>("MULTIPOINT(0 0, 3 4)", "BOX(0 0,2 2)", false);
 
+    test_geometry<ring, box_type>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
+    test_geometry<ring, box_type>("POLYGON((0 0,0 3,3 3,5 0,0 0))", "BOX(0 0,4 4)", false);
+    test_geometry<poly, box_type>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
+    test_geometry<poly, box_type>("POLYGON((0 0,0 3,3 3,5 0,0 0))", "BOX(0 0,4 4)", false);
+    test_geometry<mpoly, box_type>("MULTIPOLYGON(((0 0,0 3,3 3,3 0,0 0)),((4 4,4 7,7 7,4 7,4 4)))", "BOX(0 0,7 7)", true);
+    test_geometry<mpoly, box_type>("MULTIPOLYGON(((0 0,0 3,3 3,5 0,0 0)),((4 4,4 7,7 7,4 7,4 4)))", "BOX(0 0,4 4)", false);
+
     test_geometry<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
     test_geometry<box_type, box_type>("BOX(0 0,2 2)", "BOX(0 0,3 3)", true);

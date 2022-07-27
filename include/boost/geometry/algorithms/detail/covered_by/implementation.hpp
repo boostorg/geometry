@@ -7,6 +7,7 @@
 // This file was modified by Oracle on 2013-2022.
 // Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -37,7 +38,8 @@ namespace detail { namespace covered_by {
 struct use_point_in_geometry
 {
     template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return detail::within::covered_by_point_geometry(geometry1, geometry2, strategy);
     }
@@ -46,7 +48,8 @@ struct use_point_in_geometry
 struct use_relate
 {
     template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2, Strategy const& strategy)
+    static inline bool apply(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                             Strategy const& strategy)
     {
         return detail::relate::relate_impl
             <
@@ -54,6 +57,20 @@ struct use_relate
                 Geometry1,
                 Geometry2
             >::apply(geometry1, geometry2, strategy);
+    }
+};
+
+struct areal_covered_by_box
+{
+    template <typename Areal, typename Box, typename Strategy>
+    static inline bool apply(Areal const& areal, Box const& box, Strategy const& strategy)
+    {
+        typedef typename point_type<Areal>::type point_type;
+        typedef model::box<point_type> box_type;
+
+        box_type box_areal;
+        geometry::envelope(areal, box_areal, strategy);
+        return strategy.covered_by(box_areal, box).apply(box_areal, box);
     }
 };
 
@@ -102,6 +119,20 @@ struct covered_by<Box1, Box2, box_tag, box_tag>
     }
 };
 
+template <typename Ring, typename Box>
+struct covered_by<Ring, Box, ring_tag, box_tag>
+    : public detail::covered_by::areal_covered_by_box
+{};
+
+template <typename Polygon, typename Box>
+struct covered_by<Polygon, Box, polygon_tag, box_tag>
+    : public detail::covered_by::areal_covered_by_box
+{};
+
+template <typename MultiPolygon, typename Box>
+struct covered_by<MultiPolygon, Box, multi_polygon_tag, box_tag>
+    : public detail::covered_by::areal_covered_by_box
+{};
 
 // P/P
 
