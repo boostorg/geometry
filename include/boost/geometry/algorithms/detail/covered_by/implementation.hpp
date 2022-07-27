@@ -273,6 +273,23 @@ struct covered_by<MultiPolygon1, MultiPolygon2, multi_polygon_tag, multi_polygon
     : public detail::covered_by::use_relate
 {};
 
+// B/A
+
+template <typename Box, typename Polygon>
+struct covered_by<Box, Polygon, box_tag, ring_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Box, typename Polygon>
+struct covered_by<Box, Polygon, box_tag, polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
+template <typename Box, typename Polygon>
+struct covered_by<Box, Polygon, box_tag, multi_polygon_tag>
+    : public detail::covered_by::use_relate
+{};
+
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
