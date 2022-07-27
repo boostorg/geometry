@@ -155,6 +155,12 @@ void test_mixed_of()
     BOOST_CHECK_EQUAL(bg::covered_by(p1, box2), true);
     BOOST_CHECK_EQUAL(bg::covered_by(box1, box2), true);
     BOOST_CHECK_EQUAL(bg::covered_by(box2, box1), false);
+
+    // TODO: the following does not compile due to incompatible coordinate types
+    // (probably needed by overlay)
+    //BOOST_CHECK_EQUAL(bg::covered_by(poly1, poly2), true);
+    //BOOST_CHECK_EQUAL(bg::covered_by(box1, poly1), true);
+    //BOOST_CHECK_EQUAL(bg::covered_by(box2, poly1), true);
 }
 
 
