@@ -3,9 +3,10 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015, 2017.
-// Modifications copyright (c) 2017 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015, 2017, 2022.
+// Modifications copyright (c) 2017-2022 Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,28 +23,6 @@
 template <typename P>
 void test_all()
 {
-    /*
-    // trivial case
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true, false);
-
-    // on border/corner
-    test_ring<P>("POINT(0 0)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
-    test_ring<P>("POINT(0 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", false, true);
-
-    // aligned to segment/vertex
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", true, false);
-    test_ring<P>("POINT(1 1)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", true, false);
-
-    // same polygon, but point on border
-    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", false, true);
-    test_ring<P>("POINT(3 3)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", false, true);
-
-    // holes
-    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
-        "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
-
-    */
-
     test_geometry<P, P>("POINT(0 0)", "POINT(0 0)", true);
     test_geometry<P, P>("POINT(0 0)", "POINT(1 1)", false);
 
@@ -90,6 +69,23 @@ void test_all()
     test_geometry<P, poly>("POINT(1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
     test_geometry<P, mpoly>("POINT(1 1)", "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),((2 2,2 3,3 3,3 2,2 2)))", true);
 
+    // on border/corner
+    test_geometry<P, poly>("POINT(0 0)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+    test_geometry<P, poly>("POINT(0 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
+
+    // aligned to segment/vertex
+    test_geometry<P, poly>("POINT(1 1)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", true);
+    test_geometry<P, poly>("POINT(1 1)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", true);
+
+    // same polygon, but point on border
+    test_geometry<P, poly>("POINT(3 3)", "POLYGON((0 0,0 3,3 3,3 1,2 1,2 0,0 0))", true);
+    test_geometry<P, poly>("POINT(3 3)", "POLYGON((0 0,0 3,4 3,3 1,2 2,2 0,0 0))", true);
+
+    // holes
+    test_geometry<P, bg::model::polygon<P> >("POINT(2 2)",
+        "POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,3 1,3 3,1 3,1 1))", false);
+
+
     // multi_point/A
     test_geometry<mpt, ring>("MULTIPOINT(0 0, 1 1)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
     test_geometry<mpt, poly>("MULTIPOINT(0 0, 2 2)", "POLYGON((0 0,0 2,2 2,2 0,0 0))", true);
@@ -114,6 +110,13 @@ void test_all()
     test_geometry<box_type, box_type>("BOX(1 1,3 3)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(1 2,3 3)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(1 1,4 3)", "BOX(0 0,3 3)", false);
+
+    test_geometry<box_type, ring>("BOX(1 1,2 2)", "POLYGON((0 0,0 3,3 3,3 0,0 0))", true);
+    test_geometry<box_type, ring>("BOX(1 1,2 2)", "POLYGON((0 0,0 3,3 1,1 0,0 0))", false);
+    test_geometry<box_type, poly>("BOX(1 1,2 2)", "POLYGON((0 0,0 3,3 3,3 0,0 0))", true);
+    test_geometry<box_type, poly>("BOX(1 1,2 2)", "POLYGON((0 0,0 3,3 1,1 0,0 0))", false);
+    test_geometry<box_type, mpoly>("BOX(1 1,2 2)", "MULTIPOLYGON(((0 0,0 3,3 3,3 0,0 0)),((-1 -1,-3 -4,-7 -7,-4 -3,-1 -1)))", true);
+    test_geometry<box_type, mpoly>("BOX(1 1,2 2)", "MULTIPOLYGON(((0 0,0 3,3 1,1 0,0 0)),((-1 -1,-3 -4,-7 -7,-4 -3,-1 -1)))", false);
 }
 
 
