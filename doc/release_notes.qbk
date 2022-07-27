@@ -1,7 +1,7 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2017 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2022 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
   Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
@@ -18,6 +18,14 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.81]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1045 1045] Support geographic buffer for linestrings (side, joins)
 
 [/=================]
 [heading Boost 1.79]

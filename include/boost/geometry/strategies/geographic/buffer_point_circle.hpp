@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2018-2019 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2018-2022 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2020-2021.
 // Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
@@ -71,54 +71,50 @@ public :
         typename DistanceStrategy
     >
     inline void apply(Point const& point,
-                DistanceStrategy const& distance_strategy,
-                OutputRange& output_range) const
+                      DistanceStrategy const& distance_strategy,
+                      OutputRange& output_range) const
     {
-        typedef typename boost::range_value<OutputRange>::type output_point_type;
+        using output_point_type = typename boost::range_value<OutputRange>::type;
 
-        typedef typename select_calculation_type
+        using calculation_type = typename select_calculation_type
             <
                 Point, output_point_type,
                 CalculationType
-                //double
-            >::type calculation_type;
+            >::type;
 
-        calculation_type const buffer_distance = distance_strategy.apply(point, point,
-                        strategy::buffer::buffer_side_left);
+        auto const lon_rad = get_as_radian<0>(point);
+        auto const lat_rad = get_as_radian<1>(point);
 
-        typedef typename FormulaPolicy::template direct
+        calculation_type const buffer_distance = distance_strategy.apply(point,
+            point, strategy::buffer::buffer_side_left);
+
+        using direct_t = typename FormulaPolicy::template direct
             <
                 calculation_type, true, false, false, false
-            > direct_t;
+            >;
 
         calculation_type const two_pi = geometry::math::two_pi<calculation_type>();
         calculation_type const pi = geometry::math::pi<calculation_type>();
 
         calculation_type const diff = two_pi / calculation_type(m_count);
-        // TODO: after calculation of some angles is corrected,
-        // we can start at 0.0
-        calculation_type angle = 0.001;
+        calculation_type angle = -pi;
 
         for (std::size_t i = 0; i < m_count; i++, angle += diff)
         {
-            if (angle > pi)
-            {
-                angle -= two_pi;
-            }
-
-            typename direct_t::result_type
-                dir_r = direct_t::apply(get_as_radian<0>(point), get_as_radian<1>(point),
-                                        buffer_distance, angle,
+            // If angle is zero, shift angle a tiny bit to avoid spikes.
+            calculation_type const eps = angle == 0 ? 1.0e-10 : 0.0;
+            auto const dir_rad = direct_t::apply(lon_rad, lat_rad,
+                                        buffer_distance, angle + eps,
                                         m_spheroid);
             output_point_type p;
-            set_from_radian<0>(p, dir_r.lon2);
-            set_from_radian<1>(p, dir_r.lat2);
+            set_from_radian<0>(p, dir_rad.lon2);
+            set_from_radian<1>(p, dir_rad.lat2);
             output_range.push_back(p);
         }
 
         {
             // Close the range
-            const output_point_type p = output_range.front();
+            auto const p = output_range.front();
             output_range.push_back(p);
         }
     }
