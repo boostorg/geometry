@@ -119,6 +119,10 @@ void test_all()
     test_geometry<P, box_type>("POINT(1 0)", "BOX(0 0,2 2)", true);
     test_geometry<P, box_type>("POINT(3 3)", "BOX(0 0,2 2)", false);
 
+    test_geometry<mpt, box_type>("MULTIPOINT(1 1, 2 1)", "BOX(0 0,3 3)", true);
+    test_geometry<mpt, box_type>("MULTIPOINT(0 0, 1 1)", "BOX(0 0,2 2)", true);
+    test_geometry<mpt, box_type>("MULTIPOINT(0 0, 3 4)", "BOX(0 0,2 2)", false);
+
     test_geometry<box_type, box_type>("BOX(1 1,2 2)", "BOX(0 0,3 3)", true);
     test_geometry<box_type, box_type>("BOX(0 0,3 3)", "BOX(1 1,2 2)", false);
     test_geometry<box_type, box_type>("BOX(0 0,2 2)", "BOX(0 0,3 3)", true);

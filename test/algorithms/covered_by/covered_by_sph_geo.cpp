@@ -1,6 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2021 Oracle and/or its affiliates.
+// Copyright (c) 2016-2022 Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -42,6 +44,16 @@ void test_point_box()
     test_geometry<P, box_t>("POINT(178.127592 1)", "BOX(179.08882 0, 538.127592 2)", true);
     test_geometry<P, box_t>("POINT(179.08882 1)", "BOX(179.08882 0, 182.127592 2)", true);
     test_geometry<P, box_t>("POINT(-177.872408 1)", "BOX(179.08882 0, 182.127592 2)", true);
+}
+
+template <typename P>
+void test_multi_point_box()
+{
+    typedef bg::model::box<P> box_t;
+    typedef bg::model::multi_point<P> mp_t;
+
+    test_geometry<mp_t, box_t>("MULTIPOINT(0 0,1 1)",    "BOX(0 0, 1 1)", true);
+    test_geometry<mp_t, box_t>("MULTIPOINT(1 1,3 3)",    "BOX(0 0, 2 2)", false);
 }
 
 template <typename P>
@@ -113,6 +125,7 @@ template <typename P>
 void test_cs()
 {
     test_point_box<P>();
+    test_multi_point_box<P>();
     test_box_box<P>();
     test_point_polygon<P>();
 }

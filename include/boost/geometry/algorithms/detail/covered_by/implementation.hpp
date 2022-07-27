@@ -74,6 +74,23 @@ struct covered_by<Point, Box, point_tag, box_tag>
     }
 };
 
+template <typename MultiPoint, typename Box>
+struct covered_by<MultiPoint, Box, multi_point_tag, box_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(MultiPoint const& mpoint, Box const& box, Strategy const& strategy)
+    {
+        for (auto point : mpoint)
+        {
+            if (! strategy.covered_by(point, box).apply(point, box))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+
 template <typename Box1, typename Box2>
 struct covered_by<Box1, Box2, box_tag, box_tag>
 {
