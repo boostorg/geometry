@@ -60,16 +60,16 @@ struct use_relate
     }
 };
 
-struct areal_covered_by_box
+struct geometry_covered_by_box
 {
-    template <typename Areal, typename Box, typename Strategy>
-    static inline bool apply(Areal const& areal, Box const& box, Strategy const& strategy)
+    template <typename Geometry, typename Box, typename Strategy>
+    static inline bool apply(Geometry const& geometry, Box const& box, Strategy const& strategy)
     {
-        typedef typename point_type<Areal>::type point_type;
-        typedef model::box<point_type> box_type;
+        using point_type = typename point_type<Geometry>::type;
+        using box_type = model::box<point_type>;
 
         box_type box_areal;
-        geometry::envelope(areal, box_areal, strategy);
+        geometry::envelope(geometry, box_areal, strategy);
         return strategy.covered_by(box_areal, box).apply(box_areal, box);
     }
 };
@@ -80,59 +80,6 @@ struct areal_covered_by_box
 #ifndef DOXYGEN_NO_DISPATCH
 namespace dispatch
 {
-
-template <typename Point, typename Box>
-struct covered_by<Point, Box, point_tag, box_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
-    {
-        return strategy.covered_by(point, box).apply(point, box);
-    }
-};
-
-template <typename MultiPoint, typename Box>
-struct covered_by<MultiPoint, Box, multi_point_tag, box_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(MultiPoint const& mpoint, Box const& box, Strategy const& strategy)
-    {
-        for (auto point : mpoint)
-        {
-            if (! strategy.covered_by(point, box).apply(point, box))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-};
-
-template <typename Box1, typename Box2>
-struct covered_by<Box1, Box2, box_tag, box_tag>
-{
-    template <typename Strategy>
-    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
-    {
-        assert_dimension_equal<Box1, Box2>();
-        return strategy.covered_by(box1, box2).apply(box1, box2);
-    }
-};
-
-template <typename Ring, typename Box>
-struct covered_by<Ring, Box, ring_tag, box_tag>
-    : public detail::covered_by::areal_covered_by_box
-{};
-
-template <typename Polygon, typename Box>
-struct covered_by<Polygon, Box, polygon_tag, box_tag>
-    : public detail::covered_by::areal_covered_by_box
-{};
-
-template <typename MultiPolygon, typename Box>
-struct covered_by<MultiPolygon, Box, multi_polygon_tag, box_tag>
-    : public detail::covered_by::areal_covered_by_box
-{};
 
 // P/P
 
@@ -337,6 +284,59 @@ template <typename Box, typename Polygon>
 struct covered_by<Box, Polygon, box_tag, multi_polygon_tag>
     : public detail::covered_by::use_relate
 {};
+
+// Geometry/Box
+
+template <typename Point, typename Box>
+struct covered_by<Point, Box, point_tag, box_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Point const& point, Box const& box, Strategy const& strategy)
+    {
+        return strategy.covered_by(point, box).apply(point, box);
+    }
+};
+
+template <typename MultiPoint, typename Box>
+struct covered_by<MultiPoint, Box, multi_point_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename Linestring, typename Box>
+struct covered_by<Linestring, Box, linestring_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename MultiLinestring, typename Box>
+struct covered_by<MultiLinestring, Box, multi_linestring_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename Ring, typename Box>
+struct covered_by<Ring, Box, ring_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename Polygon, typename Box>
+struct covered_by<Polygon, Box, polygon_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename MultiPolygon, typename Box>
+struct covered_by<MultiPolygon, Box, multi_polygon_tag, box_tag>
+    : public detail::covered_by::geometry_covered_by_box
+{};
+
+template <typename Box1, typename Box2>
+struct covered_by<Box1, Box2, box_tag, box_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Box1 const& box1, Box2 const& box2, Strategy const& strategy)
+    {
+        assert_dimension_equal<Box1, Box2>();
+        return strategy.covered_by(box1, box2).apply(box1, box2);
+    }
+};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH

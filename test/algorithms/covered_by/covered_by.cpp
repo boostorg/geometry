@@ -116,6 +116,11 @@ void test_all()
     test_geometry<mpt<P>, box<P>>("MULTIPOINT(0 0, 1 1)", "BOX(0 0,2 2)", true);
     test_geometry<mpt<P>, box<P>>("MULTIPOINT(0 0, 3 4)", "BOX(0 0,2 2)", false);
 
+    test_geometry<ls<P>, box<P>>("LINESTRING(0 0,1 1,1 2)", "BOX(0 0,2 2)", true);
+    test_geometry<ls<P>, box<P>>("LINESTRING(0 0,1 1,1 2,1 3)", "BOX(0 0,2 2)", false);
+    test_geometry<mls<P>, box<P>>("MULTILINESTRING((0 0,1 1,1 2),(0 1,1 0))", "BOX(0 0,2 2)", true);
+    test_geometry<mls<P>, box<P>>("MULTILINESTRING((0 0,1 1,1 2,1 3),(0 1,1 0))", "BOX(0 0,2 2)", false);
+
     test_geometry<ring<P>, box<P>>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
     test_geometry<ring<P>, box<P>>("POLYGON((0 0,0 3,3 3,5 0,0 0))", "BOX(0 0,4 4)", false);
     test_geometry<poly<P>, box<P>>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
