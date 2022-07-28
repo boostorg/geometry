@@ -57,6 +57,29 @@ void test_multi_point_box()
 }
 
 template <typename P>
+void test_areal_box()
+{
+    typedef bg::model::box<P> box_t;
+    typedef bg::model::ring<P> ring_t;
+    typedef bg::model::polygon<P> poly_t;
+    typedef bg::model::multi_polygon<poly_t> mpoly_t;
+
+    test_geometry<ring_t, box_t>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
+    test_geometry<ring_t, box_t>("POLYGON((0 0,0 3,3 3,5 0,0 0))", "BOX(0 0,4 4)", false);
+    test_geometry<poly_t, box_t>("POLYGON((0 0,0 3,3 3,3 0,0 0))", "BOX(0 0,4 4)", true);
+    test_geometry<poly_t, box_t>("POLYGON((0 0,0 3,3 3,5 0,0 0))", "BOX(0 0,4 4)", false);
+    // the following is true for cartesian but not for spherical or geographic
+    // because in non-cartesian boxes the horizontal edges are not geodesics
+    test_geometry<mpoly_t, box_t>("MULTIPOLYGON(((0 0,0 3,3 3,3 0,0 0)),((4 4,4 7,7 7,4 7,4 4)))",
+                                  "BOX(0 0,7 7)", false);
+    test_geometry<mpoly_t, box_t>("MULTIPOLYGON(((0 0,0 3,3 3,3 0,0 0)),((4 4,4 6.5,6.5 6.5,4 6.5,4 4)))",
+                                  "BOX(0 0,7 7)", true);
+    test_geometry<mpoly_t, box_t>("MULTIPOLYGON(((0 0,0 3,3 3,5 0,0 0)),((4 4,4 7,7 7,4 7,4 4)))",
+                                  "BOX(0 0,4 4)", false);
+
+}
+
+template <typename P>
 void test_box_box()
 {
     typedef bg::model::box<P> box_t;
@@ -126,6 +149,7 @@ void test_cs()
 {
     test_point_box<P>();
     test_multi_point_box<P>();
+    test_areal_box<P>();
     test_box_box<P>();
     test_point_polygon<P>();
 }
