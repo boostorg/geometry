@@ -30,6 +30,28 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
+template <typename P>
+using ls = bg::model::linestring<P>;
+
+template <typename P>
+using box = bg::model::box<P>;
+
+template <typename P>
+using ring = bg::model::ring<P>;
+
+template <typename P>
+using poly = bg::model::polygon<P>;
+
+template <typename P>
+using mpt = bg::model::multi_point<P>;
+
+template <typename P>
+using mls = bg::model::multi_linestring<ls<P>>;
+
+template <typename P>
+using mpoly = bg::model::multi_polygon<poly<P>>;
+
+
 struct no_strategy {};
 
 template <typename Geometry1, typename Geometry2, typename Strategy>
