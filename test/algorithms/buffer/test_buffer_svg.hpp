@@ -28,6 +28,7 @@
 #  endif
 #endif
 
+#include "debug_buffer_info.hpp"
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -85,20 +86,6 @@ get_labelpoint(Ring const& ring, Piece const& piece)
     }
 }
 
-inline char piece_type_char(bg::strategy::buffer::piece_type const& type)
-{
-    using namespace bg::strategy::buffer;
-    switch(type)
-    {
-        case buffered_segment : return 's';
-        case buffered_join : return 'j';
-        case buffered_round_end : return 'r';
-        case buffered_flat_end : return 'f';
-        case buffered_point : return 'p';
-        case buffered_concave : return 'c';
-        default : return '?';
-    }
-}
 
 template <typename SvgMapper, typename Box>
 class svg_visitor
@@ -297,7 +284,7 @@ private :
                 out << piece.index
                     << (piece.is_flat_start ? " FS" : "")
                     << (piece.is_flat_end ? " FE" : "")
-                    << " (" << piece_type_char(piece.type) << ") "
+                    << " (" << bg::debug::piece_type_char(piece.type) << ") "
                     << piece.first_seg_id.segment_index
                     << ".." << piece.beyond_last_segment_index - 1
                        ;
