@@ -23,9 +23,33 @@
 [heading Boost 1.81]
 [/=================]
 
-[*Improvements]
+[*Major improvements]
 
 * [@https://github.com/boostorg/geometry/pull/1045 1045] Support geographic buffer for linestrings (side, joins)
+
+[/=================]
+[heading Boost 1.80]
+[/=================]
+
+[*Major improvement]
+
+* Support geometric collection in various algorithms
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1014 1014] Projections: Add new projections and fixes existing ones
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1030 1030] Buffer/simplify: support const points
+* [@https://github.com/boostorg/geometry/issues/1027 1027] Buffer: support const points
+* [@https://github.com/boostorg/geometry/issues/1024 1024] Simplify: support different input/output types
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/pull/1028 1028] Buffer: fix for integer overflow
+* [@https://github.com/boostorg/geometry/pull/1023 1023] Buffer: fix possible artefacts in linestring buffers
+* Various fixes in for each, projections and index
 
 [/=================]
 [heading Boost 1.79]
