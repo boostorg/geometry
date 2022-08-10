@@ -58,6 +58,10 @@ const double same_distance = -999;
 #  include "test_buffer_svg_per_turn.hpp"
 #endif
 
+#if defined(TEST_WITH_CSV)
+#  include "test_buffer_csv.hpp"
+#endif
+
 //-----------------------------------------------------------------------------
 template <typename JoinStrategy>
 struct JoinTestProperties
@@ -213,7 +217,10 @@ void test_buffer(std::string const& caseid,
 
     //std::cout << complete.str() << std::endl;
 
-#if defined(TEST_WITH_SVG_PER_TURN)
+#if defined(TEST_WITH_CSV)
+    detail::buffer_visitor_csv visitor("/tmp/csv/" + caseid + "_");
+
+#elif defined(TEST_WITH_SVG_PER_TURN)
     save_turns_visitor<point_type> visitor;
 #elif defined(TEST_WITH_SVG)
 
@@ -268,7 +275,8 @@ void test_buffer(std::string const& caseid,
                         rescale_policy,
                         visitor);
 
-#if defined(TEST_WITH_SVG)
+#if defined(TEST_WITH_CSV)
+#elif defined(TEST_WITH_SVG)
     buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
 #endif
 
@@ -340,7 +348,9 @@ void test_buffer(std::string const& caseid,
         BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
     }
 
-#if defined(TEST_WITH_SVG_PER_TURN)
+#if defined(TEST_WITH_CSV)
+    visitor.write_input_output(geometry, buffered);
+#elif defined(TEST_WITH_SVG_PER_TURN)
     {
         // Create a per turn visitor to map per turn, and buffer again with it
         per_turn_visitor<point_type> ptv(complete.str(), visitor.get_points());
