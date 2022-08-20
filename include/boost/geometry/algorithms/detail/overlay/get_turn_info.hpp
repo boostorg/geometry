@@ -223,16 +223,18 @@ struct turn_info_verification_functions
         BOOST_GEOMETRY_ASSERT(index_p > 0 && index_p <= 2);
         BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
 
+        using distance_measure_result_type = typename geometry::coordinate_type<decltype(ti.point)>::type;
+
         bool const p_in_range = index_p < range_p.size();
         bool const q_in_range = index_q < range_q.size();
         ti.operations[IndexP].remaining_distance
             = p_in_range
               ? distance_measure(ti.point, range_p.at(index_p))
-              : 0;
+              : distance_measure_result_type{0};
         ti.operations[IndexQ].remaining_distance
             = q_in_range
               ? distance_measure(ti.point, range_q.at(index_q))
-              : 0;
+              : distance_measure_result_type{0};
 
         if (p_in_range && q_in_range)
         {
