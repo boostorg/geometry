@@ -33,8 +33,8 @@ struct box_areal
     {
         using is_cartesian = std::is_same
             <
-                typename traits::coordinate_system<typename traits::point_type<Box>::type>::type,
-                cs::cartesian
+                typename Strategy::cs_tag,
+                cartesian_tag
             >;
         apply(box, areal, result, strategy, is_cartesian());
     }
@@ -58,9 +58,8 @@ struct box_areal
     {
         BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
             "Not implemented for this coordinate system.",
-            typename traits::coordinate_system<typename traits::point_type<Box>::type>::type);
+            typename Strategy::cs_tag());
     }
-
 };
 
 }} // namespace detail::relate
