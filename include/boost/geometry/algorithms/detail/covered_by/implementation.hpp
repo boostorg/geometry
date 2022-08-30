@@ -68,6 +68,8 @@ struct geometry_covered_by_box
         using point_type = typename point_type<Geometry>::type;
         using box_type = model::box<point_type>;
 
+        // TODO: this is not optimal since the process should be able to terminate if a point is found
+        // outside of the box without computing the whole envelope
         box_type box_areal;
         geometry::envelope(geometry, box_areal, strategy);
         return strategy.covered_by(box_areal, box).apply(box_areal, box);
