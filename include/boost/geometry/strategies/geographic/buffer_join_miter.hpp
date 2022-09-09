@@ -6,8 +6,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_ROUND_HPP
-#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_ROUND_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_MITER_HPP
+#define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_MITER_HPP
 
 #include <boost/range/value_type.hpp>
 
@@ -32,7 +32,7 @@ template
     typename Spheroid = srs::spheroid<double>,
     typename CalculationType = void
 >
-class geographic_join_round
+class geographic_join_miter
 {
     static bool const enable_azimuth = true;
     static bool const enable_coordinates = true;
@@ -51,15 +51,15 @@ class geographic_join_round
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle points which would be used for a full circle
-    explicit inline geographic_join_round(std::size_t points_per_circle = 90)
-        : m_points_per_circle(points_per_circle)
+    //! \param miter_limit The miter limit, to avoid excessively long miters around sharp corners
+    explicit inline geographic_join_miter(double miter_limit = 5.0)
+        : m_miter_limit(valid_limit(miter_limit))
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-    //! Fills output_range with a rounded shape around a vertex
+    //! Fills output_range with a sharp shape around a vertex
     template <typename Point, typename DistanceType, typename RangeOut>
-    inline bool apply(Point const& ip, Point const& vertex,
+    inline bool apply(Point const& , Point const& vertex,
                       Point const& perp1, Point const& perp2,
                       DistanceType const& buffer_distance,
                       RangeOut& range_out) const
@@ -98,42 +98,53 @@ public :
             return false;
         }
 
-        calc_t const circle_fraction = angle_diff / two_pi;
-        std::size_t const n = (std::max)(static_cast<std::size_t>(
-            std::ceil(m_points_per_circle * circle_fraction)), std::size_t(1));
+        calc_t const half = 0.5;
+        calc_t const half_angle_diff = half * angle_diff;
+        calc_t const cos_angle = std::cos(half_angle_diff);
 
-        calc_t const diff = angle_diff / static_cast<calc_t>(n);
-        calc_t azi = math::wrap_azimuth_in_radian(inv1.azimuth + diff);
+        calc_t const max_distance = m_miter_limit * geometry::math::abs(buffer_distance);
 
-        range_out.push_back(perp1);
-
-        // Generate points between 0 and n, not including them
-        // because perp1 and perp2 are inserted before and after this range.
-        for (std::size_t i = 1; i < n; i++)
+        if (cos_angle == 0)
         {
-            auto const d = direct<calc_t>::apply(lon_rad, lat_rad, buffer_distance, azi, m_spheroid);
-            Point p;
-            set_from_radian<0>(p, d.lon2);
-            set_from_radian<1>(p, d.lat2);
-            range_out.emplace_back(p);
-
-            azi = math::wrap_azimuth_in_radian(azi + diff);
+            // It is opposite, perp1==perp2, do not generate a miter cap
+            return false;
         }
 
+        // If it is sharp (angle close to 0), the distance will become too high and will be capped.
+        calc_t const distance = (std::min)(max_distance, buffer_distance / cos_angle);
+        calc_t const azi = math::wrap_azimuth_in_radian(inv1.azimuth + half_angle_diff);
+
+        Point point;
+        auto const d = direct<calc_t>::apply(lon_rad, lat_rad, distance, azi, m_spheroid);
+        set_from_radian<0>(point, d.lon2);
+        set_from_radian<1>(point, d.lat2);
+
+        range_out.push_back(perp1);
+        range_out.push_back(point);
         range_out.push_back(perp2);
         return true;
     }
 
     template <typename NumericType>
-    static inline NumericType max_distance(NumericType const& distance)
+    inline NumericType max_distance(NumericType const& distance) const
     {
-        return distance;
+        return distance * m_miter_limit;
     }
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    std::size_t m_points_per_circle;
+    double valid_limit(double miter_limit) const
+    {
+        if (miter_limit < 1.0)
+        {
+            // It should always exceed the buffer distance
+            miter_limit = 1.0;
+        }
+        return miter_limit;
+    }
+
+    double m_miter_limit;
     Spheroid m_spheroid;
 };
 
@@ -141,4 +152,4 @@ private :
 
 }} // namespace boost::geometry
 
-#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_ROUND_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_BUFFER_JOIN_MITER_HPP
