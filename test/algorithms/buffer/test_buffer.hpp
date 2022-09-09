@@ -67,27 +67,38 @@ template <typename JoinStrategy>
 struct JoinTestProperties
 {
     static std::string name() { return "join_unknown"; }
+    static bool is_miter() { return false; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
 {
     static std::string name() { return "round"; }
+    static bool is_miter() { return false; }
 };
 
 template<typename F, typename S, typename CT>
 struct JoinTestProperties<boost::geometry::strategy::buffer::geographic_join_round<F, S, CT> >
 {
     static std::string name() { return "geo_round"; }
+    static bool is_miter() { return false; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
 {
     static std::string name() { return "miter"; }
+    static bool is_miter() { return true; }
 };
 
+template<typename F, typename S, typename CT>
+struct JoinTestProperties<boost::geometry::strategy::buffer::geographic_join_miter<F, S, CT> >
+{
+    static std::string name() { return "geo_miter"; }
+    static bool is_miter() { return true; }
+};
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
 {
     static std::string name() { return "divide"; }
+    static bool is_miter() { return false; }
 };
 
 
@@ -98,11 +109,20 @@ struct EndTestProperties { };
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
 {
     static std::string name() { return "round"; }
+    static bool is_round() { return true; }
+};
+
+template<typename F, typename S, typename CT>
+struct EndTestProperties<boost::geometry::strategy::buffer::geographic_end_round<F, S, CT>>
+{
+    static std::string name() { return "geo_round"; }
+    static bool is_round() { return true; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 {
     static std::string name() { return "flat"; }
+    static bool is_round() { return false; }
 };
 
 struct ut_settings : public ut_base_settings
@@ -133,7 +153,10 @@ struct ut_settings : public ut_base_settings
     double tolerance;
     bool test_area = true;
     bool use_ln_area = false;
+
+    // Number of points in a circle. Not used for geo tests.
     int points_per_circle;
+    
     double multiplier_min_area = 0.95;
     double multiplier_max_area = 1.05;
     double fraction_buffered_points_too_close = 0.10;
