@@ -66,7 +66,8 @@ struct geometry_covered_by_box
     static inline bool apply(Geometry const& geometry, Box const& box, Strategy const& strategy)
     {
         using point_type = typename point_type<Geometry>::type;
-        using box_type = model::box<point_type>;
+        using mutable_point_type = typename helper_geometry<point_type>::type;
+        using box_type = model::box<mutable_point_type>;
 
         // TODO: this is not optimal since the process should be able to terminate if a point is found
         // outside of the box without computing the whole envelope

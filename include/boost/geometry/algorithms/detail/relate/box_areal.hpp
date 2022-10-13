@@ -28,7 +28,7 @@ struct box_areal
 
     template <typename Result, typename Strategy>
     static inline void apply(Box const& box, Areal const& areal,
-                             Result & result,
+                             Result& result,
                              Strategy const& strategy)
     {
         using is_cartesian = std::is_same
@@ -41,18 +41,18 @@ struct box_areal
 
     template <typename Result, typename Strategy>
     static inline void apply(Box const& box, Areal const& areal,
-                             Result & result,
+                             Result& result,
                              Strategy const& strategy,
                              std::true_type /*is_cartesian*/)
     {
         using box_view = boost::geometry::box_view<Box>;
         box_view view(box);
-        areal_areal<decltype(view), Areal>::apply(view, areal, result, strategy);
+        areal_areal<box_view, Areal>::apply(view, areal, result, strategy);
     }
 
     template <typename Result, typename Strategy>
     static inline void apply(Box const& box, Areal const& areal,
-                             Result & result,
+                             Result& result,
                              Strategy const& strategy,
                              std::false_type /*is_cartesian*/)
     {
