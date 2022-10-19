@@ -15,6 +15,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/geographic/buffer_helper.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -34,26 +35,13 @@ template
 >
 class geographic_join_round
 {
-    static bool const enable_azimuth = true;
-    static bool const enable_coordinates = true;
-
-    template <typename T>
-    using inverse = typename FormulaPolicy::template inverse
-        <
-            T, false, enable_azimuth, false, false, false
-        >;
-    template <typename T>
-    using direct = typename FormulaPolicy::template direct
-        <
-            T, enable_coordinates, false, false, false
-        >;
-
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle points which would be used for a full circle
+    //! \param points_per_circle Number of points which would be used for a full circle
+    //! (if points_per_circle is smaller than 4, it is internally set to 4)
     explicit inline geographic_join_round(std::size_t points_per_circle = 90)
-        : m_points_per_circle(points_per_circle)
+        : m_points_per_circle((points_per_circle < 4u) ? 4u : points_per_circle)
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -71,39 +59,26 @@ public :
                 CalculationType
             >::type;
 
+        using helper = geographic_buffer_helper<FormulaPolicy, calc_t>;
+
         calc_t const lon_rad = get_as_radian<0>(vertex);
         calc_t const lat_rad = get_as_radian<1>(vertex);
-        calc_t const lon1_rad = get_as_radian<0>(perp1);
-        calc_t const lat1_rad = get_as_radian<1>(perp1);
-        calc_t const lon2_rad = get_as_radian<0>(perp2);
-        calc_t const lat2_rad = get_as_radian<1>(perp2);
 
-        // Calculate angles from vertex to perp1/perp2
-        auto const inv1 = inverse<calc_t>::apply(lon_rad, lat_rad, lon1_rad, lat1_rad, m_spheroid);
-        auto const inv2 = inverse<calc_t>::apply(lon_rad, lat_rad, lon2_rad, lat2_rad, m_spheroid);
-
-        // For a sharp corner, perpendicular points are nearly opposite and the
-        // angle between the two azimuths can be nearly 180, but not more.
-        calc_t const two_pi = geometry::math::two_pi<calc_t>();
-        bool const wrapped = inv2.azimuth < inv1.azimuth;
-        calc_t const angle_diff = wrapped
-            ? ((two_pi + inv2.azimuth) - inv1.azimuth)
-            : inv2.azimuth - inv1.azimuth;
-
-        if (angle_diff < 0 || angle_diff > geometry::math::pi<calc_t>())
+        calc_t first_azimuth;
+        calc_t angle_diff;
+        if (! helper::calculate_angles(lon_rad, lat_rad, perp1, perp2, m_spheroid,
+                                       angle_diff, first_azimuth))
         {
-            // Defensive check with asserts
-            BOOST_GEOMETRY_ASSERT(angle_diff >= 0);
-            BOOST_GEOMETRY_ASSERT(angle_diff <= geometry::math::pi<calc_t>());
             return false;
         }
 
+        static calc_t const two_pi = geometry::math::two_pi<calc_t>();
         calc_t const circle_fraction = angle_diff / two_pi;
         std::size_t const n = (std::max)(static_cast<std::size_t>(
             std::ceil(m_points_per_circle * circle_fraction)), std::size_t(1));
 
         calc_t const diff = angle_diff / static_cast<calc_t>(n);
-        calc_t azi = math::wrap_azimuth_in_radian(inv1.azimuth + diff);
+        calc_t azi = math::wrap_azimuth_in_radian(first_azimuth + diff);
 
         range_out.push_back(perp1);
 
@@ -111,12 +86,7 @@ public :
         // because perp1 and perp2 are inserted before and after this range.
         for (std::size_t i = 1; i < n; i++)
         {
-            auto const d = direct<calc_t>::apply(lon_rad, lat_rad, buffer_distance, azi, m_spheroid);
-            Point p;
-            set_from_radian<0>(p, d.lon2);
-            set_from_radian<1>(p, d.lat2);
-            range_out.emplace_back(p);
-
+            helper::append_point(lon_rad, lat_rad, buffer_distance, azi, m_spheroid, range_out);
             azi = math::wrap_azimuth_in_radian(azi + diff);
         }
 

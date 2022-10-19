@@ -15,6 +15,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/geographic/buffer_helper.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -34,24 +35,10 @@ template
 >
 class geographic_end_round
 {
-    static bool const enable_azimuth = true;
-    static bool const enable_coordinates = true;
-
-    template <typename T>
-    using inverse = typename FormulaPolicy::template inverse
-        <
-            T, false, enable_azimuth, false, false, false
-        >;
-    template <typename T>
-    using direct = typename FormulaPolicy::template direct
-        <
-            T, enable_coordinates, false, false, false
-        >;
-
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle points which would be used for a full circle
+    //! \param points_per_circle Number of points which would be used for a full circle
     //! (if points_per_circle is smaller than 4, it is internally set to 4)
     explicit inline geographic_end_round(std::size_t points_per_circle = 90)
         : m_points_per_circle((points_per_circle < 4u) ? 4u : points_per_circle)
@@ -61,7 +48,7 @@ public :
     template <typename T, typename RangeOut>
     inline void generate(T lon_rad, T lat_rad, T distance, T azimuth, RangeOut& range_out) const
     {
-        using point_t = typename boost::range_value<RangeOut const>::type;
+        using helper = geographic_buffer_helper<FormulaPolicy, T>;
         std::size_t const n = m_points_per_circle / 2;
         T const angle_diff = geometry::math::pi<T>() / n;
         T azi = math::wrap_azimuth_in_radian(azimuth + angle_diff);
@@ -70,11 +57,7 @@ public :
         // because left and right are inserted before and after this range.
         for (std::size_t i = 1; i < n; i++)
         {
-            auto const d = direct<T>::apply(lon_rad, lat_rad, distance, azi, m_spheroid);
-            point_t point;
-            set_from_radian<0>(point, d.lon2);
-            set_from_radian<1>(point, d.lat2);
-            range_out.emplace_back(point);
+            helper::append_point(lon_rad, lat_rad, distance, azi, m_spheroid, range_out);
             azi = math::wrap_azimuth_in_radian(azi + angle_diff);
         }
     }
@@ -93,19 +76,19 @@ public :
                 CalculationType
             >::type;
 
+        using helper = geographic_buffer_helper<FormulaPolicy, calc_t>;
+
+        calc_t const lon_rad = get_as_radian<0>(ultimate_point);
+        calc_t const lat_rad = get_as_radian<1>(ultimate_point);
+
+        auto const azimuth = helper::azimuth(lon_rad, lat_rad, perp_left_point, m_spheroid);
+
         calc_t const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         calc_t const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);
 
         bool const reversed = (side == buffer_side_left && dist_right < 0 && -dist_right > dist_left)
                     || (side == buffer_side_right && dist_left < 0 && -dist_left > dist_right)
                     ;
-
-        calc_t const lon_rad = get_as_radian<0>(ultimate_point);
-        calc_t const lat_rad = get_as_radian<1>(ultimate_point);
-        calc_t const lon1_rad = get_as_radian<0>(perp_left_point);
-        calc_t const lat1_rad = get_as_radian<1>(perp_left_point);
-
-        auto const azimuth = inverse<calc_t>::apply(lon_rad, lat_rad, lon1_rad, lat1_rad, m_spheroid).azimuth;
 
         if (reversed)
         {
@@ -129,7 +112,7 @@ public :
                         = (side == buffer_side_right
                         ? (dist_right - dist_left)
                         : (dist_left - dist_right)) / two;
-                auto const shifted = direct<calc_t>::apply(lon_rad, lat_rad, dist_half, azimuth, m_spheroid);
+                auto const shifted = helper::direct::apply(lon_rad, lat_rad, dist_half, azimuth, m_spheroid);
                 generate(shifted.lon2, shifted.lat2, dist_average, azimuth, range_out);
             }
 
@@ -154,7 +137,6 @@ private :
     std::size_t m_points_per_circle;
     Spheroid m_spheroid;
 };
-
 
 }} // namespace strategy::buffer
 
