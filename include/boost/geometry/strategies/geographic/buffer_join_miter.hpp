@@ -15,6 +15,7 @@
 
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/geographic/buffer_helper.hpp>
 #include <boost/geometry/strategies/geographic/parameters.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
@@ -34,20 +35,6 @@ template
 >
 class geographic_join_miter
 {
-    static bool const enable_azimuth = true;
-    static bool const enable_coordinates = true;
-
-    template <typename T>
-    using inverse = typename FormulaPolicy::template inverse
-        <
-            T, false, enable_azimuth, false, false, false
-        >;
-    template <typename T>
-    using direct = typename FormulaPolicy::template direct
-        <
-            T, enable_coordinates, false, false, false
-        >;
-
 public :
 
     //! \brief Constructs the strategy
@@ -71,38 +58,24 @@ public :
                 CalculationType
             >::type;
 
+        using helper = geographic_buffer_helper<FormulaPolicy, calc_t>;
+
         calc_t const lon_rad = get_as_radian<0>(vertex);
         calc_t const lat_rad = get_as_radian<1>(vertex);
-        calc_t const lon1_rad = get_as_radian<0>(perp1);
-        calc_t const lat1_rad = get_as_radian<1>(perp1);
-        calc_t const lon2_rad = get_as_radian<0>(perp2);
-        calc_t const lat2_rad = get_as_radian<1>(perp2);
 
-        // Calculate angles from vertex to perp1/perp2
-        auto const inv1 = inverse<calc_t>::apply(lon_rad, lat_rad, lon1_rad, lat1_rad, m_spheroid);
-        auto const inv2 = inverse<calc_t>::apply(lon_rad, lat_rad, lon2_rad, lat2_rad, m_spheroid);
-
-        // For a sharp corner, perpendicular points are nearly opposite and the
-        // angle between the two azimuths can be nearly 180, but not more.
-        calc_t const two_pi = geometry::math::two_pi<calc_t>();
-        bool const wrapped = inv2.azimuth < inv1.azimuth;
-        calc_t const angle_diff = wrapped
-            ? ((two_pi + inv2.azimuth) - inv1.azimuth)
-            : inv2.azimuth - inv1.azimuth;
-
-        if (angle_diff < 0 || angle_diff > geometry::math::pi<calc_t>())
+        calc_t first_azimuth;
+        calc_t angle_diff;
+        if (! helper::calculate_angles(lon_rad, lat_rad, perp1, perp2, m_spheroid,
+                                       angle_diff, first_azimuth))
         {
-            // Defensive check with asserts
-            BOOST_GEOMETRY_ASSERT(angle_diff >= 0);
-            BOOST_GEOMETRY_ASSERT(angle_diff <= geometry::math::pi<calc_t>());
             return false;
         }
 
         calc_t const half = 0.5;
         calc_t const half_angle_diff = half * angle_diff;
-        calc_t const cos_angle = std::cos(half_angle_diff);
+        calc_t const azi = math::wrap_azimuth_in_radian(first_azimuth + half_angle_diff);
 
-        calc_t const max_distance = m_miter_limit * geometry::math::abs(buffer_distance);
+        calc_t const cos_angle = std::cos(half_angle_diff);
 
         if (cos_angle == 0)
         {
@@ -111,16 +84,11 @@ public :
         }
 
         // If it is sharp (angle close to 0), the distance will become too high and will be capped.
+        calc_t const max_distance = m_miter_limit * geometry::math::abs(buffer_distance);
         calc_t const distance = (std::min)(max_distance, buffer_distance / cos_angle);
-        calc_t const azi = math::wrap_azimuth_in_radian(inv1.azimuth + half_angle_diff);
-
-        Point point;
-        auto const d = direct<calc_t>::apply(lon_rad, lat_rad, distance, azi, m_spheroid);
-        set_from_radian<0>(point, d.lon2);
-        set_from_radian<1>(point, d.lat2);
 
         range_out.push_back(perp1);
-        range_out.push_back(point);
+        helper::append_point(lon_rad, lat_rad, distance, azi, m_spheroid, range_out);
         range_out.push_back(perp2);
         return true;
     }
