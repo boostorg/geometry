@@ -18,7 +18,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CENTROID_WEIGHTED_LENGTH_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CENTROID_WEIGHTED_LENGTH_HPP
 
-#include <boost/math/special_functions/fpclassify.hpp>
+#include <cmath>
+
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/arithmetic/arithmetic.hpp>
@@ -120,7 +121,7 @@ public :
 
         distance_type const zero = distance_type();
         if (! geometry::math::equals(state.length, zero)
-            && boost::math::isfinite(state.length)) // Prevent NaN centroid coordinates
+            && std::isfinite(state.length)) // Prevent NaN centroid coordinates
         {
             // NOTE: above distance_type is checked, not the centroid coordinate_type
             // which means that the centroid can still be filled with INF

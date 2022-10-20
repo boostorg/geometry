@@ -12,11 +12,11 @@
 #ifndef BOOST_GEOMETRY_UTIL_HAS_NON_FINITE_COORDINATE_HPP
 #define BOOST_GEOMETRY_UTIL_HAS_NON_FINITE_COORDINATE_HPP
 
+#include <cmath>
 #include <type_traits>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/util/has_nan_coordinate.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,7 +30,7 @@ struct is_not_finite
     template <typename T>
     static inline bool apply(T const& t)
     {
-        return ! boost::math::isfinite(t);
+        return ! std::isfinite(t);
     }
 };
 

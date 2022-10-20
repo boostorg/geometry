@@ -12,14 +12,13 @@
 #ifndef BOOST_GEOMETRY_UTIL_HAS_NAN_COORDINATE_HPP
 #define BOOST_GEOMETRY_UTIL_HAS_NAN_COORDINATE_HPP
 
+#include <cmath>
 #include <cstddef>
 #include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-
-#include <boost/math/special_functions/fpclassify.hpp>
 
 
 namespace boost { namespace geometry
@@ -34,7 +33,7 @@ struct isnan
     template <typename T>
     static inline bool apply(T const& t)
     {
-        return boost::math::isnan(t);
+        return std::isnan(t);
     }
 };
 

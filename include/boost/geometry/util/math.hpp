@@ -29,7 +29,6 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/special_functions/fpclassify.hpp>
 //#include <boost/math/special_functions/round.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -187,7 +186,7 @@ struct equals<Type, true>
             return true;
         }
 
-        if (boost::math::isfinite(a) && boost::math::isfinite(b))
+        if (std::isfinite(a) && std::isfinite(b))
         {
             // If a is INF and b is e.g. 0, the expression below returns true
             // but the values are obviously not equal, hence the condition
@@ -302,11 +301,11 @@ struct square_root_for_fundamental_fp
         // For those platforms we need to define the macro
         // BOOST_GEOMETRY_SQRT_CHECK_FINITENESS so that the argument
         // to std::sqrt is checked appropriately before passed to std::sqrt
-        if (boost::math::isfinite(value))
+        if (std::isfinite(value))
         {
             return std::sqrt(value);
         }
-        else if (boost::math::isinf(value) && value < 0)
+        else if (std::isinf(value) && value < 0)
         {
             return -std::numeric_limits<FundamentalFP>::quiet_NaN();
         }

@@ -7,9 +7,8 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_STRAIGHT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_SIDE_STRAIGHT_HPP
 
+#include <cmath>
 #include <cstddef>
-
-#include <boost/math/special_functions/fpclassify.hpp>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -82,7 +81,7 @@ public :
         // For normalization [0,1] (=dot product d.d, sqrt)
         promoted_type const length = geometry::math::sqrt(dx * dx + dy * dy);
 
-        if (! boost::math::isfinite(length))
+        if (! std::isfinite(length))
         {
             // In case of coordinates differences of e.g. 1e300, length
             // will overflow and we should not generate output

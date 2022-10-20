@@ -19,9 +19,9 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_CENTROID_BASHEIN_DETMER_HPP
 
 
+#include <cmath>
 #include <cstddef>
 
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/arithmetic/determinant.hpp>
@@ -219,7 +219,7 @@ public :
                 >::type coordinate_type;
 
             // Prevent NaN centroid coordinates
-            if (boost::math::isfinite(a3))
+            if (std::isfinite(a3))
             {
                 // NOTE: above calculation_type is checked, not the centroid coordinate_type
                 // which means that the centroid can still be filled with INF
