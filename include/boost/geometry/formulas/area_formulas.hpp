@@ -354,6 +354,10 @@ public:
     static inline CT spherical(PointOfSegment const& p1,
                                PointOfSegment const& p2)
     {
+        CT const c1 = CT(1);
+        CT const c2 = CT(2);
+        CT const pi = math::pi<CT>();
+
         CT excess;
 
         CT const lon1r = get_as_radian<0>(p1);
@@ -361,8 +365,7 @@ public:
         CT const lon2r = get_as_radian<0>(p2);
         CT const lat2r = get_as_radian<1>(p2);
 
-        auto const pi = math::pi<CT>();
-        auto lon12 = lon1r - lon2r;
+        CT lon12 = lon1r - lon2r;
         math::normalize_longitude<radian, CT>(lon12);
 
         if (lon12 == pi || lon12 == -pi)
@@ -372,23 +375,19 @@ public:
 
         if (LongSegment && lat1r != lat2r) // not for segments parallel to equator
         {
-            CT cbet1 = cos(geometry::get_as_radian<1>(p1));
-            CT sbet1 = sin(geometry::get_as_radian<1>(p1));
-            CT cbet2 = cos(geometry::get_as_radian<1>(p2));
-            CT sbet2 = sin(geometry::get_as_radian<1>(p2));
+            CT cbet1 = cos(lat1r);
+            CT sbet1 = sin(lat1r);
+            CT cbet2 = cos(lat2r);
+            CT sbet2 = sin(lat2r);
 
-            CT omg12 = geometry::get_as_radian<0>(p1)
-                     - geometry::get_as_radian<0>(p2);
+            CT omg12 = lon1r - lon2r;
             CT comg12 = cos(omg12);
             CT somg12 = sin(omg12);
 
-            CT alp1 = atan2(cbet1 * sbet2
-                            - sbet1 * cbet2 * comg12,
-                            cbet2 * somg12);
-
-            CT alp2 = atan2(cbet1 * sbet2 * comg12
-                            - sbet1 * cbet2,
-                            cbet1 * somg12);
+            CT const cbet1_sbet2 = cbet1 * sbet2;
+            CT const sbet1_cbet2 = sbet1 * cbet2;
+            CT alp1 = atan2(cbet1_sbet2 - sbet1_cbet2 * comg12, cbet2 * somg12);
+            CT alp2 = atan2(cbet1_sbet2 * comg12 - sbet1_cbet2, cbet1 * somg12);
 
             excess = alp2 - alp1;
 
@@ -396,15 +395,11 @@ public:
 
             // Trapezoidal formula
 
-            CT tan_lat1 =
-                    tan(geometry::get_as_radian<1>(p1) / 2.0);
-            CT tan_lat2 =
-                    tan(geometry::get_as_radian<1>(p2) / 2.0);
+            CT tan_lat1 = tan(lat1r / c2);
+            CT tan_lat2 = tan(lat2r / c2);
 
-            excess = CT(2.0)
-                    * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
-                           * tan((geometry::get_as_radian<0>(p2)
-                                - geometry::get_as_radian<0>(p1)) / 2));
+            excess = c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))
+                   * tan((lon2r - lon1r) / c2));
         }
 
         return excess;
@@ -451,8 +446,13 @@ public:
 
         // Constants
 
+        CT const c0 = CT(0);
+        CT const c1 = CT(1);
+        CT const c2 = CT(2);
+        CT const pi = math::pi<CT>();
+        CT const half_pi = pi / c2;
         CT const ep = spheroid_const.m_ep;
-        CT const one_minus_f = CT(1) - spheroid_const.m_f;
+        CT const one_minus_f = c1 - spheroid_const.m_f;
 
         // Basic trigonometric computations
         // the compiler could optimize here using sincos function
@@ -486,10 +486,7 @@ public:
 
         CT excess;
 
-        auto const pi = math::pi<CT>();
-        auto const half_pi = pi / 2;
-
-        auto lon12 = lon1r-lon2r;
+        CT lon12 = lon1r - lon2r;
         math::normalize_longitude<radian, CT>(lon12);
 
         if (lon12 == pi || lon12 == -pi)
@@ -498,19 +495,18 @@ public:
         }
         else
         {
-            bool meridian = lon2r - lon1r == CT(0)
+            bool meridian = lon2r - lon1r == c0
                 || lat1r == half_pi || lat1r == -half_pi
                 || lat2r == half_pi || lat2r == -half_pi;
 
             if (!meridian && (i_res.distance)
                 < mean_radius<CT>(spheroid_const.m_spheroid) / CT(638))  // short segment
             {
-                CT tan_lat1 = tan(lat1r / 2.0);
-                CT tan_lat2 = tan(lat2r / 2.0);
+                CT tan_lat1 = tan(lat1r / c2);
+                CT tan_lat2 = tan(lat2r / c2);
 
-                excess = CT(2.0)
-                    * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
-                    * tan((lon2r - lon1r) / 2));
+                excess = c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))
+                       * tan((lon2r - lon1r) / c2));
             }
             else
             {
@@ -534,7 +530,7 @@ public:
 
         // Ellipsoidal term computation (uses integral approximation)
 
-        CT const cos_alp0 = math::sqrt(CT(1) - math::sqr(sin_alp0));
+        CT const cos_alp0 = math::sqrt(c1 - math::sqr(sin_alp0));
         //CT const cos_alp0 = hypot(cos_alp1, sin_alp1 * sin_bet1);
         CT cos_sig1 = cos_alp1 * cos_bet1;
         CT cos_sig2 = cos_alp2 * cos_bet2;
@@ -549,8 +545,8 @@ public:
         if (ExpandEpsN) // expand by eps and n
         {
             CT const k2 = math::sqr(ep * cos_alp0);
-            CT const sqrt_k2_plus_one = math::sqrt(CT(1) + k2);
-            CT const eps = (sqrt_k2_plus_one - CT(1)) / (sqrt_k2_plus_one + CT(1));
+            CT const sqrt_k2_plus_one = math::sqrt(c1 + k2);
+            CT const eps = (sqrt_k2_plus_one - c1) / (sqrt_k2_plus_one + c1);
 
             // Generate and evaluate the polynomials on eps (i.e. var2 = eps)
             // to get the final series coefficients
@@ -589,24 +585,22 @@ public:
     static inline bool crosses_prime_meridian(PointOfSegment const& p1,
                                               PointOfSegment const& p2)
     {
-        CT const pi
-            = geometry::math::pi<CT>();
-        CT const two_pi
-            = geometry::math::two_pi<CT>();
+        CT const pi = geometry::math::pi<CT>();
+        CT const two_pi = geometry::math::two_pi<CT>();
 
-        auto lon12 = get_as_radian<0>(p1) - get_as_radian<0>(p2);
+        CT const lon1r = get_as_radian<0>(p1);
+        CT const lon2r = get_as_radian<0>(p2);
+
+        CT lon12 = lon1r - lon2r;
         math::normalize_longitude<radian, CT>(lon12);
+
         if (lon12 == pi || lon12 == -pi)
         {
             return true;
         }
 
-        CT p1_lon = get_as_radian<0>(p1)
-                                - ( floor( get_as_radian<0>(p1) / two_pi )
-                                  * two_pi );
-        CT p2_lon = get_as_radian<0>(p2)
-                                - ( floor( get_as_radian<0>(p2) / two_pi )
-                                  * two_pi );
+        CT p1_lon = lon1r - ( floor( lon1r / two_pi ) * two_pi );
+        CT p2_lon = lon2r - ( floor( lon2r / two_pi ) * two_pi );
 
         CT max_lon = (std::max)(p1_lon, p2_lon);
         CT min_lon = (std::min)(p1_lon, p2_lon);
