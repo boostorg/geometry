@@ -13,8 +13,6 @@
 #define BOOST_GEOMETRY_FORMULAS_THOMAS_DIRECT_HPP
 
 
-#include <boost/math/constants/constants.hpp>
-
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/radius.hpp>
 

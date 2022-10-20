@@ -12,8 +12,6 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_MERIDIAN_SEGMENT_HPP
 #define BOOST_GEOMETRY_FORMULAS_MERIDIAN_SEGMENT_HPP
 
-#include <boost/math/constants/constants.hpp>
-
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>

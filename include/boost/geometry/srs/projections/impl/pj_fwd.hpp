@@ -45,8 +45,6 @@
 #include <boost/geometry/srs/projections/impl/adjlon.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
-#include <boost/math/constants/constants.hpp>
-
 /* general forward projection */
 
 namespace boost { namespace geometry { namespace projections {

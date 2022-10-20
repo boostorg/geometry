@@ -12,8 +12,6 @@
 #define BOOST_GEOMETRY_FORMULAS_SJOBERG_INTERSECTION_HPP
 
 
-#include <boost/math/constants/constants.hpp>
-
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>

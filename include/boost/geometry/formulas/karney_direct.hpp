@@ -33,8 +33,6 @@
 
 #include <boost/array.hpp>
 
-#include <boost/math/constants/constants.hpp>
-
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
 

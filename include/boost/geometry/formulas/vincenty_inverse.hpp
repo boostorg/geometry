@@ -16,8 +16,6 @@
 #define BOOST_GEOMETRY_FORMULAS_VINCENTY_INVERSE_HPP
 
 
-#include <boost/math/constants/constants.hpp>
-
 #include <boost/geometry/core/radius.hpp>
 
 #include <boost/geometry/util/condition.hpp>
