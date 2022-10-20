@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_AUTHALIC_RADIUS_SQR_HPP
 #define BOOST_GEOMETRY_FORMULAS_AUTHALIC_RADIUS_SQR_HPP
 
+#include <cmath>
+
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -20,8 +22,6 @@
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/algorithms/not_implemented.hpp>
-
-#include <boost/math/special_functions/atanh.hpp>
 
 namespace boost { namespace geometry
 {
@@ -71,7 +71,7 @@ struct authalic_radius_sqr<ResultType, Geometry, srs_spheroid_tag>
         //return a2 / c2 + b2 * boost::math::atanh(e) / (c2 * e);
 
         ResultType const c1 = 1;
-        return (a2 / c2) * ( c1 + (c1 - e2) * boost::math::atanh(e) / e );
+        return (a2 / c2) * ( c1 + (c1 - e2) * std::atanh(e) / e );
     }
 };
 
