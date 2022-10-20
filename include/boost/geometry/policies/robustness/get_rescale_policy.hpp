@@ -19,6 +19,7 @@
 #define BOOST_GEOMETRY_POLICIES_ROBUSTNESS_GET_RESCALE_POLICY_HPP
 
 
+#include <cmath>
 #include <cstddef>
 #include <type_traits>
 
@@ -75,7 +76,7 @@ inline void scale_box_to_integer_range(Box const& box,
     num_type const half = 0.5;
     if (math::equals(diff, num_type())
         || diff >= range
-        || ! boost::math::isfinite(diff))
+        || ! std::isfinite(diff))
     {
         factor = 1;
     }
