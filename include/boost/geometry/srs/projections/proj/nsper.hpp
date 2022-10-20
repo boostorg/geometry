@@ -40,6 +40,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_NSPER_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_NSPER_HPP
 
+#include <cmath>
+
 #include <boost/config.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
@@ -49,8 +51,6 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
@@ -161,7 +161,7 @@ namespace projections
                         xy_x = bm * this->m_proj_parm.cg + bq * this->m_proj_parm.sg;
                         xy_y = bq * this->m_proj_parm.cg - bm * this->m_proj_parm.sg;
                     }
-                    rh = boost::math::hypot(xy_x, xy_y);
+                    rh = std::hypot(xy_x, xy_y);
                     if ((sinz = 1. - rh * rh * this->m_proj_parm.pfact) < 0.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }

@@ -40,8 +40,9 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_TPEQD_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_TPEQD_HPP
 
+#include <cmath>
+
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
@@ -96,12 +97,12 @@ namespace projections
                 {
                     T cz1, cz2, s, d, cp, sp;
 
-                    cz1 = cos(boost::math::hypot(xy_y, xy_x + this->m_proj_parm.hz0));
-                    cz2 = cos(boost::math::hypot(xy_y, xy_x - this->m_proj_parm.hz0));
+                    cz1 = cos(std::hypot(xy_y, xy_x + this->m_proj_parm.hz0));
+                    cz2 = cos(std::hypot(xy_y, xy_x - this->m_proj_parm.hz0));
                     s = cz1 + cz2;
                     d = cz1 - cz2;
                     lp_lon = - atan2(d, (s * this->m_proj_parm.thz0));
-                    lp_lat = aacos(boost::math::hypot(this->m_proj_parm.thz0 * s, d) * this->m_proj_parm.rhshz0);
+                    lp_lat = aacos(std::hypot(this->m_proj_parm.thz0 * s, d) * this->m_proj_parm.rhshz0);
                     if ( xy_y < 0. )
                         lp_lat = - lp_lat;
                     /* lam--phi now in system relative to P1--P2 base equator */

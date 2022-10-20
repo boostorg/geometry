@@ -29,11 +29,11 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_KARNEY_DIRECT_HPP
 #define BOOST_GEOMETRY_FORMULAS_KARNEY_DIRECT_HPP
 
+#include <cmath>
 
 #include <boost/array.hpp>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
@@ -115,7 +115,7 @@ public:
 
         // Obtain alpha 0 by solving the spherical triangle.
         CT const sin_alpha0 = sin_alpha1 * cos_beta1;
-        CT const cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
+        CT const cos_alpha0 = std::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
         CT const k2 = math::sqr(cos_alpha0) * ep2;
 
@@ -178,7 +178,7 @@ public:
         {
             // Find the latitude at the second point.
             CT const sin_beta2 = cos_alpha0 * sin_sigma2;
-            CT const cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
+            CT const cos_beta2 = std::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
             result.lat2 = atan2(sin_beta2, one_minus_f * cos_beta2);
 

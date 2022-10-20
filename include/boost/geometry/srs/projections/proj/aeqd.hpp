@@ -44,7 +44,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_AEQD_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_AEQD_HPP
 
-
+#include <cmath>
 #include <type_traits>
 
 #include <boost/config.hpp>
@@ -61,8 +61,6 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 
 namespace boost { namespace geometry
@@ -144,7 +142,7 @@ namespace projections
             {
                 T c;
 
-                if ((c = boost::math::hypot(xy_x, xy_y)) < epsilon10) {
+                if ((c = std::hypot(xy_x, xy_y)) < epsilon10) {
                     lp_lat = par.phi0;
                     lp_lon = 0.;
                         return;
@@ -251,7 +249,7 @@ namespace projections
                     
                 T cosc, c_rh, sinc;
 
-                if ((c_rh = boost::math::hypot(xy_x, xy_y)) > pi) {
+                if ((c_rh = std::hypot(xy_x, xy_y)) > pi) {
                     if (c_rh - epsilon10 > pi)
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     c_rh = pi;

@@ -54,14 +54,14 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_ETMERC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_ETMERC_HPP
 
+#include <cmath>
+
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/function_overloads.hpp>
 #include <boost/geometry/srs/projections/impl/pj_param.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
@@ -100,7 +100,7 @@ namespace projections
             template <typename T>
             inline T asinhy(T const& x) {              /* Compute asinh(x) accurately */
                 T y = fabs(x);         /* Enforce odd parity */
-                y = log1py(y * (1 + y/(boost::math::hypot(1.0, y) + 1)));
+                y = log1py(y * (1 + y/(std::hypot(1.0, y) + 1)));
                 return x < 0 ? -y : y;
             }
 
@@ -184,7 +184,7 @@ namespace projections
                     cos_Ce = cos(Ce);
 
                     Cn     = atan2(sin_Cn, cos_Ce*cos_Cn);
-                    Ce     = atan2(sin_Ce*cos_Cn, boost::math::hypot(sin_Cn, cos_Cn*cos_Ce));
+                    Ce     = atan2(sin_Ce*cos_Cn, std::hypot(sin_Cn, cos_Cn*cos_Ce));
 
                     /* compl. sph. N, E -> ell. norm. N, E */
                     Ce  = asinhy(tan(Ce));     /* Replaces: Ce  = log(tan(fourth_pi + Ce*0.5)); */
@@ -219,7 +219,7 @@ namespace projections
                         sin_Ce = sin(Ce);
                         cos_Ce = cos(Ce);
                         Ce     = atan2(sin_Ce, cos_Ce*cos_Cn);
-                        Cn     = atan2(sin_Cn*cos_Ce, boost::math::hypot(sin_Ce, cos_Ce*cos_Cn));
+                        Cn     = atan2(sin_Cn*cos_Ce, std::hypot(sin_Ce, cos_Ce*cos_Cn));
                         /* Gaussian LAT, LNG -> ell. LAT, LNG */
                         lp_lat = gatg(this->m_proj_parm.cgb,  PROJ_ETMERC_ORDER, Cn);
                         lp_lon = Ce;

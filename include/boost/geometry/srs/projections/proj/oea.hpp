@@ -40,7 +40,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_OEA_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_OEA_HPP
 
-#include <boost/math/special_functions/hypot.hpp>
+#include <cmath>
 
 #include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
@@ -99,7 +99,7 @@ namespace projections
                     xp = 2. * sin(M);
                     yp = 2. * sin(N) * cos(M * this->m_proj_parm.two_r_m) / cos(M);
                     cAz = cos(Az = aatan2(xp, yp) - this->m_proj_parm.theta);
-                    z = 2. * aasin(0.5 * boost::math::hypot(xp, yp));
+                    z = 2. * aasin(0.5 * std::hypot(xp, yp));
                     sz = sin(z);
                     cz = cos(z);
                     lp_lat = aasin(this->m_proj_parm.sp0 * cz + this->m_proj_parm.cp0 * sz * cAz);

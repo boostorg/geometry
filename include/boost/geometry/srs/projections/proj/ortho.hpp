@@ -40,9 +40,10 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_ORTHO_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_ORTHO_HPP
 
+#include <cmath>
+
 #include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -125,7 +126,7 @@ namespace projections
 
                     T rh, cosc, sinc;
 
-                    if ((sinc = (rh = boost::math::hypot(xy_x, xy_y))) > 1.) {
+                    if ((sinc = (rh = std::hypot(xy_x, xy_y))) > 1.) {
                         if ((sinc - 1.) > epsilon10) {
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                         }

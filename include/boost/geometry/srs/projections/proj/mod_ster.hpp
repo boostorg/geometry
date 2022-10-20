@@ -40,8 +40,9 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_MOD_STER_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_MOD_STER_HPP
 
+#include <cmath>
+
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -125,7 +126,7 @@ namespace projections
                             break;
                     }
                     if (nn) {
-                        rh = boost::math::hypot(p.r, p.i);
+                        rh = std::hypot(p.r, p.i);
                         z = 2. * atan(.5 * rh);
                         sinz = sin(z);
                         cosz = cos(z);

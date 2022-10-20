@@ -30,9 +30,9 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_KARNEY_INVERSE_HPP
 #define BOOST_GEOMETRY_FORMULAS_KARNEY_INVERSE_HPP
 
+#include <cmath>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -641,7 +641,7 @@ public:
             sin_beta12 + cos_beta2 * sin_beta1 * math::sqr(sin_omega12) / (c1 + cos_omega12) :
             sin_beta12a - cos_beta2 * sin_beta1 * math::sqr(sin_omega12) / (c1 - cos_omega12);
 
-        CT sin_sigma12 = boost::math::hypot(sin_alpha1, cos_alpha1);
+        CT sin_sigma12 = std::hypot(sin_alpha1, cos_alpha1);
         CT cos_sigma12 = sin_beta1 * sin_beta2 + cos_beta1 * cos_beta2 * cos_omega12;
 
         if (shortline && sin_sigma12 < etol2)
@@ -864,7 +864,7 @@ public:
 
 
         CT sin_alpha0 = sin_alpha1 * cos_beta1;
-        CT cos_alpha0 = boost::math::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
+        CT cos_alpha0 = std::hypot(cos_alpha1, sin_alpha1 * sin_beta1);
 
         CT sin_omega1, cos_omega1;
         CT sin_omega2, cos_omega2;

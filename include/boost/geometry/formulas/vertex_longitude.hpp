@@ -12,12 +12,11 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_MAXIMUM_LONGITUDE_HPP
 #define BOOST_GEOMETRY_FORMULAS_MAXIMUM_LONGITUDE_HPP
 
+#include <cmath>
 
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -58,7 +57,7 @@ class vertex_longitude_on_spheroid
     template<typename T>
     static inline void normalize(T& x, T& y)
     {
-        T h = boost::math::hypot(x, y);
+        T h = std::hypot(x, y);
         x /= h;
         y /= h;
     }

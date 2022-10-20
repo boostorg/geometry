@@ -12,12 +12,13 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 #define BOOST_GEOMETRY_FORMULAS_AREA_FORMULAS_HPP
 
+#include <cmath>
+
 #include <boost/geometry/core/radian_access.hpp>
 #include <boost/geometry/formulas/flattening.hpp>
 #include <boost/geometry/formulas/mean_radius.hpp>
 #include <boost/geometry/formulas/karney_inverse.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry { namespace formula
 {
@@ -92,7 +93,7 @@ public:
     template<typename T>
     static inline void normalize(T& x, T& y)
     {
-        T h = boost::math::hypot(x, y);
+        T h = std::hypot(x, y);
         x /= h;
         y /= h;
     }

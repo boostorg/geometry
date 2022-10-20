@@ -40,9 +40,9 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_SCONICS_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_SCONICS_HPP
 
+#include <cmath>
 
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -134,7 +134,7 @@ namespace projections
                 {
                     T rho;
 
-                    rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho_0 - xy_y);
+                    rho = std::hypot(xy_x, xy_y = this->m_proj_parm.rho_0 - xy_y);
                     if (this->m_proj_parm.n < 0.) {
                         rho = - rho;
                         xy_x = - xy_x;

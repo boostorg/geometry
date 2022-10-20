@@ -40,6 +40,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_BIPC_HPP
 
+#include <cmath>
+
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
@@ -47,8 +49,6 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
@@ -186,7 +186,7 @@ namespace projections
                         c = C45;
                         Av = Azba;
                     }
-                    rl = rp = r = boost::math::hypot(xy_x, xy_y);
+                    rl = rp = r = std::hypot(xy_x, xy_y);
                     fAz = fabs(Az = atan2(xy_x, xy_y));
                     for (i = n_iter; i ; --i) {
                         z = 2. * atan(math::pow(r / F,T(1) / n));

@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_COORDINATES_HPP
 #define BOOST_GEOMETRY_UTIL_NORMALIZE_SPHEROIDAL_COORDINATES_HPP
 
+#include <cmath>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -414,7 +416,7 @@ formulas/vertex_longitude.hpp
 template<typename ValueType>
 inline void normalize_unit_vector(ValueType& x, ValueType& y)
 {
-    ValueType h = boost::math::hypot(x, y);
+    ValueType h = std::hypot(x, y);
 
     BOOST_GEOMETRY_ASSERT(h > 0);
 

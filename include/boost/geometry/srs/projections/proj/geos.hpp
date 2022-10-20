@@ -46,7 +46,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_GEOS_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_GEOS_HPP
 
-#include <boost/math/special_functions/hypot.hpp>
+#include <cmath>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -91,7 +91,7 @@ namespace projections
                 
                     /* Calculation of the three components of the vector from satellite to
                     ** position on earth surface (lon,lat).*/
-                    r = (this->m_proj_parm.radius_p) / boost::math::hypot(this->m_proj_parm.radius_p * cos (lp_lat), sin (lp_lat));
+                    r = (this->m_proj_parm.radius_p) / std::hypot(this->m_proj_parm.radius_p * cos (lp_lat), sin (lp_lat));
                     Vx = r * cos (lp_lon) * cos (lp_lat);
                     Vy = r * sin (lp_lon) * cos (lp_lat);
                     Vz = r * sin (lp_lat);
@@ -105,11 +105,11 @@ namespace projections
                     tmp = this->m_proj_parm.radius_g - Vx;
 
                     if(this->m_proj_parm.flip_axis) {
-                        xy_x = this->m_proj_parm.radius_g_1 * atan (Vy / boost::math::hypot (Vz, tmp));
+                        xy_x = this->m_proj_parm.radius_g_1 * atan (Vy / std::hypot (Vz, tmp));
                         xy_y = this->m_proj_parm.radius_g_1 * atan (Vz / tmp);
                     } else {
                         xy_x = this->m_proj_parm.radius_g_1 * atan (Vy / tmp);
-                        xy_y = this->m_proj_parm.radius_g_1 * atan (Vz / boost::math::hypot (Vy, tmp));
+                        xy_y = this->m_proj_parm.radius_g_1 * atan (Vz / std::hypot (Vy, tmp));
                     }
                 }
 
@@ -124,10 +124,10 @@ namespace projections
                         
                     if(this->m_proj_parm.flip_axis) {
                         Vz = tan (xy_y / this->m_proj_parm.radius_g_1);
-                        Vy = tan (xy_x / this->m_proj_parm.radius_g_1) * boost::math::hypot(1.0, Vz);
+                        Vy = tan (xy_x / this->m_proj_parm.radius_g_1) * std::hypot(1.0, Vz);
                     } else {
                         Vy = tan (xy_x / this->m_proj_parm.radius_g_1);
-                        Vz = tan (xy_y / this->m_proj_parm.radius_g_1) * boost::math::hypot(1.0, Vy);
+                        Vz = tan (xy_y / this->m_proj_parm.radius_g_1) * std::hypot(1.0, Vy);
                     }
 
                     /* Calculation of terms in cubic equation and determinant.*/
@@ -184,11 +184,11 @@ namespace projections
                     tmp = this->m_proj_parm.radius_g - Vx;
 
                     if(this->m_proj_parm.flip_axis) {
-                        xy_x = this->m_proj_parm.radius_g_1 * atan(Vy / boost::math::hypot(Vz, tmp));
+                        xy_x = this->m_proj_parm.radius_g_1 * atan(Vy / std::hypot(Vz, tmp));
                         xy_y = this->m_proj_parm.radius_g_1 * atan(Vz / tmp);
                     } else {
                         xy_x = this->m_proj_parm.radius_g_1 * atan(Vy / tmp);
-                        xy_y = this->m_proj_parm.radius_g_1 * atan(Vz / boost::math::hypot(Vy, tmp));
+                        xy_y = this->m_proj_parm.radius_g_1 * atan(Vz / std::hypot(Vy, tmp));
                     }
                 }
 

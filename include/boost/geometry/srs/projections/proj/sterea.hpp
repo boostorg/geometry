@@ -42,7 +42,7 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_STEREA_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_STEREA_HPP
 
-#include <boost/math/special_functions/hypot.hpp>
+#include <cmath>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -97,7 +97,7 @@ namespace projections
 
                     xy_x /= par.k0;
                     xy_y /= par.k0;
-                    if((rho = boost::math::hypot(xy_x, xy_y)) != 0.0) {
+                    if((rho = std::hypot(xy_x, xy_y)) != 0.0) {
                         c = 2. * atan2(rho, this->m_proj_parm.R2);
                         sinc = sin(c);
                         cosc = cos(c);

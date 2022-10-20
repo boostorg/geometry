@@ -40,6 +40,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_EQDC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_EQDC_HPP
 
+#include <cmath>
+
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
@@ -49,8 +51,6 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
@@ -100,7 +100,7 @@ namespace projections
 
                     T rho = 0.0;
 
-                    if ((rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
+                    if ((rho = std::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
                             xy_x = -xy_x;

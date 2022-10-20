@@ -40,9 +40,10 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_LAEA_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_LAEA_HPP
 
+#include <cmath>
+
 #include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -161,7 +162,7 @@ namespace projections
                     case obliq:
                         xy_x /= this->m_proj_parm.dd;
                         xy_y *=  this->m_proj_parm.dd;
-                        rho = boost::math::hypot(xy_x, xy_y);
+                        rho = std::hypot(xy_x, xy_y);
                         if (rho < epsilon10) {
                             lp_lon = 0.;
                             lp_lat = par.phi0;
@@ -259,7 +260,7 @@ namespace projections
 
                     T  cosz=0.0, rh, sinz=0.0;
 
-                    rh = boost::math::hypot(xy_x, xy_y);
+                    rh = std::hypot(xy_x, xy_y);
                     if ((lp_lat = rh * .5 ) > 1.) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }

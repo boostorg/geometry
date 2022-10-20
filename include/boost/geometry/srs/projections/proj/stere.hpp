@@ -40,9 +40,10 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_STERE_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_STERE_HPP
 
+#include <cmath>
+
 #include <boost/config.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -169,7 +170,7 @@ namespace projections
                     T mf = 0;
                     int i;
 
-                    rho = boost::math::hypot(xy_x, xy_y);
+                    rho = std::hypot(xy_x, xy_y);
                     switch (this->m_proj_parm.mode) {
                     case obliq:
                     case equit:
@@ -198,7 +199,7 @@ namespace projections
                                               sin(this->m_proj_parm.phits),
                                               par.e);
                             mf = this->m_proj_parm.akm1 * tf;
-                            rho = boost::math::hypot(xy_x, xy_y + mf);
+                            rho = std::hypot(xy_x, xy_y + mf);
                         }
                         phi_l = half_pi - 2. * atan(tp = - rho / this->m_proj_parm.akm1);
                         halfpi = -half_pi;
@@ -277,7 +278,7 @@ namespace projections
                 {
                     T  c, rh, sinc, cosc;
 
-                    sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
+                    sinc = sin(c = 2. * atan((rh = std::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
                     cosc = cos(c);
                     lp_lon = 0.;
 

@@ -40,6 +40,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_BONNE_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_BONNE_HPP
 
+#include <cmath>
+
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
@@ -48,8 +50,6 @@
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/math/special_functions/hypot.hpp>
 
 namespace boost { namespace geometry
 {
@@ -97,7 +97,7 @@ namespace projections
 
                     T s, rh;
 
-                    rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
+                    rh = std::hypot(xy_x, xy_y = this->m_proj_parm.am1 - xy_y);
                     lp_lat = pj_inv_mlfn(this->m_proj_parm.am1 + this->m_proj_parm.m1 - rh, par.es, this->m_proj_parm.en);
                     if ((s = fabs(lp_lat)) < half_pi) {
                         s = sin(lp_lat);
@@ -143,7 +143,7 @@ namespace projections
 
                     T rh;
 
-                    rh = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
+                    rh = std::hypot(xy_x, xy_y = this->m_proj_parm.cphi1 - xy_y);
                     lp_lat = this->m_proj_parm.cphi1 + this->m_proj_parm.phi1 - rh;
                     if (fabs(lp_lat) > half_pi) {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );

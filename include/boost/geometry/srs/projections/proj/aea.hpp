@@ -47,9 +47,10 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_AEA_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_AEA_HPP
 
+#include <cmath>
+
 #include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/util/math.hpp>
-#include <boost/math/special_functions/hypot.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
@@ -141,7 +142,7 @@ namespace projections
                     static const T half_pi = detail::half_pi<T>();
 
                     T rho = 0.0;
-                    if( (rho = boost::math::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
+                    if( (rho = std::hypot(xy_x, xy_y = this->m_proj_parm.rho0 - xy_y)) != 0.0 ) {
                         if (this->m_proj_parm.n < 0.) {
                             rho = -rho;
                             xy_x = -xy_x;
