@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2015-2021 Oracle and/or its affiliates.
+// Copyright (c) 2015-2022 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -356,7 +356,21 @@ public:
     {
         CT excess;
 
-        if (LongSegment) // not for segments parallel to equator
+        CT const lon1r = get_as_radian<0>(p1);
+        CT const lat1r = get_as_radian<1>(p1);
+        CT const lon2r = get_as_radian<0>(p2);
+        CT const lat2r = get_as_radian<1>(p2);
+
+        auto const pi = math::pi<CT>();
+        auto lon12 = lon1r - lon2r;
+        math::normalize_longitude<radian, CT>(lon12);
+
+        if (lon12 == pi || lon12 == -pi)
+        {
+            return pi;
+        }
+
+        if (LongSegment && lat1r != lat2r) // not for segments parallel to equator
         {
             CT cbet1 = cos(geometry::get_as_radian<1>(p1));
             CT sbet1 = sin(geometry::get_as_radian<1>(p1));
@@ -472,39 +486,51 @@ public:
 
         CT excess;
 
-        auto const half_pi = math::pi<CT>() / 2;
-        bool meridian = lon2r - lon1r == CT(0)
-            || lat1r == half_pi || lat1r == -half_pi
-            || lat2r == half_pi || lat2r == -half_pi;
+        auto const pi = math::pi<CT>();
+        auto const half_pi = pi / 2;
 
-        if (!meridian && (i_res.distance)
-            < mean_radius<CT>(spheroid_const.m_spheroid) / CT(638))  // short segment
+        auto lon12 = lon1r-lon2r;
+        math::normalize_longitude<radian, CT>(lon12);
+
+        if (lon12 == pi || lon12 == -pi)
         {
-            CT tan_lat1 = tan(lat1r / 2.0);
-            CT tan_lat2 = tan(lat2r / 2.0);
-
-            excess = CT(2.0)
-                * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
-                * tan((lon2r - lon1r) / 2));
+            result.spherical_term = pi;
         }
         else
         {
-            /* in some cases this formula gives more accurate results
-             *
-             *             CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
-            normalize(sin_omg12, cos_omg12);
+            bool meridian = lon2r - lon1r == CT(0)
+                || lat1r == half_pi || lat1r == -half_pi
+                || lat2r == half_pi || lat2r == -half_pi;
 
-            CT cos_omg12p1 = CT(1) + cos_omg12;
-            CT cos_bet1p1 = CT(1) + cos_bet1;
-            CT cos_bet2p1 = CT(1) + cos_bet2;
-            excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2 * cos_bet1p1),
-                                   cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
-            */
+            if (!meridian && (i_res.distance)
+                < mean_radius<CT>(spheroid_const.m_spheroid) / CT(638))  // short segment
+            {
+                CT tan_lat1 = tan(lat1r / 2.0);
+                CT tan_lat2 = tan(lat2r / 2.0);
 
-            excess = alp2 - alp1;
+                excess = CT(2.0)
+                    * atan(((tan_lat1 + tan_lat2) / (CT(1) + tan_lat1 * tan_lat2))
+                    * tan((lon2r - lon1r) / 2));
+            }
+            else
+            {
+                /* in some cases this formula gives more accurate results
+                    *
+                    *             CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
+                normalize(sin_omg12, cos_omg12);
+
+                CT cos_omg12p1 = CT(1) + cos_omg12;
+                CT cos_bet1p1 = CT(1) + cos_bet1;
+                CT cos_bet2p1 = CT(1) + cos_bet2;
+                excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2 * cos_bet1p1),
+                                        cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
+                */
+
+                excess = alp2 - alp1;
+            }
+
+            result.spherical_term = excess;
         }
-
-        result.spherical_term = excess;
 
         // Ellipsoidal term computation (uses integral approximation)
 
@@ -567,6 +593,13 @@ public:
             = geometry::math::pi<CT>();
         CT const two_pi
             = geometry::math::two_pi<CT>();
+
+        auto lon12 = get_as_radian<0>(p1) - get_as_radian<0>(p2);
+        math::normalize_longitude<radian, CT>(lon12);
+        if (lon12 == pi || lon12 == -pi)
+        {
+            return true;
+        }
 
         CT p1_lon = get_as_radian<0>(p1)
                                 - ( floor( get_as_radian<0>(p1) / two_pi )
