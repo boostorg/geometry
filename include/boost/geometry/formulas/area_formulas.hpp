@@ -342,6 +342,15 @@ public:
         }
     }
 
+    static inline CT trapezoidal_formula(CT lat1r, CT lat2r, CT lon21r)
+    {
+        CT const c1 = CT(1);
+        CT const c2 = CT(2);
+        CT tan_lat1 = tan(lat1r / c2);
+        CT tan_lat2 = tan(lat2r / c2);
+
+        return c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))* tan(lon21r / c2));
+    }
 
     /*
         Compute the spherical excess of a geodesic (or shperical) segment
@@ -354,8 +363,6 @@ public:
     static inline CT spherical(PointOfSegment const& p1,
                                PointOfSegment const& p2)
     {
-        CT const c1 = CT(1);
-        CT const c2 = CT(2);
         CT const pi = math::pi<CT>();
 
         CT excess;
@@ -365,10 +372,10 @@ public:
         CT const lon2r = get_as_radian<0>(p2);
         CT const lat2r = get_as_radian<1>(p2);
 
-        CT lon12 = lon1r - lon2r;
-        math::normalize_longitude<radian, CT>(lon12);
+        CT lon12r = lon1r - lon2r;
+        math::normalize_longitude<radian, CT>(lon12r);
 
-        if (lon12 == pi || lon12 == -pi)
+        if (lon12r == pi || lon12r == -pi)
         {
             return pi;
         }
@@ -393,13 +400,7 @@ public:
 
         } else {
 
-            // Trapezoidal formula
-
-            CT tan_lat1 = tan(lat1r / c2);
-            CT tan_lat2 = tan(lat2r / c2);
-
-            excess = c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))
-                   * tan((lon2r - lon1r) / c2));
+            excess = trapezoidal_formula(lat1r, lat2r, -lon12r);
         }
 
         return excess;
@@ -486,40 +487,35 @@ public:
 
         CT excess;
 
-        CT lon12 = lon1r - lon2r;
-        math::normalize_longitude<radian, CT>(lon12);
+        CT lon12r = lon1r - lon2r;
+        math::normalize_longitude<radian, CT>(lon12r);
 
-        if (lon12 == pi || lon12 == -pi)
+        if (lon12r == pi || lon12r == -pi)
         {
             result.spherical_term = pi;
         }
         else
         {
-            bool meridian = lon2r - lon1r == c0
+            bool meridian = lon12r == c0
                 || lat1r == half_pi || lat1r == -half_pi
                 || lat2r == half_pi || lat2r == -half_pi;
 
             if (!meridian && (i_res.distance)
                 < mean_radius<CT>(spheroid_const.m_spheroid) / CT(638))  // short segment
             {
-                CT tan_lat1 = tan(lat1r / c2);
-                CT tan_lat2 = tan(lat2r / c2);
-
-                excess = c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))
-                       * tan((lon2r - lon1r) / c2));
+                excess = trapezoidal_formula(lat1r, lat2r, -lon12r);
             }
             else
             {
                 /* in some cases this formula gives more accurate results
-                    *
-                    *             CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
+                CT sin_omg12 =  cos_omg1 * sin_omg2 - sin_omg1 * cos_omg2;
                 normalize(sin_omg12, cos_omg12);
 
                 CT cos_omg12p1 = CT(1) + cos_omg12;
                 CT cos_bet1p1 = CT(1) + cos_bet1;
                 CT cos_bet2p1 = CT(1) + cos_bet2;
                 excess = CT(2) * atan2(sin_omg12 * (sin_bet1 * cos_bet2p1 + sin_bet2 * cos_bet1p1),
-                                        cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
+                    cos_omg12p1 * (sin_bet1 * sin_bet2 + cos_bet1p1 * cos_bet2p1));
                 */
 
                 excess = alp2 - alp1;
