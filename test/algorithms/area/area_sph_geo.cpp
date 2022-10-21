@@ -6,8 +6,8 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015-2021.
-// Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2022.
+// Modifications copyright (c) 2015-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -54,30 +54,41 @@ namespace bg = boost::geometry;
 template <typename CT>
 void test_spherical_geo()
 {
-    typedef CT ct;
+    using ct = CT;
 
     //Geographic
 
-    typedef typename bg::model::point
+    using pt_geo = typename bg::model::point
         <
             ct, 2, bg::cs::geographic<bg::degree>
-        > pt_geo;
+        >;
 
-    bg::strategy::area::geographic
+    using pt_geo_d = bg::model::point
         <
-            bg::strategy::vincenty,
-            5
-        > area_geographic;
+            double, 2, bg::cs::geographic<bg::degree>
+        >;
+    using pt_geo_ld = bg::model::point
+        <
+            long double, 2, bg::cs::geographic<bg::degree>
+        >;
+
+    bg::strategy::area::geographic<bg::strategy::vincenty, 5> area_geographic;
+    bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
+    bg::strategy::area::geographic<bg::strategy::thomas> area_t;
+    bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
+    bg::strategy::area::geographic<bg::strategy::karney> area_k;
 
     bg::model::polygon<pt_geo> geometry_geo;
 
+
     //Spherical
 
-    typedef typename bg::model::point
+    using pt_sph = typename bg::model::point
         <
             ct, 2, bg::cs::spherical_equatorial<bg::degree>
-        > pt;
-    bg::model::polygon<pt> geometry;
+        >;
+
+    bg::model::polygon<pt_sph> geometry;
 
     // unit-sphere has area of 4-PI. Polygon covering 1/8 of it:
     std::string poly = "POLYGON((0 0,0 90,90 0,0 0))";
@@ -422,14 +433,14 @@ void test_spherical_geo()
     }
 
     {
-        bg::model::ring<pt> aurha; // a'dam-utr-rott.-den haag-a'dam
+        bg::model::ring<pt_sph> aurha; // a'dam-utr-rott.-den haag-a'dam
         std::string poly = "POLYGON((4.892 52.373,5.119 52.093,4.479 51.930,\
                                      4.23 52.08,4.892 52.373))";
         bg::read_wkt(poly, aurha);
         /*if (polar)
         {
             // Create colatitudes (measured from pole)
-            for (pt& p : aurha)
+            for (pt_sph& p : aurha)
             {
                 bg::set<1>(p, ct(90) - bg::get<1>(p));
             }
@@ -452,7 +463,7 @@ void test_spherical_geo()
     }
 
     {
-        bg::model::polygon<pt, false> geometry_sph;
+        bg::model::polygon<pt_sph, false> geometry_sph;
         std::string wkt = "POLYGON((0 0, 5 0, 5 5, 0 5, 0 0))";
         bg::read_wkt(wkt, geometry_sph);
 
@@ -471,7 +482,7 @@ void test_spherical_geo()
         // see https://github.com/boostorg/geometry/issues/799
         // geographiclib 1.50.1 returns: 25.5736
 
-        bg::model::polygon<pt> geometry;
+        bg::model::polygon<pt_sph> geometry;
         std::string wkt ="POLYGON((-0.020000 51.470027,-0.020031 51.470019,-0.020043 51.470000,\
                  -0.020031 51.469981,-0.020000 51.469973,-0.019969 51.469981,\
                  -0.019957 51.470000,-0.019969 51.470019,-0.020000 51.470027))";
@@ -485,20 +496,6 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area, -25.48014, 0.0001);
 
         //geographic
-
-        using pt_geo_d = bg::model::point
-            <
-                double, 2, bg::cs::geographic<bg::degree>
-            >;
-        using pt_geo_ld = bg::model::point
-            <
-                long double, 2, bg::cs::geographic<bg::degree>
-            >;
-
-        bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
-        bg::strategy::area::geographic<bg::strategy::thomas> area_t;
-        bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
-        bg::strategy::area::geographic<bg::strategy::karney> area_k;
 
         bg::model::polygon<pt_geo_d> geometry_geo_d;
 
@@ -529,7 +526,7 @@ void test_spherical_geo()
         // very small areas: ~2m^2
         // geographiclib 1.50.1 returns: 2.24581
 
-        bg::model::polygon<pt> geometry;
+        bg::model::polygon<pt_sph> geometry;
         std::string wkt ="POLYGON((0.020000 51.470027,0.020005 51.470027,\
             0.020005 51.470000,0.020007 51.4699,0.020000 51.470027))";
         bg::read_wkt(wkt, geometry);
@@ -542,20 +539,6 @@ void test_spherical_geo()
         BOOST_CHECK_CLOSE(area, 2.2375981058307093, 0.001);
 
         //geographic
-
-        using pt_geo_d = bg::model::point
-            <
-                double, 2, bg::cs::geographic<bg::degree>
-            >;
-        using pt_geo_ld = bg::model::point
-            <
-                long double, 2, bg::cs::geographic<bg::degree>
-            >;
-
-        bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
-        bg::strategy::area::geographic<bg::strategy::thomas> area_t;
-        bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
-        bg::strategy::area::geographic<bg::strategy::karney> area_k;
 
         bg::model::polygon<pt_geo_d> geometry_geo_d;
 
@@ -581,13 +564,314 @@ void test_spherical_geo()
         area = bg::area(geometry_geo_ld, area_k);
         BOOST_CHECK_CLOSE(area, 2.2458050314935392, 0.001);
     }
+}
 
+template <typename Poly>
+Poly generate_polygon_1()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    // Rotated by 90.0 - 0.00000000000001
+    Poly sp;
+    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.87671232876712253e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(8.38356164383561691e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.89041095890410986e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.39726027397260282e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.90410958904109719e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.41095890410958873e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.91780821917808240e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.42465753424657606e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506831e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.43835616438356126e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.94520547945205493e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.45205479452054860e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.95890410958904120e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.46575342465753415e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.97260273972602747e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.47945205479452060e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(9.86301369863013733e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506866e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.86301369863014976e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.47945205479451669e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.97260273972602853e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.46575342465753522e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.95890410958904191e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.45205479452054860e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.94520547945206062e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.43835616438356269e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.93150684931507470e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.42465753424657606e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.91780821917808240e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.41095890410958873e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.90410958904110146e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.39726027397260282e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.89041095890410418e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.38356164383561691e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.87671232876712253e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_2()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    // Rotated By 90
+    Poly sp;
+    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.87671232876712253e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(8.38356164383561691e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.89041095890410986e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.39726027397260282e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.90410958904109719e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.41095890410958873e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.91780821917808240e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.42465753424657606e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506831e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.43835616438356126e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.94520547945205493e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.45205479452054860e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.95890410958904120e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.46575342465753415e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.97260273972602747e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.47945205479452060e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(9.86301369863013733e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506866e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.86301369863014976e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.47945205479451669e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.97260273972602853e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.46575342465753522e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.95890410958904191e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.45205479452054860e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.94520547945206062e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.43835616438356269e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.93150684931507470e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.42465753424657606e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.91780821917808240e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.41095890410958873e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.90410958904110146e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.39726027397260282e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.89041095890410418e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.38356164383561691e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.87671232876712253e+01,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_3()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_4()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_5()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_6()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-8.999999999999142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.999999999999142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.999999999999142e+01,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_7()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(100,6.00172345808800074e+01));
+    sp.outer().push_back(PT(10,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_8()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(100,6.00172345808800074e+01));
+    sp.outer().push_back(PT(30,6.00000000000000071e+01));
+    sp.outer().push_back(PT(10,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_9()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    sp.outer().push_back(PT(90.0000000000000000000001,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename Poly>
+Poly generate_polygon_10()
+{
+    using PT = typename bg::point_type<Poly>::type;
+
+    Poly sp;
+    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    sp.outer().push_back(PT(89.9999999999999999,6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,6.00000000000000071e+01));
+    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    return sp;
+}
+
+template <typename PT, typename Strategy>
+void segment_through_pole(Strategy str, std::vector<double> results)
+{
+    // special cases with segments that pass through (or nearby) a pole
+    // see issue https://github.com/boostorg/geometry/issues/1063
+
+    using polygon = boost::geometry::model::polygon
+    <
+        PT,
+        true,   // clockwise
+        true,   // closed
+        std::vector,
+        std::vector,
+        std::allocator,
+        std::allocator
+    >;
+
+    {
+        auto sp = generate_polygon_1<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[0], 0.001);
+    }
+    {
+        auto sp = generate_polygon_2<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[0], 0.001);
+    }
+    {
+        auto sp = generate_polygon_3<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
+    {
+        auto sp = generate_polygon_4<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
+    {
+        auto sp = generate_polygon_5<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[2], 0.001);
+    }
+    {
+        auto sp = generate_polygon_6<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
+    {
+        auto sp = generate_polygon_7<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
+    {
+        auto sp = generate_polygon_8<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[3], 0.001);
+    }
+    {
+        auto sp = generate_polygon_9<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
+    {
+        auto sp = generate_polygon_10<polygon>();
+        auto area = bg::area(sp, str);
+        BOOST_CHECK_CLOSE(area, results[1], 0.001);
+    }
 }
 
 int test_main(int, char* [])
 {
 
     test_spherical_geo<double>();
+
+    using sph_pt = typename bg::model::point
+        <
+            double, 2, bg::cs::spherical_equatorial<bg::degree>
+        >;
+    bg::strategy::area::spherical<> sph_str;
+
+    std::vector<double> results_sph {0.4204069, 0.2865233, 0.2261384, 0.3206943};
+
+    segment_through_pole<sph_pt>(sph_str, results_sph);
+
+
+    using geo_pt = typename bg::model::point
+        <
+            double, 2, bg::cs::geographic<bg::degree>
+        >;
+
+    bg::strategy::area::geographic<bg::strategy::andoyer> area_a;
+    bg::strategy::area::geographic<bg::strategy::thomas> area_t;
+    bg::strategy::area::geographic<bg::strategy::vincenty> area_v;
+    bg::strategy::area::geographic<bg::strategy::karney> area_k;
+
+    std::vector<double> results_geo {17188025916331.664, 11713812318907.75, 9245554289678.4492,
+        13111012015900.15};
+
+    segment_through_pole<geo_pt>(area_a, results_geo);
+    segment_through_pole<geo_pt>(area_v, results_geo);
+    //NOTE: thomas strategy results in wrong results in some cases
+    //segment_through_pole<geo_pt>(area_t, results_geo);
+    segment_through_pole<geo_pt>(area_k, results_geo);
 
     return 0;
 }
