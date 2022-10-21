@@ -566,210 +566,220 @@ void test_spherical_geo()
     }
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_1()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     // Rotated by 90.0 - 0.00000000000001
     Poly sp;
-    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(9.00000000000000142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(8.87671232876712253e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(8.38356164383561691e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(7.89041095890410986e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(7.39726027397260282e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(6.90410958904109719e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(6.41095890410958873e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(5.91780821917808240e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(5.42465753424657606e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.93150684931506831e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.43835616438356126e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(3.94520547945205493e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(3.45205479452054860e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(2.95890410958904120e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(2.46575342465753415e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(1.97260273972602747e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(1.47945205479452060e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(9.86301369863013733e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.93150684931506866e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.86301369863014976e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-1.47945205479451669e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-1.97260273972602853e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-2.46575342465753522e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-2.95890410958904191e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-3.45205479452054860e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-3.94520547945206062e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-4.43835616438356269e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-4.93150684931507470e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-5.42465753424657606e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-5.91780821917808240e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-6.41095890410958873e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-6.90410958904110146e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-7.39726027397260282e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-7.89041095890410418e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-8.38356164383561691e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-8.87671232876712253e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.87671232876712253e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(8.38356164383561691e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.89041095890410986e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.39726027397260282e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.90410958904109719e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.41095890410958873e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.91780821917808240e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.42465753424657606e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506831e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.43835616438356126e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.94520547945205493e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.45205479452054860e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.95890410958904120e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.46575342465753415e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.97260273972602747e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.47945205479452060e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(9.86301369863013733e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506866e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.86301369863014976e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.47945205479451669e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.97260273972602853e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.46575342465753522e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.95890410958904191e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.45205479452054860e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.94520547945206062e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.43835616438356269e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.93150684931507470e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.42465753424657606e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.91780821917808240e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.41095890410958873e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.90410958904110146e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.39726027397260282e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.89041095890410418e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.38356164383561691e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.87671232876712253e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_2()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     // Rotated By 90
     Poly sp;
-    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(9.00000000000000000e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(8.87671232876712253e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(8.38356164383561691e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(7.89041095890410986e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(7.39726027397260282e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(6.90410958904109719e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(6.41095890410958873e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(5.91780821917808240e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(5.42465753424657606e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.93150684931506831e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.43835616438356126e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(3.94520547945205493e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(3.45205479452054860e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(2.95890410958904120e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(2.46575342465753415e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(1.97260273972602747e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(1.47945205479452060e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(9.86301369863013733e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(4.93150684931506866e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.86301369863014976e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-1.47945205479451669e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-1.97260273972602853e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-2.46575342465753522e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-2.95890410958904191e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-3.45205479452054860e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-3.94520547945206062e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-4.43835616438356269e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-4.93150684931507470e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-5.42465753424657606e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-5.91780821917808240e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-6.41095890410958873e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-6.90410958904110146e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-7.39726027397260282e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-7.89041095890410418e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-8.38356164383561691e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-8.87671232876712253e+01,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000000e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.87671232876712253e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(8.38356164383561691e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.89041095890410986e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(7.39726027397260282e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.90410958904109719e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(6.41095890410958873e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.91780821917808240e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(5.42465753424657606e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506831e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.43835616438356126e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.94520547945205493e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(3.45205479452054860e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.95890410958904120e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(2.46575342465753415e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.97260273972602747e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(1.47945205479452060e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(9.86301369863013733e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(4.93150684931506866e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.86301369863014976e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.47945205479451669e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-1.97260273972602853e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.46575342465753522e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-2.95890410958904191e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.45205479452054860e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-3.94520547945206062e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.43835616438356269e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-4.93150684931507470e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.42465753424657606e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-5.91780821917808240e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.41095890410958873e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-6.90410958904110146e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.39726027397260282e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-7.89041095890410418e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.38356164383561691e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.87671232876712253e+01,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_3()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(9.00000000000000142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.00000000000000142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000142e+01,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_4()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(9.00000000000000000e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-9.00000000000000000e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(9.00000000000000000e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-9.00000000000000000e+01,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_5()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
-    sp.outer().push_back(PT(80,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(80,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_6()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-8.999999999999142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(8.999999999999142e+01,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0.00000000000000000e+00,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-8.999999999999142e+01,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-8.999999999999142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(8.999999999999142e+01,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0.00000000000000000e+00,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-8.999999999999142e+01,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_7()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
-    sp.outer().push_back(PT(100,6.00172345808800074e+01));
-    sp.outer().push_back(PT(10,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(100,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(10,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_8()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
-    sp.outer().push_back(PT(100,6.00172345808800074e+01));
-    sp.outer().push_back(PT(30,6.00000000000000071e+01));
-    sp.outer().push_back(PT(10,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-80,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(100,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(30,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(10,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-80,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_9()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
-    sp.outer().push_back(PT(90.0000000000000000000001,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-90,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(90.0000000000000000000001,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-90,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename Poly>
+template <typename Poly, bool north>
 Poly generate_polygon_10()
 {
     using PT = typename bg::point_type<Poly>::type;
+    int const sign = north ? 1 : -1;
 
     Poly sp;
-    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
-    sp.outer().push_back(PT(89.9999999999999999,6.00172345808800074e+01));
-    sp.outer().push_back(PT(0,6.00000000000000071e+01));
-    sp.outer().push_back(PT(-90,6.00172345808800074e+01));
+    sp.outer().push_back(PT(-90,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(89.9999999999999999,sign*6.00172345808800074e+01));
+    sp.outer().push_back(PT(0,sign*6.00000000000000071e+01));
+    sp.outer().push_back(PT(-90,sign*6.00172345808800074e+01));
     return sp;
 }
 
-template <typename PT, typename Strategy>
+template <typename PT, bool north, typename Strategy>
 void segment_through_pole(Strategy str, std::vector<double> results)
 {
     // special cases with segments that pass through (or nearby) a pole
@@ -778,7 +788,7 @@ void segment_through_pole(Strategy str, std::vector<double> results)
     using polygon = boost::geometry::model::polygon
     <
         PT,
-        true,   // clockwise
+        north,   // clockwise
         true,   // closed
         std::vector,
         std::vector,
@@ -787,52 +797,52 @@ void segment_through_pole(Strategy str, std::vector<double> results)
     >;
 
     {
-        auto sp = generate_polygon_1<polygon>();
+        auto sp = generate_polygon_1<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[0], 0.001);
     }
     {
-        auto sp = generate_polygon_2<polygon>();
+        auto sp = generate_polygon_2<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[0], 0.001);
     }
     {
-        auto sp = generate_polygon_3<polygon>();
+        auto sp = generate_polygon_3<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
     {
-        auto sp = generate_polygon_4<polygon>();
+        auto sp = generate_polygon_4<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
     {
-        auto sp = generate_polygon_5<polygon>();
+        auto sp = generate_polygon_5<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[2], 0.001);
     }
     {
-        auto sp = generate_polygon_6<polygon>();
+        auto sp = generate_polygon_6<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
     {
-        auto sp = generate_polygon_7<polygon>();
+        auto sp = generate_polygon_7<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
     {
-        auto sp = generate_polygon_8<polygon>();
+        auto sp = generate_polygon_8<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[3], 0.001);
     }
     {
-        auto sp = generate_polygon_9<polygon>();
+        auto sp = generate_polygon_9<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
     {
-        auto sp = generate_polygon_10<polygon>();
+        auto sp = generate_polygon_10<polygon, north>();
         auto area = bg::area(sp, str);
         BOOST_CHECK_CLOSE(area, results[1], 0.001);
     }
@@ -851,7 +861,10 @@ int test_main(int, char* [])
 
     std::vector<double> results_sph {0.4204069, 0.2865233, 0.2261384, 0.3206943};
 
-    segment_through_pole<sph_pt>(sph_str, results_sph);
+    bool const north = true;
+    bool const south = false;
+    segment_through_pole<sph_pt, north>(sph_str, results_sph);
+    segment_through_pole<sph_pt, south>(sph_str, results_sph);
 
 
     using geo_pt = typename bg::model::point
@@ -867,11 +880,15 @@ int test_main(int, char* [])
     std::vector<double> results_geo {17188025916331.664, 11713812318907.75, 9245554289678.4492,
         13111012015900.15};
 
-    segment_through_pole<geo_pt>(area_a, results_geo);
-    segment_through_pole<geo_pt>(area_v, results_geo);
+    segment_through_pole<geo_pt, north>(area_a, results_geo);
+    segment_through_pole<geo_pt, north>(area_v, results_geo);
     //NOTE: thomas strategy results in wrong results in some cases
     //segment_through_pole<geo_pt>(area_t, results_geo);
-    segment_through_pole<geo_pt>(area_k, results_geo);
+    segment_through_pole<geo_pt, north>(area_k, results_geo);
+
+    segment_through_pole<geo_pt, south>(area_a, results_geo);
+    segment_through_pole<geo_pt, south>(area_v, results_geo);
+    segment_through_pole<geo_pt, south>(area_k, results_geo);
 
     return 0;
 }
