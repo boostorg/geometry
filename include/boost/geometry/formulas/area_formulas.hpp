@@ -372,7 +372,7 @@ public:
         CT const lon2r = get_as_radian<0>(p2);
         CT const lat2r = get_as_radian<1>(p2);
 
-        CT lon12r = lon1r - lon2r;
+        CT lon12r = lon2r - lon1r;
         math::normalize_longitude<radian, CT>(lon12r);
 
         if (lon12r == pi || lon12r == -pi)
@@ -387,7 +387,7 @@ public:
             CT cbet2 = cos(lat2r);
             CT sbet2 = sin(lat2r);
 
-            CT omg12 = lon1r - lon2r;
+            CT omg12 = lon2r - lon1r;
             CT comg12 = cos(omg12);
             CT somg12 = sin(omg12);
 
@@ -400,7 +400,7 @@ public:
 
         } else {
 
-            excess = trapezoidal_formula(lat1r, lat2r, -lon12r);
+            excess = trapezoidal_formula(lat1r, lat2r, lon12r);
         }
 
         return excess;
@@ -487,7 +487,7 @@ public:
 
         CT excess;
 
-        CT lon12r = lon1r - lon2r;
+        CT lon12r = lon2r - lon1r;
         math::normalize_longitude<radian, CT>(lon12r);
 
         if (lon12r == pi || lon12r == -pi)
@@ -503,7 +503,7 @@ public:
             if (!meridian && (i_res.distance)
                 < mean_radius<CT>(spheroid_const.m_spheroid) / CT(638))  // short segment
             {
-                excess = trapezoidal_formula(lat1r, lat2r, -lon12r);
+                excess = trapezoidal_formula(lat1r, lat2r, lon12r);
             }
             else
             {
@@ -587,7 +587,7 @@ public:
         CT const lon1r = get_as_radian<0>(p1);
         CT const lon2r = get_as_radian<0>(p2);
 
-        CT lon12 = lon1r - lon2r;
+        CT lon12 = lon2r - lon1r;
         math::normalize_longitude<radian, CT>(lon12);
 
         if (lon12 == pi || lon12 == -pi)
@@ -595,8 +595,8 @@ public:
             return true;
         }
 
-        CT p1_lon = lon1r - ( floor( lon1r / two_pi ) * two_pi );
-        CT p2_lon = lon2r - ( floor( lon2r / two_pi ) * two_pi );
+        CT p1_lon = lon1r - ( std::floor( lon1r / two_pi ) * two_pi );
+        CT p2_lon = lon2r - ( std::floor( lon2r / two_pi ) * two_pi );
 
         CT max_lon = (std::max)(p1_lon, p2_lon);
         CT min_lon = (std::min)(p1_lon, p2_lon);
