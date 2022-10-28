@@ -54,7 +54,7 @@ public :
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     //! Fills output_range with a flat end
-    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    template <typename Point, typename DistanceStrategy, typename RangeOut>
     inline void apply(Point const& penultimate_point,
                 Point const& perp_left_point,
                 Point const& ultimate_point,

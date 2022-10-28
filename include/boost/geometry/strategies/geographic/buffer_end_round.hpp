@@ -63,7 +63,7 @@ public :
     }
 
     //! Fills output_range with a round end
-    template <typename Point, typename RangeOut, typename DistanceStrategy>
+    template <typename Point, typename DistanceStrategy, typename RangeOut>
     inline void apply(Point const& penultimate_point, Point const& perp_left_point,
                       Point const& ultimate_point, Point const& perp_right_point,
                       buffer_side_selector side, DistanceStrategy const& distance,
