@@ -72,8 +72,8 @@ public :
     template
     <
         typename Point,
-        typename RangeOut,
-        typename DistanceStrategy
+        typename DistanceStrategy,
+        typename RangeOut
     >
     inline void apply(Point const& point,
                       DistanceStrategy const& distance_strategy,

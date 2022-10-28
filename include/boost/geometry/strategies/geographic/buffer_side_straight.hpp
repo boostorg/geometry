@@ -54,8 +54,8 @@ public :
     template
     <
         typename Point,
-        typename RangeOut,
-        typename DistanceStrategy
+        typename DistanceStrategy,
+        typename RangeOut
     >
     inline result_code apply(Point const& input_p1, Point const& input_p2,
                              buffer_side_selector side,
