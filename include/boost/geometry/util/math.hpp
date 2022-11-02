@@ -861,14 +861,14 @@ inline void sin_cos_degrees(T const& x,
     // the argument to the range [-45, 45] before converting it to radians.
 
     T remainder = math::mod(x, T(360));
-    T quotient = std::floor(remainder / T(90) + T(0.5));
+    T const quotient = std::floor(remainder / T(90) + T(0.5));
     remainder -= T(90) * quotient;
 
     // Convert to radians.
     remainder *= d2r<T>();
 
-    T s = sin(remainder);
-    T c = cos(remainder);
+    T const s = sin(remainder);
+    T const c = cos(remainder);
 
     switch (unsigned(quotient) & 3U)
     {
