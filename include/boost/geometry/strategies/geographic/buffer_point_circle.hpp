@@ -61,10 +61,9 @@ class geographic_point_circle
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle Number of points for a full circle
-    //! (if points_per_circle is smaller than 3, it is internally set to 3)
-    explicit geographic_point_circle(std::size_t points_per_circle = 90)
-        : m_points_per_circle((points_per_circle < 3u) ? 3u : points_per_circle)
+    //! \param count Number of points (minimum 3) for the created circle
+    explicit geographic_point_circle(std::size_t count = default_points_per_circle)
+        : m_count(get_point_count_for_circle(count))
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -97,10 +96,10 @@ public :
         calc_t const two_pi = geometry::math::two_pi<calc_t>();
         calc_t const pi = geometry::math::pi<calc_t>();
 
-        calc_t const diff = two_pi / calc_t(m_points_per_circle);
+        calc_t const diff = two_pi / calc_t(m_count);
         calc_t angle = -pi;
 
-        for (std::size_t i = 0; i < m_points_per_circle; i++, angle += diff)
+        for (std::size_t i = 0; i < m_count; i++, angle += diff)
         {
             // If angle is zero, shift angle a tiny bit to avoid spikes.
             calc_t const eps = angle == 0 ? 1.0e-10 : 0.0;
@@ -116,7 +115,7 @@ public :
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    std::size_t m_points_per_circle;
+    std::size_t m_count;
     Spheroid m_spheroid;
 };
 

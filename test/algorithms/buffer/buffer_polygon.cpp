@@ -715,11 +715,11 @@ void test_all()
                 sharp_triangle,
                 join_round(12), end_flat, distance(1.0), side_strategy, point_strategy,
                 29.1604);
-        // Test very various number of points (min is 3)
+        // Test very various number of points (min is 4)
         test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j2",
                 sharp_triangle,
                 join_round(2), end_flat, distance(1.0), side_strategy, point_strategy,
-                27.2399);
+                28.6161);
         test_with_custom_strategies<polygon_type, polygon_type>("sharp_triangle_j5",
                 sharp_triangle,
                 join_round(5), end_flat, distance(1.0), side_strategy, point_strategy,
@@ -758,10 +758,6 @@ void test_all()
 
         // Right triangles, testing both points around sharp corner as well as points
         // around right corners in join_round strategy
-        test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j3",
-                right_triangle,
-                join_round(3), end_flat, distance(1.0), side_strategy, point_strategy,
-                53.0240);
         test_with_custom_strategies<polygon_type, polygon_type>("right_triangle_j4",
                 right_triangle,
                 join_round(4), end_flat, distance(1.0), side_strategy, point_strategy,

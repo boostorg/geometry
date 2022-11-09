@@ -38,10 +38,9 @@ class geographic_end_round
 public :
 
     //! \brief Constructs the strategy
-    //! \param points_per_circle Number of points which would be used for a full circle
-    //! (if points_per_circle is smaller than 4, it is internally set to 4)
-    explicit inline geographic_end_round(std::size_t points_per_circle = 90)
-        : m_points_per_circle((points_per_circle < 4u) ? 4u : points_per_circle)
+    //! \param points_per_circle Number of points (minimum 4) that would be used for a full circle
+    explicit inline geographic_end_round(std::size_t points_per_circle = default_points_per_circle)
+        : m_points_per_circle(get_point_count_for_end(points_per_circle))
     {}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
