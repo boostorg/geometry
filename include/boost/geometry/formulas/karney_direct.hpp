@@ -82,10 +82,10 @@ public:
     {
         result_type result;
 
-        CT lon1 = lo1;
-        CT const lat1 = la1;
+        CT lon1 = lo1 * math::r2d<CT>();
+        CT const lat1 = la1 * math::r2d<CT>();
 
-        Azi azi12 = azimuth12;
+        Azi azi12 = azimuth12 * math::r2d<CT>();
         math::normalize_azimuth<degree, Azi>(azi12);
 
         CT const c0 = 0;
@@ -169,9 +169,6 @@ public:
             CT const cos_alpha2 = cos_alpha0 * cos_sigma2;
 
             result.reverse_azimuth = atan2(sin_alpha2, cos_alpha2);
-
-            // Convert the angle to radians.
-            result.reverse_azimuth /= math::d2r<CT>();
         }
 
         if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
@@ -181,9 +178,6 @@ public:
             CT const cos_beta2 = boost::math::hypot(sin_alpha0, cos_alpha0 * cos_sigma2);
 
             result.lat2 = atan2(sin_beta2, one_minus_f * cos_beta2);
-
-            // Convert the coordinate to radians.
-            result.lat2 /= math::d2r<CT>();
 
             // Find the longitude at the second point.
             CT const sin_omega2 = sin_alpha0 * sin_sigma2;
@@ -224,6 +218,8 @@ public:
             // otherwise differential quantities are calculated incorrectly.
             // But here it's ok since result.lon2 is not used after this point.
             math::normalize_longitude<degree, CT>(result.lon2);
+
+            result.lon2 *= math::d2r<CT>();
         }
 
         if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
