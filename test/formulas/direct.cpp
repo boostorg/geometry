@@ -48,9 +48,12 @@ inline expected_results symmetric_wrt_origin(expected_results r)
 }
 
 template <typename Result>
-void check_direct(Result const& result, expected_result const& expected, expected_result const& reference,
+void check_direct(Result& result, expected_result const& expected, expected_result const& reference,
                   double reference_error, bool check_reference_only = false)
 {
+    result.lon2 *= r2d;
+    result.lat2 *= r2d;
+    result.reverse_azimuth *= r2d;
     check_direct_sph(result, expected, reference, reference_error, check_reference_only);
     check_one(result.reduced_length, expected.reduced_length, reference.reduced_length, reference_error);
     check_one(result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale, reference_error);
@@ -75,10 +78,6 @@ void test_all(expected_results const& results)
     double distance = results.distance;
     double azi12r = results.azimuth12 * d2r;
 
-    double lon1d = results.p1.lon;
-    double lat1d = results.p1.lat;
-    double azi12d = results.azimuth12;
-
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
     bg::srs::sphere<double> const sphere;
@@ -87,23 +86,14 @@ void test_all(expected_results const& results)
 
     typedef bg::formula::vincenty_direct<double, true, true, true, true> vi_t;
     result = vi_t::apply(lon1r, lat1r, distance, azi12r, spheroid);
-    result.lon2 *= r2d;
-    result.lat2 *= r2d;
-    result.reverse_azimuth *= r2d;
     check_direct(result, results.vincenty, results.karney, 0.00000001);
 
     typedef bg::formula::thomas_direct<double, true, true, true, true, true> th_t;
     result = th_t::apply(lon1r, lat1r, distance, azi12r, spheroid);
-    result.lon2 *= r2d;
-    result.lat2 *= r2d;
-    result.reverse_azimuth *= r2d;
     check_direct(result, results.thomas, results.karney, 0.0000001);
 
     typedef bg::formula::thomas_direct<double, false, true, true, true, true> th_t1st;
     result = th_t1st::apply(lon1r, lat1r, distance, azi12r, spheroid);
-    result.lon2 *= r2d;
-    result.lat2 *= r2d;
-    result.reverse_azimuth *= r2d;
     check_direct(result, results.thomas1st, results.karney, 0.0000001);
 /*
     typedef bg::formula::series_expansion_direct<double, true, true, true, true, 4> series;
@@ -115,13 +105,10 @@ void test_all(expected_results const& results)
 */
     result = bg::formula::spherical_direct<true, true>(lon1r, lat1r, distance,
                                                        azi12r, sphere);
-    result.lon2 *= r2d;
-    result.lat2 *= r2d;
-    result.reverse_azimuth *= r2d;
     check_direct_sph(result, results.spherical, results.karney, 0.1);
 
     typedef bg::formula::karney_direct<double, true, true, true, true, 2> ka_t;
-    result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
+    result = ka_t::apply(lon1r, lat1r, distance, azi12r, spheroid);
     check_direct(result, results.karney, results.karney, 0.0000001);
 
 #ifdef BOOST_GEOEMTRY_TEST_WITH_GEOGRAPHICLIB
@@ -140,10 +127,11 @@ void test_all(expected_results const& results)
 
 void test_karney_antipodal(expected_results_antipodal const& results)
 {
-    double lon1d = results.p1.lon;
-    double lat1d = results.p1.lat;
+    double const r2d = bg::math::r2d<double>();
+    double lon1r = results.p1.lon * bg::math::d2r<double>();
+    double lat1r = results.p1.lat * bg::math::d2r<double>();
     double distance = results.distance;
-    double azi12d = results.azimuth12;
+    double azi12r = results.azimuth12 * bg::math::d2r<double>();
 
     // WGS84
     bg::srs::spheroid<double> spheroid(6378137.0, 6356752.3142451793);
@@ -151,7 +139,7 @@ void test_karney_antipodal(expected_results_antipodal const& results)
     bg::formula::result_direct<double> result;
 
     typedef bg::formula::karney_direct<double, true, true, true, true, 8> ka_t;
-    result = ka_t::apply(lon1d, lat1d, distance, azi12d, spheroid);
+    result = ka_t::apply(lon1r, lat1r, distance, azi12r, spheroid);
     check_direct(result, results.karney, results.karney, 0.0000001, true);
 }
 
