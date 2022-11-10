@@ -51,18 +51,19 @@ template <typename Result>
 void check_direct(Result& result, expected_result const& expected, expected_result const& reference,
                   double reference_error, bool check_reference_only = false)
 {
-    result.lon2 *= r2d;
-    result.lat2 *= r2d;
-    result.reverse_azimuth *= r2d;
     check_direct_sph(result, expected, reference, reference_error, check_reference_only);
     check_one(result.reduced_length, expected.reduced_length, reference.reduced_length, reference_error);
     check_one(result.geodesic_scale, expected.geodesic_scale, reference.geodesic_scale, reference_error);
 }
 
 template <typename Result>
-void check_direct_sph(Result const& result, expected_result const& expected, expected_result const& reference,
+void check_direct_sph(Result& result, expected_result const& expected, expected_result const& reference,
                       double reference_error, bool check_reference_only = false)
 {
+    double const r2d = bg::math::r2d<double>();
+    result.lon2 *= r2d;
+    result.lat2 *= r2d;
+    result.reverse_azimuth *= r2d;
     check_one(result.lon2, expected.lon2, reference.lon2, reference_error, true, check_reference_only);
     check_one(result.lat2, expected.lat2, reference.lat2, reference_error, true, check_reference_only);
     check_one(result.reverse_azimuth, expected.reverse_azimuth, reference.reverse_azimuth, reference_error, true, check_reference_only);
@@ -71,7 +72,6 @@ void check_direct_sph(Result const& result, expected_result const& expected, exp
 void test_all(expected_results const& results)
 {
     double const d2r = bg::math::d2r<double>();
-    double const r2d = bg::math::r2d<double>();
 
     double lon1r = results.p1.lon * d2r;
     double lat1r = results.p1.lat * d2r;
@@ -127,7 +127,6 @@ void test_all(expected_results const& results)
 
 void test_karney_antipodal(expected_results_antipodal const& results)
 {
-    double const r2d = bg::math::r2d<double>();
     double lon1r = results.p1.lon * bg::math::d2r<double>();
     double lat1r = results.p1.lat * bg::math::d2r<double>();
     double distance = results.distance;
