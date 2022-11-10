@@ -79,7 +79,7 @@
 
 [/Templates]
 [template concept[name type]
-The [name] Concept describes the requirements for a [type] type. 
+The [name] Concept describes the requirements for a [type] type.
 All algorithms in Boost.Geometry will check any geometry arguments against the concept requirements.
 ]
 
@@ -129,7 +129,7 @@ Boost.Geometry contains contributions by:
 [include design_rationale.qbk]
 [include quickstart.qbk]
 
-[section Spatial Indexes] 
+[section Spatial Indexes]
 [include index/index.qbk]
 [endsect]
 
@@ -140,12 +140,11 @@ Boost.Geometry contains contributions by:
 '''<index><title/></index>'''
 [endsect]
 
-[section Examples] 
+[section Examples]
 [include example_adapting_a_legacy_geometry_object_model.qbk]
 [endsect]
 
 [include release_notes.qbk]
 
-[/ TODO: [include guidelines.qbk] /]
 [include about_documentation.qbk]
 [include acknowledgments.qbk]
