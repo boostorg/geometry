@@ -96,13 +96,13 @@ inline void copy_boundary_points(Point const& front_pt, Point const& back_pt,
         {
             mutable_point_type pt;
             geometry::convert(front_pt, pt);
-            boundary_points.push_back(front_pt);
+            boundary_points.push_back(pt);
         }
         if (! geometry::has_nan_coordinate(back_pt))
         {
             mutable_point_type pt;
             geometry::convert(back_pt, pt);
-            boundary_points.push_back(back_pt);
+            boundary_points.push_back(pt);
         }
     }
 }
@@ -178,9 +178,11 @@ public:
             m_is_filled = true;
         }
 
+        mutable_point_type mpt;
+        geometry::convert(pt, mpt);
         auto const equal_range = std::equal_range(m_boundary_points.begin(),
                                                   m_boundary_points.end(),
-                                                  pt,
+                                                  mpt,
                                                   less_type());
 
         std::size_t const equal_points_count = boost::size(equal_range);
