@@ -5,8 +5,9 @@
 // Contributed and/or modified by Adeel Ahmad,
 //   as part of Google Summer of Code 2018 program.
 
-// This file was modified by Oracle on 2018-2020.
-// Modifications copyright (c) 2018-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2022.
+// Modifications copyright (c) 2018-2022 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
