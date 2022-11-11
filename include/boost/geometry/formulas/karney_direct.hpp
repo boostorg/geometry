@@ -152,10 +152,9 @@ public:
         // Index zero element of coeffs_C1p is unused.
         se::coeffs_C1p<SeriesOrder, CT> const coeffs_C1p(epsilon);
 
-        CT const B12 = - se::sin_cos_series
-                             (sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
-                              cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
-                              coeffs_C1p);
+        CT const B12 = - se::sin_cos_series(sin_tau1 * cos_tau12 + cos_tau1 * sin_tau12,
+                                            cos_tau1 * cos_tau12 - sin_tau1 * sin_tau12,
+                                            coeffs_C1p);
 
         CT const sigma12 = tau12 - (B12 - B11);
         CT const sin_sigma12 = sin(sigma12);
@@ -196,15 +195,11 @@ public:
 
             CT const B31 = se::sin_cos_series(sin_sigma1, cos_sigma1, coeffs_C3);
 
-            CT const lam12 = omega12 + A3c *
-                             (sigma12 + (se::sin_cos_series
-                                             (sin_sigma2,
-                                              cos_sigma2,
-                                              coeffs_C3) - B31));
+            CT const sin_cos_res = se::sin_cos_series(sin_sigma2, cos_sigma2, coeffs_C3);
+            CT const lam12 = omega12 + A3c * (sigma12 + (sin_cos_res - B31));
 
-            // Convert to radians to get the
-            // longitudinal difference.
-            CT lon12 = lam12 / math::d2r<CT>();
+            // Convert to degrees to get the longitudinal difference.
+            CT lon12 = lam12 * math::r2d<CT>();
 
             // Add the longitude at first point to the longitudinal
             // difference and normalize the result.
