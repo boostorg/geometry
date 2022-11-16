@@ -490,6 +490,7 @@ public:
         CT lon12r = lon2r - lon1r;
         math::normalize_longitude<radian, CT>(lon12r);
 
+        // Comparing with "==" works with all test cases here, but could potential create numerical issues
         if (lon12r == pi || lon12r == -pi)
         {
             result.spherical_term = pi;
@@ -590,6 +591,7 @@ public:
         CT lon12 = lon2r - lon1r;
         math::normalize_longitude<radian, CT>(lon12);
 
+        // Comparing with "==" works with all test cases here, but could potential create numerical issues
         if (lon12 == pi || lon12 == -pi)
         {
             return true;
