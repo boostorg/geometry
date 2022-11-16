@@ -346,8 +346,8 @@ public:
     {
         CT const c1 = CT(1);
         CT const c2 = CT(2);
-        CT tan_lat1 = tan(lat1r / c2);
-        CT tan_lat2 = tan(lat2r / c2);
+        CT const tan_lat1 = tan(lat1r / c2);
+        CT const tan_lat2 = tan(lat2r / c2);
 
         return c2 * atan(((tan_lat1 + tan_lat2) / (c1 + tan_lat1 * tan_lat2))* tan(lon21r / c2));
     }
@@ -382,19 +382,19 @@ public:
 
         if (LongSegment && lat1r != lat2r) // not for segments parallel to equator
         {
-            CT cbet1 = cos(lat1r);
-            CT sbet1 = sin(lat1r);
-            CT cbet2 = cos(lat2r);
-            CT sbet2 = sin(lat2r);
+            CT const cbet1 = cos(lat1r);
+            CT const sbet1 = sin(lat1r);
+            CT const cbet2 = cos(lat2r);
+            CT const sbet2 = sin(lat2r);
 
-            CT omg12 = lon2r - lon1r;
-            CT comg12 = cos(omg12);
-            CT somg12 = sin(omg12);
+            CT const omg12 = lon2r - lon1r;
+            CT const comg12 = cos(omg12);
+            CT const somg12 = sin(omg12);
 
             CT const cbet1_sbet2 = cbet1 * sbet2;
             CT const sbet1_cbet2 = sbet1 * cbet2;
-            CT alp1 = atan2(cbet1_sbet2 - sbet1_cbet2 * comg12, cbet2 * somg12);
-            CT alp2 = atan2(cbet1_sbet2 * comg12 - sbet1_cbet2, cbet1 * somg12);
+            CT const alp1 = atan2(cbet1_sbet2 - sbet1_cbet2 * comg12, cbet2 * somg12);
+            CT const alp2 = atan2(cbet1_sbet2 * comg12 - sbet1_cbet2, cbet1 * somg12);
 
             excess = alp2 - alp1;
 
@@ -496,7 +496,7 @@ public:
         }
         else
         {
-            bool meridian = lon12r == c0
+            bool const meridian = lon12r == c0
                 || lat1r == half_pi || lat1r == -half_pi
                 || lat2r == half_pi || lat2r == -half_pi;
 
@@ -595,11 +595,11 @@ public:
             return true;
         }
 
-        CT p1_lon = lon1r - ( std::floor( lon1r / two_pi ) * two_pi );
-        CT p2_lon = lon2r - ( std::floor( lon2r / two_pi ) * two_pi );
+        CT const p1_lon = lon1r - ( std::floor( lon1r / two_pi ) * two_pi );
+        CT const p2_lon = lon2r - ( std::floor( lon2r / two_pi ) * two_pi );
 
-        CT max_lon = (std::max)(p1_lon, p2_lon);
-        CT min_lon = (std::min)(p1_lon, p2_lon);
+        CT const max_lon = (std::max)(p1_lon, p2_lon);
+        CT const min_lon = (std::min)(p1_lon, p2_lon);
 
         return max_lon > pi && min_lon < pi && max_lon - min_lon > pi;
     }
