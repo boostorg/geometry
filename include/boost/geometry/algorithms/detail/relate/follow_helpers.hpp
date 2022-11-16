@@ -30,6 +30,8 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 
+#include <type_traits>
+
 namespace boost { namespace geometry
 {
 
@@ -42,7 +44,7 @@ namespace detail { namespace relate {
 template <std::size_t OpId,
           typename Geometry,
           typename Tag = typename geometry::tag<Geometry>::type,
-          bool IsMulti = boost::is_base_of<multi_tag, Tag>::value
+          bool IsMulti = std::is_base_of<multi_tag, Tag>::value
 >
 struct for_each_disjoint_geometry_if
     : public not_implemented<Tag>
@@ -171,7 +173,7 @@ public:
 
     bool operator()(segment_identifier const& sid) const
     {
-        return sid.multi_index == sid_ptr->multi_index;                
+        return sid.multi_index == sid_ptr->multi_index;
     }
 
     template <typename Point>
