@@ -23,9 +23,9 @@
 [heading Boost 1.81]
 [/=================]
 
-[*Major improvements]
+[*Solved issues]
 
-* [@https://github.com/boostorg/geometry/pull/1045 1045] Support geographic buffer for linestrings (side, joins)
+* [@https://github.com/boostorg/geometry/issues/1076 1076] Union: in rare cases it might miss one polygon
 
 [/=================]
 [heading Boost 1.80]
