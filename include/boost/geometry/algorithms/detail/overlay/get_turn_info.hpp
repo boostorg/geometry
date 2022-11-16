@@ -25,7 +25,6 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
 
 #include <boost/geometry/util/condition.hpp>
@@ -589,12 +588,14 @@ struct touch : public base_turn_handler
         // >----->P     qj is LEFT of P1 and pi is LEFT of Q2
         //              (the other way round is also possible)
 
-        auto const dm_qj_p1 = get_distance_measure(range_p.at(0), range_p.at(1), range_q.at(1),
-                                                   umbrella_strategy);
-        auto const dm_pi_q2 = get_distance_measure(range_q.at(1), range_q.at(2), range_p.at(0),
-                                                   umbrella_strategy);
+        auto has_distance = [&](const auto& r1, const auto& r2) -> bool
+        {
+            auto const d1 = get_distance_measure(r1.at(0), r1.at(1), r2.at(1), umbrella_strategy);
+            auto const d2 = get_distance_measure(r2.at(1), r2.at(2), r1.at(0), umbrella_strategy);
+            return d1.measure > 0 && d2.measure > 0;
+        };
 
-        if (dm_qj_p1.measure > 0 && dm_pi_q2.measure > 0)
+        if (has_distance(range_p, range_q))
         {
             // Even though there is a touch, Q(j) is left of P1
             // and P(i) is still left from Q2.
@@ -607,12 +608,7 @@ struct touch : public base_turn_handler
             return true;
         }
 
-        auto const dm_pj_q1 = get_distance_measure(range_q.at(0), range_q.at(1), range_p.at(1),
-                                                   umbrella_strategy);
-        auto const dm_qi_p2 = get_distance_measure(range_p.at(1), range_p.at(2), range_q.at(0),
-                                                   umbrella_strategy);
-
-        if (dm_pj_q1.measure > 0 && dm_qi_p2.measure > 0)
+        if (has_distance(range_q, range_p))
         {
             // Even though there is a touch, Q(j) is left of P1
             // and P(i) is still left from Q2.
