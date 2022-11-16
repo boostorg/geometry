@@ -107,6 +107,8 @@ void check_result(IntersectionOutput const& intersection_output,
             << " type: " << (type_for_assert_message<G1, G2>()));
     }
 
+    boost::ignore_unused(n);
+
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
     // Without rescaling, point count might easily differ (which is no problem)

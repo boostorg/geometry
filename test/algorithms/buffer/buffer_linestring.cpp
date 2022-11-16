@@ -391,9 +391,7 @@ void test_all()
     test_one<linestring, polygon>("mysql_25662426a_left_1", mysql_25662426a, join_round32, end_round32, 30.1214, 1.0, settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_2", mysql_25662426a, join_round32, end_round32, 66.4858, 2.0, ut_settings(0.01, false), 0.0); // It has a self touching point
     test_one<linestring, polygon>("mysql_25662426a_left_3", mysql_25662426a, join_round32, end_round32, 108.3305, 3.0, settings, 0.0);
-//#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     test_one<linestring, polygon>("mysql_25662426a_left_4", mysql_25662426a, join_round32, end_round32, 155.5128, 4.0, specific_settings, 0.0);
-//#endif
     test_one<linestring, polygon>("mysql_25662426a_left_5", mysql_25662426a, join_round32, end_round32, 208.1289, 5.0, specific_settings, 0.0);
     test_one<linestring, polygon>("mysql_25662426a_left_10", mysql_25662426a, join_round32, end_round32, 554.8818, 10.0, specific_settings, 0.0);
 
