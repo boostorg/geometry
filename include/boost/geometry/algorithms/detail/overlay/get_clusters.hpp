@@ -35,20 +35,29 @@ namespace detail { namespace overlay
 template <typename Tag = no_rescale_policy_tag, bool Integral = false>
 struct sweep_equal_policy
 {
+private:
+    template <typename T>
+    static inline T threshold()
+    {
+        // Tuned by cases of #1081. It should just be one epsilon to distinguish between
+        // different turn-points and real colocated clusters.
+        return T(1);
+    }
+public:
+    // Returns true if point are considered equal (within an epsilon)
     template <typename P>
     static inline bool equals(P const& p1, P const& p2)
     {
-        // Points within a kilo epsilon are considered as equal
         using coor_t = typename coordinate_type<P>::type;
-        return approximately_equals(p1, p2, coor_t(1000));
+        return approximately_equals(p1, p2, threshold<coor_t>());
     }
 
     template <typename T>
     static inline bool exceeds(T value)
     {
         // This threshold is an arbitrary value
-        // as long as it is than the used kilo-epsilon
-        T const limit = T(1) / T(1000);
+        // as long as it is bigger than the used value above
+        T const limit = T(1) / threshold<T>();
         return value > limit;
     }
 };

@@ -447,6 +447,15 @@ void test_areal()
     TEST_UNION(issue_1076, 1, 0, -1, 1225.0);
     TEST_UNION_REV(issue_1076, 1, 0, -1, 1225.0);
 
+    TEST_UNION(issue_1081a, 1, 2, -1, 1600.56);
+    TEST_UNION_REV(issue_1081a, 1, 2, -1, 1600.56);
+
+    TEST_UNION(issue_1081b, 1, 2, -1, 1600.56);
+    TEST_UNION_REV(issue_1081b, 1, 2, -1, 1600.56);
+
+    TEST_UNION(issue_1081c, 1, 1, -1, 2338.08);
+    TEST_UNION_REV(issue_1081c, 1, 1, -1, 2338.08);
+
     {
         // Rescaling produces an invalid result
         ut_settings settings;

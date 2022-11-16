@@ -26,6 +26,7 @@
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/1076 1076] Union: in rare cases it might miss one polygon
+* [@https://github.com/boostorg/geometry/issues/1081 1081] Union: due to precision it might miss interior rings
 
 [/=================]
 [heading Boost 1.80]
