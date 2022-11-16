@@ -43,5 +43,4 @@ namespace boost { namespace geometry { namespace traits {
 
 }}}
 
-
 #endif
