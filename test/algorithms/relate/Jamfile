@@ -16,7 +16,7 @@
 
 test-suite boost-geometry-algorithms-relate
     :
-    [ run relate_const.cpp              : : : : algorithms_relate_const ]
+    [ run relate_const_custom.cpp       : : : : algorithms_relate_const_custom ]
     [ run relate_areal_areal.cpp        : : : : algorithms_relate_areal_areal ]
     [ run relate_areal_areal_sph.cpp    : : : : algorithms_relate_areal_areal_sph ]
     [ run relate_linear_areal.cpp       : : : : algorithms_relate_linear_areal ]

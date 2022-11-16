@@ -8,6 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <test_geometries/const_point.hpp>
+#include <test_geometries/custom_cartesian_point.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/crosses.hpp>
@@ -39,7 +40,6 @@ void test_relate_const(Geometry1 const &geometry1, Geometry2 const &geometry2,
     BOOST_CHECK_EQUAL(exp_within, bg::within(geometry1, geometry2));
 }
 
-
 int test_main(int, char* [])
 {
     ring_of_const_point const rectangle{{2, 2}, {2, 4}, {4, 4}, {4, 2}, {2, 2}};
@@ -58,6 +58,17 @@ int test_main(int, char* [])
 
     // linear/linear
     test_relate_const(horizontal, diagonal, false, true, false, true, false, false, false, false);
+
+    custom_cartesian_line l;
+    custom_cartesian_polygon poly;
+    bg::covered_by(l, poly);
+    bg::crosses(l, poly);
+    bg::disjoint(l, poly);
+    bg::intersects(l, poly);
+    bg::overlaps(l, poly);
+    bg::touches(l, poly);
+    bg::relate(l, poly, bg::de9im::mask("F0F******"));
+    bg::within(l, poly);
 
     return 0;
 }
