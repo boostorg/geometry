@@ -31,18 +31,6 @@
 namespace boost { namespace geometry { namespace concepts
 {
 
-
-/*!
-\brief multi-polygon concept
-\ingroup concepts
-\par Formal definition:
-The multi polygon concept is defined as following:
-- there must be a specialization of traits::tag defining multi_polygon_tag
-  as type
-- it must behave like a Boost.Range
-- its range value must fulfil the Polygon concept
-
-*/
 template <typename Geometry>
 class MultiPolygon
 {
