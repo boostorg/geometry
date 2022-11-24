@@ -25,8 +25,16 @@
 
 [*Solved issues]
 
+* [@https://github.com/boostorg/geometry/issues/1048 1048] Index: Fix dangling references when Indexable is returned by value by IndexableGetter
 * [@https://github.com/boostorg/geometry/issues/1076 1076] Union: in rare cases it might miss one polygon
 * [@https://github.com/boostorg/geometry/issues/1081 1081] Union: due to precision it might miss interior rings
+
+[*Bugfixes]
+
+* [@https://github.com/boostorg/geometry/issues/1063 1063] Intersection: fix a bug in intersection of simple spherical polygons
+* [@https://github.com/boostorg/geometry/issues/1064 1064] Formulas: fix a consistency issue in geodesic direct formulas
+* [@https://github.com/boostorg/geometry/issues/1088 1088] Point: Fix regression for custom point types
+* Various fixes for missing include files, warnings, C++20 compilation errors and documentation
 
 [/=================]
 [heading Boost 1.80]
