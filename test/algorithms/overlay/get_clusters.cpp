@@ -68,7 +68,7 @@ void do_test(std::string const& case_id,
 }
 
 template <typename Point>
-void test_get_clusters(typename bg::coordinate_type<Point>::type eps)
+void test_get_clusters()
 {
     do_test<Point>("no", {{1.0, 1.0}, {1.0, 2.0}}, 0);
     do_test<Point>("simplex", {{1.0, 1.0}, {1.0, 1.0}}, 1);
@@ -80,8 +80,11 @@ void test_get_clusters(typename bg::coordinate_type<Point>::type eps)
                    6);
     do_test<Point>("buffer3", {{6.41421356237, 5},{6.41421356236, 5},{6.70710678119, 5.29289321881},{6.41421356237, 5},{6, 5},{6.41421356238, 5},{7, 5},{8, 10},{8.41421356237, 10},{8, 9.58578643763},{8.41421356237, 10},{7.41421356237, 9},{7.41421356237, 9},{7, 5.58578643763},{7, 5.58578643763},{6, 5},{6, 5},{6, 5},{6, 5},{6, 5},{6, 6},{4, 6},{4, 6},{3.41421356237, 3},{3, 5},{6, 5},{5, 3},{4, 6},{4, 6},{4, 7},{4, 8},{10.9142135624, 5.5},{8, 5},{10.4142135624, 5},{8, 5},{8, 3.58578643763},{8, 5},{9.41421356237, 7},{9.41421356237, 7},{8.91421356237, 7.5},{10, 7},{8, 9},{7.41421356237, 9},{11, 7}},
                    8);
+}
 
-    // Border cases
+template <typename Point>
+void test_get_clusters_border_cases(typename bg::coordinate_type<Point>::type eps)
+{
     do_test<Point>("borderx_no",  {{1, 1}, {1, 2}, {1 + eps * 10, 1}}, 0);
     do_test<Point>("borderx_yes", {{1, 1}, {1, 2}, {1 + eps, 1}}, 1);
     do_test<Point>("bordery_no",  {{1, 1}, {2, 1}, {1 + eps * 10, 1}}, 0);
@@ -93,8 +96,18 @@ int test_main(int, char* [])
     using fp = bg::model::point<float, 2, bg::cs::cartesian>;
     using dp = bg::model::point<double, 2, bg::cs::cartesian>;
     using ep = bg::model::point<long double, 2, bg::cs::cartesian>;
-    test_get_clusters<fp>(1.0e-4);
-    test_get_clusters<dp>(1.0e-13);
-    test_get_clusters<ep>(1.0e-16);
+
+    test_get_clusters<fp>();
+    test_get_clusters<dp>();
+    test_get_clusters<ep>();
+
+    // This constant relates to the threshold in get_clusters,
+    // which is now return T(1) (earlier it was 1000)
+    double const multiplier = 1.0 / 1000.0;
+
+    test_get_clusters_border_cases<fp>(1.0e-4 * multiplier);
+    test_get_clusters_border_cases<dp>(1.0e-13 * multiplier);
+    test_get_clusters_border_cases<ep>(1.0e-16 * multiplier);
+
     return 0;
 }

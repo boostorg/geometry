@@ -67,8 +67,9 @@ void test_all()
         1, 5, 8.0);
 
     {
+        // Sym difference works, but expectations are different for rescaling
         ut_settings settings;
-        settings.validity_false_negative_sym = true;
+        settings.sym_difference = false;
         test_one<polygon, polygon, polygon>("star_comb_15",
             star_comb_15[0], star_comb_15[1],
             30, -1, 227.658275102812,
@@ -597,7 +598,7 @@ void test_all()
     {
         ut_settings settings;
         settings.validity_false_negative_sym = true;
-        TEST_DIFFERENCE_WITH(mysql_23023665_13, 3, 99.74526, 3, 37.74526, 6, settings);
+        TEST_DIFFERENCE_WITH(mysql_23023665_13, 3, 99.74526, 3, 37.74526, count_set(5, 6), settings);
     }
 }
 
