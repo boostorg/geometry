@@ -20,8 +20,6 @@
 [section:release_notes Release Notes]
 
 [/=================]
-<<<<<<< HEAD
-=======
 [heading Boost 1.81]
 [/=================]
 
@@ -63,7 +61,6 @@
 * Various fixes in for each, projections and index
 
 [/=================]
->>>>>>> fdb545128 ([overlay] fix cluster by adapting tolerance)
 [heading Boost 1.79]
 [/=================]
 
