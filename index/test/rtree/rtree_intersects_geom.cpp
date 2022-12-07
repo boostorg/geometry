@@ -26,7 +26,7 @@ void test_all()
 
     bgi::rtree<Value, Params> rt;
     std::vector<Value> found;
-    
+
     rt.query(bgi::intersects(Point()), back_inserter(found));
     rt.query(bgi::intersects(Seg()), back_inserter(found));
     rt.query(bgi::intersects(Box()), back_inserter(found));
@@ -50,6 +50,6 @@ int test_main(int, char* [])
     test_all< Box, Pt, bgi::linear<16> >();
     test_all< Box, Pt, bgi::quadratic<4> >();
     test_all< Box, Pt, bgi::rstar<4> >();
-    
+
     return 0;
 }

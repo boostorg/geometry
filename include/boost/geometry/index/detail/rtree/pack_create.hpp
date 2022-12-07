@@ -190,7 +190,7 @@ public:
                        TmpAlloc const& temp_allocator)
     {
         typedef typename std::iterator_traits<InIt>::difference_type diff_type;
-            
+
         diff_type diff = std::distance(first, last);
         if ( diff <= 0 )
             return node_pointer(0);
@@ -206,7 +206,7 @@ public:
         entries.reserve(values_count);
 
         auto const& strategy = index::detail::get_strategy(parameters);
-        
+
         expandable_box<box_type, strategy_type> hint_box(strategy);
         for ( ; first != last ; ++first )
         {
@@ -369,7 +369,7 @@ private:
         rtree::elements(in).reserve(nodes_count);                                                           // MAY THROW (A)
         // calculate values box and copy values
         expandable_box<box_type, strategy_type> elements_box(detail::get_strategy(parameters));
-        
+
         per_level_packets(first, last, hint_box, values_count, subtree_counts, next_subtree_counts,
                           rtree::elements(in), elements_box,
                           parameters, translator, allocators);
@@ -414,7 +414,7 @@ private:
             elements_box.expand(el.first);
             return;
         }
-        
+
         size_type median_count = calculate_median_count(values_count, subtree_counts);
         EIt median = first + median_count;
 
@@ -424,7 +424,7 @@ private:
         box_type left, right;
         pack_utils::nth_element_and_half_boxes<0, dimension>
             ::apply(first, median, last, hint_box, left, right, greatest_dim_index);
-        
+
         per_level_packets(first, median, left,
                           median_count, subtree_counts, next_subtree_counts,
                           elements, elements_box,

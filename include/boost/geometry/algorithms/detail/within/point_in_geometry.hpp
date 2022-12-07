@@ -204,7 +204,7 @@ struct point_in_geometry<Polygon, polygon_tag>
         {
             typename interior_return_type<Polygon const>::type
                 rings = interior_rings(polygon);
-            
+
             for (typename detail::interior_iterator<Polygon const>::type
                  it = boost::begin(rings);
                  it != boost::end(rings);

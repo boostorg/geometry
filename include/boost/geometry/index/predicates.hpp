@@ -423,7 +423,7 @@ operator&&(std::tuple<Preds...> const& t, Pred const& p)
                 std::tuple<Preds...>, Pred
             >::apply(t, p);
 }
-    
+
 }} // namespace detail::predicates
 
 }}} // namespace boost::geometry::index

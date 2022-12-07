@@ -208,7 +208,7 @@ struct gc_gc
             {
                 tuple1_t tuple1;
                 tuple2_t tuple2;
-                
+
                 // Create MPts, MLss and MPos containing all gc elements from this group
                 // They may potentially intersect each other
                 for (auto const& id : inters_group)
@@ -269,7 +269,7 @@ struct gc_gc
 
                 // If needed divide MLss into two parts:
                 // - inside Areal of other GC
-                // - outside of other GC Areal to check WRT Linear of other GC                
+                // - outside of other GC Areal to check WRT Linear of other GC
                 mls2_t mls2_diff_mpo1, mls2_inters_mpo1;
                 bool is_mls2_divided = false;
                 mls1_t mls1_diff_mpo2, mls1_inters_mpo2;
@@ -284,7 +284,7 @@ struct gc_gc
                         geometry::intersection(mls2, mpo1, mls2_inters_mpo1);
                         is_mls2_divided = true;
                     }
-                    // L/LA                
+                    // L/LA
                     if (! geometry::is_empty(mpo2))
                     {
                         geometry::difference(mls1, mpo2, mls1_diff_mpo2);

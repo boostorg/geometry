@@ -29,7 +29,7 @@ namespace dispatch
 {
 
 template <typename Tag, typename G>
-struct write_wkb 
+struct write_wkb
 {
 };
 
@@ -101,8 +101,8 @@ inline bool write_wkb(const G& geometry, OutputIterator iter)
 }
 
 // 	template <typename G, typename OutputIterator>
-// 	inline bool write_wkb(G& geometry, OutputIterator iter, 
-// 		detail::wkb::byte_order_type::enum_t source_byte_order, 
+// 	inline bool write_wkb(G& geometry, OutputIterator iter,
+// 		detail::wkb::byte_order_type::enum_t source_byte_order,
 // 		detail::wkb::byte_order_type::enum_t target_byte_order)
 // 	{
 // 		// The WKB is written to an OutputIterator.
@@ -112,7 +112,7 @@ inline bool write_wkb(const G& geometry, OutputIterator iter)
 // 			typename std::iterator_traits<OutputIterator>::iterator_category,
 // 			const std::output_iterator_tag&
 // 			>::value));
-// 
+//
 // 		if
 // 			(
 // 			!dispatch::write_wkb
@@ -124,7 +124,7 @@ inline bool write_wkb(const G& geometry, OutputIterator iter)
 // 		{
 // 			return false;
 // 		}
-// 
+//
 // 		return true;
 // 	}
 

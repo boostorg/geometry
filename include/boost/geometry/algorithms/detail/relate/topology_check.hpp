@@ -200,7 +200,7 @@ private:
                     <
                         typename boost::range_value<MultiLinestring const>::type const
                     >::type point_reference;
-                
+
                 point_reference front_pt = range::front(ls);
                 point_reference back_pt = range::back(ls);
 
@@ -341,7 +341,7 @@ struct topology_check<MultiPolygon, Strategy, multi_polygon_tag>
     : topology_check_areal
 {
     topology_check(MultiPolygon const&, Strategy const&) {}
-    
+
     template <typename Point>
     static bool check_boundary_point(Point const& ) { return true; }
 };

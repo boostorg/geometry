@@ -40,7 +40,7 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
-       
+
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
@@ -183,7 +183,7 @@ inline auto azimuth(Point1 const& point1, Point2 const& point2)
 {
     concepts::check<Point1 const>();
     concepts::check<Point2 const>();
-    
+
     return resolve_strategy::azimuth
             <
                 default_strategy

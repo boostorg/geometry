@@ -125,7 +125,7 @@ public:
     {
         return r.m_impl.is_end();
     }
-    
+
 private:
     visitors::spatial_query_incremental<MembersHolder, Predicates> m_impl;
 };
@@ -217,7 +217,7 @@ public:
     virtual ~query_iterator_base() {}
 
     virtual query_iterator_base * clone() const = 0;
-    
+
     virtual bool is_end() const = 0;
     virtual reference dereference() const = 0;
     virtual void increment() = 0;

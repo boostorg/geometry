@@ -131,7 +131,7 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
     {
         throwing_varray_settings::reset_calls_counter();
         throwing_varray_settings::set_max_calls(10000);
-        
+
         Tree tree(parameters);
 
         throwing_varray_settings::reset_calls_counter();
@@ -154,7 +154,7 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
         BOOST_CHECK_EQUAL(throwing_nodes_stats::internal_nodes_count(), 0u);
         BOOST_CHECK_EQUAL(throwing_nodes_stats::leafs_count(), 0u);
     }
-    
+
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
         throwing_varray_settings::reset_calls_counter();
@@ -171,7 +171,7 @@ void test_rtree_elements_exceptions(Parameters const& parameters = Parameters())
 
         BOOST_CHECK(bgi::detail::rtree::utilities::are_counts_ok(tree, false));
     }
-    
+
     for ( size_t i = 0 ; i < 50 ; i += 2 )
     {
         throwing_varray_settings::reset_calls_counter();

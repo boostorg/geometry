@@ -302,7 +302,7 @@ public:
 
         using has_valid_turns =  has_valid_self_turns
             <
-                MultiPolygon, 
+                MultiPolygon,
                 typename Strategy::cs_tag
             >;
 

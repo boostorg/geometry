@@ -55,7 +55,7 @@ inline Box elements_box(FwdIter first, FwdIter last, Translator const& tr,
                         Strategy const& strategy)
 {
     Box result;
-    
+
     // Only here to suppress 'uninitialized local variable used' warning
     // until the suggestion below is not implemented
     geometry::assign_inverse(result);

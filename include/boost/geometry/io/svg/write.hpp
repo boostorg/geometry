@@ -99,7 +99,7 @@ struct svg_segment
         ct y1 = geometry::get<0, 1>(segment);
         ct x2 = geometry::get<1, 0>(segment);
         ct y2 = geometry::get<1, 1>(segment);
-        
+
         os << "<line x1=\"" << x1 << "\" y1=\"" << y1
             << "\" x2=\"" << x2 << "\" y2=\"" << y2
             << "\" style=\"" << style << "\"/>";

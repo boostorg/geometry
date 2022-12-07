@@ -177,7 +177,7 @@ struct print_tree_v : boost::static_visitor<>
     template <typename C>
     void operator()(C & c) const
     {
-        bgi::detail::rtree::utilities::print(std::cout, c.tree);        
+        bgi::detail::rtree::utilities::print(std::cout, c.tree);
     }
 };
 template <typename Cont>
@@ -282,7 +282,7 @@ void query_path()
         search_path[2 * i] = P(x-w, yy);
         search_path[2 * i + 1] = P(x+w, yy);
     }
-        
+
     found_count = query(cont, bgi::detail::path<LS>(search_path, count));
 
     if ( found_count > 0 )
@@ -354,9 +354,9 @@ void query_ring()
     search_ring.push_back(P(x - 3*w/2, y));
     search_ring.push_back(P(x - w, y - h/2));
     search_ring.push_back(P(x - w, y - h));
-        
+
     found_count = query(cont, Predicate(search_ring));
-    
+
     if ( found_count > 0 )
     {
         std::cout << "search ring: ";
@@ -474,7 +474,7 @@ void query_multi_poly()
     search_multi_poly[2].outer().push_back(P(x + 6*w/5, y + 6*h/5));
 
     found_count = query(cont, Predicate(search_multi_poly));
-    
+
     if ( found_count > 0 )
     {
         std::cout << "search multi_poly[0] outer: ";
@@ -506,7 +506,7 @@ void query_segment()
     boost::geometry::set<1, 1>(search_segment, y + h);
 
     found_count = query(cont, Predicate(search_segment));
-    
+
     if ( found_count > 0 )
     {
         std::cout << "search segment: ";
@@ -539,7 +539,7 @@ void query_linestring()
     }
 
     found_count = query(cont, Predicate(search_linestring));
-    
+
     if ( found_count > 0 )
     {
         std::cout << "search linestring: ";
@@ -699,7 +699,7 @@ void draw_ring(Range const& range)
 
     // search box
     glBegin(GL_LINE_LOOP);
-    
+
     BOOST_FOREACH(P const& p, range)
     {
         float x = boost::geometry::get<0>(p);
@@ -783,11 +783,11 @@ void resize(int w, int h)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     /*gluLookAt(
-        120.0f, 120.0f, 120.0f, 
+        120.0f, 120.0f, 120.0f,
         50.0f, 50.0f, -1.0f,
         0.0f, 1.0f, 0.0f);*/
     gluLookAt(
-        50.0f, 50.0f, 75.0f, 
+        50.0f, 50.0f, 75.0f,
         50.0f, 50.0f, -1.0f,
         0.0f, 1.0f, 0.0f);
 
@@ -831,7 +831,7 @@ struct insert_random_value_v : boost::static_visitor<>
     {
         V v;
         rand_val(v);
-        
+
         boost::geometry::index::insert(c.tree, v);
         c.values.push_back(v);
 
@@ -1058,7 +1058,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
                 query_mode = qm_lsi;
             else if ( current_line == "path" )
                 query_mode = qm_path;
-            
+
             search();
             glutPostRedisplay();
         }

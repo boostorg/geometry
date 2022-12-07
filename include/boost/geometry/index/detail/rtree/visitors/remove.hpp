@@ -157,7 +157,7 @@ public:
     {
         typedef typename rtree::elements_type<leaf>::type elements_type;
         elements_type & elements = rtree::elements(n);
-        
+
         // find value and remove it
         for ( typename elements_type::iterator it = elements.begin() ; it != elements.end() ; ++it )
         {

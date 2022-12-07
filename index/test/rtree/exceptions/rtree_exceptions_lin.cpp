@@ -13,8 +13,8 @@ int test_main(int, char* [])
 {
     test_rtree_value_exceptions< bgi::linear<4, 2> >();
     test_rtree_value_exceptions(bgi::dynamic_linear(4, 2));
-    
+
     test_rtree_elements_exceptions< bgi::linear_throwing<4, 2> >();
-    
+
     return 0;
 }

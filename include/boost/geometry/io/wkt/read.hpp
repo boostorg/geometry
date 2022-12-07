@@ -552,8 +552,8 @@ inline bool initialize(tokenizer::iterator& it,
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
-#pragma warning(push)  
-#pragma warning(disable : 4127)  
+#pragma warning(push)
+#pragma warning(disable : 4127)
 #endif
 
     if (has_z && dimension<Geometry>::value < 3)
@@ -570,7 +570,7 @@ inline bool initialize(tokenizer::iterator& it,
         return false;
     }
     // M is ignored at all.
-    
+
     return true;
 }
 

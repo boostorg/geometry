@@ -107,7 +107,7 @@ struct ring_area
         auto const end = boost::end(view);
 
         strategy_type const strategy = strategies.area(ring);
-        typename strategy_type::template state<Ring> state;        
+        typename strategy_type::template state<Ring> state;
 
         for (auto previous = it++; it != end; ++previous, ++it)
         {

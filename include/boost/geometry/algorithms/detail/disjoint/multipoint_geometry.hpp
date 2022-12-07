@@ -286,7 +286,7 @@ public:
         typedef typename point_type<MultiPoint>::type point1_type;
         typedef typename point_type<SingleGeometry>::type point2_type;
         typedef model::box<point2_type> box2_type;
-        
+
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
         geometry::detail::expand_by_epsilon(box2);
@@ -431,7 +431,7 @@ public:
         typedef model::box<point1_type> box1_type;
         typedef model::box<point2_type> box2_type;
         typedef std::pair<box2_type, std::size_t> box_pair_type;
-        
+
         std::size_t count2 = boost::size(multi_geometry);
         std::vector<box_pair_type> boxes(count2);
         for (std::size_t i = 0 ; i < count2 ; ++i)
@@ -530,7 +530,7 @@ struct disjoint
         {
             return detail::disjoint::multipoint_multipoint
                 ::apply(multipoint2, multipoint1, strategy);
-        } 
+        }
 
         return detail::disjoint::multipoint_multipoint
             ::apply(multipoint1, multipoint2, strategy);

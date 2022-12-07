@@ -348,7 +348,7 @@ class distance_query_incremental
         > nearest_predicate_access;
     typedef typename nearest_predicate_access::type nearest_predicate_type;
     typedef typename indexable_type<translator_type>::type indexable_type;
-    
+
     typedef index::detail::calculate_distance<nearest_predicate_type, indexable_type, strategy_type, value_tag> calculate_value_distance;
     typedef index::detail::calculate_distance<nearest_predicate_type, box_type, strategy_type, bounds_tag> calculate_node_distance;
     typedef typename calculate_value_distance::result_type value_distance_type;
@@ -391,7 +391,7 @@ public:
 //        , m_strategy()
         , m_pred(pred)
         , m_neighbors_count(0)
-        , m_neighbor_ptr(nullptr)        
+        , m_neighbor_ptr(nullptr)
     {}
 
     inline distance_query_incremental(MembersHolder const& members, Predicates const& pred)
@@ -399,7 +399,7 @@ public:
         , m_strategy(index::detail::get_strategy(members.parameters()))
         , m_pred(pred)
         , m_neighbors_count(0)
-        , m_neighbor_ptr(nullptr)        
+        , m_neighbor_ptr(nullptr)
     {}
 
     const_reference dereference() const
@@ -560,7 +560,7 @@ private:
     strategy_type m_strategy;
 
     Predicates m_pred;
-    
+
     branches_type m_branches;
     neighbors_type m_neighbors;
     size_type m_neighbors_count;

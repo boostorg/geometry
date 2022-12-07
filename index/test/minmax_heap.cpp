@@ -219,7 +219,7 @@ void test()
         {
             heap.push(i);
             BOOST_CHECK(heap.is_heap());
-            
+
             map[i]++;
             BOOST_CHECK_EQUAL(heap.top(), map.begin()->first);
             BOOST_CHECK_EQUAL(heap.bottom(), (--map.end())->first);
@@ -245,7 +245,7 @@ void test()
     {
         Heap heap(vec);
         BOOST_CHECK(heap.is_heap());
-        
+
         std::map<int, int> map;
         for (int i : vec)
             map[i]++;

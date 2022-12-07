@@ -142,7 +142,7 @@ private:
             node_allocator_type // node_allocator_type for consistency with variant_leaf
         >::template rebind_alloc<Value> value_allocator_type;
     typedef boost::container::allocator_traits<value_allocator_type> value_allocator_traits;
-    
+
 
 public:
     typedef Allocator allocator_type;

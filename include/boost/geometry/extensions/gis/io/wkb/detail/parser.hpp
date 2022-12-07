@@ -129,7 +129,7 @@ template <typename Geometry>
 struct geometry_type_parser
 {
     template <typename Iterator>
-    static bool parse(Iterator& it, Iterator end, 
+    static bool parse(Iterator& it, Iterator end,
                 byte_order_type::enum_t order)
     {
         boost::uint32_t value;
@@ -147,7 +147,7 @@ template <typename P,
 struct parsing_assigner
 {
     template <typename Iterator>
-    static void run(Iterator& it, Iterator end, P& point, 
+    static void run(Iterator& it, Iterator end, P& point,
                 byte_order_type::enum_t order)
     {
         typedef typename coordinate_type<P>::type coordinate_type;
@@ -186,7 +186,7 @@ template <typename P>
 struct point_parser
 {
     template <typename Iterator>
-    static bool parse(Iterator& it, Iterator end, P& point, 
+    static bool parse(Iterator& it, Iterator end, P& point,
                 byte_order_type::enum_t order)
     {
         if (geometry_type_parser<P>::parse(it, end, order))
@@ -205,7 +205,7 @@ template <typename C>
 struct point_container_parser
 {
     template <typename Iterator>
-    static bool parse(Iterator& it, Iterator end, C& container, 
+    static bool parse(Iterator& it, Iterator end, C& container,
                 byte_order_type::enum_t order)
     {
         typedef typename point_type<C>::type point_type;
@@ -215,7 +215,7 @@ struct point_container_parser
         {
             return false;
         }
-        
+
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
         if(num_points > (std::numeric_limits<boost::uint32_t>::max)() )
         {
@@ -256,7 +256,7 @@ template <typename L>
 struct linestring_parser
 {
     template <typename Iterator>
-    static bool parse(Iterator& it, Iterator end, L& linestring, 
+    static bool parse(Iterator& it, Iterator end, L& linestring,
                 byte_order_type::enum_t order)
     {
         if (!geometry_type_parser<L>::parse(it, end, order))
@@ -268,7 +268,7 @@ struct linestring_parser
         {
             throw boost::geometry::read_wkb_exception();
         }
-        
+
         return point_container_parser<L>::parse(it, end, linestring, order);
     }
 };
@@ -277,7 +277,7 @@ template <typename Polygon>
 struct polygon_parser
 {
     template <typename Iterator>
-    static bool parse(Iterator& it, Iterator end, Polygon& polygon, 
+    static bool parse(Iterator& it, Iterator end, Polygon& polygon,
                 byte_order_type::enum_t order)
     {
         if (!geometry_type_parser<Polygon>::parse(it, end, order))
@@ -290,7 +290,7 @@ struct polygon_parser
         {
             return false;
         }
-        
+
         typedef typename boost::geometry::ring_return_type<Polygon>::type ring_type;
 
         std::size_t rings_parsed = 0;
@@ -308,7 +308,7 @@ struct polygon_parser
             {
                 boost::geometry::range::resize(interior_rings(polygon), rings_parsed);
                 ring_type ringN = boost::geometry::range::back(interior_rings(polygon));
-                
+
                 if (!point_container_parser<ring_type>::parse(it, end, ringN, order))
                 {
                     return false;

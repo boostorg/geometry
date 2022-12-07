@@ -77,7 +77,7 @@ class spherical_winding_base
             {
                 return 0;
             }
-            
+
             if (m_raw_count != 0 && m_raw_count_anti != 0)
             {
                 if (m_raw_count > 0) // right, wrap around south pole
@@ -175,7 +175,7 @@ public:
                                 : 1); // going right all points will be on left side
                     }
                 }
-            
+
                 if (side == 0)
                 {
                     // Point is lying on segment
@@ -264,7 +264,7 @@ protected:
         //  it doesn't matter what lon it is if it's a pole
         //  so e.g. if one of the segment endpoints is a pole
         //  then only the other lon matters
-        
+
         bool eq1_strict = longitudes_equal<units_t>(s1_lon, p_lon);
         bool eq2_strict = longitudes_equal<units_t>(s2_lon, p_lon);
         bool eq1_anti = false;
@@ -292,7 +292,7 @@ protected:
                 eq1 = eq2 = true;
             }
         }
-        
+
         // Both equal p -> segment vertical
         // The only thing which has to be done is check if point is ON segment
         if (eq1 && eq2)
@@ -368,7 +368,7 @@ protected:
         calc_t const s2 = get<0>(seg2);
 
         calc_t const s1_p = math::longitude_distance_signed<units_t>(s1, p);
-        
+
         if (s_antipodal)
         {
             return count_info(s1_p < c0 ? -2 : 2, false); // choose W/E
@@ -388,7 +388,7 @@ protected:
         {
             return count_info(s1_s2 < c0 ? -2 : 2, false); // choose W/E
         }
-        
+
         calc_t const s1_p_anti = math::longitude_distance_signed<units_t>(s1, p + pi);
 
         // Anti-Point between s1 and s2

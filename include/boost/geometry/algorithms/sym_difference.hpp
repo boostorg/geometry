@@ -706,7 +706,7 @@ struct sym_difference<default_strategy, false>
 
 namespace resolve_dynamic
 {
-    
+
 template
 <
     typename Geometry1, typename Geometry2,
@@ -781,7 +781,7 @@ struct sym_difference<DynamicGeometry1, DynamicGeometry2, dynamic_geometry_tag, 
         }, geometry1, geometry2);
     }
 };
-    
+
 } // namespace resolve_dynamic
 
 
@@ -850,7 +850,7 @@ inline void sym_difference(Geometry1 const& geometry1,
         <
             Geometry1,
             Geometry2
-        >::apply(geometry1, geometry2, output_collection, default_strategy());    
+        >::apply(geometry1, geometry2, output_collection, default_strategy());
 }
 
 

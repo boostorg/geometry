@@ -620,7 +620,7 @@ public:
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_traverse_data.current_level == base::m_leafs_level, "unexpected level");
         BOOST_GEOMETRY_INDEX_ASSERT(base::m_level == base::m_traverse_data.current_level ||
                                     base::m_level == (std::numeric_limits<size_t>::max)(), "unexpected level");
-        
+
         rtree::elements(n).push_back(base::m_element);                                                              // MAY THROW, STRONG (V: alloc, copy)
 
         base::post_traverse(n);                                                                                     // MAY THROW (V: alloc, copy, N: alloc)

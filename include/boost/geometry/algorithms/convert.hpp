@@ -152,7 +152,7 @@ struct range_to_range
             geometry::detail::conversion::convert_point_to_point(point1, point2);
         }
     };
-    
+
     static inline void apply(Range1 const& source, Range2& destination)
     {
         apply(source, destination, default_policy());

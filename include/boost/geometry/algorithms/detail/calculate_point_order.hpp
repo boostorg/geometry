@@ -128,14 +128,14 @@ struct calculate_point_order_by_azimuth
         {
             // Add point
             cleaned.push_back(clean_point_t(it));
-            
+
             while (cleaned.size() >= 3)
             {
                 cleaned_iter_t it0 = cleaned.end() - 3;
                 cleaned_iter_t it1 = cleaned.end() - 2;
                 cleaned_iter_t it2 = cleaned.end() - 1;
 
-                calc_t diff;                
+                calc_t diff;
                 if (get_or_calculate_azimuths_difference(*it0, *it1, *it2, diff, strategy)
                     && ! math::equals(math::abs(diff), pi))
                 {
@@ -148,7 +148,7 @@ struct calculate_point_order_by_azimuth
                     // TODO: angles have to be invalidated only if spike is detected
                     // for duplicates it'd be ok to leave them
                     it0->set_azimuth_invalid();
-                    it0->set_azimuth_difference_invalid();                    
+                    it0->set_azimuth_difference_invalid();
                     it2->set_azimuth_difference_invalid();
                     cleaned.erase(it1);
                 }
@@ -269,7 +269,7 @@ private:
             razi = p0.reverse_azimuth();
             return true;
         }
-        
+
         if (strategy.apply(p0.ref(), p1.ref(), azi, razi))
         {
             p0.set_azimuths(azi, razi);

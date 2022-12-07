@@ -218,7 +218,7 @@ namespace projections
                     static const T d180 = igh::d180<T>();
 
                     static const T c2 = 2.0;
-                    
+
                     const T y90 = this->m_proj_parm.dy0 + sqrt(c2); // lt=90 corresponds to y=y0+sqrt(2.0)
 
                         int z = 0;
@@ -317,7 +317,7 @@ namespace projections
                   +-------+--------+-----------+-----------+
                 -180    -100      -20         80          180
             */
-                
+
                     T lp_lam = 0, lp_phi = d4044118;
                     T xy1_x, xy1_y;
                     T xy3_x, xy3_y;

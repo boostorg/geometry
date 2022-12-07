@@ -20,7 +20,7 @@ rule test_all
         <toolset>acc-pa_risc:<linkflags>-lrt
         <target-os>hpux,<toolset>gcc:<linkflags>"-Wl,+as,mpas"
 #        <toolset>gcc-mingw:<linkflags>"-lole32 -loleaut32 -lpsapi -ladvapi32"
-        <toolset>gcc,<target-os>windows:<linkflags>"-lole32 -loleaut32 -lpsapi -ladvapi32" 
+        <toolset>gcc,<target-os>windows:<linkflags>"-lole32 -loleaut32 -lpsapi -ladvapi32"
         <target-os>windows,<toolset>clang:<linkflags>"-lole32 -loleaut32 -lpsapi -ladvapi32"
         <toolset>msvc:<cxxflags>/bigobj
         <target-os>windows,<toolset>intel:<cxxflags>/bigobj

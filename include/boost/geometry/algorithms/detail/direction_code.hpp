@@ -113,7 +113,7 @@ struct direction_code_impl<spherical_equatorial_tag>
         coord1_t const b1 = geometry::get<1>(segment_b);
         coord2_t const p0 = geometry::get<0>(p);
         coord2_t const p1 = geometry::get<1>(p);
-        
+
         if ( (math::equals(b0, a0) && math::equals(b1, a1))
           || (math::equals(b0, p0) && math::equals(b1, p1)) )
         {

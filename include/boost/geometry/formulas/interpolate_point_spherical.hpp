@@ -29,7 +29,7 @@ public :
     void compute_angle(Point const& p0,
                        Point const& p1,
                        CalculationType& angle01)
-    {    
+    {
         m_xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
         m_xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
         CalculationType const dot01 = geometry::dot_product(m_xyz0, m_xyz1);

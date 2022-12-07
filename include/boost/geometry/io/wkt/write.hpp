@@ -61,8 +61,8 @@ namespace boost { namespace geometry
 
 // Silence warning C4512: 'boost::geometry::wkt_manipulator<Geometry>' : assignment operator could not be generated
 #if defined(_MSC_VER)
-#pragma warning(push)  
-#pragma warning(disable : 4512)  
+#pragma warning(push)
+#pragma warning(disable : 4512)
 #endif
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -606,7 +606,7 @@ inline std::string to_wkt(Geometry const& geometry, int significant_digits)
 }
 
 #if defined(_MSC_VER)
-#pragma warning(pop)  
+#pragma warning(pop)
 #endif
 
 }} // namespace boost::geometry

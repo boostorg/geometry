@@ -54,7 +54,7 @@ template
 >
 struct segment_or_box_point_range_closure
     : not_implemented<SegmentOrBox>
-{};    
+{};
 
 template <typename Segment>
 struct segment_or_box_point_range_closure<Segment, segment_tag>
@@ -196,7 +196,7 @@ public:
 
         assign_segment_or_box_points
             <
-                SegmentOrBox, 
+                SegmentOrBox,
                 std::vector<segment_or_box_point>
             >::apply(segment_or_box, seg_or_box_points);
 
@@ -282,7 +282,7 @@ public:
     }
 
 
-    static inline return_type apply(SegmentOrBox const& segment_or_box, Geometry const& geometry, 
+    static inline return_type apply(SegmentOrBox const& segment_or_box, Geometry const& geometry,
                                     Strategies const& strategies, bool check_intersection = true)
     {
         return apply(geometry, segment_or_box, strategies, check_intersection);

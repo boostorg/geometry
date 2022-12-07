@@ -140,7 +140,7 @@ struct multi_point_single_geometry
             typedef decltype(strategy.covered_by(*it, box)) point_in_box_type;
 
             int in_val = 0;
-            
+
             // exterior of box and of geometry
             if (! point_in_box_type::apply(*it, box)
                 || (in_val = point_in_geometry(*it, linear_or_areal, strategy)) < 0)

@@ -84,7 +84,7 @@ struct comparable_distance<Strategy, false>
             <
                 strategies_type
             > comparable_strategies_type;
-        
+
         return dispatch::distance
             <
                 Geometry1, Geometry2,

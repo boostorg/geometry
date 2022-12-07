@@ -252,7 +252,7 @@ inline void pop_heap1(It first, diff_t<It> p, diff_t<It> size, val_t<It> val, Co
             p = m;
         }
     }
-    
+
     if (size >= 2 && p <= ((size - 2) >> 1)) // at least one child
     {
         diff_t<It> const l = 2 * p + 1;
@@ -298,7 +298,7 @@ inline void pop_heap1(It first, diff_t<It> p, diff_t<It> size, val_t<It> val, Co
             p = m;
         }
     }
-    
+
     *(first + p) = std::move(val);
 }
 
@@ -310,14 +310,14 @@ inline void pop_heap(It first, It el, It last, Compare comp)
     {
         return;
     }
-    
+
     --last;
     val_t<It> val = std::move(*last);
     *last = std::move(*el);
 
     // Ignore the last element
     --size;
-    
+
     diff_t<It> p = el - first;
     if (level(p) % 2 == 0) // is min level
     {

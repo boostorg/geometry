@@ -892,7 +892,7 @@ struct simplify_insert<default_strategy, false>
             <
                 Geometry
             >::type strategy_type;
-        
+
         simplify_insert
             <
                 strategy_type
@@ -935,7 +935,7 @@ struct simplify<GeometryIn, GeometryOut, dynamic_geometry_tag, dynamic_geometry_
         traits::visit<GeometryIn>::apply([&](auto const& g)
         {
             using geom_t = util::remove_cref_t<decltype(g)>;
-            using detail::simplify::static_geometry_type;            
+            using detail::simplify::static_geometry_type;
             using geom_out_t = typename static_geometry_type<geom_t, GeometryOut>::type;
             geom_out_t o;
             simplify<geom_t, geom_out_t>::apply(g, o, max_distance, strategy);
@@ -956,7 +956,7 @@ struct simplify<GeometryIn, GeometryOut, geometry_collection_tag, geometry_colle
         detail::visit_breadth_first([&](auto const& g)
         {
             using geom_t = util::remove_cref_t<decltype(g)>;
-            using detail::simplify::static_geometry_type;            
+            using detail::simplify::static_geometry_type;
             using geom_out_t = typename static_geometry_type<geom_t, GeometryOut>::type;
             geom_out_t o;
             simplify<geom_t, geom_out_t>::apply(g, o, max_distance, strategy);

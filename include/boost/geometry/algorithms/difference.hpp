@@ -431,7 +431,7 @@ private:
         {
             traits::iter_visit<Geometry2>::apply([&](auto const& g2)
             {
-                multi_out_minus_g2(out, g2, strategy);                
+                multi_out_minus_g2(out, g2, strategy);
             }, qit->second);
 
             if (boost::empty(out))
@@ -563,7 +563,7 @@ struct difference<Strategy, false>
                              Strategy const& strategy)
     {
         using strategies::relate::services::strategy_converter;
-        
+
         difference
             <
                 decltype(strategy_converter<Strategy>::get(strategy))
@@ -586,7 +586,7 @@ struct difference<default_strategy, false>
                 Geometry1,
                 Geometry2
             >::type strategy_type;
-        
+
         difference
             <
                 strategy_type
