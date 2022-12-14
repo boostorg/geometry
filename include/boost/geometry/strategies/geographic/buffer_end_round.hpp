@@ -37,6 +37,15 @@ class geographic_end_round
 {
 public :
 
+    //! \brief Constructs the strategy with a spheroid
+    //! \param spheroid The spheroid to be used
+    //! \param points_per_circle Number of points (minimum 4) that would be used for a full circle
+    explicit inline geographic_end_round(Spheroid const& spheroid,
+                                         std::size_t points_per_circle = default_points_per_circle)
+        : m_spheroid(spheroid)
+        , m_points_per_circle(get_point_count_for_end(points_per_circle))
+    {}
+
     //! \brief Constructs the strategy
     //! \param points_per_circle Number of points (minimum 4) that would be used for a full circle
     explicit inline geographic_end_round(std::size_t points_per_circle = default_points_per_circle)
@@ -133,8 +142,8 @@ public :
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    std::size_t m_points_per_circle;
     Spheroid m_spheroid;
+    std::size_t m_points_per_circle;
 };
 
 }} // namespace strategy::buffer
