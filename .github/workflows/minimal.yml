@@ -72,8 +72,8 @@ jobs:
           fi
           echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
           echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
-          echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
-          echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
+          echo "boost_self=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_OUTPUT
+          echo "boost_root=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_OUTPUT
 
       - name: Clone boostorg/boost
         run: |
@@ -174,8 +174,8 @@ jobs:
           fi
           echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
           echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
-          echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
-          echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
+          echo "boost_self=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_OUTPUT
+          echo "boost_root=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_OUTPUT
 
       - name: Clone boostorg/boost
         run: |
@@ -252,8 +252,8 @@ jobs:
           }
           echo "BOOST_SELF=$((Get-Item $env:GITHUB_WORKSPACE).BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "BOOST_ROOT=$env:GITHUB_WORKSPACE\boost-root" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "::set-output name=boost_self::$((Get-Item $env:GITHUB_WORKSPACE).BaseName)"
-          echo "::set-output name=boost_root::$env:GITHUB_WORKSPACE\boost-root"
+          echo "boost_self=$((Get-Item $env:GITHUB_WORKSPACE).BaseName)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "boost_root=$env:GITHUB_WORKSPACE\boost-root" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Clone boostorg/boost
         shell: pwsh
