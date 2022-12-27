@@ -1,7 +1,7 @@
 [/============================================================================
   Boost.Geometry (aka GGL, Generic Geometry Library)
 
-  Copyright (c) 2009-2022 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
+  Copyright (c) 2009-2023 Barend Gehrels, Geodan, Amsterdam, the Netherlands.
   Copyright (c) 2009-2017 Bruno Lalande, Paris, France.
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
@@ -18,6 +18,22 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.82]
+[/=================]
+
+[*Major improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1045 1045] Support geographic buffer for (multi)linestrings and (multi)polygons
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/705 705] WKT: allow tabs and new lines
+
+[*Breaking changes]
+
+* The WKT output presentation of an empty polygon is now POLYGON() to make it consistent with other geometries
 
 [/=================]
 [heading Boost 1.81]
