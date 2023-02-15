@@ -540,7 +540,10 @@ void test_all()
 
     test_one<multi_polygon_type, polygon_type>("rt_p11", rt_p11, join_miter, end_flat, 28.7426, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p12", rt_p12, join_miter, end_flat, 22.5711, 1.0);
+
+    // Needs centroid of cluster turn points
     test_one<multi_polygon_type, polygon_type>("rt_p13", rt_p13, join_miter, end_flat, 19.9142, 1.0);
+
     test_one<multi_polygon_type, polygon_type>("rt_p14", rt_p14, join_miter, end_flat, 20.8284, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p15", rt_p15, join_miter, end_flat, 23.6569, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p16", rt_p16, join_miter, end_flat, 23.4853, 1.0);
@@ -631,11 +634,9 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_6061", nores_6061, join_round32, end_flat, 39.7371, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_37f6", nores_37f6, join_round32, end_flat, 26.5339, 1.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails since get_cluster works with an epsilon of 1 (instead of 1000 before).
-    // With 3 it still succeeds but that causes regression in issue #issue_1081b
+    // Needs an espilon in get_cluster of 3 or higher
     test_one<multi_polygon_type, polygon_type>("nores_1ea1", nores_1ea1, join_round32, end_flat, 28.9755, 1.0);
-#endif
+
     test_one<multi_polygon_type, polygon_type>("nores_804e", nores_804e, join_round32, end_flat, 26.4503, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_51c6", nores_51c6, join_round32, end_flat, 20.2419, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_e5f3", nores_e5f3, join_round32, end_flat, 14.5503, 1.0);
@@ -651,7 +652,7 @@ void test_all()
 #if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Erroneous case with rescaling
     test_one<multi_polygon_type, polygon_type>("res_8618", res_8618, join_round32, end_flat, 48.1085, 1.0);
- #endif
+#endif
     test_one<multi_polygon_type, polygon_type>("res_3b4d", res_3b4d, join_round32, end_flat, 48.4739, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
