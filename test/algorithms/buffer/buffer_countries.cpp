@@ -8,35 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_buffer.hpp"
-
-
-template <typename MultiPolygon>
-std::string read_from_file(std::string const& filename)
-{
-    MultiPolygon mp;
-    std::ifstream in(filename.c_str());
-    while (in.good())
-    {
-        std::string line;
-        std::getline(in, line);
-        if (! line.empty())
-        {
-            typename boost::range_value<MultiPolygon>::type pol;
-            bg::read_wkt(line, pol);
-            mp.push_back(pol);
-        }
-    }
-    std::ostringstream out;
-    if (! mp.empty())
-    {
-        out << std::fixed << std::setprecision(19) << bg::wkt(mp);
-    }
-
-    BOOST_CHECK(! out.str().empty());
-
-    return out.str();
-}
-
+#include "read_from_wkt_file.hpp"
 
 /*
 
@@ -144,15 +116,15 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 template <bool Clockwise, typename P>
 void test_all()
 {
-    typedef bg::model::polygon<P, Clockwise> pt;
-    typedef bg::model::multi_polygon<pt> mpt;
+    using pt = bg::model::polygon<P, Clockwise>;
+    using mpt = bg::model::multi_polygon<pt>;
 
-    std::string base_folder = "data/";
-    std::string gr = read_from_file<mpt>(base_folder + "gr.wkt");
-    std::string it = read_from_file<mpt>(base_folder + "it.wkt");
-    std::string nl = read_from_file<mpt>(base_folder + "nl.wkt");
-    std::string no = read_from_file<mpt>(base_folder + "no.wkt");
-    std::string uk = read_from_file<mpt>(base_folder + "uk.wkt");
+    const std::string base_folder = "data/";
+    const std::string gr = read_from_wkt_file<mpt>(base_folder + "gr.wkt");
+    const std::string it = read_from_wkt_file<mpt>(base_folder + "it.wkt");
+    const std::string nl = read_from_wkt_file<mpt>(base_folder + "nl.wkt");
+    const std::string no = read_from_wkt_file<mpt>(base_folder + "no.wkt");
+    const std::string uk = read_from_wkt_file<mpt>(base_folder + "uk.wkt");
 
     test_one<mpt, pt>("gr10", gr,    336279815682, 10);
     test_one<mpt, pt>("gr20", gr,    442317491749, 20);

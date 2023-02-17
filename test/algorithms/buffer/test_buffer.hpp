@@ -58,26 +58,47 @@ const double same_distance = -999;
 #  include "test_buffer_svg_per_turn.hpp"
 #endif
 
+#if defined(TEST_WITH_CSV)
+#  include "test_buffer_csv.hpp"
+#endif
+
 //-----------------------------------------------------------------------------
 template <typename JoinStrategy>
 struct JoinTestProperties
 {
-    static std::string name() { return "joinunknown"; }
+    static std::string name() { return "join_unknown"; }
+    static bool is_miter() { return false; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round>
-{ 
+{
     static std::string name() { return "round"; }
+    static bool is_miter() { return false; }
+};
+
+template<typename F, typename S, typename CT>
+struct JoinTestProperties<boost::geometry::strategy::buffer::geographic_join_round<F, S, CT> >
+{
+    static std::string name() { return "geo_round"; }
+    static bool is_miter() { return false; }
 };
 
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_miter>
-{ 
+{
     static std::string name() { return "miter"; }
+    static bool is_miter() { return true; }
 };
 
+template<typename F, typename S, typename CT>
+struct JoinTestProperties<boost::geometry::strategy::buffer::geographic_join_miter<F, S, CT> >
+{
+    static std::string name() { return "geo_miter"; }
+    static bool is_miter() { return true; }
+};
 template<> struct JoinTestProperties<boost::geometry::strategy::buffer::join_round_by_divide>
-{ 
+{
     static std::string name() { return "divide"; }
+    static bool is_miter() { return false; }
 };
 
 
@@ -86,13 +107,22 @@ template <typename EndStrategy>
 struct EndTestProperties { };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_round>
-{ 
+{
     static std::string name() { return "round"; }
+    static bool is_round() { return true; }
+};
+
+template<typename F, typename S, typename CT>
+struct EndTestProperties<boost::geometry::strategy::buffer::geographic_end_round<F, S, CT>>
+{
+    static std::string name() { return "geo_round"; }
+    static bool is_round() { return true; }
 };
 
 template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
-{ 
+{
     static std::string name() { return "flat"; }
+    static bool is_round() { return false; }
 };
 
 struct ut_settings : public ut_base_settings
@@ -100,8 +130,6 @@ struct ut_settings : public ut_base_settings
     explicit ut_settings(double tol = 0.01, bool val = true, int points = 88)
         : ut_base_settings(val)
         , tolerance(tol)
-        , test_area(true)
-        , use_ln_area(false)
         , points_per_circle(points)
     {}
 
@@ -123,9 +151,15 @@ struct ut_settings : public ut_base_settings
     static inline double ignore_area() { return 9999.9; }
 
     double tolerance;
-    bool test_area;
-    bool use_ln_area;
+    bool test_area = true;
+    bool use_ln_area = false;
+
+    // Number of points in a circle. Not used for geo tests.
     int points_per_circle;
+    
+    double multiplier_min_area = 0.95;
+    double multiplier_max_area = 1.05;
+    double fraction_buffered_points_too_close = 0.10;
 };
 
 template
@@ -183,7 +217,7 @@ void test_buffer(std::string const& caseid,
     std::string end_name = EndTestProperties<EndStrategy>::name();
 
     if ( BOOST_GEOMETRY_CONDITION((
-            std::is_same<tag, bg::point_tag>::value 
+            std::is_same<tag, bg::point_tag>::value
          || std::is_same<tag, bg::multi_point_tag>::value )) )
     {
         join_name.clear();
@@ -206,7 +240,10 @@ void test_buffer(std::string const& caseid,
 
     //std::cout << complete.str() << std::endl;
 
-#if defined(TEST_WITH_SVG_PER_TURN)
+#if defined(TEST_WITH_CSV)
+    detail::buffer_visitor_csv visitor("/tmp/csv/" + caseid + "_");
+
+#elif defined(TEST_WITH_SVG_PER_TURN)
     save_turns_visitor<point_type> visitor;
 #elif defined(TEST_WITH_SVG)
 
@@ -220,11 +257,21 @@ void test_buffer(std::string const& caseid,
 
     svg_visitor<mapper_type, bg::model::box<point_type> > visitor(mapper);
 
-    buffer_mapper.prepare(mapper, visitor, envelope,
-            distance_strategy.negative()
+    // Set the SVG boundingbox, with a margin. The margin is necessary because
+    // drawing is already started before the buffer is finished. It is not
+    // possible to "add" the buffer (unless we buffer twice).
+    double margin = distance_strategy.negative()
             ? 1.0
-            : 1.1 * distance_strategy.max_distance(join_strategy, end_strategy)
-        );
+            : 1.1 * distance_strategy.max_distance(join_strategy, end_strategy);
+
+    if (std::is_same<typename bg::coordinate_system<point_type>::type, bg::cs::geographic<bg::degree> >::value)
+    {
+        // Divide to avoid a too zoomed out SVG.
+        // TODO: this can go if bg::buffer for box accepts geographic boxes.
+        margin *= 1.25e-5;
+    }
+
+    buffer_mapper.prepare(mapper, visitor, envelope, margin);
 #else
     bg::detail::buffer::visit_pieces_default_policy visitor;
 #endif
@@ -232,7 +279,7 @@ void test_buffer(std::string const& caseid,
     typedef typename bg::point_type<Geometry>::type point_type;
     typedef typename bg::rescale_policy_type<point_type>::type
         rescale_policy_type;
-    
+
     // Enlarge the box to get a proper rescale policy
     bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
 
@@ -251,7 +298,8 @@ void test_buffer(std::string const& caseid,
                         rescale_policy,
                         visitor);
 
-#if defined(TEST_WITH_SVG)
+#if defined(TEST_WITH_CSV)
+#elif defined(TEST_WITH_SVG)
     buffer_mapper.map_input_output(mapper, geometry, buffered, distance_strategy.negative());
 #endif
 
@@ -323,7 +371,9 @@ void test_buffer(std::string const& caseid,
         BOOST_CHECK_MESSAGE(bg::is_valid(buffered), complete.str() <<  " is not valid");
     }
 
-#if defined(TEST_WITH_SVG_PER_TURN)
+#if defined(TEST_WITH_CSV)
+    visitor.write_input_output(geometry, buffered);
+#elif defined(TEST_WITH_SVG_PER_TURN)
     {
         // Create a per turn visitor to map per turn, and buffer again with it
         per_turn_visitor<point_type> ptv(complete.str(), visitor.get_points());

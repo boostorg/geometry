@@ -93,7 +93,6 @@ void test_all()
         1, 5, 1.0,
         1, 5, 1.0);
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Two outputs, but the small one might be discarded
     // (depending on point-type / compiler)
     test_one<polygon, polygon, polygon>("distance_zero",
@@ -101,7 +100,6 @@ void test_all()
         count_set(1, 2), -1, 8.7048386,
         count_set(1, 2), -1, 0.0098387,
         tolerance(0.001));
-#endif
 
     test_one<polygon, polygon, polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
