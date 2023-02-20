@@ -4,6 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// Copyright (c) 2022 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -30,14 +33,13 @@ struct gps_point
     // The default constructor is required if being used in a vector
     gps_point() {}
 
-    // Define a constructor to create the point in one line. Order of latitude/longitude
-    // does not matter as long as "E", "N", etc are included
-    gps_point(std::string const& c1, std::string const& c2, double h, double s)
-        : height(h)
+    // Define a constructor to create the point in one line.
+    gps_point(double lat, double lon, double h, double s)
+        : latitude(lat)
+        , longitude(lon)
+        , height(h)
         , speed(s)
-    {
-        boost::geometry::parse(*this, c1, c2);
-    }
+    {}
 };
 
 // Declare a custom linestring which will have the GPS points
@@ -65,9 +67,9 @@ int main()
 {
     // Declare a "GPS Track" and add some GPS points
     gps_track track(23, "Mister G");
-    track.push_back(gps_point("52 22 23 N", "4 53 32 E", 50, 180));
-    track.push_back(gps_point("52 10 00 N", "4 59 59 E", 110, 170));
-    track.push_back(gps_point("52 5 20 N", "5 6 56 E", 0, 90));
+    track.push_back(gps_point(52.373056, 4.892222, 50, 180));  //52 22 23 N 4 53 32 E
+    track.push_back(gps_point(52.166667, 4.999722, 110, 170)); //52 10 00 N 4 59 59 E
+    track.push_back(gps_point(52.088889, 5.115556, 0, 90));    //52 5 20 N 5 6 56 E
 
     std::cout
         << "track:  " << track.route_identifier << std::endl
