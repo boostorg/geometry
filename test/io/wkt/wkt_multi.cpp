@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2022 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
@@ -76,6 +76,18 @@ void test_all()
     test_wkt<bg::model::multi_linestring<bg::model::linestring<P> > >("multilinestring((1 1,2 2,3 3),(4 4,5 5,6 6))", 6, 4 * sqrt(2.0));
     test_wkt<bg::model::multi_polygon<bg::model::polygon<P> > >("multipolygon(((0 0,0 2,2 2,2 0,0 0),(1 1,1 2,2 2,2 1,1 1)),((0 0,0 4,4 4,4 0,0 0)))", 15, 0, 21, 28);
 
+    // Support tabs, and new lines.
+    test_relaxed_wkt<bg::model::multi_point<P> >("multipoint((1\t2),\n(3\r4))", "multipoint((1 2),(3 4))");
+
+    // Verify empty multi geometries
+    test_relaxed_wkt<bg::model::multi_point<P> >("multipoint()", "multipoint()");
+    test_relaxed_wkt<bg::model::multi_linestring<bg::model::linestring<P> >>("multilinestring()", "multilinestring()");
+    test_relaxed_wkt<bg::model::multi_polygon<bg::model::polygon<P> > >("multipolygon()", "multipolygon()");
+
+    test_relaxed_wkt<bg::model::multi_point<P> >("multipoint empty", "multipoint()");
+    test_relaxed_wkt<bg::model::multi_linestring<bg::model::linestring<P> >>("multilinestring empty", "multilinestring()");
+    test_relaxed_wkt<bg::model::multi_polygon<bg::model::polygon<P> > >("multipolygon empty", "multipolygon()");
+
     // Support for the official alternative syntax for multipoint
     // (provided by Aleksey Tulinov):
     test_relaxed_wkt<bg::model::multi_point<P> >("multipoint(1 2,3 4)", "multipoint((1 2),(3 4))");
@@ -103,24 +115,3 @@ void test_all()
 
     test_order_closure<T>();
 }
-
-/*
-
-... see comments in "wkt.cpp"
-
-union select 13,'# mpoint',npoints(geomfromtext('MULTIPOINT((1 2),(3 4))'))
-union select 14,'length mpoint',length(geomfromtext('MULTIPOINT((1 2),(3 4))'))
-union select 15,'peri mpoint',perimeter(geomfromtext('MULTIPOINT((1 2),(3 4))'))
-union select 16,'area mpoint',area(geomfromtext('MULTIPOINT((1 2),(3 4))'))
-
-union select 17,'# mls',npoints(geomfromtext('MULTILINESTRING((1 1,2 2,3 3),(4 4,5 5,6 6))'))
-union select 18,'length mls',length(geomfromtext('MULTILINESTRING((1 1,2 2,3 3),(4 4,5 5,6 6))'))
-union select 19,'peri mls',perimeter(geomfromtext('MULTILINESTRING((1 1,2 2,3 3),(4 4,5 5,6 6))'))
-union select 20,'area mls',area(geomfromtext('MULTILINESTRING((1 1,2 2,3 3),(4 4,5 5,6 6))'))
-
-union select 21,'# mpoly',npoints(geomfromtext('MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0),(1 1,1 2,2 2,2 1,1 1)),((0 0,0 4,4 4,4 0,0 0)))'))
-union select 22,'length mpoly',length(geomfromtext('MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0),(1 1,1 2,2 2,2 1,1 1)),((0 0,0 4,4 4,4 0,0 0)))'))
-union select 23,'peri mpoly',perimeter(geomfromtext('MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0),(1 1,1 2,2 2,2 1,1 1)),((0 0,0 4,4 4,4 0,0 0)))'))
-union select 24,'area mpoly',area(geomfromtext('MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0),(1 1,1 2,2 2,2 1,1 1)),((0 0,0 4,4 4,4 0,0 0)))'))
-
-*/

@@ -37,6 +37,15 @@ class geographic_join_miter
 {
 public :
 
+    //! \brief Constructs the strategy with a spheroid
+    //! \param spheroid The spheroid to be used
+    //! \param miter_limit The miter limit, to avoid excessively long miters around sharp corners
+    explicit inline geographic_join_miter(Spheroid const& spheroid,
+                                          double miter_limit = 5.0)
+        : m_spheroid(spheroid)
+        , m_miter_limit(valid_limit(miter_limit))
+    {}
+
     //! \brief Constructs the strategy
     //! \param miter_limit The miter limit, to avoid excessively long miters around sharp corners
     explicit inline geographic_join_miter(double miter_limit = 5.0)
@@ -112,8 +121,8 @@ private :
         return miter_limit;
     }
 
-    double m_miter_limit;
     Spheroid m_spheroid;
+    double m_miter_limit;
 };
 
 }} // namespace strategy::buffer

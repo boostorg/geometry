@@ -60,9 +60,18 @@ class geographic_point_circle
 {
 public :
 
+    //! \brief Constructs the strategy with a spheroid
+    //! \param spheroid The spheroid to be used
+    //! \param count Number of points (minimum 3) for the created circle
+    explicit inline geographic_point_circle(Spheroid const& spheroid,
+                                            std::size_t count = default_points_per_circle)
+        : m_spheroid(spheroid)
+        , m_count(get_point_count_for_circle(count))
+    {}
+
     //! \brief Constructs the strategy
     //! \param count Number of points (minimum 3) for the created circle
-    explicit geographic_point_circle(std::size_t count = default_points_per_circle)
+    explicit inline geographic_point_circle(std::size_t count = default_points_per_circle)
         : m_count(get_point_count_for_circle(count))
     {}
 
@@ -115,8 +124,8 @@ public :
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 private :
-    std::size_t m_count;
     Spheroid m_spheroid;
+    std::size_t m_count;
 };
 
 }} // namespace strategy::buffer

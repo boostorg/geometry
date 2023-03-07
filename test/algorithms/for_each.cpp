@@ -87,12 +87,12 @@ void test_all()
             "POLYGON EMPTY"
 
             , 0
-            , "POLYGON(())"
-            , "POLYGON(())"
+            , "POLYGON()"
+            , "POLYGON()"
 
             , ""
             , 0
-            , "POLYGON(())"
+            , "POLYGON()"
         );
     test_geometry<bg::model::ring<P, true, false> > // open ring
         (
