@@ -74,7 +74,7 @@ void test_one(std::string const& case_id,
 }
 
 template <typename Point>
-void test_areal(std::set<exclude> const& exclude = {}, bool debug = false)
+void test_areal(std::set<exclude> const& exclude_set = {}, bool debug = false)
 {
     using polygon = bg::model::polygon<Point>;
     using multi_polygon = bg::model::multi_polygon<polygon>;
@@ -84,21 +84,21 @@ void test_areal(std::set<exclude> const& exclude = {}, bool debug = false)
     // - simple case on integer grid but also having diagonals ("diagonal")
     // - case going wrong for <float> ("hard")
 
-    if (exclude.count(exclude::rectangular)
-        + exclude.count(exclude::all) == 0)
+    if (exclude_set.count(exclude::rectangular)
+        + exclude_set.count(exclude::all) == 0)
     {
         test_one<multi_polygon>("case_multi_rectangular",
             case_multi_rectangular[0], case_multi_rectangular[1], debug, 33125);
     }
-    if (exclude.count(exclude::diagonal)
-        + exclude.count(exclude::all) == 0)
+    if (exclude_set.count(exclude::diagonal)
+        + exclude_set.count(exclude::all) == 0)
     {
         test_one<multi_polygon>("case_multi_diagonal",
             case_multi_diagonal[0], case_multi_diagonal[1], debug, 5350);
     }
-    if (exclude.count(exclude::hard)
-        + exclude.count(exclude::fp)
-        + exclude.count(exclude::all) == 0)
+    if (exclude_set.count(exclude::hard)
+        + exclude_set.count(exclude::fp)
+        + exclude_set.count(exclude::all) == 0)
     {
         test_one<multi_polygon>("case_multi_hard",
             case_multi_hard[0], case_multi_hard[1], debug, 21, 23);
