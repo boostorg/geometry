@@ -37,7 +37,7 @@ void test_gc()
     bg::strategy::buffer::join_round join;
     bg::strategy::buffer::end_round end;
     bg::strategy::buffer::point_circle circle;
-    
+
     mpo_t result_mpo;
     bg::buffer(gc, result_mpo, distance, side, join, end, circle);
 
