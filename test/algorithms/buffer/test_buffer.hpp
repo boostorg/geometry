@@ -156,7 +156,7 @@ struct ut_settings : public ut_base_settings
 
     // Number of points in a circle. Not used for geo tests.
     int points_per_circle;
-    
+
     double multiplier_min_area = 0.95;
     double multiplier_max_area = 1.05;
     double fraction_buffered_points_too_close = 0.10;

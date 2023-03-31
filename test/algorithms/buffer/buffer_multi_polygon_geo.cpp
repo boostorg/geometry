@@ -47,7 +47,7 @@ std::string select_within_box(const std::string& wkt, const std::string& wkt_box
         geometry.erase(geometry.begin(), geometry.begin() + 1);
     }
 
-    geometry.erase(std::remove_if(boost::begin(geometry), boost::end(geometry), 
+    geometry.erase(std::remove_if(boost::begin(geometry), boost::end(geometry),
         [&poly](const auto& p) { return ! bg::within(p, poly); }), boost::end(geometry));
 
     std::ostringstream out;
@@ -77,7 +77,7 @@ void test_geometry(const std::string& base_folder, bool test_all = false, bool g
     if (generate_cases)
     {
         const std::string gr = read_from_wkt_file<multi_polygon>(base_folder + "gr_ll.wkt");
-        
+
         test_one_geo<multi_polygon, polygon>("gr", gr, strategy, _s, _c, join, _e, 222719122493.0, 10000.0, settings);
 
         std::cout << "cyclades = " << select_within_box<multi_polygon>(gr, "BOX(24.1395 36.0147,26.1382 38.1464)") << std::endl;
@@ -85,7 +85,7 @@ void test_geometry(const std::string& base_folder, bool test_all = false, bool g
         std::cout << "dodecaneses = " << select_within_box<multi_polygon>(gr, "BOX(25.8740 35.1906,28.4227 38.0700)") << std::endl;
         std::cout << "ionians = " << select_within_box<multi_polygon>(gr, "BOX(18.9540 37.2072,22.4337 40.6295)") << std::endl;
         std::cout << "crete = " << select_within_box<multi_polygon>(gr, "BOX(23.0592 34.4105,26.5606 35.9347)") << std::endl;
-        
+
         std::cout << "aegeans = " << aegeans << std::endl;
     }
 
