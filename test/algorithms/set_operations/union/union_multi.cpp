@@ -445,6 +445,8 @@ void test_areal()
     TEST_UNION(issue_888_34, 15, 0, -1, 0.3017459);
     TEST_UNION(issue_888_37, 52, 3, -1, 0.4033294);
 
+    TEST_UNION(issue_1109, 2, 0, -1, 3946.5);
+
     // One or two polygons, the ideal case is 1
     TEST_UNION(mail_2019_01_21_johan, count_set(1, 2), 0, -1, 0.00058896);
 

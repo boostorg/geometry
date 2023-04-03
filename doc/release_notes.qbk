@@ -7,7 +7,7 @@
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
   This file was modified by Oracle on 2015-2022.
-  Modifications copyright (c) 2015-2022, Oracle and/or its affiliates.
+  Modifications copyright (c) 2015-2023, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -27,9 +27,16 @@
 
 * [@https://github.com/boostorg/geometry/pull/1045 1045] Support geographic buffer for (multi)linestrings and (multi)polygons
 
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1114 1114] Comparable distance: Add support for dynamic geometries
+* [@https://github.com/boostorg/geometry/pull/1046 1046] Support covered_by() for box, geometry combinations
+
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/705 705] WKT: allow tabs and new lines
+* [@https://github.com/boostorg/geometry/issues/1109 1109], [@https://github.com/boostorg/geometry/issues/1108 1108] Fixes for union
+* Various fixes in examples
 
 [*Breaking changes]
 

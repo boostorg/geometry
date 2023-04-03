@@ -101,13 +101,11 @@ int test_main(int, char* [])
     test_get_clusters<dp>();
     test_get_clusters<ep>();
 
-    // This constant relates to the threshold in get_clusters,
-    // which is now return T(1) (earlier it was 1000)
-    double const multiplier = 1.0 / 1000.0;
-
-    test_get_clusters_border_cases<fp>(1.0e-4 * multiplier);
-    test_get_clusters_border_cases<dp>(1.0e-13 * multiplier);
-    test_get_clusters_border_cases<ep>(1.0e-16 * multiplier);
+    // These constant relate to the threshold in get_clusters.hpp,
+    // and the used floating point type.
+    test_get_clusters_border_cases<fp>(1.0e-5);
+    test_get_clusters_border_cases<dp>(1.0e-14);
+    test_get_clusters_border_cases<ep>(1.0e-17);
 
     return 0;
 }
