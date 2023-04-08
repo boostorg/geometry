@@ -557,6 +557,7 @@ struct touch : public base_turn_handler
     >
     static inline bool handle_imperfect_touch(UniqueSubRange1 const& range_p,
                                               UniqueSubRange2 const& range_q,
+                                              int side_pk_q2,
                                               UmbrellaStrategy const& umbrella_strategy,
                                               TurnInfo& ti)
     {
@@ -595,10 +596,11 @@ struct touch : public base_turn_handler
             return d1.measure > 0 && d2.measure > 0;
         };
 
-        if (has_distance(range_p, range_q))
+        if (side_pk_q2 == -1 && has_distance(range_p, range_q))
         {
             // Even though there is a touch, Q(j) is left of P1
             // and P(i) is still left from Q2.
+            // Q continues to the right.
             // It can continue.
             ti.operations[0].operation = operation_blocked;
             // Q turns right -> union (both independent),
@@ -608,14 +610,11 @@ struct touch : public base_turn_handler
             return true;
         }
 
-        if (has_distance(range_q, range_p))
+        if (side_pk_q2 == 1 && has_distance(range_q, range_p))
         {
-            // Even though there is a touch, Q(j) is left of P1
-            // and P(i) is still left from Q2.
-            // It can continue.
+            // Similarly, but the other way round.
+            // Q continues to the left.
             ti.operations[0].operation = operation_union;
-            // Q turns right -> union (both independent),
-            // Q turns left -> intersection
             ti.operations[1].operation = operation_blocked;
             ti.touch_only = true;
             return true;
@@ -676,8 +675,8 @@ struct touch : public base_turn_handler
                 || (side_qi_p1 == 0 && side_qk_p1 == 0 && side_pk_p != -1))
             {
                 if (side_qk_p1 == 0 && side_pk_q1 == 0
-                    && has_qk && has_qk
-                    && handle_imperfect_touch(range_p, range_q, umbrella_strategy, ti))
+                    && has_pk && has_qk
+                    && handle_imperfect_touch(range_p, range_q, side_pk_q2, umbrella_strategy, ti))
                 {
                     // If q continues collinearly (opposite) with p, it should be blocked
                     // but (FP) not if there is just a tiny space in between
