@@ -31,7 +31,6 @@
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
@@ -136,7 +135,7 @@ struct wkt_range
                 os << "(";
             }
             auto begin = boost::begin(range);
-            auto end = boost::end(range);
+            auto const end = boost::end(range);
             for (auto it = begin; it != end; ++it)
             {
                 os << (first ? "" : ",");
@@ -201,8 +200,8 @@ struct wkt_poly
     {
         using ring = typename ring_type<Polygon const>::type;
 
-        auto const exterior = exterior_ring(poly);
-        auto const rings = interior_rings(poly);
+        auto const& exterior = exterior_ring(poly);
+        auto const& rings = interior_rings(poly);
 
         std::size_t point_count = boost::size(exterior);
         for (auto it = boost::begin(rings); it != boost::end(rings); ++it)

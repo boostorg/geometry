@@ -34,7 +34,6 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -143,10 +142,7 @@ inline bool transform_range_out(Range const& range,
     OutputIterator out, Strategy const& strategy)
 {
     PointOut point_out;
-    for(typename boost::range_iterator<Range const>::type
-        it = boost::begin(range);
-        it != boost::end(range);
-        ++it)
+    for (auto it = boost::begin(range); it != boost::end(range); ++it)
     {
         if (! transform_point::apply(*it, point_out, strategy))
         {
@@ -184,15 +180,11 @@ struct transform_polygon
             >::apply(geometry::interior_rings(poly2),
                      geometry::num_interior_rings(poly1));
 
-        typename geometry::interior_return_type<Polygon1 const>::type
-            rings1 = geometry::interior_rings(poly1);
-        typename geometry::interior_return_type<Polygon2>::type
-            rings2 = geometry::interior_rings(poly2);
+        auto const& rings1 = geometry::interior_rings(poly1);
+        auto&& rings2 = geometry::interior_rings(poly2);
 
-        typename detail::interior_iterator<Polygon1 const>::type
-            it1 = boost::begin(rings1);
-        typename detail::interior_iterator<Polygon2>::type
-            it2 = boost::begin(rings2);
+        auto it1 = boost::begin(rings1);
+        auto it2 = boost::begin(rings2);
         for ( ; it1 != boost::end(rings1); ++it1, ++it2)
         {
             if ( ! transform_range_out<point2_type>(*it1,
@@ -251,10 +243,8 @@ struct transform_multi
     {
         traits::resize<Multi2>::apply(multi2, boost::size(multi1));
 
-        typename boost::range_iterator<Multi1 const>::type it1
-                = boost::begin(multi1);
-        typename boost::range_iterator<Multi2>::type it2
-                = boost::begin(multi2);
+        auto it1 = boost::begin(multi1);
+        auto it2 = boost::begin(multi2);
 
         for (; it1 != boost::end(multi1); ++it1, ++it2)
         {

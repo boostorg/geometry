@@ -29,7 +29,6 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_point.hpp>
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
@@ -842,10 +841,8 @@ struct get_turns_polygon_cs
 
         signed_size_type i = 0;
 
-        typename interior_return_type<Polygon const>::type
-            rings = interior_rings(polygon);
-        for (typename detail::interior_iterator<Polygon const>::type
-                it = boost::begin(rings); it != boost::end(rings); ++it, ++i)
+        auto const& rings = interior_rings(polygon);
+        for (auto it = boost::begin(rings); it != boost::end(rings); ++it, ++i)
         {
             intersector_type::apply(
                     source_id1, *it,
@@ -877,15 +874,8 @@ struct get_turns_multi_polygon_cs
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        typedef typename boost::range_iterator
-            <
-                Multi const
-            >::type iterator_type;
-
         signed_size_type i = 0;
-        for (iterator_type it = boost::begin(multi);
-             it != boost::end(multi);
-             ++it, ++i)
+        for (auto it = boost::begin(multi); it != boost::end(multi); ++it, ++i)
         {
             // Call its single version
             get_turns_polygon_cs

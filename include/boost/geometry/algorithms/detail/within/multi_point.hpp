@@ -55,8 +55,7 @@ struct multi_point_point
     {
         auto const s = strategy.relate(multi_point, point);
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it)
         {
             if (! s.apply(*it, point))
             {
@@ -88,8 +87,7 @@ struct multi_point_multi_point
 
         bool result = false;
 
-        typedef typename boost::range_const_iterator<MultiPoint1>::type iterator;
-        for ( iterator it = boost::begin(multi_point1) ; it != boost::end(multi_point1) ; ++it )
+        for (auto it = boost::begin(multi_point1); it != boost::end(multi_point1); ++it)
         {
             if (! std::binary_search(points2.begin(), points2.end(), *it, less))
             {
@@ -134,8 +132,7 @@ struct multi_point_single_geometry
         // If in the exterior, break
         bool result = false;
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it )
         {
             typedef decltype(strategy.covered_by(*it, box)) point_in_box_type;
 
@@ -198,8 +195,7 @@ struct multi_point_multi_geometry
         // If a point is in the exterior break
         bool result = false;
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it)
         {
             // TODO: investigate the possibility of using satisfies
             // TODO: investigate the possibility of using iterative queries (optimization below)

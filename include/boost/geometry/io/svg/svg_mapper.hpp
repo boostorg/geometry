@@ -160,10 +160,7 @@ struct svg_map<multi_tag, Multi, SvgPoint>
                     std::string const& style, double size,
                     Multi const& multi, TransformStrategy const& strategy)
     {
-        for (typename boost::range_iterator<Multi const>::type it
-            = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
+        for (auto it = boost::begin(multi); it != boost::end(multi); ++it)
         {
             svg_map
                 <
@@ -466,19 +463,17 @@ public :
         {
             // Multi-line modus
 
-            std::vector<std::string> splitted;
-            boost::split(splitted, s, boost::is_any_of("\n"));
-            for (std::vector<std::string>::const_iterator it
-                = splitted.begin();
-                it != splitted.end();
-                ++it, offset_y += lineheight)
+            std::vector<std::string> split;
+            boost::split(split, s, boost::is_any_of("\n"));
+            for (auto const& item : split)
             {
                  m_stream
                     << "<tspan x=\"" << get<0>(map_point) + offset_x
                     << "\""
                     << " y=\"" << get<1>(map_point) + offset_y
                     << "\""
-                    << ">" << *it << "</tspan>";
+                    << ">" << item << "</tspan>";
+                offset_y += lineheight;
             }
         }
         m_stream << "</text>" << std::endl;

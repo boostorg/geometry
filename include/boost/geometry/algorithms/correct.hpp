@@ -30,7 +30,6 @@
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct_closure.hpp>
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/multi_modify.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 

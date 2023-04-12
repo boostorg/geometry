@@ -67,20 +67,25 @@ std::pair<bool, bool> point_multipoint_check(Point const& point,
     // point_in_geometry could be used here but why iterate over MultiPoint twice?
     // we must search for a point in the exterior because all points in MultiPoint can be equal
 
-    typedef typename boost::range_iterator<MultiPoint const>::type iterator;
-    iterator it = boost::begin(multi_point);
-    iterator last = boost::end(multi_point);
-    for ( ; it != last ; ++it )
+    
+    auto const end = boost::end(multi_point);
+    for (auto it = boost::begin(multi_point); it != end; ++it)
     {
         bool ii = detail::equals::equals_point_point(point, *it, strategy);
 
-        if ( ii )
+        if (ii)
+        {
             found_inside = true;
+        }
         else
+        {
             found_outside = true;
+        }
 
-        if ( found_inside && found_outside )
+        if (found_inside && found_outside)
+        {
             break;
+        }
     }
 
     return std::make_pair(found_inside, found_outside);
@@ -229,19 +234,22 @@ struct multipoint_multipoint
         bool found_outside = false;
 
         // for each point in the second MPt
-        typedef typename boost::range_iterator<IteratedMultiPoint const>::type iterator;
-        for ( iterator it = boost::begin(iterated_mpt) ;
-              it != boost::end(iterated_mpt) ; ++it )
+        for (auto it = boost::begin(iterated_mpt); it != boost::end(iterated_mpt); ++it)
         {
-            bool ii =
-                std::binary_search(points.begin(), points.end(), *it, less);
-            if ( ii )
+            bool ii = std::binary_search(points.begin(), points.end(), *it, less);
+            if (ii)
+            {
                 found_inside = true;
+            }
             else
+            {
                 found_outside = true;
+            }
 
-            if ( found_inside && found_outside )
+            if (found_inside && found_outside)
+            {
                 break;
+            }
         }
 
         if ( found_inside ) // some point of MP2 is equal to some of MP1

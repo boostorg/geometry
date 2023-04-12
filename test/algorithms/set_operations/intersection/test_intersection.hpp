@@ -256,10 +256,9 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
         mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
                     "stroke:rgb(51,51,153);stroke-width:3");
 
-        for (typename result_type::const_iterator it = intersection_output.begin();
-                it != intersection_output.end(); ++it)
+        for (auto const& item : intersection_output)
         {
-            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
+            mapper.map(item, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
                         "stroke:rgb(255,0,255);stroke-width:8");
         }
     }

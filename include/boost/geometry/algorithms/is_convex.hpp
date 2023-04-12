@@ -139,6 +139,7 @@ struct multi_polygon_is_convex
     static inline bool apply(MultiPolygon const& multi_polygon, Strategies const& strategies)
     {
         auto const size = boost::size(multi_polygon);
+        // TODO: this looks wrong, it should only return convex if all its rings are convex
         return size == 0 // For consistency with ring_is_convex
             || (size == 1 && polygon_is_convex::apply(range::front(multi_polygon), strategies));
     }
@@ -272,7 +273,7 @@ struct is_convex
     template <typename Strategy>
     static bool apply(Geometry const& geometry, Strategy const& strategy)
     {
-        concepts::check<Geometry>();
+        concepts::check<Geometry const>();
         return resolve_strategy::is_convex<Strategy>::apply(geometry, strategy);
     }
 };

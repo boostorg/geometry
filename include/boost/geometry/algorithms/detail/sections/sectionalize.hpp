@@ -38,7 +38,6 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
@@ -710,10 +709,7 @@ struct sectionalize_multi
                 std::size_t max_count)
     {
         ring_id.multi_index = 0;
-        for (typename boost::range_iterator<MultiGeometry const>::type
-                    it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it, ++ring_id.multi_index)
+        for (auto it = boost::begin(multi); it != boost::end(multi); ++it, ++ring_id.multi_index)
         {
             Policy::apply(*it, robust_policy, sections,
                           strategy,

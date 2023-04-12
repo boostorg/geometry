@@ -754,7 +754,7 @@ struct box_parser
     {
         auto const tokens{make_tokenizer(wkt)};
         auto it = tokens.begin();
-        auto end = tokens.end();
+        auto const end = tokens.end();
 
         apply(it, end, wkt, box);
 
@@ -835,7 +835,7 @@ struct segment_parser
     {
         auto const tokens{make_tokenizer(wkt)};
         auto it = tokens.begin();
-        auto end = tokens.end();
+        auto const end = tokens.end();
 
         apply(it, end, wkt, segment);
 
@@ -1122,7 +1122,7 @@ struct read_wkt<DynamicGeometry, dynamic_geometry_tag>
     {
         auto tokens{detail::wkt::make_tokenizer(wkt)};
         auto it = tokens.begin();
-        auto end = tokens.end();
+        auto const end = tokens.end();
         if (it == end)
         {
             BOOST_THROW_EXCEPTION(read_wkt_exception(
