@@ -75,9 +75,7 @@ struct copy_points<PointOut, MultiPointIn, multi_point_tag>
     static inline void apply(MultiPointIn const& multi_point_in,
                              OutputIterator& oit)
     {
-        for (typename boost::range_iterator<MultiPointIn const>::type
-                 it = boost::begin(multi_point_in);
-             it != boost::end(multi_point_in); ++it)
+        for (auto it = boost::begin(multi_point_in); it != boost::end(multi_point_in); ++it)
         {
             PointOut point_out;
             geometry::convert(*it, point_out);
@@ -189,9 +187,7 @@ struct multipoint_point_point
     {
         BOOST_GEOMETRY_ASSERT( OverlayType == overlay_difference );
 
-        for (typename boost::range_iterator<MultiPoint const>::type
-                 it = boost::begin(multipoint);
-             it != boost::end(multipoint); ++it)
+        for (auto it = boost::begin(multipoint); it != boost::end(multipoint); ++it)
         {
             action_selector_pl
                 <
@@ -225,9 +221,7 @@ struct point_multipoint_point
     {
         typedef action_selector_pl<PointOut, OverlayType> action;
 
-        for (typename boost::range_iterator<MultiPoint const>::type
-                 it = boost::begin(multipoint);
-             it != boost::end(multipoint); ++it)
+        for (auto it = boost::begin(multipoint); it != boost::end(multipoint); ++it)
         {
             if ( detail::equals::equals_point_point(*it, point, strategy) )
             {
@@ -279,9 +273,7 @@ struct multipoint_multipoint_point
         less_type const less = less_type();
         std::sort(points2.begin(), points2.end(), less);
 
-        for (typename boost::range_iterator<MultiPoint1 const>::type
-                 it1 = boost::begin(multipoint1);
-             it1 != boost::end(multipoint1); ++it1)
+        for (auto it1 = boost::begin(multipoint1); it1 != boost::end(multipoint1); ++it1)
         {
             bool found = std::binary_search(points2.begin(), points2.end(),
                                             *it1, less);

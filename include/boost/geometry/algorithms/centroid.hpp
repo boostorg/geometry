@@ -43,7 +43,6 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/centroid/translating_transformer.hpp>
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/is_empty.hpp>
@@ -255,11 +254,9 @@ struct centroid_polygon_state
     {
         centroid_range_state::apply(exterior_ring(poly), transformer, strategy, state);
 
-        typename interior_return_type<Polygon const>::type
-            rings = interior_rings(poly);
-
-        for (typename detail::interior_iterator<Polygon const>::type
-                it = boost::begin(rings); it != boost::end(rings); ++it)
+        auto const& rings = interior_rings(poly);
+        auto const end = boost::end(rings);
+        for (auto it = boost::begin(rings); it != end; ++it)
         {
             centroid_range_state::apply(*it, transformer, strategy, state);
         }
@@ -352,15 +349,12 @@ struct centroid_multi
                 Point
             >::type state;
 
-        for (typename boost::range_iterator<Multi const>::type
-                it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
+        for (auto it = boost::begin(multi); it != boost::end(multi); ++it)
         {
             Policy::apply(*it, transformer, strategy, state);
         }
 
-        if ( strategy.result(state, centroid) )
+        if (strategy.result(state, centroid))
         {
             // translate the result back
             transformer.apply_reverse(centroid);

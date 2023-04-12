@@ -475,7 +475,7 @@ public :
 
         // Move iterator after rank==0
         bool has_first = false;
-        typename container_type::iterator it = m_ranked_points.begin() + 1;
+        auto it = m_ranked_points.begin() + 1;
         for (; it != m_ranked_points.end() && it->rank == 0; ++it)
         {
             has_first = true;
@@ -486,8 +486,7 @@ public :
             // Reverse first part (having rank == 0), if any,
             // but skip the very first row
             std::reverse(m_ranked_points.begin() + 1, it);
-            for (typename container_type::iterator fit = m_ranked_points.begin();
-                 fit != it; ++fit)
+            for (auto fit = m_ranked_points.begin(); fit != it; ++fit)
             {
                 BOOST_ASSERT(fit->rank == 0);
             }

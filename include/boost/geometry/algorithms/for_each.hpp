@@ -29,7 +29,6 @@
 #include <boost/range/reference.hpp>
 #include <boost/range/value_type.hpp>
 
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -326,9 +325,7 @@ struct for_each_polygon
             return false;
         }
 
-        typename interior_return_type<Polygon>::type
-            rings = interior_rings(poly);
-
+        auto&& rings = interior_rings(poly);
         auto const end = boost::end(rings);
         for (auto it = boost::begin(rings); it != end; ++it)
         {

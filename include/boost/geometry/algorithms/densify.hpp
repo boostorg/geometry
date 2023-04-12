@@ -78,11 +78,10 @@ struct densify_range
     static inline void apply(FwdRng const& rng, MutRng & rng_out,
                              T const& len, Strategies const& strategies)
     {
-        typedef typename boost::range_iterator<FwdRng const>::type iterator_t;
         typedef typename boost::range_value<FwdRng>::type point_t;
 
-        iterator_t it = boost::begin(rng);
-        iterator_t end = boost::end(rng);
+        auto it = boost::begin(rng);
+        auto const end = boost::end(rng);
 
         if (it == end) // empty(rng)
         {
@@ -92,7 +91,7 @@ struct densify_range
         auto strategy = strategies.densify(rng);
         push_back_policy<MutRng> policy(rng_out);
 
-        iterator_t prev = it;
+        auto prev = it;
         for ( ++it ; it != end ; prev = it++)
         {
             point_t const& p0 = *prev;
@@ -123,9 +122,8 @@ struct densify_ring
         if (boost::size(ring) <= 1)
             return;
 
-        typedef typename point_type<Geometry>::type point_t;
-        point_t const& p0 = range::back(ring);
-        point_t const& p1 = range::front(ring);
+        auto const& p0 = range::back(ring);
+        auto const& p1 = range::front(ring);
 
         auto strategy = strategies.densify(ring);
         push_back_policy<GeometryOut> policy(ring_out);

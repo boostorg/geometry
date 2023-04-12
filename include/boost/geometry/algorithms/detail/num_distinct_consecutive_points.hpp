@@ -48,8 +48,6 @@ struct num_distinct_consecutive_points
     template <typename Strategy>
     static inline std::size_t apply(Range const& range, Strategy const& strategy)
     {
-        typedef typename boost::range_iterator<Range const>::type iterator;
-
         std::size_t const size = boost::size(range);
 
         if ( size < 2u )
@@ -57,13 +55,13 @@ struct num_distinct_consecutive_points
             return (size < MaximumNumber) ? size : MaximumNumber;
         }
 
-        iterator current = boost::begin(range);
-        iterator const end = boost::end(range);
+        auto current = boost::begin(range);
+        auto const end = boost::end(range);
         std::size_t counter(0);
         do
         {
             ++counter;
-            iterator next = std::find_if(current, end, [&](auto const& pt) {
+            auto next = std::find_if(current, end, [&](auto const& pt) {
                     return ! equals::equals_point_point(pt, *current, strategy);
                 });
             current = next;
