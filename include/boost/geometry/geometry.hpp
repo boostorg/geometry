@@ -131,4 +131,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
+#include <boost/geometry/algorithms/is_convex.hpp>
+#include <boost/geometry/algorithms/point_on_surface.hpp>
+
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP
