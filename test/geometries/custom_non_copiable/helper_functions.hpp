@@ -64,16 +64,16 @@ auto point_on_surface(Geometry const& geo)
     return result;
 }
 
-template <typename ResultGeometry, typename Geometry>
-auto areal_intersection(Geometry const& a, Geometry const& b)
+template <typename ResultGeometry, typename Geometry1, typename Geometry2>
+auto areal_intersection(Geometry1 const& a, Geometry2 const& b)
 {
     ResultGeometry result;
     boost::geometry::intersection(a, b, result);
     return result;
 }
 
-template <typename ResultGeometry, typename Geometry>
-auto linear_intersection(Geometry const& a, Geometry const& b)
+template <typename ResultGeometry, typename Geometry1, typename Geometry2>
+auto linear_intersection(Geometry1 const& a, Geometry2 const& b)
 {
     ResultGeometry result;
     boost::geometry::intersection(a, b, result);
@@ -107,17 +107,17 @@ auto convert_to(Geometry const& geo)
     return result;
 }
 
-template <typename Geometry, typename Geometry2>
-void create_svg(std::ostream& stream, Geometry const& a, Geometry const& b, Geometry2 const& intersected)
+template <typename Geometry1, typename Geometry2, typename Geometry3>
+void create_svg(std::ostream& stream, Geometry1 const& a, Geometry2 const& b, Geometry3 const& intersected)
 {
-    using point_t = typename boost::geometry::point_type<Geometry>::type;
+    using point_t = typename boost::geometry::point_type<Geometry1>::type;
     boost::geometry::svg_mapper<point_t> mapper(stream, 1000, 1000);
 
     mapper.add(a);
     mapper.add(b);
 
     std::string const prefix
-        = boost::geometry::util::is_areal<Geometry>::value
+        = boost::geometry::util::is_areal<Geometry1>::value
         ? "opacity:0.4;fill:"
         : "opacity:0.4;stroke-width:10;stroke:";
     mapper.map(a, prefix + "rgb(0,128,0);");

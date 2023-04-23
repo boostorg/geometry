@@ -8,9 +8,10 @@
 
 test-suite boost-geometry-geometries-custom-non-copiable
     :
-    [ run custom_ring.cpp             : : : : cnc_ring ]
-    [ run custom_polygon.cpp          : : : : cnc_polygon ]
-    [ run custom_multi_polygon.cpp    : : : : cnc_multi_polygon ]
-    [ run custom_linestring.cpp       : : : : cnc_linestring ]
-    [ run custom_multi_linestring.cpp : : : : cnc_multi_linestring ]
+    [ run custom_ring.cpp                 : : : : cnc_ring ]
+    [ run custom_polygon.cpp              : : : : cnc_polygon ]
+    [ run custom_multi_polygon.cpp        : : : : cnc_multi_polygon ]
+    [ run custom_linestring.cpp           : : : : cnc_linestring ]
+    [ run custom_multi_linestring.cpp     : : : : cnc_multi_linestring ]
+    [ run custom_different_geometries.cpp : : : : cnc_different_geometries ]
     ;
