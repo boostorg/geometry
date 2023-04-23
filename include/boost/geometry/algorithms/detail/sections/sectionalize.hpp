@@ -889,26 +889,6 @@ inline void sectionalize(Geometry const& geometry,
 {
     concepts::check<Geometry const>();
 
-    using section_type = typename boost::range_value<Sections>::type;
-
-    // Compiletime check for point type of section boxes
-    // and point type related to robust policy
-    typedef typename geometry::coordinate_type
-    <
-        typename section_type::box_type
-    >::type ctype1;
-    typedef typename geometry::coordinate_type
-    <
-        typename geometry::robust_point_type
-        <
-            typename geometry::point_type<Geometry>::type,
-            RobustPolicy
-        >::type
-    >::type ctype2;
-
-    BOOST_STATIC_ASSERT((std::is_same<ctype1, ctype2>::value));
-
-
     sections.clear();
 
     ring_identifier ring_id;

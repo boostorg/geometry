@@ -192,13 +192,16 @@ template<typename VerifyPolicy>
 struct turn_info_verification_functions
 {
     template <typename Point1, typename Point2>
-    static inline typename geometry::coordinate_type<Point1>::type
-            distance_measure(Point1 const& a, Point2 const& b)
+    static inline
+    typename select_coordinate_type<Point1, Point2>::type
+    distance_measure(Point1 const& a, Point2 const& b)
     {
         // TODO: revise this using comparable distance for various
         // coordinate systems
-        auto const dx = get<0>(a) - get<0>(b);
-        auto const dy = get<1>(a) - get<1>(b);
+        using coor_t = typename select_coordinate_type<Point1, Point2>::type;
+
+        coor_t const dx = get<0>(a) - get<0>(b);
+        coor_t const dy = get<1>(a) - get<1>(b);
         return dx * dx + dy * dy;
     }
 
@@ -1032,8 +1035,9 @@ struct collinear : public base_turn_handler
             return false;
         }
 
-        auto const dm = fun::distance_measure(info.intersections[1],
-                arrival_p == 1 ? range_q.at(1) : range_p.at(1));
+       auto const dm = arrival_p == 1
+              ? fun::distance_measure(info.intersections[1], range_q.at(1))
+              : fun::distance_measure(info.intersections[1], range_p.at(1));
         decltype(dm) const zero = 0;
         return math::equals(dm, zero);
     }
