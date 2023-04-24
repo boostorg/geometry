@@ -1,11 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2021.
 // Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,10 +15,10 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 
 
+#include <array>
 #include <cstddef>
 #include <map>
 
-#include <boost/array.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
@@ -570,7 +569,7 @@ struct get_turns_cs
 {
     typedef typename geometry::point_type<Range>::type range_point_type;
     typedef typename geometry::point_type<Box>::type box_point_type;
-    typedef boost::array<box_point_type, 4> box_array;
+    typedef std::array<box_point_type, 4> box_array;
 
     using view_type = detail::closed_clockwise_view
         <

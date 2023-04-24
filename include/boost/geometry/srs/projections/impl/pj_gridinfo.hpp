@@ -1,6 +1,8 @@
 // Boost.Geometry
 // This file is manually converted from PROJ4
 
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+
 // This file was modified by Oracle on 2018, 2019.
 // Modifications copyright (c) 2018-2019, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -41,11 +43,11 @@
 #define BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_GRIDINFO_HPP
 
 
-#include <boost/algorithm/string.hpp>
-
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/cstdint.hpp>
 
 #include <algorithm>
