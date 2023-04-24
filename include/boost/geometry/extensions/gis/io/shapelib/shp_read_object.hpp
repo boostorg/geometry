@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020 Oracle and/or its affiliates.
@@ -14,13 +15,11 @@
 #define BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHP_READ_OBJECT_HPP
 
 
-#include <boost/scoped_array.hpp>
-
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
-#include <boost/geometry/algorithms/num_points.hpp>
 
 
 // Should be somewhere in your include path
