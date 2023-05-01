@@ -2,7 +2,7 @@
 //
 // R-tree inserting visitor implementation
 //
-// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2023 Adam Wulkiewicz, Lodz, Poland.
 //
 // This file was modified by Oracle on 2019-2021.
 // Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
@@ -180,7 +180,7 @@ public:
             // in the original node, then, if exception was thrown, the node would always have more than max
             // elements.
             // The alternative is to use moving semantics in the implementations of redistribute_elements,
-            // it will be possible to throw from boost::move() in the case of e.g. static size nodes.
+            // it will be possible to throw from std::move() in the case of e.g. static size nodes.
 
             // redistribute elements
             box_type box2;
