@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2009-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
@@ -18,6 +19,7 @@
 #define BOOST_GEOMETRY_IO_SVG_MAPPER_HPP
 
 #include <cstdio>
+#include <memory>
 #include <type_traits>
 #include <vector>
 
@@ -25,7 +27,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/config.hpp>
 #include <boost/noncopyable.hpp>
-#include <boost/scoped_ptr.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -287,7 +288,7 @@ class svg_mapper : boost::noncopyable
         > transformer_type;
 
     model::box<Point> m_bounding_box;
-    boost::scoped_ptr<transformer_type> m_matrix;
+    std::unique_ptr<transformer_type> m_matrix;
     std::ostream& m_stream;
 
     SvgCoordinateType const m_width;

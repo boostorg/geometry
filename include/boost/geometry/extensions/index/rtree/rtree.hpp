@@ -3,6 +3,7 @@
 // Boost.SpatialIndex - rtree implementation
 //
 // Copyright 2008 Federico J. Fernandez.
+// Copyright 2023 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -12,13 +13,13 @@
 
 #include <cstddef>
 #include <iostream> // TODO: Remove if print() is removed
+#include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
 #include <boost/concept_check.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 
@@ -33,8 +34,8 @@ class rtree
 {
 public:
 
-    typedef boost::shared_ptr<rtree_node<Box, Value> > node_pointer;
-    typedef boost::shared_ptr<rtree_leaf<Box, Value> > leaf_pointer;
+    typedef std::shared_ptr<rtree_node<Box, Value> > node_pointer;
+    typedef std::shared_ptr<rtree_leaf<Box, Value> > leaf_pointer;
 
     /**
      * \brief Creates a rtree with 'maximum' elements per node and 'minimum'.

@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2016-2022, Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2016-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -14,8 +15,6 @@
 
 #include <algorithm>
 
-#include <boost/tuple/tuple.hpp>
-#include <boost/algorithm/minmax.hpp>
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 

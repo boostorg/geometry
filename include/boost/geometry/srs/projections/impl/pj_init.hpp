@@ -2,6 +2,7 @@
 // This file is manually converted from PROJ4
 
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2020.
 // Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
@@ -43,9 +44,6 @@
 #include <string>
 #include <type_traits>
 #include <vector>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
 

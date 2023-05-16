@@ -1,6 +1,7 @@
 // Boost.Geometry - gis-projections (based on PROJ4)
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2021.
 // Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
@@ -48,8 +49,6 @@
 #include <boost/geometry/srs/projections/proj/moll.hpp>
 
 #include <boost/geometry/util/math.hpp>
-
-#include <boost/shared_ptr.hpp>
 
 namespace boost { namespace geometry
 {

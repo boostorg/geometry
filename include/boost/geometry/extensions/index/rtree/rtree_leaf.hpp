@@ -3,6 +3,7 @@
 // Boost.SpatialIndex - rtree leaf implementation
 //
 // Copyright 2008 Federico J. Fernandez.
+// Copyright 2023 Adam Wulkiewicz.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -12,11 +13,10 @@
 
 #include <deque>
 #include <iostream> // TODO: Remove if print() is removed
+#include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
-
-#include <boost/shared_ptr.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/assign.hpp>
@@ -33,7 +33,7 @@ class rtree_leaf : public rtree_node<Box, Value>
 public:
 
     /// container type for the leaves
-    typedef boost::shared_ptr<rtree_node<Box, Value> > node_pointer;
+    typedef std::shared_ptr<rtree_node<Box, Value> > node_pointer;
     typedef std::vector<std::pair<Box, Value> > leaf_map;
 
     /**

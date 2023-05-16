@@ -3,12 +3,11 @@
 // Copyright (c) 2007-2022 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2017 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2017 Mateusz Loskot, London, UK.
-// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2023 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Baidyanath Kundu, Haldia, India.
 
 // This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -22,10 +21,10 @@
 #ifndef BOOST_GEOMETRY_IO_WKT_WRITE_HPP
 #define BOOST_GEOMETRY_IO_WKT_WRITE_HPP
 
+#include <array>
 #include <ostream>
 #include <string>
 
-#include <boost/array.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -304,7 +303,7 @@ struct wkt_segment
                 Segment const& segment, bool)
     {
         // Convert to two points, then stream
-        using sequence = boost::array<point_type, 2>;
+        using sequence = std::array<point_type, 2>;
 
         sequence points;
         geometry::detail::assign_point_from_index<0>(segment, points[0]);
