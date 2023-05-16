@@ -3,7 +3,7 @@
 // R-tree implementation
 //
 // Copyright (c) 2008 Federico J. Fernandez.
-// Copyright (c) 2011-2022 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2023 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
 // This file was modified by Oracle on 2019-2021.
@@ -23,7 +23,6 @@
 
 // Boost
 #include <boost/container/new_allocator.hpp>
-#include <boost/move/move.hpp>
 #include <boost/tuple/tuple.hpp>
 
 // Boost.Geometry
@@ -172,8 +171,6 @@ template
 >
 class rtree
 {
-    BOOST_COPYABLE_AND_MOVABLE(rtree)
-
 public:
     /*! \brief The type of Value stored in the container. */
     typedef Value value_type;
@@ -271,10 +268,10 @@ private:
         members_holder(IndGet const& ind_get,
                        ValEq const& val_eq,
                        Parameters const& parameters,
-                       BOOST_FWD_REF(Alloc) alloc)
+                       Alloc&& alloc)
             : translator_type(ind_get, val_eq)
             , Parameters(parameters)
-            , allocators_type(boost::forward<Alloc>(alloc))
+            , allocators_type(std::forward<Alloc>(alloc))
             , values_count(0)
             , leafs_level(0)
             , root(0)
@@ -654,11 +651,11 @@ public:
     \par Throws
     Nothing.
     */
-    inline rtree(BOOST_RV_REF(rtree) src)
+    inline rtree(rtree&& src)
         : m_members(src.m_members.indexable_getter(),
                     src.m_members.equal_to(),
                     src.m_members.parameters(),
-                    boost::move(src.m_members.allocators()))
+                    std::move(src.m_members.allocators()))
     {
         boost::swap(m_members.values_count, src.m_members.values_count);
         boost::swap(m_members.leafs_level, src.m_members.leafs_level);
@@ -678,7 +675,7 @@ public:
     \li If Value copy constructor throws (only if allocators aren't equal).
     \li If allocation throws or returns invalid value (only if allocators aren't equal).
     */
-    inline rtree(BOOST_RV_REF(rtree) src, allocator_type const& allocator)
+    inline rtree(rtree&& src, allocator_type const& allocator)
         : m_members(src.m_members.indexable_getter(),
                     src.m_members.equal_to(),
                     src.m_members.parameters(),
@@ -708,7 +705,7 @@ public:
     \li If allocation throws.
     \li If allocation throws or returns invalid value.
     */
-    inline rtree & operator=(BOOST_COPY_ASSIGN_REF(rtree) src)
+    inline rtree & operator=(rtree const& src)
     {
         if ( &src != this )
         {
@@ -746,7 +743,7 @@ public:
     \li If Value copy constructor throws.
     \li If allocation throws or returns invalid value.
     */
-    inline rtree & operator=(BOOST_RV_REF(rtree) src)
+    inline rtree & operator=(rtree&& src)
     {
         if ( &src != this )
         {

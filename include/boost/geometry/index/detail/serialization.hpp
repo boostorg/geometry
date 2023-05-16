@@ -1,6 +1,6 @@
 // Boost.Geometry Index
 //
-// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2023 Adam Wulkiewicz, Lodz, Poland.
 //
 // This file was modified by Oracle on 2021.
 // Modifications copyright (c) 2021 Oracle and/or its affiliates.
@@ -48,7 +48,7 @@ class rtree;
 
 namespace detail {
 
-// TODO - use boost::move?
+// TODO - use std::move?
 template<typename T>
 class serialization_storage
 {
