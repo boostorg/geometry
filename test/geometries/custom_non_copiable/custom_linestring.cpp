@@ -124,7 +124,7 @@ void test_mutable()
 
     linestring_t densified;
     bg::densify(geo, densified, 0.1);
-    BOOST_CHECK_GT(bg::num_points(densified), 175);
+    BOOST_CHECK_GT(bg::num_points(densified), 175u);
 
     bg::read_wkt("LINESTRING(0 0,   5 5,5 5  ,7 3, 7 3,7 3,   9 5, 10 10)", geo);
     BOOST_CHECK_EQUAL(8u, bg::num_points(geo));

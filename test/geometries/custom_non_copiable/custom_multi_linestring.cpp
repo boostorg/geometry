@@ -126,7 +126,7 @@ void test_mutable()
 
     multi_t densified;
     bg::densify(geo, densified, 0.1);
-    BOOST_CHECK_GT(bg::num_points(densified), 150);
+    BOOST_CHECK_GT(bg::num_points(densified), 150u);
 
     bg::read_wkt("MULTILINESTRING((0 0,  5 5, 5 5, 5 5,   7 3, 9 5, 10 10),(0 10, 2 8, 4 9))", geo);
     BOOST_CHECK_EQUAL(10u, bg::num_points(geo));

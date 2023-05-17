@@ -140,7 +140,7 @@ void test_mutable()
 
     polygon_t densified;
     bg::densify(geo, densified, 0.1);
-    BOOST_CHECK_GT(bg::num_points(densified), 150);
+    BOOST_CHECK_GT(bg::num_points(densified), 150u);
 
     bg::read_wkt("POLYGON((0 0,0 4,4 4,4 4,4 4,4 0,0 0))", geo.custom_ext());
     bg::unique(geo);
