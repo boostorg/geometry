@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2016-2022.
 // Modifications copyright (c) 2016-2022 Oracle and/or its affiliates.
@@ -405,7 +405,7 @@ struct buffered_piece_collection
             // Verify if a turn is a linear endpoint
             if (! turn.is_linear_end_point)
             {
-                check_linear_endpoints(turn);
+                this->check_linear_endpoints(turn);
             }
         });
     }
