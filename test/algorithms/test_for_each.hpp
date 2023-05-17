@@ -2,6 +2,8 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,14 +13,14 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/config.hpp>
-#include <boost/geometry/algorithms/for_each.hpp>
-
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/config.hpp>
 
 template<typename Point>
 inline void translate_x_function(Point& p)
