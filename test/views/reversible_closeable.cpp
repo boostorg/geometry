@@ -15,6 +15,8 @@
 
 #include <geometry_test_common.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/views/reversible_view.hpp>
 

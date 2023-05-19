@@ -125,7 +125,7 @@ public:
     {
         return r.m_impl.is_end();
     }
-    
+
 private:
     visitors::spatial_query_incremental<MembersHolder, Predicates> m_impl;
 };
@@ -217,7 +217,7 @@ public:
     virtual ~query_iterator_base() {}
 
     virtual query_iterator_base * clone() const = 0;
-    
+
     virtual bool is_end() const = 0;
     virtual reference dereference() const = 0;
     virtual void increment() = 0;
@@ -285,6 +285,8 @@ public:
         : m_ptr(o.m_ptr.get() ? o.m_ptr->clone() : 0)
     {}
 
+    query_iterator(query_iterator&&) = default;
+
     query_iterator & operator=(query_iterator const& o)
     {
         if ( this != boost::addressof(o) )
@@ -294,21 +296,7 @@ public:
         return *this;
     }
 
-    query_iterator(query_iterator && o)
-        : m_ptr(0)
-    {
-        m_ptr.swap(o.m_ptr);
-    }
-
-    query_iterator & operator=(query_iterator && o)
-    {
-        if ( this != boost::addressof(o) )
-        {
-            m_ptr.swap(o.m_ptr);
-            o.m_ptr.reset();
-        }
-        return *this;
-    }
+    query_iterator& operator=(query_iterator &&) = default;
 
     reference operator*() const
     {
