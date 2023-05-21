@@ -20,6 +20,7 @@ struct common_settings
     bool triangular{false};
 
     bool check_validity{true};
+    bool verbose{false};
 };
 
 #endif // BOOST_GEOMETRY_COMMON_SETTINGS_HPP

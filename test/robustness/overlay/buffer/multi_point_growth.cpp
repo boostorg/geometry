@@ -11,17 +11,17 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <chrono>
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
-#include <boost/timer.hpp>
 
 #include <boost/geometry/algorithms/buffer.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
+#include <common/make_random_generator.hpp>
 
 namespace bg = boost::geometry;
 
@@ -73,12 +73,11 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
     typedef bg::strategy::buffer::distance_symmetric<coordinate_type> distance_strategy_type;
     distance_strategy_type distance_strategy(distance);
 
-    std::vector<GeometryOut> buffered;
+    bg::model::multi_polygon<GeometryOut> buffered;
 
     bg::buffer(geometry, buffered,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, point_strategy);
-
 
     typename bg::default_area_result<GeometryOut>::type area = 0;
     for (GeometryOut const& polygon : buffered)
@@ -102,23 +101,20 @@ double test_growth(Geometry const& geometry, int n, int d, double distance)
 template <typename P>
 void test_growth(int n, int distance_count)
 {
-    srand(int(time(NULL)));
-    //std::cout << typeid(bg::coordinate_type<P>::type).name() << std::endl;
-    boost::timer t;
-
     namespace buf = bg::strategy::buffer;
     typedef bg::model::polygon<P> polygon;
     typedef bg::model::multi_point<P> multi_point_type;
 
+    auto generator = make_real_generator(-1, 0.0, 100.0);
+
     multi_point_type multi_point;
     for (int i = 0; i < n; i++)
     {
-        P point(rand() % 100, rand() % 100);
+        P point(generator(), generator());
         multi_point.push_back(point);
     }
 
     //std::cout << bg::wkt(multi_point) << std::endl;
-
     double previous_area = 0;
     double epsilon = 0.1;
     double distance = 15.0;
@@ -129,19 +125,22 @@ void test_growth(int n, int distance_count)
         {
             std::cout << "Error: " << area << " < " << previous_area << std::endl
                 << " n=" << n << " distance=" << distance
-                << bg::wkt(multi_point) << std::endl;
+                << " wkt=" << bg::wkt(multi_point) << std::endl;
         }
         previous_area = area;
     }
-    std::cout << "n=" << n << " time=" << t.elapsed() << std::endl;
 }
 
 int main(int, char* [])
 {
+    auto const t0 = std::chrono::high_resolution_clock::now();
     for (int i = 5; i <= 50; i++)
     {
         test_growth<bg::model::point<double, 2, bg::cs::cartesian> >(i, 20);
     }
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
+    std::cout << " time=" << elapsed_ms / 1000.0 << std::endl;
 
     return 0;
 }

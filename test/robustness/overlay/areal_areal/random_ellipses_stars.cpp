@@ -14,13 +14,9 @@
 #endif
 
 #include <test_overlay_p_q.hpp>
+#include <common/make_random_generator.hpp>
 
 #include <boost/program_options.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
-
 
 struct star_params
 {
@@ -105,49 +101,11 @@ template <typename T, bool Clockwise, bool Closed>
 void test_type(int seed, int count, p_q_settings const& settings)
 {
     auto const t0 = std::chrono::high_resolution_clock::now();
-    typedef boost::minstd_rand base_generator_type;
 
-    //boost::uniform_real<> random_factor(0.5, 1.2);
-    //boost::uniform_real<> random_location(-10.0, 10.0);
-    //boost::uniform_int<> random_points(5, 20);
-
-    // This set (next 4 lines) are now solved for the most part
-    // 2009-12-03, 3 or 4 errors in 1000000 calls
-    // 2009-12-07,     no errors in 1000000 calls
-    //boost::uniform_real<> random_factor(1.0 - 1e-3, 1.0 + 1e-3);
-    //boost::uniform_real<> random_location(-1e-3, 1e-3);
-    //boost::uniform_real<> random_rotation(-1e-3, 1e-3);
-    //boost::uniform_int<> random_points(3, 3);
-
-    // 2009-12-08, still errors, see notes
-    // 2009-12-09, (probably) solved by order on side
-    // 2010-01-16: solved (no errors in 1000000 calls)
-    //boost::uniform_real<> random_factor(1.0 - 1e-3, 1.0 + 1e-3);
-    //boost::uniform_real<> random_location(-1e-3, -1e-3);
-    //boost::uniform_real<> random_rotation(-1e-3, 1e-3);
-    //boost::uniform_int<> random_points(3, 4);
-
-    // This set (next 4 lines) are now solved ("distance-zero"/"merge iiii" problem)
-    // 2009-12-03: 5,50 -> 2:1 000 000 wrong (2009-12-03)
-    // 2010-01-16: solved (no errors in 10000000 calls)
-    boost::uniform_real<> random_factor(0.3, 1.2);
-    boost::uniform_real<> random_location(-20.0, +20.0); // -25.0, +25.0
-    boost::uniform_real<> random_rotation(0, 0.5);
-    boost::uniform_int<> random_points(5, 15);
-
-    base_generator_type generator(seed);
-
-    boost::variate_generator<base_generator_type&, boost::uniform_real<> >
-        factor_generator(generator, random_factor);
-
-    boost::variate_generator<base_generator_type&, boost::uniform_real<> >
-        location_generator(generator, random_location);
-
-    boost::variate_generator<base_generator_type&, boost::uniform_real<> >
-        rotation_generator(generator, random_rotation);
-
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        int_generator(generator, random_points);
+    auto factor_generator = make_real_generator(seed, 0.3, 1.2);
+    auto location_generator = make_real_generator(seed, -20.0, +20.0); // -25.0, +25.0
+    auto rotation_generator = make_real_generator(seed, 0, 0.5);
+    auto int_generator = make_real_generator(seed, 5, 15);
 
     for(int i = 0; i < count; i++)
     {
@@ -162,7 +120,7 @@ void test_type(int seed, int count, p_q_settings const& settings)
     }
     auto const t = std::chrono::high_resolution_clock::now();
     auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
-    std::cout
+    std::cout << std::endl
         << "type: " << string_from_type<T>::name()
         << " time: " << elapsed_ms / 1000.0 << std::endl;
 }
@@ -192,7 +150,7 @@ int main(int argc, char** argv)
         po::options_description description("=== random_ellipses_stars ===\nAllowed options");
 
         int count = 1;
-        int seed = static_cast<unsigned int>(std::time(0));
+        int seed = -1;
         std::string type = "double";
         bool ccw = false;
         bool open = false;
@@ -208,6 +166,7 @@ int main(int argc, char** argv)
             ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
             ("type", po::value<std::string>(&type)->default_value("double"), "Type (float,double)")
 #endif
+            ("verbose", po::value<bool>(&settings.verbose), "Verbose")
             ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
             ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
         ;

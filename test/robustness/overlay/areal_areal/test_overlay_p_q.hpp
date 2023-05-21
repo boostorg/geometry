@@ -45,11 +45,15 @@ struct p_q_settings
     bool validity{false};
     bool wkt{false};
     bool verify_area{false};
-    double tolerance{1.0e-3};
-    bool verbose{false};
 
     // NOTE: since rescaling to integer the tolerance is less.
     // Was originally 1.0e-6 TODO: restore
+    double tolerance{1.0e-3};
+
+    // Concise verbose output, to be able to verify what is going on
+    bool verbose{false};
+    // Detailed verbose output
+    bool report{false};
 };
 
 template <typename Geometry>
@@ -206,6 +210,11 @@ static bool test_overlay_p_q(std::string const& caseid,
     bool svg = settings.svg;
     bool wkt = settings.wkt;
 
+    if (settings.verbose)
+    {
+        std::cout << " [" << area_i << " " << area_u << "]";
+    }
+
     if (wrong || settings.wkt)
     {
         if (wrong)
@@ -215,7 +224,7 @@ static bool test_overlay_p_q(std::string const& caseid,
             wkt = true;
         }
 
-        if (settings.verbose)
+        if (settings.report)
         {
             std::cout
                 << "type: " << string_from_type<CalculationType>::name()

@@ -32,10 +32,7 @@
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
+#include <random>
 
 
 template <typename Box>
@@ -318,21 +315,17 @@ struct svg_visitor
 template <typename Collection>
 void fill_points(Collection& collection, int seed, int size, int count)
 {
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, size - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    std::uniform_int_distribution<int> distribution(0, size - 1);
+    std::seed_seq ssq{seed};
+    std::default_random_engine re(ssq);
 
     std::set<std::pair<int, int> > included;
 
     int n = 0;
     for (int i = 0; n < count && i < count*count; i++)
     {
-        int x = coordinate_generator();
-        int y = coordinate_generator();
+        int x = distribution(re);
+        int y = distribution(re);
         std::pair<int, int> pair = std::make_pair(x, y);
         if (included.find(pair) == included.end())
         {
@@ -412,23 +405,19 @@ void test_many_points(int seed, int size, int count)
 template <typename Collection>
 void fill_boxes(Collection& collection, int seed, int size, int count)
 {
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, size * 10 - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    std::uniform_int_distribution<int> distribution(0, size * 10 - 1);
+    std::seed_seq ssq{seed};
+    std::default_random_engine re(ssq);
 
     int n = 0;
     for (int i = 0; n < count && i < count*count; i++)
     {
-        int w = coordinate_generator() % 30;
-        int h = coordinate_generator() % 30;
+        int w = distribution(re) % 30;
+        int h = distribution(re) % 30;
         if (w > 0 && h > 0)
         {
-            int x = coordinate_generator();
-            int y = coordinate_generator();
+            int x = distribution(re);
+            int y = distribution(re);
             if (x + w < size * 10 && y + h < size * 10)
             {
                 typename boost::range_value<Collection>::type item(n+1);
