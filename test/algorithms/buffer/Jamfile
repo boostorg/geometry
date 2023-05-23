@@ -30,6 +30,7 @@ test-suite boost-geometry-algorithms-buffer
     [ run buffer_multi_linestring_geo.cpp : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_multi_linestring_geo ]
     [ run buffer_multi_polygon.cpp        : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_multi_polygon ]
     [ run buffer_multi_polygon_geo.cpp    : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_multi_polygon_geo ]
+    [ run buffer_geo_spheroid.cpp         : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_geo_spheroid ]
     [ run buffer_linestring_aimes.cpp     : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_buffer_linestring_aimes ]
     [ run buffer_linestring.cpp           : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_buffer_linestring_alternative ]
     [ run buffer_multi_linestring.cpp     : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_buffer_multi_linestring_alternative ]

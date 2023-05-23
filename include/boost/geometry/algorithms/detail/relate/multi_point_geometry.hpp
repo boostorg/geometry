@@ -188,8 +188,7 @@ struct multi_point_single_geometry
         geometry::envelope(single_geometry, box2, strategy);
         geometry::detail::expand_by_epsilon(box2);
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it)
         {
             if (! (relate::may_update<interior, interior, '0', Transpose>(result)
                 || relate::may_update<interior, boundary, '0', Transpose>(result)
@@ -445,7 +444,6 @@ struct multi_point_multi_geometry_ii_ib_ie
     typedef model::box<point2_type> box2_type;
     typedef std::pair<box2_type, std::size_t> box_pair_type;
     typedef std::vector<box_pair_type> boxes_type;
-    typedef typename boxes_type::const_iterator boxes_iterator;
 
     template <typename Result, typename Strategy>
     static inline void apply(MultiPoint const& multi_point,
@@ -466,8 +464,7 @@ struct multi_point_multi_geometry_ii_ib_ie
             rtree(boxes.begin(), boxes.end(),
                   index_parameters_type(index::rstar<4>(), strategy));
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it)
         {
             if (! (relate::may_update<interior, interior, '0', Transpose>(result)
                 || relate::may_update<interior, boundary, '0', Transpose>(result)
@@ -482,10 +479,10 @@ struct multi_point_multi_geometry_ii_ib_ie
             rtree.query(index::intersects(point), std::back_inserter(boxes_found));
 
             bool found_ii_or_ib = false;
-            for (boxes_iterator bi = boxes_found.begin() ; bi != boxes_found.end() ; ++bi)
+            for (auto const& box_found : boxes_found)
             {
                 typename boost::range_value<MultiGeometry>::type const&
-                    single = range::at(multi_geometry, bi->second);
+                    single = range::at(multi_geometry, box_found.second);
 
                 int in_val = detail::within::point_in_geometry(point, single, strategy);
 

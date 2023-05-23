@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020 Oracle and/or its affiliates.
@@ -14,11 +15,11 @@
 #define BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHP_CREATE_OBJECT_MULTI_HPP
 
 
+#include <memory>
+
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
-
-#include <boost/scoped_array.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -43,8 +44,8 @@ struct shape_create_multi_point
     static inline SHPObject* apply(MultiPoint const& multi)
     {
         int const n = boost::size(multi);
-        boost::scoped_array<double> x(new double[n]);
-        boost::scoped_array<double> y(new double[n]);
+        std::unique_ptr<double[]> x(new double[n]);
+        std::unique_ptr<double[]> y(new double[n]);
 
         range_to_part(multi, x.get(), y.get());
 
@@ -64,9 +65,9 @@ struct shape_create_multi_linestring
         int const n = geometry::num_points(multi);
         int const part_count = boost::size(multi);
 
-        boost::scoped_array<double> x(new double[n]);
-        boost::scoped_array<double> y(new double[n]);
-        boost::scoped_array<int> parts(new int[part_count]);
+        std::unique_ptr<double[]> x(new double[n]);
+        std::unique_ptr<double[]> y(new double[n]);
+        std::unique_ptr<int[]> parts(new int[part_count]);
 
         int ring = 0;
         int offset = 0;
@@ -94,9 +95,9 @@ struct shape_create_multi_polygon
         int const n = geometry::num_points(multi);
         int const ring_count = boost::size(multi) + geometry::num_interior_rings(multi);
 
-        boost::scoped_array<double> x(new double[n]);
-        boost::scoped_array<double> y(new double[n]);
-        boost::scoped_array<int> parts(new int[ring_count]);
+        std::unique_ptr<double[]> x(new double[n]);
+        std::unique_ptr<double[]> y(new double[n]);
+        std::unique_ptr<int[]> parts(new int[ring_count]);
 
         int ring = 0;
         int offset = 0;

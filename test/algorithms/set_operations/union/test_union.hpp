@@ -227,10 +227,9 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
         //mapper.map(g1, "opacity:0.6;fill:rgb(0,0,255);stroke:rgb(0,0,0);stroke-width:1");
         //mapper.map(g2, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:1");
 
-        for (typename result_type::const_iterator it = clip.begin();
-                it != clip.end(); ++it)
+        for (auto const& item : clip)
         {
-            mapper.map(*it, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
+            mapper.map(item, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
                     "stroke:rgb(255,0,255);stroke-width:8");
             //mapper.map(*it, "opacity:0.6;fill:none;stroke:rgb(255,0,0);stroke-width:5");
         }

@@ -354,10 +354,7 @@ struct buffer_multi
             RobustPolicy const& robust_policy,
             Strategies const& strategies)
     {
-        for (typename boost::range_iterator<Multi const>::type
-                it = boost::begin(multi);
-            it != boost::end(multi);
-            ++it)
+        for (auto it = boost::begin(multi); it != boost::end(multi); ++it)
         {
             Policy::apply(*it, collection,
                 distance_strategy, segment_strategy,

@@ -2,7 +2,7 @@
 //
 // R-tree nodes
 //
-// Copyright (c) 2011-2015 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2011-2023 Adam Wulkiewicz, Lodz, Poland.
 //
 // This file was modified by Oracle on 2019-2020.
 // Modifications copyright (c) 2019-2020 Oracle and/or its affiliates.
@@ -218,7 +218,7 @@ void move_from_back(Container & container, Iterator it)
     --back_it;
     if ( it != back_it )
     {
-        *it = boost::move(*back_it);                                                             // MAY THROW (copy)
+        *it = std::move(*back_it);                                                             // MAY THROW (copy)
     }
 }
 

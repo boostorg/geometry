@@ -291,8 +291,7 @@ public:
         geometry::envelope(single_geometry, box2, strategy);
         geometry::detail::expand_by_epsilon(box2);
 
-        typedef typename boost::range_const_iterator<MultiPoint>::type iterator;
-        for ( iterator it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it )
+        for (auto it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it)
         {
             // The default strategy is enough for Point/Box
             if (! detail::disjoint::disjoint_point_box(*it, box2, strategy)

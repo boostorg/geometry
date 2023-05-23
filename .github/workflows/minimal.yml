@@ -4,6 +4,9 @@
 # Copyright (c) 2020 Mateusz Loskot <mateusz@loskot.net>
 # Copyright (c) 2020-2021 Adam Wulkiewicz, Lodz, Poland
 #
+# Copyright (c) 2022 Oracle and/or its affiliates.
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -16,7 +19,7 @@ jobs:
   ##############################################################################
   clang:
     name: ${{ matrix.b2_toolset }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -72,8 +75,8 @@ jobs:
           fi
           echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
           echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
-          echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
-          echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
+          echo "boost_self=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_OUTPUT
+          echo "boost_root=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_OUTPUT
 
       - name: Clone boostorg/boost
         run: |
@@ -96,7 +99,9 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu latest
+          # Required for compilers not available in ubuntu 20.04
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic main"
@@ -133,7 +138,7 @@ jobs:
   ##############################################################################
   gcc:
     name: ${{ matrix.b2_toolset }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       fail-fast: false
@@ -174,8 +179,8 @@ jobs:
           fi
           echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
           echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
-          echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
-          echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
+          echo "boost_self=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_OUTPUT
+          echo "boost_root=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_OUTPUT
 
       - name: Clone boostorg/boost
         run: |
@@ -198,7 +203,7 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu latest
+          # Required for compilers not available in ubuntu 20.04
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic main"
@@ -252,8 +257,8 @@ jobs:
           }
           echo "BOOST_SELF=$((Get-Item $env:GITHUB_WORKSPACE).BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "BOOST_ROOT=$env:GITHUB_WORKSPACE\boost-root" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "::set-output name=boost_self::$((Get-Item $env:GITHUB_WORKSPACE).BaseName)"
-          echo "::set-output name=boost_root::$env:GITHUB_WORKSPACE\boost-root"
+          echo "boost_self=$((Get-Item $env:GITHUB_WORKSPACE).BaseName)" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "boost_root=$env:GITHUB_WORKSPACE\boost-root" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Clone boostorg/boost
         shell: pwsh

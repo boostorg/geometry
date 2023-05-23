@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2020-2021 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2022.
 // Modifications copyright (c) 2020-2022, Oracle and/or its affiliates.
@@ -14,7 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP
 
 
-#include <boost/array.hpp>
+#include <array>
+
 #include <boost/core/addressof.hpp>
 
 #include <boost/geometry/core/assert.hpp>
@@ -115,7 +117,7 @@ struct piece_border
     // Points from the original (one or two, depending on piece shape)
     // Note, if there are 2 points, they are REVERSED w.r.t. the original
     // Therefore here we can walk in its order.
-    boost::array<Point, 2> m_originals;
+    std::array<Point, 2> m_originals;
     std::size_t m_original_size;
 
     geometry::model::box<Point> m_envelope;

@@ -593,8 +593,7 @@ struct convert_to_output<Geometry, SingleOut, true>
     static OutputIterator apply(Geometry const& geometry,
                                 OutputIterator oit)
     {
-        typedef typename boost::range_iterator<Geometry const>::type iterator;
-        for (iterator it = boost::begin(geometry); it != boost::end(geometry); ++it)
+        for (auto it = boost::begin(geometry); it != boost::end(geometry); ++it)
         {
             SingleOut single_out;
             geometry::convert(*it, single_out);

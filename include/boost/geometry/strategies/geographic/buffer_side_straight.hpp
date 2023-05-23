@@ -43,6 +43,16 @@ template
 class geographic_side_straight
 {
 public :
+    //! \brief Constructs the strategy with a spheroid
+    //! \param spheroid The spheroid to be used
+    explicit inline geographic_side_straight(Spheroid const& spheroid)
+        : m_spheroid(spheroid)
+    {}
+
+    //! \brief Constructs the strategy
+    inline geographic_side_straight()
+    {}
+
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     // Returns true if the buffer distance is always the same
     static inline bool equidistant()

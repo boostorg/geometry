@@ -82,11 +82,11 @@ template <int Dimension, typename Collection, typename Value, typename Predicate
 inline bool max_value(Collection const& collection, Value& the_max, Predicate const& predicate)
 {
     bool first = true;
-    for (typename Collection::const_iterator it = collection.begin(); it != collection.end(); ++it)
+    for (auto const& item : collection)
     {
-        if (! it->empty())
+        if (! item.empty())
         {
-            Value the_value = geometry::get<Dimension>(*std::max_element(it->begin(), it->end(), predicate));
+            Value the_value = geometry::get<Dimension>(*std::max_element(item.begin(), item.end(), predicate));
             if (first || the_value > the_max)
             {
                 the_max = the_value;
@@ -153,16 +153,14 @@ template <typename Point, typename P>
 inline void calculate_average(Point& point, std::vector<P> const& points)
 {
     typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-    typedef typename std::vector<P>::const_iterator iterator_type;
 
     coordinate_type x = 0;
     coordinate_type y = 0;
 
-    iterator_type end = points.end();
-    for ( iterator_type it = points.begin() ; it != end ; ++it)
+    for (auto const& p : points)
     {
-        x += geometry::get<0>(*it);
-        y += geometry::get<1>(*it);
+        x += geometry::get<0>(p);
+        y += geometry::get<1>(p);
     }
 
     signed_size_type const count = points.size();

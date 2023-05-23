@@ -1,6 +1,7 @@
 // Boost.Geometry - gis-projections (based on PROJ4)
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2020.
 // Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
@@ -40,19 +41,17 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_OB_TRAN_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_OB_TRAN_HPP
 
+#include <memory>
 #include <type_traits>
 
-#include <boost/geometry/util/math.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <boost/geometry/core/static_assert.hpp>
-
 #include <boost/geometry/srs/projections/impl/aasincos.hpp>
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/pj_ell_set.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
+#include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry
 {
@@ -199,7 +198,7 @@ namespace projections
                     link->inv(link->params(), xy_x, xy_y, lp_lon, lp_lat);
                 }
 
-                boost::shared_ptr<dynamic_wrapper_b<T, Parameters> > link;
+                std::shared_ptr<dynamic_wrapper_b<T, Parameters> > link;
                 T lamp;
                 T cphip, sphip;
             };

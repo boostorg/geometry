@@ -146,10 +146,9 @@ public :
     template <typename PieceCollection>
     inline void apply(PieceCollection const& collection, int phase)
     {
-        for(typename container_type::iterator it = mappers.begin();
-            it != mappers.end(); ++it)
+        for (auto& item : mappers)
         {
-            it->apply(collection, phase);
+            item.apply(collection, phase);
         }
     }
 
@@ -157,10 +156,9 @@ public :
     void map_input_output(Geometry const& geometry,
             GeometryBuffer const& buffered, bool negative)
     {
-        for(typename container_type::iterator it = mappers.begin();
-            it != mappers.end(); ++it)
+        for (auto& item : mappers)
         {
-           it->map_input_output(geometry, buffered, negative);
+           item.map_input_output(geometry, buffered, negative);
         }
     }
 };

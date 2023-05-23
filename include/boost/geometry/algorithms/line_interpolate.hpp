@@ -89,11 +89,10 @@ struct interpolate_range
                              PointLike & pointlike,
                              Strategies const& strategies)
     {
-        typedef typename boost::range_iterator<Range const>::type iterator_t;
         typedef typename boost::range_value<Range const>::type point_t;
 
-        iterator_t it = boost::begin(range);
-        iterator_t end = boost::end(range);
+        auto it = boost::begin(range);
+        auto const end = boost::end(range);
 
         if (it == end) // empty(range)
         {
@@ -112,7 +111,7 @@ struct interpolate_range
         typedef decltype(pp_strategy.apply(
                     std::declval<point_t>(), std::declval<point_t>())) distance_type;
 
-        iterator_t prev = it++;
+        auto prev = it++;
         distance_type repeated_distance = max_distance;
         distance_type prev_distance = 0;
         distance_type current_distance = 0;

@@ -2,6 +2,7 @@
 // QuickBook Example
 
 // Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -10,6 +11,8 @@
 //[interior_type
 //`Shows how to use the interior_type metafunction
 
+#include <deque>
+#include <list>
 #include <iostream>
 #include <typeinfo>
 

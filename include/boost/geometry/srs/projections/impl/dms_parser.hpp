@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017, 2018.
 // Modifications copyright (c) 2017-2018, Oracle and/or its affiliates.
@@ -39,9 +40,10 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <algorithm>
 #include <string>
+#include <ostream>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/config.hpp>

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2022 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
@@ -51,9 +51,8 @@ void check_wkt(G const& geometry, std::string const& expected)
 template <typename G>
 void check_to_wkt(G const& geometry, std::string const& expected)
 {
-    std::string out_string;
-    out_string = bg::to_wkt(geometry);
-    BOOST_CHECK_EQUAL(boost::to_upper_copy(out_string),
+    std::string const out = bg::to_wkt(geometry);
+    BOOST_CHECK_EQUAL(boost::to_upper_copy(out),
                       boost::to_upper_copy(expected));
 }
 
@@ -156,7 +155,6 @@ void test_wkt(std::string const& wkt,
 template <typename G>
 void test_relaxed_wkt_read_write(std::string const& wkt, std::string const& expected)
 {
-    std::string e;
     G geometry;
     bg::read_wkt(wkt, geometry);
     std::ostringstream out;
@@ -168,11 +166,9 @@ void test_relaxed_wkt_read_write(std::string const& wkt, std::string const& expe
 template <typename G>
 void test_relaxed_wkt_to_from(std::string const& wkt, std::string const& expected)
 {
-    std::string e;
     G geometry;
     geometry = bg::from_wkt<G>(wkt);
-    std::string out;
-    out = bg::to_wkt(geometry);
+    std::string const out = bg::to_wkt(geometry);
 
     BOOST_CHECK_EQUAL(boost::to_upper_copy(out), boost::to_upper_copy(expected));
 }
@@ -328,29 +324,32 @@ void test_all()
     //test_wkt<box<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 4, 0, 1, 4);
     test_wkt<bg::model::ring<P> >("POLYGON((0 0,0 1,1 1,1 0,0 0))", 5, 0, 1, 4);
 
-    // We accept empty sequences as well (much better than EMPTY)...
-    // ...or even POINT() (see below)
-    test_wkt<bg::model::linestring<P> >("LINESTRING()", 0, 0);
-    test_wkt<bg::model::polygon<P> >("POLYGON(())", 0);
-    // ... or even with empty holes
-    test_wkt<bg::model::polygon<P> >("POLYGON((),(),())", 0);
-    // which all make no valid geometries, but they can exist.
+    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING EMPTY", "LINESTRING()");
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON EMPTY", "POLYGON()");
+    test_relaxed_wkt<bg::model::ring<P> >("POLYGON EMPTY", "POLYGON()");
 
+    // Accept empty sequences as well
+    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING()", "LINESTRING()");
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON()", "POLYGON()");
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON(())", "POLYGON()");
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON((),(),())", "POLYGON()");
 
+    // Invalid polygon with an inner ring coordinate is outputted as such
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON((),(),(1 2))", "POLYGON((),(),(1 2))");
+
+    // Non OGC: tabs and returns are allowed and handled as normal white space.
+    test_relaxed_wkt<P>("POINT(1\n2)", "POINT(1 2)");
+    test_relaxed_wkt<P>("POINT(1\t2)", "POINT(1 2)");
+    test_relaxed_wkt<P>("POINT(1\r2)", "POINT(1 2)");
 
     // These WKT's are incomplete or abnormal but they are considered OK
     test_relaxed_wkt<P>("POINT(1)", "POINT(1 0)");
     test_relaxed_wkt<P>("POINT()", "POINT(0 0)");
-    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING(1,2,3)",
-                "LINESTRING(1 0,2 0,3 0)");
+    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING(1,2,3)", "LINESTRING(1 0,2 0,3 0)");
     test_relaxed_wkt<P>("POINT  ( 1 2)   ", "POINT(1 2)");
     test_relaxed_wkt<P>("POINT  M ( 1 2)", "POINT(1 2)");
     test_relaxed_wkt<bg::model::box<P> >("BOX(1 1,2 2)", "POLYGON((1 1,1 2,2 2,2 1,1 1))");
-
-    test_relaxed_wkt<bg::model::linestring<P> >("LINESTRING EMPTY", "LINESTRING()");
-
-    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON( ( ) , ( ) , ( ) )",
-                "POLYGON((),(),())");
+    test_relaxed_wkt<bg::model::polygon<P> >("POLYGON( ( ) , ( ) , ( ) )", "POLYGON()");
 
     // Wrong WKT's
     test_wrong_wkt<P>("POINT(1 2", "expected ')'");
@@ -398,33 +397,3 @@ int test_main(int, char* [])
 
     return 0;
 }
-
-/*
-
-Results can be checked in PostGIS by query below,
-or by MySQL (but replace length by glength and remove the perimeter)
-
-Note:
-- PostGIS gives "3" for a numpoints of a multi-linestring of 6 points in total (!)
-    --> "npoints" should be taken for all geometries
-- SQL Server 2008 gives "6"
-    select geometry::STGeomFromText('MULTILINESTRING((1 1,2 2,3 3),(4 4,5 5,6 6))',0).STNumPoints()
-- MySQL gives "NULL"
-
-select 1 as code,'np p' as header,npoints(geomfromtext('POINT(1 2)')) as contents
-union select 2,'length point', length(geomfromtext('POINT(1 2)'))
-union select 3,'peri point', perimeter(geomfromtext('POINT(1 2)'))
-union select 4,'area point',area(geomfromtext('POINT(1 2)'))
-
-
-union select 5,'# ls',npoints(geomfromtext('LINESTRING(1 1,2 2,3 3)'))
-union select 6,'length ls',length(geomfromtext('LINESTRING(1 1,2 2,3 3)'))
-union select 7,'peri ls',perimeter(geomfromtext('LINESTRING(1 1,2 2,3 3)'))
-union select 8,'aera ls',area(geomfromtext('LINESTRING(1 1,2 2,3 3)'))
-
-union select 9,'# poly',npoints(geomfromtext('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))'))
-union select 10,'length poly',length(geomfromtext('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))'))
-union select 11,'peri poly',perimeter(geomfromtext('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))'))
-union select 12,'area poly',area(geomfromtext('POLYGON((0 0,0 4,4 4,4 0,0 0),(1 1,1 2,2 2,2 1,1 1),(1 1,1 2,2 2,2 1,1 1))'))
-
-*/

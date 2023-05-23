@@ -91,17 +91,15 @@ struct to_polygon_point
                              signed_size_type ring_index, signed_size_type = 0)
     {
         using ring_type = typename ring_type<Polygon>::type;
-        using exterior_ring_type = typename ring_return_type<Polygon>::type;
-        using interior_ring_range_type = typename interior_return_type<Polygon>::type;
 
         if (ring_index == -1)
         {
-            exterior_ring_type ext_ring = exterior_ring(polygon);
+            auto&& ext_ring = exterior_ring(polygon);
             to_range_point::apply<ring_type, Point>(ext_ring, point);
         }
         else if (ring_index < signed_size_type(num_interior_rings(polygon)))
         {
-            interior_ring_range_type int_rings = interior_rings(polygon);
+            auto&& int_rings = interior_rings(polygon);
             to_range_point::apply<ring_type, Point>(range::at(int_rings, ring_index), point);
         }
     }

@@ -23,8 +23,7 @@
 template <typename P, typename Functor, typename T>
 void test_all(std::vector<T> const& expected, double precision = 0.01)
 {
-    typename boost::range_const_iterator<std::vector<T> >::type iterator
-        = boost::begin(expected);
+    auto iterator = boost::begin(expected);
 
     typedef bg::model::multi_polygon<bg::model::polygon<P> > mp;
     typedef bg::model::box<P> box;

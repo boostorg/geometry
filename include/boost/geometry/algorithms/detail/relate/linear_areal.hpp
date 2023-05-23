@@ -277,7 +277,6 @@ inline bool calculate_from_inside(Geometry1 const& geometry1,
     auto const& range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
 
     using range2_view = detail::closed_clockwise_view<typename ring_type<Geometry2>::type const>;
-    using range2_iterator = typename boost::range_iterator<range2_view const>::type;
     range2_view const range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
 
     BOOST_GEOMETRY_ASSERT(boost::size(range1));
@@ -305,10 +304,10 @@ inline bool calculate_from_inside(Geometry1 const& geometry1,
         std::size_t const q_seg_jk = (q_seg_ij + 1) % seg_count2;
         // TODO: the following function should return immediately, however the worst case complexity is O(N)
         // It would be good to replace it with some O(1) mechanism
-        range2_iterator qk_it = find_next_non_duplicated(boost::begin(range2),
-                                                         range::pos(range2, q_seg_jk),
-                                                         boost::end(range2),
-                                                         strategy);
+        auto qk_it = find_next_non_duplicated(boost::begin(range2),
+                                              range::pos(range2, q_seg_jk),
+                                              boost::end(range2),
+                                              strategy);
 
         // Calculate sides in a different point order for P and Q
         // Will this sequence of points be always correct?
