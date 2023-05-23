@@ -24,14 +24,8 @@ int main()
     typedef bg::model::multi_linestring<linestring_t> mlinestring_t;
 
     mlinestring_t mls1; /*< Default-construct a multi_linestring. >*/
-
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     mlinestring_t mls2{{{0.0, 0.0}, {0.0, 1.0}, {2.0, 1.0}},
                        {{1.0, 0.0}, {2.0, 0.0}}}; /*< Construct a multi_linestring containing two linestrings, using C++11 unified initialization syntax. >*/
-
-#endif
 
     mls1.resize(2); /*< Resize a multi_linestring, store two linestrings. >*/
 

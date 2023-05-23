@@ -23,13 +23,7 @@ int main()
     typedef bg::model::ring<point_t> ring_t; /*< Default parameters, clockwise, closed ring. >*/
 
     ring_t ring1; /*< Default-construct a ring. >*/
-
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     ring_t ring2{{0.0, 0.0}, {0.0, 5.0}, {5.0, 5.0}, {5.0, 0.0}, {0.0, 0.0}}; /*< Construct a ring containing four points plus one closing point, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::append(ring1, point_t(0.0, 0.0)); /*< Append point. >*/
     bg::append(ring1, point_t(0.0, 5.0));

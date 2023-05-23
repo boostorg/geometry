@@ -23,12 +23,7 @@ int main()
 
     box_t box1; /*< Default-construct a box. >*/
     box_t box2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning min and max corner point. >*/
-
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
-
     box_t box3{{0.0, 0.0}, {5.0, 5.0}}; /*< Construct, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::set<bg::min_corner, 0>(box1, 1.0); /*< Set a coordinate, generic. >*/
     bg::set<bg::min_corner, 1>(box1, 2.0);

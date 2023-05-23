@@ -27,14 +27,11 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-
 
 template <typename P>
 bg::model::linestring<P> create_linestring()
-{   
+{
     bg::model::linestring<P> l1;
     P p1;
     bg::assign_values(p1, 1, 2, 3);
@@ -74,7 +71,7 @@ void test_copy_assignment()
 
 template <typename P>
 void test_concept()
-{   
+{
     typedef bg::model::linestring<P> L;
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::ConstLinestring<L>) );
@@ -87,7 +84,7 @@ void test_concept()
 
 template <typename P>
 void test_all()
-{   
+{
     test_default_constructor<P>();
     test_copy_constructor<P>();
     test_copy_assignment<P>();
@@ -105,11 +102,9 @@ void test_custom_linestring(std::initializer_list<P> IL)
 
 template <typename P>
 void test_custom()
-{   
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+{
     std::initializer_list<P> IL = {P(1, 2), P(2, 3), P(3, 4)};
     test_custom_linestring<P>(IL);
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>
@@ -124,7 +119,7 @@ void test_cs()
 
 
 int test_main(int, char* [])
-{   
+{
     test_cs<bg::cs::cartesian>();
     test_cs<bg::cs::spherical<bg::degree> >();
     test_cs<bg::cs::spherical_equatorial<bg::degree> >();
