@@ -4,7 +4,7 @@
 # Copyright (c) 2020 Mateusz Loskot <mateusz@loskot.net>
 # Copyright (c) 2020-2021 Adam Wulkiewicz, Lodz, Poland
 #
-# Copyright (c) 2022 Oracle and/or its affiliates.
+# Copyright (c) 2022-2023 Oracle and/or its affiliates.
 # Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 #
 # Use, modification and distribution is subject to the Boost Software License,
@@ -19,7 +19,7 @@ jobs:
   ##############################################################################
   clang:
     name: ${{ matrix.b2_toolset }}
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -32,38 +32,65 @@ jobs:
           clang-7,
           clang-8,
           clang-9,
-          clang-10
+          clang-10,
+          clang-11,
+          clang-12,
+          clang-13,
+          clang-14
         ]
 
         include:
           - b2_toolset: clang-3.9
             b2_cxxstd: 14
             version: "3.9"
+            os: ubuntu-20.04
           - b2_toolset: clang-4.0
             b2_cxxstd: 14
             version: "4.0"
+            os: ubuntu-20.04
           - b2_toolset: clang-5.0
             b2_cxxstd: 14
             version: "5.0"
+            os: ubuntu-20.04
           - b2_toolset: clang-6.0
             b2_cxxstd: 14
             version: "6.0"
+            os: ubuntu-20.04
           - b2_toolset: clang-7
             b2_cxxstd: 14,17
             version: "7"
+            os: ubuntu-20.04
           - b2_toolset: clang-8
             b2_cxxstd: 14,17
             version: "8"
+            os: ubuntu-20.04
           - b2_toolset: clang-9
             # At some point compilation started to fail with 2a from unknown reason
             # It may have something to do with the std library
             #b2_cxxstd: 14,17,2a
             b2_cxxstd: 14,17
             version: "9"
+            os: ubuntu-20.04
           - b2_toolset: clang-10
             b2_cxxstd: 14,17,2a
             version: "10"
-
+            os: ubuntu-20.04
+          - b2_toolset: clang-11
+            b2_cxxstd: 14,17,2a
+            version: "11"
+            os: ubuntu-22.04
+          - b2_toolset: clang-12
+            b2_cxxstd: 14,17,2a
+            version: "12"
+            os: ubuntu-22.04
+          - b2_toolset: clang-13
+            b2_cxxstd: 14,17,2a
+            version: "13"
+            os: ubuntu-22.04
+          - b2_toolset: clang-14
+            b2_cxxstd: 14,17,2a
+            version: "14"
+            os: ubuntu-22.04
     steps:
       - name: Set up environment
         id: setenv
@@ -138,7 +165,7 @@ jobs:
   ##############################################################################
   gcc:
     name: ${{ matrix.b2_toolset }}
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -148,25 +175,40 @@ jobs:
           gcc-6,
           gcc-7,
           gcc-8,
-          gcc-9
+          gcc-9,
+          gcc-10,
+          gcc-11
         ]
 
         include:
           - b2_toolset: gcc-5
             b2_cxxstd: 14
             version: "5"
+            os: ubuntu-20.04
           - b2_toolset: gcc-6
             b2_cxxstd: 14
             version: "6"
+            os: ubuntu-20.04
           - b2_toolset: gcc-7
             b2_cxxstd: 14,17
             version: "7"
+            os: ubuntu-20.04
           - b2_toolset: gcc-8
             b2_cxxstd: 14,17
             version: "8"
+            os: ubuntu-20.04
           - b2_toolset: gcc-9
             b2_cxxstd: 14,17,2a
             version: "9"
+            os: ubuntu-20.04
+          - b2_toolset: gcc-10
+            b2_cxxstd: 14,17,2a
+            version: "10"
+            os: ubuntu-22.04
+          - b2_toolset: gcc-11
+            b2_cxxstd: 14,17,2a
+            version: "11"
+            os: ubuntu-22.04
 
     steps:
       - name: Set up environment
@@ -204,6 +246,8 @@ jobs:
       - name: Install
         run: |
           # Required for compilers not available in ubuntu 20.04
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic main"
@@ -238,11 +282,17 @@ jobs:
       fail-fast: false
       matrix:
         b2_toolset: [
-          msvc-14.3
+          msvc-14.3,
+          msvc-15,
+          msvc-16,
         ]
 
         include:
           - b2_toolset: msvc-14.3
+            b2_cxxstd: 14,17,2a
+          - b2_toolset: msvc-15
+            b2_cxxstd: 14,17,2a
+          - b2_toolset: msvc-16
             b2_cxxstd: 14,17,2a
 
     steps:
