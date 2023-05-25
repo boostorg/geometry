@@ -125,16 +125,10 @@ struct dms_parser
         bool has_dms[3];
 
         dms_value()
-#ifdef BOOST_GEOMETRY_CXX11_ARRAY_UNIFIED_INITIALIZATION
-            : dms{0, 0, 0}
-            , has_dms{false, false, false}
-        {}
-#else
         {
             std::fill(dms, dms + 3, T(0));
             std::fill(has_dms, has_dms + 3, false);
         }
-#endif
     };
 
 

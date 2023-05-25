@@ -23,13 +23,7 @@ int main()
     typedef bg::model::multi_point<point_t> mpoint_t;
 
     mpoint_t mpt1; /*< Default-construct a multi_point. >*/
-
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     mpoint_t mpt2{{{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}}}; /*< Construct a multi_point containing three points, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::append(mpt1, point_t(0.0, 0.0)); /*< Append point to the multi_point. >*/
     bg::append(mpt1, point_t(1.0, 1.0));

@@ -96,13 +96,12 @@ struct variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_s
     {
         throwing_nodes_stats::get_internal_nodes_counter_ref()++;
     }
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+
     inline variant_internal_node(variant_internal_node && n)
         : elements(boost::move(n.elements))
     {
         throwing_nodes_stats::get_internal_nodes_counter_ref()++;
     }
-#endif
 
     elements_type elements;
 
@@ -126,13 +125,12 @@ struct variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag
     {
         throwing_nodes_stats::get_leafs_counter_ref()++;
     }
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+
     inline variant_leaf(variant_leaf && n)
         : elements(boost::move(n.elements))
     {
         throwing_nodes_stats::get_leafs_counter_ref()++;
     }
-#endif
 
     elements_type elements;
 
@@ -229,13 +227,11 @@ public:
         return *this;
     }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     inline allocators & operator=(allocators const& a)
     {
         node_allocator() = a.node_allocator();
         return *this;
     }
-#endif
 
     void swap(allocators & a)
     {

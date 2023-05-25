@@ -24,15 +24,9 @@ int main()
     typedef bg::model::multi_polygon<polygon_t> mpolygon_t; /*< Clockwise, closed multi_polygon. >*/
 
     mpolygon_t mpoly1; /*< Default-construct a multi_polygon. >*/
-
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     mpolygon_t mpoly2{{{{0.0, 0.0}, {0.0, 5.0}, {5.0, 5.0}, {5.0, 0.0}, {0.0, 0.0}},
                        {{1.0, 1.0}, {4.0, 1.0}, {4.0, 4.0}, {1.0, 4.0}, {1.0, 1.0}}},
                       {{{5.0, 5.0}, {5.0, 6.0}, {6.0, 6.0}, {6.0, 5.0}, {5.0, 5.0}}}}; /*< Construct a multi_polygon containing two polygons, using C++11 unified initialization syntax. >*/
-
-#endif
 
     mpoly1.resize(2); /*< Resize a multi_polygon, store two polygons. >*/
 

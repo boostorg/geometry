@@ -24,12 +24,7 @@ int main()
 
     segment_t seg1; /*< Default-construct a segment. >*/
     segment_t seg2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning the first and the second point. >*/
-
-#ifndef BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
-
     segment_t seg3{{0.0, 0.0}, {5.0, 5.0}}; /*< Construct, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::set<0, 0>(seg1, 1.0); /*< Set a coordinate. >*/
     bg::set<0, 1>(seg1, 2.0);

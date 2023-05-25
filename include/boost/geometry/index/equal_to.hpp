@@ -16,6 +16,8 @@
 #include <boost/geometry/algorithms/detail/equals/interface.hpp>
 #include <boost/geometry/index/indexable.hpp>
 
+#include <tuple>
+
 namespace boost { namespace geometry { namespace index { namespace detail
 {
 
@@ -231,10 +233,6 @@ struct equal_to<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, false>
 
 }}}} // namespace boost::geometry::index::detail
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
-#include <tuple>
-
 namespace boost { namespace geometry { namespace index { namespace detail {
 
 template <typename Tuple, size_t I, size_t N>
@@ -293,7 +291,6 @@ struct equal_to<std::tuple<Args...>, false>
 
 }}}} // namespace boost::geometry::index::detail
 
-#endif // !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
 namespace boost { namespace geometry { namespace index {
 

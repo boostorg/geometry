@@ -243,8 +243,6 @@ struct value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int
     }
 };
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
 template <typename T, typename C>
 struct value< std::tuple<bg::model::point<T, 2, C>, int, int> >
 {
@@ -302,8 +300,6 @@ struct value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> 
         return std::make_tuple(B(P(x, y, z), P(x + 2, y + 3, z + 4)), x + y * 100 + z * 10000, 0);
     }
 };
-
-#endif // #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
 
 } // namespace generate
 
@@ -1357,14 +1353,12 @@ void satisfies(Rtree const& rtree, std::vector<Value> const& input)
     rtree.query(!bgi::satisfies(satisfies_fun<Value>), std::back_inserter(result));
     BOOST_CHECK(result.size() == 0);
 
-#ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
     rtree.query(bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
     rtree.query(!bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == 0);
-#endif
 }
 
 // rtree copying and moving
@@ -1973,10 +1967,8 @@ void test_rtree_for_point(Parameters const& parameters, Allocator const& allocat
 
     test_rtree_additional<Point>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Point, int, int> StdTupleP;
     test_rtree_by_value<StdTupleP, Parameters>(parameters, allocator);
-#endif
 }
 
 template<typename Point, typename Parameters, typename Allocator>
@@ -1995,10 +1987,8 @@ void test_rtree_for_box(Parameters const& parameters, Allocator const& allocator
 
     test_rtree_additional<Box>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Box, int, int> StdTupleB;
     test_rtree_by_value<StdTupleB, Parameters>(parameters, allocator);
-#endif
 }
 
 template<typename Point, typename Parameters>
@@ -2030,10 +2020,8 @@ void modifiers(Parameters const& parameters, Allocator const& allocator)
     test_rtree_modifiers<SharedPtr>(parameters, allocator);
     test_rtree_modifiers<VNoDCtor>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Indexable, int, int> StdTuple;
     test_rtree_modifiers<StdTuple>(parameters, allocator);
-#endif
 }
 
 template<typename Indexable, typename Parameters, typename Allocator>
@@ -2051,10 +2039,8 @@ void queries(Parameters const& parameters, Allocator const& allocator)
     test_rtree_queries<SharedPtr>(parameters, allocator);
     test_rtree_queries<VNoDCtor>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Indexable, int, int> StdTuple;
     test_rtree_queries<StdTuple>(parameters, allocator);
-#endif
 }
 
 template<typename Indexable, typename Parameters, typename Allocator>

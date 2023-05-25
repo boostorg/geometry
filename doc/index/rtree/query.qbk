@@ -165,10 +165,8 @@ may use `index::satisfies()` function like on the example below:
  rt.query(index::intersects(box) && index::satisfies(is_red_o()),
           std::back_inserter(result));
 
- #ifndef BOOST_NO_CXX11_LAMBDAS
  rt.query(index::intersects(box) && index::satisfies([](__value__ const& v) { return v.is_red(); }),
           std::back_inserter(result));
- #endif
 
 `satisfies()` may be negated, e.g.:
 
@@ -239,7 +237,7 @@ The most basic way is creating a temporary container for Values and insert them 
 
 However there are other ways. One of these methods is mentioned in the "Creation and modification" section.
 The insert iterator may be passed directly into the query.
- 
+
  RTree rt3;
  rt1.query(bgi::intersects(Box(/*...*/))), bgi::inserter(rt3));
 
