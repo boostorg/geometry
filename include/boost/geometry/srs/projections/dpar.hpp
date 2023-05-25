@@ -2,7 +2,7 @@
 
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2017-2022, Oracle and/or its affiliates.
+// Copyright (c) 2017-2023, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -33,6 +33,8 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
+
+#include <boost/variant/get.hpp>
 #include <boost/variant/variant.hpp>
 
 

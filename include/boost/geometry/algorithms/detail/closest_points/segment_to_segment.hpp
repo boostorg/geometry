@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2023, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
@@ -16,8 +16,10 @@
 #include <boost/core/addressof.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+#include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
 #include <boost/geometry/algorithms/detail/distance/is_comparable.hpp>
 #include <boost/geometry/algorithms/detail/distance/strategy_utils.hpp>
+#include <boost/geometry/algorithms/dispatch/closest_points.hpp>
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/algorithms/intersects.hpp>
 

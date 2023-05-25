@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2019-2021 Oracle and/or its affiliates.
+// Copyright (c) 2019-2023 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -12,6 +12,7 @@
 #ifndef BOOST_GEOMETRY_FORMULAS_INTERPOLATE_POINT_SPHERICAL_HPP
 #define BOOST_GEOMETRY_FORMULAS_INTERPOLATE_POINT_SPHERICAL_HPP
 
+#include <boost/geometry/arithmetic/normalize.hpp>
 #include <boost/geometry/formulas/spherical.hpp>
 #include <boost/geometry/geometries/point.hpp>
 

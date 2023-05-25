@@ -2,8 +2,9 @@
 
 // Copyright (c) 2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2020.
-// Modifications copyright (c) 2016-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2023.
+// Modifications copyright (c) 2016-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,6 +19,7 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
