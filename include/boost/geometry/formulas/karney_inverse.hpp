@@ -381,7 +381,7 @@ public:
                         cos_alpha1 / sin_alpha1 > cos_alpha1b / sin_alpha1b))
                     {
                         sin_alpha1b = sin_alpha1;
-                        cos_alpha1b = cos_alpha1;   
+                        cos_alpha1b = cos_alpha1;
                     }
                     else if (v < c0 && (iteration > max_iterations ||
                              cos_alpha1 / sin_alpha1 < cos_alpha1a / sin_alpha1a))

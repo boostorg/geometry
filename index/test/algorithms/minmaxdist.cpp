@@ -64,7 +64,7 @@ void test_large_integers()
     std::string const box_li = "POLYGON((1536119 192000, 1872000 528000))";
     bg::read_wkt(box_li, int_box);
     bg::read_wkt(box_li, double_box);
-    
+
     BOOST_CHECK(bgi::detail::minmaxdist(int_pt, int_box) == bgi::detail::minmaxdist(double_pt, double_box));
 }
 
@@ -86,7 +86,7 @@ int test_main(int, char* [])
     test_indexable<bg::model::box<P3dc> >(P3dc(1, 2, 3), "POLYGON((0 1 2,2 4 6))", 14.0);
 
     test_indexable<bg::model::box<P2ic> >(P2ic(1, 2), "POLYGON((1 2,3 5))", 4.0);
-    
+
     test_large_integers();
 
     return 0;

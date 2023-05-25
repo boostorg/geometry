@@ -62,9 +62,9 @@ namespace detail { namespace wkb
             // write num points
             uint32_t num_points = boost::size(multipoint);
             value_writer<uint32_t>::write(num_points, iter, byte_order);
-            
+
             typedef typename point_type<MultiPoint>::type point_type;
-            
+
             for(typename boost::range_iterator<MultiPoint const>::type
                     point_iter = boost::begin(multipoint);
                 point_iter != boost::end(multipoint);
@@ -95,9 +95,9 @@ namespace detail { namespace wkb
             // write num linestrings
             uint32_t num_linestrings = boost::size(multilinestring);
             value_writer<uint32_t>::write(num_linestrings, iter, byte_order);
-            
+
             typedef typename boost::range_value<MultiLinestring>::type linestring_type;
-            
+
             for(typename boost::range_iterator<MultiLinestring const>::type
                     linestring_iter = boost::begin(multilinestring);
                 linestring_iter != boost::end(multilinestring);
@@ -128,9 +128,9 @@ namespace detail { namespace wkb
             // write num polygons
             uint32_t num_polygons = boost::size(multipolygon);
             value_writer<uint32_t>::write(num_polygons, iter, byte_order);
-            
+
             typedef typename boost::range_value<MultiPolygon>::type polygon_type;
-            
+
             for(typename boost::range_iterator<MultiPolygon const>::type
                     polygon_iter = boost::begin(multipolygon);
                 polygon_iter != boost::end(multipolygon);

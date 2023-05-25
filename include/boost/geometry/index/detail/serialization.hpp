@@ -77,7 +77,7 @@ private:
 template <typename T, typename Archive> inline
 T serialization_load(const char * name, Archive & ar)
 {
-    namespace bs = boost::serialization;    
+    namespace bs = boost::serialization;
     serialization_storage<T> storage(ar, bs::version<T>::value);        // load_construct_data
     ar >> boost::serialization::make_nvp(name, *storage.address());   // serialize
     //ar >> *storage.address();                                           // serialize
@@ -92,7 +92,7 @@ void serialization_save(T const& t, const char * name, Archive & ar)
     ar << boost::serialization::make_nvp(name, t);                                // serialize
     //ar << t;                                                                      // serialize
 }
-    
+
 }}}}
 
 // TODO - move to index/serialization/rtree.hpp
@@ -421,7 +421,7 @@ private:
         if ( current_level < leafs_level )
         {
             node_pointer n = rtree::create_node<allocators_type, internal_node>::apply(allocators);         // MAY THROW (A)
-            subtree_destroyer auto_remover(n, allocators);    
+            subtree_destroyer auto_remover(n, allocators);
             internal_node & in = rtree::get<internal_node>(*n);
 
             elements_type & elements = rtree::elements(in);
@@ -482,7 +482,7 @@ public:
     typedef typename Rtree::value_type value_type;
     typedef typename Rtree::options_type options_type;
     typedef typename Rtree::box_type box_type;
-    typedef typename Rtree::allocators_type allocators_type;    
+    typedef typename Rtree::allocators_type allocators_type;
 
     const_private_view(Rtree const& rt) : m_rtree(rt) {}
 
@@ -507,7 +507,7 @@ public:
     typedef typename Rtree::value_type value_type;
     typedef typename Rtree::options_type options_type;
     typedef typename Rtree::box_type box_type;
-    typedef typename Rtree::allocators_type allocators_type;    
+    typedef typename Rtree::allocators_type allocators_type;
 
     private_view(Rtree & rt) : m_rtree(rt) {}
 

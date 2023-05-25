@@ -47,7 +47,7 @@ struct closed_clockwise_view
 {
     using closed_view = detail::closed_view<Range const, Closure>;
     using view = detail::clockwise_view<closed_view const, Order>;
-    
+
     explicit inline closed_clockwise_view(Range const& r)
         : m_view(closed_view(r))
     {}

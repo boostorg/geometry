@@ -63,7 +63,7 @@ struct indexable
 
     /*!
     \brief Return indexable extracted from the value.
-    
+
     \param v The value.
     \return The indexable.
     */
@@ -105,7 +105,7 @@ struct indexable<std::pair<Indexable, Second>, false>
 
     /*!
     \brief Return indexable extracted from the value.
-    
+
     \param v The value.
     \return The indexable.
     */
@@ -164,7 +164,7 @@ struct indexable_boost_tuple
 
     /*!
     \brief Return indexable extracted from the value.
-    
+
     \param v The value.
     \return The indexable.
     */
@@ -280,7 +280,7 @@ struct indexable<std::tuple<Indexable, Args...>, false>
 
     /*!
     \brief Return indexable extracted from the value.
-    
+
     \param v The value.
     \return The indexable.
     */
@@ -339,7 +339,7 @@ struct indexable
 
     /*!
     \brief Return indexable extracted from the value.
-    
+
     \param v The value.
     \return The indexable.
     */

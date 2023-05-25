@@ -162,7 +162,7 @@ int main()
                 std::cout << time << " - query(B) " << queries_count << " found " << temp << '\n';
             }
         }
-        
+
         RT t;
 
         // inserting test
@@ -176,7 +176,7 @@ int main()
                       << (bgi::detail::rtree::utilities::are_boxes_ok(t) ? " ok\n" : "NOK\n");
         }
 
-        
+
 
         {
             clock_t::time_point start = clock_t::now();
@@ -402,7 +402,7 @@ int main()
         {
             LS ls;
             ls.resize(6);
-            
+
             clock_t::time_point start = clock_t::now();
             size_t temp = 0;
             for (size_t i = 0 ; i < path_queries_count ; ++i )
@@ -414,7 +414,7 @@ int main()
                     float foo = i*max_val/300;
                     ls[2*i] = P(x, y+foo);
                     ls[2*i+1] = P(x+max_val/100, y+foo);
-                }                
+                }
                 result.clear();
                 t.query(bgi::path(ls, path_values_count), std::back_inserter(result));
                 temp += result.size();
@@ -466,7 +466,7 @@ int main()
             {
                 float x = coords[i].first;
                 float y = coords[i].second;
-                
+
                 t.remove(generate_value<V>::apply(x, y));
             }
             dur_t time = clock_t::now() - start;

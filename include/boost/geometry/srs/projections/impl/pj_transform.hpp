@@ -470,7 +470,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
             result = false;
         else
             BOOST_THROW_EXCEPTION( projection_exception(err) );
-            
+
         if( dstdefn.fr_meter != 1.0 )
         {
             for( std::size_t i = 0; i < point_count; i++ )
@@ -569,7 +569,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
         {
             point_type & point = range::at(range, i);
             coord_t x = get_as_radian<0>(point);
-            
+
             if( is_invalid_point(point) )
                 continue;
 
@@ -770,7 +770,7 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
         for(std::size_t i = 0; i < point_count; i++ )
         {
             point_type & point = range::at(rng, i);
-            
+
             if( is_invalid_point(point) )
                 continue;
 
@@ -925,7 +925,7 @@ inline bool pj_datum_transform(Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Create a temporary Z array if one is not provided.              */
 /* -------------------------------------------------------------------- */
-    
+
     range_wrapper<Range> z_range(range);
 
 /* -------------------------------------------------------------------- */

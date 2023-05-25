@@ -53,7 +53,7 @@ namespace detail { namespace closest_points
 struct point_to_point
 {
     template <typename P1, typename P2, typename Segment, typename Strategies>
-    static inline void apply(P1 const& p1, P2 const& p2,  
+    static inline void apply(P1 const& p1, P2 const& p2,
                              Segment& shortest_seg, Strategies const&)
     {
         set_segment_from_points::apply(p1, p2, shortest_seg);
@@ -75,7 +75,7 @@ struct point_to_segment
         auto closest_point = strategies.closest_points(point, segment)
             .apply(point, p[0], p[1]);
 
-        set_segment_from_points::apply(point, closest_point, shortest_seg);    
+        set_segment_from_points::apply(point, closest_point, shortest_seg);
     }
 };
 
@@ -114,22 +114,22 @@ public:
         }
 
         closest_points::creturn_t<Point, Range, Strategies> cd_min;
-        
+
         auto comparable_distance = strategy::distance::services::get_comparable
             <
                 decltype(strategies.distance(point, range))
             >::apply(strategies.distance(point, range));
-        
-        auto closest_segment = point_to_point_range::apply(point, 
+
+        auto closest_segment = point_to_point_range::apply(point,
                                                            boost::begin(range),
-                                                           boost::end(range), 
+                                                           boost::end(range),
                                                            comparable_distance,
                                                            cd_min);
-        
+
         auto closest_point = strategies.closest_points(point, range)
             .apply(point, *closest_segment.first, *closest_segment.second);
 
-        set_segment_from_points::apply(point, closest_point, shortest_seg);        
+        set_segment_from_points::apply(point, closest_point, shortest_seg);
     }
 };
 
@@ -145,7 +145,7 @@ struct point_to_ring
     {
         if (within::within_point_geometry(point, ring, strategies))
         {
-            set_segment_from_points::apply(point, point, shortest_seg); 
+            set_segment_from_points::apply(point, point, shortest_seg);
         }
         else
         {
@@ -154,7 +154,7 @@ struct point_to_ring
                 closure<Ring>::value
             >::apply(point, ring, shortest_seg, strategies);
         }
-            
+
     }
 };
 
@@ -165,11 +165,11 @@ class point_to_polygon
     template <typename Polygon>
     struct distance_to_interior_rings
     {
-        template 
+        template
         <
-            typename Point, 
-            typename InteriorRingIterator, 
-            typename Segment, 
+            typename Point,
+            typename InteriorRingIterator,
+            typename Segment,
             typename Strategies
         >
         static inline void apply(Point const& point,
@@ -191,14 +191,14 @@ class point_to_polygon
                     return;
                 }
             }
-            set_segment_from_points::apply(point, point, shortest_seg); 
+            set_segment_from_points::apply(point, point, shortest_seg);
         }
 
-        template 
+        template
         <
-            typename Point, 
-            typename InteriorRings, 
-            typename Segment, 
+            typename Point,
+            typename InteriorRings,
+            typename Segment,
             typename Strategies
         >
         static inline void apply(Point const& point, InteriorRings const& interior_rings,
@@ -214,11 +214,11 @@ class point_to_polygon
 
 
 public:
-    template 
+    template
     <
-        typename Point, 
-        typename Polygon, 
-        typename Segment, 
+        typename Point,
+        typename Polygon,
+        typename Segment,
         typename Strategies
     >
     static inline void apply(Point const& point,
@@ -261,7 +261,7 @@ private:
 
 public:
 
-    template 
+    template
     <
         typename Point,
         typename Segment,
@@ -287,7 +287,7 @@ public:
                                        selector_type::end(multigeometry),
                                        comparable_distance,
                                        cd);
-        
+
         dispatch::closest_points
             <
                 Point,
@@ -305,7 +305,7 @@ public:
 template <typename MultiPolygon>
 struct point_to_multigeometry<MultiPolygon, true>
 {
-    template 
+    template
     <
         typename Point,
         typename Segment,
@@ -318,7 +318,7 @@ struct point_to_multigeometry<MultiPolygon, true>
     {
         if (within::covered_by_point_geometry(point, multipolygon, strategies))
         {
-            set_segment_from_points::apply(point, point, shortest_seg); 
+            set_segment_from_points::apply(point, point, shortest_seg);
             return;
         }
 

@@ -37,7 +37,7 @@ int main()
     parameters.push_back(boost::make_tuple("bgi::dynamic_quadratic(5, 2)", "dqua"));
     parameters.push_back(boost::make_tuple("bgi::rstar<5, 2>()", "rst"));
     parameters.push_back(boost::make_tuple("bgi::dynamic_rstar(5, 2)","drst"));
-    
+
     std::vector<std::string> indexables;
     indexables.push_back("p");
     indexables.push_back("b");
@@ -63,7 +63,7 @@ int main()
                         continue;
                     }
 
-                    for (CT const& c : coordinate_types)   
+                    for (CT const& c : coordinate_types)
                     {
                         std::string filename = std::string() +
                             "rtree_" + boost::get<1>(p) + '_' + ts.second + '_' + i + d + boost::get<1>(c) + ".cpp";
@@ -105,7 +105,7 @@ int main()
                             "}\n";
                     }
                 }
-            }           
+            }
 
         }
     }

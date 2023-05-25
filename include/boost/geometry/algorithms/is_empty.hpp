@@ -81,8 +81,8 @@ struct multi_is_empty
     template <typename MultiGeometry>
     static inline bool apply(MultiGeometry const& multigeometry)
     {
-        return std::all_of(boost::begin(multigeometry), 
-                           boost::end(multigeometry), 
+        return std::all_of(boost::begin(multigeometry),
+                           boost::end(multigeometry),
                            []( auto const& range ){ return Policy::apply(range); });
     }
 };

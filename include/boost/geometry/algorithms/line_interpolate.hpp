@@ -258,7 +258,7 @@ struct line_interpolate<Strategy, false>
                              Distance const& max_distance,
                              Pointlike & pointlike,
                              Strategy const& strategy)
-    {        
+    {
         using strategies::line_interpolate::services::strategy_converter;
 
         dispatch::line_interpolate
@@ -277,7 +277,7 @@ struct line_interpolate<default_strategy, false>
                              Distance const& max_distance,
                              Pointlike & pointlike,
                              default_strategy)
-    {        
+    {
         typedef typename strategies::line_interpolate::services::default_strategy
             <
                 Geometry

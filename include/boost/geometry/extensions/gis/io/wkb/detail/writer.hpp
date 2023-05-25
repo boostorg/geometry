@@ -218,7 +218,7 @@ namespace detail { namespace wkb
 
                 for(typename boost::range_iterator<ring_type const>::type
                         point_iter = boost::begin(*ring_iter);
-                    point_iter != boost::end(*ring_iter); 
+                    point_iter != boost::end(*ring_iter);
                     ++point_iter)
                 {
                     // write point's x, y, z

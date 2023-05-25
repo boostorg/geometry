@@ -59,7 +59,7 @@ public:
     longitude_interval(T const& left, T const& right)
     {
         m_end[0] = left;
-        m_end[1] = right;        
+        m_end[1] = right;
     }
 
     template <std::size_t Index>
@@ -279,7 +279,7 @@ struct envelope_range_of_boxes
                 // if the box degenerates to the south or north pole
                 // just ignore it
                 continue;
-            }                             
+            }
 
             coordinate_type lon_left = geometry::get<min_corner, 0>(box);
             coordinate_type lon_right = geometry::get<max_corner, 0>(box);

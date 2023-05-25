@@ -42,14 +42,14 @@ int test_main(int, char* [])
     typedef bg::model::point<int, 3, bg::cs::cartesian> P3ic;
     typedef bg::model::point<float, 3, bg::cs::cartesian> P3fc;
     typedef bg::model::point<double, 3, bg::cs::cartesian> P3dc;
-    
+
     test_geometry<bg::model::box<P2ic> >("POLYGON((0 1,2 4))", 5);
     test_geometry<bg::model::box<P2fc> >("POLYGON((0 1,2 4))", 5.0);
     test_geometry<bg::model::box<P2dc> >("POLYGON((0 1,2 4))", 5.0);
     test_geometry<bg::model::box<P3ic> >("POLYGON((0 1 2,2 4 6))", 9);
     test_geometry<bg::model::box<P3fc> >("POLYGON((0 1 2,2 4 6))", 9.0);
     test_geometry<bg::model::box<P3dc> >("POLYGON((0 1 2,2 4 6))", 9.0);
-    
+
     test_large_integers();
 
     // test_empty_input<bg::model::d2::point_xy<int> >();

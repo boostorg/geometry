@@ -341,7 +341,7 @@ class svg_mapper : boost::noncopyable
     }
 
 public :
-    
+
     /*!
     \brief Constructor, initializing the SVG map. Opens and initializes the SVG.
          Should be called explicitly.

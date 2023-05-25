@@ -355,7 +355,7 @@ struct value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
     typedef boost::shared_ptr<O> R;
 
     static R apply(int x, int y, int z)
-    {   
+    {
         return R(new O(P(x, y, z)));
     }
 };
@@ -383,7 +383,7 @@ struct value< boost::shared_ptr<test_object<bg::model::box<bg::model::point<T, 3
     typedef boost::shared_ptr<O> R;
 
     static R apply(int x, int y, int z)
-    {   
+    {
         return R(new O(B(P(x, y, z), P(x + 2, y + 3, z + 4))));
     }
 };
@@ -1269,7 +1269,7 @@ inline void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input,
     {
         greatest_distance = test_output.back().first;
     }
-    
+
     // transform test output to vector of values
     std::vector<Value> expected_output(test_output.size(), generate::value_default<Value>::apply());
     std::transform(test_output.begin(), test_output.end(), expected_output.begin(), NearestKTransform<Rtree, Point>());
@@ -1343,7 +1343,7 @@ struct satisfies_obj
 template <typename Rtree, typename Value>
 void satisfies(Rtree const& rtree, std::vector<Value> const& input)
 {
-    std::vector<Value> result;    
+    std::vector<Value> result;
     rtree.query(bgi::satisfies(satisfies_obj()), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
@@ -1404,7 +1404,7 @@ void copy_swap_move(Rtree const& tree, Box const& qbox)
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
     exactly_the_same_outputs(t1, output, expected_output);
-    
+
     Rtree t2(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
@@ -1574,7 +1574,7 @@ void remove(Rtree const& tree, Box const& qbox)
     // Add value which is not stored in the Rtree
     Value outsider = generate::value_outside<Rtree>();
     values_to_remove.push_back(outsider);
-    
+
     {
         Rtree t(tree);
         size_t r = 0;
@@ -1850,12 +1850,12 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
     B qbox;
 
     generate::rtree(t, input, qbox);
-    
+
     BOOST_CHECK(t.count(input[0]) == 1);
     BOOST_CHECK(t.count(input[0].first) == 1);
-        
+
     t.insert(input[0]);
-    
+
     BOOST_CHECK(t.count(input[0]) == 2);
     BOOST_CHECK(t.count(input[0].first) == 2);
 
@@ -1883,14 +1883,14 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     B b;
     bg::assign_inverse(b);
-    
+
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
     generate::rtree(t, input, qbox);
 
     b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get(),
                                           bgi::detail::get_strategy(parameters));
-    
+
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
 

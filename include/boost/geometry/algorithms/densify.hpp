@@ -87,7 +87,7 @@ struct densify_range
         {
             return;
         }
-            
+
         auto strategy = strategies.densify(rng);
         push_back_policy<MutRng> policy(rng_out);
 
@@ -347,7 +347,7 @@ struct densify<default_strategy, false>
             <
                 Geometry
             >::type strategies_type;
-        
+
         dispatch::densify
             <
                 Geometry, Geometry

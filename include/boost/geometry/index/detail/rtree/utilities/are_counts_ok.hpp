@@ -26,7 +26,7 @@ class are_counts_ok
     : public MembersHolder::visitor_const
 {
     typedef typename MembersHolder::parameters_type parameters_type;
-    
+
     typedef typename MembersHolder::internal_node internal_node;
     typedef typename MembersHolder::leaf leaf;
 
@@ -105,7 +105,7 @@ bool are_counts_ok(Rtree const& tree, bool check_min = true)
     visitors::are_counts_ok<
         typename RTV::members_holder
     > v(tree.parameters(), check_min);
-    
+
     rtv.apply_visitor(v);
 
     return v.result;

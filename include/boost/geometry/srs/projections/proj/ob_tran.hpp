@@ -60,7 +60,7 @@ namespace projections
 {
     #ifndef DOXYGEN_NO_DETAIL
     namespace detail {
-    
+
         // fwd declaration needed below
         template <typename T>
         inline detail::dynamic_wrapper_b<T, projections::parameters<T> >*
@@ -252,7 +252,7 @@ namespace projections
             inline void o_forward(T lp_lon, T lp_lat, T& xy_x, T& xy_y, Par const& proj_parm)
             {
                 T coslam, sinphi, cosphi;
-                
+
                 coslam = cos(lp_lon);
                 sinphi = sin(lp_lat);
                 cosphi = cos(lp_lat);
@@ -325,7 +325,7 @@ namespace projections
                     lamc    = pj_get_param_r<T, srs::spar::o_lon_c>(params, "o_lon_c", srs::dpar::o_lon_c);
                     phic    = pj_get_param_r<T, srs::spar::o_lon_c>(params, "o_lat_c", srs::dpar::o_lat_c);
                     //alpha   = pj_get_param_r(par.params, "o_alpha");
-            
+
                     if (fabs(fabs(phic) - half_pi) <= tolerance)
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_0_or_alpha_eq_90) );
 
@@ -541,7 +541,7 @@ namespace projections
     */
     template <typename T, typename Parameters>
     struct ob_tran_transverse : public detail::ob_tran::base_ob_tran_transverse<T, Parameters>
-    {        
+    {
         template <typename Params>
         inline ob_tran_transverse(Params const& , Parameters const& ,
                                   detail::ob_tran::par_ob_tran<T, Parameters> const& proj_parm)

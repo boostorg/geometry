@@ -116,7 +116,7 @@ template <typename Params>
 void test_point()
 {
     bgi::rtree<point, Params> rt;
-    
+
     rt.insert(0.0);
     BOOST_CHECK_EQUAL(rt.size(), 1u);
     BOOST_CHECK_EQUAL(rt.remove(0.0), 1u);

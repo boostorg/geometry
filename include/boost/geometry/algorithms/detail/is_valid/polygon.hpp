@@ -111,7 +111,7 @@ protected:
                                          VisitPolicy& visitor,
                                          Strategy const& strategy)
     {
-        return std::none_of(boost::begin(interior_rings), 
+        return std::none_of(boost::begin(interior_rings),
                             boost::end(interior_rings),
                             is_invalid_ring<VisitPolicy, Strategy>(visitor, strategy));
     }
@@ -367,7 +367,7 @@ protected:
     }
 
     struct has_holes_inside
-    {    
+    {
         template <typename TurnIterator, typename VisitPolicy, typename Strategy>
         static inline bool apply(Polygon const& polygon,
                                  TurnIterator first,

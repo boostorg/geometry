@@ -217,7 +217,7 @@ struct centroid_range
         {
             // prepare translation transformer
             translating_transformer<Range> transformer(*boost::begin(range));
-            
+
             typename Strategy::template state_type
                 <
                     typename geometry::point_type<Range>::type,
@@ -225,7 +225,7 @@ struct centroid_range
                 >::type state;
 
             centroid_range_state::apply(range, transformer, strategy, state);
-            
+
             if ( strategy.result(state, centroid) )
             {
                 // translate the result back
@@ -274,7 +274,7 @@ struct centroid_polygon
             // prepare translation transformer
             translating_transformer<Polygon>
                 transformer(*boost::begin(exterior_ring(poly)));
-            
+
             typename Strategy::template state_type
                 <
                     typename geometry::point_type<Polygon>::type,
@@ -282,7 +282,7 @@ struct centroid_polygon
                 >::type state;
 
             centroid_polygon_state::apply(poly, transformer, strategy, state);
-            
+
             if ( strategy.result(state, centroid) )
             {
                 // translate the result back
@@ -360,7 +360,7 @@ struct centroid_multi
             transformer.apply_reverse(centroid);
             return true;
         }
-        
+
         return false;
     }
 };

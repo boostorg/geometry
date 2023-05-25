@@ -68,13 +68,13 @@ namespace detail { namespace shapefile
 template <typename IStream, typename T>
 inline void read_native(IStream & is, T & v)
 {
-    is.read(reinterpret_cast<char*>(&v), sizeof(T));    
+    is.read(reinterpret_cast<char*>(&v), sizeof(T));
 }
 
 template <typename IStream, typename T>
 inline void read_big(IStream & is, T & v)
 {
-    is.read(reinterpret_cast<char*>(&v), sizeof(T));    
+    is.read(reinterpret_cast<char*>(&v), sizeof(T));
     boost::endian::big_to_native_inplace(v);
 }
 
@@ -104,7 +104,7 @@ inline void double_endianness_check()
     c[7] = 0xc0;
 
     boost::endian::little_to_native_inplace(*i);
-        
+
     if (static_cast<int>(d) != -149)
     {
         BOOST_THROW_EXCEPTION(read_shapefile_exception("Unexpected endianness of double, please contact developers."));
@@ -140,7 +140,7 @@ inline boost::int32_t reset_and_read_header(IStream & is)
 
     // 5 unused, length, version
     is.seekg(7 * sizeof(boost::int32_t), IStream::cur);
-    
+
     boost::int32_t type = 0;
     read_little(is, type);
 
@@ -376,7 +376,7 @@ struct read_point_policy
 
             read_m(is);
         }
-        
+
         if (! is.good())
         {
             BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
@@ -470,7 +470,7 @@ struct read_polyline_policy
         }
 
         read_parts(is, parts, num_parts);
-    
+
         for (boost::int32_t i = 0; i < num_parts; ++i)
         {
             boost::int32_t f = parts[i];
@@ -484,9 +484,9 @@ struct read_polyline_policy
             range::push_back(linestrings, ls_type());
             ls_type & ls = range::back(linestrings);
 
-            std::size_t ls_size = l - f;        
+            std::size_t ls_size = l - f;
             range::resize(ls, ls_size);
-        
+
             read_and_set_points(is, ls, ls_size);
 
             if (type == shape_type::polyline_z || type == shape_type::polyline_m)
@@ -681,7 +681,7 @@ struct read_polygon_policy
             // unexpected, file corrupted, bug or numerical error
             BOOST_THROW_EXCEPTION(read_shapefile_exception("Exterior ring expected"));
         }
-        
+
         if (! is.good())
         {
             BOOST_THROW_EXCEPTION(read_shapefile_exception("Read error"));
@@ -784,7 +784,7 @@ struct read_shapefile<Geometry, point_tag>
     static inline void apply(IStream &is, Points & points, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
-        
+
         boost::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::point
@@ -809,7 +809,7 @@ struct read_shapefile<Geometry, multi_point_tag>
     static inline void apply(IStream &is, MultiPoints & multi_points, Strategy const& strategy)
     {
         namespace shp = detail::shapefile;
-        
+
         boost::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::point

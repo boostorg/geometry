@@ -80,7 +80,7 @@ int test_main(int, char* [])
     typedef bg::model::point<int, 3, bg::cs::cartesian> P3ic;
     typedef bg::model::point<float, 3, bg::cs::cartesian> P3fc;
     typedef bg::model::point<double, 3, bg::cs::cartesian> P3dc;
-    
+
     test_geometry<bg::model::box<P2ic>, P2ic>("POLYGON((0 1,2 4))", "POINT(0 0)", "POINT(2 5)", true, 1.0f/5);
     test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(0 0)", "POINT(2 5)", true, 1.0f/5);
     test_geometry<bg::model::box<P2dc>, P2dc>("POLYGON((0 1,2 4))", "POINT(0 0)", "POINT(2 5)", true, 1.0/5);
@@ -114,7 +114,7 @@ int test_main(int, char* [])
     test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(1 4)", "POINT(1 5)", true, 0.0f);
 
     test_geometry<bg::model::box<P2fc>, P2fc>("POLYGON((0 1,2 4))", "POINT(0.5 2)", "POINT(1.5 3)", true, 0.0f);
-    
+
     test_large_integers();
 
     return 0;

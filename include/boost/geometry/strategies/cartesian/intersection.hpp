@@ -452,7 +452,7 @@ struct cartesian_segments
 
         sides.set<1>(side_strategy_type::apply(p1, p2, q1),
                      side_strategy_type::apply(p1, p2, q2));
-        
+
         if (sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
@@ -670,7 +670,7 @@ private:
         int const a2_wrt_b = position_value(oa_2, ob_1, ob_2);
         int const b1_wrt_a = position_value(ob_1, oa_1, oa_2);
         int const b2_wrt_a = position_value(ob_2, oa_1, oa_2);
-        
+
         // fix the ratios if necessary
         // CONSIDER: fixing ratios also in other cases, if they're inconsistent
         // e.g. if ratio == 1 or 0 (so IP at the endpoint)
@@ -687,7 +687,7 @@ private:
         {
             ra_from.assign(1, 1);
             rb_to.assign(0, 1);
-        } 
+        }
 
         if (a2_wrt_b == 1)
         {
