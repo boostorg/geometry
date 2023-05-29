@@ -5,8 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2020.
-// Modifications copyright (c) 2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2023.
+// Modifications copyright (c) 2020-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -19,8 +20,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_TRANSFORM_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_TRANSFORM_HPP
 
-#include <cmath>
-#include <iterator>
 #include <type_traits>
 
 #include <boost/range/begin.hpp>
@@ -28,19 +27,18 @@
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 
-#include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
-#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
+#include "boost/geometry/algorithms/detail/assign_indexed_point.hpp"
+#include "boost/geometry/algorithms/detail/assign_values.hpp"
 #include <boost/geometry/algorithms/num_interior_rings.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
-#include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>

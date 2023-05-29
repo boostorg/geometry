@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2021, Oracle and/or its affiliates.
+// Copyright (c) 2017-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -21,9 +22,7 @@
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/exception.hpp>
-#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/core/visit.hpp>

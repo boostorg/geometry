@@ -11,12 +11,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
 
-#include <iterator>
 #include <type_traits>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
-#include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -25,8 +23,6 @@
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>

@@ -2,9 +2,9 @@
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2017-2023.
+// Modifications copyright (c) 2017-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -20,12 +20,8 @@
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
-#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
-#include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/visit.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility

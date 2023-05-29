@@ -8,6 +8,10 @@
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2023.
+// Modifications copyright (c) 2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -15,17 +19,17 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/strategies/transform/inverse_transformer.hpp>
-#include <boost/geometry/strategies/transform/map_transformer.hpp>
-#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
-
-
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
+
+#include <boost/geometry/strategies/transform/inverse_transformer.hpp>
+#include <boost/geometry/strategies/transform/map_transformer.hpp>
+#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
