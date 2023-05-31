@@ -4,6 +4,10 @@
 # Copyright (c) 2018 Mateusz Loskot <mateusz@loskot.net>
 # Copyright (c) 2018-2021 Adam Wulkiewicz, Lodz, Poland
 #
+# This file was modified by Oracle on 2023.
+# Modifications copyright (c) 2023 Oracle and/or its affiliates.
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -19,8 +23,8 @@ environment: &environment
 # Docker image
 docker: &docker
   docker:
-      # gcc-6.0, ruby-2.3, sudo, curl
-    - image: circleci/ruby:2.3
+      # gcc-9.3, ruby-2.3, sudo, curl
+    - image: cimg/base:stable-20.04
 
 # Build configuration
 config: &config
@@ -60,7 +64,7 @@ jobs:
             git submodule update --init tools/build
             git submodule update --init libs/config
             git submodule update --init tools/boostdep
-            python tools/boostdep/depinst/depinst.py geometry -I index/test
+            python3 tools/boostdep/depinst/depinst.py geometry -I index/test
             ./bootstrap.sh
             ./b2 headers
       - run: mkdir $COVERAGE_DIR
