@@ -51,7 +51,7 @@ class geographic_cross_track
             false,
             true
         >;
-    
+
     template <typename Point, typename PointOfSegment>
     struct calculation_type
         : promote_floating_point
@@ -86,7 +86,7 @@ public :
                     dimension<PointOfSegment>::value,
                     typename coordinate_system<PointOfSegment>::type
                 > cp;
-            
+
             geometry::set_from_radian<0>(cp, result.lon);
             geometry::set_from_radian<1>(cp, result.lat);
 

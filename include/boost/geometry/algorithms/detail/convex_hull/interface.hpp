@@ -207,7 +207,7 @@ struct convex_hull
                              OutputGeometry& out,
                              Strategy const& strategy)
     {
-        detail::convex_hull::input_geometry_proxy<Geometry> in_proxy(geometry);        
+        detail::convex_hull::input_geometry_proxy<Geometry> in_proxy(geometry);
         detail::convex_hull::graham_andrew
             <
                 typename point_type<Geometry>::type

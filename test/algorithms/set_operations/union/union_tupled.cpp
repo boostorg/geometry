@@ -34,11 +34,7 @@ typedef bg::model::multi_point<Pt> MPt;
 typedef bg::model::multi_linestring<Ls> MLs;
 typedef bg::model::multi_polygon<Po> MPo;
 
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
-
 #include <tuple>
-
-#endif
 
 template <typename G>
 inline void check(std::string const& wkt1,
@@ -85,8 +81,6 @@ inline void check(std::string const& wkt1,
     check(wkt1, wkt2, pair.second, out_l_str);
 }
 
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
-
 inline void check(std::string const& wkt1,
                   std::string const& wkt2,
                   std::tuple<MPt, MLs, MPo> const& tup,
@@ -98,8 +92,6 @@ inline void check(std::string const& wkt1,
     check(wkt1, wkt2, std::get<1>(tup), out_l_str);
     check(wkt1, wkt2, std::get<2>(tup), out_a_str);
 }
-
-#endif
 
 template <typename In1, typename In2, typename Tup>
 inline void test_one(std::string const& in1_str,
@@ -384,10 +376,7 @@ int test_main(int, char* [])
 {
     test_pair<std::pair<MPt, MLs> >();
     test_tuple<boost::tuple<MPt, MLs, MPo> >();
-
-#ifdef BOOST_GEOMETRY_CXX11_TUPLE
     test_tuple<std::tuple<MPt, MLs, MPo> >();
-#endif
 
     return 0;
 }

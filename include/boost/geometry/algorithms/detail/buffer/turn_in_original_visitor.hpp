@@ -32,7 +32,7 @@ namespace detail { namespace buffer
 {
 
 
-template <typename Strategy>    
+template <typename Strategy>
 struct original_get_box
 {
     explicit original_get_box(Strategy const& strategy)

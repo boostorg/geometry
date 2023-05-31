@@ -309,7 +309,7 @@ inline void select_rings(Geometry1 const& geometry1, Geometry2 const& geometry2,
 {
     typedef typename geometry::tag<Geometry1>::type tag1;
     typedef typename geometry::tag<Geometry2>::type tag2;
-    
+
     RingPropertyMap all_ring_properties;
     dispatch::select_rings<tag1, Geometry1>::apply(geometry1, geometry2,
                 ring_identifier(0, -1, -1), all_ring_properties,

@@ -178,7 +178,7 @@ void test_pop_back_nd()
     varray<T, N> s;
 
     for ( size_t i = 0 ; i < N ; ++i )
-        s.push_back(T(i));    
+        s.push_back(T(i));
 
     for ( size_t i = N ; i > 1 ; --i )
     {
@@ -300,7 +300,7 @@ template <typename T, size_t N>
 void test_erase_nd()
 {
     varray<T, N> s;
-    
+
     for ( size_t i = 0 ; i < N ; ++i )
         s.push_back(T(i));
 
@@ -315,7 +315,7 @@ void test_erase_nd()
                 BOOST_CHECK(s1[j] == T(j));
             for ( size_t j = i+1 ; j < N ; ++j )
                 BOOST_CHECK(s1[j-1] == T(j));
-        }        
+        }
     }
     // erase(first, last)
     {
@@ -330,7 +330,7 @@ void test_erase_nd()
                 BOOST_CHECK(s1[j] == T(j));
             for ( size_t j = i+n ; j < N ; ++j )
                 BOOST_CHECK(s1[j-n] == T(j));
-        }        
+        }
     }
 }
 
@@ -363,7 +363,7 @@ void test_insert_nd(T const& val)
             BOOST_CHECK(s1[i] == val);
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+1] == T(j+i));
-        }        
+        }
     }
     // insert(pos, n, val)
     {
@@ -379,7 +379,7 @@ void test_insert_nd(T const& val)
                 BOOST_CHECK(s1[j+i] == val);
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
-        }        
+        }
     }
     // insert(pos, first, last)
     {
@@ -395,7 +395,7 @@ void test_insert_nd(T const& val)
                 BOOST_CHECK(s1[j+i] == T(100 + j));
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
-        }        
+        }
     }
     {
         size_t n = size_t(h/1.5f);
@@ -410,7 +410,7 @@ void test_insert_nd(T const& val)
                 BOOST_CHECK(s1[j+i] == T(100 + j));
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
-        }        
+        }
     }
     {
         size_t n = size_t(h/1.5f);
@@ -427,7 +427,7 @@ void test_insert_nd(T const& val)
                 BOOST_CHECK(s1[j+i] == T(100 + j));
             for ( size_t j = 0 ; j < h-i ; ++j )
                 BOOST_CHECK(s1[j+i+n] == T(j+i));
-        }        
+        }
     }
 }
 

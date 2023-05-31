@@ -42,7 +42,7 @@
 
 namespace boost { namespace geometry
 {
-    
+
 namespace projections
 {
 
@@ -393,7 +393,7 @@ class static_proj_wrapper_base
         <
             StaticParameters
         >::type proj_tag;
-    
+
     typedef typename projections::detail::static_projection_type
         <
             proj_tag,
@@ -499,7 +499,7 @@ public:
 namespace srs
 {
 
-    
+
 /*!
     \brief Representation of projection
     \details Either dynamic or static projection representation

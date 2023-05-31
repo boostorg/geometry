@@ -87,7 +87,7 @@ struct box_box_loop
         {
             touch = true;
         }
-        
+
         return box_box_loop
                 <
                     Dimension + 1,

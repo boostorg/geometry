@@ -287,9 +287,9 @@ struct fe_segment_range_with_closure<open>
         {
             return true;
         }
-        
+
         --end;
-        
+
         if (begin == end)
         {
             // single point ranges already handled in closed case above

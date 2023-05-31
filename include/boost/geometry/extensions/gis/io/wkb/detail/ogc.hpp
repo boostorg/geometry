@@ -144,8 +144,8 @@ struct geometry_type_impl<Geometry, OgcType, 3>
 
 template
 <
-    typename Geometry, 
-    typename CheckPolicy = ogc_policy, 
+    typename Geometry,
+    typename CheckPolicy = ogc_policy,
     typename Tag = typename tag<Geometry>::type
 >
 struct geometry_type : not_implemented<Tag>

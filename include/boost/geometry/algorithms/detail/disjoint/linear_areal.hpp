@@ -141,7 +141,7 @@ struct disjoint_segment_areal
 template <typename Segment, typename Polygon>
 class disjoint_segment_areal<Segment, Polygon, polygon_tag>
 {
-    
+
     template <typename InteriorRings, typename Strategy>
     static inline
     bool check_interior_rings(InteriorRings const& interior_rings,

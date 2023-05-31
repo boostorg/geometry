@@ -75,7 +75,7 @@ int test_main(int, char* [])
     BOOST_CHECK_EQUAL((bg::range::detail::is_range<int>::value), false);
     BOOST_CHECK_EQUAL((bg::range::detail::is_range<linestring>::value), true);
     BOOST_CHECK_EQUAL((bg::range::detail::is_range<multi_point>::value), true);
-    
+
     BOOST_CHECK_EQUAL((bgd::is_tupled_output_element<int>::value), false);
     BOOST_CHECK_EQUAL((bgd::is_tupled_output_element<linestring>::value), false);
     BOOST_CHECK_EQUAL((bgd::is_tupled_output_element<multi_point>::value), true);
@@ -98,8 +98,6 @@ int test_main(int, char* [])
                         std::pair<bgr::back_insert_iterator<multi_linestring>,
                                   bgr::back_insert_iterator<multi_point> > >();
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_VARIADIC_TEMPLATES)
-
     test_all<std::tuple<polygon, linestring>, std::tuple<linestring, multi_point> >();
 
     test_range_values<std::tuple<multi_linestring, multi_point>,
@@ -109,7 +107,5 @@ int test_main(int, char* [])
                         std::tuple<bgr::back_insert_iterator<multi_linestring>,
                                    bgr::back_insert_iterator<multi_point> > >();
 
-#endif
-    
     return 0;
 }

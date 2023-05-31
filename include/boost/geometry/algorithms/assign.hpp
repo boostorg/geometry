@@ -231,7 +231,7 @@ struct assign
         concepts::check<Geometry1>();
         concepts::check<Geometry2 const>();
         concepts::check_concepts_and_equal_dimensions<Geometry1, Geometry2 const>();
-            
+
         static bool const same_point_order
             = point_order<Geometry1>::value == point_order<Geometry2>::value;
         BOOST_GEOMETRY_STATIC_ASSERT(
@@ -244,23 +244,23 @@ struct assign
             same_closure,
             "Assign is not supported for different closures.",
             Geometry1, Geometry2);
-            
+
         dispatch::convert<Geometry2, Geometry1>::apply(geometry2, geometry1);
     }
 };
-    
-    
+
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T), typename Geometry2>
 struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
 {
     struct visitor: static_visitor<void>
     {
         Geometry2 const& m_geometry2;
-            
+
         visitor(Geometry2 const& geometry2)
         : m_geometry2(geometry2)
         {}
-            
+
         template <typename Geometry1>
         result_type operator()(Geometry1& geometry1) const
         {
@@ -272,7 +272,7 @@ struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
             (geometry1, m_geometry2);
         }
     };
-        
+
     static inline void
     apply(variant<BOOST_VARIANT_ENUM_PARAMS(T)>& geometry1,
           Geometry2 const& geometry2)
@@ -280,19 +280,19 @@ struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T)>, Geometry2>
         return boost::apply_visitor(visitor(geometry2), geometry1);
     }
 };
-    
-    
+
+
 template <typename Geometry1, BOOST_VARIANT_ENUM_PARAMS(typename T)>
 struct assign<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
 {
     struct visitor: static_visitor<void>
     {
         Geometry1& m_geometry1;
-            
+
         visitor(Geometry1 const& geometry1)
         : m_geometry1(geometry1)
         {}
-            
+
         template <typename Geometry2>
         result_type operator()(Geometry2 const& geometry2) const
         {
@@ -304,7 +304,7 @@ struct assign<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
             (m_geometry1, geometry2);
         }
     };
-        
+
     static inline void
     apply(Geometry1& geometry1,
           variant<BOOST_VARIANT_ENUM_PARAMS(T)> const& geometry2)
@@ -312,8 +312,8 @@ struct assign<Geometry1, variant<BOOST_VARIANT_ENUM_PARAMS(T)> >
         return boost::apply_visitor(visitor(geometry1), geometry2);
     }
 };
-    
-    
+
+
 template <BOOST_VARIANT_ENUM_PARAMS(typename T1), BOOST_VARIANT_ENUM_PARAMS(typename T2)>
 struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM_PARAMS(T2)> >
 {
@@ -332,7 +332,7 @@ struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM
             (geometry1, geometry2);
         }
     };
-        
+
     static inline void
     apply(variant<BOOST_VARIANT_ENUM_PARAMS(T1)>& geometry1,
           variant<BOOST_VARIANT_ENUM_PARAMS(T2)> const& geometry2)
@@ -340,9 +340,9 @@ struct assign<variant<BOOST_VARIANT_ENUM_PARAMS(T1)>, variant<BOOST_VARIANT_ENUM
         return boost::apply_visitor(visitor(), geometry1, geometry2);
     }
 };
-    
+
 } // namespace resolve_variant
-    
+
 
 /*!
 \brief Assigns one geometry to another geometry

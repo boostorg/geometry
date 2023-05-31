@@ -28,13 +28,11 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::linestring<P> create_linestring()
-{   
+{
     bg::model::linestring<P> l1;
     P p1(1, 2);
     bg::append(l1, p1);
@@ -43,7 +41,7 @@ bg::model::linestring<P> create_linestring()
 
 template <typename P, typename L>
 bg::model::multi_linestring<L> create_multi_linestring()
-{   
+{
     bg::model::multi_linestring<L> ml1;
     L l1(create_linestring<P>());
     ml1.push_back(l1);
@@ -53,7 +51,7 @@ bg::model::multi_linestring<L> create_multi_linestring()
 
 template <typename ML, typename L>
 void check_multi_linestring(ML& to_check, L l1)
-{   
+{
     ML cur;
     cur.push_back(l1);
     cur.push_back(l1);
@@ -88,7 +86,7 @@ void test_copy_assignment()
 
 template <typename L>
 void test_concept()
-{   
+{
     typedef bg::model::multi_linestring<L> ML;
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::ConstMultiLinestring<ML>) );
@@ -101,7 +99,7 @@ void test_concept()
 
 template <typename P>
 void test_all()
-{   
+{
     typedef bg::model::linestring<P> L;
 
     test_default_constructor<P, L>();
@@ -112,9 +110,9 @@ void test_all()
 
 template <typename P>
 void test_custom_multi_linestring(bg::model::linestring<P> IL)
-{   
+{
     typedef bg::model::linestring<P> L;
-    
+
     std::initializer_list<L> LIL = {IL};
     bg::model::multi_linestring<L> ml1(LIL);
     std::ostringstream out;
@@ -124,15 +122,13 @@ void test_custom_multi_linestring(bg::model::linestring<P> IL)
 
 template <typename P>
 void test_custom()
-{   
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+{
     std::initializer_list<P> IL1 = {P(1, 1), P(2, 2), P(3, 3)};
     std::initializer_list<P> IL2 = {P(0, 0), P(0, 2), P(0, 3)};
     bg::model::linestring<P> l1;
     bg::append(l1, IL1);
     bg::append(l1, IL2);
     test_custom_multi_linestring<P>(l1);
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>
@@ -147,7 +143,7 @@ void test_cs()
 
 
 int test_main(int, char* [])
-{   
+{
     test_cs<bg::cs::cartesian>();
     test_cs<bg::cs::spherical<bg::degree> >();
     test_cs<bg::cs::spherical_equatorial<bg::degree> >();

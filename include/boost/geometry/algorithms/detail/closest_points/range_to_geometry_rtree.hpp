@@ -86,7 +86,7 @@ public:
                                     cd);
         dispatch::closest_points
                 <
-                    point_or_segment_type,                    
+                    point_or_segment_type,
                     typename std::iterator_traits
                         <
                             typename selector_type::iterator_type

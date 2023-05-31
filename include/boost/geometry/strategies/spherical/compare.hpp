@@ -165,7 +165,7 @@ struct spherical_longitude
 
         bool is_left_at_antimeridian = false;
         bool is_right_at_antimeridian = false;
-        
+
             // longitudes equal
         if (math::equals(l0, r0)
                // both at antimeridian

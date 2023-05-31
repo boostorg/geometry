@@ -67,7 +67,7 @@ public:
 
         CT sin_bet1 = one_minus_f * sin_lat1;
         CT sin_bet2 = one_minus_f * sin_lat2;
-            
+
         // equator
         if (math::equals(sin_bet1, c0) && math::equals(sin_bet2, c0))
         {
@@ -80,7 +80,7 @@ public:
                 CT m12 = azi_sign * sin(sig_12) * b;
                 reduced_length = m12;
             }
-                
+
             if (BOOST_GEOMETRY_CONDITION(EnableGeodesicScale))
             {
                 CT M12 = cos(sig_12);
@@ -180,11 +180,11 @@ private:
         {
             return cos_alp0_sqr * f * L1;
         }
-        
+
         CT const sin_4sig1 = c2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
         CT const sin_4sig2 = c2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
         CT const sin_4sig_12 = sin_4sig2 - sin_4sig1;
-        
+
         CT const c8 = 8;
         CT const c12 = 12;
         CT const c16 = 16;
@@ -266,11 +266,11 @@ private:
 
         CT const c8 = 8;
         CT const c64 = 64;
-        
+
         CT const sin_4sig1 = c2 * sin_2sig1 * (math::sqr(cos_sig1) - math::sqr(sin_sig1)); // sin(4sig1)
         CT const sin_4sig2 = c2 * sin_2sig2 * (math::sqr(cos_sig2) - math::sqr(sin_sig2)); // sin(4sig2)
         CT const sin_4sig_12 = sin_4sig2 - sin_4sig1;
-        
+
         CT const L2 = (sin_4sig_12 - c8 * sin_2sig_12 + 12 * sig_12) / c64;
 
         if (Order == 2)

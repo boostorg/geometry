@@ -27,13 +27,11 @@
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
 template <typename P>
 bg::model::ring<P> create_ring()
-{   
+{
     bg::model::ring<P> r1;
     P p1;
     P p2;
@@ -43,7 +41,7 @@ bg::model::ring<P> create_ring()
     bg::assign_values(p2, 2, 0);
     bg::assign_values(p3, 0, 0);
     bg::assign_values(p4, 0, 2);
-    
+
     bg::append(r1, p1);
     bg::append(r1, p2);
     bg::append(r1, p3);
@@ -61,7 +59,7 @@ void check_point(P& to_check, T x, T y)
 
 template <typename R, typename P>
 void check_ring(R& to_check, P p1, P p2, P p3, P p4)
-{   
+{
     check_point(to_check[0], bg::get<0>(p1), bg::get<1>(p1));
     check_point(to_check[1], bg::get<0>(p2), bg::get<1>(p2));
     check_point(to_check[2], bg::get<0>(p3), bg::get<1>(p3));
@@ -93,7 +91,7 @@ void test_copy_assignment()
 
 template <typename P>
 void test_concept()
-{   
+{
     typedef bg::model::ring<P> R;
 
     BOOST_CONCEPT_ASSERT( (bg::concepts::ConstRing<R>) );
@@ -106,7 +104,7 @@ void test_concept()
 
 template <typename P>
 void test_all()
-{   
+{
     test_default_constructor<P>();
     test_copy_constructor<P>();
     test_copy_assignment<P>();
@@ -115,7 +113,7 @@ void test_all()
 
 template <typename P>
 void test_custom_ring(bg::model::ring<P> IL)
-{   
+{
     bg::model::ring<P> r1(IL);
     std::ostringstream out;
     out << bg::dsv(r1);
@@ -124,11 +122,9 @@ void test_custom_ring(bg::model::ring<P> IL)
 
 template <typename P>
 void test_custom()
-{   
-#ifdef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+{
     std::initializer_list<P> IL = {P(3, 3), P(3, 0), P(0, 0), P(0, 3), P(3, 3)};
     test_custom_ring<P>(IL);
-#endif//BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 }
 
 template <typename CS>
@@ -143,7 +139,7 @@ void test_cs()
 
 
 int test_main(int, char* [])
-{   
+{
     test_cs<bg::cs::cartesian>();
     test_cs<bg::cs::spherical<bg::degree> >();
     test_cs<bg::cs::spherical_equatorial<bg::degree> >();

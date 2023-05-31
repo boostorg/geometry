@@ -23,13 +23,7 @@ int main()
     typedef bg::model::linestring<point_t> linestring_t;
 
     linestring_t ls1; /*< Default-construct a linestring. >*/
-
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     linestring_t ls2{{0.0, 0.0}, {1.0, 0.0}, {1.0, 2.0}}; /*< Construct a linestring containing three points, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::append(ls1, point_t(0.0, 0.0)); /*< Append point. >*/
     bg::append(ls1, point_t(1.0, 0.0));

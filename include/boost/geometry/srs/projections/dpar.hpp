@@ -588,12 +588,10 @@ struct parameter
         , m_value(srs::detail::nadgrids(boost::begin(v), boost::end(v)))
     {}
 
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     parameter(name_nadgrids id, std::initializer_list<std::string> v)
         : m_id(id)
         , m_value(srs::detail::nadgrids(v))
     {}
-#endif
 
     parameter(name_orient id, value_orient v)
         : m_id(id), m_value(int(v))
@@ -653,7 +651,6 @@ struct parameter
         }
     }
 
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     parameter(name_towgs84 id, std::initializer_list<T> v)
         : m_id(id)
         , m_value(srs::detail::towgs84<T>(v))
@@ -664,7 +661,6 @@ struct parameter
             BOOST_THROW_EXCEPTION( projection_exception("Invalid number of towgs84 elements. Should be 3 or 7.") );
         }
     }
-#endif
 
     parameter(name_axis id, std::initializer_list<int> v)
         : m_id(id)
@@ -743,66 +739,6 @@ public:
 
     BOOST_DEFAULTED_FUNCTION(parameters(), {})
 
-#if defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-    template <typename Id>
-    explicit parameters(Id id)
-    {
-        add(id);
-    }
-
-    template <typename Id>
-    parameters & add(Id id)
-    {
-        m_params.push_back(parameter<T>(id));
-        return *this;
-    }
-
-    template <typename Id>
-    parameters & operator()(Id id)
-    {
-        return add(id);
-    }
-
-    template <typename Id, typename V>
-    parameters(Id id, V const& value)
-    {
-        add(id, value);
-    }
-
-    template <typename Id, typename V>
-    parameters & add(Id id, V const& value)
-    {
-        m_params.push_back(parameter<T>(id, value));
-        return *this;
-    }
-
-    template <typename Id, typename V>
-    parameters & operator()(Id id, V const& value)
-    {
-        return add(id, value);
-    }
-
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-    template <typename Id, typename V>
-    parameters(Id id, std::initializer_list<V> value)
-    {
-        add(id, value);
-    }
-
-    template <typename Id, typename V>
-    parameters & add(Id id, std::initializer_list<V> value)
-    {
-        m_params.push_back(parameter<T>(id, value));
-        return *this;
-    }
-
-    template <typename Id, typename V>
-    parameters & operator()(Id id, std::initializer_list<V> value)
-    {
-        return add(id, value);
-    }
-#endif // BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-#else // BOOST_NO_CXX11_RVALUE_REFERENCES || BOOST_NO_CXX11_RVALUE_REFERENCES
     template <typename Id>
     explicit parameters(Id id)
     {
@@ -841,7 +777,6 @@ public:
         return add(id, std::forward<V>(value));
     }
 
-#ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
     template <typename Id, typename V>
     parameters(Id id, std::initializer_list<V> value)
     {
@@ -860,8 +795,6 @@ public:
     {
         return add(id, value);
     }
-#endif // BOOST_NO_CXX11_HDR_INITIALIZER_LIST
-#endif // BOOST_NO_CXX11_RVALUE_REFERENCES || BOOST_NO_CXX11_RVALUE_REFERENCES
 
     const_iterator begin() const { return m_params.begin(); }
     const_iterator end() const { return m_params.end(); }

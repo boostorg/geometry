@@ -275,7 +275,7 @@ inline bool calculate_from_inside(Geometry1 const& geometry1,
     }
 
     auto const& range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
-            
+
     using range2_view = detail::closed_clockwise_view<typename ring_type<Geometry2>::type const>;
     range2_view const range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
 

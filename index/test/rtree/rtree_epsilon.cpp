@@ -50,11 +50,11 @@ void test_rtree(unsigned vcount)
         rt.query(bgi::intersects(qpt), std::back_inserter(result));
         BOOST_CHECK(result.size() == 1);
     }
-    
+
     {
         bgi::rtree<point_t, Params> rt;
         rt.insert(values);
-        
+
         std::vector<point_t> result;
         rt.query(bgi::intersects(qpt), std::back_inserter(result));
         BOOST_CHECK(result.size() == 1);

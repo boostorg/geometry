@@ -10,7 +10,7 @@
 # Build as optimised for proper benchmarking:
 #    b2 variant=release threading=multi
 #    b2 variant=release threading=multi link=static runtime-link=static
-# 
+#
 # Set GLUT_ROOT to installation prefix of GLUT or, for Windows,
 # it may be all-in-one directory with GLUT header and binaries.
 
@@ -31,10 +31,10 @@ if $(GLUT_ROOT)
     }
 
  lib glut
-    : 
+    :
     :
     <name>$(glut_name)
-    <search>$(GLUT_ROOT) 
+    <search>$(GLUT_ROOT)
     <search>$(GLUT_ROOT)/lib
     :
     :

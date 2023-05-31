@@ -389,7 +389,7 @@ struct output_geometry_access<TupledOut, Tag, DefaultTag, void>
         >::value;
 
     typedef typename geometry::tuples::element<index, TupledOut>::type type;
-    
+
     template <typename Tuple>
     static typename geometry::tuples::element<index, Tuple>::type&
         get(Tuple & tup)

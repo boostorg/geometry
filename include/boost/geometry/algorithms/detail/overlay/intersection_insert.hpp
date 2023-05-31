@@ -377,7 +377,7 @@ struct intersection_of_linestring_with_areal
 
             return out;
         }
-        
+
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
         for_each_with_index(turns, [](auto index, auto const& turn)
         {
@@ -1539,7 +1539,7 @@ inline OutputIterator intersection_insert(Geometry1 const& geometry1,
         <
             Geometry1, Geometry2
         >::type strategy_type;
-    
+
     return intersection_insert<GeometryOut>(geometry1, geometry2, out,
                                             strategy_type());
 }

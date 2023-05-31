@@ -160,7 +160,7 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         typedef std::vector<point_type> points_type;
         typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
 
-        points_type points(boost::begin(multi_point), boost::end(multi_point));        
+        points_type points(boost::begin(multi_point), boost::end(multi_point));
         std::sort(points.begin(), points.end(), less_type());
 
         boundary_visitor<points_type> visitor(points);
@@ -183,7 +183,7 @@ struct multi_point_single_geometry
     {
         typedef typename point_type<SingleGeometry>::type point2_type;
         typedef model::box<point2_type> box2_type;
-        
+
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
         geometry::detail::expand_by_epsilon(box2);

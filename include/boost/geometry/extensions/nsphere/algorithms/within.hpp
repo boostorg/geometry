@@ -56,7 +56,7 @@ inline bool box_in_circle(B const& b, C const& c, S const& strategy)
     // Currently only implemented for 2d geometries
     assert_dimension<point_type, 2>();
     assert_dimension<C, 2>();
-    
+
     // Box: all four points must lie within circle
     point_type const p0 = geometry::make<point_type>(get<min_corner, 0>(b), get<min_corner, 1>(b));
     point_type const p1 = geometry::make<point_type>(get<max_corner, 0>(b), get<max_corner, 1>(b));
