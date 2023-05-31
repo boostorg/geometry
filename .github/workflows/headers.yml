@@ -66,6 +66,6 @@ jobs:
         b2 -v
 
     - name: Build libs/geometry/test/headers
-        run: |
-          cd $BOOST_ROOT
-          $BOOST_ROOT/b2 libs/geometry/test/headers
+      run: |
+        cd $BOOST_ROOT
+        $BOOST_ROOT/b2 libs/geometry/test/headers
