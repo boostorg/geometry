@@ -1,9 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2022 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2022-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Copyright (c) 2022 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -25,6 +24,7 @@
 #include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/views/detail/geometry_collection_view.hpp>
 
 
@@ -49,18 +49,17 @@ struct aa_handler_wrapper
 
     explicit aa_handler_wrapper(Handler& handler)
         : m_handler(handler)
-    {
-        m_overwrite_ii = ! handler.template may_update<interior, interior, '2'>();
-        m_overwrite_ie = ! handler.template may_update<interior, exterior, '2'>();
-        m_overwrite_ei = ! handler.template may_update<exterior, interior, '2'>();
-    }
+        , m_overwrite_ii(! handler.template may_update<interior, interior, '2'>())
+        , m_overwrite_ie(! handler.template may_update<interior, exterior, '2'>())
+        , m_overwrite_ei(! handler.template may_update<exterior, interior, '2'>())
+    {}
 
     template <field F1, field F2, char D>
     inline bool may_update() const
     {
-        if ((F1 == interior && F2 == interior && m_overwrite_ii)
-            || (F1 == interior && F2 == exterior && m_overwrite_ie)
-            || (F1 == exterior && F2 == interior && m_overwrite_ei))
+        if ((BOOST_GEOMETRY_CONDITION(F1 == interior && F2 == interior) && m_overwrite_ii)
+            || (BOOST_GEOMETRY_CONDITION(F1 == interior && F2 == exterior) && m_overwrite_ie)
+            || (BOOST_GEOMETRY_CONDITION(F1 == exterior && F2 == interior) && m_overwrite_ei))
         {
             char const c = m_handler.template get<F1, F2>();
             return D > c || c > '9';
@@ -74,9 +73,9 @@ struct aa_handler_wrapper
     template <field F1, field F2, char V>
     inline void update()
     {
-        if ((F1 == interior && F2 == interior && m_overwrite_ii)
-            || (F1 == interior && F2 == exterior && m_overwrite_ie)
-            || (F1 == exterior && F2 == interior && m_overwrite_ei))
+        if ((BOOST_GEOMETRY_CONDITION(F1 == interior && F2 == interior) && m_overwrite_ii)
+            || (BOOST_GEOMETRY_CONDITION(F1 == interior && F2 == exterior) && m_overwrite_ie)
+            || (BOOST_GEOMETRY_CONDITION(F1 == exterior && F2 == interior) && m_overwrite_ei))
         {
             // NOTE: Other handlers first check for potential interruption
             //   and only after that checks update condition.
@@ -97,9 +96,9 @@ struct aa_handler_wrapper
 
 private:
     Handler & m_handler;
-    bool m_overwrite_ii = false;
-    bool m_overwrite_ie = false;
-    bool m_overwrite_ei = false;
+    bool const m_overwrite_ii;
+    bool const m_overwrite_ie;
+    bool const m_overwrite_ei;
 };
 
 

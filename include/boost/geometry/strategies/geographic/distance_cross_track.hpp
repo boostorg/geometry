@@ -465,7 +465,7 @@ private:
 
 
     template <typename CT>
-    static inline auto non_iterative_case(CT const& lon1, CT const& lat1, //p1
+    static inline auto non_iterative_case(CT const&     , CT const&     , //p1
                                           CT const& lon2, CT const& lat2, //p2
                                           CT const& distance)
     {

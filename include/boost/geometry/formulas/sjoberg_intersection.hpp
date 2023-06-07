@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2016-2019 Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2016-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -206,7 +207,7 @@ inline CT sjoberg_d_lambda_e_sqr(CT const& sin_betaj, CT const& sin_beta,
 {
     using math::detail::bounded;
 
-    if (Order == 0)
+    if (BOOST_GEOMETRY_CONDITION(Order == 0))
     {
         return 0;
     }
@@ -218,7 +219,7 @@ inline CT sjoberg_d_lambda_e_sqr(CT const& sin_betaj, CT const& sin_beta,
     CT const asin_Bj = asin(sin_betaj / sqrt_1_Cj_sqr);
     CT const L0 = (asin_B - asin_Bj) / c2;
 
-    if (Order == 1)
+    if (BOOST_GEOMETRY_CONDITION(Order == 1))
     {
         return -Cj * e_sqr * L0;
     }
@@ -237,7 +238,7 @@ inline CT sjoberg_d_lambda_e_sqr(CT const& sin_betaj, CT const& sin_beta,
     CT const sqrt_Yj = math::sqrt(-Xj_sqr + one_minus_Cj_sqr);
     CT const L1 = (Cj_sqr_plus_one * (asin_B - asin_Bj) + X * sqrt_Y - Xj * sqrt_Yj) / c16;
 
-    if (Order == 2)
+    if (BOOST_GEOMETRY_CONDITION(Order == 2))
     {
         return -Cj * e_sqr * (L0 + e_sqr * L1);
     }
@@ -251,7 +252,7 @@ inline CT sjoberg_d_lambda_e_sqr(CT const& sin_betaj, CT const& sin_beta,
     CT const Fj = Xj * (-c2 * Xj_sqr + c3 * Cj_sqr + c5);
     CT const L2 = (E * (asin_B - asin_Bj) + F * sqrt_Y - Fj * sqrt_Yj) / c128;
 
-    if (Order == 3)
+    if (BOOST_GEOMETRY_CONDITION(Order == 3))
     {
         return -Cj * e_sqr * (L0 + e_sqr * (L1 + e_sqr * L2));
     }

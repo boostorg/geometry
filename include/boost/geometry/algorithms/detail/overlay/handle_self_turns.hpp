@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2019-2022.
 // Modifications copyright (c) 2019-2022 Oracle and/or its affiliates.
@@ -165,8 +165,8 @@ private :
             if (! cinfo.turn_indices.empty()
                 && is_self_cluster(cluster_id, turns, clusters))
             {
-                signed_size_type const index = *cinfo.turn_indices.begin();
-                if (! check_within<OverlayType>::apply(turns[index],
+                signed_size_type const first_index = *cinfo.turn_indices.begin();
+                if (! check_within<OverlayType>::apply(turns[first_index],
                                                        geometry0, geometry1,
                                                        strategy))
                 {

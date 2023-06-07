@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2013-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2021.
 // Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
@@ -249,10 +249,7 @@ struct cartesian_segments
                 assign_b(point, a, b);
             }
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            return;
-#endif
-
+#ifndef BOOST_GEOMETRY_USE_RESCALING
             // Verify nearly collinear cases (the threshold is arbitrary
             // but influences performance). If the intersection is located
             // outside the segments, then it should be moved.
@@ -267,6 +264,7 @@ struct cartesian_segments
                 assign_if_exceeds(point, a);
                 assign_if_exceeds(point, b);
             }
+#endif
         }
 
         CoordinateType dx_a, dy_a;
