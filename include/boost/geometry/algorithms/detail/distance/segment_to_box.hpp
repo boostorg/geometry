@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021 Oracle and/or its affiliates.
+// Copyright (c) 2014-2023 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -658,7 +658,8 @@ public:
                                    BoxPoint const& bottom_right,
                                    Strategies const& strategies)
     {
-        BOOST_GEOMETRY_ASSERT( (geometry::less<SegmentPoint, -1, typename Strategies::cs_tag>()(p0, p1))
+        //TODO: pass strategy
+        BOOST_GEOMETRY_ASSERT( (geometry::less<SegmentPoint, -1, Strategies>()(p0, p1))
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1) );
 
@@ -753,7 +754,8 @@ public:
                               bottom_left, bottom_right,
                               top_left, top_right);
 
-        typedef geometry::less<segment_point, -1, typename Strategies::cs_tag> less_type;
+        //TODO: pass strategy
+        typedef geometry::less<segment_point, -1, Strategies> less_type;
         if (less_type()(p[0], p[1]))
         {
             return segment_to_box_2D

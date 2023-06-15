@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -63,12 +63,13 @@ namespace detail { namespace disjoint
 class multipoint_multipoint
 {
 private:
-    template <typename Iterator, typename CSTag>
+    template <typename Iterator, typename Strategy>
     class unary_not_disjoint_predicate
-        : geometry::less<void, -1, CSTag>
+        : geometry::less<void, -1, Strategy>
     {
     private:
-        typedef geometry::less<void, -1, CSTag> base_type;
+        //TODO: pass strategy
+        typedef geometry::less<void, -1, Strategy> base_type;
 
     public:
         unary_not_disjoint_predicate(Iterator first, Iterator last)
@@ -96,8 +97,8 @@ public:
     {
         BOOST_GEOMETRY_ASSERT( boost::size(multipoint1) <= boost::size(multipoint2) );
 
-        using cs_tag = typename Strategy::cs_tag;
-        using less_type = geometry::less<void, -1, cs_tag>;
+        //TODO: pass strategy
+        using less_type = geometry::less<void, -1, Strategy>;
         using point1_type = typename boost::range_value<MultiPoint1>::type;
 
         std::vector<point1_type> points1(boost::begin(multipoint1),
@@ -108,7 +109,7 @@ public:
         using predicate_type = unary_not_disjoint_predicate
             <
                 typename std::vector<point1_type>::const_iterator,
-                cs_tag
+                Strategy
             >;
 
         return none_of(boost::begin(multipoint2),

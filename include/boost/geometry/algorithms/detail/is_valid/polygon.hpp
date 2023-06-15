@@ -2,7 +2,7 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -405,7 +405,7 @@ protected:
             typedef complement_graph
                 <
                     typename turn_type::point_type,
-                    typename Strategy::cs_tag
+                    Strategy
                 > graph;
 
             graph g(geometry::num_interior_rings(polygon) + 1);

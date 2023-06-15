@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2017-2022 Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -134,7 +135,8 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         template <typename Point, typename Strategy>
         bool apply(Point const& boundary_point, Strategy const&)
         {
-            typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+            //TODO: pass strategy
+            typedef geometry::less<void, -1, Strategy> less_type;
 
             if (! std::binary_search(m_points.begin(), m_points.end(),
                                      boundary_point, less_type()) )
@@ -158,7 +160,8 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
     {
         typedef typename boost::range_value<MultiPoint>::type point_type;
         typedef std::vector<point_type> points_type;
-        typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+        //TODO: pass strategy
+        typedef geometry::less<void, -1, Strategy> less_type;
 
         points_type points(boost::begin(multi_point), boost::end(multi_point));
         std::sort(points.begin(), points.end(), less_type());

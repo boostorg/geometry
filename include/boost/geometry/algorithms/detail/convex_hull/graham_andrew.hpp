@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014-2021.
-// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2023.
+// Modifications copyright (c) 2014-2023 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -190,8 +190,7 @@ private:
 
         point_type most_left, most_right;
 
-        // TODO: User-defined CS-specific less-compare
-        geometry::less<point_type> less;
+        geometry::less<point_type, -1, Strategy> less;
 
         detail::convex_hull::get_extremes(in_proxy, most_left, most_right, less);
 
@@ -225,6 +224,7 @@ private:
             point_type const& left, point_type const& right,
             SideStrategy const& side)
     {
+        //std::cout << "add to hull" << std::endl;
         output.push_back(left);
         for (auto const& i : input)
         {

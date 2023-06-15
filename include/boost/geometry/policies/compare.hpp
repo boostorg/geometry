@@ -2,9 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2022.
-// Modifications copyright (c) 2017-2022, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2023.
+// Modifications copyright (c) 2017-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,7 +42,7 @@ template
 <
     typename Point = void,
     int Dimension = -1,
-    typename CSTag = void
+    typename Strategy = void
 >
 struct less
 {
@@ -51,37 +52,32 @@ struct less
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        /*using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
+                strategy::compare::equals_epsilon,
                 Point, Point,
-                Dimension,
-                CSTag, CSTag
-            >::type strategy_type;
+                Dimension
+            >::type;
 
-        return strategy_type::apply(left, right);
-    }
-};
+        Strategy strategy;
+        using compare_strategy = decltype(
+            strategy.template compare
+                <
+                    strategy::compare::less,
+                    strategy::compare::equals_exact,
+                    -1
+                >());
 
-template <int Dimension, typename CSTag>
-struct less<void, Dimension, CSTag>
-{
-    typedef bool result_type;
-
-    template <typename Point1, typename Point2>
-    inline bool operator()(Point1 const& left, Point2 const& right) const
-    {
-        typedef typename strategy::compare::services::default_strategy
+        return compare_strategy::apply(left, right);
+*/
+        return Strategy::template compare_type
             <
-                strategy::compare::less,
-                Point1, Point2,
-                Dimension,
-                CSTag, CSTag
-            >::type strategy_type;
-
-        return strategy_type::apply(left, right);
+                strategy::compare::less
+            >::apply(left, right);
     }
 };
+
 
 template <typename Point, int Dimension>
 struct less<Point, Dimension, void>
@@ -95,6 +91,7 @@ struct less<Point, Dimension, void>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
+                strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
             >::type strategy_type;
@@ -103,22 +100,18 @@ struct less<Point, Dimension, void>
     }
 };
 
-template <int Dimension>
-struct less<void, Dimension, void>
+template <int Dimension, typename Strategy>
+struct less<void, Dimension, Strategy>
 {
     typedef bool result_type;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        return Strategy::template compare_type
             <
-                strategy::compare::less,
-                Point1, Point2,
-                Dimension
-            >::type strategy_type;
-
-        return strategy_type::apply(left, right);
+                strategy::compare::less
+            >::apply(left, right);
     }
 };
 
@@ -146,6 +139,7 @@ struct greater
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
+                strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 CSTag, CSTag
@@ -166,6 +160,7 @@ struct greater<void, Dimension, CSTag>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
+                strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 CSTag, CSTag
@@ -187,6 +182,7 @@ struct greater<Point, Dimension, void>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
+                strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
             >::type strategy_type;
@@ -206,6 +202,7 @@ struct greater<void, Dimension, void>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
+                strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension
             >::type strategy_type;
@@ -240,6 +237,7 @@ struct equal_to
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
+                strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 CSTag, CSTag
@@ -260,6 +258,7 @@ struct equal_to<void, Dimension, CSTag>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
+                strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 CSTag, CSTag
@@ -281,6 +280,7 @@ struct equal_to<Point, Dimension, void>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
+                strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
             >::type strategy_type;
@@ -300,6 +300,7 @@ struct equal_to<void, Dimension, void>
         typedef typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
+                strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension
             >::type strategy_type;
