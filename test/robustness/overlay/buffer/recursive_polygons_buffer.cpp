@@ -28,10 +28,6 @@
 #include <sstream>
 
 #include <boost/program_options.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -44,6 +40,7 @@
 #include <geometry_test_common.hpp>
 #include <geometry_to_crc.hpp>
 #include <robustness/common/common_settings.hpp>
+#include <robustness/common/make_random_generator.hpp>
 #include <robustness/common/make_square_polygon.hpp>
 
 
@@ -62,7 +59,6 @@ void create_svg(std::string const& filename
                 , Geometry2 const& buffer)
 {
     typedef typename boost::geometry::point_type<Geometry1>::type point_type;
-
 
     std::ofstream svg(filename.c_str());
     boost::geometry::svg_mapper<point_type> mapper(svg, 800, 800);
@@ -249,6 +245,10 @@ bool test_buffer(MultiPolygon& result, int& index,
         return false;
     }
 
+    if (settings.verbose)
+    {
+        std::cout << " [" << bg::area(mp) << " " << bg::area(buffered) << "]";
+    }
 
     return verify(out.str(), mp, buffered, settings);
 }
@@ -259,20 +259,13 @@ void test_all(int seed, int count, int level, Settings const& settings)
 {
     auto const t0 = std::chrono::high_resolution_clock::now();
 
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, settings.field_size - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    auto coordinate_generator = make_int_generator(seed, settings.field_size - 1);
 
     typedef bg::model::polygon
         <
             bg::model::d2::point_xy<T>, Clockwise, Closed
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
-
 
     int index = 0;
     int errors = 0;
@@ -287,7 +280,7 @@ void test_all(int seed, int count, int level, Settings const& settings)
 
     auto const t = std::chrono::high_resolution_clock::now();
     auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
-    std::cout
+    std::cout << std::endl
         << "geometries: " << index
         << " errors: " << errors
         << " type: " << string_from_type<T>::name()
@@ -303,7 +296,7 @@ int main(int argc, char** argv)
         po::options_description description("=== recursive_polygons_buffer ===\nAllowed options");
 
         int count = 1;
-        int seed = static_cast<unsigned int>(std::time(0));
+        int seed = -1;
         int level = 3;
         bool ccw = false;
         bool open = false;
@@ -314,18 +307,19 @@ int main(int argc, char** argv)
         description.add_options()
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
-            ("count", po::value<int>(&count)->default_value(1), "Number of tests")
+            ("count", po::value<int>(&count), "Number of tests")
             ("validity", po::value<bool>(&settings.check_validity)->default_value(true), "Include testing on validity")
-            ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher -> slower)")
+            ("level", po::value<int>(&level), "Level to reach (higher -> slower)")
             ("distance", po::value<double>(&settings.distance)->default_value(1.0), "Distance (1.0)")
             ("ppc", po::value<int>(&settings.points_per_circle)->default_value(32), "Points per circle (32)")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
             ("join", po::value<std::string>(&join)->default_value("round"), "Form of the joins (round, miter)")
-            ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
-            ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
+            ("ccw", po::value<bool>(&ccw), "Counter clockwise polygons")
+            ("open", po::value<bool>(&open), "Open polygons")
             ("size", po::value<int>(&settings.field_size)->default_value(10), "Size of the field")
-            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
-            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
+            ("verbose", po::value<bool>(&settings.verbose), "Verbose")
+            ("wkt", po::value<bool>(&settings.wkt), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg), "Create a SVG for all tests")
         ;
 
         po::variables_map varmap;
