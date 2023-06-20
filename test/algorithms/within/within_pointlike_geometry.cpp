@@ -63,7 +63,7 @@ void test_p_l()
 
     test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1))", true);
     test_geometry<P, mls>("POINT(0 0)", "MULTILINESTRING((0 0,1 1,2 2),(0 0,0 1),(0 0,1 0))", false);
-    
+
     test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(1 1, 2 2))", true);
     test_geometry<P, mls>("POINT(1 1)", "MULTILINESTRING((0 0, 1 1),(2 2, 3 3))", false);
 
@@ -289,12 +289,63 @@ void test_spherical_geographic()
         // Points outside but on the same level as segment
         BOOST_CHECK_EQUAL(bg::covered_by(Point(-90, 75), poly_n), false);
     }*/
-    // Segment endpoints on pole with arbitrary longitudes
+    // Segment endpoints on North pole with arbitrary longitudes
     {
-        bg::model::polygon<Point> poly_n3;
-        bg::read_wkt("POLYGON((45 90,45 80,0 80,45 90))", poly_n3);
-        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, 85), poly_n3, ws), true);
-        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, 85), poly_n3, ws), true);
+        bg::model::polygon<Point> poly_n4;
+        bg::read_wkt("POLYGON((45 90,45 80,-10 80,45 90))", poly_n4);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, 85), poly_n4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, 85), poly_n4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, 85), poly_n4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 85), poly_n4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 85), poly_n4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, 85), poly_n4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 70), poly_n4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 70), poly_n4, ws), false);
+
+        // the same polygon but with two points representing the pole
+        bg::model::polygon<Point> poly_n4b;
+        bg::read_wkt("POLYGON((45 90,45 80,-10 80,60 90,45 90))", poly_n4b);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, 85), poly_n4b, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, 85), poly_n4b, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, 85), poly_n4b, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 85), poly_n4b, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 85), poly_n4b, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, 85), poly_n4b, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 70), poly_n4b, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 70), poly_n4b, ws), false);
+
+        bg::model::polygon<Point> poly_n5;
+        bg::read_wkt("POLYGON((0 90,-10 80,45 80,0 90))", poly_n5);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(1, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 85), poly_n5, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, 85), poly_n5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, 70), poly_n5, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, 70), poly_n5, ws), false);
+
+        bg::model::polygon<Point> poly_n_4edges;
+        bg::read_wkt("POLYGON((0 90,-10 70,5 60,20 80,0 90))", poly_n_4edges);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(3, 89), poly_n_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, 87), poly_n_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, 86), poly_n_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, 84), poly_n_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, 61), poly_n_4edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, 81), poly_n_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(7, 50), poly_n_4edges, ws), false);
+
+        bg::model::polygon<Point> poly_n_5edges;
+        bg::read_wkt("POLYGON((0 90,-10 70,5 60,10 85,20 80,0 90))", poly_n_5edges);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(3, 89), poly_n_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, 87), poly_n_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, 86), poly_n_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, 84), poly_n_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, 61), poly_n_5edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, 81), poly_n_5edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(7, 50), poly_n_5edges, ws), false);
     }
     // Segment going through pole
     {
@@ -308,12 +359,76 @@ void test_spherical_geographic()
         BOOST_CHECK_EQUAL(bg::covered_by(Point(0, -90), poly_s1, ws), true);
         BOOST_CHECK_EQUAL(bg::covered_by(Point(45, -90), poly_s1, ws), true);
     }
-    // Segment endpoints on pole with arbitrary longitudes
+    // Segment endpoints on South pole with arbitrary longitudes
     {
         bg::model::polygon<Point> poly_s2;
         bg::read_wkt("POLYGON((45 -90,0 -80,45 -80,45 -90))", poly_s2);
         BOOST_CHECK_EQUAL(bg::covered_by(Point(0, -85), poly_s2, ws), true);
         BOOST_CHECK_EQUAL(bg::covered_by(Point(45, -85), poly_s2, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -85), poly_s2, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -85), poly_s2, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, -85), poly_s2, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -70), poly_s2, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -70), poly_s2, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, -70), poly_s2, ws), false);
+
+        bg::model::polygon<Point> poly_s3;
+        bg::read_wkt("POLYGON((45 -90,-10 -80,45 -80,45 -90))", poly_s3);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(1, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -85), poly_s3, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, -85), poly_s3, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -70), poly_s3, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -70), poly_s3, ws), false);
+
+        bg::model::polygon<Point> poly_s5;
+        bg::read_wkt("POLYGON((0 -90,-10 -80,45 -80,0 -90))", poly_s5);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(1, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -85), poly_s5, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, -85), poly_s5, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -70), poly_s5, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -70), poly_s5, ws), false);
+
+        bg::model::polygon<Point> poly_s4;
+        bg::read_wkt("POLYGON((0 -89,-10 -80,45 -80,0 -89))", poly_s4);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, -85), poly_s4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(0, -85), poly_s4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(45, -85), poly_s4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -85), poly_s4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -85), poly_s4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-5, -85), poly_s4, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(30, -71), poly_s4, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(50, -70), poly_s4, ws), false);
+
+        //more complex examples
+        bg::model::polygon<Point> poly_s_complex_4edges;
+        bg::read_wkt("POLYGON((0 -90,-10 -70,5 -60,20 -80,0 -90))", poly_s_complex_4edges);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(3, -89), poly_s_complex_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -87), poly_s_complex_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, -86), poly_s_complex_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, -84), poly_s_complex_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -61), poly_s_complex_4edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, -81), poly_s_complex_4edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(7, -50), poly_s_complex_4edges, ws), false);
+
+        bg::model::polygon<Point> poly_s_complex_5edges;
+        bg::read_wkt("POLYGON((0 -90,-10 -70,5 -60,10 -85,20 -80,0 -90))", poly_s_complex_5edges);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(3, -89), poly_s_complex_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -87), poly_s_complex_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-10, -86), poly_s_complex_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, -84), poly_s_complex_5edges, ws), true);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -61), poly_s_complex_5edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(15, -81), poly_s_complex_5edges, ws), false);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(7, -50), poly_s_complex_5edges, ws), false);
     }
     // Polygon covering nearly half of the globe but no poles
     {
