@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2019-2021, Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2019-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -334,7 +335,7 @@ namespace detail
 template <typename Ring, typename Strategy>
 inline geometry::order_selector calculate_point_order(Ring const& ring, Strategy const& strategy)
 {
-    concepts::check<Ring>();
+    concepts::check<Ring const>();
 
     return dispatch::calculate_point_order<Strategy>::apply(ring, strategy);
 }
@@ -347,7 +348,7 @@ inline geometry::order_selector calculate_point_order(Ring const& ring)
             typename geometry::cs_tag<Ring>::type
         >::type strategy_type;
 
-    concepts::check<Ring>();
+    concepts::check<Ring const>();
 
     return dispatch::calculate_point_order<strategy_type>::apply(ring, strategy_type());
 }
