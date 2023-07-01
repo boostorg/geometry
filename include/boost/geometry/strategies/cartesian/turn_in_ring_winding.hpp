@@ -1,6 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -107,13 +108,12 @@ public:
         return s1y < s2y ? (py >= s1y && py <= s2y) : (py >= s2y && py <= s1y);
     }
 
-    template <typename Point, typename PointOfSegment, typename Ring>
+    template <typename Point, typename PointOfSegment>
     static inline void apply_on_boundary(Point const& point,
                              PointOfSegment const& s1,
                              PointOfSegment const& s2,
                              place_on_ring_type place_on_ring,
-                             counter& the_state,
-                             Ring const& full_ring)
+                             counter& the_state)
     {
         if (place_on_ring == place_on_ring_offsetted)
         {
@@ -149,13 +149,13 @@ public:
         }
     }
 
-    template <typename Point, typename PointOfSegment, typename Ring>
+    template <typename Point, typename PointOfSegment>
     static inline bool apply(Point const& point,
                              PointOfSegment const& s1,
                              PointOfSegment const& s2,
                              place_on_ring_type place_on_ring,
                              bool is_convex,
-                             counter& the_state, Ring const& full_ring)
+                             counter& the_state)
     {
         int const side = strategy::side::side_rounded_input<CalculationType>::apply(s1, s2, point);
 
@@ -179,7 +179,7 @@ public:
         {
             if (side == 0)
             {
-                apply_on_boundary(point, s1, s2, place_on_ring, the_state, full_ring);
+                apply_on_boundary(point, s1, s2, place_on_ring, the_state);
             }
 #if defined(BOOST_GEOMETRY_USE_RESCALING)
             else if (side == -1)

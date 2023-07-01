@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2017-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -38,6 +40,7 @@
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
 
+#include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 
@@ -234,7 +237,7 @@ struct multi_point_multi_geometry
 
             if (boundaries > 0)
             {
-                if (is_linear && boundaries % 2 == 0)
+                if (BOOST_GEOMETRY_CONDITION(is_linear) && boundaries % 2 == 0)
                 {
                     found_interior = true;
                 }

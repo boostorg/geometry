@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -55,8 +57,8 @@ struct ut_settings
 
 
 template <typename Geometry1, typename Geometry2, typename MultiLineString>
-inline void check_result(Geometry1 const& geometry1,
-                         Geometry2 const& geometry2,
+inline void check_result(Geometry1 const& ,
+                         Geometry2 const& ,
                          MultiLineString const& mls_output,
                          MultiLineString const& mls_int1,
                          MultiLineString const& mls_int2,

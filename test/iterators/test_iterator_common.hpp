@@ -114,10 +114,12 @@ inline void test_equality(CombinedIterator first, CombinedIterator beyond,
 {
     typedef typename CombinedContainer::const_iterator iterator;
 
-    iterator it = combined.begin();
-    for (CombinedIterator cit = first; cit != beyond; ++cit, ++it)
     {
-        BOOST_CHECK( *cit == *it );
+        iterator it = combined.begin();
+        for (CombinedIterator cit = first; cit != beyond; ++cit, ++it)
+        {
+            BOOST_CHECK( *cit == *it );
+        }
     }
 
     if ( combined.begin() != combined.end() )

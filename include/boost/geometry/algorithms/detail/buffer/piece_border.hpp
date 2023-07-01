@@ -353,7 +353,7 @@ private :
               TiRStrategy const& strategy,
               geometry::strategy::buffer::place_on_ring_type place_on_ring, State& state) const
     {
-        return strategy.apply(point, p1, p2, place_on_ring, m_is_convex, state, get_full_ring());
+        return strategy.apply(point, p1, p2, place_on_ring, m_is_convex, state);
     }
 
     template <typename It, typename Box, typename Strategy>

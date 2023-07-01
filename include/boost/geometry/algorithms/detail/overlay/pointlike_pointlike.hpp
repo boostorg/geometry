@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2014-2020, Oracle and/or its affiliates.
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -32,6 +33,8 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
+
+#include <boost/geometry/util/condition.hpp>
 
 
 namespace boost { namespace geometry
@@ -256,8 +259,8 @@ struct multipoint_multipoint_point
     {
         typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
 
-        if ( OverlayType != overlay_difference
-             && boost::size(multipoint1) > boost::size(multipoint2) )
+        if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_difference)
+            && boost::size(multipoint1) > boost::size(multipoint2))
         {
             return multipoint_multipoint_point
                 <

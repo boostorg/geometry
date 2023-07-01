@@ -1,6 +1,7 @@
 // Boost.Geometry
 
 // Copyright (c) 2023 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -127,6 +128,7 @@ void create_svg(std::ostream& stream, Geometry1 const& a, Geometry2 const& b, Ge
 
 void write_svg(std::ostringstream& svg, std::string const& filename)
 {
+    boost::ignore_unused(svg, filename);
 #if defined(TEST_WITH_SVG_FILE)
     std::ofstream tmp("/tmp/" + filename);
     if (tmp.good())
