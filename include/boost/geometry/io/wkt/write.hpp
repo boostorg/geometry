@@ -50,7 +50,7 @@
 #include <boost/geometry/strategies/io/geographic.hpp>
 #include <boost/geometry/strategies/io/spherical.hpp>
 
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
 
@@ -129,7 +129,7 @@ struct wkt_range
 
         if (boost::size(range) > 0)
         {
-            if (WriteDoubleBrackets)
+            if BOOST_GEOMETRY_CONSTEXPR (WriteDoubleBrackets)
             {
                 os << "(";
             }
@@ -143,15 +143,17 @@ struct wkt_range
             }
 
             // optionally, close range to ring by repeating the first point
-            if (BOOST_GEOMETRY_CONDITION(ForceClosurePossible)
-                && force_closure
-                && boost::size(range) > 1
-                && wkt_range::disjoint(*begin, *(end - 1)))
+            if BOOST_GEOMETRY_CONSTEXPR (ForceClosurePossible)
             {
-                os << ",";
-                stream_type::apply(os, *begin);
+                if (force_closure
+                    && boost::size(range) > 1
+                    && wkt_range::disjoint(*begin, *(end - 1)))
+                {
+                    os << ",";
+                    stream_type::apply(os, *begin);
+                }
             }
-            if (WriteDoubleBrackets)
+            if BOOST_GEOMETRY_CONSTEXPR (WriteDoubleBrackets)
             {
                 os << ")";
             }
