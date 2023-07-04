@@ -74,11 +74,6 @@ struct str_cast_traits_strtox<T, false, false>
     }
 };
 
-// Assuming a compiler supporting r-value references
-// supports long long and strtoll, strtoull, strtof, strtold
-// If it's MSVC enable in MSVC++ 12.0 aka Visual Studio 2013
-// TODO: in MSVC-11.0 _strtoi64() intrinsic could be used
-#if !defined(BOOST_NO_CXX11_RVALUE_REFERENCES) && (!defined(_MSC_VER) || (_MSC_VER >= 1800))
 template <>
 struct str_cast_traits_strtox<long long, true, true>
 {
@@ -114,7 +109,6 @@ struct str_cast_traits_strtox<long double, false, false>
         return strtold(str, str_end);
     }
 };
-#endif // C++11 strtox supported
 
 template <typename T>
 struct str_cast_traits_generic

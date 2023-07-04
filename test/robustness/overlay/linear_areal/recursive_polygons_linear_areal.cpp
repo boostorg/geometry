@@ -16,15 +16,11 @@
 #  pragma warning( disable : 4267 )
 #endif
 
+#include <chrono>
 #include <fstream>
 #include <sstream>
 
 #include <boost/program_options.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/buffer.hpp>
@@ -40,6 +36,7 @@
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 
 #include <robustness/common/common_settings.hpp>
+#include <robustness/common/make_random_generator.hpp>
 #include <robustness/common/make_square_polygon.hpp>
 
 
@@ -202,22 +199,29 @@ public :
     template <typename Segment2>
     inline void operator()(Segment2 const& segment)
     {
+        using point_t = typename bg::point_type<Segment2>::type ;
+        using segment_t = bg::model::segment<point_t>;
+        using result_t = bg::segment_intersection_points<point_t> ;
+        using policy_t = bg::policies::relate::segments_intersection_points
+            <
+                result_t
+            >;
+
         // Create copies (TODO: find out why referring_segment does not compile)
-        typedef typename bg::point_type<Segment2>::type pt;
-        typedef bg::model::segment<pt> segment_type;
+        segment_t seg1, seg2;
+        bg::convert(m_segment, seg1);
+        bg::convert(segment, seg2);
 
         bg::strategy::intersection::cartesian_segments<> strategy;
         bg::policies::relate::segments_intersection_points
             <
-                bg::segment_intersection_points<pt>
+                bg::segment_intersection_points<point_t>
             > policy;
 
-        segment_type seg1, seg2;
-        bg::convert(m_segment, seg1);
-        bg::convert(segment, seg2);
-
-        // TODO: this function requires unique subranges now
-        bg::segment_intersection_points<pt> is = strategy.apply(seg1, seg2);
+        bg::detail::segment_as_subrange<segment_t> subrange1(seg1);
+        bg::detail::segment_as_subrange<segment_t> subrange2(seg2);
+        bg::segment_intersection_points<point_t> is 
+            = strategy.apply(subrange1, subrange2, policy_t());
 
         if (is.count == 2)
         {
@@ -312,6 +316,12 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, Linestring const&
         bg::for_each_point(difference_midpoints, ocm);
     }
 
+    if (settings.verbose)
+    {
+        std::cout << " [" << bg::area(mp) << " " << bg::length(ls) << 
+            " " << bg::length(intersection) << 
+            " " << bg::length(difference) << "]";
+    }
 
     bool svg = settings.svg;
     bool wkt = settings.wkt;
@@ -402,15 +412,7 @@ bool test_linear_areal(MultiPolygon& result, int& index,
 template <typename T, bool Clockwise, bool Closed>
 void test_all(int seed, int count, int level, common_settings const& settings)
 {
-    boost::timer t;
-
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, settings.field_size - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    auto coordinate_generator = make_int_generator(seed, settings.field_size - 1);
 
     typedef bg::model::polygon
         <
@@ -418,6 +420,7 @@ void test_all(int seed, int count, int level, common_settings const& settings)
         > polygon;
     typedef bg::model::multi_polygon<polygon> mp;
 
+    auto const t0 = std::chrono::high_resolution_clock::now();
 
     int index = 0;
     for(int i = 0; i < count; i++)
@@ -425,10 +428,12 @@ void test_all(int seed, int count, int level, common_settings const& settings)
         mp p;
         test_linear_areal<mp>(p, index, coordinate_generator, level, settings);
     }
-    std::cout
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
+    std::cout << std::endl
         << "geometries: " << index
         << " type: " << typeid(T).name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0  << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -439,7 +444,7 @@ int main(int argc, char** argv)
         po::options_description description("=== recursive_polygons_linear_areal ===\nAllowed options");
 
         int count = 1;
-        int seed = static_cast<unsigned int>(std::time(0));
+        int seed = -1;
         int level = 3;
         bool ccw = false;
         bool open = false;
@@ -449,15 +454,16 @@ int main(int argc, char** argv)
         description.add_options()
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
-            ("count", po::value<int>(&count)->default_value(1), "Number of tests")
-            ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
-            ("level", po::value<int>(&level)->default_value(3), "Level to reach (higher->slower)")
+            ("count", po::value<int>(&count), "Number of tests")
+            ("diff", po::value<bool>(&settings.also_difference), "Include testing on difference")
+            ("level", po::value<int>(&level), "Level to reach (higher->slower)")
             ("form", po::value<std::string>(&form)->default_value("box"), "Form of the polygons (box, triangle)")
-            ("ccw", po::value<bool>(&ccw)->default_value(false), "Counter clockwise polygons")
-            ("open", po::value<bool>(&open)->default_value(false), "Open polygons")
-            ("size", po::value<int>(&settings.field_size)->default_value(10), "Size of the field")
-            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
-            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
+            ("ccw", po::value<bool>(&ccw), "Counter clockwise polygons")
+            ("open", po::value<bool>(&open), "Open polygons")
+            ("size", po::value<int>(&settings.field_size), "Size of the field")
+            ("verbose", po::value<bool>(&settings.verbose), "Verbose")
+            ("wkt", po::value<bool>(&settings.wkt), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg), "Create a SVG for all tests")
         ;
 
         po::variables_map varmap;

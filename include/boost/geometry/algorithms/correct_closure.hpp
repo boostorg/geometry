@@ -15,7 +15,6 @@
 
 #include <cstddef>
 
-#include <boost/geometry/algorithms/detail/interior_iterator.hpp>
 #include <boost/geometry/algorithms/detail/multi_modify.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
 

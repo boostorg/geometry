@@ -20,6 +20,21 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.83]
+[/=================]
+
+[*Major improvements]
+
+[*Improvements]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1100 1100] Fix for union
+* [@https://github.com/boostorg/geometry/issues/1139 1139] Fix for different geometry types
+
+[*Breaking changes]
+
+[/=================]
 [heading Boost 1.82]
 [/=================]
 

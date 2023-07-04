@@ -24,13 +24,8 @@ int main()
 
     polygon_t poly1; /*< Default-construct a polygon. >*/
 
-#if !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX) \
- && !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-
     polygon_t polygon2{{{0.0, 0.0}, {0.0, 5.0}, {5.0, 5.0}, {5.0, 0.0}, {0.0, 0.0}},
                        {{1.0, 1.0}, {4.0, 1.0}, {4.0, 4.0}, {1.0, 4.0}, {1.0, 1.0}}}; /*< Construct a polygon containing an exterior and interior ring, using C++11 unified initialization syntax. >*/
-
-#endif
 
     bg::append(poly1.outer(), point_t(0.0, 0.0)); /*< Append point to the exterior ring. >*/
     bg::append(poly1.outer(), point_t(0.0, 5.0));

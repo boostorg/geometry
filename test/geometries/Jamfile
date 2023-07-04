@@ -38,3 +38,5 @@ test-suite boost-geometry-geometries
     [ run segment.cpp              : : : : geometries_segment ]
     [ run infinite_line.cpp        : : : : geometries_infinite_line ]
     ;
+
+build-project custom_non_copiable ;

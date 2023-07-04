@@ -68,7 +68,7 @@ int main()
             {
                 P p(coords[i].first, coords[i].second);
                 rtl.insert(p);
-            }            
+            }
             dur_t time = clock_t::now() - start;
             std::cout << time.count() << ' ';
 

@@ -237,7 +237,7 @@ private:
 
                 internal_data& current_data = m_internal_stack.back();
 
-                // no more children in current node, remove it from stack                
+                // no more children in current node, remove it from stack
                 if (current_data.first == current_data.last)
                 {
                     m_internal_stack.pop_back();
@@ -255,7 +255,7 @@ private:
             }
         }
     }
-    
+
     const translator_type * m_translator;
     strategy_type m_strategy;
 

@@ -129,7 +129,7 @@ int main()
         tree = boost::move(tmp);
         std::cout << "tree rebuilt from vector in: " << t.elapsed() << std::endl;
     }
-    
+
     t.restart();
     tree.clear();
     std::cout << "tree cleared in: " << t.elapsed() << std::endl;

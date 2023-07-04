@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 //
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 //
 // This file was modified by Oracle on 2017-2021.
 // Modifications copyright (c) 2017-2021 Oracle and/or its affiliates.
@@ -30,10 +30,9 @@
 #endif
 #include <boost/geometry/io/wkt/wkt.hpp>
 
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <random>
 
 
 template <typename Box>
@@ -52,7 +51,7 @@ struct box_item
 };
 
 
-struct get_box
+struct expand_for_box
 {
     template <typename Box, typename InputItem>
     static inline void apply(Box& total, InputItem const& item)
@@ -61,7 +60,7 @@ struct get_box
     }
 };
 
-struct ovelaps_box
+struct overlaps_box
 {
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
@@ -161,7 +160,7 @@ void test_boxes(std::string const& wkt_box_list, double expected_area, int expec
     bg::partition
         <
             Box
-        >::apply(boxes, visitor, get_box(), ovelaps_box(), 1);
+        >::apply(boxes, visitor, expand_for_box(), overlaps_box(), 1);
 
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
@@ -183,7 +182,7 @@ struct point_item
 BOOST_GEOMETRY_REGISTER_POINT_2D(point_item, double, cs::cartesian, x, y)
 
 
-struct get_point
+struct expand_for_point
 {
     template <typename Box, typename InputItem>
     static inline void apply(Box& total, InputItem const& item)
@@ -192,7 +191,7 @@ struct get_point
     }
 };
 
-struct ovelaps_point
+struct overlaps_point
 {
     template <typename Box, typename InputItem>
     static inline bool apply(Box const& box, InputItem const& item)
@@ -240,8 +239,8 @@ void test_points(std::string const& wkt1, std::string const& wkt2, int expected_
     bg::partition
         <
             bg::model::box<point_item>
-        >::apply(mp1, mp2, visitor, get_point(), ovelaps_point(),
-                 get_point(), ovelaps_point(), 1);
+        >::apply(mp1, mp2, visitor, expand_for_point(), overlaps_point(),
+                 expand_for_point(), overlaps_point(), 1);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
 }
@@ -316,21 +315,17 @@ struct svg_visitor
 template <typename Collection>
 void fill_points(Collection& collection, int seed, int size, int count)
 {
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, size - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    std::uniform_int_distribution<int> distribution(0, size - 1);
+    std::seed_seq ssq{seed};
+    std::default_random_engine re(ssq);
 
     std::set<std::pair<int, int> > included;
 
     int n = 0;
     for (int i = 0; n < count && i < count*count; i++)
     {
-        int x = coordinate_generator();
-        int y = coordinate_generator();
+        int x = distribution(re);
+        int y = distribution(re);
         std::pair<int, int> pair = std::make_pair(x, y);
         if (included.find(pair) == included.end())
         {
@@ -390,8 +385,8 @@ void test_many_points(int seed, int size, int count)
             bg::model::box<point_item>,
             bg::detail::partition::include_all_policy,
             bg::detail::partition::include_all_policy
-        >::apply(mp1, mp2, visitor, get_point(), ovelaps_point(),
-                 get_point(), ovelaps_point(), 2, box_visitor);
+        >::apply(mp1, mp2, visitor, expand_for_point(), overlaps_point(),
+                 expand_for_point(), overlaps_point(), 2, box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
 
@@ -410,23 +405,19 @@ void test_many_points(int seed, int size, int count)
 template <typename Collection>
 void fill_boxes(Collection& collection, int seed, int size, int count)
 {
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, size * 10 - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    std::uniform_int_distribution<int> distribution(0, size * 10 - 1);
+    std::seed_seq ssq{seed};
+    std::default_random_engine re(ssq);
 
     int n = 0;
     for (int i = 0; n < count && i < count*count; i++)
     {
-        int w = coordinate_generator() % 30;
-        int h = coordinate_generator() % 30;
+        int w = distribution(re) % 30;
+        int h = distribution(re) % 30;
         if (w > 0 && h > 0)
         {
-            int x = coordinate_generator();
-            int y = coordinate_generator();
+            int x = distribution(re);
+            int y = distribution(re);
             if (x + w < size * 10 && y + h < size * 10)
             {
                 typename boost::range_value<Collection>::type item(n+1);
@@ -498,7 +489,7 @@ void test_many_boxes(int seed, int size, int count)
             box_type,
             bg::detail::partition::include_all_policy,
             bg::detail::partition::include_all_policy
-        >::apply(boxes, visitor, get_box(), ovelaps_box(),
+        >::apply(boxes, visitor, expand_for_box(), overlaps_box(),
                  2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
@@ -566,8 +557,8 @@ void test_two_collections(int seed1, int seed2, int size, int count)
             box_type,
             bg::detail::partition::include_all_policy,
             bg::detail::partition::include_all_policy
-        >::apply(boxes1, boxes2, visitor, get_box(), ovelaps_box(),
-                 get_box(), ovelaps_box(), 2, partition_box_visitor);
+        >::apply(boxes1, boxes2, visitor, expand_for_box(), overlaps_box(),
+                 expand_for_box(), overlaps_box(), 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor.count, expected_count);
     BOOST_CHECK_CLOSE(visitor.area, expected_area, 0.001);
@@ -632,8 +623,8 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
             box_type,
             bg::detail::partition::include_all_policy,
             bg::detail::partition::include_all_policy
-        >::apply(points, boxes, visitor1, get_point(), ovelaps_point(),
-                 get_box(), ovelaps_box(), 2, partition_box_visitor);
+        >::apply(points, boxes, visitor1, expand_for_point(), overlaps_point(),
+                 expand_for_box(), overlaps_box(), 2, partition_box_visitor);
 
     reversed_point_in_box_visitor visitor2;
     bg::partition
@@ -641,8 +632,8 @@ void test_heterogenuous_collections(int seed1, int seed2, int size, int count)
             box_type,
             bg::detail::partition::include_all_policy,
             bg::detail::partition::include_all_policy
-        >::apply(boxes, points, visitor2, get_box(), ovelaps_box(),
-                 get_point(), ovelaps_point(), 2, partition_box_visitor);
+        >::apply(boxes, points, visitor2, expand_for_box(), overlaps_box(),
+                 expand_for_point(), overlaps_point(), 2, partition_box_visitor);
 
     BOOST_CHECK_EQUAL(visitor1.count, expected_count);
     BOOST_CHECK_EQUAL(visitor2.count, expected_count);

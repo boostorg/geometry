@@ -243,8 +243,6 @@ struct value< boost::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int
     }
 };
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
 template <typename T, typename C>
 struct value< std::tuple<bg::model::point<T, 2, C>, int, int> >
 {
@@ -303,8 +301,6 @@ struct value< std::tuple<bg::model::box< bg::model::point<T, 3, C> >, int, int> 
     }
 };
 
-#endif // #if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
-
 } // namespace generate
 
 // shared_ptr value
@@ -355,7 +351,7 @@ struct value< boost::shared_ptr<test_object<bg::model::point<T, 3, C> > > >
     typedef boost::shared_ptr<O> R;
 
     static R apply(int x, int y, int z)
-    {   
+    {
         return R(new O(P(x, y, z)));
     }
 };
@@ -383,7 +379,7 @@ struct value< boost::shared_ptr<test_object<bg::model::box<bg::model::point<T, 3
     typedef boost::shared_ptr<O> R;
 
     static R apply(int x, int y, int z)
-    {   
+    {
         return R(new O(B(P(x, y, z), P(x + 2, y + 3, z + 4))));
     }
 };
@@ -1269,7 +1265,7 @@ inline void nearest_query_k(Rtree const& rtree, std::vector<Value> const& input,
     {
         greatest_distance = test_output.back().first;
     }
-    
+
     // transform test output to vector of values
     std::vector<Value> expected_output(test_output.size(), generate::value_default<Value>::apply());
     std::transform(test_output.begin(), test_output.end(), expected_output.begin(), NearestKTransform<Rtree, Point>());
@@ -1343,7 +1339,7 @@ struct satisfies_obj
 template <typename Rtree, typename Value>
 void satisfies(Rtree const& rtree, std::vector<Value> const& input)
 {
-    std::vector<Value> result;    
+    std::vector<Value> result;
     rtree.query(bgi::satisfies(satisfies_obj()), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
@@ -1357,14 +1353,12 @@ void satisfies(Rtree const& rtree, std::vector<Value> const& input)
     rtree.query(!bgi::satisfies(satisfies_fun<Value>), std::back_inserter(result));
     BOOST_CHECK(result.size() == 0);
 
-#ifndef BOOST_NO_CXX11_LAMBDAS
     result.clear();
     rtree.query(bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == input.size());
     result.clear();
     rtree.query(!bgi::satisfies([](Value const&){ return true; }), std::back_inserter(result));
     BOOST_CHECK(result.size() == 0);
-#endif
 }
 
 // rtree copying and moving
@@ -1404,7 +1398,7 @@ void copy_swap_move(Rtree const& tree, Box const& qbox)
     output.clear();
     t1.query(bgi::intersects(qbox), std::back_inserter(output));
     exactly_the_same_outputs(t1, output, expected_output);
-    
+
     Rtree t2(tree.parameters(), tree.indexable_get(), tree.value_eq(), tree.get_allocator());
     t2.swap(t1);
     BOOST_CHECK(tree.empty() == t2.empty());
@@ -1574,7 +1568,7 @@ void remove(Rtree const& tree, Box const& qbox)
     // Add value which is not stored in the Rtree
     Value outsider = generate::value_outside<Rtree>();
     values_to_remove.push_back(outsider);
-    
+
     {
         Rtree t(tree);
         size_t r = 0;
@@ -1850,12 +1844,12 @@ void test_rtree_count(Parameters const& parameters, Allocator const& allocator)
     B qbox;
 
     generate::rtree(t, input, qbox);
-    
+
     BOOST_CHECK(t.count(input[0]) == 1);
     BOOST_CHECK(t.count(input[0].first) == 1);
-        
+
     t.insert(input[0]);
-    
+
     BOOST_CHECK(t.count(input[0]) == 2);
     BOOST_CHECK(t.count(input[0].first) == 2);
 
@@ -1883,14 +1877,14 @@ void test_rtree_bounds(Parameters const& parameters, Allocator const& allocator)
 
     B b;
     bg::assign_inverse(b);
-    
+
     BOOST_CHECK(bg::equals(t.bounds(), b));
 
     generate::rtree(t, input, qbox);
 
     b = bgi::detail::rtree::values_box<B>(input.begin(), input.end(), t.indexable_get(),
                                           bgi::detail::get_strategy(parameters));
-    
+
     BOOST_CHECK(bg::equals(t.bounds(), b));
     BOOST_CHECK(bg::equals(t.bounds(), bgi::bounds(t)));
 
@@ -1973,10 +1967,8 @@ void test_rtree_for_point(Parameters const& parameters, Allocator const& allocat
 
     test_rtree_additional<Point>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Point, int, int> StdTupleP;
     test_rtree_by_value<StdTupleP, Parameters>(parameters, allocator);
-#endif
 }
 
 template<typename Point, typename Parameters, typename Allocator>
@@ -1995,10 +1987,8 @@ void test_rtree_for_box(Parameters const& parameters, Allocator const& allocator
 
     test_rtree_additional<Box>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Box, int, int> StdTupleB;
     test_rtree_by_value<StdTupleB, Parameters>(parameters, allocator);
-#endif
 }
 
 template<typename Point, typename Parameters>
@@ -2030,10 +2020,8 @@ void modifiers(Parameters const& parameters, Allocator const& allocator)
     test_rtree_modifiers<SharedPtr>(parameters, allocator);
     test_rtree_modifiers<VNoDCtor>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Indexable, int, int> StdTuple;
     test_rtree_modifiers<StdTuple>(parameters, allocator);
-#endif
 }
 
 template<typename Indexable, typename Parameters, typename Allocator>
@@ -2051,10 +2039,8 @@ void queries(Parameters const& parameters, Allocator const& allocator)
     test_rtree_queries<SharedPtr>(parameters, allocator);
     test_rtree_queries<VNoDCtor>(parameters, allocator);
 
-#if !defined(BOOST_NO_CXX11_HDR_TUPLE) && !defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES)
     typedef std::tuple<Indexable, int, int> StdTuple;
     test_rtree_queries<StdTuple>(parameters, allocator);
-#endif
 }
 
 template<typename Indexable, typename Parameters, typename Allocator>

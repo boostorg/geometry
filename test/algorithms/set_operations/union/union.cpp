@@ -459,6 +459,9 @@ void test_areal()
     TEST_UNION(issue_1081c, 1, 1, -1, 2338.08);
     TEST_UNION_REV(issue_1081c, 1, 1, -1, 2338.08);
 
+    TEST_UNION(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
+    TEST_UNION_REV(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
+
     TEST_UNION(issue_1108, 1, 0, -1, 12.1742);
     TEST_UNION_REV(issue_1108, 1, 0, -1, 12.1742);
 

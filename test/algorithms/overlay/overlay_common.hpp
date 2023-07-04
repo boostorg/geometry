@@ -95,8 +95,7 @@ void test_all(std::vector<T> const& expected)
 
     // compilation test only, will not output
     //test_overlay<box, polygon, Functor>("", "", "", "");
-    typename boost::range_const_iterator<std::vector<T> >::type iterator
-        = boost::begin(expected);
+    auto iterator = boost::begin(expected);
 
 
 #ifndef ONLY_CASE_BRANDON

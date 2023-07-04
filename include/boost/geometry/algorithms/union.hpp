@@ -462,7 +462,7 @@ struct union_
     {
         detail::random_access_view<Geometry1 const> gc1_view(geometry1);
         detail::random_access_view<Geometry2 const> gc2_view(geometry2);
-        
+
         detail::gc_group_elements(gc1_view, gc2_view, strategy,
             [&](auto const& inters_group)
             {
@@ -763,7 +763,7 @@ struct union_<default_strategy, false>
 
 namespace resolve_dynamic
 {
-    
+
 template
 <
     typename Geometry1, typename Geometry2,
@@ -853,7 +853,7 @@ struct union_<DynamicGeometry1, DynamicGeometry2, dynamic_geometry_tag, dynamic_
     }
 };
 
-    
+
 } // namespace resolve_dynamic
 
 

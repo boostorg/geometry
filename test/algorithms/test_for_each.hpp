@@ -2,6 +2,8 @@
 // Unit Test
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,14 +13,14 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/config.hpp>
-#include <boost/geometry/algorithms/for_each.hpp>
-
 #include <boost/geometry/algorithms/distance.hpp>
-#include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/algorithms/for_each.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/config.hpp>
 
 template<typename Point>
 inline void translate_x_function(Point& p)
@@ -95,8 +97,6 @@ void test_per_point_const(Geometry const& geometry, int expected)
 
 
     // Lambda
-#if !defined(BOOST_NO_CXX11_LAMBDAS)
-
     typename bg::coordinate_type<point_type>::type sum_x = 0;
 
     bg::for_each_point
@@ -110,7 +110,6 @@ void test_per_point_const(Geometry const& geometry, int expected)
         );
 
     BOOST_CHECK_EQUAL(sum_x, expected);
-#endif
 }
 
 template <typename Geometry>
@@ -118,9 +117,7 @@ void test_per_point_non_const(Geometry& geometry,
     std::string const& expected1,
     std::string const& expected2)
 {
-#if !defined(BOOST_NO_CXX11_LAMBDAS)
     Geometry copy = geometry;
-#endif
 
     typedef typename bg::point_type<Geometry>::type point_type;
 
@@ -145,7 +142,6 @@ void test_per_point_non_const(Geometry& geometry,
         << " expected " << expected2
         << " got " << bg::wkt(geometry));
 
-#if !defined(BOOST_NO_CXX11_LAMBDAS)
     // Lambda, both functions above together. Without / with capturing
 
     geometry = copy;
@@ -177,8 +173,6 @@ void test_per_point_non_const(Geometry& geometry,
         "for_each_point (lambda): "
         << " expected " << expected2
         << " got " << bg::wkt(geometry));
-#endif
-
 }
 
 

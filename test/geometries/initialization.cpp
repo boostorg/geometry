@@ -117,8 +117,6 @@ void test_boost_assign_tuple_2d()
 template <typename P>
 void test_initializer_list_2d()
 {
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
-
     typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
@@ -186,8 +184,6 @@ void test_initializer_list_2d()
     // multi_polygon::operator=(initializer_list<Polygon>)
     mp1 = {{{{0, 0}, {0, 1}, {1, 2}, {2, 1}, {1, 0}, {0, 0}}}, {{{2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}}}};
     BOOST_CHECK(bg::num_points(mp1) == 11);
-
-#endif
 }
 
 template <typename P>
@@ -210,10 +206,8 @@ struct test_range
     test_range() {}
     template <typename It>
     test_range(It, It) {}
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
     test_range(std::initializer_list<T>) {}
     //test_range & operator=(std::initializer_list<T>) { return *this; }
-#endif
 };
 
 void test_sanity_check()
@@ -222,7 +216,6 @@ void test_sanity_check()
     typedef test_range<P> R;
     typedef std::vector<P> V;
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
     {
         R r = {{1, 1},{2, 2},{3, 3}};
         r = {{1, 1},{2, 2},{3, 3}};
@@ -230,7 +223,7 @@ void test_sanity_check()
         V v = {{1, 1},{2, 2},{3, 3}};
         v = {{1, 1},{2, 2},{3, 3}};
     }
-#endif
+
     {
         R r = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));
         r = boost::assign::list_of(P(1, 1))(P(2, 2))(P(3, 3));

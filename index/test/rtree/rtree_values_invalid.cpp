@@ -22,10 +22,10 @@ void test_rtree()
 int test_main(int, char* [])
 {
     typedef bg::model::point<double, 1, bg::cs::cartesian> Pt;
-    
+
     test_rtree<Pt, bgi::linear<16> >();
     test_rtree<Pt, bgi::quadratic<4> >();
     test_rtree<Pt, bgi::rstar<4> >();
-    
+
     return 0;
 }

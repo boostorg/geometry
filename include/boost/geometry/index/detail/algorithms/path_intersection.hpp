@@ -64,9 +64,9 @@ struct path_intersection<Indexable, Linestring, box_tag, linestring_tag>
     static inline bool apply(Indexable const& b, Linestring const& path, comparable_distance_type & comparable_distance)
     {
         typedef typename ::boost::range_value<Linestring>::type point_type;
-        typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;        
+        typedef typename ::boost::range_const_iterator<Linestring>::type const_iterator;
         typedef typename ::boost::range_size<Linestring>::type size_type;
-        
+
         const size_type count = ::boost::size(path);
 
         if ( count == 2 )

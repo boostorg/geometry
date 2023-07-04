@@ -2,7 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2016-2020.
 // Modifications copyright (c) 2016-2020, Oracle and/or its affiliates.
@@ -147,9 +147,9 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
         mapper.map(g2, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:3");
 
 
-        for (typename Output::const_iterator it = output.begin(); it != output.end(); ++it)
+        for (auto const& item : output)
         {
-            mapper.map(*it,
+            mapper.map(item,
                 //sym ? "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,255,0);stroke:rgb(255,0,255);stroke-width:8" :
                 "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);stroke:rgb(255,0,255);stroke-width:8");
         }
@@ -167,6 +167,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 {
     typedef typename bg::coordinate_type<G1>::type coordinate_type;
     boost::ignore_unused<coordinate_type>();
+    boost::ignore_unused(expected_point_count);
 
     bg::model::multi_polygon<OutputType> result;
 

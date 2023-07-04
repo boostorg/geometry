@@ -148,8 +148,6 @@ class graham_andrew
 {
     typedef InputPoint point_type;
     typedef typename std::vector<point_type> container_type;
-    typedef typename std::vector<point_type>::const_iterator iterator;
-    typedef typename std::vector<point_type>::const_reverse_iterator rev_iterator;
 
     class partitions
     {
@@ -228,9 +226,9 @@ private:
             SideStrategy const& side)
     {
         output.push_back(left);
-        for(iterator it = input.begin(); it != input.end(); ++it)
+        for (auto const& i : input)
         {
-            add_to_hull<Factor>(*it, output, side);
+            add_to_hull<Factor>(i, output, side);
         }
         add_to_hull<Factor>(right, output, side);
     }
@@ -244,7 +242,7 @@ private:
         std::size_t output_size = output.size();
         while (output_size >= 3)
         {
-            rev_iterator rit = output.rbegin();
+            auto rit = output.rbegin();
             point_type const last = *rit++;
             point_type const& last2 = *rit++;
 

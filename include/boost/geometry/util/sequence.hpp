@@ -270,7 +270,7 @@ struct pack_min_element<LessPred, T1, T2, Ts...>
 template
 <
     typename Sequence,
-    template <typename, typename> class LessPred    
+    template <typename, typename> class LessPred
 >
 struct sequence_min_element;
 

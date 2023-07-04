@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -34,14 +35,15 @@
 template <typename T>
 void fill_polygon_with_two_holes(boost::polygon::polygon_with_holes_data<T>& boost_polygon_polygon)
 {
-    std::vector<boost::polygon::point_data<T> > point_vector;
-    point_vector.push_back(boost::polygon::point_data<T>(0, 0));
-    point_vector.push_back(boost::polygon::point_data<T>(0, 10));
-    point_vector.push_back(boost::polygon::point_data<T>(10, 10));
-    point_vector.push_back(boost::polygon::point_data<T>(10, 0));
-    point_vector.push_back(boost::polygon::point_data<T>(0, 0));
-    boost_polygon_polygon.set(point_vector.begin(), point_vector.end());
-
+    {
+        std::vector<boost::polygon::point_data<T> > point_vector;
+        point_vector.push_back(boost::polygon::point_data<T>(0, 0));
+        point_vector.push_back(boost::polygon::point_data<T>(0, 10));
+        point_vector.push_back(boost::polygon::point_data<T>(10, 10));
+        point_vector.push_back(boost::polygon::point_data<T>(10, 0));
+        point_vector.push_back(boost::polygon::point_data<T>(0, 0));
+        boost_polygon_polygon.set(point_vector.begin(), point_vector.end());
+    }
 
     std::vector<boost::polygon::polygon_data<T> > holes;
     holes.resize(2);

@@ -91,7 +91,7 @@ private:
             std::vector<box_point>,
             open
         > point_to_point_range;
-    
+
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
     typedef distance::return_t<box_point, Segment, Strategies> return_type;
@@ -114,7 +114,7 @@ public:
         // get box points
         std::vector<box_point> box_points(4);
         detail::assign_box_corners_oriented<true>(box, box_points);
- 
+
         ps_strategy_type const strategy = strategies.distance(dummy_point(), dummy_segment());
 
         auto const cstrategy = strategy::distance::services::get_comparable
@@ -192,7 +192,7 @@ private:
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
     typedef distance::return_t<box_point, Segment, Strategies> return_type;
-    
+
     static inline return_type apply(Segment const& segment,
                                     Box const& box,
                                     Strategies const& strategies,

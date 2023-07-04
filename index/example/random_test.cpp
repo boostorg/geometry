@@ -73,7 +73,7 @@ int main()
 
         std::vector<B> result;
         result.reserve(100);
-        
+
         // test
         std::vector<size_t> spatial_query_data;
         size_t spatial_query_index = 0;
@@ -86,7 +86,7 @@ int main()
                 float y = coords[i].second;
                 result.clear();
                 t.query(bgi::intersects(B(P(x - 10, y - 10), P(x + 10, y + 10))), std::back_inserter(result));
-                
+
                 // test
                 spatial_query_data.push_back(result.size());
                 found_count += result.size();

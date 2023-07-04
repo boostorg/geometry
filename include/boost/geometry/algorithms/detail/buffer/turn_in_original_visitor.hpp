@@ -32,7 +32,7 @@ namespace detail { namespace buffer
 {
 
 
-template <typename Strategy>    
+template <typename Strategy>
 struct original_get_box
 {
     explicit original_get_box(Strategy const& strategy)
@@ -190,20 +190,11 @@ inline int point_in_original(Point const& point, Original const& original,
         return strategy.result(state);
     }
 
-    typedef typename Original::sections_type sections_type;
-    typedef typename boost::range_iterator<sections_type const>::type iterator_type;
-    typedef typename boost::range_value<sections_type const>::type section_type;
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-
-    coordinate_type const point_x = geometry::get<0>(point);
+    auto const point_x = geometry::get<0>(point);
 
     // Walk through all monotonic sections of this original
-    for (iterator_type it = boost::begin(original.m_sections);
-        it != boost::end(original.m_sections);
-        ++it)
+    for (auto const& section : original.m_sections)
     {
-        section_type const& section = *it;
-
         if (! section.duplicate
             && section.begin_index < section.end_index
             && point_x >= geometry::get<min_corner, 0>(section.bounding_box)

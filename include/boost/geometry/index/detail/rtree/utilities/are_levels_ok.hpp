@@ -99,7 +99,7 @@ bool are_levels_ok(Rtree const& tree)
     visitors::are_levels_ok<
         typename RTV::members_holder
     > v;
-    
+
     rtv.apply_visitor(v);
 
     return v.result;
