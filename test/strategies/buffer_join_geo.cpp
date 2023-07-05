@@ -2,6 +2,7 @@
 // Unit Test
 
 // Copyright (c) 2022 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -44,6 +45,8 @@ void test_join(std::string const& case_id, JoinStrategy const& join, P const& ve
                T const& buffer_distance, T const& angle1, T const& angle2,
                std::size_t expected_size)
 {
+    boost::ignore_unused(case_id);
+
     // Use a deque to be able to use push_front
     bg::model::ring<P, true, true, std::deque> output_ring;
 

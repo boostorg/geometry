@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2016 Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2016 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -80,7 +81,7 @@ public:
             CT xa1, ya1, xa2, ya2;
             CT xb1, yb1, xb2, yb2;
             CT x, y;
-            double lat1, lon1;
+            CT lon1, lat1;
 
             bool ok = gnom_t::forward(lon, lat, lona1, lata1, xa1, ya1, spheroid)
                    && gnom_t::forward(lon, lat, lona2, lata2, xa2, ya2, spheroid)

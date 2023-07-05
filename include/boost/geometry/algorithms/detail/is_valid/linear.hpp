@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2014-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -31,7 +32,7 @@
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 
 
 namespace boost { namespace geometry
@@ -158,10 +159,12 @@ public:
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        if (BOOST_GEOMETRY_CONDITION(
-                AllowEmptyMultiGeometries && boost::empty(multilinestring)))
+        if BOOST_GEOMETRY_CONSTEXPR (AllowEmptyMultiGeometries)
         {
-            return visitor.template apply<no_failure>();
+            if (boost::empty(multilinestring))
+            {
+                return visitor.template apply<no_failure>();
+            }
         }
 
         using per_ls = per_linestring<VisitPolicy, Strategy>;
