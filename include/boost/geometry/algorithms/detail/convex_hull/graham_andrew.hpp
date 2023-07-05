@@ -224,7 +224,6 @@ private:
             point_type const& left, point_type const& right,
             SideStrategy const& side)
     {
-        //std::cout << "add to hull" << std::endl;
         output.push_back(left);
         for (auto const& i : input)
         {

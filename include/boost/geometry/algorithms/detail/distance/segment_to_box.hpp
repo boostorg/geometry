@@ -658,7 +658,6 @@ public:
                                    BoxPoint const& bottom_right,
                                    Strategies const& strategies)
     {
-        //TODO: pass strategy
         BOOST_GEOMETRY_ASSERT( (geometry::less<SegmentPoint, -1, Strategies>()(p0, p1))
                             || geometry::has_nan_coordinate(p0)
                             || geometry::has_nan_coordinate(p1) );
@@ -754,7 +753,6 @@ public:
                               bottom_left, bottom_right,
                               top_left, top_right);
 
-        //TODO: pass strategy
         typedef geometry::less<segment_point, -1, Strategies> less_type;
         if (less_type()(p[0], p[1]))
         {

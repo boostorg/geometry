@@ -79,7 +79,6 @@ struct multi_point_multi_point
                              Strategy const& /*strategy*/)
     {
         typedef typename boost::range_value<MultiPoint2>::type point2_type;
-        //TODO: pass strategy
         typedef geometry::less<void, -1, Strategy> less_type;
 
         less_type const less = less_type();

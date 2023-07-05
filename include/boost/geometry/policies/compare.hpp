@@ -52,25 +52,6 @@ struct less
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        /*using strategy_type = typename strategy::compare::services::default_strategy
-            <
-                strategy::compare::less,
-                strategy::compare::equals_epsilon,
-                Point, Point,
-                Dimension
-            >::type;
-
-        Strategy strategy;
-        using compare_strategy = decltype(
-            strategy.template compare
-                <
-                    strategy::compare::less,
-                    strategy::compare::equals_exact,
-                    -1
-                >());
-
-        return compare_strategy::apply(left, right);
-*/
         return Strategy::template compare_type
             <
                 strategy::compare::less

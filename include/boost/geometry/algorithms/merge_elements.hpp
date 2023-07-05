@@ -173,7 +173,6 @@ inline void merge(RandomIt const first, RandomIt const last, MultiGeometry& out,
 
     auto const less = [](auto const& l, auto const& r)
     {
-        //TODO: pass strategy
         return geometry::less<void, -1, Strategy>()(l.first, r.first);
     };
 

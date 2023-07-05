@@ -45,7 +45,6 @@ struct is_simple_multipoint
     template <typename Strategy>
     static inline bool apply(MultiPoint const& multipoint, Strategy const& strategy)
     {
-        //TODO: pass strategy
         typedef geometry::less
             <
                 typename point_type<MultiPoint>::type,

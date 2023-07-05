@@ -54,7 +54,6 @@ public:
     {
         if ( m_turn_point != NULL && other.m_turn_point != NULL )
         {
-            //TODO: pass strategy
             return geometry::less
                 <
                     TurnPoint, -1, Strategy

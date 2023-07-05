@@ -68,12 +68,11 @@ private:
         : geometry::less<void, -1, Strategy>
     {
     private:
-        //TODO: pass strategy
-        typedef geometry::less<void, -1, Strategy> base_type;
+        using less_type = geometry::less<void, -1, Strategy>;
 
     public:
         unary_not_disjoint_predicate(Iterator first, Iterator last)
-            : base_type(), m_first(first), m_last(last)
+            : less_type(), m_first(first), m_last(last)
         {}
 
         template <typename Point>
@@ -82,7 +81,7 @@ private:
             return std::binary_search(m_first,
                                       m_last,
                                       point,
-                                      static_cast<base_type const&>(*this));
+                                      static_cast<less_type const&>(*this));
         }
 
     private:
@@ -97,7 +96,6 @@ public:
     {
         BOOST_GEOMETRY_ASSERT( boost::size(multipoint1) <= boost::size(multipoint2) );
 
-        //TODO: pass strategy
         using less_type = geometry::less<void, -1, Strategy>;
         using point1_type = typename boost::range_value<MultiPoint1>::type;
 

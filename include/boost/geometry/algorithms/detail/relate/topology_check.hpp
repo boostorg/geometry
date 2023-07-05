@@ -171,7 +171,6 @@ struct topology_check<MultiLinestring, Strategy, multi_linestring_tag>
     }
 
 private:
-    //TODO: pass strategy
     typedef geometry::less<void, -1, Strategy> less_type;
 
     void init() const

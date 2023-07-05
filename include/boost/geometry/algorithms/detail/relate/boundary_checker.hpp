@@ -162,7 +162,6 @@ public:
     template <typename Point>
     bool is_endpoint_boundary(Point const& pt) const
     {
-        //TODO: pass strategy
         using less_type = geometry::less<mutable_point_type, -1, Strategy>;
 
         auto const multi_count = boost::size(m_geometry);

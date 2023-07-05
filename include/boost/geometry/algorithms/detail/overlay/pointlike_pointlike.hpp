@@ -255,7 +255,6 @@ struct multipoint_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        //TODO: pass strategy
         typedef geometry::less<void, -1, Strategy> less_type;
 
         if ( OverlayType != overlay_difference

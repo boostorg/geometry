@@ -135,7 +135,6 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
         template <typename Point, typename Strategy>
         bool apply(Point const& boundary_point, Strategy const&)
         {
-            //TODO: pass strategy
             typedef geometry::less<void, -1, Strategy> less_type;
 
             if (! std::binary_search(m_points.begin(), m_points.end(),
@@ -160,7 +159,6 @@ struct multi_point_geometry_eb<Geometry, multi_linestring_tag>
     {
         typedef typename boost::range_value<MultiPoint>::type point_type;
         typedef std::vector<point_type> points_type;
-        //TODO: pass strategy
         typedef geometry::less<void, -1, Strategy> less_type;
 
         points_type points(boost::begin(multi_point), boost::end(multi_point));
