@@ -46,13 +46,13 @@ template
 >
 struct less
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        return Strategy::template compare_type
+        return StrategyOrTag::template compare_type
             <
                 strategy::compare::less
             >::apply(left, right);
@@ -63,19 +63,19 @@ struct less
 template <typename Point, int Dimension>
 struct less<Point, Dimension, void>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -84,7 +84,7 @@ struct less<Point, Dimension, void>
 template <int Dimension, typename Strategy>
 struct less<void, Dimension, Strategy>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
@@ -101,20 +101,20 @@ struct less<void, Dimension, Strategy>
 template <typename Point, int Dimension>
 struct less<Point, Dimension, boost::geometry::cartesian_tag>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 boost::geometry::cartesian_tag, boost::geometry::cartesian_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -123,20 +123,20 @@ struct less<Point, Dimension, boost::geometry::cartesian_tag>
 template <typename Point, int Dimension>
 struct less<Point, Dimension, boost::geometry::spherical_tag>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 boost::geometry::spherical_tag, boost::geometry::spherical_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -145,20 +145,20 @@ struct less<Point, Dimension, boost::geometry::spherical_tag>
 template <typename Point, int Dimension>
 struct less<Point, Dimension, boost::geometry::geographic_tag>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     inline bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 boost::geometry::geographic_tag, boost::geometry::geographic_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -167,19 +167,19 @@ struct less<Point, Dimension, boost::geometry::geographic_tag>
 template <int Dimension>
 struct less<void, Dimension, boost::geometry::cartesian_tag>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 boost::geometry::cartesian_tag, boost::geometry::cartesian_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -188,19 +188,19 @@ struct less<void, Dimension, boost::geometry::cartesian_tag>
 template <int Dimension>
 struct less<void, Dimension, boost::geometry::spherical_tag>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 boost::geometry::spherical_tag, boost::geometry::spherical_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -209,19 +209,19 @@ struct less<void, Dimension, boost::geometry::spherical_tag>
 template <int Dimension>
 struct less<void, Dimension, boost::geometry::geographic_tag>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 boost::geometry::geographic_tag, boost::geometry::geographic_tag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -231,18 +231,18 @@ struct less<void, Dimension, boost::geometry::geographic_tag>
 template <int Dimension>
 struct less<void, Dimension, void>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     inline bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::less,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -265,20 +265,20 @@ template
 >
 struct greater
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 CSTag, CSTag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -287,19 +287,19 @@ struct greater
 template <int Dimension, typename CSTag>
 struct greater<void, Dimension, CSTag>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 CSTag, CSTag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -308,19 +308,19 @@ struct greater<void, Dimension, CSTag>
 template <typename Point, int Dimension>
 struct greater<Point, Dimension, void>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -329,18 +329,18 @@ struct greater<Point, Dimension, void>
 template <int Dimension>
 struct greater<void, Dimension, void>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::greater,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -363,20 +363,20 @@ template
 >
 struct equal_to
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension,
                 CSTag, CSTag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -385,19 +385,19 @@ struct equal_to
 template <int Dimension, typename CSTag>
 struct equal_to<void, Dimension, CSTag>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension,
                 CSTag, CSTag
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -406,19 +406,19 @@ struct equal_to<void, Dimension, CSTag>
 template <typename Point, int Dimension>
 struct equal_to<Point, Dimension, void>
 {
-    typedef Point first_argument_type;
-    typedef Point second_argument_type;
-    typedef bool result_type;
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
 
     bool operator()(Point const& left, Point const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
                 strategy::compare::equals_epsilon,
                 Point, Point,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
@@ -427,18 +427,18 @@ struct equal_to<Point, Dimension, void>
 template <int Dimension>
 struct equal_to<void, Dimension, void>
 {
-    typedef bool result_type;
+    using result_type = bool;
 
     template <typename Point1, typename Point2>
     bool operator()(Point1 const& left, Point2 const& right) const
     {
-        typedef typename strategy::compare::services::default_strategy
+        using strategy_type = typename strategy::compare::services::default_strategy
             <
                 strategy::compare::equal_to,
                 strategy::compare::equals_epsilon,
                 Point1, Point2,
                 Dimension
-            >::type strategy_type;
+            >::type;
 
         return strategy_type::apply(left, right);
     }
