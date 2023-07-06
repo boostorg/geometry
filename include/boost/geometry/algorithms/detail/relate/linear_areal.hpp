@@ -1,10 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2013-2022.
 // Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -234,7 +234,7 @@ template
     typename Strategy
 >
 inline bool calculate_from_inside_sides(Pi const& pi, Pj const& pj, Pk const& pk,
-                                        Qi const& qi, Qj const& qj, Qk const& qk,
+                                        Qi const&   , Qj const& qj, Qk const& qk,
                                         Strategy const& strategy)
 {
     auto const side_strategy = strategy.side();

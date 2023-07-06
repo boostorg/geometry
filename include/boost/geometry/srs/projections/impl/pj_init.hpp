@@ -58,8 +58,8 @@
 #include <boost/geometry/srs/projections/proj4.hpp>
 #include <boost/geometry/srs/projections/spar.hpp>
 
-#include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry { namespace projections
@@ -479,14 +479,14 @@ inline void pj_init_axis(Params const& params, parameters<T> & projdef)
 // TODO: implement axis support for other types of parameters
 
 template <typename T>
-inline void pj_init_axis(srs::dpar::parameters<T> const& params, parameters<T> & projdef)
+inline void pj_init_axis(srs::dpar::parameters<T> const& , parameters<T> & )
 {}
 
 template <typename Params>
 struct pj_init_axis_static
 {
     template <typename T>
-    static void apply(Params const& , parameters<T> & projdef)
+    static void apply(Params const& , parameters<T> & )
     {}
 };
 
