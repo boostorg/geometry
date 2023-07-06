@@ -190,7 +190,7 @@ private:
 
         point_type most_left, most_right;
 
-        geometry::less<point_type, -1, Strategy> less;
+        geometry::less_exact<point_type, -1, Strategy> less;
 
         detail::convex_hull::get_extremes(in_proxy, most_left, most_right, less);
 

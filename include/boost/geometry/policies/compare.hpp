@@ -38,6 +38,29 @@ namespace boost { namespace geometry
     on equal x-es then on y, etc.
     If a dimension is specified, only that dimension is considered
 */
+
+template
+<
+    typename Point = void,
+    int Dimension = -1,
+    typename StrategyOrTag = void
+>
+struct less_exact
+{
+    using first_argument_type = Point;
+    using second_argument_type = Point;
+    using result_type = bool;
+
+    inline bool operator()(Point const& left, Point const& right) const
+    {
+        return StrategyOrTag::template compare_type
+            <
+                strategy::compare::less,
+                strategy::compare::equals_exact
+            >::apply(left, right);
+    }
+};
+
 template
 <
     typename Point = void,
@@ -54,7 +77,8 @@ struct less
     {
         return StrategyOrTag::template compare_type
             <
-                strategy::compare::less
+                strategy::compare::less,
+                strategy::compare::equals_epsilon
             >::apply(left, right);
     }
 };
@@ -91,7 +115,8 @@ struct less<void, Dimension, Strategy>
     {
         return Strategy::template compare_type
             <
-                strategy::compare::less
+                strategy::compare::less,
+                strategy::compare::equals_epsilon
             >::apply(left, right);
     }
 };

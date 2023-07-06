@@ -189,11 +189,11 @@ public:
         return strategy::within::cartesian_box_box();
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::cartesian
         <
             ComparePolicy,
-            strategy::compare::equals_epsilon,
+            EqualsPolicy,
             -1
         >;
 };

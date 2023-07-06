@@ -65,11 +65,11 @@ public:
             >(base_t::m_spheroid);
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::spherical
         <
             ComparePolicy,
-            strategy::compare::equals_exact,
+            EqualsPolicy,
             -1
         >;
 };

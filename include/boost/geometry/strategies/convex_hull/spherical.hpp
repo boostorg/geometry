@@ -47,11 +47,11 @@ public:
         return strategy::side::spherical_side_formula<CalculationType>();
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::spherical
         <
             ComparePolicy,
-            strategy::compare::equals_exact,
+            EqualsPolicy,
             -1
         >;
 };

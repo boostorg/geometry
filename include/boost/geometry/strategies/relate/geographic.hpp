@@ -211,16 +211,13 @@ public:
         return strategy::within::spherical_box_box();
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::spherical
         <
             ComparePolicy,
-            strategy::compare::equals_epsilon,
+            EqualsPolicy,
             -1
         >;
-
-    //template <typename ComparePolicy, typename EqualsPolicy, int Dimension>
-    //using compare_type = strategy::compare::spherical<ComparePolicy, EqualsPolicy, Dimension>;
 };
 
 
@@ -293,12 +290,12 @@ struct strategy_converter<strategy::intersection::geographic_segments<FormulaPol
                 >(base_t::m_spheroid);
         }
 
-        template <typename ComparePolicy>
-        using compare_type = typename strategy::compare::cartesian
+        template <typename ComparePolicy, typename EqualsPolicy>
+        using compare_type = typename strategy::compare::spherical
             <
                 ComparePolicy,
-                strategy::compare::equals_epsilon,
-                -1
+                EqualsPolicy,
+               -1
             >;
     };
 

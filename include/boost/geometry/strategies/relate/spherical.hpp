@@ -195,11 +195,11 @@ public:
         return strategy::within::spherical_box_box();
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::spherical
         <
             ComparePolicy,
-            strategy::compare::equals_epsilon,
+            EqualsPolicy,
             -1
         >;
 };

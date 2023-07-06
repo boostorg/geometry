@@ -50,11 +50,11 @@ public:
         return side_strategy_type();
     }
 
-    template <typename ComparePolicy>
+    template <typename ComparePolicy, typename EqualsPolicy>
     using compare_type = typename strategy::compare::cartesian
         <
             ComparePolicy,
-            strategy::compare::equals_exact,
+            EqualsPolicy,
             -1
         >;
 };
