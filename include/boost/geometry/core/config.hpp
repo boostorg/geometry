@@ -2,7 +2,8 @@
 
 // Copyright (c) 2019-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
-// Copyright (c) 2018-2020 Oracle and/or its affiliates.
+// Copyright (c) 2018-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -27,7 +28,7 @@
 #endif
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING) && ! defined(BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
-    BOOST_PRAGMA_MESSAGE("Rescaling is deprecated and its functionality will be removed in Boost 1.82")
+    BOOST_PRAGMA_MESSAGE("Rescaling is deprecated and its functionality will be removed in Boost 1.84")
 #endif
 
 #if defined(BOOST_GEOMETRY_USE_RESCALING) && defined(BOOST_GEOMETRY_NO_ROBUSTNESS)

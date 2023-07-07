@@ -9,30 +9,24 @@
 
 #define BOOST_GEOMETRY_NO_BOOST_TEST
 
+#include <chrono>
 #include <sstream>
 #include <fstream>
 
 #include <boost/program_options.hpp>
-#include <boost/random/linear_congruential.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/uniform_real.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/timer.hpp>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/io/svg/svg_mapper.hpp>
 
+#include <common/make_random_generator.hpp>
+
 struct settings_type
 {
-    bool svg;
-    bool wkt;
-
-    settings_type()
-        : svg(false)
-        , wkt(false)
-    {}
+    bool svg{false};
+    bool wkt{false};
+    bool verbose{false};
 };
 
 namespace bg = boost::geometry;
@@ -114,6 +108,11 @@ void test_random_multi_points(MultiPoint& result, int& index,
             ;
     }
 
+    if (settings.verbose)
+    {
+        std::cout << " [" << bg::area(hull) << "]";
+    }
+
     if (settings.svg || ! correct)
     {
         std::ostringstream out;
@@ -134,31 +133,27 @@ void test_random_multi_points(MultiPoint& result, int& index,
 template <typename T>
 void test_all(int seed, int count, int field_size, int pcount, settings_type const& settings)
 {
-    boost::timer t;
-
-    typedef boost::minstd_rand base_generator_type;
-
-    base_generator_type generator(seed);
-
-    boost::uniform_int<> random_coordinate(0, field_size - 1);
-    boost::variate_generator<base_generator_type&, boost::uniform_int<> >
-        coordinate_generator(generator, random_coordinate);
+    auto coordinate_generator = make_int_generator(seed, field_size - 1);
 
     typedef bg::model::multi_point
         <
             bg::model::d2::point_xy<T>
         > mp;
 
+
+    auto const t0 = std::chrono::high_resolution_clock::now();
     int index = 0;
     for(int i = 0; i < count; i++)
     {
         mp p;
         test_random_multi_points<mp>(p, index, coordinate_generator, pcount, settings);
     }
-    std::cout
+    auto const t = std::chrono::high_resolution_clock::now();
+    auto const elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(t - t0).count();
+    std::cout << std::endl
         << "points: " << index
         << " type: " << typeid(T).name()
-        << " time: " << t.elapsed()  << std::endl;
+        << " time: " << elapsed_ms / 1000.0  << std::endl;
 }
 
 int main(int argc, char** argv)
@@ -170,20 +165,21 @@ int main(int argc, char** argv)
 
         std::string type = "double";
         int count = 1;
-        int seed = static_cast<unsigned int>(std::time(0));
-        int pcount = 3;
+        int seed = -1;
+        int pcount = 30;
         int field_size = 10;
         settings_type settings;
 
         description.add_options()
             ("help", "Help message")
             ("seed", po::value<int>(&seed), "Initialization seed for random generator")
-            ("count", po::value<int>(&count)->default_value(1), "Number of tests")
-            ("number", po::value<int>(&pcount)->default_value(30), "Number of points")
-            ("size", po::value<int>(&field_size)->default_value(10), "Size of the field")
+            ("count", po::value<int>(&count), "Number of tests")
+            ("number", po::value<int>(&pcount), "Number of points")
+            ("size", po::value<int>(&field_size), "Size of the field")
             ("type", po::value<std::string>(&type)->default_value("double"), "Type (int,float,double)")
-            ("wkt", po::value<bool>(&settings.wkt)->default_value(false), "Create a WKT of the inputs, for all tests")
-            ("svg", po::value<bool>(&settings.svg)->default_value(false), "Create a SVG for all tests")
+            ("verbose", po::value<bool>(&settings.verbose), "Verbose")
+            ("wkt", po::value<bool>(&settings.wkt), "Create a WKT of the inputs, for all tests")
+            ("svg", po::value<bool>(&settings.svg), "Create a SVG for all tests")
         ;
 
         po::variables_map varmap;

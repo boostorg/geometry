@@ -137,7 +137,6 @@ int main(int argc, char** argv)
         po::options_description description("=== recursive_polygons ===\nAllowed options");
 
         int count = 1;
-        //int seed = static_cast<unsigned int>(std::time(0));
         std::string type = "double";
         int min_points = 9;
         int max_points = 9;
@@ -148,7 +147,6 @@ int main(int argc, char** argv)
 
         description.add_options()
             ("help", "Help message")
-           // ("seed", po::value<int>(&seed), "Initialization seed for random generator")
             ("count", po::value<int>(&count)->default_value(1), "Number of tests")
             ("diff", po::value<bool>(&settings.also_difference)->default_value(false), "Include testing on difference")
             ("min_points", po::value<int>(&min_points)->default_value(9), "Minimum number of points")

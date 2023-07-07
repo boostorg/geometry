@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2018-2023.
 // Modifications copyright (c) 2018-2023 Oracle and/or its affiliates.
@@ -481,7 +482,7 @@ public :
             // Do not duplicate the closing point
             auto rot_end = boost::end(ring);
             std::size_t rot_index = index;
-            if (is_closed_in && size > 1)
+            if (BOOST_GEOMETRY_CONDITION(is_closed_in) && size > 1)
             {
                 --rot_end;
                 if (rot_index == size - 1) { rot_index = 0; }
@@ -496,7 +497,7 @@ public :
             simplify_range<0>::apply(rotated, out, max_distance, impl, strategies);
 
             // Open output if needed
-            if (! is_closed_out && boost::size(out) > 1)
+            if (BOOST_GEOMETRY_CONDITION(! is_closed_out) && boost::size(out) > 1)
             {
                 range::pop_back(out);
             }

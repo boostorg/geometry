@@ -1,6 +1,7 @@
 // Boost.Geometry - gis-projections (based on PROJ4)
 
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017, 2018, 2019, 2022.
 // Modifications copyright (c) 2017-2022, Oracle and/or its affiliates.
@@ -41,14 +42,15 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_TMERC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_TMERC_HPP
 
-#include <boost/geometry/util/math.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>
 #include <boost/geometry/srs/projections/impl/function_overloads.hpp>
 #include <boost/geometry/srs/projections/impl/pj_mlfn.hpp>
+
+#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -291,7 +293,7 @@ namespace projections
 
             /* Ellipsoidal, forward */
             //static PJ_XY exact_e_fwd (PJ_LP lp, PJ *P)
-            inline void fwd(Parameters const& par,
+            inline void fwd(Parameters const& /*par*/,
                             T const& lp_lon,
                             T const& lp_lat,
                             T& xy_x, T& xy_y) const
@@ -382,7 +384,7 @@ namespace projections
 
 
             /* Ellipsoidal, inverse */
-            inline void inv(Parameters const& par,
+            inline void inv(Parameters const& /*par*/,
                             T const& xy_x,
                             T const& xy_y,
                             T& lp_lon,
