@@ -15,17 +15,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DISCRETE_HAUSDORFF_DISTANCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DISCRETE_HAUSDORFF_DISTANCE_HPP
 
-#include <algorithm>
-
-#ifdef BOOST_GEOMETRY_DEBUG_HAUSDORFF_DISTANCE
-#include <iostream>
-#endif
-
-#include <iterator>
-#include <utility>
-#include <vector>
-#include <limits>
-
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/throw_on_empty_input.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
@@ -38,6 +27,11 @@
 #include <boost/geometry/strategies/discrete_distance/spherical.hpp>
 #include <boost/geometry/strategies/distance_result.hpp>
 #include <boost/geometry/util/range.hpp>
+
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <limits>
 
 // Note that in order for this to work umbrella strategy has to contain
 // index strategies.
