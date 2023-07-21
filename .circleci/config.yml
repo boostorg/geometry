@@ -98,6 +98,24 @@ jobs:
           root: ~/project
           paths:
             - shared-coverage/algorithms_buffer
+  algorithms_closest_points:
+    <<: *config
+    steps:
+      - *attach_workspace
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_closest_points test/algorithms/closest_points 1
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - shared-coverage/algorithms_closest_points
+  algorithms_convex_hull:
+    <<: *config
+    steps:
+      - *attach_workspace
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh algorithms_convex_hull test/algorithms/convex_hull
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - shared-coverage/algorithms_convex_hull
   algorithms_covered_by:
     <<: *config
     steps:
@@ -335,6 +353,15 @@ jobs:
           root: ~/project
           paths:
             - shared-coverage/policies
+  robustness:
+    <<: *config
+    steps:
+      - *attach_workspace
+      - run: ./$BOOST_DIR/libs/geometry/.circleci/run_test.sh robustness test/robustness
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - shared-coverage/robustness
   srs:
     <<: *config
     steps:
@@ -426,12 +453,14 @@ jobs:
     steps:
       - *attach_workspace
       - run: ls -lah $COVERAGE_DIR
+      - run: sudo apt-get update
       - run: sudo apt-get install lcov
       - run: lcov --directory $COVERAGE_DIR --base-directory $BOOST_DIR --capture --output-file $COVERAGE_DIR/coverage.info
       - run: lcov --extract $COVERAGE_DIR/coverage.info "*/boost/geometry/*" "*/libs/geometry/include/*" --output-file $COVERAGE_DIR/coverage.info
       - run: sed -i 's/SF:.*boost\/geometry/SF:boost\/geometry/g' $COVERAGE_DIR/coverage.info
 #Coveralls
-      - run: gem install coveralls-lcov
+      - run: sudo apt-get install rubygems
+      - run: sudo gem install coveralls-lcov
       - run: sudo apt-get install jq
       - run: cd $BOOST_DIR/libs/geometry/include && coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN -v -n ../../../../$COVERAGE_DIR/coverage.info > ../../../../$COVERAGE_DIR/coverage.json
       - run: jq -c ".service_name = \"circle-ci\" | .service_number = \"$CIRCLE_BUILD_NUM\" | .git .branch =\"$CIRCLE_BRANCH\"" $COVERAGE_DIR/coverage.json > $COVERAGE_DIR/processed.json
@@ -466,6 +495,7 @@ requires_2: &requires_2
     - io
     - iterators
     - policies
+    - robustness
     - strategies
     - views
 
@@ -474,6 +504,8 @@ requires_3: &requires_3
     - algorithms
     - algorithms_area
     - algorithms_buffer
+    - algorithms_closest_points
+    - algorithms_convex_hull
     - algorithms_covered_by
     - algorithms_crosses
     - algorithms_disjoint
@@ -554,6 +586,9 @@ workflows:
       - policies:
           <<: *requires_1
           <<: *only_master_develop
+      - robustness:
+          <<: *requires_1
+          <<: *only_master_develop
       - strategies:
           <<: *requires_1
           <<: *only_master_develop
@@ -568,6 +603,12 @@ workflows:
           <<: *requires_2
           <<: *only_master_develop
       - algorithms_buffer:
+          <<: *requires_2
+          <<: *only_master_develop
+      - algorithms_closest_points:
+          <<: *requires_2
+          <<: *only_master_develop
+      - algorithms_convex_hull:
           <<: *requires_2
           <<: *only_master_develop
       - algorithms_covered_by:
