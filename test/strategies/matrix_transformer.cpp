@@ -3,6 +3,10 @@
 
 // Copyright (c) 2019 Tinko Bartels
 
+// This file was modified by Oracle on 2023.
+// Modifications copyright (c) 2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -13,9 +17,10 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/transform.hpp>
 #include <boost/geometry/geometries/point.hpp>
+#include <boost/geometry/strategies/transform/matrix_transformers.hpp>
 
 template <typename coordinate_type>
 void test_all()

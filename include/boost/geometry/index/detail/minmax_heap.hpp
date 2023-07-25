@@ -1,6 +1,7 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -10,6 +11,7 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_MINMAX_HEAP_HPP
 
 #include <iterator>
+#include <limits.h>
 #include <type_traits>
 #include <utility>
 

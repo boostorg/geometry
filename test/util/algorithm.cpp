@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2021, Oracle and/or its affiliates.
+// Copyright (c) 2021-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -11,6 +12,8 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
+
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 

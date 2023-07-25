@@ -5,8 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2023.
+// Modifications copyright (c) 2017-2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -28,7 +29,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
@@ -39,9 +39,6 @@
 #include <boost/geometry/algorithms/detail/convert_indexed_to_indexed.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/arithmetic/arithmetic.hpp>
-
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>

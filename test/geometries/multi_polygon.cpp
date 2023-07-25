@@ -3,6 +3,10 @@
 
 // Copyright (c) 2020 Digvijay Janartha, Hamirpur, India.
 
+// This file was modified by Oracle on 2023.
+// Modifications copyright (c) 2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -14,6 +18,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/algorithms/make.hpp>
 #include <boost/geometry/algorithms/append.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -40,6 +45,7 @@ bg::model::polygon<P> create_polygon()
     bg::assign_values(p1, 1, 2);
     bg::assign_values(p2, 2, 0);
     bg::assign_values(p3, 0, 0);
+
 
     bg::append(pl1, p1);
     bg::append(pl1, p2);

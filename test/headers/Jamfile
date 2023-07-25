@@ -2,6 +2,10 @@
 #
 # Copyright (c) 2018 Mateusz Loskot <mateusz@loskot.net>
 #
+# This file was modified by Oracle on 2023.
+# Modifications copyright (c) 2023 Oracle and/or its affiliates.
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -27,7 +31,8 @@ rule generate_self_contained_headers ( headers_subpath )
 
     local top_headers_path = [ path.make $(BOOST_ROOT)/libs/geometry/include/boost/geometry ] ;
 
-    for local file in [ path.glob-tree $(top_headers_path)/$(headers_subpath) : *.hpp ]
+    # Skip the OpenGL visualization related header
+    for local file in [ path.glob-tree $(top_headers_path)/$(headers_subpath) : *.hpp : gl_draw.hpp  ]
     {
         local rel_file = [ path.relative-to $(top_headers_path) $(file) ] ;
         local target_name = [ regex.replace h/$(rel_file) "/" "-" ] ;

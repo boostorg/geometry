@@ -2,7 +2,7 @@
 
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2015-2020, Oracle and/or its affiliates.
+// Copyright (c) 2015-2023, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -42,6 +42,7 @@
 #include <boost/geometry/algorithms/detail/expand/point.hpp>
 
 #include <boost/geometry/strategy/cartesian/envelope_point.hpp>
+#include <boost/geometry/strategy/cartesian/expand_point.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 #include <boost/geometry/strategy/spherical/envelope_box.hpp>
 #include <boost/geometry/strategy/spherical/envelope_point.hpp>

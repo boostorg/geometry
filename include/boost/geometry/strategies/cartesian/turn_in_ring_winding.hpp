@@ -3,6 +3,10 @@
 // Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
+// This file was modified by Oracle on 2023.
+// Modifications copyright (c) 2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -10,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_TURN_IN_RING_WINDING_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_TURN_IN_RING_WINDING_HPP
 
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/config.hpp>
 #include <boost/geometry/algorithms/detail/make/make.hpp>

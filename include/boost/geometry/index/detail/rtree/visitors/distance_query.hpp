@@ -4,8 +4,9 @@
 //
 // Copyright (c) 2011-2014 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2021.
-// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2023.
+// Modifications copyright (c) 2019-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -20,6 +21,7 @@
 #include <boost/geometry/index/detail/distance_predicates.hpp>
 #include <boost/geometry/index/detail/predicates.hpp>
 #include <boost/geometry/index/detail/priority_dequeue.hpp>
+#include <boost/geometry/index/detail/rtree/node/weak_visitor.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 #include <boost/geometry/index/detail/translator.hpp>
 #include <boost/geometry/index/parameters.hpp>
