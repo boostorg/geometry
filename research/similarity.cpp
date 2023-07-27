@@ -5,20 +5,18 @@
 // #define BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
 
 #include <boost/geometry.hpp>
-
 #include <boost/geometry/io/geojson/geojson_writer.hpp>
-
 #include <boost/geometry/algorithms/similarity.hpp>
 
 #include <fstream>
 
-const double g_scale = 1.0e6;
+const double g_scale = 1.0e5;
 
 namespace
 {
 
 template <typename Geometry>
-double fixed_hausdorff(const Geometry& geometry1, const Geometry& geometry2)
+double symmetric_hausdorff(const Geometry& geometry1, const Geometry& geometry2)
 {
     namespace bg = boost::geometry;
     return std::max(bg::discrete_hausdorff_distance(geometry1, geometry2),
@@ -40,7 +38,7 @@ struct geojson_visitor
     {
         m_quad.feature(ring);
         m_quad.add_property("role", 7);
-        m_quad.add_property("area", boost::geometry::area(ring));
+        m_quad.add_property("area", std::round(g_scale * g_scale * boost::geometry::area(ring)));
     }
     template <typename C> void visit_projections(int source, C const& collection) 
     {
@@ -67,8 +65,8 @@ template <typename Geometry>
 void test_case(Geometry const& p, Geometry const& q, double scale = g_scale, const char* filename = nullptr)
 {
     std::cout << "Frechet: " << scale * boost::geometry::discrete_frechet_distance(p, q)
-        << " Hausdorff: " << scale * fixed_hausdorff(p, q)
-        << " Average: " << scale * boost::geometry::similarity_distance(p, q)
+        << " Hausdorff: " << scale * symmetric_hausdorff(p, q)
+        << " Average: " << scale * boost::geometry::average_distance(p, q)
         << std::endl;
 
     if (filename != nullptr)
@@ -111,7 +109,7 @@ void performance_test(Geometry const& p, Geometry const& q)
     start = std::chrono::steady_clock::now();
     for (std::size_t i = 0; i < n; i++)
     {
-        double h = fixed_hausdorff(p, q);
+        double h = symmetric_hausdorff(p, q);
     }
     finish = std::chrono::steady_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
@@ -120,11 +118,21 @@ void performance_test(Geometry const& p, Geometry const& q)
     start = std::chrono::steady_clock::now();
     for (std::size_t i = 0; i < n; i++)
     {
-        double h = boost::geometry::similarity_distance(p, q);
+        double h = boost::geometry::average_distance(p, q);
     }
     finish = std::chrono::steady_clock::now();
     elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count();
     std::cout << "Average: " << std::setprecision(6) << elapsed << " ms" << std::endl;
+}
+
+void geographic_test(std::string const& wkt1, std::string const& wkt2)
+{
+    namespace bg = boost::geometry;
+    using coordinate_type = double;
+    using point = bg::model::point<double, 2, bg::cs::geographic<bg::degree>>;
+    using linestring = boost::geometry::model::linestring<point>;
+
+    test_case(bg::from_wkt<linestring>(wkt1), bg::from_wkt<linestring>(wkt2), 1.0);
 }
 
 int main()
@@ -147,7 +155,6 @@ int main()
     using coordinate_type = double;
     using point = boost::geometry::model::d2::point_xy<coordinate_type>;
     using linestring = boost::geometry::model::linestring<point>;
-    using ring = boost::geometry::model::ring<point>;
 
     // Two lines consistently 0.5 apart
     std::string const simplex1 = "LINESTRING(1.0 1.0, 2.0 1.0)";
@@ -205,12 +212,18 @@ int main()
     test_case(bg::from_wkt<linestring>(west1), bg::from_wkt<linestring>(west1));
     test_case(bg::from_wkt<linestring>(east1), bg::from_wkt<linestring>(east1));
 
+    std::cout << std::endl<< "Geographic: " << std::endl;
+    geographic_test(west1, west2);
+    geographic_test(east1, east2);
+    geographic_test(west1, east1);
+    geographic_test(west2, east2);
+
     // std::cout << std::endl << "Performance:" << std::endl;
     // performance_test(bg::from_wkt<linestring>(west1), bg::from_wkt<linestring>(west2));
 
-    // With a visitor
-    geojson_visitor v;
-    auto result = bg::similarity(bg::from_wkt<linestring>(west1), bg::from_wkt<linestring>(west2), v);
+    // // With a visitor
+    // geojson_visitor v;
+    // auto result = bg::similarity(bg::from_wkt<linestring>(west1), bg::from_wkt<linestring>(west2), v);
 
 
     return 0;

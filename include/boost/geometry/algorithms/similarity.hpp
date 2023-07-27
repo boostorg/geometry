@@ -10,13 +10,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_SIMILARITY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_SIMILARITY_HPP
 
-#include <cstdint>
-#include <vector>
-
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/length.hpp>
 
+#include <cstdint>
+#include <vector>
 
 namespace boost { namespace geometry
 {
@@ -77,7 +76,7 @@ auto get_projection(std::size_t index, Point const& point, Geometry const& targe
         projection<Point> other;
         auto const pp = closest_strategy::apply(point, current, next);
         geometry::convert(pp, other.point);
-        other.distance = geometry::distance(point, other.point);
+        other.distance = geometry::comparable_distance(point, other.point);
         if (i == 0 || other.distance < result.distance)
         {
             result = other;
@@ -87,6 +86,7 @@ auto get_projection(std::size_t index, Point const& point, Geometry const& targe
             result.offset = geometry::distance(current, result.point);
         }
     }
+    result.distance = geometry::distance(result.point, point);
     return result;
 }
 
@@ -193,6 +193,8 @@ bool fill_quadrilateral(Projection const& p0, Projection const& p1, Projection c
     int const side_p1_q = side_strategy::apply(q0.point, q1.point, p1.point);
 
     if (side_q0_p == 0 && side_q1_p == 0 && side_p0_q == 0 && side_p1_q == 0)
+    // This might be enough:
+    // if (side_q0_p == 0 && side_q1_p == 0)
     {
         // All sides are the same. This happens a lot when the inputs are the same.
         // Constructing the quadrilateral and calculating its area can be skipped.
@@ -319,7 +321,7 @@ auto similarity(Geometry1 const& p, Geometry2 const& q, Visitor& visitor = simil
 }
 
 template <typename Geometry1, typename Geometry2>
-auto similarity_distance(Geometry1 const& a, Geometry2 const& b)
+auto average_distance(Geometry1 const& a, Geometry2 const& b)
 {
     similarity_default_visitor v;
     return similarity(a, b, v).distance;
