@@ -5,8 +5,9 @@
 // Copyright (c) 2011-2023 Adam Wulkiewicz, Lodz, Poland.
 // Copyright (c) 2020 Caian Benedicto, Campinas, Brazil.
 //
-// This file was modified by Oracle on 2019-2021.
-// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2023.
+// Modifications copyright (c) 2019-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,11 +19,13 @@
 
 #include <boost/core/ignore_unused.hpp>
 
+#include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 
-#include <boost/geometry/index/detail/algorithms/content.hpp>
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
+#include <boost/geometry/index/detail/algorithms/content.hpp>
+#include <boost/geometry/index/detail/algorithms/is_valid.hpp>
 #include <boost/geometry/index/detail/algorithms/nth_element.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 #include <boost/geometry/index/detail/rtree/node/subtree_destroyer.hpp>

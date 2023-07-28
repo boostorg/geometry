@@ -4,8 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013.
-// Modifications copyright (c) 2013, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2023.
+// Modifications copyright (c) 2013-2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -106,7 +107,7 @@ struct within_no_turns<Geometry1, Geometry2, polygon_tag, polygon_tag>
         }
         // Now check if holes of G2 aren't inside G1
         auto const& rings2 = geometry::interior_rings(geometry2);
-        for (auto it2 = boost::begin(rings2); it != boost::end(rings2); ++it)
+        for (auto it2 = boost::begin(rings2); it2 != boost::end(rings2); ++it2)
         {
             point2_type p2;
             if (! geometry::point_on_border(p2, *it2))

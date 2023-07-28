@@ -2,7 +2,9 @@
 
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2017-2020, Oracle and/or its affiliates.
+// Copyright (c) 2017-2023, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -80,8 +82,7 @@ struct multi_point_multi_point
                              Strategy const& /*strategy*/)
     {
         typedef typename boost::range_value<MultiPoint2>::type point2_type;
-        typedef typename Strategy::cs_tag cs_tag;
-        typedef geometry::less<void, -1, cs_tag> less_type;
+        typedef geometry::less<void, -1, Strategy> less_type;
 
         less_type const less = less_type();
 

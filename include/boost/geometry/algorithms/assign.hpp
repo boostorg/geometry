@@ -5,8 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Samuel Debionne, Grenoble, France.
 
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2023.
+// Modifications copyright (c) 2020-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -19,29 +20,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_ASSIGN_HPP
 
-
-#include <cstddef>
-
-#include <boost/concept/requires.hpp>
-#include <boost/concept_check.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
-#include <boost/numeric/conversion/cast.hpp>
-
-#include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
+
+#include <boost/geometry/algorithms/append.hpp>
+#include <boost/geometry/algorithms/clear.hpp>
+#include <boost/geometry/algorithms/convert.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
-#include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/clear.hpp>
-#include <boost/geometry/arithmetic/arithmetic.hpp>
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/exterior_ring.hpp>
+
 #include <boost/geometry/core/static_assert.hpp>
-#include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 

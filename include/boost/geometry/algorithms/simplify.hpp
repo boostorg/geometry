@@ -5,8 +5,9 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2018-2022.
-// Modifications copyright (c) 2018-2022 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2018-2023.
+// Modifications copyright (c) 2018-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -27,7 +28,6 @@
 #include <vector>
 
 #include <boost/core/addressof.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -54,7 +54,6 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
-#include <boost/geometry/strategies/concepts/simplify_concept.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/distance/comparable.hpp>

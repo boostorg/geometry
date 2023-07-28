@@ -18,7 +18,7 @@ fi
 
 cd $BOOST_DIR
 
-./b2 -j$TEST_NPARALLEL cxxflags="--coverage" linkflags="--coverage" libs/geometry/$TEST_DIR
+./b2 -j$TEST_NPARALLEL toolset=gcc cxxflags="--coverage" linkflags="--coverage" libs/geometry/$TEST_DIR
 
 EXIT_STATUS=$?
 

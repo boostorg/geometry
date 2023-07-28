@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2018-2021 Oracle and/or its affiliates.
+// Copyright (c) 2018-2023 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -11,21 +11,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_LINE_INTERPOLATE_HPP
 
-#include <iterator>
 #include <type_traits>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
-#include <boost/range/iterator.hpp>
 #include <boost/range/value_type.hpp>
+#include <boost/variant/apply_visitor.hpp>
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exception.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -38,7 +36,10 @@
 #include <boost/geometry/strategies/line_interpolate/spherical.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/type_traits.hpp>
+
+#include <boost/geometry/views/segment_view.hpp>
 
 namespace boost { namespace geometry
 {

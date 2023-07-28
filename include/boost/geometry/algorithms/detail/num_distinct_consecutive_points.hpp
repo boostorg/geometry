@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -18,6 +19,8 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
+
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 
 namespace boost { namespace geometry

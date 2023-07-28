@@ -2,7 +2,9 @@
 
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
+
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -257,7 +259,7 @@ struct multipoint_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+        typedef geometry::less<void, -1, Strategy> less_type;
 
         if (BOOST_GEOMETRY_CONDITION(OverlayType != overlay_difference)
             && boost::size(multipoint1) > boost::size(multipoint2))

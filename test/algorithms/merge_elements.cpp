@@ -1,8 +1,9 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2022, Oracle and/or its affiliates.
+// Copyright (c) 2022-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -62,7 +63,7 @@ void test_all(std::size_t points_count, std::size_t linestrings_count, std::size
     decltype(a) a_expected = area;
     BOOST_CHECK_CLOSE(l, l_expected, 0.000001);
     BOOST_CHECK_CLOSE(p, p_expected, 0.000001);
-    BOOST_CHECK_CLOSE(a, a_expected, 0.000001);    
+    BOOST_CHECK_CLOSE(a, a_expected, 0.000001);
 }
 
 int test_main(int, char* [])
@@ -72,6 +73,6 @@ int test_main(int, char* [])
     //       only different geometries stored in a GC. Hence duplicated point in the result.
     test_all<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree>>>(4, 6, 2, 0.48141804683843953, 1.2506937915396685, 0.029392562222852522);
     test_all<bg::model::point<double, 2, bg::cs::geographic<bg::degree>>>(4, 6, 2, 3058383.6297531724, 7951118.1434133006, 1187967114570.5911);
-    
+
     return 0;
 }

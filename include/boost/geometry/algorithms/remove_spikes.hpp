@@ -5,9 +5,9 @@
 // Copyright (c) 2009-2013 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2017-2023.
+// Modifications copyright (c) 2017-2023 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -16,8 +16,6 @@
 
 #ifndef BOOST_GEOMETRY_ALGORITHMS_REMOVE_SPIKES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_REMOVE_SPIKES_HPP
-
-#include <deque>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -28,10 +26,8 @@
 #include <boost/variant/variant_fwd.hpp>
 
 #include <boost/geometry/core/closure.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>

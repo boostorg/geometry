@@ -5,9 +5,9 @@
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2020.
-// Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2023.
+// Modifications copyright (c) 2014-2023, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,8 +21,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_FOR_EACH_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_FOR_EACH_HPP
 
-
-#include <algorithm>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -40,9 +38,6 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
-
-#include <boost/geometry/util/range.hpp>
-#include <boost/geometry/util/type_traits.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
