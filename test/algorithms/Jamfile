@@ -59,6 +59,7 @@ test-suite boost-geometry-algorithms
     [ run remove_spikes.cpp            : : : : algorithms_remove_spikes ]
     [ run reverse.cpp                  : : : : algorithms_reverse ]
     [ run reverse_multi.cpp            : : : : algorithms_reverse_multi ]
+    [ run similarity.cpp               : : : : algorithms_similarity ]
     [ run simplify.cpp                 : : : : algorithms_simplify ]
     [ run simplify_multi.cpp           : : : : algorithms_simplify_multi ]
     [ run transform.cpp                : : : : algorithms_transform ]
