@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
+// Copyright (c) 2014-2023, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -170,7 +171,7 @@ struct topology_check<MultiLinestring, Strategy, multi_linestring_tag>
     }
 
 private:
-    typedef geometry::less<void, -1, typename Strategy::cs_tag> less_type;
+    typedef geometry::less<void, -1, Strategy> less_type;
 
     void init() const
     {

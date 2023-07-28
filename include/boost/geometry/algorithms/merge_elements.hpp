@@ -172,7 +172,7 @@ inline void merge(RandomIt const first, RandomIt const last, MultiGeometry& out,
 
     auto const less = [](auto const& l, auto const& r)
     {
-        return geometry::less<void, -1, typename Strategy::cs_tag>()(l.first, r.first);
+        return geometry::less<void, -1, Strategy>()(l.first, r.first);
     };
 
     std::vector<merge_data<RandomIt>> stack_in;

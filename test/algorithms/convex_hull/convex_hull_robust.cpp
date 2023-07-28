@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2020 Oracle and/or its affiliates.
+// Copyright (c) 2020-2023 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -97,6 +97,24 @@ void test_all()
         polygon_wkt4, 5, 4, -0.015);
     test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt>(
         polygon_wkt4, 5, 5, 3.472078301e+13);
+
+    // github issue https://github.com/boostorg/geometry/issues/1158
+    auto polygon_wkt5 = "polygon((1941.6475737576565734 554.21197550796682663,\
+        2201.1796067026721175 604.83253590728611471,\
+        2367.1836939680897558 1898.3918136409306499,\
+        1856.9044662310534477 2320.8057089752910542,\
+        2000.0000000000002274 551.77450949119793222,\
+        1999.9999999999995453 1721.4008337980080796,\
+        1999.9999999999993179 1966.6530570371892281,\
+        1941.6475737576565734 554.21197550796682663))";
+    test_geometry<bg::model::polygon<P>, robust_cartesian, precise_cartesian>(
+        polygon_wkt5, 8, 6, 598281.35103625199);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_sbt, precise_cartesian>(
+        polygon_wkt5, 8, 6, 598281.35103625199);
+    test_geometry<bg::model::polygon<P>, non_robust_cartesian_fast, precise_cartesian>(
+        polygon_wkt5, 8, 6, 598281.35103625199);
+    test_geometry<bg::model::polygon<Pmp>, non_robust_cartesian_sbt>(
+        polygon_wkt5, 8, 6, 598281.35103625199);
 }
 
 
