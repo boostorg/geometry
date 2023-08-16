@@ -172,8 +172,12 @@ struct geojson_writer
         const bool dup = std::is_same<tag_t, ring_tag>::value;
         const char* list_open = dup ? "[[" : "[";
         const char* list_close = dup ? "]]" : "]";
+
+        // Indicate that dsv should close any ring automatically if its model is open
+        bool const close = geometry::closure<Geometry>::value == geometry::open;
+
         m_out << geometry::dsv(geometry, comma_space(), "[", "]", comma_space(), list_open,
-                               list_close) << cbclose() << std::endl;
+                               list_close, ",", close) << cbclose() << std::endl;
     }
 
 };

@@ -17,6 +17,9 @@
 #include <cstdint>
 #include <vector>
 
+// #define DEBUG_EXTRA_RING
+#include <boost/geometry/algorithms/perimeter.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -57,6 +60,8 @@ struct projection
     // to its projection in Q.
     // For a non projected point, it is 0.0
     coor_t distance = 0;
+
+    std::size_t sort_index = 0;
 
     // The projected point, or the point of the geometry itself
     Point point;
@@ -178,8 +183,9 @@ bool is_reversed(Projections const& projections)
     return count_wrong_order > count_right_order;
 }
 
+// Makes a triangle. The first is supposed to form a segment.
 template <typename Projection, typename Ring>
-bool fill_quadrilateral(Projection const& p0, Projection const& p1, Projection const& q0, Projection const& q1, Ring& ring)
+int fill_triangle(Projection const& s0, Projection const& s1, Projection const& p,Ring& triangle)
 {
     using point_t = typename point_type<Ring>::type;
     using side_strategy = typename strategy::side::services::default_strategy
@@ -187,67 +193,200 @@ bool fill_quadrilateral(Projection const& p0, Projection const& p1, Projection c
         typename cs_tag<point_t>::type
     >::type;
 
-    int const side_q0_p = side_strategy::apply(p0.point, p1.point, q0.point);
-    int const side_q1_p = side_strategy::apply(p0.point, p1.point, q1.point);
-    int const side_p0_q = side_strategy::apply(q0.point, q1.point, p0.point);
-    int const side_p1_q = side_strategy::apply(q0.point, q1.point, p1.point);
+    int const side = side_strategy::apply(s0.point, s1.point, p.point);
 
-    if (side_q0_p == 0 && side_q1_p == 0 && side_p0_q == 0 && side_p1_q == 0)
-    // This might be enough:
-    // if (side_q0_p == 0 && side_q1_p == 0)
+    if (side == 0)
     {
-        // All sides are the same. This happens a lot when the inputs are the same.
-        // Constructing the quadrilateral and calculating its area can be skipped.
-        return false;
+        // It is collinear. This happens a lot when the inputs are the same.
+        // Constructing the triangle and calculating its area can be skipped.
+        return 0;
     }
 
-    // Construct a clockwise ring (a quadrilateral).
-    // For example
-    // [2] +-----------+ [3]  [i + 1] (1)
-    //     |           |
-    //     p           q
-    //     |           |
-    // [1] +-----------+ [0]  [i] (0)
-    // Here q(0) is right (-1) from p, so taken q(0) first. 
-    // (Stated otherwise, p(0) is left (1) from q)
-    // Then take p(0) as [1], second point.
-    // As third point [2] then p(1) is taken because it is left (1) from q.
-    // Finally q(1) used as [3] and the ring is closed [4].
-    bool const first_q0 = side_q0_p == -1 || side_p0_q == 1;
-    bool const third_p1 = side_p1_q == 1 || side_q1_p == -1;
 
-    ring[0] = (first_q0 ? q0 : p0).point;
-    ring[1] = (first_q0 ? p0 : q0).point;
-    ring[2] = (third_p1 ? p1 : q1).point;
-    ring[3] = (third_p1 ? q1 : p1).point;
-    ring[4] = ring[0];
+    // Construct the triangle clockwise.
+    if (side == -1)
+    {
+        triangle[0] = s0.point;
+        triangle[1] = s1.point;
+        triangle[2] = p.point;
+    }
+    else
+    {
+        triangle[0] = s1.point;
+        triangle[1] = s0.point;
+        triangle[2] = p.point;
+    }
 
-    return true;
+    triangle[3] = triangle[0];
+
+    return 1;
 }
 
 template <typename It, typename Ring, typename Visitor>
-auto get_areal_sum(It p_it, It p_end, It q_it, It q_end, Ring& ring, Visitor& visitor)
+auto get_areal_sum(It p_it, It p_end, It q_it, It q_end, Ring& triangle, Visitor& visitor)
 {
+    using point_t = typename boost::geometry::point_type<Ring>::type;
+    using side_strategy = typename boost::geometry::strategy::side::services::default_strategy
+    <
+        typename boost::geometry::cs_tag<point_t>::type
+    >::type;
+
+    std::vector<point_t> left, right;
+    int ring_code = 0;
     typename coordinate_type<Ring>::type sum_area = 0;
+
+    auto add_triangle = [&sum_area, &triangle, &visitor](int source_index, auto const& s0, auto const& s1, auto const& p)
+    {
+        int const code = fill_triangle(s0, s1, p, triangle);
+        if (code != 0)
+        {
+            auto const area = geometry::area(triangle);
+
+            // The area should be positive - taking the abs is a defensive check.
+            // In some cases the area is subtracted.
+            sum_area += code * std::abs(area);
+
+            visitor.visit_triangle(triangle, s0, s1, p, source_index, code);
+        }
+    };
+
+    auto finish_ring = [&]()
+    {
+        if (left.empty() || right.empty())
+        {
+            return;
+        }
+
+        if (ring_code == 1 || ring_code == 4)
+        {
+            std::reverse(left.begin(), left.end());
+        }
+        else if (ring_code == 2 || ring_code == 3)
+        {
+            std::reverse(right.begin(), right.end());
+        }
+
+        Ring extra_ring(left.begin(), left.end());
+        for (const auto& p : right)
+        {
+            extra_ring.push_back(p);
+        }
+        extra_ring.push_back(left.front());
+
+        auto const area = std::abs(geometry::area(extra_ring));
+        sum_area += area;
+#if 0
+        std::cout << " END RING " << area;
+#endif            
+        std::decay_t<decltype(*p_it)> dummy;
+        visitor.visit_triangle(extra_ring, dummy, dummy, dummy, 0, 0);
+
+        left.clear();
+        right.clear();
+    };
 
     auto p_prev = p_it++;
     auto q_prev = q_it++;
 
-    for ( ; p_it != p_end; ++p_it, ++q_it)
+#ifdef DEBUG_EXTRA_RING
+    int index = 0;
+#endif    
+    for ( ; p_it != p_end; ++p_prev, ++q_prev, ++p_it, ++q_it)
     {
-        if (fill_quadrilateral(*p_prev, *p_it, *q_prev, *q_it, ring))
+        int const side_q0_p = side_strategy::apply(p_prev->point, p_it->point, q_prev->point);
+        int const side_q1_p = side_strategy::apply(p_prev->point, p_it->point, q_it->point);
+        int const side_p0_q = side_strategy::apply(q_prev->point, q_it->point, p_prev->point);
+        int const side_p1_q = side_strategy::apply(q_prev->point, q_it->point, p_it->point);
+
+        int const code_p = side_p0_q == -1 && side_p1_q == -1 ? 1
+            : side_p0_q == 1 && side_p1_q == 1 ? 2
+            : 0;
+
+        int const code_q = side_q0_p == -1 && side_q1_p == -1 ? 3
+            : side_q0_p == 1 && side_q1_p == 1 ? 4
+            : 0;
+
+        // If both p and q are one-sided, prefer taking the previous code.
+        // If there is not a previous code, prefer a non projected source.
+
+        int const new_ring_code 
+            = code_p > 0 && code_q > 0 ? (code_p == ring_code ? code_p : code_q == ring_code ? code_q : p_prev->is_projection && p_it->is_projection ? code_q : p_prev->is_projection || p_it->is_projection ? code_q : code_p)
+            : code_p > 0 ? code_p
+            : code_q > 0 ? code_q
+            : 0;
+        // int const new_ring_code = 0;
+
+        bool const other_ring = new_ring_code != ring_code;
+        if (other_ring)
         {
-            auto const area = geometry::area(ring);
-
-            // The area should be positive - taking the abs is a defensive check.
-            sum_area += std::abs(area);
-
-            visitor.visit_quadrilateral(ring, *p_prev, *p_it, *q_prev, *q_it);
+            finish_ring();
         }
 
-        p_prev = p_it;
-        q_prev = q_it;
+        ring_code = new_ring_code;
+
+#ifdef DEBUG_EXTRA_RING
+        //if (new_ring_code > 0)
+        if (p_prev->source_index != q_prev->source_index || p_it->source_index != q_it->source_index)
+        {
+            std::cout << index++ << " : " 
+                << " sources: " << p_prev->source_index << " " << p_it->source_index << " " << q_prev->source_index << " " << q_it->source_index 
+                << " proj: " << p_prev->is_projection << " " << p_it->is_projection << " " << q_prev->is_projection << " " << q_it->is_projection
+                << " sides: " << " " << side_p0_q << " " << side_p1_q << " " <<  side_q0_p << " " << side_q1_p 
+                << " code: " << code_p << " " << code_q << " -> " << new_ring_code
+                << std::endl
+                ;
+        }
+#endif       
+
+
+        if (new_ring_code > 0)
+        {
+            if (other_ring)
+            {
+                // std::cout << " FIRST";
+                left.push_back(p_prev->point);
+                right.push_back(q_prev->point);
+            }
+            // std::cout << " NEXT";
+            left.push_back(p_it->point);
+            right.push_back(q_it->point);
+#ifdef DEBUG_EXTRA_RING0
+            std::cout << " RING" << std::endl;
+#endif            
+            continue;
+        }
+
+#ifdef DEBUG_EXTRA_RING0
+        std::cout << std::endl;
+#endif        
+
+        const bool p_both_sides = side_p0_q * side_p1_q == -1;
+        const bool q_both_sides = side_q0_p * side_q1_p == -1;
+
+        if (p_both_sides && q_both_sides)
+        {
+            // Segments cross, make two triangles on either side of segment p
+            add_triangle(0, *p_prev, *p_it, *q_prev);
+            add_triangle(1, *p_prev, *p_it, *q_it);
+        }
+        else
+        {
+            add_triangle(0, *p_prev, *p_it, *q_prev);
+            add_triangle(1, *q_prev, *q_it, *p_it);
+        }
+
+        // if (fill_quadrilateral(*p_prev, *p_it, *q_prev, *q_it, ring))
+        // {
+        //     auto const area = geometry::area(ring);
+
+        //     // The area should be positive - taking the abs is a defensive check.
+        //     sum_area += std::abs(area);
+
+        //     visitor.visit_quadrilateral(ring, *p_prev, *p_it, *q_prev, *q_it);
+        // }
     }
+    finish_ring();
+
     return sum_area;
 }
 
@@ -257,7 +396,7 @@ auto get_areal_sum(It p_it, It p_end, It q_it, It q_end, Ring& ring, Visitor& vi
 
 struct similarity_default_visitor
 {
-    template <typename T, typename I> void visit_quadrilateral(T const& , I const& , I const& , I const& , I const& ) {}
+    template <typename T, typename I> void visit_triangle(T const& , I const& , I const& , I const& , int, int) {}
     template <typename C> void visit_projections(int, C const&) {}
 };
 
@@ -295,10 +434,6 @@ auto similarity(Geometry1 const& p, Geometry2 const& q, Visitor& visitor = simil
     auto p_enriched = get_projections(q, p);
     enrich_with_self(boost::begin(p), boost::end(p), p_enriched);
 
-    // Optional debug step.
-    visitor.visit_projections(0, p_enriched);
-    visitor.visit_projections(1, q_enriched);
-
     if (q_enriched.size() != p_enriched.size())
     {
         // Defensive check.
@@ -307,15 +442,29 @@ auto similarity(Geometry1 const& p, Geometry2 const& q, Visitor& visitor = simil
         return result;
     }
 
+    for (std::size_t i = 0; i < p_enriched.size(); i++)
+    {
+        p_enriched[i].sort_index = q_enriched[i].source_index;
+        q_enriched[i].sort_index = p_enriched[i].source_index;
+    }
+
+    // Optional debug step.
+    visitor.visit_projections(0, p_enriched);
+    visitor.visit_projections(1, q_enriched);
+
     using ring_t = boost::geometry::model::ring<point_t>;
 
-    ring_t ring;
-    ring.resize(5);
+    ring_t triangle;
+    triangle.resize(4);
 
     auto const sum_area = get_areal_sum(boost::begin(p_enriched), boost::end(p_enriched), 
-        boost::begin(q_enriched), boost::end(q_enriched), ring, visitor);
+        boost::begin(q_enriched), boost::end(q_enriched), triangle, visitor);
 
-    auto const length = (std::min)(geometry::length(p), geometry::length(q));
+    auto const length = (std::min)(geometry::perimeter(p), geometry::perimeter(q));
+
+    std::cout << "AREA: " << sum_area << std::endl;
+    std::cout << "LENS p: " << geometry::length(p) << " " << geometry::perimeter(p) << std::endl;
+    std::cout << "LENS q: " << geometry::length(q) << " " << geometry::perimeter(q) << std::endl;
     result.distance = length > 0 ? sum_area / length : std::sqrt(sum_area);        
     return result;
 }
