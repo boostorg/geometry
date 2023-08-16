@@ -274,6 +274,9 @@ struct traversal_ring_creator
 
         if (traverse_error == traverse_error_none)
         {
+            remove_spikes_at_closure(ring, m_strategy, m_robust_policy);
+            fix_closure(ring, m_strategy);
+
             std::size_t const min_num_points
                     = core_detail::closure::minimum_ring_size
                             <
@@ -282,7 +285,6 @@ struct traversal_ring_creator
 
             if (geometry::num_points(ring) >= min_num_points)
             {
-                clean_closing_dups_and_spikes(ring, m_strategy, m_robust_policy);
                 rings.push_back(ring);
 
                 m_trav.finalize_visit_info(m_turn_info_map);
