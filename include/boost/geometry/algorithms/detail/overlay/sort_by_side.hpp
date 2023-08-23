@@ -325,7 +325,7 @@ public :
                 double
             >::type;
 
-        ct_type const tolerance = 1000000000;
+        static auto const tolerance = common_approximately_equals_epsilon<ct_type>::value();
 
         int offset = 0;
         while (approximately_equals(point_from, turn.point, tolerance)
