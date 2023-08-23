@@ -21,6 +21,16 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+// Value for approximately_equals used by get_cluster and sort_by_side
+template <typename T>
+struct common_approximately_equals_epsilon
+{
+    static T value()
+    {
+        return T(100);
+    }
+};
+
 template <typename Point1, typename Point2, typename E>
 inline bool approximately_equals(Point1 const& a, Point2 const& b,
                                  E const& epsilon_multiplier)
