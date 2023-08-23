@@ -311,6 +311,7 @@ void test_average_distance_ring_cartesian()
 
     std::cout << std::fixed << std::setprecision(3);
 
+#if defined(TEST_WITH_GEOJSON)
     geojson_visitor visitor;
 
     auto const detected = boost::geometry::similarity(p, bestq, visitor);
@@ -371,6 +372,7 @@ void test_average_distance_ring_cartesian()
         }
     }
 
+#endif
     // test_ad("kimolos", make_ring(kimolos1), make_ring(kimolos2), 0.0869059);
 }
 
@@ -397,12 +399,11 @@ void test_debug_case()
         << std::endl;
 #endif
 
+#if defined(TEST_WITH_GEOJSON)
     geojson_visitor visitor;
-
-
     auto const detected = boost::geometry::similarity(p, q, visitor);
-
     write_sources_as_geojson("/tmp/cornery.geojson", p, q);
+#endif    
 }
 
 template <typename T>
