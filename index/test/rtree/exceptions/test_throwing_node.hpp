@@ -250,7 +250,7 @@ public:
 
 struct node_bad_alloc : public std::exception
 {
-    const char * what() const throw() { return "internal node creation failed."; }
+    const char * what() const noexcept { return "internal node creation failed."; }
 };
 
 struct throwing_node_settings

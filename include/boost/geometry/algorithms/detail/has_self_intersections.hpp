@@ -53,7 +53,7 @@ public:
 
     inline overlay_invalid_input_exception() {}
 
-    virtual char const* what() const throw()
+    virtual char const* what() const noexcept
     {
         return "Boost.Geometry Overlay invalid input exception";
     }

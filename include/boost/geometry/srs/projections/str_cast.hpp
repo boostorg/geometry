@@ -21,7 +21,7 @@ namespace boost { namespace geometry
 
 class bad_str_cast : public geometry::exception
 {
-    virtual char const* what() const throw()
+    virtual char const* what() const noexcept
     {
         return "Unable to convert from string.";
     }

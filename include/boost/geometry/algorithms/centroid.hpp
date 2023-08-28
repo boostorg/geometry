@@ -91,7 +91,7 @@ public:
     \brief Returns the explanatory string.
     \return Pointer to a null-terminated string with explanatory information.
     */
-    virtual char const* what() const throw()
+    virtual char const* what() const noexcept
     {
         return "Boost.Geometry Centroid calculation exception";
     }

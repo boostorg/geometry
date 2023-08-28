@@ -15,7 +15,7 @@
 
 struct throwing_value_copy_exception : public std::exception
 {
-    const char * what() const throw() { return "value copy failed."; }
+    const char * what() const noexcept { return "value copy failed."; }
 };
 
 struct throwing_value
@@ -79,7 +79,7 @@ struct value< std::pair<bg::model::point<T, 2, C>, throwing_value> >
 
 struct throwing_varray_exception : public std::exception
 {
-    const char * what() const throw() { return "static vector exception."; }
+    const char * what() const noexcept { return "static vector exception."; }
 };
 
 struct throwing_varray_settings
