@@ -18,6 +18,7 @@ test-suite boost-geometry-algorithms-overlay
     [ run assemble.cpp                     : : : : algorithms_assemble ]
     [ run copy_segment_point.cpp           : : : : algorithms_copy_segment_point ]
     [ run get_clusters.cpp                 : : : : algorithms_get_clusters ]
+    [ run get_distance_measure.cpp         : : : : algorithms_get_distance_measure ]
     [ run get_ring.cpp                     : : : : algorithms_get_ring ]
     [ run get_turn_info.cpp                : : : : algorithms_get_turn_info ]
     [ run get_turns.cpp                    : : : : algorithms_get_turns ]
