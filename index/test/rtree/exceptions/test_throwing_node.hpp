@@ -13,6 +13,13 @@
 #define BOOST_GEOMETRY_INDEX_TEST_RTREE_THROWING_NODE_HPP
 
 #include <rtree/exceptions/test_throwing.hpp>
+#include <boost/core/invoke_swap.hpp>
+#include <boost/move/core.hpp>
+#include <boost/move/utility_core.hpp>
+#include <boost/variant/variant.hpp>
+#include <boost/variant/static_visitor.hpp>
+#include <exception>
+#include <stddef.h>
 
 struct throwing_nodes_stats
 {
@@ -235,7 +242,7 @@ public:
 
     void swap(allocators & a)
     {
-        boost::swap(node_allocator(), a.node_allocator());
+        boost::core::invoke_swap(node_allocator(), a.node_allocator());
     }
 
     bool operator==(allocators const& a) const { return node_allocator() == a.node_allocator(); }
