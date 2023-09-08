@@ -43,7 +43,7 @@ public:
         , m_msg(msg)
     {}
 
-    virtual char const* what() const throw()
+    virtual char const* what() const noexcept
     {
         //return "Boost.Geometry Projection exception";
         return m_msg.what();

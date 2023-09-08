@@ -32,7 +32,7 @@ public:
         : m_filename(filename)
     {}
 
-    virtual char const* what() const throw()
+    virtual char const* what() const noexcept
     {
         return m_filename.c_str();
     }
