@@ -52,7 +52,7 @@ public:
         : m_msg(msg)
     {}
 
-    virtual char const* what() const noexcept
+    char const* what() const noexcept override
     {
         //return "Shapefile read error";
         return m_msg.what();
