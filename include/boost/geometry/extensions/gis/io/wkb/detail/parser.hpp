@@ -49,7 +49,7 @@ public:
 
     inline read_wkb_exception() {}
 
-    virtual char const* what() const noexcept
+    char const* what() const noexcept override
     {
         return "Boost.Geometry Read WKB exception";
     }
