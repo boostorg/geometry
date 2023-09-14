@@ -17,7 +17,7 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 
-//#include <boost/geometry/io/wkt/read.hpp>
+#include <boost/range/size.hpp>
 
 template <typename Box, typename Linestring>
 void test_path_intersection(Box const& box, Linestring const& path,

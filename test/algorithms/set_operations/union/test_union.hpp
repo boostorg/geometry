@@ -28,6 +28,7 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/union.hpp>
 
