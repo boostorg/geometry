@@ -37,18 +37,22 @@ struct sweep_equal_policy
 {
 
 public:
-    // Returns true if point are considered equal (within an epsilon)
+    // Returns true if point are considered equal
     template <typename P>
     static inline bool equals(P const& p1, P const& p2)
     {
         using coor_t = typename coordinate_type<P>::type;
-        return approximately_equals(p1, p2, common_approximately_equals_epsilon<coor_t>::value());
+        static auto const tolerance
+            = common_approximately_equals_epsilon_multiplier<coor_t>::value();
+        return approximately_equals(p1, p2, tolerance);
     }
 
     template <typename T>
     static inline bool exceeds(T value)
     {
-        T const limit = T(1) / common_approximately_equals_epsilon<T>::value();
+        static auto const tolerance
+            = common_approximately_equals_epsilon_multiplier<T>::value();
+        T const limit = T(1) / tolerance;
         return value > limit;
     }
 };
