@@ -100,7 +100,7 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
         return;
     }
 
-    auto append = [](auto& r, const auto& p)
+    auto append = [](auto& r, auto const& p)
     {
         using point_t = typename boost::range_value<Range>::type;
         point_t rp;

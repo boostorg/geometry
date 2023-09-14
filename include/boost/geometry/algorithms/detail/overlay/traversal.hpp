@@ -505,7 +505,7 @@ public :
     }
 
     inline
-    bool select_operation(const turn_type& turn,
+    bool select_operation(turn_type const& turn,
                 signed_size_type turn_index,
                 signed_size_type start_turn_index,
                 segment_identifier const& previous_seg_id,
@@ -536,7 +536,7 @@ public :
         return result;
     }
 
-    inline int starting_operation_index(const turn_type& turn) const
+    inline int starting_operation_index(turn_type const& turn) const
     {
         for (int i = 0; i < 2; i++)
         {
@@ -548,7 +548,7 @@ public :
         return -1;
     }
 
-    inline bool both_finished(const turn_type& turn) const
+    inline bool both_finished(turn_type const& turn) const
     {
         for (int i = 0; i < 2; i++)
         {
