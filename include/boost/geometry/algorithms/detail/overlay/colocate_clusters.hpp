@@ -86,14 +86,14 @@ inline void colocate_clusters(Clusters const& clusters, Turns& turns)
 {
     for (auto const& pair : clusters)
     {
-        auto const& indices = pair.second.turn_indices;
-        if (indices.size() < 2)
+        auto const& turn_indices = pair.second.turn_indices;
+        if (turn_indices.size() < 2)
         {
             // Defensive check
             continue;
         }
-        using point_t = decltype(turns[*indices.begin()].point);
-        cluster_colocator<point_t>::apply(indices, turns);
+        using point_t = decltype(turns[*turn_indices.begin()].point);
+        cluster_colocator<point_t>::apply(turn_indices, turns);
     }
 }
 
