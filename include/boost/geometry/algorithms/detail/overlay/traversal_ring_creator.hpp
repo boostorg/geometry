@@ -149,8 +149,8 @@ struct traversal_ring_creator
 
         {
             // Check operation (TODO: this might be redundant or should be catched before)
-            const turn_type& current_turn = m_turns[turn_index];
-            const turn_operation_type& op = current_turn.operations[op_index];
+            turn_type const& current_turn = m_turns[turn_index];
+            turn_operation_type const& op = current_turn.operations[op_index];
             if (op.visited.finalized()
                 || m_trav.is_visited(current_turn, op, turn_index, op_index))
             {

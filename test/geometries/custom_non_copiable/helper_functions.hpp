@@ -17,7 +17,7 @@
 #include <fstream>
 
 template <typename Ring>
-void fill(Ring& ring, const std::vector<typename boost::geometry::point_type<Ring>::type>& v)
+void fill(Ring& ring, std::vector<typename boost::geometry::point_type<Ring>::type> const& v)
 {
     ring.custom_clear();
     for(auto const& p : v)

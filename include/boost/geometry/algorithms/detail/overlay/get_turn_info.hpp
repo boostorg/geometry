@@ -589,7 +589,7 @@ struct touch : public base_turn_handler
         // >----->P     qj is LEFT of P1 and pi is LEFT of Q2
         //              (the other way round is also possible)
 
-        auto has_distance = [&](const auto& r1, const auto& r2) -> bool
+        auto has_distance = [&](auto const& r1, auto const& r2) -> bool
         {
             auto const d1 = get_distance_measure(r1.at(0), r1.at(1), r2.at(1), umbrella_strategy);
             auto const d2 = get_distance_measure(r2.at(1), r2.at(2), r1.at(0), umbrella_strategy);

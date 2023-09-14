@@ -67,7 +67,7 @@ template<typename IntersectionOutput, typename G1, typename G2>
 void check_result(IntersectionOutput const& intersection_output,
     std::string const& caseid,
     G1 const& g1, G2 const& g2,
-    const count_set& expected_count, const count_set& expected_hole_count,
+    count_set const& expected_count, count_set const& expected_hole_count,
     int expected_point_count, expectation_limits const& expected_length_or_area,
     ut_settings const& settings)
 {
@@ -165,8 +165,8 @@ void check_result(IntersectionOutput const& intersection_output,
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
         G1 const& g1, G2 const& g2,
-        const count_set& expected_count = count_set(),
-        const count_set& expected_hole_count = count_set(),
+        count_set const& expected_count = count_set(),
+        count_set const& expected_hole_count = count_set(),
         int expected_point_count = 0, expectation_limits const& expected_length_or_area = 0,
         ut_settings const& settings = ut_settings())
 {
@@ -289,7 +289,7 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 template <typename OutputType, typename CalculationType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_intersection(std::string const& caseid,
         G1 const& g1, G2 const& g2,
-        const count_set& expected_count = count_set(), int expected_point_count = 0,
+        count_set const& expected_count = count_set(), int expected_point_count = 0,
         expectation_limits const& expected_length_or_area = 0,
         ut_settings const& settings = ut_settings())
 {
@@ -303,8 +303,8 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
 template <typename OutputType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
         std::string const& wkt1, std::string const& wkt2,
-        const count_set& expected_count,
-        const count_set& expected_hole_count,
+        count_set const& expected_count,
+        count_set const& expected_hole_count,
         int expected_point_count,
         expectation_limits const& expected_length_or_area,
         ut_settings const& settings = ut_settings())
@@ -328,7 +328,7 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
 template <typename OutputType, typename G1, typename G2>
 typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
     std::string const& wkt1, std::string const& wkt2,
-    const count_set& expected_count,
+    count_set const& expected_count,
     int expected_point_count,
     expectation_limits const& expected_length_or_area,
     ut_settings const& settings = ut_settings())
@@ -342,7 +342,7 @@ typename bg::default_area_result<G1>::type test_one(std::string const& caseid,
 template <typename OutputType, typename Areal, typename Linear>
 void test_one_lp(std::string const& caseid,
         std::string const& wkt_areal, std::string const& wkt_linear,
-        const count_set& expected_count = count_set(), int expected_point_count = 0,
+        count_set const& expected_count = count_set(), int expected_point_count = 0,
         expectation_limits const& expected_length = 0,
         ut_settings const& settings = ut_settings())
 {

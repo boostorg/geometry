@@ -42,8 +42,8 @@ struct check_result<Box, 2>
             ctype
         >;
 
-    static void apply(Box const& b, const type& x1, const type& y1, const type& /*z1*/,
-                const type& x2, const type& y2, const type& /*z2*/)
+    static void apply(Box const& b, type const& x1, type const& y1, type const& /*z1*/,
+                type const& x2, type const& y2, type const& /*z2*/)
     {
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 0>(b)), x1, 0.001);
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 1>(b)), y1, 0.001);
@@ -64,8 +64,8 @@ struct check_result<Box, 3>
             ctype
         >;
 
-    static void apply(Box const& b, const type& x1, const type& y1, const type& z1,
-                const type& x2, const type& y2, const type& z2)
+    static void apply(Box const& b, type const& x1, type const& y1, type const& z1,
+                type const& x2, type const& y2, type const& z2)
     {
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 0>(b)), x1, 0.001);
         BOOST_CHECK_CLOSE((bg::get<bg::min_corner, 1>(b)), y1, 0.001);
@@ -80,9 +80,9 @@ struct check_result<Box, 3>
 
 template <typename Geometry, typename T>
 void test_envelope(std::string const& wkt,
-                   const T& x1, const T& x2,
-                   const T& y1, const T& y2,
-                   const T& z1 = 0, const T& z2 = 0)
+                   T const& x1, T const& x2,
+                   T const& y1, T const& y2,
+                   T const& z1 = 0, T const& z2 = 0)
 {
     typedef bg::model::box<typename bg::point_type<Geometry>::type > box_type;
     box_type b;
