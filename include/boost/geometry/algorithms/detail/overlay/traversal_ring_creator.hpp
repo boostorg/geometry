@@ -16,6 +16,7 @@
 #include <cstddef>
 
 #include <boost/range/value_type.hpp>
+#include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
