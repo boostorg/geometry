@@ -13,6 +13,8 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
+#include <boost/geometry/algorithms/detail/partition_lambda.hpp>
+
 #if defined(TEST_WITH_SVG)
 # include <boost/geometry/io/svg/svg_mapper.hpp>
 #endif
@@ -43,112 +45,41 @@ struct ring_item
 
 BOOST_GEOMETRY_REGISTER_POINT_2D(point_item, double, cs::cartesian, x, y)
 
-
-struct expand_for_point
-{
-    template <typename Box, typename InputItem>
-    static inline void apply(Box& total, InputItem const& item)
-    {
-        bg::expand(total, item);
-    }
-};
-
-struct overlaps_point
-{
-    template <typename Box, typename InputItem>
-    static inline bool apply(Box const& box, InputItem const& item)
-    {
-        return ! bg::disjoint(item, box);
-    }
-};
-
-
-struct expand_for_ring
-{
-    template <typename Box, typename InputItem>
-    static inline void apply(Box& total, InputItem const& item)
-    {
-        bg::expand(total, item.box);
-    }
-};
-
-struct overlaps_ring
-{
-    template <typename Box, typename InputItem>
-    static inline bool apply(Box const& box, InputItem const& item)
-    {
-        typename bg::strategy::disjoint::services::default_strategy
-            <
-                Box, Box
-            >::type strategy;
-
-        return ! bg::detail::disjoint::disjoint_box_box(box, item.box, strategy);
-    }
-};
-
-struct point_in_ring_visitor
-{
-    std::size_t count = 0;
-
-    template <typename Point, typename BoxItem>
-    inline bool apply(Point const& point, BoxItem const& ring_item)
-    {
-        if (bg::within(point, ring_item.ring))
-        {
-            count++;
-        }
-        return true;
-    }
-};
-
 #if defined(TEST_WITH_SVG)
-template <typename Box, typename Points, typename Rings>
-struct svg_visitor
+template <typename Points, typename Rings, typename Box, typename Boxes>
+void create_svg(std::size_t size, Points const& points, Rings const& rings, std::size_t index,
+            Box const& box, int level,
+            Boxes& boxes)
 {
-    std::vector<Box> boxes;
-    Points const& m_points;
-    Rings const& m_rings;
-    std::size_t m_size = 0;
-    std::size_t m_index = 0;
+    std::ostringstream filename;
+    filename << "partition_demo_" << std::setfill('0') << std::setw(3) << index << "_" << level << ".svg";
+    std::ofstream svg(filename.str());
 
-    svg_visitor(std::size_t size, Points const& points, Rings const& rings)
-        : m_points(points)
-        , m_rings(rings)
-        , m_size(size)
-    {}
+    bg::svg_mapper<point_item> mapper(svg, 800, 800);
 
-    inline void apply(Box const& box, int level)
     {
-        std::ostringstream filename;
-        filename << "partition_demo_" << std::setfill('0') << std::setw(3) << m_index++ << "_" << level << ".svg";
-        std::ofstream svg(filename.str());
-
-        bg::svg_mapper<point_item> mapper(svg, 800, 800);
-
-        {
-            point_item p;
-            p.x = -1; p.y = -1; mapper.add(p);
-            p.x = m_size + 1; p.y = m_size + 1; mapper.add(p);
-        }
-
-        for (auto const& item : m_rings)
-        {
-            mapper.map(item.ring, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:0.1");
-        }
-        for (auto const& point : m_points)
-        {
-            mapper.map(point, "fill:rgb(0,0,255);stroke:rgb(0,0,100);stroke-width:0.1", 3);
-        }
-
-        for (auto const& b : boxes)
-        {
-            mapper.map(b, "fill:none;stroke-width:2;stroke:rgb(64,64,64);");
-        }
-        mapper.map(box, "fill:none;stroke-width:4;stroke:rgb(255, 0, 0);");
-
-        boxes.push_back(box);
+        point_item p;
+        p.x = -1; p.y = -1; mapper.add(p);
+        p.x = size + 1; p.y = size + 1; mapper.add(p);
     }
-};
+
+    for (auto const& item : rings)
+    {
+        mapper.map(item.ring, "opacity:0.6;fill:rgb(0,255,0);stroke:rgb(0,0,0);stroke-width:0.1");
+    }
+    for (auto const& point : points)
+    {
+        mapper.map(point, "fill:rgb(0,0,255);stroke:rgb(0,0,100);stroke-width:0.1", 3);
+    }
+
+    for (auto const& b : boxes)
+    {
+        mapper.map(b, "fill:none;stroke-width:2;stroke:rgb(64,64,64);");
+    }
+    mapper.map(box, "fill:none;stroke-width:4;stroke:rgb(255, 0, 0);");
+
+    boxes.push_back(box);
+}
 #endif
 
 
@@ -161,7 +92,7 @@ void fill_points(Collection& collection, std::size_t size, std::size_t count)
     std::uniform_real_distribution<double> uniform_dist(0, size - 1);
     int const mean_x = uniform_dist(rde);
     int const mean_y = uniform_dist(rde);
- 
+
     // Generate a normal distribution around these means
     std::seed_seq seed2{rd(), rd(), rd(), rd(), rd(), rd(), rd(), rd()};
     std::mt19937 e2(seed2);
@@ -302,7 +233,7 @@ void call_within(std::size_t size, std::size_t count)
     auto report = [&points, &rings](const char* title, auto const& start, std::size_t within_count)
     {
         auto const finish = std::chrono::steady_clock::now();
-        double const elapsed 
+        double const elapsed
             = std::chrono::duration_cast<std::chrono::nanoseconds>(finish - start).count();
         std::cout << title << " time: " << std::setprecision(6)
                 << elapsed / 1000000.0 << " ms" << std::endl;
@@ -311,27 +242,44 @@ void call_within(std::size_t size, std::size_t count)
         return elapsed;
     };
 
-    point_in_ring_visitor count_visitor;
-    {
 #if defined(TEST_WITH_SVG)
-
-        using partition_box_visitor_type = svg_visitor<box_type, std::vector<point_item>, std::vector<ring_item<ring_type>>>;
-        partition_box_visitor_type partition_box_visitor(size, points, rings);
+    std::size_t index = 0;
+    std::vector<box_type> boxes;
+    auto box_visitor = [&](auto const& box, int level)
+        {
+            create_svg(size, points, rings, index++, box, level, boxes);
+        };
 #else
-        using partition_box_visitor_type = bg::detail::partition::visit_no_policy;
-        partition_box_visitor_type partition_box_visitor;
+    auto box_visitor = [&](auto const& , int ) {};
 #endif
 
+    std::size_t partition_count = 0;
+    {
         auto const start = std::chrono::steady_clock::now();
 
-        bg::partition
+        typename bg::strategy::disjoint::services::default_strategy
             <
-                box_type,
-                bg::detail::partition::include_all_policy,
-                bg::detail::partition::include_all_policy
-            >::apply(points, rings, count_visitor, expand_for_point(), overlaps_point(),
-                    expand_for_ring(), overlaps_ring(), 16, partition_box_visitor);
-        report("Partition", start, count_visitor.count);
+                box_type, box_type
+            >::type strategy;
+
+        bg::experimental::partition<box_type>(points,
+            rings,
+            [](auto& box, auto const& point) { bg::expand(box, point); },
+            [](auto const& box, auto const& point) { return ! bg::disjoint(point, box); },
+            [](auto& box, auto const& item) { bg::expand(box, item.box); },
+            [&strategy](auto const& box, auto const& item) { return ! bg::disjoint(box, item.box, strategy); },
+            [&partition_count](auto const& p, auto const& ri)
+            {
+                if (bg::within(p, ri.ring))
+                {
+                    partition_count++;
+                }
+                return true;
+            },
+            box_visitor
+        );
+
+        report("Partition", start, partition_count);
     }
 
     {
@@ -350,7 +298,7 @@ void call_within(std::size_t size, std::size_t count)
         }
         report("Quadratic loop", start, count);
 
-        if (count != count_visitor.count)
+        if (count != partition_count)
         {
             std::cerr << "ERROR: counts are not equal" << std::endl;
         }
