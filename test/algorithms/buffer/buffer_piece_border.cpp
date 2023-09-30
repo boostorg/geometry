@@ -161,10 +161,10 @@ void test_point(std::string const& wkt, bool expected_outside,
     Point point;
     bg::read_wkt(wkt, point);
     border.point_on_piece(point, false, false, state);
-    BOOST_CHECK(expected_outside == state.count > 0);
-    BOOST_CHECK(expected_on_offsetted == state.count_on_offsetted > 0);
-    BOOST_CHECK(expected_on_edge == state.count_on_edge > 0);
-    BOOST_CHECK(expected_on_origin == state.count_on_origin > 0);
+    BOOST_CHECK(expected_outside == (state.count > 0));
+    BOOST_CHECK(expected_on_offsetted == (state.count_on_offsetted > 0));
+    BOOST_CHECK(expected_on_edge == (state.count_on_edge > 0));
+    BOOST_CHECK(expected_on_origin == (state.count_on_origin > 0));
 
 #ifdef TEST_WITH_SVG
     std::string style = "fill:" + color + ";stroke:rgb(0,0,0);stroke-width:1";
