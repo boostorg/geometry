@@ -23,7 +23,6 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
-#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 

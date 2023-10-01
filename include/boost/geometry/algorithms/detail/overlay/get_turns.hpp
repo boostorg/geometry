@@ -39,7 +39,6 @@
 #include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
-#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -723,7 +722,7 @@ struct get_turns_cs
     }
 
 private:
-    template<std::size_t Index, typename Point>
+    /*template<std::size_t Index, typename Point>
     static inline int get_side(Box const& box, Point const& point)
     {
         // Inside -> 0
@@ -741,7 +740,7 @@ private:
         else if (c < left) return -1;
         else if (c > right) return 1;
         else return 0;
-    }
+    }*/
 
     template
     <
