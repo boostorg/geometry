@@ -262,7 +262,7 @@ void call_within(std::size_t size, std::size_t count)
                 box_type, box_type
             >::type strategy;
 
-        bg::experimental::partition<box_type>(points,
+        bg::detail::partition_lambda<box_type>(points,
             rings,
             [](auto& box, auto const& point) { bg::expand(box, point); },
             [](auto const& box, auto const& point) { return ! bg::disjoint(point, box); },

@@ -360,19 +360,6 @@ struct buffered_piece_collection
     {
         auto const& strategy = m_strategy;
 
-        struct specific_options : experimental::partition_options
-        {
-            struct include_turn_policy
-            {
-                static inline bool apply(buffer_turn_info_type const& turn)
-                {
-                    return turn.is_turn_traversable && ! turn.within_original;
-                }
-            };
-
-            using include_policy1 = include_turn_policy;
-        };
-
         turn_in_original_visitor
             <
                 turn_vector_type,
@@ -382,13 +369,16 @@ struct buffered_piece_collection
         // Partition over the turns and original rings, visiting
         // all turns located in an original and changing the turn's
         // "count_in_original" and "within_original" values
-        experimental::partition
+        partition_lambda
             <
                 box_type
             >(m_turns, original_rings,
                 [&strategy](auto& box, auto const& turn)
                 {
-                    geometry::expand(box, turn.point, strategy);
+                    if (turn.is_turn_traversable && ! turn.within_original)
+                    {
+                        geometry::expand(box, turn.point, strategy);
+                    }
                 },
                 [&strategy](auto& box, auto const& turn)
                 {
@@ -407,10 +397,7 @@ struct buffered_piece_collection
                 [&visitor](auto const& turn, auto const& original)
                 {
                     return visitor.apply(turn, original);
-                },
-                [](auto const&, int) {},
-                specific_options()
-        );
+                });
 
         bool const deflate = m_distance_strategy.negative();
 
@@ -500,7 +487,7 @@ struct buffered_piece_collection
 
             detail::sectionalize::enlarge_sections(monotonic_sections, m_strategy);
 
-            experimental::partition<robust_box_type>(monotonic_sections,
+            partition_lambda<robust_box_type>(monotonic_sections,
                 [&strategy](auto& box, auto const& section)
                 {
                     geometry::expand(box, section.bounding_box, strategy);
@@ -528,7 +515,7 @@ struct buffered_piece_collection
                 > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
 
             // Partition over the turns and pieces, checking if turns are inside pieces.
-            experimental::partition<box_type>(m_turns, m_pieces,
+            partition_lambda<box_type>(m_turns, m_pieces,
                 [&strategy](auto& box, auto const& turn)
                 {
                     geometry::expand(box, turn.point, strategy);

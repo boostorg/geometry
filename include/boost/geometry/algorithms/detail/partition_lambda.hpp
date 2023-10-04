@@ -13,7 +13,7 @@
 
 #include <functional>
 
-namespace boost { namespace geometry { namespace experimental
+namespace boost { namespace geometry { namespace detail
 {
 
 template <typename F>
@@ -34,12 +34,6 @@ struct adapt_partition_visitor
 
 struct partition_options
 {
-    // Include policy for the (first) range
-    using include_policy1 = detail::partition::include_all_policy;
-
-    // Include policy for the second range
-    using include_policy2 = detail::partition::include_all_policy;
-
     // Defines the end of the iteration (as soon as range 1 or range 2 has
     // these number of elements, or less, it will switch to iterative mode)
     std::size_t min_elements = 16;
@@ -49,10 +43,9 @@ template
 <
     typename BoxType,
     typename ForwardRange1,
-    typename ForwardRange2,
-    typename Options = partition_options
+    typename ForwardRange2
 >
-bool partition(ForwardRange1 const& forward_range1,
+bool partition_lambda(ForwardRange1 const& forward_range1,
                ForwardRange2 const& forward_range2,
                const std::function
                    <
@@ -83,7 +76,7 @@ bool partition(ForwardRange1 const& forward_range1,
                    <
                        void(BoxType const&, int level)
                    >& box_visitor = [](auto const&, int) {},
-               const Options& options = {})
+               const partition_options& options = {})
 {
     adapt_partition_visitor<decltype(visitor)> av(visitor);
     adapt_partition_visitor<decltype(expand_policy1)> aev1(expand_policy1);
@@ -95,8 +88,8 @@ bool partition(ForwardRange1 const& forward_range1,
     return geometry::partition
         <
             BoxType,
-            typename Options::include_policy1,
-            typename Options::include_policy2
+            detail::partition::include_all_policy,
+            detail::partition::include_all_policy
         >::apply(forward_range1, forward_range2, av,
                  aev1, aov1,
                  aev2, aov2, options.min_elements, apbv);
@@ -105,10 +98,9 @@ bool partition(ForwardRange1 const& forward_range1,
 template
 <
     typename BoxType,
-    typename ForwardRange,
-    typename Options = partition_options
+    typename ForwardRange
 >
-bool partition(ForwardRange const& forward_range,
+bool partition_lambda(ForwardRange const& forward_range,
                const std::function
                    <
                        void(BoxType&,
@@ -128,7 +120,7 @@ bool partition(ForwardRange const& forward_range,
                    <
                        void(BoxType const&, int level)
                    >& box_visitor = [](auto const&, int) {},
-               const Options& options = {})
+               const partition_options& options = {})
 {
     adapt_partition_visitor<decltype(visitor)> av(visitor);
     adapt_partition_visitor<decltype(expand_policy)> aev(expand_policy);
@@ -138,11 +130,11 @@ bool partition(ForwardRange const& forward_range,
     return geometry::partition
         <
             BoxType,
-            typename Options::include_policy1
+            detail::partition::include_all_policy
         >::apply(forward_range, av,
                  aev, aov, options.min_elements, apbv);
 }
 
-}}} // namespace boost::geometry::experimental
+}}} // namespace boost::geometry::detail
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_PARTITION_LAMBDA_HPP
