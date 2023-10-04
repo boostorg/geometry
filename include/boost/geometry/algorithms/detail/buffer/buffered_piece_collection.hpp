@@ -56,7 +56,6 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/partition_lambda.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 #include <boost/geometry/util/for_each_with_index.hpp>
