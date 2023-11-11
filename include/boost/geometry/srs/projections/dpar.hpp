@@ -722,8 +722,11 @@ public:
     {
         return m_value.which() == srs::detail::find_type_index<variant_type, V>::value;
     }
-
+#if defined(BOOST_GEOMETRY_ENABLE_SRS_PARAMETER_DEBUGGING)
+public:
+#else
 private:
+#endif
     int m_id;
     variant_type m_value;
 };
@@ -801,8 +804,9 @@ public:
     const_iterator begin() const { return m_params.begin(); }
     const_iterator end() const { return m_params.end(); }
     const_reference operator[](size_type i) const { return m_params[i]; }
-    size_type size() { return m_params.size(); }
-    bool empty() { return m_params.empty(); }
+    size_type size() const { return m_params.size(); }
+    bool empty() const { return m_params.empty(); }
+    void reserve(std::size_t s) { m_params.reserve(s); }
 
 private:
     container_type m_params;
