@@ -14,10 +14,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-sym_difference
-    :
-    [ run sym_difference_areal_areal.cpp   : : : : algorithms_sym_difference_areal_areal ]
-    [ run sym_difference_linear_linear.cpp : : : : algorithms_sym_difference_linear_linear ]
-    [ run sym_difference_gc.cpp            : : : : algorithms_sym_difference_gc ]
-	[ run sym_difference_tupled.cpp        : : : : algorithms_sym_difference_tupled ]
-    ;
+run sym_difference_areal_areal.cpp   : : : : algorithms_sym_difference_areal_areal ;
+run sym_difference_linear_linear.cpp : : : : algorithms_sym_difference_linear_linear ;
+run sym_difference_gc.cpp            : : : : algorithms_sym_difference_gc ;
+run sym_difference_tupled.cpp        : : : : algorithms_sym_difference_tupled ;

@@ -13,32 +13,29 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-overlay
-    : 
-    [ run assemble.cpp                     : : : : algorithms_assemble ]
-    [ run copy_segment_point.cpp           : : : : algorithms_copy_segment_point ]
-    [ run get_clusters.cpp                 : : : : algorithms_get_clusters ]
-    [ run get_distance_measure.cpp         : : : : algorithms_get_distance_measure ]
-    [ run get_ring.cpp                     : : : : algorithms_get_ring ]
-    [ run get_turn_info.cpp                : : : : algorithms_get_turn_info ]
-    [ run get_turns.cpp                    : : : : algorithms_get_turns ]
-    [ run get_turns_const.cpp              : : : : algorithms_get_turns_const ]
-    [ run get_turns_areal_areal.cpp        : : : : algorithms_get_turns_areal_areal ]
-    [ run get_turns_areal_areal_sph.cpp    : : : : algorithms_get_turns_areal_areal_sph ]
-    [ run get_turns_linear_areal.cpp       : : : : algorithms_get_turns_linear_areal ]
-    [ run get_turns_linear_areal_sph.cpp   : : : : algorithms_get_turns_linear_areal_sph ]
-    [ run get_turns_linear_linear.cpp      : : : : algorithms_get_turns_linear_linear ]
-    [ run get_turns_linear_linear.cpp      : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_get_turns_linear_linear_alternative ]
-    [ run get_turns_linear_linear_geo.cpp  : : : : algorithms_get_turns_linear_linear_geo ]
-    [ run get_turns_linear_linear_sph.cpp  : : : : algorithms_get_turns_linear_linear_sph ]
-    [ run overlay.cpp                      : : : : algorithms_overlay ]
-    [ run sort_by_side_basic.cpp           : : : : algorithms_sort_by_side_basic ]
-    [ run sort_by_side.cpp                 : : : : algorithms_sort_by_side ]
-    #[ run handle_touch.cpp                : : : : algorithms_handle_touch ]
-    [ run relative_order.cpp               : : : : algorithms_relative_order ]
-    [ run select_rings.cpp                 : : : : algorithms_select_rings ]
-    [ run self_intersection_points.cpp     : : : : algorithms_self_intersection_points ]
-    #[ run traverse.cpp                    : : : : algorithms_traverse ]
-    #[ run traverse_ccw.cpp                : : : : algorithms_traverse_ccw ]
-    #[ run traverse_multi.cpp              : : : : algorithms_traverse_multi ]
-     ;
+run assemble.cpp                     : : : : algorithms_assemble ;
+run copy_segment_point.cpp           : : : : algorithms_copy_segment_point ;
+run get_clusters.cpp                 : : : : algorithms_get_clusters ;
+run get_distance_measure.cpp         : : : : algorithms_get_distance_measure ;
+run get_ring.cpp                     : : : : algorithms_get_ring ;
+run get_turn_info.cpp                : : : : algorithms_get_turn_info ;
+run get_turns.cpp                    : : : : algorithms_get_turns ;
+run get_turns_const.cpp              : : : : algorithms_get_turns_const ;
+run get_turns_areal_areal.cpp        : : : : algorithms_get_turns_areal_areal ;
+run get_turns_areal_areal_sph.cpp    : : : : algorithms_get_turns_areal_areal_sph ;
+run get_turns_linear_areal.cpp       : : : : algorithms_get_turns_linear_areal ;
+run get_turns_linear_areal_sph.cpp   : : : : algorithms_get_turns_linear_areal_sph ;
+run get_turns_linear_linear.cpp      : : : : algorithms_get_turns_linear_linear ;
+run get_turns_linear_linear.cpp      : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_get_turns_linear_linear_alternative ;
+run get_turns_linear_linear_geo.cpp  : : : : algorithms_get_turns_linear_linear_geo ;
+run get_turns_linear_linear_sph.cpp  : : : : algorithms_get_turns_linear_linear_sph ;
+run overlay.cpp                      : : : : algorithms_overlay ;
+run sort_by_side_basic.cpp           : : : : algorithms_sort_by_side_basic ;
+run sort_by_side.cpp                 : : : : algorithms_sort_by_side ;
+#run handle_touch.cpp                : : : : algorithms_handle_touch ;
+run relative_order.cpp               : : : : algorithms_relative_order ;
+run select_rings.cpp                 : : : : algorithms_select_rings ;
+run self_intersection_points.cpp     : : : : algorithms_self_intersection_points ;
+#run traverse.cpp                    : : : : algorithms_traverse ;
+#run traverse_ccw.cpp                : : : : algorithms_traverse_ccw ;
+#run traverse_multi.cpp              : : : : algorithms_traverse_multi ;

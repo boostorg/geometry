@@ -9,9 +9,5 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-io-wkt
-    :
-    [ run wkt.cpp       : : : : io_wkt ]
-    [ run wkt_multi.cpp : : : : io_wkt_multi ]
-    ;
-
+run wkt.cpp       : : : : io_wkt ;
+run wkt_multi.cpp : : : : io_wkt_multi ;

@@ -14,9 +14,6 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-crosses
-    :
-    [ run crosses.cpp            : : : : algorithms_crosses ]
-    [ run crosses_gc.cpp         : : : : algorithms_crosses_gc ]
-    [ run crosses_sph.cpp        : : : : algorithms_crosses_sph ]
-    ;
+run crosses.cpp            : : : : algorithms_crosses ;
+run crosses_gc.cpp         : : : : algorithms_crosses_gc ;
+run crosses_sph.cpp        : : : : algorithms_crosses_sph ;

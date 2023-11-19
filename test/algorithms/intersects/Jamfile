@@ -14,13 +14,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-intersects
-    :
-    [ run intersects.cpp              : : : : algorithms_intersects ]
-    [ run intersects_box_geometry.cpp : : : : algorithms_intersects_box_geometry ]
-    [ run intersects_multi.cpp        : : : : algorithms_intersects_multi ]
-    [ run intersects_self.cpp         : : : : algorithms_intersects_self ]
-    [ run intersects_sph_geo.cpp      : : : : algorithms_intersects_sph_geo ]
-    [ run intersects_sph.cpp          : : : : algorithms_intersects_sph ]
-    ;
-
+run intersects.cpp              : : : : algorithms_intersects ;
+run intersects_box_geometry.cpp : : : : algorithms_intersects_box_geometry ;
+run intersects_multi.cpp        : : : : algorithms_intersects_multi ;
+run intersects_self.cpp         : : : : algorithms_intersects_self ;
+run intersects_sph_geo.cpp      : : : : algorithms_intersects_sph_geo ;
+run intersects_sph.cpp          : : : : algorithms_intersects_sph ;

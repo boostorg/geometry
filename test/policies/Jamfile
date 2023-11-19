@@ -9,8 +9,5 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-policies
-    :
-    [ run compare.cpp        : : : : policies_compare ]
-    [ run rescale_policy.cpp : : : : policies_rescale_policy ]
-    ;
+run compare.cpp        : : : : policies_compare ;
+run rescale_policy.cpp : : : : policies_rescale_policy ;

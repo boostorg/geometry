@@ -8,14 +8,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-convex_hull
-    :
-    [ run convex_hull.cpp              : : : : algorithms_convex_hull ]
-    [ run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ]
-    [ run convex_hull_robust.cpp       : : : : algorithms_convex_hull_robust ]
-    [ run convex_hull_sph_geo.cpp      : : : : algorithms_convex_hull_sph_geo ]
-    [ run convex_hull.cpp              : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_alternative ]
-    [ run convex_hull_multi.cpp        : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_multi_alternative ]
-    [ run convex_hull_robust.cpp       : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_robust_alternative ]
-    [ run convex_hull_sph_geo.cpp      : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_sph_geo_alternative ]
-    ;
+run convex_hull.cpp              : : : : algorithms_convex_hull ;
+run convex_hull_multi.cpp        : : : : algorithms_convex_hull_multi ;
+run convex_hull_robust.cpp       : : : : algorithms_convex_hull_robust ;
+run convex_hull_sph_geo.cpp      : : : : algorithms_convex_hull_sph_geo ;
+run convex_hull.cpp              : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_alternative ;
+run convex_hull_multi.cpp        : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_multi_alternative ;
+run convex_hull_robust.cpp       : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_robust_alternative ;
+run convex_hull_sph_geo.cpp      : : : <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_convex_hull_sph_geo_alternative ;

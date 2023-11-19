@@ -14,15 +14,12 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-within
-    :
-    [ run within.cpp                    : : : : algorithms_within ]
-    [ run within_areal_areal.cpp        : : : : algorithms_within_areal_areal ]
-    [ run within_gc.cpp                 : : : : algorithms_within_gc ]
-    [ run within_linear_areal.cpp       : : : : algorithms_within_linear_areal ]
-    [ run within_linear_linear.cpp      : : : : algorithms_within_linear_linear ]
-    [ run within_multi.cpp              : : : : algorithms_within_multi ]
-    [ run within_pointlike_geometry.cpp : : : : algorithms_within_pointlike_geometry ]
-    [ run within_sph.cpp                : : : : algorithms_within_sph ]
-    [ run within_sph_geo.cpp            : : : : algorithms_within_sph_geo ]
-    ;
+run within.cpp                    : : : : algorithms_within ;
+run within_areal_areal.cpp        : : : : algorithms_within_areal_areal ;
+run within_gc.cpp                 : : : : algorithms_within_gc ;
+run within_linear_areal.cpp       : : : : algorithms_within_linear_areal ;
+run within_linear_linear.cpp      : : : : algorithms_within_linear_linear ;
+run within_multi.cpp              : : : : algorithms_within_multi ;
+run within_pointlike_geometry.cpp : : : : algorithms_within_pointlike_geometry ;
+run within_sph.cpp                : : : : algorithms_within_sph ;
+run within_sph_geo.cpp            : : : : algorithms_within_sph_geo ;

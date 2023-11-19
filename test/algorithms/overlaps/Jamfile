@@ -14,12 +14,8 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-overlaps
-    :
-    [ run overlaps.cpp       : : : : algorithms_overlaps ]
-    [ run overlaps_areal.cpp : : : : algorithms_overlaps_areal ]
-    [ run overlaps_box.cpp   : : : : algorithms_overlaps_box ]
-    [ run overlaps_gc.cpp    : : : : algorithms_overlaps_gc ]
-    [ run overlaps_sph.cpp   : : : : algorithms_overlaps_sph ]
-    ;
-
+run overlaps.cpp       : : : : algorithms_overlaps ;
+run overlaps_areal.cpp : : : : algorithms_overlaps_areal ;
+run overlaps_box.cpp   : : : : algorithms_overlaps_box ;
+run overlaps_gc.cpp    : : : : algorithms_overlaps_gc ;
+run overlaps_sph.cpp   : : : : algorithms_overlaps_sph ;
