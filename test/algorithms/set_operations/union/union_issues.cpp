@@ -43,7 +43,7 @@ void issue_1103()
     bg::union_(poly1, poly2, result);
 
     // Verify result. Before commit b1bebca the result was empty.
-    BOOST_CHECK_EQUAL(1, boost::size(result));
+    BOOST_CHECK_EQUAL(1, static_cast<int>(boost::size(result)));
     BOOST_CHECK_CLOSE(2.0, bg::area(result), 0.0001);
 }
 

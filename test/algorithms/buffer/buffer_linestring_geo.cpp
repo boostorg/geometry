@@ -71,7 +71,7 @@ void test_linestring()
     }
 
     settings.test_area = false;
-    auto const n = sizeof(testcases_aimes) / sizeof(testcases_aimes[0]);
+    int const n = sizeof(testcases_aimes) / sizeof(testcases_aimes[0]);
 
     // Cases (ouf of 197) where the guessed area estimations are not met.
     // If this needs to be changed, be sure to

@@ -64,7 +64,7 @@ void test_all()
 }
 
 template <typename CoordinateType>
-void test_ticket_10868(std::string const& wkt_out)
+void test_ticket_10868(/*std::string const& wkt_out*/)
 {
     using point_type = bg::model::point<CoordinateType, 2, bg::cs::cartesian>;
     using polygon_type = bg::model::polygon
