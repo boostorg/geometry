@@ -42,7 +42,7 @@ struct expectation_limits
     bool has_two_limits() const { return m_lower_limit < m_upper_limit; }
 
     template<typename T>
-    bool contains_logarithmic(const T& value, double tolerance) const
+    bool contains_logarithmic(T const& value, double tolerance) const
     {
         using std::abs;
         using std::log;
@@ -50,7 +50,7 @@ struct expectation_limits
     }
 
     template<typename T>
-    bool contains(const T& value, double percentage, bool logarithmic = false) const
+    bool contains(T const& value, double percentage, bool logarithmic = false) const
     {
         if (m_upper_limit < 1.0e-8)
         {
@@ -80,7 +80,7 @@ struct expectation_limits
                 : expectation_limits(this->m_lower_limit + a.m_lower_limit);
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const expectation_limits& lim)
+    friend std::ostream &operator<<(std::ostream &os, expectation_limits const& lim)
     {
         if (lim.has_two_limits())
         {

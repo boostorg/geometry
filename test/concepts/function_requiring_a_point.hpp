@@ -17,7 +17,7 @@ namespace bg = boost::geometry;
 namespace test
 {
     template <typename P, typename C>
-    inline void function_requiring_a_point(P& p1, const C& p2)
+    inline void function_requiring_a_point(P& p1, C const& p2)
     {
         BOOST_CONCEPT_ASSERT((bg::concepts::Point<P>));
         BOOST_CONCEPT_ASSERT((bg::concepts::ConstPoint<C>));

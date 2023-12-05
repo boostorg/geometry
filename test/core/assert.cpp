@@ -20,7 +20,7 @@
 struct assert_failure_exception
     : std::exception
 {
-    const char * what() const throw()
+    const char * what() const noexcept
     {
         return "assertion failure";
     }

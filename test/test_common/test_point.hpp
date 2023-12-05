@@ -74,7 +74,7 @@ template<> struct access<test::test_point, 0>
         return p.c1;
     }
 
-    static inline void set(test::test_point& p, const float& value)
+    static inline void set(test::test_point& p, float const& value)
     {
         p.c1 = value;
     }
@@ -87,7 +87,7 @@ template<> struct access<test::test_point, 1>
         return p.c2;
     }
 
-    static inline void set(test::test_point& p, const float& value)
+    static inline void set(test::test_point& p, float const& value)
     {
         p.c2 = value;
     }
@@ -100,7 +100,7 @@ template<> struct access<test::test_point, 2>
         return p.c3;
     }
 
-    static inline void set(test::test_point& p, const float& value)
+    static inline void set(test::test_point& p, float const& value)
     {
         p.c3 = value;
     }

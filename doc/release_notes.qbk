@@ -20,6 +20,18 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.84]
+[/=================]
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1138 1138] Fix difference of two polygons
+* [@https://github.com/boostorg/geometry/issues/1183 1183] Fix for union_ incomplete result polygon
+* [@https://github.com/boostorg/geometry/issues/1184 1184] Fix for intersection
+* [@https://github.com/boostorg/geometry/issues/1186 1186] Fix for union_ improper inner ring assignment
+* Various fixes of errors and warnings
+
+[/=================]
 [heading Boost 1.83]
 [/=================]
 

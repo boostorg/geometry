@@ -29,4 +29,5 @@ test-suite boost-geometry-algorithms-intersection
     [ run intersection_pl_l.cpp               : : : : algorithms_intersection_pl_l ]
     [ run intersection_pl_pl.cpp              : : : : algorithms_intersection_pl_pl ]
     [ run intersection_tupled.cpp             : : : : algorithms_intersection_tupled ]
+    [ run intersection_integer.cpp            : : : : algorithms_intersection_integer ]
     ;
