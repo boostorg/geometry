@@ -76,8 +76,8 @@ void test_get_distance_measure()
     do_test<Point>("simplex_left", {1.0, 0.0}, {1.0, 1.0}, {0.9, 0.5}, 1);
     do_test<Point>("simplex_right", {1.0, 0.0}, {1.0, 1.0}, {1.1, 0.5}, -1);
 
-    bool const is_float = std::is_same<coor_t, float>::value;
-    bool const is_double = std::is_same<coor_t, double>::value;
+    bool const is_float = std::is_floating_point<coor_t>::value && sizeof(coor_t) == 4;
+    bool const is_double = std::is_floating_point<coor_t>::value && sizeof(coor_t) == 8;
 
     // The issue 1183 where get_distance_measure failed for these coordinates.
     std::string const case_id = "issue_1183_";
