@@ -38,8 +38,8 @@ jobs:
         fi
         echo "BOOST_SELF=$(basename $GITHUB_WORKSPACE)" >> $GITHUB_ENV
         echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost-root" >> $GITHUB_ENV
-        echo "::set-output name=boost_self::$(basename $GITHUB_WORKSPACE)"
-        echo "::set-output name=boost_root::$GITHUB_WORKSPACE/boost-root"
+        echo "boost_self=$(basename $GITHUB_WORKSPACE)" >> "$GITHUB_OUTPUT"
+        echo "boost_root=$GITHUB_WORKSPACE/boost-root" >> "$GITHUB_OUTPUT"
 
     - name: Clone boostorg/boost
       run: |
