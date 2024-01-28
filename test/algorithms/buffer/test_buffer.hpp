@@ -15,11 +15,6 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_HPP
 
-#if defined(TEST_WITH_SVG)
-    // Define before including any buffer headerfile
-    #define BOOST_GEOMETRY_BUFFER_USE_HELPER_POINTS
-#endif
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>

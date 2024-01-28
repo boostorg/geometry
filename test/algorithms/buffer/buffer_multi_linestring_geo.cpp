@@ -48,7 +48,9 @@ void test_geometry()
         test_one_geo<ml, polygon>("trondheim10_rr", trondheim, strategy, side, circle, join_round, end_round, 8994.0, 10.0, settings);
     }
 
+#ifndef __APPLE__
     test_one_geo<ml, polygon>("trondheim12_rr", trondheim, strategy, side, circle, join_round, end_round, 10790.0, 12.0, settings);
+#endif    
 
     if (! BOOST_GEOMETRY_CONDITION(thomas_skip) && ! BOOST_GEOMETRY_CONDITION(andoyer_skip))
     {

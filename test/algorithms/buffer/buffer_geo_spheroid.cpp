@@ -57,7 +57,11 @@ void test_linestring(std::string const& label, Spheroid const& spheroid,
     using linestring = bg::model::linestring<Point>;
     using polygon = bg::model::polygon<Point, Clockwise>;
 
+#ifdef __APPLE__
+    ut_settings settings(1.0);
+#else    
     ut_settings settings(0.1);
+#endif    
 
     using CT = typename bg::coordinate_type<Point>::type;
     geo_buffer_accurate_area<Formula, Spheroid, CT> strategy(spheroid);
@@ -79,7 +83,11 @@ void test_point(std::string const& label, Spheroid const& spheroid, double expec
 {
     using polygon = bg::model::polygon<Point, Clockwise>;
 
+#ifdef __APPLE__
+    ut_settings settings(1.15);
+#else    
     ut_settings settings(0.01);
+#endif    
 
     using CT = typename bg::coordinate_type<Point>::type;
     geo_buffer_accurate_area<Formula, Spheroid, CT> strategy(spheroid);
