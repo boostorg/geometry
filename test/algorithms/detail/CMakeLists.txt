@@ -4,10 +4,12 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-add_subdirectory(area)
-add_subdirectory(buffer)
-add_subdirectory(detail)
-add_subdirectory(overlay)
-add_subdirectory(relate)
-add_subdirectory(set_operations)
-add_subdirectory(within)
+foreach(item IN ITEMS
+    calculate_point_order
+    approximately_equals
+    partition
+    tupled_output
+    visit
+  )
+  boost_geometry_add_unit_test("algorithms" ${item})
+endforeach()

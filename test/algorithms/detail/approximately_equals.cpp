@@ -14,6 +14,8 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/util/condition.hpp>
+
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 template <typename P>
@@ -81,18 +83,29 @@ void test_all(E const multiplier, std::size_t expected_index)
 
 int test_main(int, char* [])
 {
+    constexpr bool has_long_double =  sizeof(long double) > sizeof(double);
+
     double m = 1000.0;
-    test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 54);
+    if (BOOST_GEOMETRY_CONDITION(has_long_double))
+    {
+        test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 54);
+    }
     test_all<bg::model::point<double, 2, bg::cs::cartesian>>(m, 43);
     test_all<bg::model::point<float, 2, bg::cs::cartesian>>(m, 24);
 
     m *= 1000.0;
-    test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 44);
+    if (BOOST_GEOMETRY_CONDITION(has_long_double))
+    {
+        test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 44);
+    }
     test_all<bg::model::point<double, 2, bg::cs::cartesian>>(m, 33);
     test_all<bg::model::point<float, 2, bg::cs::cartesian>>(m, 24);
 
     m *= 1000.0;
-    test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 34);
+    if (BOOST_GEOMETRY_CONDITION(has_long_double))
+    {
+        test_all<bg::model::point<long double, 2, bg::cs::cartesian>>(m, 34);
+    }
     test_all<bg::model::point<double, 2, bg::cs::cartesian>>(m, 23);
     test_all<bg::model::point<float, 2, bg::cs::cartesian>>(m, 23);
 

@@ -14,41 +14,21 @@ function(boost_geometry_add_unit_test prefix item)
   set(unit_test_name "boost_geometry_${prefix}_${item}")
   add_executable(${unit_test_name} ${item}.cpp)
 
-  target_link_libraries(${unit_test_name} PRIVATE Boost::geometry)
-
+  # Add a dependendcy to Boost.Geometry
   target_link_libraries(${unit_test_name} 
     PRIVATE
-      Boost::algorithm
-      Boost::any
-      Boost::array
-      Boost::assert
-      Boost::concept_check
-      Boost::config
-      Boost::core
-      Boost::function_types
-      Boost::iterator
-      Boost::lexical_cast
-      Boost::math
-      Boost::move
-      Boost::mpl
-      Boost::multiprecision
-      Boost::numeric_conversion
-      Boost::qvm
-      Boost::range
-      Boost::rational
-      Boost::static_assert
-      Boost::throw_exception
-      Boost::tokenizer
-      Boost::tuple
-      Boost::type_traits
-      Boost::utility
-      Boost::variant
-  )
+      Boost::geometry)
 
-  target_include_directories(${unit_test_name} PRIVATE "${PROJECT_SOURCE_DIR}/test" .)
-
-  # Add the Boost.Test framework
-  target_include_directories(${unit_test_name} PRIVATE "${BOOST_SRC_DIR}/libs/test/include" .)
+  # For unit tests, add a dependency to the unit test framework (in header only mode)
+  target_link_libraries(${unit_test_name} 
+    PRIVATE
+      Boost::included_unit_test_framework)
+  
+  # Include the main Geometry test folder and the current folder
+  target_include_directories(${unit_test_name}
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/test" 
+      .)
 
   # To compile with C++14
   target_compile_features(${unit_test_name} PRIVATE cxx_std_14)

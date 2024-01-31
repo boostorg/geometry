@@ -13,6 +13,7 @@ add_library(boost_geometry INTERFACE)
 add_library(Boost::geometry ALIAS boost_geometry)
 
 target_include_directories(boost_geometry INTERFACE include)
+target_compile_features(boost_geometry INTERFACE cxx_std_14)
 
 target_link_libraries(boost_geometry
   INTERFACE
@@ -65,18 +66,15 @@ if(BOOST_GEOMETRY_BUILD_OPTIONAL)
     INTERFACE
       Boost::thread
   )
-endif()
 
-# Requirements for extensions
-if(BOOST_GEOMETRY_BUILD_OPTIONAL)
+  # Requirements for extensions
   target_link_libraries(boost_geometry
     INTERFACE
       Boost::endian
       Boost::predef
       )
-endif()
 
-target_compile_features(boost_geometry INTERFACE cxx_std_14)
+endif()
 
 if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
 
@@ -104,12 +102,13 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
           any
           lexical_cast
           math
+          multiprecision
           qvm
           rational
           serialization
           tokenizer
           variant
-          multiprecision)
+          test)
 
     if (BOOST_SRC_DIR_IS_VALID)
       set(BOOST_EXCLUDE_LIBRARIES ${PROJECT_NAME})
