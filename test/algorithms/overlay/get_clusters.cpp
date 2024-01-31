@@ -20,6 +20,8 @@
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+#include <boost/geometry/util/condition.hpp>
+
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <vector>
@@ -93,6 +95,7 @@ void test_get_clusters_border_cases(typename bg::coordinate_type<Point>::type ep
 
 int test_main(int, char* [])
 {
+    constexpr bool has_long_double =  sizeof(long double) > sizeof(double);
     using fp = bg::model::point<float, 2, bg::cs::cartesian>;
     using dp = bg::model::point<double, 2, bg::cs::cartesian>;
     using ep = bg::model::point<long double, 2, bg::cs::cartesian>;
@@ -101,11 +104,15 @@ int test_main(int, char* [])
     test_get_clusters<dp>();
     test_get_clusters<ep>();
 
-    // These constant relate to the threshold in get_clusters.hpp,
+    // These constant relate to the (earlier) thresholds in get_clusters.hpp,
     // and the used floating point type.
+    // (thresholds are now replaced by common_approximately_equals_epsilon_multiplier)
     test_get_clusters_border_cases<fp>(1.0e-5);
     test_get_clusters_border_cases<dp>(1.0e-14);
-    test_get_clusters_border_cases<ep>(1.0e-17);
+    if (BOOST_GEOMETRY_CONDITION(has_long_double))
+    {
+        test_get_clusters_border_cases<ep>(1.0e-17);
+    }
 
     return 0;
 }
