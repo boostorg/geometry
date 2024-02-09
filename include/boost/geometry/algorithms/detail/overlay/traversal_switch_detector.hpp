@@ -391,11 +391,19 @@ struct traversal_switch_detector
     {
         for (turn_type& turn : m_turns)
         {
+            constexpr auto order1 = geometry::point_order<Geometry1>::value;
+            constexpr bool reverse1 = (order1 == boost::geometry::counterclockwise)
+                ? ! Reverse1 : Reverse1;
+
+            constexpr auto order2 = geometry::point_order<Geometry2>::value;
+            constexpr bool reverse2 = (order2 == boost::geometry::counterclockwise)
+                ? ! Reverse2 : Reverse2;
+
             // For difference, for the input walked through in reverse,
             // the meaning is reversed: what is isolated is actually not,
             // and vice versa.
             bool const reverseMeaningInTurn
-                    = (Reverse1 || Reverse2)
+                    = (reverse1 || reverse2)
                       && ! turn.is_self()
                       && ! turn.is_clustered()
                       && uu_or_ii(turn)
@@ -409,8 +417,8 @@ struct traversal_switch_detector
                 {
                     bool const reverseMeaningInOp
                         = reverseMeaningInTurn
-                          && ((op.seg_id.source_index == 0 && Reverse1)
-                               || (op.seg_id.source_index == 1 && Reverse2));
+                          && ((op.seg_id.source_index == 0 && reverse1)
+                               || (op.seg_id.source_index == 1 && reverse2));
 
                     // It is assigned to isolated if it's property is "Yes",
                     // (one connected interior, or chained).
