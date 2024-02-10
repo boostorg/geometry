@@ -51,13 +51,13 @@ template
     typename Turns,
     typename Geometry1,
     typename Geometry2,
-    typename SideStrategy
+    typename Strategy
 >
 std::vector<std::size_t> gather_cluster_properties(
         Clusters& clusters, Turns& turns,
         bg::detail::overlay::operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
-        SideStrategy const& strategy)
+        Strategy const& strategy)
 {
     using namespace boost::geometry;
     using namespace boost::geometry::detail::overlay;
@@ -72,7 +72,7 @@ std::vector<std::size_t> gather_cluster_properties(
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, Strategy, std::less<int>
         > sbs_type;
 
     for (typename Clusters::iterator mit = clusters.begin();
@@ -165,7 +165,7 @@ std::vector<std::size_t> apply_overlay(
     // Gather cluster properties, with test option
     return ::gather_cluster_properties<Reverse1, Reverse2, OverlayType>(
             clusters, turns, bg::detail::overlay::operation_from_overlay<OverlayType>::value,
-                geometry1, geometry2, strategy.side());
+                geometry1, geometry2, strategy);
 }
 
 

@@ -84,7 +84,7 @@ template
     typename Turns,
     typename Clusters,
     typename RobustPolicy,
-    typename SideStrategy,
+    typename Strategy,
     typename Visitor
 >
 struct traversal
@@ -101,13 +101,13 @@ private :
     typedef sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType,
-            point_type, SideStrategy, side_compare_type
+            point_type, Strategy, side_compare_type
         > sbs_type;
 
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            RobustPolicy const& robust_policy, SideStrategy const& strategy,
+            RobustPolicy const& robust_policy, Strategy const& strategy,
             Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
@@ -656,7 +656,7 @@ public :
         int current_priority = 0;
         for (std::size_t i = 1; i < sbs.m_ranked_points.size(); i++)
         {
-            typename sbs_type::rp const& ranked_point = sbs.m_ranked_points[i];
+            auto const& ranked_point = sbs.m_ranked_points[i];
 
             if (ranked_point.rank > selected_rank)
             {
@@ -1037,7 +1037,7 @@ private :
     Turns& m_turns;
     Clusters const& m_clusters;
     RobustPolicy const& m_robust_policy;
-    SideStrategy m_strategy;
+    Strategy m_strategy;
     Visitor& m_visitor;
 };
 

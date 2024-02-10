@@ -9,7 +9,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/algorithms/disjoint.hpp>
