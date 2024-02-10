@@ -85,14 +85,13 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
 
     // Define sorter, sorting counter-clockwise such that polygons are on the
     // right side
-    typedef decltype(strategy.side()) side_strategy;
-    typedef bg::detail::overlay::sort_by_side::side_sorter
+    using sbs_type = bg::detail::overlay::sort_by_side::side_sorter
         <
             false, false, overlay_union,
-            point_type, side_strategy, std::less<int>
-        > sbs_type;
+            point_type, Strategy, std::less<int>
+        >;
 
-    sbs_type sbs(strategy.side());
+    sbs_type sbs(strategy);
 
     std::cout << "Case: " << case_id << std::endl;
 

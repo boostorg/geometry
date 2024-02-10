@@ -487,7 +487,7 @@ inline void enrich_intersection_points(Turns& turns,
                 Reverse2,
                 OverlayType
             >(clusters, turns, target_operation,
-              geometry1, geometry2, strategy.side()); // TODO: pass strategy
+              geometry1, geometry2, strategy);
 
         detail::overlay::cleanup_clusters(turns, clusters);
     }

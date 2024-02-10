@@ -427,12 +427,12 @@ template
     typename Clusters,
     typename Geometry1,
     typename Geometry2,
-    typename SideStrategy
+    typename Strategy
 >
 inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         operation_type for_operation,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
-        SideStrategy const& strategy)
+        Strategy const& strategy)
 {
     typedef typename boost::range_value<Turns>::type turn_type;
     typedef typename turn_type::point_type point_type;
@@ -442,7 +442,7 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
     // right side
     typedef sort_by_side::side_sorter
         <
-            Reverse1, Reverse2, OverlayType, point_type, SideStrategy, std::less<int>
+            Reverse1, Reverse2, OverlayType, point_type, Strategy, std::less<int>
         > sbs_type;
 
     for (auto& pair : clusters)
