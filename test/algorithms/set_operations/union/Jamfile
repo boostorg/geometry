@@ -18,8 +18,6 @@ test-suite boost-geometry-algorithms-union
     :
     [ run union.cpp               : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_union ]
     [ run union_multi.cpp         : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE : algorithms_union_multi ]
-    [ run union.cpp               : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_union_alternative ]
-    [ run union_multi.cpp         : : : <define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE <define>BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE : algorithms_union_multi_alternative ]
     [ run union_aa_geo.cpp        : : : : algorithms_union_aa_geo ]
     [ run union_aa_sph.cpp        : : : : algorithms_union_aa_sph ]
     [ run union_gc.cpp            : : : : algorithms_union_gc ]
