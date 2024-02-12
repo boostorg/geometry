@@ -8,7 +8,6 @@
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
-
 #include <iostream>
 
 #ifndef BOOST_TEST_MODULE
@@ -1300,7 +1299,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
     // NOTE: if get_turn_info uses policy_verify_all then the result is different
 
   #if BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
-         from_wkt<ML>("MULTILINESTRING((-0.7654 8.88178e-16,-0.7654 0,5 3))"),
+         from_wkt<ML>("MULTILINESTRING((-0.7654 0,5 3))"),
   #else
          from_wkt<ML>("MULTILINESTRING((-0.756651 3.30964),(1.60494 6),\
                       (2.51371 6),(3.26673 6),(4 6),(8.18862 3.07616),\
@@ -1337,7 +1336,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
                       (8.5655 2.85228),(5.26567 4.81254),(4 3.8),\
                       (1.4995 3.27036),(0.591231 3.43401),\
                       (-0.706503 3.66784),\
-                      (-0.7654 8.88178e-16,-0.7654 0,5 3))"),
+                      (-0.7654 0,5 3))"),
          from_wkt<ML>("MULTILINESTRING((1.87562 6.68515),(1.60494 6),\
                       (1.18124 4.9275),(1.00439 4.47984),(0.91526 4.25422),\
                       (0.729883 3.78498),(0.614728 3.49349),\
@@ -1368,7 +1367,7 @@ BOOST_AUTO_TEST_CASE( test_intersection_ml_ml_degenerate )
                       (9.98265 0.00543606),(9.09826 -100.515944),\
                       (7.08745 -329.0674155),(5.06428 -559.024344),\
                       (3.23365 -767.0972558),(3.16036 -775.427199),\
-                      (-0.7654 8.88178e-16,-0.7654 0,5 3))"),
+                      (-0.7654 0,5 3))"),
   #endif // isolated
           "mlmli21",
           1e-4

@@ -459,6 +459,7 @@ struct cartesian_segments
 
         bool collinear = sides.collinear();
 
+        //TODO: remove this when rescaling is removed
         // Calculate the differences again
         // (for rescaled version, this is different from dx_p etc)
         coordinate_type const dx_p = get<0>(p2) - get<0>(p1);
@@ -531,6 +532,16 @@ struct cartesian_segments
                             p_is_point, q_is_point);
                 }
             }
+        }
+
+        if (equals_point_point(p1, q1) || equals_point_point(p1, q2))
+        {
+            return Policy::segments_share_common_point(sides, sinfo, p1);
+        }
+
+        if (equals_point_point(p2, q1) || equals_point_point(p2, q2))
+        {
+            return Policy::segments_share_common_point(sides, sinfo, p2);
         }
 
         return Policy::segments_crosses(sides, sinfo, p, q);

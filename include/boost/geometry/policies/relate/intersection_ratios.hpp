@@ -55,6 +55,16 @@ struct segments_intersection_ratios
         return result;
     }
 
+    template<typename SegmentIntersectionInfo, typename Point>
+    static inline return_type
+    segments_share_common_point(side_info const&, SegmentIntersectionInfo const& sinfo,
+                                Point const& p)
+    {
+        return_type result;
+        result.assign(sinfo);
+        return result;
+    }
+
     template <typename Segment1, typename Segment2, typename Ratio>
     static inline return_type segments_collinear(
         Segment1 const& , Segment2 const& ,
