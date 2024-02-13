@@ -18,6 +18,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_WITHIN_NO_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_WITHIN_NO_TURNS_HPP
 
+#include <boost/type_traits/is_base_of.hpp>
+
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 

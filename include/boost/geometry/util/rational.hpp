@@ -16,6 +16,7 @@
 
 #include <boost/rational.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
+#include <boost/numeric/conversion/converter.hpp>
 
 #include <boost/geometry/util/coordinate_cast.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
