@@ -54,9 +54,8 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/partition_lambda.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 #include <boost/geometry/util/for_each_with_index.hpp>
@@ -358,22 +357,46 @@ struct buffered_piece_collection
     // Check if a turn is inside any of the originals
     inline void check_turn_in_original()
     {
+        auto const& strategy = m_strategy;
+
         turn_in_original_visitor
             <
                 turn_vector_type,
                 Strategy
             > visitor(m_turns, m_strategy);
 
-        geometry::partition
+        // Partition over the turns and original rings, visiting
+        // all turns located in an original and changing the turn's
+        // "count_in_original" and "within_original" values
+        partition_lambda
             <
-                box_type,
-                include_turn_policy,
-                detail::partition::include_all_policy
-            >::apply(m_turns, original_rings, visitor,
-                     turn_get_box<Strategy>(m_strategy),
-                     turn_in_original_overlaps_box<Strategy>(m_strategy),
-                     original_get_box<Strategy>(m_strategy),
-                     original_overlaps_box<Strategy>(m_strategy));
+                box_type
+            >(m_turns, original_rings,
+                [&strategy](auto& box, auto const& turn)
+                {
+                    if (turn.is_turn_traversable && ! turn.within_original)
+                    {
+                        geometry::expand(box, turn.point, strategy);
+                    }
+                },
+                [&strategy](auto& box, auto const& turn)
+                {
+                    return ! geometry::detail::disjoint::disjoint_point_box(turn.point,
+                        box, strategy);
+                },
+                [&strategy](auto& box, auto const& original)
+                {
+                    geometry::expand(box, original.m_box, strategy);
+                },
+                [&strategy](auto& box, auto const& original)
+                {
+                    return ! detail::disjoint::disjoint_box_box(box,
+                        original.m_box, strategy);
+                },
+                [&visitor](auto const& turn, auto const& original)
+                {
+                    return visitor.apply(turn, original);
+                });
 
         bool const deflate = m_distance_strategy.negative();
 
@@ -447,6 +470,8 @@ struct buffered_piece_collection
     {
         update_piece_administration();
 
+        auto const& strategy = m_strategy;
+
         {
             // Calculate the turns
             piece_turn_visitor
@@ -461,32 +486,75 @@ struct buffered_piece_collection
 
             detail::sectionalize::enlarge_sections(monotonic_sections, m_strategy);
 
-            geometry::partition
-                <
-                    robust_box_type
-                >::apply(monotonic_sections, visitor,
-                         detail::section::get_section_box<Strategy>(m_strategy),
-                         detail::section::overlaps_section_box<Strategy>(m_strategy));
+            partition_lambda<robust_box_type>(monotonic_sections,
+                [&strategy](auto& box, auto const& section)
+                {
+                    geometry::expand(box, section.bounding_box, strategy);
+                },
+                [&strategy](auto const& box, auto const& section)
+                {
+                    return ! detail::disjoint::disjoint_box_box(box,
+                        section.bounding_box, strategy);
+                },
+                [&visitor](auto const& section1, auto const& section2)
+                {
+                    return visitor.apply(section1, section2);
+                }
+            );
         }
+
 
         update_turn_administration();
 
         {
-            // Check if turns are inside pieces
             turn_in_piece_visitor
                 <
                     typename geometry::cs_tag<point_type>::type,
                     turn_vector_type, piece_vector_type, DistanceStrategy, Strategy
                 > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
 
-            geometry::partition
-                <
-                    box_type
-                >::apply(m_turns, m_pieces, visitor,
-                         turn_get_box<Strategy>(m_strategy),
-                         turn_overlaps_box<Strategy>(m_strategy),
-                         piece_get_box<Strategy>(m_strategy),
-                         piece_overlaps_box<Strategy>(m_strategy));
+            // Partition over the turns and pieces, checking if turns are inside pieces.
+            partition_lambda<box_type>(m_turns, m_pieces,
+                [&strategy](auto& box, auto const& turn)
+                {
+                    geometry::expand(box, turn.point, strategy);
+                },
+                [&strategy](auto& box, auto const& turn)
+                {
+                    return ! geometry::detail::disjoint::disjoint_point_box(turn.point,
+                        box, strategy);
+                },
+                [&strategy](auto& box, auto const& piece)
+                {
+                    if (piece.m_piece_border.m_has_envelope)
+                    {
+                        geometry::expand(box, piece.m_piece_border.m_envelope, strategy);
+                    }
+                },
+                [&strategy](auto& box, auto const& piece)
+                {
+                    if (piece.type == strategy::buffer::buffered_flat_end
+                        || piece.type == strategy::buffer::buffered_concave)
+                    {
+                        // Turns cannot be inside a flat end (though they can be on border)
+                        // Neither we need to check if they are inside concave helper pieces
+
+                        // Skip all pieces not used as soon as possible
+                        return false;
+                    }
+                    if (! piece.m_piece_border.m_has_envelope)
+                    {
+                        return false;
+                    }
+
+                    return ! geometry::detail::disjoint::disjoint_box_box(box,
+                        piece.m_piece_border.m_envelope, strategy);
+                },
+                [&visitor](auto const& turn, auto const& piece)
+                {
+                    return visitor.apply(turn, piece);
+                }
+            );
         }
     }
 

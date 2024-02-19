@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/algorithms/detail/not.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/partition_lambda.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_geometry.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -123,98 +123,6 @@ template
 class multipoint_linear_point
 {
 private:
-    // structs for partition -- start
-    template <typename Strategy>
-    struct expand_box_point
-    {
-        expand_box_point(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Box, typename Point>
-        inline void apply(Box& total, Point const& point) const
-        {
-            geometry::expand(total, point, m_strategy);
-        }
-
-        Strategy const& m_strategy;
-    };
-
-    template <typename Strategy>
-    struct expand_box_segment
-    {
-        explicit expand_box_segment(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Box, typename Segment>
-        inline void apply(Box& total, Segment const& segment) const
-        {
-            geometry::expand(total,
-                             geometry::return_envelope<Box>(segment, m_strategy),
-                             m_strategy);
-        }
-
-        Strategy const& m_strategy;
-    };
-
-    template <typename Strategy>
-    struct overlaps_box_point
-    {
-        explicit overlaps_box_point(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Box, typename Point>
-        inline bool apply(Box const& box, Point const& point) const
-        {
-            return ! geometry::disjoint(point, box, m_strategy);
-        }
-
-        Strategy const& m_strategy;
-    };
-
-    template <typename Strategy>
-    struct overlaps_box_segment
-    {
-        explicit overlaps_box_segment(Strategy const& strategy)
-            : m_strategy(strategy)
-        {}
-
-        template <typename Box, typename Segment>
-        inline bool apply(Box const& box, Segment const& segment) const
-        {
-            return ! geometry::disjoint(segment, box, m_strategy);
-        }
-
-        Strategy const& m_strategy;
-    };
-
-    template <typename OutputIterator, typename Strategy>
-    class item_visitor_type
-    {
-    public:
-        item_visitor_type(OutputIterator& oit, Strategy const& strategy)
-            : m_oit(oit)
-            , m_strategy(strategy)
-        {}
-
-        template <typename Item1, typename Item2>
-        inline bool apply(Item1 const& item1, Item2 const& item2)
-        {
-            action_selector_pl
-                <
-                    PointOut, overlay_intersection
-                >::apply(item1, Policy::apply(item1, item2, m_strategy), m_oit);
-
-            return true;
-        }
-
-    private:
-        OutputIterator& m_oit;
-        Strategy const& m_strategy;
-    };
-    // structs for partition -- end
 
     class segment_range
     {
@@ -246,24 +154,46 @@ private:
                                                    OutputIterator oit,
                                                    Strategy const& strategy)
     {
-        item_visitor_type<OutputIterator, Strategy> item_visitor(oit, strategy);
 
         // TODO: disjoint Segment/Box may be called in partition multiple times
         // possibly for non-cartesian segments which could be slow. We should consider
         // passing a range of bounding boxes of segments after calculating them once.
         // Alternatively instead of a range of segments a range of Segment/Envelope pairs
         // should be passed, where envelope would be lazily calculated when needed the first time
-        geometry::partition
-            <
-                geometry::model::box
+        using box_type = geometry::model::box
                     <
                         typename boost::range_value<MultiPoint>::type
-                    >
-            >::apply(multipoint, segment_range(linear), item_visitor,
-                     expand_box_point<Strategy>(strategy),
-                     overlaps_box_point<Strategy>(strategy),
-                     expand_box_segment<Strategy>(strategy),
-                     overlaps_box_segment<Strategy>(strategy));
+                    >;
+
+        partition_lambda
+            <
+                box_type
+            >(multipoint, segment_range(linear),
+                [&strategy](auto& box, auto const& point)
+                 {
+                    geometry::expand(box, point, strategy);
+                 },
+                [&strategy](auto const& box, auto const& point)
+                {
+                    return ! geometry::disjoint(point, box, strategy);
+                },
+                [&strategy](auto& box, auto const& segment)
+                {
+                    geometry::expand(box, geometry::return_envelope<box_type>(segment, strategy), strategy);
+                },
+                [&strategy](auto const& box, auto const& segment)
+                {
+                    return ! geometry::disjoint(box, segment, strategy);
+                },
+                [&](auto const& point, auto const& segment)
+                {
+                    action_selector_pl
+                    <
+                        PointOut, overlay_intersection
+                    >::apply(point, Policy::apply(point, segment, strategy), oit);
+                    return true;
+                }
+            );
 
         return oit;
     }

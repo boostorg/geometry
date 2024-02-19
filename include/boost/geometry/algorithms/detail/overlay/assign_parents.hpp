@@ -24,7 +24,7 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/partition_lambda.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 
@@ -132,109 +132,6 @@ struct ring_info_helper
 };
 
 
-template <typename Strategy>
-struct ring_info_helper_get_box
-{
-    ring_info_helper_get_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
-
-    template <typename Box, typename InputItem>
-    inline void apply(Box& total, InputItem const& item) const
-    {
-        assert_coordinate_type_equal(total, item.envelope);
-        geometry::expand(total, item.envelope, m_strategy);
-    }
-
-    Strategy const& m_strategy;
-};
-
-template <typename Strategy>
-struct ring_info_helper_overlaps_box
-{
-    ring_info_helper_overlaps_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
-
-    template <typename Box, typename InputItem>
-    inline bool apply(Box const& box, InputItem const& item) const
-    {
-        assert_coordinate_type_equal(box, item.envelope);
-        return ! geometry::detail::disjoint::disjoint_box_box(
-                    box, item.envelope, m_strategy);
-    }
-
-    Strategy const& m_strategy;
-};
-
-// Segments intersection Strategy
-template
-<
-    typename Geometry1,
-    typename Geometry2,
-    typename Collection,
-    typename RingMap,
-    typename Strategy
->
-struct assign_visitor
-{
-    typedef typename RingMap::mapped_type ring_info_type;
-
-    Geometry1 const& m_geometry1;
-    Geometry2 const& m_geometry2;
-    Collection const& m_collection;
-    RingMap& m_ring_map;
-    Strategy const& m_strategy;
-    bool m_check_for_orientation;
-
-    inline assign_visitor(Geometry1 const& g1, Geometry2 const& g2, Collection const& c,
-                          RingMap& map, Strategy const& strategy, bool check)
-        : m_geometry1(g1)
-        , m_geometry2(g2)
-        , m_collection(c)
-        , m_ring_map(map)
-        , m_strategy(strategy)
-        , m_check_for_orientation(check)
-    {}
-
-    template <typename Item>
-    inline bool apply(Item const& outer, Item const& inner, bool first = true)
-    {
-        if (first && outer.abs_area < inner.abs_area)
-        {
-            // Apply with reversed arguments
-            apply(inner, outer, false);
-            return true;
-        }
-
-        if (m_check_for_orientation
-         || (math::larger(outer.real_area, 0)
-          && math::smaller(inner.real_area, 0)))
-        {
-            ring_info_type& inner_in_map = m_ring_map[inner.id];
-
-            if (geometry::covered_by(inner_in_map.point, outer.envelope, m_strategy)
-               && within_selected_input(inner_in_map, inner.id, outer.id,
-                                        m_geometry1, m_geometry2, m_collection,
-                                        m_strategy)
-               )
-            {
-                // Assign a parent if there was no earlier parent, or the newly
-                // found parent is smaller than the previous one
-                if (inner_in_map.parent.source_index == -1
-                    || outer.abs_area < inner_in_map.parent_area)
-                {
-                    inner_in_map.parent = outer.id;
-                    inner_in_map.parent_area = outer.abs_area;
-                }
-            }
-        }
-
-        return true;
-    }
-};
-
-
 template
 <
     overlay_type OverlayType,
@@ -336,19 +233,51 @@ inline void assign_parents(Geometry1 const& geometry1,
             }
         }
 
-        assign_visitor
-            <
-                Geometry1, Geometry2,
-                RingCollection, RingMap,
-                Strategy
-            > visitor(geometry1, geometry2, collection, ring_map, strategy, check_for_orientation);
+        auto assign_to_map = [&](auto const& outer, auto const& inner)
+        {
+            if (check_for_orientation
+                || (math::larger(outer.real_area, 0) && math::smaller(inner.real_area, 0)))
+            {
+                auto& inner_in_map = ring_map[inner.id];
 
-        geometry::partition
+                if (geometry::covered_by(inner_in_map.point, outer.envelope, strategy)
+                && within_selected_input(inner_in_map, inner.id, outer.id,
+                                         geometry1, geometry2, collection, strategy)
+                )
+                {
+                    // Assign a parent if there was no earlier parent, or the newly
+                    // found parent is smaller than the previous one
+                    if (inner_in_map.parent.source_index == -1
+                        || outer.abs_area < inner_in_map.parent_area)
+                    {
+                        inner_in_map.parent = outer.id;
+                        inner_in_map.parent_area = outer.abs_area;
+                    }
+                }
+            }
+            return true;
+        };
+
+        partition_lambda
             <
                 box_type
-            >::apply(vector, visitor,
-                     ring_info_helper_get_box<Strategy>(strategy),
-                     ring_info_helper_overlaps_box<Strategy>(strategy));
+            >(vector,
+                [&strategy](auto& box, auto const& info)
+                {
+                    geometry::expand(box, info.envelope, strategy);
+                },
+                [&strategy](auto const& box, auto const& info)
+                {
+                    return ! geometry::detail::disjoint::disjoint_box_box(
+                        box, info.envelope, strategy);
+                },
+                [&](auto const& info1, auto const& info2)
+                {
+                    return info1.abs_area >= info2.abs_area
+                            ? assign_to_map(info1, info2)
+                            : assign_to_map(info2, info1);
+                }
+            );
     }
 
     if (check_for_orientation)

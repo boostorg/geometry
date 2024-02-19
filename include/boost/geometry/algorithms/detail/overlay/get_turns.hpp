@@ -32,10 +32,9 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_ll.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_la.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-#include <boost/geometry/algorithms/detail/partition.hpp>
+#include <boost/geometry/algorithms/detail/partition_lambda.hpp>
 #include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
@@ -437,68 +436,6 @@ template
 <
     typename Geometry1, typename Geometry2,
     bool Reverse1, bool Reverse2,
-    typename TurnPolicy,
-    typename Strategy,
-    typename RobustPolicy,
-    typename Turns,
-    typename InterruptPolicy
->
-struct section_visitor
-{
-    int m_source_id1;
-    Geometry1 const& m_geometry1;
-    int m_source_id2;
-    Geometry2 const& m_geometry2;
-    Strategy const& m_strategy;
-    RobustPolicy const& m_rescale_policy;
-    Turns& m_turns;
-    InterruptPolicy& m_interrupt_policy;
-
-    section_visitor(int id1, Geometry1 const& g1,
-                    int id2, Geometry2 const& g2,
-                    Strategy const& strategy,
-                    RobustPolicy const& robust_policy,
-                    Turns& turns,
-                    InterruptPolicy& ip)
-        : m_source_id1(id1), m_geometry1(g1)
-        , m_source_id2(id2), m_geometry2(g2)
-        , m_strategy(strategy)
-        , m_rescale_policy(robust_policy)
-        , m_turns(turns)
-        , m_interrupt_policy(ip)
-    {}
-
-    template <typename Section>
-    inline bool apply(Section const& sec1, Section const& sec2)
-    {
-        if (! detail::disjoint::disjoint_box_box(sec1.bounding_box,
-                                                 sec2.bounding_box,
-                                                 m_strategy) )
-        {
-            // false if interrupted
-            return get_turns_in_sections
-                    <
-                        Geometry1,
-                        Geometry2,
-                        Reverse1, Reverse2,
-                        Section, Section,
-                        TurnPolicy
-                    >::apply(m_source_id1, m_geometry1, sec1,
-                             m_source_id2, m_geometry2, sec2,
-                             false, false,
-                             m_strategy,
-                             m_rescale_policy,
-                             m_turns, m_interrupt_policy);
-        }
-        return true;
-    }
-
-};
-
-template
-<
-    typename Geometry1, typename Geometry2,
-    bool Reverse1, bool Reverse2,
     typename TurnPolicy
 >
 class get_turns_generic
@@ -536,22 +473,49 @@ public:
                                                      sec2, strategy, 1);
 
         // ... and then partition them, intersecting overlapping sections in visitor method
-        section_visitor
-            <
-                Geometry1, Geometry2,
-                Reverse1, Reverse2,
-                TurnPolicy,
-                Strategy, RobustPolicy,
-                Turns, InterruptPolicy
-            > visitor(source_id1, geometry1, source_id2, geometry2,
-                      strategy, robust_policy, turns, interrupt_policy);
 
-        geometry::partition
+        auto visit_sections = [&](auto const& section1, auto const& section2)
+        {
+            if (detail::disjoint::disjoint_box_box(section1.bounding_box,
+                                                   section2.bounding_box,
+                                                   strategy))
+            {
+                return true;
+            }
+
+            // This will return false if interrupted
+            return get_turns_in_sections
+                    <
+                        Geometry1,
+                        Geometry2,
+                        Reverse1, Reverse2,
+                        std::decay_t<decltype(section1)>,
+                        std::decay_t<decltype(section2)>,
+                        TurnPolicy
+                    >::apply(source_id1, geometry1, section1,
+                            source_id2, geometry2, section2,
+                            false, false,
+                            strategy,
+                            robust_policy,
+                            turns, interrupt_policy);
+        };
+
+        auto expand_box = [&strategy](auto& box, auto const& section)
+        {
+            geometry::expand(box, section.bounding_box, strategy);
+        };
+        auto overlaps_box = [&strategy](auto const& box, auto const& section)
+        {
+            return ! detail::disjoint::disjoint_box_box(box, section.bounding_box, strategy);
+        };
+
+        partition_lambda
             <
                 box_type
-            >::apply(sec1, sec2, visitor,
-                     detail::section::get_section_box<Strategy>(strategy),
-                     detail::section::overlaps_section_box<Strategy>(strategy));
+            >(sec1, sec2,
+              expand_box, overlaps_box,
+              expand_box, overlaps_box,
+              visit_sections);
     }
 };
 
