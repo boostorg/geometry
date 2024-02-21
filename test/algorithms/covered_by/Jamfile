@@ -14,10 +14,7 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-covered_by
-    :
-    [ run covered_by.cpp         : : : : algorithms_covered_by ]
-    [ run covered_by_gc.cpp      : : : : algorithms_covered_by_gc ]
-    [ run covered_by_sph.cpp     : : : : algorithms_covered_by_sph ]
-    [ run covered_by_sph_geo.cpp : : : : algorithms_covered_by_sph_geo ]
-    ;
+run covered_by.cpp         : : : : algorithms_covered_by ;
+run covered_by_gc.cpp      : : : : algorithms_covered_by_gc ;
+run covered_by_sph.cpp     : : : : algorithms_covered_by_sph ;
+run covered_by_sph_geo.cpp : : : : algorithms_covered_by_sph_geo ;

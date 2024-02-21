@@ -9,8 +9,4 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-io-dsv
-    :
-    [ run dsv_multi.cpp : : : : dsv_multi ]
-    ;
-
+run dsv_multi.cpp : : : : dsv_multi ;

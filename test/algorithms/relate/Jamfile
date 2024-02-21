@@ -14,14 +14,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-relate
-    :
-    [ run relate_const_custom.cpp       : : : : algorithms_relate_const_custom ]
-    [ run relate_areal_areal.cpp        : : : : algorithms_relate_areal_areal ]
-    [ run relate_areal_areal_sph.cpp    : : : : algorithms_relate_areal_areal_sph ]
-    [ run relate_linear_areal.cpp       : : : : algorithms_relate_linear_areal ]
-    [ run relate_linear_areal_sph.cpp   : : : : algorithms_relate_linear_areal_sph ]
-    [ run relate_linear_linear.cpp      : : : : algorithms_relate_linear_linear ]
-    [ run relate_linear_linear_sph.cpp  : : : : algorithms_relate_linear_linear_sph ]
-    [ run relate_pointlike_geometry.cpp : : : : algorithms_relate_pointlike_geometry ]
-    ;
+run relate_const_custom.cpp       : : : : algorithms_relate_const_custom ;
+run relate_areal_areal.cpp        : : : : algorithms_relate_areal_areal ;
+run relate_areal_areal_sph.cpp    : : : : algorithms_relate_areal_areal_sph ;
+run relate_linear_areal.cpp       : : : : algorithms_relate_linear_areal ;
+run relate_linear_areal_sph.cpp   : : : : algorithms_relate_linear_areal_sph ;
+run relate_linear_linear.cpp      : : : : algorithms_relate_linear_linear ;
+run relate_linear_linear_sph.cpp  : : : : algorithms_relate_linear_linear_sph ;
+run relate_pointlike_geometry.cpp : : : : algorithms_relate_pointlike_geometry ;

@@ -13,9 +13,6 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-detail-sections
-    : 
-    [ run sectionalize.cpp       : : : : algorithms_sectionalize ]
-    [ run sectionalize_const.cpp : : : : algorithms_sectionalize_const ]
-    [ run range_by_section.cpp   : : : : algorithms_range_by_section ]
-     ;
+run sectionalize.cpp       : : : : algorithms_sectionalize ;
+run sectionalize_const.cpp : : : : algorithms_sectionalize_const ;
+run range_by_section.cpp   : : : : algorithms_range_by_section ;

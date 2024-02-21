@@ -13,13 +13,10 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-detail
-    :
-    [ run calculate_point_order.cpp : : : : algorithms_calculate_point_order ]
-    [ run approximately_equals.cpp  : : : : algorithms_approximately_equals ]
-    [ run partition.cpp             : : : : algorithms_partition ]
-    [ run tupled_output.cpp         : : : : algorithms_tupled_output ]
-    [ run visit.cpp                 : : : : algorithms_visit ]
-    ;
+run calculate_point_order.cpp : : : : algorithms_calculate_point_order ;
+run approximately_equals.cpp  : : : : algorithms_approximately_equals ;
+run partition.cpp             : : : : algorithms_partition ;
+run tupled_output.cpp         : : : : algorithms_tupled_output ;
+run visit.cpp                 : : : : algorithms_visit ;
 
 build-project sections ;

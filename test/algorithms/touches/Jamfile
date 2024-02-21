@@ -14,12 +14,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-touches
-    :
-    [ run touches.cpp       : : : : algorithms_touches ]
-    [ run touches_box.cpp   : : : : algorithms_touches_box ]
-    [ run touches_gc.cpp    : : : : algorithms_touches_gc ]
-    [ run touches_multi.cpp : : : : algorithms_touches_multi ]
-    [ run touches_self.cpp  : : : : algorithms_touches_self ]
-    [ run touches_sph.cpp   : : : : algorithms_touches_sph ]
-    ;
+run touches.cpp       : : : : algorithms_touches ;
+run touches_box.cpp   : : : : algorithms_touches_box ;
+run touches_gc.cpp    : : : : algorithms_touches_gc ;
+run touches_multi.cpp : : : : algorithms_touches_multi ;
+run touches_self.cpp  : : : : algorithms_touches_self ;
+run touches_sph.cpp   : : : : algorithms_touches_sph ;

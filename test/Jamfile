@@ -27,10 +27,7 @@ project boost-geometry-test
     ;
 
 # Run minimal testset
-test-suite boost-geometry-minimal
-    :
-    [ run minimal.cpp : : : : minimal ]
-    ;
+run minimal.cpp : : : : minimal ;
 
 # If not on Travis run all of the tests
 if ! [ os.environ TRAVIS ]

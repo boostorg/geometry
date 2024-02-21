@@ -14,11 +14,8 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-envelope_expand
-    :
-    [ run envelope.cpp                 : : : : algorithms_envelope ]
-    [ run envelope_multi.cpp           : : : : algorithms_envelope_multi ]
-    [ run envelope_on_spheroid.cpp     : : : : algorithms_envelope_on_spheroid ]
-    [ run expand.cpp                   : : : : algorithms_expand ]
-    [ run expand_on_spheroid.cpp       : : : : algorithms_expand_on_spheroid ]
-    ;
+run envelope.cpp                 : : : : algorithms_envelope ;
+run envelope_multi.cpp           : : : : algorithms_envelope_multi ;
+run envelope_on_spheroid.cpp     : : : : algorithms_envelope_on_spheroid ;
+run expand.cpp                   : : : : algorithms_expand ;
+run expand_on_spheroid.cpp       : : : : algorithms_expand_on_spheroid ;

@@ -14,12 +14,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-iterators
-    :
-    [ run closing_iterator.cpp       : : : : iterators_closing_iterator ]
-    [ run concatenate_iterator.cpp   : : : : iterators_concatenate_iterator ]
-    [ run ever_circling_iterator.cpp : : : : iterators_ever_circling_iterator ]
-    [ run flatten_iterator.cpp       : : : : iterators_flatten_iterator ]
-    [ run point_iterator.cpp         : : : : iterators_point_iterator ]
-    [ run segment_iterator.cpp       : : : : iterators_segment_iterator ]
-    ;
+run closing_iterator.cpp       : : : : iterators_closing_iterator ;
+run concatenate_iterator.cpp   : : : : iterators_concatenate_iterator ;
+run ever_circling_iterator.cpp : : : : iterators_ever_circling_iterator ;
+run flatten_iterator.cpp       : : : : iterators_flatten_iterator ;
+run point_iterator.cpp         : : : : iterators_point_iterator ;
+run segment_iterator.cpp       : : : : iterators_segment_iterator ;

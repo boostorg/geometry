@@ -15,21 +15,18 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-distance
-    :
-    [ run distance.cpp                     : : : : algorithms_distance ]
-    [ run distance_ca_ar_ar.cpp            : : : : algorithms_distance_ca_ar_ar ]
-    [ run distance_ca_l_ar.cpp             : : : : algorithms_distance_ca_l_ar ]
-    [ run distance_ca_l_l.cpp              : : : : algorithms_distance_ca_l_l ]
-    [ run distance_ca_pl_ar.cpp            : : : : algorithms_distance_ca_pl_ar ]
-    [ run distance_ca_pl_l.cpp             : : : : algorithms_distance_ca_pl_l ]
-    [ run distance_ca_pl_pl.cpp            : : : : algorithms_distance_ca_pl_pl ]
-    [ run distance_se_geo_ar_ar.cpp           : : : : algorithms_distance_se_geo_ar_ar ]
-    [ run distance_se_geo_l_ar.cpp            : : : : algorithms_distance_se_geo_l_ar ]
-    [ run distance_se_geo_l_l.cpp             : : : : algorithms_distance_se_geo_l_l ]
-    [ run distance_se_geo_pl_ar.cpp           : : : : algorithms_distance_se_geo_pl_ar ]
-    [ run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_pl_l ]
-    [ run distance_se_geo_pl_pl.cpp           : : : : algorithms_distance_se_geo_pl_pl ]
-    [ run distance_se_pl_l.cpp             : : : : algorithms_distance_se_pl_l ]
-    [ run distance_se_pl_pl.cpp            : : : : algorithms_distance_se_pl_pl ]
-    ;
+run distance.cpp                     : : : : algorithms_distance ;
+run distance_ca_ar_ar.cpp            : : : : algorithms_distance_ca_ar_ar ;
+run distance_ca_l_ar.cpp             : : : : algorithms_distance_ca_l_ar ;
+run distance_ca_l_l.cpp              : : : : algorithms_distance_ca_l_l ;
+run distance_ca_pl_ar.cpp            : : : : algorithms_distance_ca_pl_ar ;
+run distance_ca_pl_l.cpp             : : : : algorithms_distance_ca_pl_l ;
+run distance_ca_pl_pl.cpp            : : : : algorithms_distance_ca_pl_pl ;
+run distance_se_geo_ar_ar.cpp        : : : : algorithms_distance_se_geo_ar_ar ;
+run distance_se_geo_l_ar.cpp         : : : : algorithms_distance_se_geo_l_ar ;
+run distance_se_geo_l_l.cpp          : : : : algorithms_distance_se_geo_l_l ;
+run distance_se_geo_pl_ar.cpp        : : : : algorithms_distance_se_geo_pl_ar ;
+run distance_geo_pl_l.cpp            : : : : algorithms_distance_geo_pl_l ;
+run distance_se_geo_pl_pl.cpp        : : : : algorithms_distance_se_geo_pl_pl ;
+run distance_se_pl_l.cpp             : : : : algorithms_distance_se_pl_l ;
+run distance_se_pl_pl.cpp            : : : : algorithms_distance_se_pl_pl ;

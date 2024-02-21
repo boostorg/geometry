@@ -8,9 +8,6 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-test-suite boost-geometry-algorithms-perimeter
-    :
-    [ run perimeter.cpp                  : : : : algorithms_perimeter ]
-    [ run perimeter_geo.cpp              : : : : algorithms_perimeter_geo ]
-    [ run perimeter_sph.cpp              : : : : algorithms_perimeter_sph ]
-    ;
+run perimeter.cpp                  : : : : algorithms_perimeter ;
+run perimeter_geo.cpp              : : : : algorithms_perimeter_geo ;
+run perimeter_sph.cpp              : : : : algorithms_perimeter_sph ;
