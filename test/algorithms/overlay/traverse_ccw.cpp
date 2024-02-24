@@ -144,8 +144,8 @@ intersect(Geometry1 const& g1, Geometry2 const& g2, std::string const& name,
                 // Create a rounded off point
                 std::pair<int, int> p
                     = std::make_pair(
-                        boost::numeric_cast<int>(0.5 + 10 * bg::get<0>(turn.point)),
-                        boost::numeric_cast<int>(0.5 + 10 * bg::get<1>(turn.point))
+                        util::numeric_cast<int>(0.5 + 10 * bg::get<0>(turn.point)),
+                        util::numeric_cast<int>(0.5 + 10 * bg::get<1>(turn.point))
                         );
                 std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:10px";
 

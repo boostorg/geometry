@@ -18,6 +18,7 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <boost/geometry/util/coordinate_cast.hpp>
+#include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
 
@@ -132,48 +133,6 @@ struct bounds<rational<T> >
 };
 
 }} // namespace boost::numeric
-
-
-// Support for boost::numeric_cast to int and to double (necessary for SVG-mapper)
-namespace boost { namespace numeric
-{
-
-template
-<
-    typename T,
-    typename Traits,
-    typename OverflowHandler,
-    typename Float2IntRounder,
-    typename RawConverter,
-    typename UserRangeChecker
->
-struct converter<int, rational<T>, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
-{
-    static inline int convert(rational<T> const& arg)
-    {
-        return int(rational_cast<double>(arg));
-    }
-};
-
-template
-<
-    typename T,
-    typename Traits,
-    typename OverflowHandler,
-    typename Float2IntRounder,
-    typename RawConverter,
-    typename UserRangeChecker
->
-struct converter<double, rational<T>, Traits, OverflowHandler, Float2IntRounder, RawConverter, UserRangeChecker>
-{
-    static inline double convert(rational<T> const& arg)
-    {
-        return rational_cast<double>(arg);
-    }
-};
-
-
-}}
 
 
 #endif // BOOST_GEOMETRY_UTIL_RATIONAL_HPP

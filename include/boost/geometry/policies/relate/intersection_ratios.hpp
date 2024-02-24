@@ -14,7 +14,6 @@
 #include <string>
 
 #include <boost/concept_check.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/core/access.hpp>

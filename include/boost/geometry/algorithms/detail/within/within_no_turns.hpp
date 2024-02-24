@@ -18,6 +18,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_WITHIN_NO_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_WITHIN_WITHIN_NO_TURNS_HPP
 
+
+#include <type_traits>
+
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 
@@ -142,8 +145,8 @@ template <typename Geometry1,
           typename Geometry2,
           typename Tag1 = typename geometry::tag<Geometry1>::type,
           typename Tag2 = typename geometry::tag<Geometry2>::type,
-          bool IsMulti1 = boost::is_base_of<geometry::multi_tag, Tag1>::value,
-          bool IsMulti2 = boost::is_base_of<geometry::multi_tag, Tag2>::value>
+          bool IsMulti1 = std::is_base_of<geometry::multi_tag, Tag1>::value,
+          bool IsMulti2 = std::is_base_of<geometry::multi_tag, Tag2>::value>
 struct within_no_turns_multi
 {
     template <typename Strategy> static inline

@@ -18,7 +18,6 @@
 #include <vector>
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -44,6 +43,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
+#include <boost/geometry/util/numeric_cast.hpp>
 
 #include <boost/geometry/strategies/disjoint.hpp>
 #include <boost/geometry/strategies/distance.hpp>
@@ -285,7 +285,7 @@ private:
         template <typename T>
         static inline Result apply(T const& t)
         {
-            return boost::numeric_cast<Result>(t);
+            return util::numeric_cast<Result>(t);
         }
     };
 
