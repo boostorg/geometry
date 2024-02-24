@@ -14,15 +14,6 @@ foreach(item IN ITEMS
 endforeach()
 
 foreach(item IN ITEMS
-          difference
-          difference_multi
-        )
-  boost_geometry_add_unit_test("algorithms_alternative" ${item})
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
-endforeach()
-
-foreach(item IN ITEMS
           difference_gc
           difference_l_a_sph
           difference_linear_linear

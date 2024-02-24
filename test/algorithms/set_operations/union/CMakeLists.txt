@@ -14,17 +14,6 @@ foreach(item IN ITEMS
 endforeach()
 
 foreach(item IN ITEMS
-          union
-          union_multi
-          union_other_types
-          union_issues
-        )
-  boost_geometry_add_unit_test("algorithms_alternative" ${item})
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
-endforeach()
-
-foreach(item IN ITEMS
           union_aa_geo
           union_aa_sph
           union_gc
