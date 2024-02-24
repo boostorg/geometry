@@ -4,11 +4,11 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-add_subdirectory(area)
-add_subdirectory(buffer)
-add_subdirectory(convex_hull)
-add_subdirectory(detail)
-add_subdirectory(overlay)
-add_subdirectory(relate)
-add_subdirectory(set_operations)
-add_subdirectory(within)
+foreach(item IN ITEMS
+    convex_hull
+    convex_hull_multi
+    convex_hull_robust
+    convex_hull_sph_geo
+  )
+  boost_geometry_add_unit_test("algorithms" ${item})
+endforeach()

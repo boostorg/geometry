@@ -13,15 +13,6 @@ foreach(item IN ITEMS
 endforeach()
 
 foreach(item IN ITEMS
-          intersection
-          intersection_multi
-        )
-  boost_geometry_add_unit_test("algorithms_alternative" ${item})
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
-endforeach()
-
-foreach(item IN ITEMS
           intersection_box
           intersection_gc
           intersection_linear_linear
@@ -33,11 +24,4 @@ foreach(item IN ITEMS
           intersection_integer
         )
   boost_geometry_add_unit_test("algorithms" ${item})
-endforeach()
-
-foreach(item IN ITEMS
-          intersection_linear_linear
-        )
-  boost_geometry_add_unit_test("algorithms_alternative" ${item})
-  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
 endforeach()
