@@ -12,7 +12,8 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <boost/rational.hpp>
 
-namespace boost { namespace geometry
+namespace boost { namespace geometry { namespace util
+
 {
 
 #ifndef DOXYGEN_NO_DETAIL
@@ -42,9 +43,6 @@ struct numeric_caster<Target, rational<T>>
 } // namespace detail
 #endif
 
-namespace util
-{
-
 // Calls either boost::numeric_cast, or functionality specific for Boost.Geometry
 // such as rational_cast for Boost.Rational
 template <typename Target, typename Source>
@@ -53,8 +51,6 @@ inline Target numeric_cast(Source const& source)
     return detail::numeric_caster<Target, Source>::apply(source);
 }
 
-}
-
-}} // namespace boost::geometry
+}}} // namespace boost::geometry::util
 
 #endif // BOOST_GEOMETRY_UTIL_NUMERIC_CAST_HPP
