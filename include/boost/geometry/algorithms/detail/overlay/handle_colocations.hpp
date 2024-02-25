@@ -97,7 +97,6 @@ inline void cleanup_clusters(Turns& turns, Clusters& clusters)
     }
 
     remove_clusters(turns, clusters);
-    colocate_clusters(clusters, turns);
 }
 
 template <typename Turn, typename IndexSet>
@@ -463,6 +462,21 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
 
         cinfo.open_count = sbs.open_count(for_operation);
 
+        // Determine spikes
+        cinfo.spike_count = 0;
+        for (std::size_t i = 0; i + 1 < sbs.m_ranked_points.size(); i++)
+        {
+            auto const& current = sbs.m_ranked_points[i];
+            auto const& next = sbs.m_ranked_points[i + 1];
+            if (current.rank == next.rank
+                && current.direction == detail::overlay::sort_by_side::dir_from
+                && next.direction == detail::overlay::sort_by_side::dir_to)
+            {
+                // It leaves, from cluster point, and immediately returns.
+                cinfo.spike_count += 1;
+            }
+        }
+
         bool const set_startable = OverlayType != overlay_dissolve;
 
         // Unset the startable flag for all 'closed' zones. This does not
@@ -475,7 +489,8 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
             turn_operation_type& op = turn.operations[ranked.operation_index];
 
             if (set_startable
-                    && for_operation == operation_union && cinfo.open_count == 0)
+                && for_operation == operation_union
+                && cinfo.open_count == 0)
             {
                 op.enriched.startable = false;
             }

@@ -972,8 +972,9 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     {
         collection.check_turn_in_original();
     }
-
-    collection.verify_turns();
+    collection.handle_colocations();
+    collection.check_turn_in_pieces();
+    collection.make_traversable_consistent_per_cluster();
 
     // Visit the piece collection. This does nothing (by default), but
     // optionally a debugging tool can be attached (e.g. console or svg),

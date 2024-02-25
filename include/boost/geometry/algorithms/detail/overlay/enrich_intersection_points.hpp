@@ -41,6 +41,7 @@
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/for_each_with_index.hpp>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
@@ -383,6 +384,7 @@ inline void enrich_intersection_points(Turns& turns,
             ? detail::overlay::operation_intersection
             : detail::overlay::operation_union;
     constexpr bool is_dissolve = OverlayType == overlay_dissolve;
+    constexpr bool is_buffer = OverlayType == overlay_buffer;
 
     using turn_type = typename boost::range_value<Turns>::type;
     using indexed_turn_operation = detail::overlay::indexed_turn_operation
@@ -396,16 +398,36 @@ inline void enrich_intersection_points(Turns& turns,
             std::vector<indexed_turn_operation>
         >;
 
-    // From here on, turn indexes are used (in clusters, next_index, etc)
-    // and turns may not be DELETED - they may only be flagged as discarded
-    discard_duplicate_start_turns(turns, geometry1, geometry2);
+    // Turns are often used by index (in clusters, next_index, etc)
+    // and turns may therefore NOT be DELETED - they may only be flagged as discarded
 
     bool has_cc = false;
-    bool const has_colocations
-        = detail::overlay::handle_colocations
+    bool has_colocations = false;
+
+    if BOOST_GEOMETRY_CONSTEXPR (! is_buffer)
+    {
+        // Handle colocations, gathering clusters and (below) their properties.
+        has_colocations = detail::overlay::handle_colocations
+                    <
+                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+                    >(turns, clusters, robust_policy);
+        // Gather cluster properties (using even clusters with
+        // discarded turns - for open turns)
+        detail::overlay::gather_cluster_properties
             <
-                Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
-            >(turns, clusters, robust_policy);
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, target_operation,
+            geometry1, geometry2, strategy);
+    }
+    else
+    {
+        // For buffer, this was already done before calling enrich_intersection_points.
+        has_colocations = ! clusters.empty();
+    }
+
+    discard_duplicate_start_turns(turns, geometry1, geometry2);
 
     // Discard turns not part of target overlay
     for (auto& turn : turns)
@@ -479,17 +501,8 @@ inline void enrich_intersection_points(Turns& turns,
 
     if (has_colocations)
     {
-        // First gather cluster properties (using even clusters with
-        // discarded turns - for open turns), then clean up clusters
-        detail::overlay::gather_cluster_properties
-            <
-                Reverse1,
-                Reverse2,
-                OverlayType
-            >(clusters, turns, target_operation,
-              geometry1, geometry2, strategy);
-
         detail::overlay::cleanup_clusters(turns, clusters);
+        detail::overlay::colocate_clusters(clusters, turns);
     }
 
     // After cleaning up clusters assign the next turns
