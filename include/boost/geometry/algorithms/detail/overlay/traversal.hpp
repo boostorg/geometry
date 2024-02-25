@@ -559,16 +559,18 @@ public :
         return true;
     }
 
+    // Returns a priority, the one with the highst priority will be selected
+    //   0: not OK
+    //   1: OK following spike out
+    //   2: OK but next turn is in same cluster
+    //   3: OK
+    //   4: OK and start turn matches
+    //   5: OK and start turn and start operation both match, this is the best
     inline int priority_of_turn_in_cluster_union(sort_by_side::rank_type selected_rank,
             typename sbs_type::rp const& ranked_point,
-            std::set<signed_size_type> const& cluster_indices,
+            cluster_info const& cinfo,
             signed_size_type start_turn_index, int start_op_index) const
     {
-        // Returns 0: not OK
-        // Returns 1: OK but next turn is in same cluster
-        // Returns 2: OK
-        // Returns 3: OK and start turn matches
-        // Returns 4: OK and start turn and start op both match
         if (ranked_point.rank != selected_rank
             || ranked_point.direction != sort_by_side::dir_to)
         {
@@ -589,19 +591,23 @@ public :
         {
             // Check counts: in some cases interior rings might be generated with
             // polygons on both sides. For dissolve it can be anything.
-            return 0;
+
+            // If this forms a spike, going to/from the cluster point in the same
+            // (opposite) direction, it can still be used.
+            return cinfo.spike_count > 0 ? 1 : 0;
         }
 
         bool const to_start = ranked_point.turn_index == start_turn_index;
         bool const to_start_index = ranked_point.operation_index == start_op_index;
 
         bool const next_in_same_cluster
-                = cluster_indices.count(op.enriched.get_next_turn_index()) > 0;
+                = cinfo.turn_indices.count(op.enriched.get_next_turn_index()) > 0;
 
-        return to_start && to_start_index ? 4
-            : to_start ? 3
-            : next_in_same_cluster ? 1
-            : 2
+        // Return the priority as described above
+        return to_start && to_start_index ? 5
+            : to_start ? 4
+            : next_in_same_cluster ? 2
+            : 3
             ;
     }
 
@@ -647,7 +653,7 @@ public :
     }
 
     inline bool select_from_cluster_union(signed_size_type& turn_index,
-        std::set<signed_size_type> const& cluster_indices,
+        cluster_info const& cinfo,
         int& op_index, sbs_type const& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
@@ -664,7 +670,7 @@ public :
             }
 
             int const priority = priority_of_turn_in_cluster_union(selected_rank,
-                ranked_point, cluster_indices, start_turn_index, start_op_index);
+                ranked_point, cinfo, start_turn_index, start_op_index);
 
             if (priority > current_priority)
             {
@@ -791,6 +797,24 @@ public :
             return false;
         }
 
+        if (is_union && cinfo.open_count == 0 && cinfo.spike_count > 0)
+        {
+            // Leave the cluster from the spike.
+            for (std::size_t i = 0; i + 1 < sbs.m_ranked_points.size(); i++)
+            {
+                auto const& current = sbs.m_ranked_points[i];
+                auto const& next = sbs.m_ranked_points[i + 1];
+                if (current.rank == next.rank
+                    && current.direction == detail::overlay::sort_by_side::dir_from
+                    && next.direction == detail::overlay::sort_by_side::dir_to)
+                {
+                    turn_index = next.turn_index;
+                    op_index = next.operation_index;
+                    return true;
+                }
+            }
+        }
+
         cluster_exits<OverlayType, Turns, sbs_type> exits(m_turns, cinfo.turn_indices, sbs);
 
         if (exits.apply(turn_index, op_index))
@@ -802,7 +826,7 @@ public :
 
         if (is_union)
         {
-            result = select_from_cluster_union(turn_index, cinfo.turn_indices,
+            result = select_from_cluster_union(turn_index, cinfo,
                                                op_index, sbs,
                                                start_turn_index, start_op_index);
             if (! result)
