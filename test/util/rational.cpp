@@ -17,6 +17,7 @@
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/rational.hpp>
 
 void test_coordinate_cast(std::string const& s, int expected_nom, int expected_denom)
@@ -26,6 +27,15 @@ void test_coordinate_cast(std::string const& s, int expected_nom, int expected_d
     BOOST_CHECK_EQUAL(a.denominator(), expected_denom);
 }
 
+void test_numeric_cast()
+{
+    const boost::rational<int> r1(3, 4);
+    BOOST_CHECK_CLOSE(bg::detail::numeric_cast<double>(r1), 0.75, 0.00001);
+
+    const boost::rational<int> r2(10, 4);
+    BOOST_CHECK_CLOSE(bg::detail::numeric_cast<double>(r2), 2.5, 0.00001);
+    BOOST_CHECK_EQUAL(bg::detail::numeric_cast<int>(r2), 2);
+}
 
 void test_wkt(std::string const& wkt, std::string const expected_wkt)
 {
@@ -51,6 +61,8 @@ int test_main(int, char* [])
 
     test_coordinate_cast("3/2", 3, 2);
     test_coordinate_cast("-3/2", -3, 2);
+
+    test_numeric_cast();
 
     test_wkt("POINT(1.5 2.75)", "POINT(3/2 11/4)");
     test_wkt("POINT(3/2 11/4)", "POINT(3/2 11/4)");

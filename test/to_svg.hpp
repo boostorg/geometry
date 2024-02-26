@@ -53,9 +53,9 @@ inline void turns_to_svg(Turns const& turns, Mapper& mapper)
             // Create a rounded off point
             std::pair<int, int> p
                     = std::make_pair(
-                          boost::numeric_cast<int>(half
+                          util::numeric_cast<int>(half
                                                    + ten * bg::get<0>(turn.point)),
-                          boost::numeric_cast<int>(half
+                          util::numeric_cast<int>(half
                                                    + ten * bg::get<1>(turn.point))
                           );
             std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:12px";
