@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2023.
 // Modifications copyright (c) 2017-2023 Oracle and/or its affiliates.
@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -459,7 +459,7 @@ public :
 
     void find_open()
     {
-        if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_buffer))
+        if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_buffer)
         {
             find_open_by_piece_index();
         }
