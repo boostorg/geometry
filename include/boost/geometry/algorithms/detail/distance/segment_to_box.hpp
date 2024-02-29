@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2014-2023 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -40,7 +42,7 @@
 #include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/util/calculation_type.hpp>
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
@@ -154,21 +156,23 @@ public:
             }
         }
 
-        if (BOOST_GEOMETRY_CONDITION(is_comparable<ps_strategy_type>::value))
+        if BOOST_GEOMETRY_CONSTEXPR (is_comparable<ps_strategy_type>::value)
         {
             return cd[imin];
         }
-
-        if (imin < 4)
+        else // else prevents unreachable code warning
         {
-            return strategy.apply(box_points[imin], p[0], p[1]);
-        }
-        else
-        {
-            unsigned int bimin = imin - 4;
-            return strategy.apply(p[bimin],
-                                  *bit_min[bimin].first,
-                                  *bit_min[bimin].second);
+            if (imin < 4)
+            {
+                return strategy.apply(box_points[imin], p[0], p[1]);
+            }
+            else
+            {
+                unsigned int bimin = imin - 4;
+                return strategy.apply(p[bimin],
+                                      *bit_min[bimin].first,
+                                      *bit_min[bimin].second);
+            }
         }
     }
 };

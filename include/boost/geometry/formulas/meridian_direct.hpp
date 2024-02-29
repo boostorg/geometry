@@ -23,7 +23,7 @@
 #include <boost/geometry/formulas/quarter_meridian.hpp>
 #include <boost/geometry/formulas/result_direct.hpp>
 
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/math.hpp>
 
 namespace boost { namespace geometry { namespace formula
@@ -66,7 +66,7 @@ public:
 
         CT azimuth = north ? c0 : pi;
 
-        if (BOOST_GEOMETRY_CONDITION(CalcCoordinates))
+        if BOOST_GEOMETRY_CONSTEXPR (CalcCoordinates)
         {
             CT s0 = meridian_inverse<CT, Order>::apply(la1, spheroid);
             int signed_distance = north ? distance : -distance;
@@ -74,7 +74,7 @@ public:
             result.lat2 = apply(s0 + signed_distance, spheroid);
         }
 
-        if (BOOST_GEOMETRY_CONDITION(CalcRevAzimuth))
+        if BOOST_GEOMETRY_CONSTEXPR (CalcRevAzimuth)
         {
             result.reverse_azimuth = azimuth;
 
@@ -92,7 +92,7 @@ public:
 
         }
 
-        if (BOOST_GEOMETRY_CONDITION(CalcQuantities))
+        if BOOST_GEOMETRY_CONSTEXPR (CalcQuantities)
         {
             CT const b = CT(get_radius<2>(spheroid));
             CT const f = formula::flattening<CT>(spheroid);

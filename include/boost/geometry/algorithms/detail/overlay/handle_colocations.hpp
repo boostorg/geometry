@@ -1,11 +1,10 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2020.
 // Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -37,7 +36,7 @@
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-#include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_HANDLE_COLOCATIONS)
 #  include <iostream>
@@ -338,7 +337,7 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters,
     // on turns which are discarded afterwards
     set_colocation<OverlayType>(turns, clusters);
 
-    if (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection))
+    if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_intersection)
     {
         discard_interior_exterior_turns
             <
@@ -510,11 +509,13 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
                 continue;
             }
 
-            if (BOOST_GEOMETRY_CONDITION(OverlayType == overlay_difference)
-                    && is_self_turn<OverlayType>(turn))
+            if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_difference)
             {
-                // TODO: investigate
-                continue;
+                if (is_self_turn<OverlayType>(turn))
+                {
+                    // TODO: investigate
+                    continue;
+                }
             }
 
             if ((for_operation == operation_union

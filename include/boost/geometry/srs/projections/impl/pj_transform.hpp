@@ -252,7 +252,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Transform Z to meters if it isn't already.                      */
 /* -------------------------------------------------------------------- */
-    if( BOOST_GEOMETRY_CONDITION(srcdefn.vto_meter != 1.0 && dimension > 2) )
+    if( srcdefn.vto_meter != 1.0 && BOOST_GEOMETRY_CONDITION(dimension > 2) )
     {
         for( std::size_t i = 0; i < point_count; i++ )
         {
@@ -589,7 +589,7 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
 /* -------------------------------------------------------------------- */
 /*      Transform Z from meters if needed.                              */
 /* -------------------------------------------------------------------- */
-    if( dstdefn.vto_meter != 1.0 && dimension > 2 )
+    if( dstdefn.vto_meter != 1.0 && BOOST_GEOMETRY_CONDITION(dimension > 2) )
     {
         for( std::size_t i = 0; i < point_count; i++ )
         {
