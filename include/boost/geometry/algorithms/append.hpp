@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2023.
 // Modifications copyright (c) 2014-2023, Oracle and/or its affiliates.
@@ -60,7 +61,7 @@ struct to_range_point
     static inline void apply(Geometry& geometry, Point const& point,
                              signed_size_type = -1, signed_size_type = 0)
     {
-        typename geometry::point_type<Geometry>::type copy;
+        geometry::point_type_t<Geometry> copy;
         geometry::detail::conversion::convert_point_to_point(point, copy);
         traits::push_back<Geometry>::apply(geometry, copy);
     }
@@ -90,7 +91,7 @@ struct to_polygon_point
     static inline void apply(Polygon& polygon, Point const& point,
                              signed_size_type ring_index, signed_size_type = 0)
     {
-        using ring_type = typename ring_type<Polygon>::type;
+        using ring_type = ring_type_t<Polygon>;
 
         if (ring_index == -1)
         {
@@ -112,18 +113,16 @@ struct to_polygon_range
     static inline void apply(Polygon& polygon, Range const& range,
                              signed_size_type ring_index, signed_size_type = 0)
     {
-        using ring_type = typename ring_type<Polygon>::type;
-        using exterior_ring_type = typename ring_return_type<Polygon>::type;
-        using interior_ring_range_type = typename interior_return_type<Polygon>::type;
-
+        using ring_type = ring_type_t<Polygon>;
+        
         if (ring_index == -1)
         {
-            exterior_ring_type ext_ring = exterior_ring(polygon);
+            auto&& ext_ring = exterior_ring(polygon);
             to_range_range::apply<ring_type, Range>(ext_ring, range);
         }
         else if (ring_index < signed_size_type(num_interior_rings(polygon)))
         {
-            interior_ring_range_type int_rings = interior_rings(polygon);
+            auto&& int_rings = interior_rings(polygon);
             to_range_range::apply<ring_type, Range>(range::at(int_rings, ring_index), range);
         }
     }
@@ -159,8 +158,8 @@ template
 <
     typename Geometry,
     typename RangeOrPoint,
-    typename Tag = typename geometry::tag<Geometry>::type,
-    typename OtherTag = typename geometry::tag<RangeOrPoint>::type
+    typename Tag = geometry::tag_t<Geometry>,
+    typename OtherTag = geometry::tag_t<RangeOrPoint>
 >
 struct append
     : detail::append::append_no_action

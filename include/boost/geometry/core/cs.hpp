@@ -3,10 +3,10 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020, Oracle and/or its affiliates.
-
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -237,11 +237,15 @@ struct cs_tag<cs::undefined>
 template <typename Geometry>
 struct cs_tag
 {
-    typedef typename traits::cs_tag
+    using type = typename traits::cs_tag
         <
-            typename geometry::coordinate_system<Geometry>::type
-        >::type type;
+            geometry::coordinate_system_t<Geometry>
+        >::type;
 };
+
+
+template <typename Geometry>
+using cs_tag_t = typename cs_tag<Geometry>::type;
 
 
 namespace traits
@@ -287,11 +291,15 @@ namespace detail
 template <typename Geometry>
 struct cs_angular_units
 {
-    typedef typename traits::cs_angular_units
+    using type = typename traits::cs_angular_units
         <
-            typename geometry::coordinate_system<Geometry>::type
-        >::type type;
+            geometry::coordinate_system_t<Geometry>
+        >::type;
 };
+
+
+template <typename Geometry>
+using cs_angular_units_t = typename cs_angular_units<Geometry>::type;
 
 
 template <typename Units, typename CsTag>
@@ -331,6 +339,11 @@ struct cs_tag_to_coordinate_system<Units, geographic_tag>
 {
     typedef cs::geographic<Units> type;
 };
+
+
+template <typename Units, typename CsTag>
+using cs_tag_to_coordinate_system_t = typename cs_tag_to_coordinate_system<Units, CsTag>::type;
+
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

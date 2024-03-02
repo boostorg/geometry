@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2022.
 // Modifications copyright (c) 2020-2022, Oracle and/or its affiliates.
@@ -100,6 +101,12 @@ struct top_dim<geometry_collection_tag> : std::integral_constant<int, -1> {};
 template <typename Geometry>
 struct topological_dimension
     : core_dispatch::top_dim<typename tag<Geometry>::type> {};
+
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename Geometry>
+inline constexpr int topological_dimension_v = topological_dimension<Geometry>::value;
+#endif
 
 
 }} // namespace boost::geometry
