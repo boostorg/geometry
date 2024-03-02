@@ -14,9 +14,11 @@
 #ifndef BOOST_GEOMETRY_UTIL_RATIONAL_HPP
 #define BOOST_GEOMETRY_UTIL_RATIONAL_HPP
 
-#include <boost/rational.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
+// Contains specializations for Boost.Rational
 
+#include <boost/rational.hpp>
+
+#include <boost/geometry/util/bounds.hpp>
 #include <boost/geometry/util/coordinate_cast.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
@@ -111,14 +113,30 @@ struct select_most_precise<boost::rational<T>, double>
     typedef typename boost::rational<T> type;
 };
 
-
-}} // namespace boost::geometry
-
-
-// Specializes boost::rational to boost::numeric::bounds
-namespace boost { namespace numeric
+namespace util
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
+// Specialize numeric_caster, needed for geomery::util::numeric_cast, for Boost.Rational
+// Without it, code using Boost.Rational does not compile
+template <typename Target, typename T>
+struct numeric_caster<Target, rational<T>>
+{
+   static inline Target apply(rational<T> const& source)
+    {
+        return boost::rational_cast<Target>(source);
+    }
+};
+
+} // namespace detail
+#endif
+
+
+// Specializes geometry::util::bounds for Boost.Rational
+// Without it, bounds contains (0,1) by default for Boost.Rational
 template<class T>
 struct bounds<rational<T> >
 {
@@ -132,7 +150,9 @@ struct bounds<rational<T> >
     }
 };
 
-}} // namespace boost::numeric
+} // namespace util
+
+}} // namespace boost::geometry
 
 
 #endif // BOOST_GEOMETRY_UTIL_RATIONAL_HPP
