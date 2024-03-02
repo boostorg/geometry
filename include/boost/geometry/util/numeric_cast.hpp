@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_UTIL_NUMERIC_CAST_HPP
 
 #include <boost/numeric/conversion/cast.hpp>
-#include <boost/rational.hpp>
 
 namespace boost { namespace geometry { namespace util
 
@@ -30,21 +29,11 @@ struct numeric_caster
     }
 };
 
-// Specialization for Boost.Rational
-template <typename Target, typename T>
-struct numeric_caster<Target, rational<T>>
-{
-   static inline Target apply(rational<T> const& source)
-    {
-        return boost::rational_cast<Target>(source);
-    }
-};
-
 } // namespace detail
 #endif
 
 // Calls either boost::numeric_cast, or functionality specific for Boost.Geometry
-// such as rational_cast for Boost.Rational
+// (such as rational_cast for Boost.Rational)
 template <typename Target, typename Source>
 inline Target numeric_cast(Source const& source)
 {

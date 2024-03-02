@@ -48,3 +48,4 @@ if (NOT TARGET tests)
 endif()
 
 add_subdirectory(algorithms)
+add_subdirectory(util)

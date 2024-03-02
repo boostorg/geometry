@@ -22,8 +22,6 @@
 #include <iostream>
 #include <string>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include <from_wkt.hpp>
 #include <geometry_test_common.hpp>
 #include "test_envelope_expand_on_spheroid.hpp"
@@ -38,6 +36,7 @@
 #include <boost/geometry/index/detail/algorithms/is_valid.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/util/bounds.hpp>
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -492,8 +491,8 @@ void test_empty_geometry(std::string const& case_id, std::string const& wkt)
     typedef test_envelope_on_sphere_or_spheroid<Geometry, B> tester;
 
     typedef typename bg::coordinate_type<Geometry>::type ct;
-    ct high_val = boost::numeric::bounds<ct>::highest();
-    ct low_val = boost::numeric::bounds<ct>::lowest();
+    ct const high_val = bg::util::bounds<ct>::highest();
+    ct const low_val = bg::util::bounds<ct>::lowest();
 
     if (BOOST_GEOMETRY_CONDITION(dim == 2))
     {
