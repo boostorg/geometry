@@ -28,6 +28,7 @@
 #include <boost/geometry/geometries/register/linestring.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/rational.hpp>
 
 #include "test_intersection.hpp"
@@ -64,6 +65,8 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
+    constexpr bool is_ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
+
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -310,6 +313,17 @@ void test_areal()
     TEST_INTERSECTION(issue_861, 1, -1, 1.4715007684573677693e-10);
 #endif
 
+    TEST_INTERSECTION(issue_1229, 0, -1, 0);
+    
+    {
+        // For CCW this test case currently reports as invalid
+        ut_settings settings;
+        settings.set_test_validity(! is_ccw);
+        TEST_INTERSECTION_WITH(issue_1231, 0, 1, 1, -1, 54.701340543162516, settings);
+    }
+
+    TEST_INTERSECTION(issue_1244, 1, -1, 7);
+
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
@@ -341,7 +355,12 @@ void test_areal()
         case_104[0], case_104[1],
         0, -1, 0.0);
 
-    TEST_INTERSECTION(case_105, 1, 34, 76.0);
+    {
+        // For CCW this test case currently reports as invalid
+        ut_settings settings;
+        settings.set_test_validity(! is_ccw);
+        TEST_INTERSECTION_WITH(case_105, 0, 1, 1, 34, 76.0, settings);
+    }
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
 
@@ -414,15 +433,15 @@ void test_areal()
 
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
 
-    // Formation of an interior ring is optional
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
-        mysql_23023665_10[0], mysql_23023665_10[1],
-        1, optional(), -1, 54.701340543162523);
 
-    // Formation of an interior ring is optional
-    test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
-        mysql_23023665_11[0], mysql_23023665_11[1],
-        1, optional(), -1, 35.933385462482065);
+    {
+        // Formation of an interior ring is optional for these cases
+        // For CCW an invalidity is reported
+        ut_settings settings;
+        settings.set_test_validity(! is_ccw);
+        TEST_INTERSECTION_WITH(mysql_23023665_10, 0, 1, optional(), 1, 54.701340543162523, settings);
+        TEST_INTERSECTION_WITH(mysql_23023665_11, 0, 1, optional(), 1, 35.933385462482065, settings);
+    }
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",
@@ -686,9 +705,11 @@ void test_all()
     std::string clip = "box(2 2,8 8)";
 
     test_areal_linear<polygon, linestring>();
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    test_areal_linear<polygon_ccw, linestring>();
+#endif
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal_linear<polygon_open, linestring>();
-    test_areal_linear<polygon_ccw, linestring>();
     test_areal_linear<polygon_ccw_open, linestring>();
 #endif
 
@@ -697,8 +718,10 @@ void test_all()
     // Test polygons clockwise and counter clockwise
     test_areal<polygon>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
     test_areal<polygon_ccw>();
+#endif
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_areal<polygon_open>();
     test_areal<polygon_ccw_open>();
 #endif
