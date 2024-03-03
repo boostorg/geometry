@@ -24,6 +24,7 @@
 
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 
 
 #define TEST_UNION(caseid, clips, holes, points, area) \
@@ -43,6 +44,8 @@ template <typename Ring, typename Polygon>
 void test_areal()
 {
     typedef typename bg::coordinate_type<Polygon>::type ct;
+
+    constexpr bool is_ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
 
     ut_settings ignore_validity_for_float;
     if (BOOST_GEOMETRY_CONDITION((std::is_same<ct, float>::value)) )
@@ -471,12 +474,16 @@ void test_areal()
     TEST_UNION(issue_1186, 1, 1, -1, 21.6189);
     TEST_UNION_REV(issue_1186, 1, 1, -1, 21.6189);
 
-    {
-        // Rescaling produces an invalid result
-        ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(false, true));
-        TEST_UNION_WITH(geos_1, 1, 0, -1, expectation_limits(3458.0, 3461.3203125));
-    }
+    TEST_UNION(issue_1229, 1, 0, -1, 384869.166);
+    TEST_UNION_REV(issue_1229, 1, 0, -1, 384869.166);
+
+    TEST_UNION(issue_1231, 1, 0, -1, 286.799);
+    TEST_UNION_REV(issue_1231, 1, 0, -1, 286.799);
+
+    TEST_UNION(issue_1244, 1, 1, -1, 17);
+    TEST_UNION_REV(issue_1244, 1, 1, -1, 17);
+
+    TEST_UNION(geos_1, 1, 0, -1, expectation_limits(3458.0, 3461.3203125));
     TEST_UNION(geos_2, 1, 0, -1, expectation_limits(349.0625, 350.55102539));
     TEST_UNION(geos_3, 1, 0, -1, 29391548.4998779);
     TEST_UNION(geos_4, 1, 0, -1, 2304.4163115);
@@ -541,8 +548,14 @@ void test_areal()
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 0, -1, 22.815);
 
-    test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
-                1, -1, 217, 36.752837);
+    {
+        // Contains a self-intersection invalidity for ccw
+        ut_settings settings;
+        settings.set_test_validity(! is_ccw);
+        test_one<Polygon, Polygon, Polygon>("buffer_mp2", 
+            buffer_mp2[0], buffer_mp2[1],
+            1, -1, 217, 36.752837, settings);
+    }
 
     test_one<Polygon, Polygon, Polygon>("mysql_21964079_1",
         mysql_21964079_1[0], mysql_21964079_1[1],
@@ -565,12 +578,12 @@ void test_areal()
         1, 1, -1, 220.5);
 }
 
-template <typename P>
+template <typename P, bool ClockWise>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon;
-    typedef bg::model::ring<P> ring;
-    typedef bg::model::box<P> box;
+    using polygon = bg::model::polygon<P, ClockWise>;
+    using ring = bg::model::ring<P>;
+    using box = bg::model::box<P>;
 
     test_areal<ring, polygon>();
 
@@ -626,12 +639,16 @@ void test_all()
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
-    test_all<bg::model::d2::point_xy<default_test_type>>();
+    test_all<bg::model::d2::point_xy<default_test_type>, true>();
+
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    test_all<bg::model::d2::point_xy<default_test_type>, false>();
+#endif
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    test_all<bg::model::d2::point_xy<float>>();
-    test_all<bg::model::d2::point_xy<long double>>();
-    test_all<bg::model::d2::point_xy<mp_test_type>>();
+    test_all<bg::model::d2::point_xy<float>, true>();
+    test_all<bg::model::d2::point_xy<long double>, true>();
+    test_all<bg::model::d2::point_xy<mp_test_type>, true>();
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
