@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
 
 // Copyright (c) 2018-2023 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -135,7 +135,11 @@ struct interpolate_range
                                p,
                                diff_distance);
                 Policy::apply(p, pointlike);
-                if BOOST_GEOMETRY_CONSTEXPR (util::is_multi<PointLike>::value)
+                if BOOST_GEOMETRY_CONSTEXPR (util::is_point<PointLike>::value)
+                {
+                    return;
+                }
+                else // else prevents unreachable code warning
                 {
                     start_p = p;
                     prev_distance = repeated_distance;
