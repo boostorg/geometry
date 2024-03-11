@@ -14,6 +14,8 @@ import os ;
 import path ;
 import regex ;
 
+path-constant HEADERS : ../../include/boost/geometry ;
+
 rule generate_self_contained_headers ( headers_subpath )
 {
     # This rule is based on script copied from similar rule in Boost.GIL
@@ -29,7 +31,7 @@ rule generate_self_contained_headers ( headers_subpath )
     # NOTE: All '/' in test names are replaced with '-' because apparently
     #       test scripts have a problem with test names containing slashes.
 
-    local top_headers_path = [ path.make $(BOOST_ROOT)/libs/geometry/include/boost/geometry ] ;
+    local top_headers_path = [ path.make $(HEADERS) ] ;
 
     # Skip the OpenGL visualization related header
     for local file in [ path.glob-tree $(top_headers_path)/$(headers_subpath) : *.hpp : gl_draw.hpp  ]
@@ -38,7 +40,7 @@ rule generate_self_contained_headers ( headers_subpath )
         local target_name = [ regex.replace h/$(rel_file) "/" "-" ] ;
         local target_name = [ regex.replace $(target_name) "\.hpp" "" ] ;
         targets += [
-            compile $(BOOST_ROOT)/libs/geometry/test/headers/main.cpp
+            compile main.cpp
             : <define>"BOOST_GEOMETRY_TEST_HEADER=$(rel_file)" <dependency>$(file)
             : $(target_name)
         ] ;

@@ -24,6 +24,9 @@ project boost-geometry-test
         <toolset>clang:<cxxflags>-Wno-unneeded-internal-declaration # supress warning by Boost.None
 		<toolset>intel:<define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
+        <source>/boost/test//boost_test
+        <source>/boost/foreach//boost_foreach
+        <source>/boost/assign//boost_assign
     ;
 
 # Run minimal testset

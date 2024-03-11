@@ -29,5 +29,5 @@ exe interior_type : interior_type.cpp ;
 exe point_type : point_type.cpp ;
 exe ring_type : ring_type.cpp ;
 exe rings : rings.cpp ;
-exe tag : tag.cpp ;
+exe tag : tag.cpp : <source>/boost/assign//boost_assign ;
 exe tag_cast : tag_cast.cpp ;

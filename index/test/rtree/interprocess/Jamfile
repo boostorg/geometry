@@ -25,6 +25,7 @@ rule test_all
         <toolset>msvc:<cxxflags>/bigobj
         <target-os>windows,<toolset>intel:<cxxflags>/bigobj
         <target-os>linux:<linkflags>"-lrt"
+        <source>/boost/interprocess//boost_interprocess
       ] ;
    }
 

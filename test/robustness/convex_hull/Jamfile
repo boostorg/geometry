@@ -11,7 +11,7 @@
 project random_multi_points
     : requirements
         <include>.
-        <library>../../../../program_options/build//boost_program_options
+        <library>/boost/program_options//boost_program_options
         <link>static
     ;
 
