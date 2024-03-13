@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_MULTI_CORE_POINT_ORDER_HPP
 #define BOOST_GEOMETRY_MULTI_CORE_POINT_ORDER_HPP
 
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in Boost 1.86")
 
 #include <boost/geometry/core/point_order.hpp>
 

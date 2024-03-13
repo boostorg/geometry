@@ -19,8 +19,8 @@
 #ifndef BOOST_GEOMETRY_MULTI_ALGORITHMS_DISTANCE_HPP
 #define BOOST_GEOMETRY_MULTI_ALGORITHMS_DISTANCE_HPP
 
-// this file is intentionally empty (with the exception of the #include below)
-// it is used for backward compatinility and may be removed in the future
+#include <boost/config/pragma_message.hpp>
+BOOST_PRAGMA_MESSAGE("This include file is deprecated and will be removed in Boost 1.86")
 
 #include <boost/geometry/algorithms/distance.hpp>
 
