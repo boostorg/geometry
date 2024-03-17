@@ -1,0 +1,62 @@
+# Copyright René Ferdinand Rivera Morell 2024
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
+require-b2 5.1.0 ;
+
+import-search /boost/config/checks ;
+
+import project ;
+import config : requires ;
+
+project /boost/geometry
+    : common-requirements
+        <source>/boost/algorithm//boost_algorithm
+        <source>/boost/any//boost_any
+        <source>/boost/array//boost_array
+        <source>/boost/assert//boost_assert
+        <source>/boost/concept_check//boost_concept_check
+        <source>/boost/config//boost_config
+        <source>/boost/container//boost_container
+        <source>/boost/core//boost_core
+        <source>/boost/endian//boost_endian
+        <source>/boost/function_types//boost_function_types
+        <source>/boost/fusion//boost_fusion
+        <source>/boost/integer//boost_integer
+        <source>/boost/iterator//boost_iterator
+        <source>/boost/lexical_cast//boost_lexical_cast
+        <source>/boost/math//boost_math
+        <source>/boost/mpl//boost_mpl
+        <source>/boost/multiprecision//boost_multiprecision
+        <source>/boost/numeric_conversion//boost_numeric_conversion
+        <source>/boost/polygon//boost_polygon
+        <source>/boost/predef//boost_predef
+        <source>/boost/qvm//boost_qvm
+        <source>/boost/range//boost_range
+        <source>/boost/rational//boost_rational
+        <source>/boost/serialization//boost_serialization
+        <source>/boost/static_assert//boost_static_assert
+        <source>/boost/thread//boost_thread
+        <source>/boost/throw_exception//boost_throw_exception
+        <source>/boost/tokenizer//boost_tokenizer
+        <source>/boost/tuple//boost_tuple
+        <source>/boost/type_traits//boost_type_traits
+        <source>/boost/variant//boost_variant
+        <source>/boost/variant2//boost_variant2
+        <include>include
+    : requirements
+        [ requires
+            cxx14_constexpr
+            cxx14_return_type_deduction
+        ]
+        <toolset>msvc:<asynch-exceptions>on
+    ;
+
+explicit
+    [ alias boost_geometry ]
+    [ alias all : boost_geometry test example doc/src/examples index ]
+    ;
+
+call-if : boost-library geometry
+    ;
