@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2014-2017 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2023.
 // Modifications copyright (c) 2014-2023 Oracle and/or its affiliates.
@@ -184,7 +184,7 @@ struct centroid_range_state
                 typename PointTransformer::result_type
                     pt = transformer.apply(*it);
 
-                using point_type = typename geometry::point_type<Ring const>::type;
+                using point_type = geometry::point_type_t<Ring const>;
                 strategy.apply(static_cast<point_type const&>(previous_pt),
                                static_cast<point_type const&>(pt),
                                state);
@@ -208,7 +208,7 @@ struct centroid_range
 
             typename Strategy::template state_type
                 <
-                    typename geometry::point_type<Range>::type,
+                    geometry::point_type_t<Range>,
                     Point
                 >::type state;
 
@@ -265,7 +265,7 @@ struct centroid_polygon
 
             typename Strategy::template state_type
                 <
-                    typename geometry::point_type<Polygon>::type,
+                    geometry::point_type_t<Polygon>,
                     Point
                 >::type state;
 
@@ -333,7 +333,7 @@ struct centroid_multi
 
         typename Strategy::template state_type
             <
-                typename geometry::point_type<Multi>::type,
+                geometry::point_type_t<Multi>,
                 Point
             >::type state;
 
@@ -393,7 +393,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct centroid: not_implemented<Tag>
 {};
@@ -511,10 +511,10 @@ struct centroid<default_strategy, false>
     template <typename Geometry, typename Point>
     static inline void apply(Geometry const& geometry, Point& out, default_strategy)
     {
-        typedef typename strategies::centroid::services::default_strategy
+        using strategies_type = typename strategies::centroid::services::default_strategy
             <
                 Geometry
-            >::type strategies_type;
+            >::type;
 
         dispatch::centroid<Geometry>::apply(geometry, out, strategies_type());
     }
@@ -525,7 +525,7 @@ struct centroid<default_strategy, false>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct centroid
 {
     template <typename Point, typename Strategy>

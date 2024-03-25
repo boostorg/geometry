@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -57,8 +58,8 @@ struct reverse_dispatch<GeometryId, GeometryId> : std::false_type {};
 template <typename Geometry1, typename Geometry2>
 struct reverse_dispatch : detail::reverse_dispatch
     <
-        geometry_id<Geometry1>::type::value,
-        geometry_id<Geometry2>::type::value
+        geometry_id<Geometry1>::value,
+        geometry_id<Geometry2>::value
     >
 {};
 

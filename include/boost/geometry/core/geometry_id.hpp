@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020 Oracle and/or its affiliates.
@@ -101,6 +102,12 @@ struct geometry_id<box_tag>                 : std::integral_constant<int, 94> {}
 template <typename Geometry>
 struct geometry_id : core_dispatch::geometry_id<typename tag<Geometry>::type>
 {};
+
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename GeometryTag>
+inline constexpr int geometry_id_v = geometry_id<GeometryTag>::value;
+#endif
 
 
 }} // namespace boost::geometry

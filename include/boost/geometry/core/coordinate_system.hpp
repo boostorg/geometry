@@ -3,6 +3,7 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -88,12 +89,16 @@ namespace core_dispatch
 template <typename Geometry>
 struct coordinate_system
 {
-    typedef typename core_dispatch::coordinate_system
+    using type = typename core_dispatch::coordinate_system
         <
-            typename tag<Geometry>::type,
-            typename util::remove_cptrref<Geometry>::type
-        >::type type;
+            tag_t<Geometry>,
+            util::remove_cptrref_t<Geometry>
+        >::type;
 };
+
+
+template <typename Geometry>
+using coordinate_system_t = typename coordinate_system<Geometry>::type;
 
 
 }} // namespace boost::geometry

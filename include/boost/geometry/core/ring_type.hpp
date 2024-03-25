@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2015-2021.
 // Modifications copyright (c) 2015-2021, Oracle and/or its affiliates.
@@ -201,23 +202,29 @@ struct ring_type<multi_polygon_tag, MultiPolygon>
 template <typename Geometry>
 struct ring_type
 {
-    typedef typename core_dispatch::ring_type
+    using type = typename core_dispatch::ring_type
         <
             typename tag<Geometry>::type,
             Geometry
-        >::type type;
+        >::type;
 };
+
+template <typename Geometry>
+using ring_type_t = typename ring_type<Geometry>::type;
 
 
 template <typename Geometry>
 struct ring_return_type
 {
-    typedef typename core_dispatch::ring_return_type
+    using type = typename core_dispatch::ring_return_type
         <
             typename tag<Geometry>::type,
             Geometry
-        >::type type;
+        >::type;
 };
+
+template <typename Geometry>
+using ring_return_type_t = typename ring_return_type<Geometry>::type;
 
 
 }} // namespace boost::geometry
