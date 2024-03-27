@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_TEST_BUFFER_SVG_PER_TURN_HPP
 #define BOOST_GEOMETRY_TEST_BUFFER_SVG_PER_TURN_HPP
 
+#if defined(TEST_WITH_SVG_PER_TURN)
+
 #include <fstream>
 #include <vector>
 
@@ -163,5 +165,6 @@ public :
     }
 };
 
+#endif
 
 #endif // BOOST_GEOMETRY_TEST_BUFFER_SVG_PER_TURN_HPP
