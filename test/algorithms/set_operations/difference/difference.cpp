@@ -36,7 +36,7 @@ namespace
 
 // Change compiler defines to constexpr bools
 // to make conditions more readable
-// and to always compile all code.  
+// and to always compile all code.
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
 constexpr bool test_failures = true;
 #else
@@ -613,18 +613,9 @@ void test_all()
 
     TEST_DIFFERENCE(issue_1138, 1, 203161.751, 2, 1237551.0171, 1);
 
-    if BOOST_GEOMETRY_CONSTEXPR(test_failures)
-    {
-        // Fails for both clockwise and counter clockwise in detecting the difference
-        // of the interior ring, touching the outer ring.
-        TEST_DIFFERENCE(issue_1231, 1, 203161.751, 2, 1237551.0171, 1);
-    }
+    TEST_DIFFERENCE(issue_1231, 2, 36.798659456837477, 3, 195.2986, 5);
 
-    if BOOST_GEOMETRY_CONSTEXPR(! is_ccw || test_failures)
-    {
-        // Case #1244 is wrong for ccw
-        TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
-    }
+    TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
