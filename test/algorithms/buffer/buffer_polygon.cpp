@@ -154,6 +154,8 @@ static std::string const issue_555
 
 static std::string const issue_1019
     = "POLYGON((577255 928582,577255 928582,577228 928786,577245 932654,577619 933122,580589 933287,580929 933297,583237 932957,583504 932546,583652 929953,582964 928631,577255 928582))";
+static std::string const issue_1262
+    = "POLYGON((-2.447356204196278639528828 57.21240623671037894837355,34.00960378453005006349485 54.01542955431686721112783,-0.000789642333984375 18.712947845458984375,-41.480987548828125 60.193248748779296875,-3.12519073486328125 57.271846771240234375,-2.447356204196278639528828 57.21240623671037894837355),(-36.24821876005196230607908 57.78889760314127244100746,-0.000785932392148191993896944 21.54137477179954629491476,30.75139677038663066355184 52.2934724874262641947098,-36.24821876005196230607908 57.78889760314127244100746))";
 
 // CCW Polygons not working in 1.56
 static std::string const mysql_report_2014_10_24
@@ -613,6 +615,17 @@ void test_all()
     }
 
     test_one<polygon_type, polygon_type>("issue_1019", issue_1019, join_miter, end_flat, 34835787.44782, 300.0);
+
+    {
+        // The reported issue created a huge polygon, instead of 0.0 (because the negative distance should fill
+        // the whole input polygon)
+        bg::strategy::buffer::join_round join_round4(4);
+        bg::strategy::buffer::end_round end_round4(4);
+        test_one<polygon_type, polygon_type>("issue_1262", issue_1262, join_round4, end_round4, 0.0, -1.8);
+        test_one<polygon_type, polygon_type>("issue_1262_1", issue_1262, join_round4, end_round4, 8.9161, -1.0);
+        test_one<polygon_type, polygon_type>("issue_1262_2", issue_1262, join_round4, end_round4, 62.5276, -0.8);
+        test_one<polygon_type, polygon_type>("issue_1262_3", issue_1262, join_round4, end_round4, 193.47288, -0.4);
+    }
 
     {
         bg::strategy::buffer::join_round join_round32(32);
