@@ -38,6 +38,7 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
 
 #include <boost/geometry/views/detail/indexed_point_view.hpp>
 
