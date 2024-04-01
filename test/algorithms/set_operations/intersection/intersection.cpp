@@ -65,8 +65,6 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
-    constexpr bool is_ccw = bg::point_order<Polygon>::value == bg::counterclockwise;
-
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -314,13 +312,8 @@ void test_areal()
 #endif
 
     TEST_INTERSECTION(issue_1229, 0, -1, 0);
-    
-    {
-        // For CCW this test case currently reports as invalid
-        ut_settings settings;
-        settings.set_test_validity(! is_ccw);
-        TEST_INTERSECTION_WITH(issue_1231, 0, 1, 1, -1, 54.701340543162516, settings);
-    }
+
+    TEST_INTERSECTION(issue_1231, 1, -1, 54.701340543162516);
 
     TEST_INTERSECTION(issue_1244, 1, -1, 7);
 
@@ -355,12 +348,7 @@ void test_areal()
         case_104[0], case_104[1],
         0, -1, 0.0);
 
-    {
-        // For CCW this test case currently reports as invalid
-        ut_settings settings;
-        settings.set_test_validity(! is_ccw);
-        TEST_INTERSECTION_WITH(case_105, 0, 1, 1, 34, 76.0, settings);
-    }
+    TEST_INTERSECTION(case_105, 1, 34, 76.0);
     TEST_INTERSECTION(case_106, 2, -1, 3.5);
     TEST_INTERSECTION(case_107, 3, -1, 3.0);
 
@@ -433,15 +421,9 @@ void test_areal()
 
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
 
-
-    {
-        // Formation of an interior ring is optional for these cases
-        // For CCW an invalidity is reported
-        ut_settings settings;
-        settings.set_test_validity(! is_ccw);
-        TEST_INTERSECTION_WITH(mysql_23023665_10, 0, 1, optional(), 1, 54.701340543162523, settings);
-        TEST_INTERSECTION_WITH(mysql_23023665_11, 0, 1, optional(), 1, 35.933385462482065, settings);
-    }
+    // Formation of an interior ring is optional for these cases
+    TEST_INTERSECTION(mysql_23023665_10, optional(), 1, 54.701340543162523);
+    TEST_INTERSECTION(mysql_23023665_11, optional(), 1, 35.933385462482065);
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",
@@ -775,7 +757,7 @@ void test_all()
 
     // polygons outputing points
     //test_one<P, polygon, polygon>("ppp1", simplex_normal[0], simplex_normal[1], 1, 7, 5.47363293);
-    
+
     test_point_output<P>();
 
     /*
