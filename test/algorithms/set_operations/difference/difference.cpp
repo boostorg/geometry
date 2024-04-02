@@ -22,6 +22,8 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 
+#include <boost/geometry/util/constexpr.hpp>
+
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include "test_difference.hpp"
@@ -29,8 +31,33 @@
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
 
+namespace
+{
 
-// Convenience macros (points are not checked)
+// Change compiler defines to constexpr bools
+// to make conditions more readable
+// and to always compile all code.
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+constexpr bool test_failures = true;
+#else
+constexpr bool test_failures = false;
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+constexpr bool test_only_one_type = true;
+#else
+constexpr bool test_only_one_type = false;
+#endif
+
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+constexpr bool test_only_one_order = true;
+#else
+constexpr bool test_only_one_order = false;
+#endif
+
+} // namespace
+
+// Convenience macros (point counts are not checked)
 #define TEST_DIFFERENCE(caseid, clips1, area1, clips2, area2, clips3) \
     (test_one<polygon, polygon, polygon>) \
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
@@ -41,10 +68,12 @@
     ( #caseid, caseid[0], caseid[1], clips1, -1, area1, clips2, -1, area2, \
                 clips3, -1, area1 + area2, settings)
 
-template <typename P>
+template <typename P, bool ClockWise>
 void test_all()
 {
-    typedef bg::model::polygon<P> polygon;
+    using polygon = bg::model::polygon<P, ClockWise>;
+
+    constexpr bool is_ccw = ! ClockWise;
 
     test_one<polygon, polygon, polygon>("simplex_normal",
         simplex_normal[0], simplex_normal[1],
@@ -67,7 +96,7 @@ void test_all()
         1, 5, 8.0);
 
     {
-        // Sym difference works, but expectations are different for rescaling
+        // It reports self-intersections for symmetric difference
         ut_settings settings;
         settings.sym_difference = false;
         test_one<polygon, polygon, polygon>("star_comb_15",
@@ -250,19 +279,17 @@ void test_all()
     TEST_DIFFERENCE(case_precision_9, optional(), optional_sliver(), 1, 59.0, count_set(1, 2));
     TEST_DIFFERENCE_WITH(case_precision_10, optional(), optional_sliver(), 1, 59, count_set(1, 2), ut_settings(0.001));
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails without rescaling
-    TEST_DIFFERENCE(case_precision_11, optional(), optional_sliver(), 1, 59.0, count_set(1, 2));
-#endif
+    if BOOST_GEOMETRY_CONSTEXPR(test_failures)
+    {
+        // Fails (since rescaling is turned off)
+        TEST_DIFFERENCE(case_precision_11, optional(), optional_sliver(), 1, 59.0, count_set(1, 2));
+    }
 
     TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
     TEST_DIFFERENCE_WITH(case_precision_13, 1, 12, 0, 0.0, 1, ut_settings(0.001));
     TEST_DIFFERENCE(case_precision_14, 1, 14.0, 1, 8.0, 1);
     TEST_DIFFERENCE(case_precision_15, 0, 0.0, 1, 59.0, 1);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails if rescaling is used in combination with get_clusters
     TEST_DIFFERENCE(case_precision_16, optional(), optional_sliver(), 1, 59.0, 1);
-#endif
     TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_19, 1, expectation_limits(1.2e-6, 1.35e-5), 1, 59.0, 2);
@@ -335,11 +362,8 @@ void test_all()
             settings);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         ut_settings settings(0.1);
-        settings.set_test_validity(BG_IF_RESCALED(false, true));
-        settings.validity_false_negative_sym = BG_IF_RESCALED(true, false);
 
         // SQL Server gives: 0.28937764436705 and 0.000786406897532288 with 44/35 rings
         // PostGIS gives:    0.30859375       and 0.033203125 with 35/35 rings
@@ -348,7 +372,6 @@ void test_all()
             ignore_count(), expectation_limits(0.00060440758, 0.00076856),
             ignore_count(), settings);
     }
-#endif
 
     {
         ut_settings settings;
@@ -471,13 +494,14 @@ void test_all()
                     count_set(1, 6), 20.096189,
                     count_set(1, 6));
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Without rescaling the "b" case produces no output.
-    test_one<polygon, polygon, polygon>("ticket_10108_a",
-            ticket_10108_a[0], ticket_10108_a[1],
-            1, 4,  {0.0145036, 0.0145037},
-            1, 4,  0.029019232);
-#endif
+    if BOOST_GEOMETRY_CONSTEXPR(test_failures)
+    {
+        // Without rescaling the second case (labeled "b") produces no output.
+        test_one<polygon, polygon, polygon>("ticket_10108_a",
+                ticket_10108_a[0], ticket_10108_a[1],
+                1, 4,  {0.0145036, 0.0145037},
+                1, 4,  0.029019232);
+    }
 
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
@@ -498,65 +522,65 @@ void test_all()
             2, 23, 62.25,
             0, 0, 0.0);
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    typedef bg::model::box<P> box;
-    typedef bg::model::ring<P> ring;
-
-    // Other combinations
+    if BOOST_GEOMETRY_CONSTEXPR(! test_only_one_type)
     {
-        test_one<polygon, polygon, ring>(
-                "star_ring_ring", example_star, example_ring,
-                5, 22, 1.1901714,
-                5, 27, 1.6701714);
+        using box = bg::model::box<P>;
+        using ring = bg::model::ring<P>;
+        {
+            // Other combinations
+            test_one<polygon, polygon, ring>(
+                    "star_ring_ring", example_star, example_ring,
+                    5, 22, 1.1901714,
+                    5, 27, 1.6701714);
 
-        test_one<polygon, ring, polygon>(
-                "ring_star_ring", example_ring, example_star,
-                5, 27, 1.6701714,
-                5, 22, 1.1901714);
+            test_one<polygon, ring, polygon>(
+                    "ring_star_ring", example_ring, example_star,
+                    5, 27, 1.6701714,
+                    5, 22, 1.1901714);
 
-        static std::string const clip = "POLYGON((2.5 0.5,5.5 2.5))";
+            static std::string const clip = "POLYGON((2.5 0.5,5.5 2.5))";
 
-        test_one<polygon, box, ring>("star_box",
-            clip, example_star,
-            4, 20, 2.833333, 4, 16, 0.833333);
+            test_one<polygon, box, ring>("star_box",
+                clip, example_star,
+                4, 20, 2.833333, 4, 16, 0.833333);
 
-        test_one<polygon, ring, box>("box_star",
-            example_star, clip,
-            4, 16, 0.833333, 4, 20, 2.833333);
+            test_one<polygon, ring, box>("box_star",
+                example_star, clip,
+                4, 16, 0.833333, 4, 20, 2.833333);
+        }
+
+        // Combinations of clockwise and counter clockwise
+        {
+            using polygon_ccw = bg::model::polygon<P, false>;
+            test_one<polygon, polygon_ccw, polygon_ccw>(
+                    "star_ring_ccw", example_star, example_ring,
+                    5, 22, 1.1901714,
+                    5, 27, 1.6701714);
+            test_one<polygon, polygon, polygon_ccw>(
+                    "star_ring_ccw1", example_star, example_ring,
+                    5, 22, 1.1901714,
+                    5, 27, 1.6701714);
+            test_one<polygon, polygon_ccw, polygon>(
+                    "star_ring_ccw2", example_star, example_ring,
+                    5, 22, 1.1901714,
+                    5, 27, 1.6701714);
+        }
+
+        // Multi/box (should be moved to multi)
+        {
+            using mp = bg::model::multi_polygon<polygon>;
+
+            static std::string const clip = "POLYGON((2 2,4 4))";
+
+            test_one<polygon, box, mp>("simplex_multi_box_mp",
+                clip, case_multi_simplex[0],
+                2, -1, 0.53333333333, 3, -1, 8.53333333333);
+            test_one<polygon, mp, box>("simplex_multi_mp_box",
+                case_multi_simplex[0], clip,
+                3, -1, 8.53333333333, 2, -1, 0.53333333333);
+
+        }
     }
-
-    // Counter clockwise
-    {
-        typedef bg::model::polygon<P, false> polygon_ccw;
-        test_one<polygon, polygon_ccw, polygon_ccw>(
-                "star_ring_ccw", example_star, example_ring,
-                5, 22, 1.1901714,
-                5, 27, 1.6701714);
-        test_one<polygon, polygon, polygon_ccw>(
-                "star_ring_ccw1", example_star, example_ring,
-                5, 22, 1.1901714,
-                5, 27, 1.6701714);
-        test_one<polygon, polygon_ccw, polygon>(
-                "star_ring_ccw2", example_star, example_ring,
-                5, 22, 1.1901714,
-                5, 27, 1.6701714);
-    }
-
-    // Multi/box (should be moved to multi)
-    {
-        typedef bg::model::multi_polygon<polygon> mp;
-
-        static std::string const clip = "POLYGON((2 2,4 4))";
-
-        test_one<polygon, box, mp>("simplex_multi_box_mp",
-            clip, case_multi_simplex[0],
-            2, -1, 0.53333333333, 3, -1, 8.53333333333);
-        test_one<polygon, mp, box>("simplex_multi_mp_box",
-            case_multi_simplex[0], clip,
-            3, -1, 8.53333333333, 2, -1, 0.53333333333);
-
-    }
-#endif
 
     // Rescaling generates a very small false polygon
     TEST_DIFFERENCE(issue_566_a, 1, expectation_limits(143.662),
@@ -577,13 +601,21 @@ void test_all()
             settings);
     }
 
-    TEST_DIFFERENCE(issue_875, 1, 3468.77515, 1, 105.425816, 2);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+    {
+        // The symmetric difference is invalid for ccw
+        ut_settings settings;
+        settings.validity_of_sym = ! is_ccw;
+        TEST_DIFFERENCE_WITH(issue_875, 1, 3468.77515, 1, 105.425816, 2, settings);
+    }
+
     TEST_DIFFERENCE(issue_876a, 1, 4728.89916, 1, 786.29563, 2);
-#endif
     TEST_DIFFERENCE(issue_876b, 1, 6114.18234, 1, 4754.29449, count_set(1, 2));
 
     TEST_DIFFERENCE(issue_1138, 1, 203161.751, 2, 1237551.0171, 1);
+
+    TEST_DIFFERENCE(issue_1231, 2, 36.798659456837477, 3, 195.2986, 5);
+
+    TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
@@ -591,10 +623,11 @@ void test_all()
     TEST_DIFFERENCE(mysql_23023665_2, 1, 96.0, 1, 16.0, 2);
     TEST_DIFFERENCE(mysql_23023665_3, 1, 225.0, 1, 66.0, 2);
     TEST_DIFFERENCE(mysql_23023665_5, 2, 165.23735, 2, 105.73735, 4);
+
     {
-        // Without rescaling it is invalid
+        // The symmetric difference is invalid for ccw
         ut_settings settings;
-        settings.set_test_validity(true);
+        settings.validity_of_sym = ! is_ccw;
         TEST_DIFFERENCE_WITH(mysql_23023665_6, 2, 105.68756, 3, 10.18756, 5, settings);
     }
     {
@@ -609,7 +642,7 @@ void test_all()
 template <typename Point, bool ClockWise, bool Closed>
 void test_specific()
 {
-    typedef bg::model::polygon<Point, ClockWise, Closed> polygon;
+    using polygon = bg::model::polygon<Point, ClockWise, Closed>;
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
@@ -635,13 +668,18 @@ void test_specific()
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
-    test_all<bg::model::d2::point_xy<default_test_type> >();
 
-    test_specific<bg::model::d2::point_xy<int>, false, false>();
+    test_all<bg::model::d2::point_xy<default_test_type>, true>();
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    test_all<bg::model::d2::point_xy<float> >();
-#endif
+    if BOOST_GEOMETRY_CONSTEXPR(! test_only_one_order)
+    {
+        test_all<bg::model::d2::point_xy<default_test_type>, false>();
+    }
+
+    if BOOST_GEOMETRY_CONSTEXPR(! test_only_one_type)
+    {
+        test_all<bg::model::d2::point_xy<float>, true>();
+    }
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float and long double.

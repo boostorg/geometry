@@ -69,12 +69,12 @@ void test_construction()
     check_box(b2, 1,2,5,3,4,6);
 
     bg::model::box<P> b3 = bg::make_inverse<bg::model::box<P> >();
-    check_box(b3, boost::numeric::bounds<T>::highest(),
-                  boost::numeric::bounds<T>::highest(),
-                  boost::numeric::bounds<T>::highest(),
-                  boost::numeric::bounds<T>::lowest(),
-                  boost::numeric::bounds<T>::lowest(),
-                  boost::numeric::bounds<T>::lowest());
+    check_box(b3, bg::util::bounds<T>::highest(),
+                  bg::util::bounds<T>::highest(),
+                  bg::util::bounds<T>::highest(),
+                  bg::util::bounds<T>::lowest(),
+                  bg::util::bounds<T>::lowest(),
+                  bg::util::bounds<T>::lowest());
 }
 
 template <typename P>

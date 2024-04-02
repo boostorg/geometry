@@ -263,16 +263,29 @@ BOOST_AUTO_TEST_CASE( test_geometry_with_NaN_coordinates )
     std::cout << "************************************" << std::endl;
 #endif
 
+    multi_linestring_type mls;
+    bg::read_wkt("MULTILINESTRING((nan nan))", mls);
+
+    test_simple(mls, true, false);
+}
+
+BOOST_AUTO_TEST_CASE( test_geometry_with_NaN_coordinates_2 )
+{
+#ifdef BOOST_GEOMETRY_TEST_DEBUG
+    std::cout << std::endl << std::endl;
+    std::cout << "************************************" << std::endl;
+    std::cout << " is_valid: geometry with NaN coordinates" << std::endl;
+    std::cout << "************************************" << std::endl;
+#endif
+
     linestring_type ls1, ls2;
     bg::read_wkt("LINESTRING(1 1,1.115235e+308 1.738137e+308)", ls1);
     bg::read_wkt("LINESTRING(-1 1,1.115235e+308 1.738137e+308)", ls2);
 
-    // the intersection of the two linestrings is a new linestring
-    // (multilinestring with a single element) that has NaN coordinates
     multi_linestring_type mls;
     bg::intersection(ls1, ls2, mls);
 
-    test_simple(mls, true, false);
+    test_simple(mls, false, false);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_simple_variant )

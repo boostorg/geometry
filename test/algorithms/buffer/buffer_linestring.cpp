@@ -34,7 +34,9 @@ static std::string const two_bends = "LINESTRING(0 0,4 5,7 4,10 6)";
 static std::string const bend_near_start1 = "LINESTRING(0 0,1 0,5 2)";
 static std::string const bend_near_start2 = "LINESTRING(0 0,1 0,2 1.5,5 3)";
 
-static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6, 10 2,2 2)";
+static std::string const overlapping = "LINESTRING(0 0,4 5,7 4,10 6,10 2,2 2)";
+static std::string const overlapping_rev = "LINESTRING(2 2,10 2,10 6,7 4,4 5,0 0)";
+
 static std::string const curve = "LINESTRING(2 7,3 5,5 4,7 5,8 7)";
 static std::string const tripod = "LINESTRING(5 0,5 5,1 8,5 5,9 8)"; // with spike
 
@@ -111,6 +113,8 @@ static std::string const issue_803 = "LINESTRING(2773.6899360413681 -17.49335640
 static std::string const issue_988 = "LINESTRING(0.10144 0.034912,0.106079 0.035156,0.109375 0.034302,0.114502 0.035889,0.116333 0.036743,0.117065 0.036499,0.121582 0.035156,0.12439 0.029175,0.123779 0.026978,0.12146 0.025513,0.119507 0.025513,0.118164 0.025513,0.114624 0.025757,0.111694 0.026001,0.108887 0.02832,0.105957 0.028442,0.099854 0.027344,0.095581 0.029419,0.093506 0.031128,0.090576 0.032593,0.085571 0.032959,0.082153 0.035522,0.081421 0.039307,0.082275 0.044067,0.083862 0.047485,0.08606 0.049805,0.087891 0.051025,0.090942 0.05188,0.094727 0.051392,0.100098 0.050049,0.10144 0.05249,0.100952 0.054932,0.098633 0.05835,0.098267 0.062134,0.098755 0.064697,0.098511 0.067383,0.113892 0.068848,0.110718 0.065552,0.109619 0.064331,0.111084 0.063965,0.118042 0.0625,0.115234 0.049805,0.117676 0.049194,0.118774 0.046997,0.119385 0.04541,0.119507 0.043945,0.116089 0.041138,0.116089 0.041016,0.11438 0.040894,0.11145 0.041016,0.109009 0.042114,0.106079 0.04248,0.102417 0.041138,0.102051 0.040039)";
 
 static std::string const issue_1084 = "LINESTRING(269.3 -7.03, 270.23 -3.57, 270.54 0, 270.54 100, 270.23 103.57, 269.3 107.03, 267.79 110.27, 265.73 113.2, 263.2 115.73, 258.89 118.43, 254.28 108.54, 248.52 109, 80 97.21, 72.71 95.87, 67.46 93.82, 62.61 90.92, 58.32 87.27, 54.69 82.95, 51.83 78.08, 49.81 72.81, 48.7 67.28, 48.45 63.38, 48.52 34.87, 49.29 29.26, 50.96 23.87, 54.69 17.05, 58.32 12.73, 62.61 9.08, 65.57 7.18, 70.68 4.81, 76.12 3.31, 80 2.79, 248.52 -9, 254.28 -8.54, 258.89 -18.43, 263.2 -15.73, 265.73 -13.2, 267.79 -10.27, 269.3 -7.03, 270.23 -3.57, 270.54 0, 270.54 100, 270.23 103.57, 269.3 107.03, 267.79 110.27, 265.73 113.2, 264 114.93, 256.24 107.17, 251.86 108.16, 248.58 108.2, 76.24 95.9, 70.93 94.43, 65.94 92.11, 61.4 88.99, 57.44 85.16, 54.18 80.72, 51.69 75.8, 50.06 70.54, 49.25 63.38, 49.32 34.93, 50.06 29.46, 51.69 24.2, 55.36 17.49, 58.9 13.28, 63.1 9.71, 67.83 6.89, 70.93 5.57, 76.24 4.1, 80.06 3.59, 248.58 -8.2, 251.86 -8.16, 256.24 -7.17, 258.89 -18.43)";
+static std::string const issue_1250 = "LINESTRING(3 1, 4 2, 4 4, 2 4, 2 2, 3 2)";
+static std::string const issue_1250_rev = "LINESTRING(3 2, 2 2, 2 4, 4 4, 4 2, 3 1)";
 
 template <bool Clockwise, typename P>
 void test_all()
@@ -179,22 +183,37 @@ void test_all()
     test_one<linestring, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 109.2625, 9.0);
     test_one<linestring, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 142.8709, 9.0);
 
-    // Next (and all similar cases) which a offsetted-one-sided buffer has to be fixed. TODO
+    // Next (and all similar cases) which a offsetted-one-sided buffer has to be supported. TODO
     //test_one<linestring, polygon>("two_bends_neg", two_bends, join_miter, end_flat, 99, +1.5, settings, -1.0);
     //test_one<linestring, polygon>("two_bends_pos", two_bends, join_miter, end_flat, 99, -1.5, settings, +1.0);
-    //test_one<linestring,  polygon>("two_bends_neg", two_bends, join_round, end_flat,99, +1.5, settings, -1.0);
+    //test_one<linestring, polygon>("two_bends_neg", two_bends, join_round, end_flat,99, +1.5, settings, -1.0);
     //test_one<linestring, polygon>("two_bends_pos", two_bends, join_round, end_flat, 99, -1.5, settings, +1.0);
 
-    test_one<linestring, polygon>("overlapping150", overlapping, join_round, end_flat, 65.6786, 1.5);
-    test_one<linestring, polygon>("overlapping150", overlapping, join_miter, end_flat, 68.140, 1.5);
+    test_one<linestring, polygon>("overlapping_50", overlapping, join_round, end_flat, 24.6326, 0.5);
+    test_one<linestring, polygon>("overlapping_50", overlapping, join_miter, end_flat, 24.9147, 0.5);
+    test_one<linestring, polygon>("overlapping_150", overlapping, join_round, end_flat, 65.6786, 1.5);
+    test_one<linestring, polygon>("overlapping_150", overlapping, join_miter, end_flat, 68.140, 1.5);
+
+    test_one<linestring, polygon>("overlapping_rev_50", overlapping_rev, join_round, end_flat, 24.6326, 0.5);
+    test_one<linestring, polygon>("overlapping_rev_50", overlapping_rev, join_miter, end_flat, 24.9147, 0.5);
+    test_one<linestring, polygon>("overlapping_rev_150", overlapping_rev, join_round, end_flat, 65.6786, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_150", overlapping_rev, join_miter, end_flat, 68.140, 1.5);
 
     // Different cases with intersection points on flat and (left/right from line itself)
-    test_one<linestring, polygon>("overlapping_asym_150_010", overlapping, join_round, end_flat, 48.308, 1.5, settings, 0.25);
-    test_one<linestring, polygon>("overlapping_asym_150_010", overlapping, join_miter, end_flat, 50.770, 1.5, settings, 0.25);
+    test_one<linestring, polygon>("overlapping_asym_150_025", overlapping, join_round, end_flat, 48.308, 1.5, settings, 0.25);
+    test_one<linestring, polygon>("overlapping_asym_150_025", overlapping, join_miter, end_flat, 50.770, 1.5, settings, 0.25);
     test_one<linestring, polygon>("overlapping_asym_150_075", overlapping, join_round, end_flat, 58.506, 1.5, settings, 0.75);
     test_one<linestring, polygon>("overlapping_asym_150_075", overlapping, join_miter, end_flat, 60.985, 1.5, settings, 0.75);
     test_one<linestring, polygon>("overlapping_asym_150_100", overlapping, join_round, end_flat, 62.514, 1.5, settings, 1.0);
     test_one<linestring, polygon>("overlapping_asym_150_100", overlapping, join_miter, end_flat, 64.984, 1.5, settings, 1.0);
+
+    // The reverse cases need to reverse the distance too, for the same result
+    test_one<linestring, polygon>("overlapping_rev_asym_150_025", overlapping_rev, join_round, end_flat, 48.308, 0.25, settings, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_asym_150_025", overlapping_rev, join_miter, end_flat, 50.770, 0.25, settings, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_asym_150_075", overlapping_rev, join_round, end_flat, 58.506, 0.75, settings, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_asym_150_075", overlapping_rev, join_miter, end_flat, 60.985, 0.75, settings, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_asym_150_100", overlapping_rev, join_round, end_flat, 62.514, 1.0, settings, 1.5);
+    test_one<linestring, polygon>("overlapping_rev_asym_150_100", overlapping_rev, join_miter, end_flat, 64.984, 1.0, settings, 1.5);
 
     // Having flat end
     test_one<linestring, polygon>("for_collinear", for_collinear, join_round, end_flat, 68.561, 2.0);
@@ -325,6 +344,12 @@ void test_all()
         using bg::strategy::buffer::join_round;
         using bg::strategy::buffer::end_round;
         test_one<linestring, polygon>("issue_1084", issue_1084, join_round(10), end_round(10), 13200.83, 10.0);
+    }
+    {
+        using bg::strategy::buffer::join_miter;
+        using bg::strategy::buffer::end_flat;
+        test_one<linestring, polygon>("issue_1250", issue_1250, join_miter(5), end_flat(), 8.39277, 0.5);
+        test_one<linestring, polygon>("issue_1250_rev", issue_1250_rev, join_miter(5), end_flat(), 8.39277, 0.5);
     }
 
     test_one<linestring, polygon>("mysql_report_2015_06_11",

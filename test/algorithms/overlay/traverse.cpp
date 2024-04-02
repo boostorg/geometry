@@ -246,9 +246,9 @@ struct test_traverse
                     // Create a rounded off point
                     std::pair<int, int> p
                         = std::make_pair(
-                            boost::numeric_cast<int>(half
+                            util::numeric_cast<int>(half
                                 + ten * bg::get<0>(turn.point)),
-                            boost::numeric_cast<int>(half
+                            util::numeric_cast<int>(half
                                 + ten * bg::get<1>(turn.point))
                             );
                 std::string style =  "fill:rgb(0,0,0);font-family:Arial;font-size:8px";
@@ -303,8 +303,8 @@ struct test_traverse
                     /*out
 
                         << std::setprecision(3)
-                        << "dist: " << boost::numeric_cast<double>(turn.operations[0].enriched.distance)
-                        << " / "  << boost::numeric_cast<double>(turn.operations[1].enriched.distance)
+                        << "dist: " << util::numeric_cast<double>(turn.operations[0].enriched.distance)
+                        << " / "  << util::numeric_cast<double>(turn.operations[1].enriched.distance)
                         << std::endl
                         << "vis: " << bg::visited_char(turn.operations[0].visited)
                         << " / "  << bg::visited_char(turn.operations[1].visited);

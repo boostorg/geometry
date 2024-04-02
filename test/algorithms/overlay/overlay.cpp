@@ -318,9 +318,9 @@ struct map_visitor
         // Create a rounded off point
         std::pair<int, int> p
             = std::make_pair(
-                boost::numeric_cast<int>(half
+                util::numeric_cast<int>(half
                     + ten * bg::get<0>(turn.point)),
-                boost::numeric_cast<int>(half
+                util::numeric_cast<int>(half
                     + ten * bg::get<1>(turn.point))
                 );
         m_mapper.text(turn.point, text, style, margin, m_offsets[p], lineheight);
