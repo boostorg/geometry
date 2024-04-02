@@ -6,8 +6,8 @@
   Copyright (c) 2009-2017 Mateusz Loskot <mateusz@loskot.net>, London, UK.
   Copyright (c) 2011-2017 Adam Wulkiewicz, Lodz, Poland.
 
-  This file was modified by Oracle on 2015-2023.
-  Modifications copyright (c) 2015-2023, Oracle and/or its affiliates.
+  This file was modified by Oracle on 2015-2024.
+  Modifications copyright (c) 2015-2024, Oracle and/or its affiliates.
   Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
   Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
   Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -18,6 +18,27 @@
 =============================================================================/]
 
 [section:release_notes Release Notes]
+
+[/=================]
+[heading Boost 1.85]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1247 1247] Use if constexpr macro instead of condition macro
+* [@https://github.com/boostorg/geometry/pull/1242 1242] Pass strategy to sort by side
+* [@https://github.com/boostorg/geometry/pull/1234 1234] Add cmake files for clang/mac/darwin/arm64
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1231 1231], [@https://github.com/boostorg/geometry/issues/1244 1244] Fix invalid set operations for CCW polygons
+* [@https://github.com/boostorg/geometry/issues/1259 1259] Fix compilation error with CUDA NVCC compiler
+* [@https://github.com/boostorg/geometry/issues/1250 1250] Fix buffer of linestring returning incorrect inner polygon
+* [@https://github.com/boostorg/geometry/issues/1230 1230] Fix union operation perturbing a point and returning wrong result
+* [@https://github.com/boostorg/geometry/issues/1229 1229] Fix union producing self intersections
+* [@https://github.com/boostorg/geometry/pull/1248 1248] Fix buffer issue by setting turns in closed clusters as non traversable
+* [@https://github.com/boostorg/geometry/pull/1246 1246] Fix compilation of converter and is_base_of
+* Various fixes of errors and warnings
 
 [/=================]
 [heading Boost 1.84]
@@ -37,16 +58,16 @@
 
 [*Improvements]
 
-* [https://github.com/boostorg/geometry/pull/1140 1140] Drop dependencies and replace boost with std in several places
-* [https://github.com/boostorg/geometry/pull/1154 1154] Add missing headers so that all headers compile independently complying with Boost policy
-* [https://github.com/boostorg/geometry/pull/1157 1157] Check const Ring concept in calculate_point_order
+* [@https://github.com/boostorg/geometry/pull/1140 1140] Drop dependencies and replace boost with std in several places
+* [@https://github.com/boostorg/geometry/pull/1154 1154] Add missing headers so that all headers compile independently complying with Boost policy
+* [@https://github.com/boostorg/geometry/pull/1157 1157] Check const Ring concept in calculate_point_order
 
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/1100 1100] Fix for union
 * [@https://github.com/boostorg/geometry/issues/1139 1139] Fix for different geometry types
 * [@https://github.com/boostorg/geometry/issues/1158 1158] Fix for convex hull
-* [*https://github.com/boostorg/geometry/issues/1161 1161] Fix within algorithm for geometries having a pole as a vertex
+* [@https://github.com/boostorg/geometry/issues/1161 1161] Fix within algorithm for geometries having a pole as a vertex
 * Various fixes of errors and warnings
 
 [/=================]
