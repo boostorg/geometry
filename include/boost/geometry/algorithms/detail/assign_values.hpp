@@ -26,7 +26,6 @@
 
 #include <boost/concept/requires.hpp>
 #include <boost/concept_check.hpp>
-#include <boost/numeric/conversion/bounds.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/clear.hpp>
@@ -38,7 +37,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/util/algorithm.hpp>
-#include <boost/geometry/util/is_inverse_spheroidal_coordinates.hpp>
+#include <boost/geometry/util/bounds.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
 
 
@@ -74,8 +73,8 @@ struct assign_inverse_box_or_segment
     {
         typedef typename coordinate_type<BoxOrSegment>::type coordinate_type;
 
-        coordinate_type const highest = geometry::bounds<coordinate_type>::highest();
-        coordinate_type const lowest = geometry::bounds<coordinate_type>::lowest();
+        coordinate_type const highest = util::bounds<coordinate_type>::highest();
+        coordinate_type const lowest = util::bounds<coordinate_type>::lowest();
         detail::for_each_dimension<BoxOrSegment>([&](auto dimension)
         {
             set<0, dimension>(geometry, highest);

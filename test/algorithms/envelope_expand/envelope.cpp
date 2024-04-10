@@ -18,8 +18,6 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/numeric/conversion/bounds.hpp>
-
 #include "test_envelope.hpp"
 
 #include <boost/geometry/geometries/geometries.hpp>
@@ -27,6 +25,7 @@
 #include <boost/geometry/geometries/adapted/c_array.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/geometries/adapted/std_pair_as_segment.hpp>
+#include <boost/geometry/util/bounds.hpp>
 #include <test_common/test_point.hpp>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
@@ -68,8 +67,8 @@ template <typename Geometry>
 void test_empty_geometry(std::string const& wkt)
 {
     typedef typename bg::coordinate_type<Geometry>::type ct;
-    ct high_val = boost::numeric::bounds<ct>::highest();
-    ct low_val = boost::numeric::bounds<ct>::lowest();
+    ct const high_val = bg::util::bounds<ct>::highest();
+    ct const low_val = bg::util::bounds<ct>::lowest();
 
     test_envelope<Geometry>(wkt, high_val, low_val, high_val, low_val);
 }
