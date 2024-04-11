@@ -39,4 +39,14 @@ for file in $files; do
   mv $dirn/$filen.gcno $COVERAGE_DIR/$TEST_NAME/$dstfilen.gcno
 done
 
+cd $BOOST_DIR
+
+find "$BOOST_DIR" -type f -name "Jamfile" | while read -r file; do
+    # Replace "run" with "compile" using sed
+    sed -i 's/\brun\b/compile/g' "$file"
+    sed -i 's/: : :/:/g' "$file"
+done
+
+./b2 -j$TEST_NPARALLEL -a toolset=gcc cxxflags="--std=c++17" libs/geometry/$TEST_DIR
+
 exit $EXIT_STATUS
