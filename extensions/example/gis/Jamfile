@@ -11,8 +11,6 @@
 project boost-geometry-extensions-gis-examples
     :
     requirements
-        <include>.
-        <include>../../../../../boost
         <toolset>gcc:<cxxflags>-pedantic
     ;
 
