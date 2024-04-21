@@ -34,6 +34,7 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #include <boost/geometry/algorithms/detail/overlay/discard_duplicate_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
@@ -42,11 +43,8 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/util/constexpr.hpp>
-#include <boost/geometry/util/for_each_with_index.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 
-#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-#  include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
-#endif
 
 
 namespace boost { namespace geometry
@@ -112,8 +110,10 @@ template <typename Operations, typename Turns>
 inline void enrich_assign(Operations& operations, Turns& turns,
                           bool check_consecutive_turns)
 {
-    for_each_with_index(operations, [&](std::size_t index, auto const& indexed)
+    for (auto const& item : util::enumerate(operations))
     {
+        auto const& index = item.index;
+        auto const& indexed = item.value;
         auto& turn = turns[indexed.turn_index];
         auto& op = turn.operations[indexed.operation_index];
 
@@ -185,7 +185,7 @@ inline void enrich_assign(Operations& operations, Turns& turns,
             // Next turn is located further on same segment: assign next_ip_index
             op.enriched.next_ip_index = static_cast<signed_size_type>(operations[next_index].turn_index);
         }
-    });
+    }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     for (auto const& indexed_op : operations)
@@ -223,8 +223,10 @@ inline void enrich_adapt(Operations& operations, Turns& turns)
     bool next_phase = false;
     std::size_t previous_index = operations.size() - 1;
 
-    for_each_with_index(operations, [&](std::size_t index, auto const& indexed)
+    for (auto const& item : util::enumerate(operations))
     {
+        auto const& index = item.index;
+        auto const& indexed = item.value;
         auto& turn = turns[indexed.turn_index];
         auto& op = turn.operations[indexed.operation_index];
 
@@ -243,7 +245,7 @@ inline void enrich_adapt(Operations& operations, Turns& turns)
             }
         }
         previous_index = index;
-    });
+    }
 
     if (! next_phase)
     {
@@ -290,12 +292,16 @@ template <typename Turns, typename MappedVector, typename IncludePolicy>
 inline void create_map(Turns const& turns, MappedVector& mapped_vector,
                        IncludePolicy const& include_policy)
 {
-    for_each_with_index(turns, [&](std::size_t index, auto const& turn)
+    for (auto const& turn_item : util::enumerate(turns))
     {
+        auto const& index = turn_item.index;
+        auto const& turn = turn_item.value;
         if (! turn.discarded)
         {
-            for_each_with_index(turn.operations, [&](std::size_t op_index, auto const& op)
+            for (auto const& op_item : util::enumerate(turn.operations))
             {
+                auto const& op_index = op_item.index;
+                auto const& op = op_item.value;
                 if (include_policy.include(op.operation))
                 {
                     ring_identifier const ring_id
@@ -309,9 +315,9 @@ inline void create_map(Turns const& turns, MappedVector& mapped_vector,
                             index, op_index, op, turn.operations[1 - op_index].seg_id
                         );
                 }
-            });
+            }
         }
-    });
+    }
 }
 
 template <typename Point1, typename Point2>
@@ -534,9 +540,15 @@ inline void enrich_intersection_points(Turns& turns,
     }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
-    //detail::overlay::check_graph(turns, for_operation);
+    constexpr bool do_check_graph = true;
+#else
+    constexpr bool do_check_graph = false;
 #endif
 
+    if BOOST_GEOMETRY_CONSTEXPR (do_check_graph)
+    {
+        detail::overlay::check_graph(turns, target_operation);
+    }
 }
 
 }} // namespace boost::geometry

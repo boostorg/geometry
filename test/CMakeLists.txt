@@ -49,3 +49,4 @@ endif()
 
 add_subdirectory(algorithms)
 add_subdirectory(util)
+add_subdirectory(views)
