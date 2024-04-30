@@ -59,7 +59,7 @@
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
-#include <boost/geometry/util/for_each_with_index.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 #include <boost/geometry/util/range.hpp>
 
 
@@ -376,16 +376,18 @@ struct buffered_piece_collection
 
     inline void update_turn_administration()
     {
-        for_each_with_index(m_turns, [this](std::size_t index, auto& turn)
+        for (auto const& enumerated : util::enumerate(m_turns))
         {
-            turn.turn_index = index;
+            // enumerated is const, but its value is a non-const reference
+            auto& turn = enumerated.value;
+            turn.turn_index = enumerated.index;
 
             // Verify if a turn is a linear endpoint
             if (! turn.is_linear_end_point)
             {
                 this->check_linear_endpoints(turn);
             }
-        });
+        }
     }
 
     // Calculate properties of piece borders which are not influenced
@@ -1091,30 +1093,32 @@ struct buffered_piece_collection
         // Inner rings, for deflate, which do not have intersections, and
         // which are outside originals, are skipped
         // (other ones should be traversed)
-        for_each_with_index(offsetted_rings, [&](std::size_t index, auto const& ring)
+        for (auto const& enumerated : util::enumerate(offsetted_rings))
+        {
+            auto const& ring = enumerated.value;
+            if (! ring.has_intersections()
+                && ! ring.is_untouched_outside_original)
             {
-                if (! ring.has_intersections()
-                    && ! ring.is_untouched_outside_original)
-                {
-                    properties p = properties(ring, m_strategy);
-                    if (p.valid)
-                    {
-                        ring_identifier id(0, index, -1);
-                        selected[id] = p;
-                    }
-                }
-            });
-
-        // Select all created rings
-        for_each_with_index(traversed_rings, [&](std::size_t index, auto const& ring)
-            {
-                properties p = properties(ring, m_strategy);
+                properties const p = properties(ring, m_strategy);
                 if (p.valid)
                 {
-                    ring_identifier id(2, index, -1);
+                    ring_identifier id(0, enumerated.index, -1);
                     selected[id] = p;
                 }
-            });
+            }
+        }
+
+        // Select all created rings
+        for (auto const& enumerated : util::enumerate(traversed_rings))
+        {
+            auto const& ring = enumerated.value;
+            properties p = properties(ring, m_strategy);
+            if (p.valid)
+            {
+                ring_identifier id(2, enumerated.index, -1);
+                selected[id] = p;
+            }
+        }
 
         detail::overlay::assign_parents<overlay_buffer>(offsetted_rings, traversed_rings,
                 selected, m_strategy);

@@ -41,7 +41,9 @@ done
 
 cd $BOOST_DIR
 
-find "$BOOST_DIR" -type f -name "Jamfile" | while read -r file; do
+rm -rf bin.v2/libs/geometry/$TEST_DIR
+
+find "libs/geometry/$TEST_DIR" -type f -name "Jamfile" | while read -r file; do
     # Replace "run" with "compile" using sed
     sed -i 's/\brun\b/compile/g' "$file"
     sed -i 's/: : :/:/g' "$file"

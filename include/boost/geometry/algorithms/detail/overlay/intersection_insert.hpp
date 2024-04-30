@@ -59,7 +59,7 @@
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
-#include <boost/geometry/util/for_each_with_index.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 #endif
 
 namespace boost { namespace geometry
@@ -379,10 +379,11 @@ struct intersection_of_linestring_with_areal
         }
 
 #if defined(BOOST_GEOMETRY_DEBUG_FOLLOW)
-        for_each_with_index(turns, [](auto index, auto const& turn)
+        for (auto const& item : util::enumerate(turns))
         {
-            debug_follow(turn, turn.operations[0], index);
-        });
+            auto const& turn = item.value;
+            debug_follow(turn, turn.operations[0], item.index);
+        }
 #endif
 
         return follower::apply

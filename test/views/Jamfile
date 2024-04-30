@@ -17,6 +17,7 @@ test-suite boost-geometry-views
     :
     [ run box_view.cpp             : : : : views_box_view ]
     [ run closeable_view.cpp       : : : : views_closeable_view ]
+    [ run enumerate_view.cpp       : : : : views_enumerate_view ]
     [ run random_access_view.cpp   : : : : views_random_access_view ]
     [ run reversible_closeable.cpp : : : : views_reversible_closeable ]
     [ run reversible_view.cpp      : : : : views_reversible_view ]    
