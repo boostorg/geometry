@@ -11,6 +11,8 @@
 test-suite boost-geometry-algorithms-perimeter
     :
     [ run perimeter.cpp                  : : : : algorithms_perimeter ]
+    [ run perimeter_base.cpp             : : : : algorithms_perimeter_base ]
+    [ run perimeter_multi.cpp            : : : : algorithms_perimeter_multi ]
     [ run perimeter_geo.cpp              : : : : algorithms_perimeter_geo ]
     [ run perimeter_sph.cpp              : : : : algorithms_perimeter_sph ]
     ;

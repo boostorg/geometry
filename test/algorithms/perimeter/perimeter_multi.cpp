@@ -15,7 +15,7 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
-#include <algorithms/test_perimeter.hpp>
+#include "test_perimeter.hpp"
 
 
 template <typename P>
