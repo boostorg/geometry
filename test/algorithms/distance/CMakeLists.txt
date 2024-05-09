@@ -4,14 +4,22 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-add_subdirectory(sections)
-
 foreach(item IN ITEMS
-    calculate_point_order
-    approximately_equals
-    partition
-    tupled_output
-    visit
+    distance
+    distance_ca_ar_ar
+    distance_ca_l_ar
+    distance_ca_l_l
+    distance_ca_pl_ar
+    distance_ca_pl_l
+    distance_ca_pl_pl
+    distance_se_geo_ar_ar
+    distance_se_geo_l_ar
+    distance_se_geo_l_l
+    distance_se_geo_pl_ar
+    distance_geo_pl_l
+    distance_se_geo_pl_pl
+    distance_se_pl_l
+    distance_se_pl_pl
   )
   boost_geometry_add_unit_test("algorithms" ${item})
 endforeach()
