@@ -152,6 +152,9 @@ struct single_tag_of<multi_polygon_tag>
 
 #endif
 
+template <typename Tag>
+using single_tag_of_t = typename single_tag_of<Tag>::type;
+
 
 }} // namespace boost::geometry
 
