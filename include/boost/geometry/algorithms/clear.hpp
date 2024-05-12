@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020-2023.
 // Modifications copyright (c) 2020-2023, Oracle and/or its affiliates.
@@ -56,17 +57,17 @@ struct polygon_clear
     {
         traits::clear
             <
-                typename std::remove_reference
+                std::remove_reference_t
                     <
                         typename traits::interior_mutable_type<Polygon>::type
-                    >::type
+                    >
             >::apply(interior_rings(polygon));
         traits::clear
             <
-                typename std::remove_reference
+                std::remove_reference_t
                     <
                         typename traits::ring_mutable_type<Polygon>::type
-                    >::type
+                    >
             >::apply(exterior_ring(polygon));
     }
 };
@@ -90,7 +91,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
+    typename Tag = tag_cast_t<tag_t<Geometry>, multi_tag>
 >
 struct clear: not_implemented<Tag>
 {};
