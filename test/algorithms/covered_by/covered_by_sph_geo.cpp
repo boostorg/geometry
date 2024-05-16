@@ -306,6 +306,11 @@ void test_point_polygon()
         BOOST_CHECK_EQUAL(bg::covered_by(Point(-1, -61), poly_s_complex_5edges, ws), false);
         BOOST_CHECK_EQUAL(bg::covered_by(Point(15, -81), poly_s_complex_5edges, ws), false);
         BOOST_CHECK_EQUAL(bg::covered_by(Point(7, -50), poly_s_complex_5edges, ws), false);
+
+        //multiple points representing South pole
+        bg::model::polygon<Point> poly_multiple_poles;
+        bg::read_wkt("POLYGON((75 -90, 75 -6, 120 -45, 163 -90, 75 -90))", poly_multiple_poles);
+        BOOST_CHECK_EQUAL(bg::covered_by(Point(119, -46), poly_multiple_poles, ws), true);
     }
     // Polygon covering nearly half of the globe but no poles
     {
