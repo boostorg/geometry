@@ -5,13 +5,8 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    box_view
-    closeable_view
-    enumerate_view
-    random_access_view
-    reversible_closeable
-    reversible_view
-    segment_view
+    wkt
+    wkt_multi
   )
-  boost_geometry_add_unit_test("views" ${item})
+  boost_geometry_add_unit_test("io" ${item})
 endforeach()
