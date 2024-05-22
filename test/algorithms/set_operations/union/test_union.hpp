@@ -3,8 +3,9 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2021.
-// Modifications copyright (c) 2015-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2024.
+// Modifications copyright (c) 2015-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -143,17 +144,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
                 << " detected: " << area_inserted
                 << " type: " << (type_for_assert_message<G1, G2>()));
     }
-#endif
-
-
-
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-    std::cout << "*** case: " << caseid
-        << " area: " << area
-        << " points: " << n
-        << " polygons: " << boost::size(clip)
-        << " holes: " << holes
-        << std::endl;
 #endif
 
     if (! expected_count.empty())

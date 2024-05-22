@@ -2,8 +2,9 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -45,7 +46,6 @@ template
     typename TurnInfoMap,
     typename Clusters,
     typename Strategy,
-    typename RobustPolicy,
     typename Visitor,
     typename Backtrack
 >
@@ -55,7 +55,6 @@ struct traversal_ring_creator
             <
                 Reverse1, Reverse2, OverlayType,
                 Geometry1, Geometry2, Turns, Clusters,
-                RobustPolicy,
                 Strategy,
                 Visitor
             > traversal_type;
@@ -70,16 +69,15 @@ struct traversal_ring_creator
             Turns& turns, TurnInfoMap& turn_info_map,
             Clusters const& clusters,
             Strategy const& strategy,
-            RobustPolicy const& robust_policy, Visitor& visitor)
+            Visitor& visitor)
         : m_trav(geometry1, geometry2, turns, clusters,
-                 robust_policy, strategy, visitor)
+                 strategy, visitor)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_turn_info_map(turn_info_map)
         , m_clusters(clusters)
         , m_strategy(strategy)
-        , m_robust_policy(robust_policy)
         , m_visitor(visitor)
     {
     }
@@ -113,13 +111,13 @@ struct traversal_ring_creator
             {
                 geometry::copy_segments<Reverse1>(m_geometry1,
                         previous_op.seg_id, to_vertex_index,
-                        m_strategy, m_robust_policy, current_ring);
+                        m_strategy, current_ring);
             }
             else
             {
                 geometry::copy_segments<Reverse2>(m_geometry2,
                         previous_op.seg_id, to_vertex_index,
-                        m_strategy, m_robust_policy, current_ring);
+                        m_strategy, current_ring);
             }
         }
 
@@ -162,7 +160,7 @@ struct traversal_ring_creator
         turn_type& current_turn = m_turns[turn_index];
         turn_operation_type& op = current_turn.operations[op_index];
         detail::overlay::append_no_collinear(current_ring, current_turn.point,
-                                             m_strategy, m_robust_policy);
+                                             m_strategy);
 
         // Register the visit
         m_trav.set_visited(current_turn, op);
@@ -179,7 +177,7 @@ struct traversal_ring_creator
         turn_operation_type& start_op = m_turns[start_turn_index].operations[start_op_index];
 
         detail::overlay::append_no_collinear(ring, start_turn.point,
-                                             m_strategy, m_robust_policy);
+                                             m_strategy);
 
         signed_size_type current_turn_index = start_turn_index;
         int current_op_index = start_op_index;
@@ -274,7 +272,7 @@ struct traversal_ring_creator
 
         if (traverse_error == traverse_error_none)
         {
-            remove_spikes_at_closure(ring, m_strategy, m_robust_policy);
+            remove_spikes_at_closure(ring, m_strategy);
             fix_closure(ring, m_strategy);
 
             std::size_t const min_num_points
@@ -298,7 +296,7 @@ struct traversal_ring_creator
                              m_turns[turn_index].operations[op_index],
                              traverse_error,
                              m_geometry1, m_geometry2,
-                             m_strategy, m_robust_policy,
+                             m_strategy,
                              state, m_visitor);
         }
     }
@@ -409,7 +407,6 @@ private:
     TurnInfoMap& m_turn_info_map; // contains turn-info information per ring
     Clusters const& m_clusters;
     Strategy const& m_strategy;
-    RobustPolicy const& m_robust_policy;
     Visitor& m_visitor;
 };
 

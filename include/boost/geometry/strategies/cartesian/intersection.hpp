@@ -3,9 +3,9 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2021.
-// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2024.
+// Modifications copyright (c) 2014-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -28,7 +28,6 @@
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
@@ -51,15 +50,6 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/within.hpp>
-
-#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
-
-
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-#  include <boost/geometry/io/wkt/write.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {
@@ -157,12 +147,12 @@ struct cartesian_segments
         template <typename Point, typename Segment1, typename Segment2>
         void assign_a(Point& point, Segment1 const& a, Segment2 const& ) const
         {
-            assign(point, a, dx_a, dy_a, robust_ra);
+            assign(point, a, dx_a, dy_a, ra);
         }
         template <typename Point, typename Segment1, typename Segment2>
         void assign_b(Point& point, Segment1 const& , Segment2 const& b) const
         {
-            assign(point, b, dx_b, dy_b, robust_rb);
+            assign(point, b, dx_b, dy_b, rb);
         }
 
         template <typename Point, typename Segment>
@@ -239,7 +229,7 @@ struct cartesian_segments
                      <
                          std::is_arithmetic<CoordinateType>::value
                      >::apply(comparable_length_a(), comparable_length_b(),
-                         robust_ra.edge_value(), robust_rb.edge_value());
+                         ra.edge_value(), rb.edge_value());
 
             if (use_a)
             {
@@ -254,8 +244,8 @@ struct cartesian_segments
             // Verify nearly collinear cases (the threshold is arbitrary
             // but influences performance). If the intersection is located
             // outside the segments, then it should be moved.
-            if (robust_ra.possibly_collinear(1.0e-3)
-                && robust_rb.possibly_collinear(1.0e-3))
+            if (ra.possibly_collinear(1.0e-3)
+                && rb.possibly_collinear(1.0e-3))
             {
                 // The segments are nearly collinear and because of the calculation
                 // method with very small denominator, the IP appears outside the
@@ -270,8 +260,8 @@ struct cartesian_segments
 
         CoordinateType dx_a, dy_a;
         CoordinateType dx_b, dy_b;
-        SegmentRatio robust_ra;
-        SegmentRatio robust_rb;
+        SegmentRatio ra;
+        SegmentRatio rb;
     };
 
     template <typename D, typename W, typename ResultType>
@@ -414,10 +404,10 @@ struct cartesian_segments
                 typename geometry::coordinate_type<point2_type>::type
             >::type coordinate_type;
 
-        point1_type const& p1 = range_p.at(0);
-        point1_type const& p2 = range_p.at(1);
-        point2_type const& q1 = range_q.at(0);
-        point2_type const& q2 = range_q.at(1);
+        point1_type const& p1 = p.first;
+        point1_type const& p2 = p.second;
+        point2_type const& q1 = q.first;
+        point2_type const& q2 = q.second;
 
         bool const p_is_point = equals_point_point(p1, p2);
         bool const q_is_point = equals_point_point(q1, q2);
@@ -460,14 +450,6 @@ struct cartesian_segments
 
         bool collinear = sides.collinear();
 
-        //TODO: remove this when rescaling is removed
-        // Calculate the differences again
-        // (for rescaled version, this is different from dx_p etc)
-        coordinate_type const dx_p = get<0>(p2) - get<0>(p1);
-        coordinate_type const dx_q = get<0>(q2) - get<0>(q1);
-        coordinate_type const dy_p = get<1>(p2) - get<1>(p1);
-        coordinate_type const dy_q = get<1>(q2) - get<1>(q1);
-
         // r: ratio 0-1 where intersection divides A/B
         // (only calculated for non-collinear segments)
         if (! collinear)
@@ -475,18 +457,18 @@ struct cartesian_segments
             coordinate_type denominator_a, nominator_a;
             coordinate_type denominator_b, nominator_b;
 
-            cramers_rule(dx_p, dy_p, dx_q, dy_q,
+            cramers_rule(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b,
                 get<0>(p1) - get<0>(q1),
                 get<1>(p1) - get<1>(q1),
                 nominator_a, denominator_a);
 
-            cramers_rule(dx_q, dy_q, dx_p, dy_p,
+            cramers_rule(sinfo.dx_b, sinfo.dy_b, sinfo.dx_a, sinfo.dy_a,
                 get<0>(q1) - get<0>(p1),
                 get<1>(q1) - get<1>(p1),
                 nominator_b, denominator_b);
 
             math::detail::equals_factor_policy<coordinate_type>
-                policy(dx_p, dy_p, dx_q, dy_q);
+                policy(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b);
 
             coordinate_type const zero = 0;
             if (math::detail::equals_by_policy(denominator_a, zero, policy)
@@ -500,18 +482,18 @@ struct cartesian_segments
             }
             else
             {
-                sinfo.robust_ra.assign(nominator_a, denominator_a);
-                sinfo.robust_rb.assign(nominator_b, denominator_b);
+                sinfo.ra.assign(nominator_a, denominator_a);
+                sinfo.rb.assign(nominator_b, denominator_b);
             }
         }
 
         if (collinear)
         {
             std::pair<bool, bool> const collinear_use_first
-                    = is_x_more_significant(geometry::math::abs(dx_p),
-                                            geometry::math::abs(dy_p),
-                                            geometry::math::abs(dx_q),
-                                            geometry::math::abs(dy_q),
+                    = is_x_more_significant(geometry::math::abs(sinfo.dx_a),
+                                            geometry::math::abs(sinfo.dy_a),
+                                            geometry::math::abs(sinfo.dx_b),
+                                            geometry::math::abs(sinfo.dy_b),
                                             p_is_point, q_is_point);
 
             if (collinear_use_first.second)

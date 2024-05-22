@@ -51,8 +51,8 @@ void test_all()
     test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5619, 3.0);
 
     test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * expectation, 1.0);
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // For no-rescaling, fails in CCW mode
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // fails in CCW mode
     test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7528, 2.0);
 #endif
     test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6857, 1.9);
@@ -126,11 +126,7 @@ void test_many_points_per_circle()
 
     using bg::strategy::buffer::point_circle;
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     double const tolerance = 1000.0;
-#else
-    double const tolerance = 1.0;
-#endif
 
     // Area should be somewhat larger (~>) than pi*distance^2
     // 6051788: area ~> 115058122875258

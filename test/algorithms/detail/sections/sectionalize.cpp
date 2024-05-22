@@ -5,8 +5,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2024.
+// Modifications copyright (c) 2020-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -61,7 +62,6 @@ void test_sectionalize_part()
     Geometry geometry;
     geometry.push_back(bg::make<point_type>(1, 1));
 
-    bg::detail::no_rescale_policy rescale_policy;
     typename bg::strategies::relate::services::default_strategy
         <
             Geometry, Geometry
@@ -69,12 +69,12 @@ void test_sectionalize_part()
 
     bg::ring_identifier ring_id;
     sectionalize_part::apply(sections, geometry.begin(), geometry.end(),
-                             rescale_policy, strategy, ring_id, 10);
+                             strategy, ring_id, 10);
     // There should not yet be anything generated, because it is only ONE point
 
     geometry.push_back(bg::make<point_type>(2, 2));
     sectionalize_part::apply(sections, geometry.begin(), geometry.end(),
-                             rescale_policy, strategy, ring_id, 10);
+                             strategy, ring_id, 10);
 }
 
 
@@ -92,8 +92,7 @@ void test_sectionalize(std::string const& caseid, G const& g, std::size_t sectio
     using sections= bg::sections<box, dimension_count>;
 
     sections s;
-    bg::sectionalize<Reverse, DimensionVector>(g,
-            bg::detail::no_rescale_policy(), s, 0, max_count);
+    bg::sectionalize<Reverse, DimensionVector>(g, s, 0, max_count);
 
     BOOST_CHECK_EQUAL(s.size(), section_count);
 
@@ -340,8 +339,8 @@ void test_large_integers()
     bg::sections<bg::model::box<double_point_type>, 1> double_sections;
 
 
-    bg::sectionalize<false, dimensions>(int_poly, bg::detail::no_rescale_policy(), int_sections);
-    bg::sectionalize<false, dimensions>(double_poly, bg::detail::no_rescale_policy(), double_sections);
+    bg::sectionalize<false, dimensions>(int_poly, int_sections);
+    bg::sectionalize<false, dimensions>(double_poly, double_sections);
 
     bool equally_sized = int_sections.size() == double_sections.size();
     BOOST_CHECK(equally_sized);

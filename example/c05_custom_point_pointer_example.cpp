@@ -102,11 +102,10 @@ int main()
 
     // This works because outputs to a normal struct point, no point*
     typedef boost::geometry::model::linestring<point_2d> linestring_2d;
-    boost::geometry::detail::no_rescale_policy rescale_policy;
     std::vector<linestring_2d> clipped;
     boost::geometry::strategy::intersection::liang_barsky<box_2d, point_2d> strategy;
     boost::geometry::detail::intersection::clip_range_with_box<linestring_2d>(cb,
-                    myline, rescale_policy, std::back_inserter(clipped), strategy);
+                    myline, std::back_inserter(clipped), strategy);
 
 
     std::cout << boost::geometry::length(clipped.front()) << std::endl;
