@@ -5,13 +5,12 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    box_view
-    closeable_view
-    enumerate_view
-    random_access_view
-    reversible_closeable
-    reversible_view
-    segment_view
+    custom_ring
+    custom_polygon
+    custom_multi_polygon
+    custom_linestring
+    custom_multi_linestring
+    custom_different_geometries
   )
-  boost_geometry_add_unit_test("views" ${item})
+  boost_geometry_add_unit_test("geometries_cnc" ${item})
 endforeach()
