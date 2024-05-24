@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -15,6 +17,8 @@
 
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
+
+#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -85,13 +89,21 @@ public:
     {
         using CT = typename calculation_type<Point, PointOfSegment>::type;
 
+        model::point
+            <
+                CT,
+                dimension<PointOfSegment>::value,
+                typename coordinate_system<PointOfSegment>::type
+            > result;
+
         // http://williams.best.vwh.net/avform.htm#XTE
         CT d3 = m_strategy.apply(sp1, sp2);
 
         if (geometry::math::equals(d3, 0.0))
         {
             // "Degenerate" segment, return either d1 or d2
-            return sp1;
+            geometry::detail::conversion::convert_point_to_point(sp1, result);
+            return result;
         }
 
         CT d1 = m_strategy.apply(sp1, p);
@@ -159,24 +171,18 @@ public:
                     false
                 >(lon1, lat1, s14_sph, a12, srs::sphere<CT>(earth_radius));
 
-            model::point
-                <
-                    CT,
-                    dimension<PointOfSegment>::value,
-                    typename coordinate_system<PointOfSegment>::type
-                > cp;
+            geometry::set_from_radian<0>(result, res_direct.lon2);
+            geometry::set_from_radian<1>(result, res_direct.lat2);
 
-            geometry::set_from_radian<0>(cp, res_direct.lon2);
-            geometry::set_from_radian<1>(cp, res_direct.lat2);
-
-            return cp;
+            return result;
         }
         else
         {
 #ifdef BOOST_GEOMETRY_DEBUG_CROSS_TRACK
             std::cout << "Projection OUTSIDE the segment" << std::endl;
 #endif
-            return d1 < d2 ? sp1 : sp2;
+            geometry::detail::conversion::convert_point_to_point(d1 < d2 ? sp1 : sp2, result);
+            return result;
         }
     }
 
