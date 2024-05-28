@@ -102,11 +102,6 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
                 single_out, point_tag, point_tag
             > pointlike;
 
-        typedef typename geometry::tuples::element
-            <
-                areal::index, TupledOut
-            >::type areal_out_type;
-
         // A * A -> A
         call_intersection(areal1, areal2,
                           areal::get(geometry_out),
@@ -127,6 +122,13 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
         {
             // NOTE: the original areal geometry could be used instead of boundary here
             //   however this results in static assert failure related to rescale policy
+            // After the removing of rescaling replacing boundary with areal geometry results in
+            // some tests failing.
+            typedef typename geometry::tuples::element
+            <
+                areal::index, TupledOut
+            >::type areal_out_type;
+
             typedef geometry::detail::boundary_view
                 <
                     areal_out_type const
