@@ -239,13 +239,10 @@ struct cartesian_segments
             {
                 assign_b(point, a, b);
             }
-
-#ifndef BOOST_GEOMETRY_USE_RESCALING
             // Verify nearly collinear cases (the threshold is arbitrary
             // but influences performance). If the intersection is located
             // outside the segments, then it should be moved.
-            if (ra.possibly_collinear(1.0e-3)
-                && rb.possibly_collinear(1.0e-3))
+            if (ra.possibly_collinear(1.0e-3) && rb.possibly_collinear(1.0e-3))
             {
                 // The segments are nearly collinear and because of the calculation
                 // method with very small denominator, the IP appears outside the
@@ -255,7 +252,6 @@ struct cartesian_segments
                 assign_if_exceeds(point, a);
                 assign_if_exceeds(point, b);
             }
-#endif
         }
 
         CoordinateType dx_a, dy_a;

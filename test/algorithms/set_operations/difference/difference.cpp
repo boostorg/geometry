@@ -685,7 +685,7 @@ int test_main(int, char* [])
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
     // Many of the failures are self-intersection points.
-    BoostGeometryWriteExpectedFailures(15, 5, 17, 10);
+    BoostGeometryWriteExpectedFailures(5, 17, 10);
 #endif
 
     return 0;

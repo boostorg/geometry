@@ -166,16 +166,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
                             );
     }
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-    // Without rescaling, point count might easily differ (which is no problem)
-    BOOST_CHECK_MESSAGE(expected_point_count < 0 || std::abs(int(n) - expected_point_count) < 3,
-            "union: " << caseid
-            << " #points expected: " << expected_point_count
-            << " detected: " << n
-            << " type: " << (type_for_assert_message<G1, G2>())
-            );
-#endif
-
     BOOST_CHECK_MESSAGE(expected_area.contains(area, settings.percentage),
             "union: " << caseid << std::setprecision(20)
             << " #area expected: " << expected_area
@@ -197,9 +187,6 @@ void test_union(std::string const& caseid, G1 const& g1, G2 const& g2,
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            << "_rescaled"
-#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());

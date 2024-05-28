@@ -77,16 +77,9 @@ struct policy_verify_all
     static bool const use_handle_imperfect_touch = true;
 };
 
-
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-using verify_policy_aa = policy_verify_nothing;
-#else
 using verify_policy_aa = policy_verify_all;
-#endif
-
 using verify_policy_ll = policy_verify_nothing;
 using verify_policy_la = policy_verify_nothing;
-
 
 struct base_turn_handler
 {

@@ -77,9 +77,6 @@ public:
         int count_on_edge{0};
 
         CalculationType edge_min_fraction{(std::numeric_limits<CalculationType>::max)()};
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        CalculationType inside_min_measure{(std::numeric_limits<CalculationType>::max)()};
-#endif
 
         inline bool is_inside() const
         {
@@ -91,9 +88,6 @@ public:
             return count_on_origin == 0
                 && (count_on_offsetted > 0
                 || (count_on_edge > 0 && edge_min_fraction < 1.0e-3)
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-                || (count < 0 && inside_min_measure < 1.0e-5)
-#endif
                 );
         }
 
@@ -186,15 +180,6 @@ public:
             {
                 apply_on_boundary(point, s1, s2, place_on_ring, the_state);
             }
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            else if (side == -1)
-            {
-                auto const line = detail::make::make_infinite_line<CalculationType>(s1, s2);
-                auto const value = -arithmetic::side_value(line, point);
-                if (value > 0 && value < the_state.inside_min_measure) { the_state.inside_min_measure = value; }
-
-            }
-#endif
         }
 
         if (in_horizontal_range)
