@@ -544,35 +544,35 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustPoint1,
-        typename RobustPoint2
+        typename Point1,
+        typename Point2
     >
     static inline typename Policy::return_type
         relate_collinear(Segment1 const& a,
                          Segment2 const& b,
-                         RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
-                         RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
+                         Point1 const& a1, Point1 const& a2,
+                         Point2 const& b1, Point2 const& b2,
                          bool a_is_point, bool b_is_point)
     {
         if (a_is_point)
         {
             return relate_one_degenerate<Policy, RatioType>(a,
-                get<Dimension>(robust_a1),
-                get<Dimension>(robust_b1), get<Dimension>(robust_b2),
+                get<Dimension>(a1),
+                get<Dimension>(b1), get<Dimension>(b2),
                 true);
         }
         if (b_is_point)
         {
             return relate_one_degenerate<Policy, RatioType>(b,
-                get<Dimension>(robust_b1),
-                get<Dimension>(robust_a1), get<Dimension>(robust_a2),
+                get<Dimension>(b1),
+                get<Dimension>(a1), get<Dimension>(a2),
                 false);
         }
         return relate_collinear<Policy, RatioType>(a, b,
-                                get<Dimension>(robust_a1),
-                                get<Dimension>(robust_a2),
-                                get<Dimension>(robust_b1),
-                                get<Dimension>(robust_b2));
+                                get<Dimension>(a1),
+                                get<Dimension>(a2),
+                                get<Dimension>(b1),
+                                get<Dimension>(b2));
     }
 
     /// Relate segments known collinear
