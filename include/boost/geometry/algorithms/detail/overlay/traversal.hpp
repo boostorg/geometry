@@ -3,8 +3,9 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -83,7 +84,6 @@ template
     typename Geometry2,
     typename Turns,
     typename Clusters,
-    typename RobustPolicy,
     typename Strategy,
     typename Visitor
 >
@@ -107,13 +107,12 @@ private :
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            RobustPolicy const& robust_policy, Strategy const& strategy,
+            Strategy const& strategy,
             Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
-        , m_robust_policy(robust_policy)
         , m_strategy(strategy)
         , m_visitor(visitor)
     {
@@ -1071,7 +1070,6 @@ private :
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters const& m_clusters;
-    RobustPolicy const& m_robust_policy;
     Strategy m_strategy;
     Visitor& m_visitor;
 };

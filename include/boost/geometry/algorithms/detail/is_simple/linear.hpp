@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2014-2024, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
@@ -31,7 +31,6 @@
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 #include <boost/geometry/policies/robustness/segment_ratio.hpp>
 
 #include <boost/geometry/algorithms/intersects.hpp>
@@ -218,7 +217,6 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
             false, turn_policy
         >::apply(linear,
                  strategy,
-                 detail::no_rescale_policy(),
                  turns,
                  interrupt_policy, 0, true);
 

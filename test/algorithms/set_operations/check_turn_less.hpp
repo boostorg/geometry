@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015-2022, Oracle and/or its affiliates.
-
+// Copyright (c) 2015-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -81,8 +81,6 @@ struct check_turn_less
                 Geometry1, Geometry2
             >::type strategy_type;
 
-        typedef bg::detail::no_rescale_policy robust_policy_type;
-
         typedef bg::detail::relate::turns::get_turns
             <
                 Geometry1,
@@ -95,7 +93,7 @@ struct check_turn_less
 
         typedef typename get_turns_type::template turn_info_type
             <
-                strategy_type, robust_policy_type
+                strategy_type
             >::type turn_info;
 
         typedef std::vector<turn_info> turns_container;
@@ -106,7 +104,7 @@ struct check_turn_less
 
         get_turns_type::apply(turns, geometry1, geometry2,
                               interrupt_policy,
-                              strategy_type(), robust_policy_type());
+                              strategy_type());
 
 
         typedef bg::detail::turns::less_seg_fraction_other_op<> turn_less_type;

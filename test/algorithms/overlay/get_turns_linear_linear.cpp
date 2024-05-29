@@ -5,8 +5,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014-2021.
-// Modifications copyright (c) 2014-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014-2024.
+// Modifications copyright (c) 2014-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -33,7 +34,7 @@ void test_all()
 
     test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(0 0,2 0)", "tii++", "txx==");
     test_geometry<ls, ls>("LINESTRING(0 0,2 0)", "LINESTRING(2 0,0 0)", "tix+=", "txi=+");
-    
+
     test_geometry<ls, ls>("LINESTRING(1 0,1 1)", "LINESTRING(0 0,1 0,2 0)", "tuu++");
     test_geometry<ls, ls>("LINESTRING(1 0,0 0)", "LINESTRING(0 0,1 0,2 0)", "txi=+", "tiu+=");
     test_geometry<ls, ls>("LINESTRING(1 0,2 0)", "LINESTRING(0 0,1 0,2 0)", "tii++", "txx==");
@@ -73,9 +74,9 @@ void test_all()
     test_geometry<ls, ls>("LINESTRING(3 5,2 1,1 0)", "LINESTRING(0 0,1 0,2 1,3 5,4 0)", "tiu+=", "ecc==", "txi=+");
 
     test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(-1 -1,1 0,10 0,20 -1)", "mii++", "txu==");
-    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu+=", "txi=+"); 
+    test_geometry<ls, ls>("LINESTRING(0 0,10 0)", "LINESTRING(20 -1,10 0,1 0,-1 -1)", "miu+=", "txi=+");
     test_geometry<ls, ls>("LINESTRING(-1 -1,1 0,10 0,20 -1)", "LINESTRING(0 0,10 0)", "mii++", "tux==");
-    test_geometry<ls, ls>("LINESTRING(20 -1,10 0,1 0,-1 -1)", "LINESTRING(0 0,10 0)", "mui=+", "tix+="); 
+    test_geometry<ls, ls>("LINESTRING(20 -1,10 0,1 0,-1 -1)", "LINESTRING(0 0,10 0)", "mui=+", "tix+=");
 
     test_geometry<ls, ls>("LINESTRING(-1 1,0 0,1 0,4 0,5 5,10 5,15 0,31 0)",
                           "LINESTRING(-1 -1,0 0,1 0,2 0,2.5 1,3 0,30 0)",
@@ -144,7 +145,7 @@ void test_all()
                           expected("muu++"));
     test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(0 4,5 4,6 3)",
                           expected("muu++"));
-    
+
     // SPIKE - NON-ENDPOINT - OPPOSITE
 
     // opposite - eq eq
@@ -210,7 +211,7 @@ void test_all()
                           expected("muu++"));
     test_geometry<ls, ls>("LINESTRING(0 0,4 4,2 2)", "LINESTRING(0 4,5 4)",
                           expected("muu++"));
-    
+
     // 29.01.2015
     if ( BOOST_GEOMETRY_CONDITION((std::is_same<T, double>::value)) )
     {
@@ -373,7 +374,7 @@ void test_all()
     test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,5 0))",
                             "MULTILINESTRING((1 0,8 0,4 0))",
                             expected("mii++")("mix+=")("mux==")("mui==")("mix+=")("mii+=")("mxu==")("mxi=+"));
-    
+
     /*test_geometry<mls, mls>("MULTILINESTRING((0 0,10 0,5 0))",
                             "MULTILINESTRING((1 0,8 0,4 0),(2 0,9 0,5 0))",
                             expected("mii")("ccc")("ccc")("txx"));*/

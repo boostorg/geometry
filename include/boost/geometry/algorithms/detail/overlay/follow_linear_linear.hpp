@@ -2,8 +2,8 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2014-2020, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -212,9 +212,6 @@ protected:
                  OutputIterator oit,
                  SideStrategy const& strategy)
     {
-        // We don't rescale linear/linear
-        detail::no_rescale_policy robust_policy;
-
         if ( is_entering(*it, *op_it) )
         {
             detail::turns::debug_turn(*it, *op_it, "-> Entering");
@@ -226,7 +223,7 @@ protected:
                               linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, strategy, robust_policy,
+                              it->point, *op_it, strategy,
                               linear::get(oit));
             }
             ++enter_count;
@@ -243,7 +240,7 @@ protected:
                               linestring,
                               current_segment_id,
                               op_it->seg_id.segment_index,
-                              it->point, *op_it, strategy, robust_policy,
+                              it->point, *op_it, strategy,
                               linear::get(oit));
             }
         }
@@ -284,9 +281,6 @@ protected:
     {
         if ( action::is_entered(entered) )
         {
-            // We don't rescale linear/linear
-            detail::no_rescale_policy robust_policy;
-
             detail::copy_segments::copy_segments_linestring
                 <
                     false, false // do not reverse; do not remove spikes
@@ -294,7 +288,6 @@ protected:
                          current_segment_id,
                          static_cast<signed_size_type>(boost::size(linestring) - 1),
                          strategy,
-                         robust_policy,
                          current_piece);
         }
 

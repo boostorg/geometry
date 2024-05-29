@@ -131,9 +131,6 @@ void difference_output(std::string const& caseid, G1 const& g1, G2 const& g2, Ou
             << string_from_type<coordinate_type>::name()
             << (ccw ? "_ccw" : "")
             << (open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            << "_rescaled"
-#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());
@@ -258,18 +255,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
 
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-    if (expected_point_count >= 0)
-    {
-        std::size_t const n = bg::num_points(result);
-        BOOST_CHECK_MESSAGE(bg::math::abs(int(n) - expected_point_count) < 3,
-                "difference: " << caseid
-                << " #points expected: " << expected_point_count
-                << " detected: " << n
-                << " type: " << (type_for_assert_message<G1, G2>())
-                );
-    }
-#endif
 
     if (! expected_count.empty())
     {

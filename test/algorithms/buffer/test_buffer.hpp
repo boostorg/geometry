@@ -3,8 +3,9 @@
 
 // Copyright (c) 2010-2019 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2016-2021.
-// Modifications copyright (c) 2016-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2016-2024.
+// Modifications copyright (c) 2016-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -227,9 +228,6 @@ void test_buffer(std::string const& caseid,
         << (end_name.empty() ? "" : "_") << end_name
         << (distance_strategy.negative() ? "_deflate" : "")
         << (bg::point_order<GeometryOut>::value == bg::counterclockwise ? "_ccw" : "")
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        << "_rescaled"
-#endif
          // << "_" << point_buffer_count
         ;
 
@@ -272,14 +270,8 @@ void test_buffer(std::string const& caseid,
 #endif
 
     typedef typename bg::point_type<Geometry>::type point_type;
-    typedef typename bg::rescale_policy_type<point_type>::type
-        rescale_policy_type;
 
-    // Enlarge the box to get a proper rescale policy
     bg::buffer(envelope, envelope, distance_strategy.max_distance(join_strategy, end_strategy));
-
-    rescale_policy_type rescale_policy
-            = bg::get_rescale_policy<rescale_policy_type>(envelope, strategy);
 
     buffered.clear();
     bg::detail::buffer::buffer_inserter<GeometryOut>(geometry,
@@ -290,7 +282,6 @@ void test_buffer(std::string const& caseid,
                         end_strategy,
                         point_strategy,
                         strategy,
-                        rescale_policy,
                         visitor);
 
 #if defined(TEST_WITH_CSV)
@@ -379,15 +370,12 @@ void test_buffer(std::string const& caseid,
                             join_strategy,
                             end_strategy,
                             point_strategy,
-                            rescale_policy,
                             ptv);
         ptv.map_input_output(geometry, buffered, distance_strategy.negative());
         // self_ips NYI here
     }
 #elif defined(TEST_WITH_SVG)
-    rescale_policy_type rescale_policy_output
-            = bg::get_rescale_policy<rescale_policy_type>(envelope_output);
-    buffer_mapper.map_self_ips(mapper, buffered, strategy, rescale_policy_output);
+    buffer_mapper.map_self_ips(mapper, buffered, strategy);
 #endif
 
 }

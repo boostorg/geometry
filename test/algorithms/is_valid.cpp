@@ -56,7 +56,7 @@ void geometry_to_svg(Geometry const& geometry, const std::string& case_id)
         using turn_info = bg::detail::overlay::turn_info
         <
             point_type,
-            typename bg::detail::segment_ratio_type<point_type, bg::detail::no_rescale_policy>::type
+            typename bg::segment_ratio_type<point_type>::type
         >;
         using strategy_type = typename bg::strategies::relate::services::default_strategy
             <
@@ -66,20 +66,13 @@ void geometry_to_svg(Geometry const& geometry, const std::string& case_id)
 
         strategy_type strategy;
 
-#if defined(BOOST_GEOMETRY_NO_ROBUSTNESS)
-        bg::detail::no_rescale_policy rescale_policy;
-#else
-        using rescale_policy_type = typename bg::rescale_policy_type<point_type>::type;
-        rescale_policy_type rescale_policy = bg::get_rescale_policy<rescale_policy_type>(geometry, strategy);
-#endif
-
         std::vector<turn_info> turns;
 
         bg::detail::self_get_turn_points::no_interrupt_policy policy;
         bg::self_turns
             <
                 bg::detail::overlay::assign_null_policy
-            >(geometry, strategy,  rescale_policy, turns, policy);
+            >(geometry, strategy, turns, policy);
 
         for (turn_info const& turn : turns)
         {

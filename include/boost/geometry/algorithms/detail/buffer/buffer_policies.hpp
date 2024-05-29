@@ -2,8 +2,9 @@
 
 // Copyright (c) 2012-2014 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -47,7 +48,6 @@ public :
             typename Turns,
             typename Geometry,
             typename Strategy,
-            typename RobustPolicy,
             typename Visitor
         >
     static inline void apply(std::size_t size_at_start,
@@ -59,7 +59,6 @@ public :
                 Geometry const& ,
                 Geometry const& ,
                 Strategy const& ,
-                RobustPolicy const& ,
                 state_type& state,
                 Visitor& /*visitor*/
                 )
@@ -131,11 +130,11 @@ struct buffer_turn_operation
     : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     signed_size_type piece_index;
-    signed_size_type index_in_robust_ring;
+    signed_size_type index_in_ring;
 
     inline buffer_turn_operation()
         : piece_index(-1)
-        , index_in_robust_ring(-1)
+        , index_in_ring(-1)
     {}
 };
 

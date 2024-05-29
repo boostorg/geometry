@@ -2,11 +2,11 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2013-2022.
-// Modifications copyright (c) 2013-2022 Oracle and/or its affiliates.
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// This file was modified by Oracle on 2013-2024.
+// Modifications copyright (c) 2013-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -21,9 +21,6 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
-
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
@@ -60,24 +57,13 @@ struct get_turns
             typename geometry::point_type<Geometry1>::type
         >::type;
 
-    template <typename Strategy>
-    struct robust_policy_type
-        : geometry::rescale_overlay_policy_type
-            <
-                Geometry1,
-                Geometry2,
-                typename Strategy::cs_tag
-            >
-    {};
-
     template
     <
-        typename Strategy,
-        typename RobustPolicy = typename robust_policy_type<Strategy>::type
+        typename Strategy
     >
     struct turn_info_type
     {
-        using ratio_type = typename segment_ratio_type<turn_point_type, RobustPolicy>::type;
+        using ratio_type = typename segment_ratio_type<turn_point_type>::type;
         using type = overlay::turn_info
             <
                 turn_point_type,
@@ -95,23 +81,6 @@ struct get_turns
                              Geometry2 const& geometry2,
                              InterruptPolicy & interrupt_policy,
                              Strategy const& strategy)
-    {
-        typedef typename robust_policy_type<Strategy>::type robust_policy_t;
-
-        robust_policy_t robust_policy
-                = geometry::get_rescale_policy<robust_policy_t>(
-                    geometry1, geometry2, strategy);
-
-        apply(turns, geometry1, geometry2, interrupt_policy, strategy, robust_policy);
-    }
-
-    template <typename Turns, typename InterruptPolicy, typename Strategy, typename RobustPolicy>
-    static inline void apply(Turns & turns,
-                             Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
-                             InterruptPolicy & interrupt_policy,
-                             Strategy const& strategy,
-                             RobustPolicy const& robust_policy)
     {
         static const bool reverse1 = detail::overlay::do_reverse
             <
@@ -133,7 +102,7 @@ struct get_turns
                 reverse2,
                 GetTurnPolicy
             >::apply(0, geometry1, 1, geometry2,
-                     strategy, robust_policy,
+                     strategy,
                      turns, interrupt_policy);
     }
 };

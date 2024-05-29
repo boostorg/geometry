@@ -260,11 +260,7 @@ static bool test_overlay_p_q(std::string const& caseid,
         {
             out << string_from_type<CalculationType>::name();
         }
-        out
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-             << "_rescaled"
-#endif
-             << ".";
+        out << ".";
         filename = out.str();
     }
 

@@ -5,9 +5,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2015.
-// Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2024.
+// Modifications copyright (c) 2014-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -114,7 +114,7 @@ void test_all()
                             expected("tuu+"));
     test_geometry<ls, poly>("LINESTRING(0 1,0 0,0 1)", "POLYGON((0 0,3 3,3 0,0 0))",
                             expected("tuu+"));
-    
+
     // SPIKE - NON-ENDPOINT - OPPOSITE
 
     // opposite - eq eq
@@ -213,7 +213,7 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(0 6, 5 6)",
                             "POLYGON((0 0,0 10,10 10,10 0,0 0),(4 4,6 4,6 6,4 6,4 4))",
                             expected("miu+")("mcu+")("mxc="));
-    
+
 }
 
 int test_main(int, char* [])

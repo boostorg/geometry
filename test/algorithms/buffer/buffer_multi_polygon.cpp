@@ -547,11 +547,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_p14", rt_p14, join_miter, end_flat, 20.8284, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p15", rt_p15, join_miter, end_flat, 23.6569, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p16", rt_p16, join_miter, end_flat, 23.4853, 1.0);
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling after correcting the tolerance in sort_by_side
     test_one<multi_polygon_type, polygon_type>("rt_p17", rt_p17, join_miter, end_flat, 25.3137, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_p18", rt_p18, join_miter, end_flat, 23.3137, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p19", rt_p19, join_miter, end_flat, 25.5637, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_p20", rt_p20, join_miter, end_flat, 25.4853, 1.0);
@@ -577,15 +573,11 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_u4", rt_u4, join_round, end_flat, 126.9268, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u5", rt_u5, join_round, end_flat, 78.4906, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u6", rt_u6, join_round, end_flat, 115.4461, 1.0);
-
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_miter, end_flat, 42.6421, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u7", rt_u7, join_round, end_flat, 35.6233, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u7_rough", rt_u7, join_round_rough, end_flat, {35.1675, 35.2290}, 1.0);
-
     test_one<multi_polygon_type, polygon_type>("rt_u8", rt_u8, join_miter, end_flat, 70.9142, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u9", rt_u9, join_miter, end_flat, 59.3063, 1.0);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling after removing pretraversal
     test_one<multi_polygon_type, polygon_type>("rt_u10", rt_u10, join_miter, end_flat, 144.0858, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u10_51", rt_u10, join_miter, end_flat, 0.16738, -0.51);
     test_one<multi_polygon_type, polygon_type>("rt_u10_c_51", rt_u10_c, join_miter, end_flat, 0.066952, -0.51);
@@ -593,21 +585,12 @@ void test_all()
     // TODO: invalid - making a bow-tie
     test_one<multi_polygon_type, polygon_type>("rt_u10_50", rt_u10, join_miter, end_flat, 0.214466, -0.50, ut_settings::ignore_validity());
     test_one<multi_polygon_type, polygon_type>("rt_u10_45", rt_u10, join_miter, end_flat, 1.3000, -0.45);
-#endif
     test_one<multi_polygon_type, polygon_type>("rt_u10_25", rt_u10, join_miter, end_flat, 9.6682, -0.25);
-
     test_one<multi_polygon_type, polygon_type>("rt_u11", rt_u11, join_miter, end_flat, 131.3995, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_u11_50", rt_u11, join_miter, end_flat, 0.04289, -0.50);
     test_one<multi_polygon_type, polygon_type>("rt_u11_25", rt_u11, join_miter, end_flat, 10.1449, -0.25);
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling after correcting the tolerance in sort_by_side
     test_one<multi_polygon_type, polygon_type>("rt_u12", rt_u12, join_miter, end_flat, 142.1348, 1.0);
-#endif
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling in combination with get_clusters
     test_one<multi_polygon_type, polygon_type>("rt_u13", rt_u13, join_miter, end_flat, 115.4853, 1.0);
-#endif
 
     test_one<multi_polygon_type, polygon_type>("rt_v1", rt_v1, join_round32, end_flat, 26.9994, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_v2", rt_v2, join_round32, end_flat, 47.3510, 1.0);
@@ -655,10 +638,7 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("nores_b03e", nores_b03e, join_round32, end_flat, 14.4877, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("res_ebc4", res_ebc4, join_round32, end_flat, 43.8877, 1.0);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Erroneous case with rescaling
     test_one<multi_polygon_type, polygon_type>("res_8618", res_8618, join_round32, end_flat, 48.1085, 1.0);
-#endif
     test_one<multi_polygon_type, polygon_type>("res_3b4d", res_3b4d, join_round32, end_flat, 48.4739, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("neighbouring_small",
@@ -704,7 +684,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(3, 1, 3, 3);
+    BoostGeometryWriteExpectedFailures(1, 3, 3);
 #endif
 
     return 0;

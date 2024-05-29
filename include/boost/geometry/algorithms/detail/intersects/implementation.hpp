@@ -4,9 +4,9 @@
 // Copyright (c) 2008-2014 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2014 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2013-2024.
+// Modifications copyright (c) 2013-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -28,7 +28,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/policies/disjoint_interrupt_policy.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 #include <boost/geometry/strategies/relate/services.hpp>
 
@@ -69,7 +68,7 @@ struct self_intersects
         detail::self_get_turn_points::get_turns
             <
                 false, turn_policy
-            >::apply(geometry, strategy, detail::no_rescale_policy(), turns, policy, 0, true);
+            >::apply(geometry, strategy, turns, policy, 0, true);
         return policy.has_intersections;
     }
 };

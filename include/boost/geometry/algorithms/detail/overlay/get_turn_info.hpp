@@ -3,8 +3,9 @@
 // Copyright (c) 2007-2023 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2015-2022.
-// Modifications copyright (c) 2015-2022 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2024.
+// Modifications copyright (c) 2015-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -76,16 +77,9 @@ struct policy_verify_all
     static bool const use_handle_imperfect_touch = true;
 };
 
-
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-using verify_policy_aa = policy_verify_nothing;
-#else
 using verify_policy_aa = policy_verify_all;
-#endif
-
 using verify_policy_ll = policy_verify_nothing;
 using verify_policy_la = policy_verify_nothing;
-
 
 struct base_turn_handler
 {
@@ -138,8 +132,8 @@ struct base_turn_handler
         BOOST_GEOMETRY_ASSERT(index < info.count);
 
         geometry::convert(info.intersections[index], ti.point);
-        ti.operations[0].fraction = info.fractions[index].robust_ra;
-        ti.operations[1].fraction = info.fractions[index].robust_rb;
+        ti.operations[0].fraction = info.fractions[index].ra;
+        ti.operations[1].fraction = info.fractions[index].rb;
     }
 
     template <typename TurnInfo, typename IntersectionInfo, typename DirInfo>
@@ -170,8 +164,8 @@ struct base_turn_handler
             }
             else
             {
-                ti.operations[i].fraction = i == 0 ? info.fractions[index].robust_ra
-                                                   : info.fractions[index].robust_rb;
+                ti.operations[i].fraction = i == 0 ? info.fractions[index].ra
+                                                   : info.fractions[index].rb;
             }
         }
     }
@@ -179,7 +173,7 @@ struct base_turn_handler
     template <typename IntersectionInfo>
     static inline unsigned int non_opposite_to_index(IntersectionInfo const& info)
     {
-        return info.fractions[0].robust_rb < info.fractions[1].robust_rb
+        return info.fractions[0].rb < info.fractions[1].rb
             ? 1 : 0;
     }
 
@@ -1394,7 +1388,6 @@ struct get_turn_info
         typename UniqueSubRange2,
         typename TurnInfo,
         typename UmbrellaStrategy,
-        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
@@ -1402,18 +1395,16 @@ struct get_turn_info
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,
                 UmbrellaStrategy const& umbrella_strategy,
-                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
                 UniqueSubRange1, UniqueSubRange2,
                 typename TurnInfo::point_type,
-                UmbrellaStrategy,
-                RobustPolicy
+                UmbrellaStrategy
             > inters_info;
 
-        inters_info inters(range_p, range_q, umbrella_strategy, robust_policy);
+        inters_info inters(range_p, range_q, umbrella_strategy);
 
         char const method = inters.d_info().how;
 

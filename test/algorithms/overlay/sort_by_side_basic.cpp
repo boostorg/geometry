@@ -4,8 +4,9 @@
 // Copyright (c) 2017 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -49,12 +50,11 @@ std::string as_string(std::vector<T> const& v)
 template
 <
     typename Geometry, typename Point,
-    typename RobustPolicy, typename Strategy
+    typename Strategy
 >
 std::vector<std::size_t> apply_get_turns(std::string const& case_id,
             Geometry const& geometry1, Geometry const& geometry2,
             Point const& turn_point, Point const& origin_point,
-            RobustPolicy const& robust_policy,
             Strategy const& strategy,
             std::size_t expected_open_count,
             std::size_t expected_max_rank,
@@ -69,7 +69,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
     typedef bg::detail::overlay::turn_info
     <
         point_type,
-        typename bg::detail::segment_ratio_type<point_type, RobustPolicy>::type
+        typename bg::segment_ratio_type<point_type>::type
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 
@@ -80,7 +80,7 @@ std::vector<std::size_t> apply_get_turns(std::string const& case_id,
         <
             false, false,
             detail::overlay::assign_null_policy
-        >(geometry1, geometry2, strategy, robust_policy, turns, policy);
+        >(geometry1, geometry2, strategy, turns, policy);
 
 
     // Define sorter, sorting counter-clockwise such that polygons are on the
@@ -241,15 +241,6 @@ void test_basic(std::string const& case_id,
     bg::correct(g1);
     bg::correct(g2);
 
-    typedef typename bg::rescale_overlay_policy_type
-    <
-        multi_polygon,
-        multi_polygon
-    >::type rescale_policy_type;
-
-    rescale_policy_type robust_policy
-        = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
     typedef typename bg::strategies::relate::services::default_strategy
         <
             multi_polygon, multi_polygon
@@ -258,7 +249,7 @@ void test_basic(std::string const& case_id,
     strategy_type strategy;
 
     apply_get_turns(case_id, g1, g2, turn_point, origin_point,
-        robust_policy, strategy,
+        strategy,
         expected_open_count, expected_max_rank, expected_right_count);
 }
 

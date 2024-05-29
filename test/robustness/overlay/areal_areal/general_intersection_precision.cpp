@@ -3,8 +3,9 @@
 
 // Copyright (c) 2019-2021 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2021.
-// Modifications copyright (c) 2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2021-2024.
+// Modifications copyright (c) 2021-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -80,18 +81,9 @@ bool test_overlay(std::string const& caseid,
 
     strategy_type strategy;
 
-    typedef typename bg::rescale_overlay_policy_type
-    <
-        Geometry,
-        Geometry
-    >::type rescale_policy_type;
-
-    rescale_policy_type robust_policy
-        = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
     Geometry result;
     bg::detail::overlay::overlay_null_visitor visitor;
-    overlay::apply(g1, g2, robust_policy, std::back_inserter(result),
+    overlay::apply(g1, g2, std::back_inserter(result),
                    strategy, visitor);
 
     auto const detected_area = bg::area(result);

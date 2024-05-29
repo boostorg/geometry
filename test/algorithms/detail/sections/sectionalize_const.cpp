@@ -3,6 +3,10 @@
 
 // Copyright (c) 2022 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2024.
+// Modifications copyright (c) 2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -30,7 +34,7 @@ void test_sectionalize_on_const(Geometry const& geometry, std::size_t expected_s
     using dim_type = std::integer_sequence<std::size_t, Dim>;
 
     section_type sections;
-    bg::sectionalize<false, dim_type>(geometry, bg::detail::no_rescale_policy(), sections);
+    bg::sectionalize<false, dim_type>(geometry, sections);
     BOOST_CHECK_EQUAL(sections.size(), expected_section_count);
 }
 

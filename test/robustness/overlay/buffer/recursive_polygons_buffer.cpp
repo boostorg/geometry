@@ -136,9 +136,6 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
         std::ostringstream out;
         out << "rec_pol_buffer_" << geometry_to_crc(mp)
             << "_" << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
-       #if defined(BOOST_GEOMETRY_USE_RESCALING)
-            << "_rescaled"
-       #endif
             << ".";
         filename = out.str();
     }

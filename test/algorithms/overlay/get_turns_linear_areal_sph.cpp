@@ -1,7 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
-// Copyright (c) 2016, Oracle and/or its affiliates.
+// Copyright (c) 2016-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -33,18 +34,18 @@ void test_all()
                             expected("tcu+")("mic=")("mcc+")("txu="));
     test_geometry<ls, poly>("LINESTRING(10 0,5 0,5 5,10 5,10 10)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             expected("tcc+")("miu=")("mcu+")("txc="));
-    
+
     test_geometry<ls, poly>("LINESTRING(0 0,10 0,10 10.151081711048134)",
                             "POLYGON((0 0,5 5,0 10,20 10,20 2,19 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
                             expected("tcu+")("mic=")("mcu+")("mic=")("mxu+"));
-    
+
     test_geometry<ls, poly>("LINESTRING(11 1,10 0,0 0)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "tcc+", "txu=");
     test_geometry<ls, poly>("LINESTRING(0 0,10 0,11 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "tcu+", "tuc=");
     test_geometry<ls, poly>("LINESTRING(10 0,0 0,-1 1)", "POLYGON((0 0,0 10,10 10,10 0,0 0))",
                             "tcc+", "tuu=");
-    
+
     // true hole
     test_geometry<ls, poly>("LINESTRING(9 1,10 5,9 9)",
                             "POLYGON((0 0,0 10,10 10,10 5,10 0,0 0)(2 2,10 5,2 8,2 2))",
@@ -70,7 +71,7 @@ void test_all()
                             expected("mcu+")("mic=")("tcc+")("txu="));
 
     // SPIKE - NON-ENDPOINT - NON-OPPOSITE
-    
+
     // spike - neq eq
     test_geometry<ls, poly>("LINESTRING(2 2.0036594926050877,4 4,1 1.0022887548647630)",
                             "POLYGON((0 0,4 4,6 3,6 0,0 0))",
@@ -119,9 +120,9 @@ void test_all()
     test_geometry<ls, poly>("LINESTRING(0 1,0 0,0 1)",
                             "POLYGON((0 0,3 3,3 0,0 0))",
                             expected("tuu+"));
-    
+
     // SPIKE - NON-ENDPOINT - OPPOSITE
-    
+
     // opposite - eq eq
     test_geometry<ls, poly>("LINESTRING(6 6,4 4,0 0,2 2.0036594926050877)",
                             "POLYGON((-1 -1,0 0,4 4,6 3,-1 -1))",

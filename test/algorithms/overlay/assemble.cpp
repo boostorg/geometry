@@ -3,8 +3,9 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2019-2021.
-// Modifications copyright (c) 2019-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2024.
+// Modifications copyright (c) 2019-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -30,8 +31,6 @@
 
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
-
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 

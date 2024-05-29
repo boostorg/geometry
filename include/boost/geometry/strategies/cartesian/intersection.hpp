@@ -3,9 +3,9 @@
 // Copyright (c) 2007-2014 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2014-2021.
-// Modifications copyright (c) 2014-2021, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2014-2024.
+// Modifications copyright (c) 2014-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -28,7 +28,6 @@
 #include <boost/geometry/algorithms/detail/assign_values.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
@@ -51,15 +50,6 @@
 #include <boost/geometry/strategies/side.hpp>
 #include <boost/geometry/strategies/side_info.hpp>
 #include <boost/geometry/strategies/within.hpp>
-
-#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
-
-
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-#  include <boost/geometry/io/wkt/write.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {
@@ -157,12 +147,12 @@ struct cartesian_segments
         template <typename Point, typename Segment1, typename Segment2>
         void assign_a(Point& point, Segment1 const& a, Segment2 const& ) const
         {
-            assign(point, a, dx_a, dy_a, robust_ra);
+            assign(point, a, dx_a, dy_a, ra);
         }
         template <typename Point, typename Segment1, typename Segment2>
         void assign_b(Point& point, Segment1 const& , Segment2 const& b) const
         {
-            assign(point, b, dx_b, dy_b, robust_rb);
+            assign(point, b, dx_b, dy_b, rb);
         }
 
         template <typename Point, typename Segment>
@@ -239,7 +229,7 @@ struct cartesian_segments
                      <
                          std::is_arithmetic<CoordinateType>::value
                      >::apply(comparable_length_a(), comparable_length_b(),
-                         robust_ra.edge_value(), robust_rb.edge_value());
+                         ra.edge_value(), rb.edge_value());
 
             if (use_a)
             {
@@ -249,13 +239,10 @@ struct cartesian_segments
             {
                 assign_b(point, a, b);
             }
-
-#ifndef BOOST_GEOMETRY_USE_RESCALING
             // Verify nearly collinear cases (the threshold is arbitrary
             // but influences performance). If the intersection is located
             // outside the segments, then it should be moved.
-            if (robust_ra.possibly_collinear(1.0e-3)
-                && robust_rb.possibly_collinear(1.0e-3))
+            if (ra.possibly_collinear(1.0e-3) && rb.possibly_collinear(1.0e-3))
             {
                 // The segments are nearly collinear and because of the calculation
                 // method with very small denominator, the IP appears outside the
@@ -265,13 +252,12 @@ struct cartesian_segments
                 assign_if_exceeds(point, a);
                 assign_if_exceeds(point, b);
             }
-#endif
         }
 
         CoordinateType dx_a, dy_a;
         CoordinateType dx_b, dy_b;
-        SegmentRatio robust_ra;
-        SegmentRatio robust_rb;
+        SegmentRatio ra;
+        SegmentRatio rb;
     };
 
     template <typename D, typename W, typename ResultType>
@@ -288,38 +274,15 @@ struct cartesian_segments
         // IntersectionPoint = (x1 + r * dx_a, y1 + r * dy_a)
     }
 
-    // Version for non-rescaled policies
     template
     <
         typename UniqueSubRange1,
         typename UniqueSubRange2,
         typename Policy
     >
-    static inline typename Policy::return_type
-        apply(UniqueSubRange1 const& range_p,
-              UniqueSubRange2 const& range_q,
-              Policy const& policy)
-    {
-        // Pass the same ranges both as normal ranges and as modelled ranges
-        return apply(range_p, range_q, policy, range_p, range_q);
-    }
-
-    // Version for non rescaled versions.
-    // The "modelled" parameter might be rescaled (will be removed later)
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename Policy,
-        typename ModelledUniqueSubRange1,
-        typename ModelledUniqueSubRange2
-    >
-    static inline typename Policy::return_type
-        apply(UniqueSubRange1 const& range_p,
-              UniqueSubRange2 const& range_q,
-              Policy const& policy,
-              ModelledUniqueSubRange1 const& modelled_range_p,
-              ModelledUniqueSubRange2 const& modelled_range_q)
+    static inline typename Policy::return_type apply(UniqueSubRange1 const& range_p,
+                                                     UniqueSubRange2 const& range_q,
+                                                     Policy const& policy)
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
@@ -332,18 +295,13 @@ struct cartesian_segments
         point2_type const& q1 = range_q.at(0);
         point2_type const& q2 = range_q.at(1);
 
-        // Declare segments, currently necessary for the policies
-        // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
-        model::referring_segment<point1_type const> const p(p1, p2);
-        model::referring_segment<point2_type const> const q(q1, q2);
-
         typedef typename select_most_precise
             <
-                typename geometry::coordinate_type<typename ModelledUniqueSubRange1::point_type>::type,
-                typename geometry::coordinate_type<typename ModelledUniqueSubRange1::point_type>::type
-            >::type modelled_coordinate_type;
+                typename geometry::coordinate_type<point1_type>::type,
+                typename geometry::coordinate_type<point2_type>::type
+            >::type coordinate_type;
 
-        typedef segment_ratio<modelled_coordinate_type> ratio_type;
+        typedef segment_ratio<coordinate_type> ratio_type;
         segment_intersection_info
             <
                 typename select_calculation_type<point1_type, point2_type, CalculationType>::type,
@@ -355,7 +313,7 @@ struct cartesian_segments
         sinfo.dy_a = get<1>(p2) - get<1>(p1); // distance in y-dir
         sinfo.dy_b = get<1>(q2) - get<1>(q1);
 
-        return unified<ratio_type>(sinfo, p, q, policy, modelled_range_p, modelled_range_q);
+        return unified<ratio_type>(sinfo, range_p, range_q, policy);
     }
 
     //! Returns true if two segments do not overlap.
@@ -389,30 +347,22 @@ struct cartesian_segments
         return math::smaller(maxp, minq) || math::smaller(maxq, minp);
     }
 
-    // Implementation for either rescaled or non rescaled versions.
     template
     <
         typename RatioType,
         typename SegmentInfo,
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
         typename UniqueSubRange1,
-        typename UniqueSubRange2
+        typename UniqueSubRange2,
+        typename Policy
     >
     static inline typename Policy::return_type
         unified(SegmentInfo& sinfo,
-                Segment1 const& p, Segment2 const& q, Policy const&,
                 UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q)
+                UniqueSubRange2 const& range_q,
+                Policy const&)
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
-        typedef typename select_most_precise
-            <
-                typename geometry::coordinate_type<point1_type>::type,
-                typename geometry::coordinate_type<point2_type>::type
-            >::type coordinate_type;
 
         point1_type const& p1 = range_p.at(0);
         point1_type const& p2 = range_p.at(1);
@@ -421,6 +371,11 @@ struct cartesian_segments
 
         bool const p_is_point = equals_point_point(p1, p2);
         bool const q_is_point = equals_point_point(q1, q2);
+
+        // Declare segments, currently necessary for the policies
+        // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
+        model::referring_segment<point1_type const> const p(p1, p2);
+        model::referring_segment<point2_type const> const q(q1, q2);
 
         if (p_is_point && q_is_point)
         {
@@ -460,39 +415,38 @@ struct cartesian_segments
 
         bool collinear = sides.collinear();
 
-        //TODO: remove this when rescaling is removed
-        // Calculate the differences again
-        // (for rescaled version, this is different from dx_p etc)
-        coordinate_type const dx_p = get<0>(p2) - get<0>(p1);
-        coordinate_type const dx_q = get<0>(q2) - get<0>(q1);
-        coordinate_type const dy_p = get<1>(p2) - get<1>(p1);
-        coordinate_type const dy_q = get<1>(q2) - get<1>(q1);
-
         // r: ratio 0-1 where intersection divides A/B
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
-            coordinate_type denominator_a, nominator_a;
-            coordinate_type denominator_b, nominator_b;
+            typedef typename select_most_precise
+                <
+                    typename geometry::coordinate_type<point1_type>::type,
+                    typename geometry::coordinate_type<point2_type>::type
+                >::type coordinate_type;
 
-            cramers_rule(dx_p, dy_p, dx_q, dy_q,
+            coordinate_type denominator_a;
+            coordinate_type nominator_a;
+            coordinate_type denominator_b;
+            coordinate_type nominator_b;
+
+            cramers_rule(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b,
                 get<0>(p1) - get<0>(q1),
                 get<1>(p1) - get<1>(q1),
                 nominator_a, denominator_a);
 
-            cramers_rule(dx_q, dy_q, dx_p, dy_p,
+            cramers_rule(sinfo.dx_b, sinfo.dy_b, sinfo.dx_a, sinfo.dy_a,
                 get<0>(q1) - get<0>(p1),
                 get<1>(q1) - get<1>(p1),
                 nominator_b, denominator_b);
 
             math::detail::equals_factor_policy<coordinate_type>
-                policy(dx_p, dy_p, dx_q, dy_q);
+                policy(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b);
 
             coordinate_type const zero = 0;
             if (math::detail::equals_by_policy(denominator_a, zero, policy)
              || math::detail::equals_by_policy(denominator_b, zero, policy))
             {
-                // If this is the case, no rescaling is done for FP precision.
                 // We set it to collinear, but it indicates a robustness issue.
                 sides.set<0>(0, 0);
                 sides.set<1>(0, 0);
@@ -500,18 +454,18 @@ struct cartesian_segments
             }
             else
             {
-                sinfo.robust_ra.assign(nominator_a, denominator_a);
-                sinfo.robust_rb.assign(nominator_b, denominator_b);
+                sinfo.ra.assign(nominator_a, denominator_a);
+                sinfo.rb.assign(nominator_b, denominator_b);
             }
         }
 
         if (collinear)
         {
             std::pair<bool, bool> const collinear_use_first
-                    = is_x_more_significant(geometry::math::abs(dx_p),
-                                            geometry::math::abs(dy_p),
-                                            geometry::math::abs(dx_q),
-                                            geometry::math::abs(dy_q),
+                    = is_x_more_significant(geometry::math::abs(sinfo.dx_a),
+                                            geometry::math::abs(sinfo.dy_a),
+                                            geometry::math::abs(sinfo.dx_b),
+                                            geometry::math::abs(sinfo.dy_b),
                                             p_is_point, q_is_point);
 
             if (collinear_use_first.second)
@@ -590,35 +544,35 @@ private:
         typename RatioType,
         typename Segment1,
         typename Segment2,
-        typename RobustPoint1,
-        typename RobustPoint2
+        typename Point1,
+        typename Point2
     >
     static inline typename Policy::return_type
         relate_collinear(Segment1 const& a,
                          Segment2 const& b,
-                         RobustPoint1 const& robust_a1, RobustPoint1 const& robust_a2,
-                         RobustPoint2 const& robust_b1, RobustPoint2 const& robust_b2,
+                         Point1 const& a1, Point1 const& a2,
+                         Point2 const& b1, Point2 const& b2,
                          bool a_is_point, bool b_is_point)
     {
         if (a_is_point)
         {
             return relate_one_degenerate<Policy, RatioType>(a,
-                get<Dimension>(robust_a1),
-                get<Dimension>(robust_b1), get<Dimension>(robust_b2),
+                get<Dimension>(a1),
+                get<Dimension>(b1), get<Dimension>(b2),
                 true);
         }
         if (b_is_point)
         {
             return relate_one_degenerate<Policy, RatioType>(b,
-                get<Dimension>(robust_b1),
-                get<Dimension>(robust_a1), get<Dimension>(robust_a2),
+                get<Dimension>(b1),
+                get<Dimension>(a1), get<Dimension>(a2),
                 false);
         }
         return relate_collinear<Policy, RatioType>(a, b,
-                                get<Dimension>(robust_a1),
-                                get<Dimension>(robust_a2),
-                                get<Dimension>(robust_b1),
-                                get<Dimension>(robust_b2));
+                                get<Dimension>(a1),
+                                get<Dimension>(a2),
+                                get<Dimension>(b1),
+                                get<Dimension>(b2));
     }
 
     /// Relate segments known collinear

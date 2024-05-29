@@ -5,9 +5,9 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2022 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2022.
-// Modifications copyright (c) 2013-2022, Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2013-2024.
+// Modifications copyright (c) 2013-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -38,8 +38,6 @@
 #include <boost/geometry/algorithms/num_geometries.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
-
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
 
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
@@ -255,7 +253,7 @@ struct areal_areal
                 detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                 detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
                 detail::overlay::assign_null_policy
-            >(geometry1, geometry2, strategy, detail::no_rescale_policy(), turns, policy);
+            >(geometry1, geometry2, strategy, turns, policy);
 
         return policy.result()
             && ! geometry::detail::touches::rings_containing(geometry1, geometry2, strategy)
@@ -526,7 +524,7 @@ struct self_touches
         detail::self_get_turn_points::get_turns
             <
                 false, policy_type
-            >::apply(geometry, strategy, detail::no_rescale_policy(),
+            >::apply(geometry, strategy,
                      turns, policy, 0, true);
 
         return policy.result();
