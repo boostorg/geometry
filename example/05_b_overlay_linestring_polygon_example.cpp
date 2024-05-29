@@ -64,7 +64,7 @@ int main(void)
 #endif
 
     // Calculate intersection points (turn points)
-    using segment_ratio = bg::detail::segment_ratio_type<point_2d>::type;
+    using segment_ratio = bg::segment_ratio_type<point_2d>::type;
     using turn_info = bg::detail::overlay::turn_info<point_2d, segment_ratio>;
     std::vector<turn_info> turns;
     bg::detail::get_turns::no_interrupt_policy policy;
