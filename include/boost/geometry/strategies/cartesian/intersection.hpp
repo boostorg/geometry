@@ -274,38 +274,15 @@ struct cartesian_segments
         // IntersectionPoint = (x1 + r * dx_a, y1 + r * dy_a)
     }
 
-    // Version for non-rescaled policies
     template
     <
         typename UniqueSubRange1,
         typename UniqueSubRange2,
         typename Policy
     >
-    static inline typename Policy::return_type
-        apply(UniqueSubRange1 const& range_p,
-              UniqueSubRange2 const& range_q,
-              Policy const& policy)
-    {
-        // Pass the same ranges both as normal ranges and as modelled ranges
-        return apply(range_p, range_q, policy, range_p, range_q);
-    }
-
-    // Version for non rescaled versions.
-    // The "modelled" parameter might be rescaled (will be removed later)
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename Policy,
-        typename ModelledUniqueSubRange1,
-        typename ModelledUniqueSubRange2
-    >
-    static inline typename Policy::return_type
-        apply(UniqueSubRange1 const& range_p,
-              UniqueSubRange2 const& range_q,
-              Policy const& policy,
-              ModelledUniqueSubRange1 const& modelled_range_p,
-              ModelledUniqueSubRange2 const& modelled_range_q)
+    static inline typename Policy::return_type apply(UniqueSubRange1 const& range_p,
+                                                     UniqueSubRange2 const& range_q,
+                                                     Policy const& policy)
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
@@ -318,18 +295,13 @@ struct cartesian_segments
         point2_type const& q1 = range_q.at(0);
         point2_type const& q2 = range_q.at(1);
 
-        // Declare segments, currently necessary for the policies
-        // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
-        model::referring_segment<point1_type const> const p(p1, p2);
-        model::referring_segment<point2_type const> const q(q1, q2);
-
         typedef typename select_most_precise
             <
-                typename geometry::coordinate_type<typename ModelledUniqueSubRange1::point_type>::type,
-                typename geometry::coordinate_type<typename ModelledUniqueSubRange1::point_type>::type
-            >::type modelled_coordinate_type;
+                typename geometry::coordinate_type<point1_type>::type,
+                typename geometry::coordinate_type<point2_type>::type
+            >::type coordinate_type;
 
-        typedef segment_ratio<modelled_coordinate_type> ratio_type;
+        typedef segment_ratio<coordinate_type> ratio_type;
         segment_intersection_info
             <
                 typename select_calculation_type<point1_type, point2_type, CalculationType>::type,
@@ -341,7 +313,7 @@ struct cartesian_segments
         sinfo.dy_a = get<1>(p2) - get<1>(p1); // distance in y-dir
         sinfo.dy_b = get<1>(q2) - get<1>(q1);
 
-        return unified<ratio_type>(sinfo, p, q, policy, modelled_range_p, modelled_range_q);
+        return unified<ratio_type>(sinfo, range_p, range_q, policy);
     }
 
     //! Returns true if two segments do not overlap.
@@ -375,38 +347,35 @@ struct cartesian_segments
         return math::smaller(maxp, minq) || math::smaller(maxq, minp);
     }
 
-    // Implementation for either rescaled or non rescaled versions.
     template
     <
         typename RatioType,
         typename SegmentInfo,
-        typename Segment1,
-        typename Segment2,
-        typename Policy,
         typename UniqueSubRange1,
-        typename UniqueSubRange2
+        typename UniqueSubRange2,
+        typename Policy
     >
     static inline typename Policy::return_type
         unified(SegmentInfo& sinfo,
-                Segment1 const& p, Segment2 const& q, Policy const&,
                 UniqueSubRange1 const& range_p,
-                UniqueSubRange2 const& range_q)
+                UniqueSubRange2 const& range_q,
+                Policy const&)
     {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
-        typedef typename select_most_precise
-            <
-                typename geometry::coordinate_type<point1_type>::type,
-                typename geometry::coordinate_type<point2_type>::type
-            >::type coordinate_type;
 
-        point1_type const& p1 = p.first;
-        point1_type const& p2 = p.second;
-        point2_type const& q1 = q.first;
-        point2_type const& q2 = q.second;
+        point1_type const& p1 = range_p.at(0);
+        point1_type const& p2 = range_p.at(1);
+        point2_type const& q1 = range_q.at(0);
+        point2_type const& q2 = range_q.at(1);
 
         bool const p_is_point = equals_point_point(p1, p2);
         bool const q_is_point = equals_point_point(q1, q2);
+
+        // Declare segments, currently necessary for the policies
+        // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
+        model::referring_segment<point1_type const> const p(p1, p2);
+        model::referring_segment<point2_type const> const q(q1, q2);
 
         if (p_is_point && q_is_point)
         {
@@ -450,8 +419,16 @@ struct cartesian_segments
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
-            coordinate_type denominator_a, nominator_a;
-            coordinate_type denominator_b, nominator_b;
+            typedef typename select_most_precise
+                <
+                    typename geometry::coordinate_type<point1_type>::type,
+                    typename geometry::coordinate_type<point2_type>::type
+                >::type coordinate_type;
+
+            coordinate_type denominator_a;
+            coordinate_type nominator_a;
+            coordinate_type denominator_b;
+            coordinate_type nominator_b;
 
             cramers_rule(sinfo.dx_a, sinfo.dy_a, sinfo.dx_b, sinfo.dy_b,
                 get<0>(p1) - get<0>(q1),
@@ -470,7 +447,6 @@ struct cartesian_segments
             if (math::detail::equals_by_policy(denominator_a, zero, policy)
              || math::detail::equals_by_policy(denominator_b, zero, policy))
             {
-                // If this is the case, no rescaling is done for FP precision.
                 // We set it to collinear, but it indicates a robustness issue.
                 sides.set<0>(0, 0);
                 sides.set<1>(0, 0);
