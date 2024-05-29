@@ -833,10 +833,7 @@ int test_main(int, char* [])
     // test_exception<bg::model::d2::point_xy<double> >();
 
     test_pointer_version();
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
