@@ -372,7 +372,7 @@ void test_areal()
 
     {
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, BG_IF_TEST_FAILURES));
+        settings.set_test_validity(BG_IF_TEST_FAILURES);
         TEST_UNION_WITH(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
     }
 
@@ -381,7 +381,7 @@ void test_areal()
         // PostGIS gives:    313.360364623393
         // Without rescaling, it is creates an invalidity for double
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         TEST_UNION_WITH(isovist, 1, 0, -1, 313.36036462);
     }
 
@@ -454,8 +454,8 @@ void test_areal()
     TEST_UNION(issue_1081c, 1, 1, -1, 2338.08);
     TEST_UNION_REV(issue_1081c, 1, 1, -1, 2338.08);
 
-    TEST_UNION(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
-    TEST_UNION_REV(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
+    TEST_UNION(issue_1100, 1, 0, -1, 1.46181);
+    TEST_UNION_REV(issue_1100, 1, 0, -1, 1.46181);
 
     TEST_UNION(issue_1108, 1, 0, -1, 12.1742);
     TEST_UNION_REV(issue_1108, 1, 0, -1, 12.1742);

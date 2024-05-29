@@ -302,9 +302,6 @@ void set_operation_output(std::string const& set_op_id,
     filename << "ops_" + set_op_id + "_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        << "_rescaled"
-#endif
         << ".svg";
 
     std::ofstream svg(filename.str());

@@ -228,9 +228,6 @@ void test_buffer(std::string const& caseid,
         << (end_name.empty() ? "" : "_") << end_name
         << (distance_strategy.negative() ? "_deflate" : "")
         << (bg::point_order<GeometryOut>::value == bg::counterclockwise ? "_ccw" : "")
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        << "_rescaled"
-#endif
          // << "_" << point_buffer_count
         ;
 

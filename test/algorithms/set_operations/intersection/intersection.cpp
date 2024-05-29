@@ -287,7 +287,7 @@ void test_areal()
     {
         // Not yet valid when rescaling is turned off
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                     1, 8, 129.90381, settings);
     }

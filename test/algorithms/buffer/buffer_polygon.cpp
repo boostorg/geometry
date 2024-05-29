@@ -538,12 +538,8 @@ void test_all()
         join_round, end_flat, {11363180033, 11363180045}, 50.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1,
         join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling after removing pretraverse
     test_one<polygon_type, polygon_type>("italy_part2_5", italy_part2,
         join_round, end_flat, {12496082120, 12496082124}, 5 * 1000.0);
-#endif
 
     if (! BOOST_GEOMETRY_CONDITION((std::is_same<coor_type, float>::value)))
     {
@@ -605,10 +601,7 @@ void test_all()
         // Test issue 555 as reported (-0.000001) and some variants
         bg::strategy::buffer::join_round jr(180);
         bg::strategy::buffer::end_round er(180);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // With rescaling the interior ring is missing
         test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7942, -0.000001);
-#endif
         test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7957, +0.000001);
         test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4521.6280, +0.001);
         test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4519.9627, -0.001);
