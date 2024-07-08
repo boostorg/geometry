@@ -2,9 +2,9 @@
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2015-2024.
+// Modifications copyright (c) 2015-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -180,13 +180,11 @@ template
     typename OutputLinestring,
     typename OutputIterator,
     typename Range,
-    typename RobustPolicy,
     typename Box,
     typename Strategy
 >
 OutputIterator clip_range_with_box(Box const& b, Range const& range,
-            RobustPolicy const&,
-            OutputIterator out, Strategy const& strategy)
+                                   OutputIterator out, Strategy const& strategy)
 {
     if (boost::begin(range) == boost::end(range))
     {

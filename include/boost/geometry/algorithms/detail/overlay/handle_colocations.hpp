@@ -3,8 +3,9 @@
 // Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -315,16 +316,14 @@ template
     typename Geometry0,
     typename Geometry1,
     typename Turns,
-    typename Clusters,
-    typename RobustPolicy
+    typename Clusters
 >
-inline bool handle_colocations(Turns& turns, Clusters& clusters,
-                               RobustPolicy const& robust_policy)
+inline bool handle_colocations(Turns& turns, Clusters& clusters)
 {
     static const detail::overlay::operation_type target_operation
             = detail::overlay::operation_from_overlay<OverlayType>::value;
 
-    get_clusters(turns, clusters, robust_policy);
+    get_clusters(turns, clusters);
 
     if (clusters.empty())
     {

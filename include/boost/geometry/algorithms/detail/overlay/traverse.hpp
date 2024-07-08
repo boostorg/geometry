@@ -2,6 +2,10 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2024.
+// Modifications copyright (c) 2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -58,7 +62,6 @@ public :
     template
     <
         typename IntersectionStrategy,
-        typename RobustPolicy,
         typename Turns,
         typename Rings,
         typename TurnInfoMap,
@@ -68,7 +71,6 @@ public :
     static inline void apply(Geometry1 const& geometry1,
                 Geometry2 const& geometry2,
                 IntersectionStrategy const& intersection_strategy,
-                RobustPolicy const& robust_policy,
                 Turns& turns, Rings& rings,
                 TurnInfoMap& turn_info_map,
                 Clusters& clusters,
@@ -79,9 +81,9 @@ public :
                 Reverse1, Reverse2, OverlayType,
                 Geometry1, Geometry2,
                 Turns, Clusters,
-                RobustPolicy, Visitor
+                Visitor
             > switch_detector(geometry1, geometry2, turns, clusters,
-                   robust_policy, visitor);
+                   visitor);
 
         switch_detector.iterate();
         reset_visits(turns);
@@ -92,10 +94,10 @@ public :
                 Geometry1, Geometry2,
                 Turns, TurnInfoMap, Clusters,
                 IntersectionStrategy,
-                RobustPolicy, Visitor,
+                Visitor,
                 Backtrack
             > trav(geometry1, geometry2, turns, turn_info_map, clusters,
-                   intersection_strategy, robust_policy, visitor);
+                   intersection_strategy, visitor);
 
         std::size_t finalized_ring_size = boost::size(rings);
 
