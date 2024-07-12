@@ -128,9 +128,6 @@ inline void to_svg(G1 const& g1, G2 const& g2, G3 const& g3,
     filename << "case_"
         << caseid << "_"
         << string_from_type<coordinate_type>::name()
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-        << "_rescaled"
-#endif
         << ".svg";
 
     std::ofstream svg(filename.str());
