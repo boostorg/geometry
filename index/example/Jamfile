@@ -18,7 +18,7 @@ import os ;
 
 project boost-geometry-index-example
     : requirements
-        <source>/boost/foreach//boost_foreach
+        <library>/boost/foreach//boost_foreach
     ;
 
 local GLUT_ROOT = [ os.environ GLUT_ROOT ] ;
