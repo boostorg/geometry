@@ -18,8 +18,8 @@
 
 project boost-geometry-doc-example-algorithms
     : requirements
-        <source>/boost/assign//boost_assign
-        <source>/boost/foreach//boost_foreach
+        <library>/boost/assign//boost_assign
+        <library>/boost/foreach//boost_foreach
     ;
 
 exe append : append.cpp ;
