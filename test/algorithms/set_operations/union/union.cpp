@@ -372,7 +372,7 @@ void test_areal()
 
     {
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, BG_IF_TEST_FAILURES));
+        settings.set_test_validity(BG_IF_TEST_FAILURES);
         TEST_UNION_WITH(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
     }
 
@@ -381,7 +381,7 @@ void test_areal()
         // PostGIS gives:    313.360364623393
         // Without rescaling, it is creates an invalidity for double
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         TEST_UNION_WITH(isovist, 1, 0, -1, 313.36036462);
     }
 
@@ -419,24 +419,17 @@ void test_areal()
     TEST_UNION(ticket_10108_a, count_set(1, 2), 0, 8, 0.0435229);
     TEST_UNION(ticket_10108_b, count_set(1, 2), 0, 10, 2424.3449);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // With rescaling, there is a dependency on cluster tolerance, which alters the result.
     TEST_UNION(ticket_10866, 1, 0, 14, 332760303.5);
-#endif
 
     TEST_UNION(ticket_11725, 1, 1, 10, 7.5);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // With rescaling an extra overlapping polygon is generated, which is wrong
     TEST_UNION(issue_548, 1, 0, -1, 617382720000);
-#endif
 
     TEST_UNION(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION(issue_566_b, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // With rescaling, the input (was already an output of a previous step)
         // is somehow considered as invalid. Output is also invalid.
@@ -445,7 +438,6 @@ void test_areal()
         settings.ignore_validity_on_invalid_input = false;
         TEST_UNION_WITH(issue_690, 2, 0, -1, 25492.0505);
     }
-#endif
 
     TEST_UNION(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
     TEST_UNION_REV(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
@@ -462,8 +454,8 @@ void test_areal()
     TEST_UNION(issue_1081c, 1, 1, -1, 2338.08);
     TEST_UNION_REV(issue_1081c, 1, 1, -1, 2338.08);
 
-    TEST_UNION(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
-    TEST_UNION_REV(issue_1100, BG_IF_RESCALED(2, 1), 0, -1, 1.46181);
+    TEST_UNION(issue_1100, 1, 0, -1, 1.46181);
+    TEST_UNION_REV(issue_1100, 1, 0, -1, 1.46181);
 
     TEST_UNION(issue_1108, 1, 0, -1, 12.1742);
     TEST_UNION_REV(issue_1108, 1, 0, -1, 12.1742);
@@ -552,7 +544,7 @@ void test_areal()
         // Contains a self-intersection invalidity for ccw
         ut_settings settings;
         settings.set_test_validity(! is_ccw);
-        test_one<Polygon, Polygon, Polygon>("buffer_mp2", 
+        test_one<Polygon, Polygon, Polygon>("buffer_mp2",
             buffer_mp2[0], buffer_mp2[1],
             1, -1, 217, 36.752837, settings);
     }
@@ -652,7 +644,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(4, 1, 2, 0);
+    BoostGeometryWriteExpectedFailures(1, 2, 0);
 #endif
 
     return 0;

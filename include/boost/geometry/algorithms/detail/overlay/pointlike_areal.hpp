@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2020, Oracle and/or its affiliates.
-
+// Copyright (c) 2020-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -211,10 +211,9 @@ private:
     }
 
 public:
-    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(MultiPoint const& multipoint,
                                        MultiPolygon const& multipolygon,
-                                       RobustPolicy const& robust_policy,
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
@@ -233,7 +232,7 @@ public:
         return multipoint_multipoint_point
             <
                 MultiPoint, point_vector_type, PointOut, OverlayType
-            >::apply(multipoint, common_points, robust_policy, oit, strategy);
+            >::apply(multipoint, common_points, oit, strategy);
     }
 };
 

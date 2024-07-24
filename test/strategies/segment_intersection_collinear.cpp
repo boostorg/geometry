@@ -5,7 +5,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// Copyright (c) 2017-2020, Oracle and/or its affiliates.
+// Copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -151,8 +152,8 @@ static void test_segment_ratio(std::string const& case_id,
 
     BOOST_CHECK_EQUAL(is.count, expected_count);
 
-    BOOST_CHECK_EQUAL(is.fractions[0].robust_ra, expected_a1);
-    BOOST_CHECK_EQUAL(is.fractions[0].robust_rb, expected_b1);
+    BOOST_CHECK_EQUAL(is.fractions[0].ra, expected_a1);
+    BOOST_CHECK_EQUAL(is.fractions[0].rb, expected_b1);
     BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[0]), exp_ax1);
     BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[0]), exp_ay1);
 
@@ -160,8 +161,8 @@ static void test_segment_ratio(std::string const& case_id,
     {
         BOOST_CHECK_EQUAL(bg::get<0>(is.intersections[1]), exp_ax2);
         BOOST_CHECK_EQUAL(bg::get<1>(is.intersections[1]), exp_ay2);
-        BOOST_CHECK_EQUAL(is.fractions[1].robust_ra, expected_a2);
-        BOOST_CHECK_EQUAL(is.fractions[1].robust_rb, expected_b2);
+        BOOST_CHECK_EQUAL(is.fractions[1].ra, expected_a2);
+        BOOST_CHECK_EQUAL(is.fractions[1].rb, expected_b2);
     }
 }
 

@@ -3,9 +3,9 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017-2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2013-2024.
+// Modifications copyright (c) 2013-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -45,7 +45,6 @@ struct get_turn_info_linear_areal
         typename UniqueSubRange2,
         typename TurnInfo,
         typename UmbrellaStrategy,
-        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(
@@ -53,18 +52,16 @@ struct get_turn_info_linear_areal
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,
                 UmbrellaStrategy const& umbrella_strategy,
-                RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
         typedef intersection_info
             <
                 UniqueSubRange1, UniqueSubRange2,
                 typename TurnInfo::point_type,
-                UmbrellaStrategy,
-                RobustPolicy
+                UmbrellaStrategy
             > inters_info;
 
-        inters_info inters(range_p, range_q, umbrella_strategy, robust_policy);
+        inters_info inters(range_p, range_q, umbrella_strategy);
 
         char const method = inters.d_info().how;
 
@@ -388,9 +385,6 @@ struct get_turn_info_linear_areal
             break;
             default :
             {
-#if defined(BOOST_GEOMETRY_DEBUG_ROBUSTNESS)
-                std::cout << "TURN: Unknown method: " << method << std::endl;
-#endif
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
                 BOOST_THROW_EXCEPTION(turn_info_exception(method));
 #endif

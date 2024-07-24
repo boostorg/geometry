@@ -3,8 +3,9 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -41,7 +42,6 @@
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/less_by_segment_ratio.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/policies/robustness/robust_type.hpp>
 #include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/views/enumerate_view.hpp>
 
@@ -81,14 +81,12 @@ template
     typename Operations,
     typename Turns,
     typename Geometry1, typename Geometry2,
-    typename RobustPolicy,
     typename Strategy
 >
 inline void enrich_sort(Operations& operations,
             Turns const& turns,
             Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy,
             Strategy const& strategy)
 {
     std::sort(std::begin(operations),
@@ -98,10 +96,9 @@ inline void enrich_sort(Operations& operations,
                     Turns,
                     typename boost::range_value<Operations>::type,
                     Geometry1, Geometry2,
-                    RobustPolicy,
                     Strategy,
                     Reverse1, Reverse2
-                >(turns, geometry1, geometry2, robust_policy, strategy));
+                >(turns, geometry1, geometry2, strategy));
 }
 
 
@@ -379,7 +376,6 @@ inline void calculate_remaining_distance(Turns& turns)
 \param clusters container containing clusters
 \param geometry1 \param_geometry
 \param geometry2 \param_geometry
-\param robust_policy policy to handle robustness issues
 \param strategy point in geometry strategy
  */
 template
@@ -389,13 +385,11 @@ template
     typename Turns,
     typename Clusters,
     typename Geometry1, typename Geometry2,
-    typename RobustPolicy,
     typename IntersectionStrategy
 >
 inline void enrich_intersection_points(Turns& turns,
     Clusters& clusters,
     Geometry1 const& geometry1, Geometry2 const& geometry2,
-    RobustPolicy const& robust_policy,
     IntersectionStrategy const& strategy)
 {
     constexpr detail::overlay::operation_type target_operation
@@ -431,7 +425,7 @@ inline void enrich_intersection_points(Turns& turns,
         has_colocations = detail::overlay::handle_colocations
                     <
                         Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
-                    >(turns, clusters, robust_policy);
+                    >(turns, clusters);
         // Gather cluster properties (using even clusters with
         // discarded turns - for open turns)
         detail::overlay::gather_cluster_properties
@@ -510,7 +504,7 @@ inline void enrich_intersection_points(Turns& turns,
         detail::overlay::enrich_sort<Reverse1, Reverse2>(
                     pair.second, turns,
                     geometry1, geometry2,
-                    robust_policy, strategy);
+                    strategy);
     }
 
     if (has_colocations)

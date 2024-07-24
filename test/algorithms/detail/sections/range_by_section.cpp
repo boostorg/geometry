@@ -3,8 +3,9 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2024.
+// Modifications copyright (c) 2020-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -39,7 +40,7 @@ void test_sectionalize(std::string const /*caseid*/, Geometry const& geometry, s
     typedef std::integer_sequence<std::size_t, 0> dim2;
 
     sections s;
-    bg::sectionalize<Reverse, dim2>(geometry, bg::detail::no_rescale_policy(), s);
+    bg::sectionalize<Reverse, dim2>(geometry, s);
 
     BOOST_CHECK_EQUAL(s.size(), section_count);
 
