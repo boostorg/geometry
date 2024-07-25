@@ -3,8 +3,9 @@
 // Copyright (c) 2008-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Visarion Fysikopoulos, on behalf of Oracle.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -199,8 +200,9 @@ namespace projections
                 }
 
                 std::shared_ptr<dynamic_wrapper_b<T, Parameters> > link;
-                T lamp;
-                T cphip, sphip;
+                T lamp = 0;
+                T cphip = 0;
+                T sphip = 0;
             };
 
             template <typename StaticParameters, typename T, typename Parameters>
@@ -244,8 +246,9 @@ namespace projections
                 }
 
                 projection_type link;
-                T lamp;
-                T cphip, sphip;
+                T lamp = 0;
+                T cphip = 0;
+                T sphip = 0;
             };
 
             template <typename T, typename Par>
