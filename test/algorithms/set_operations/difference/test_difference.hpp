@@ -227,8 +227,7 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 
     difference_output(caseid, g1, g2, result);
 
-#if ! (defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) \
-    || defined(BOOST_GEOMETRY_DEBUG_ASSEMBLE))
+#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     {
         // Test inserter functionality
         // Test if inserter returns output-iterator (using Boost.Range copy)

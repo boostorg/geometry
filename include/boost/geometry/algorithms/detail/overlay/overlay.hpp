@@ -47,10 +47,6 @@
 
 #include <boost/geometry/util/condition.hpp>
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-#  include <boost/geometry/io/dsv/write.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {
@@ -272,9 +268,6 @@ struct overlay
 
         turn_container_type turns;
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "get turns" << std::endl;
-#endif
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
             <
@@ -302,11 +295,6 @@ std::cout << "get turns" << std::endl;
         }
 #endif
 
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "enrich" << std::endl;
-#endif
-
         cluster_type clusters;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
@@ -317,9 +305,6 @@ std::cout << "enrich" << std::endl;
 
         visitor.visit_clusters(clusters, turns);
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "traverse" << std::endl;
-#endif
         // Traverse through intersection/turn points and create rings of them.
         // These rings are always in clockwise order.
         // In CCW polygons they are marked as "to be reversed" below.
