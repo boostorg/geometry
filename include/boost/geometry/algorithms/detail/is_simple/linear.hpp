@@ -68,12 +68,11 @@ template <typename Turn>
 inline bool check_segment_indices(Turn const& turn,
                                   signed_size_type last_index)
 {
-    return
-        (turn.operations[0].seg_id.segment_index == 0
+    return (turn.operations[0].seg_id.segment_index == 0
          && turn.operations[1].seg_id.segment_index == last_index)
         ||
-        (turn.operations[0].seg_id.segment_index == 0
-         && turn.operations[1].seg_id.segment_index == last_index);
+        (turn.operations[1].seg_id.segment_index == 0
+         && turn.operations[0].seg_id.segment_index == last_index);
 }
 
 
