@@ -1,6 +1,6 @@
 // Boost.Geometry
 //
-// Copyright (c) 2010-2021 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -11,19 +11,7 @@
 // highlighting the country under the mouse, and indicating position
 // of the mouse in latitude/longitude and in pixels.
 
-// To compile this program:
-// Install wxWidgets (if not done before)
-//   export BOOST_ROOT=.....
-//   export WX_ROOT=.... (for example /home/myname/mylib/wxWidgets/Linux/x86_64)
-//   mkdir build
-//   cd build
-//   cmake .. -G Ninja
-//   ninja
-// If necessary, CMakeLists.txt should be adapted, the options for wx
-// are provided by "wx-config --cxxflags" and "... --libs"
-// and might need a change in CMakeLists.txt
-
-//#define EXAMPLE_WX_USE_GRAPHICS_CONTEXT 1
+// #define EXAMPLE_WX_USE_GRAPHICS_CONTEXT 1
 
 #include <fstream>
 #include <sstream>
@@ -36,15 +24,15 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/register/ring.hpp>
 
-#include "wx/wx.h"
-#include "wx/math.h"
-#include "wx/stockitem.h"
+#include <wx/wx.h>
+#include <wx/math.h>
+#include <wx/stockitem.h>
+#include <wx/cmdline.h>
 
 #ifdef EXAMPLE_WX_USE_GRAPHICS_CONTEXT
 #include "wx/graphics.h"
 #include "wx/dcgraph.h"
 #endif
-
 
 using point_2d = boost::geometry::model::d2::point_xy<double>;
 using country_type = boost::geometry::model::multi_polygon
@@ -58,7 +46,7 @@ BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
 
 // ----------------------------------------------------------------------------
-// Read an ASCII file containing WKT's
+// Read an ASCII file containing WKT's of either POLYGON or MULTIPOLYGON
 // ----------------------------------------------------------------------------
 template <typename Geometry, typename Box>
 inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& box)
@@ -70,13 +58,24 @@ inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometr
         {
             std::string line;
             std::getline(cpp_file, line);
-            if (! line.empty())
+            if (line.empty())
             {
-                Geometry geometry;
-                boost::geometry::read_wkt(line, geometry);
-                geometries.push_back(geometry);
-                boost::geometry::expand(box, boost::geometry::return_envelope<Box>(geometry));
+                continue;
             }
+            Geometry geometry;
+            if (line.substr(0, 4) == "POLY")
+            {
+                boost::geometry::model::polygon<point_2d> polygon;
+                boost::geometry::read_wkt(line, polygon);
+                geometry.push_back(polygon);
+            }
+            else
+            {
+                boost::geometry::read_wkt(line, geometry);
+            }
+
+            geometries.push_back(geometry);
+            boost::geometry::expand(box, boost::geometry::return_envelope<Box>(geometry));
         }
     }
 }
@@ -99,7 +98,7 @@ public:
 class HelloWorldCanvas: public wxWindow
 {
 public:
-    HelloWorldCanvas(wxFrame *frame);
+    HelloWorldCanvas(wxFrame *frame, const std::string& filename);
 
 private:
     void DrawCountries(wxDC& dc);
@@ -122,6 +121,7 @@ private:
     std::shared_ptr<map_transformer_type> m_map_transformer;
     std::shared_ptr<inverse_transformer_type> m_inverse_transformer;
 
+    std::string m_filename;
     boost::geometry::model::box<point_2d> m_box;
     std::vector<country_type> m_countries;
     int m_focus = -1;
@@ -132,7 +132,7 @@ private:
 
     wxFrame* m_owner = nullptr;
 
-DECLARE_EVENT_TABLE()
+    DECLARE_EVENT_TABLE()
 };
 
 
@@ -143,8 +143,10 @@ class HelloWorldApp: public wxApp
 public:
     bool OnInit()
     {
+        const auto filename = wxApp::argc >= 2 ? wxApp::argv[1].ToStdString() : "example/data/world.wkt";
+
         // Create the main frame window
-        HelloWorldFrame *frame = new HelloWorldFrame(NULL, _T("Boost.Geometry for wxWidgets - Hello World!"), wxDefaultPosition, wxSize(640, 480));
+        HelloWorldFrame *frame = new HelloWorldFrame(NULL, _T("Boost.Geometry for wxWidgets - Hello World!"), wxDefaultPosition, wxSize(1024, 768));
 
         wxMenu *file_menu = new wxMenu;
         file_menu->Append(wxID_EXIT, wxGetStockLabel(wxID_EXIT));
@@ -152,10 +154,7 @@ public:
         menuBar->Append(file_menu, _T("&File"));
         frame->SetMenuBar(menuBar);
 
-        int width, height;
-        frame->GetClientSize(&width, &height);
-
-        (void) new HelloWorldCanvas(frame);
+        (void) new HelloWorldCanvas(frame, filename);
 
         // Show the frame
         frame->Show(true);
@@ -191,12 +190,13 @@ void HelloWorldFrame::OnCloseWindow(wxCloseEvent& )
 
 
 // ----------------------------------------------------------------------------
-HelloWorldCanvas::HelloWorldCanvas(wxFrame *frame)
+HelloWorldCanvas::HelloWorldCanvas(wxFrame *frame, const std::string& filename)
     : wxWindow(frame, wxID_ANY)
     , m_owner(frame)
+    , m_filename(filename)
 {
     boost::geometry::assign_inverse(m_box);
-    read_wkt("../data/world.wkt", m_countries, m_box);
+    read_wkt(m_filename, m_countries, m_box);
 }
 
 
