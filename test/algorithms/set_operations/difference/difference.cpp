@@ -617,6 +617,15 @@ void test_all()
 
     TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
 
+    TEST_DIFFERENCE(issue_1293, 1, 1.40999, 1, 2.318951, 2);
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Difference fails for this case. This was not reported for this case.
+    // Reported as a failing intersection, which is fixed.
+    // The failing difference should be investigated more thoroughly.
+    TEST_DIFFERENCE(issue_1295, 1, 9.999, 1, 9.999, 1);
+#endif
+
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
     TEST_DIFFERENCE(mysql_23023665_1, 1, 92.0, 1, 142.5, 2);
