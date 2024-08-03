@@ -18,6 +18,7 @@ import testing ;
 project boost-geometry-test
     :
     requirements
+        <library>/boost/geometry//boost_geometry
         <include>.
         <toolset>msvc:<asynch-exceptions>on
         <toolset>msvc:<cxxflags>/bigobj

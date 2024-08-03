@@ -55,7 +55,7 @@ project /boost/geometry
 
 explicit
     [ alias boost_geometry : : : : <library>$(boost_dependencies) ]
-    [ alias all : boost_geometry test example doc/src/examples index ]
+    [ alias all : boost_geometry test example doc/src/examples index extensions ]
     ;
 
 call-if : boost-library geometry
