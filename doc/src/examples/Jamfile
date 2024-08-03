@@ -10,11 +10,12 @@
 
 
 project boost-geometry-doc-src-example
-    : # requirements
+    : requirements
+        <library>/boost/geometry//boost_geometry
     ;
 
 exe quick_start : quick_start.cpp ;
-    
+
 build-project algorithms ;
 build-project core ;
 build-project geometries ;

@@ -12,6 +12,8 @@ project boost-geometry-extensions
     :
     requirements
         <toolset>msvc:<asynch-exceptions>on
+        <library>/boost/geometry//boost_geometry
+        <library>/boost/test//included
     ;
 
 build-project test ;

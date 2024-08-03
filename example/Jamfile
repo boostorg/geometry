@@ -12,6 +12,7 @@
 
 project boost-geometry-example
     : requirements
+        <library>/boost/geometry//boost_geometry
         <library>/boost/foreach//boost_foreach
     ;
 
