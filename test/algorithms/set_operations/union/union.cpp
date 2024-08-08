@@ -475,6 +475,12 @@ void test_areal()
     TEST_UNION(issue_1244, 1, 1, -1, 17);
     TEST_UNION_REV(issue_1244, 1, 1, -1, 17);
 
+    TEST_UNION(issue_1293, 1, 0, -1, 5.22017);
+    TEST_UNION_REV(issue_1293, 1, 0, -1, 5.22017);
+
+    TEST_UNION(issue_1295, 1, 0, -1, 17.56273);
+    TEST_UNION_REV(issue_1295, 1, 0, -1, 17.56273);
+
     TEST_UNION(geos_1, 1, 0, -1, expectation_limits(3458.0, 3461.3203125));
     TEST_UNION(geos_2, 1, 0, -1, expectation_limits(349.0625, 350.55102539));
     TEST_UNION(geos_3, 1, 0, -1, 29391548.4998779);

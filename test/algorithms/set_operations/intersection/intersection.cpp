@@ -307,6 +307,9 @@ void test_areal()
 
     TEST_INTERSECTION(issue_1244, 1, -1, 7);
 
+    TEST_INTERSECTION(issue_1293, 1, -1, 1.49123);
+    TEST_INTERSECTION(issue_1295, 1, -1, 4.90121);
+
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
     test_one<Polygon, Polygon, Polygon>("buffer_mp2", buffer_mp2[0], buffer_mp2[1],
