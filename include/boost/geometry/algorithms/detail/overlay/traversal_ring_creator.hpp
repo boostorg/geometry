@@ -322,31 +322,40 @@ struct traversal_ring_creator
     void iterate(Rings& rings, std::size_t& finalized_ring_size,
                  typename Backtrack::state_type& state)
     {
-        for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+        auto do_iterate = [&](int phase)
         {
-            turn_type const& turn = m_turns[turn_index];
+            for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
+            {
+                turn_type const& turn = m_turns[turn_index];
 
-            if (turn.discarded || turn.blocked())
-            {
-                // Skip discarded and blocked turns
-                continue;
-            }
-
-            if (turn.both(operation_continue))
-            {
-                traverse_with_operation(turn, turn_index,
-                        get_operation_index(turn),
-                        rings, finalized_ring_size, state);
-            }
-            else
-            {
-                for (int op_index = 0; op_index < 2; op_index++)
+                if (turn.discarded || turn.blocked() || (phase == 0 && turn.is_clustered()))
                 {
-                    traverse_with_operation(turn, turn_index, op_index,
+                    // Skip discarded and blocked turns
+                    continue;
+                }
+
+                if (turn.both(operation_continue))
+                {
+                    traverse_with_operation(turn, turn_index,
+                            get_operation_index(turn),
                             rings, finalized_ring_size, state);
                 }
+                else
+                {
+                    for (int op_index = 0; op_index < 2; op_index++)
+                    {
+                        traverse_with_operation(turn, turn_index, op_index,
+                                rings, finalized_ring_size, state);
+                    }
+                }
             }
-        }
+        };
+
+        // Traverse all turns, first starting with the non-clustered ones.
+        do_iterate(0);
+
+        // Traverse remaining clustered turns, if any.
+        do_iterate(1);
     }
 
     template <typename Rings>
