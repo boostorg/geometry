@@ -8,26 +8,27 @@
 # It also lets running the tests much faster.
 if (APPLE)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffp-contract=fast")
-endif()  
+endif()
 
 function(boost_geometry_add_unit_test prefix item)
   set(unit_test_name "boost_geometry_${prefix}_${item}")
   add_executable(${unit_test_name} ${item}.cpp)
 
   # Add a dependendcy to Boost.Geometry
-  target_link_libraries(${unit_test_name} 
+  target_link_libraries(${unit_test_name}
     PRIVATE
       Boost::geometry)
 
   # For unit tests, add a dependency to the unit test framework (in header only mode)
-  target_link_libraries(${unit_test_name} 
+  target_link_libraries(${unit_test_name}
     PRIVATE
       Boost::included_unit_test_framework)
-  
+
   # Include the main Geometry test folder and the current folder
   target_include_directories(${unit_test_name}
     PRIVATE
-      "${PROJECT_SOURCE_DIR}/test" 
+      "${PROJECT_SOURCE_DIR}/test"
+      "${PROJECT_SOURCE_DIR}/index/test"
       .)
 
   # To compile with C++14
