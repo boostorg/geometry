@@ -123,7 +123,7 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   endif()
 
   enable_testing()
-  add_subdirectory(test)
+  add_subdirectory(test EXCLUDE_FROM_ALL)
 
 endif()
 

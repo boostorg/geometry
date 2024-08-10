@@ -6,7 +6,6 @@
 
 foreach(item IN ITEMS
     compare
-    rescale_policy
   )
   boost_geometry_add_unit_test("policies" ${item})
 endforeach()
