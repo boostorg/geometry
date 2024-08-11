@@ -23,7 +23,7 @@ constant boost_dependencies :
     /boost/integer//boost_integer
     /boost/iterator//boost_iterator
     /boost/lexical_cast//boost_lexical_cast
-    /boost/math//boost_math
+    /boost/math//boost_math_tr1
     /boost/mpl//boost_mpl
     /boost/multiprecision//boost_multiprecision
     /boost/numeric_conversion//boost_numeric_conversion
