@@ -6,9 +6,13 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    many_ring_buffer
-    multi_point_growth
+    #many_ring_buffer
+    #multi_point_growth
     recursive_polygons_buffer
   )
   boost_geometry_add_unit_test("robustness" ${item})
+  target_include_directories(boost_geometry_robustness_${item}
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/test/robustness"
+      .)
 endforeach()

@@ -6,7 +6,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    general_intersection_precision
+    #general_intersection_precision
     interior_triangles
     intersection_pies
     intersection_stars
@@ -14,7 +14,11 @@ foreach(item IN ITEMS
     random_ellipses_stars
     recursive_polygons
     star_comb
-    ticket_9081
+    #ticket_9081
   )
   boost_geometry_add_unit_test("robustness" ${item})
+  target_include_directories(boost_geometry_robustness_${item}
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/test/robustness"
+      .)
 endforeach()

@@ -24,6 +24,7 @@ target_link_libraries(boost_geometry
     Boost::concept_check
     Boost::config
     Boost::core
+    Boost::crc
     Boost::function_types
     Boost::iterator
     Boost::lexical_cast
@@ -32,6 +33,7 @@ target_link_libraries(boost_geometry
     Boost::mpl
     Boost::multiprecision
     Boost::numeric_conversion
+    Boost::program_options
     Boost::qvm
     Boost::range
     Boost::rational
@@ -100,9 +102,11 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
           config
           algorithm
           any
+          crc
           lexical_cast
           math
           multiprecision
+          program_options
           qvm
           rational
           serialization

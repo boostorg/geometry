@@ -5,8 +5,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-foreach(item IN ITEMS
-    random_multi_points
-  )
-  boost_geometry_add_unit_test("robustness" ${item})
-endforeach()
+boost_geometry_add_unit_test("robustness" random_multi_points)
+
+target_include_directories(boost_geometry_robustness_random_multi_points
+    PRIVATE
+      "${PROJECT_SOURCE_DIR}/test/robustness"
+      .)
