@@ -9,6 +9,10 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+project : requirements
+    <library>/boost/assign//boost_assign
+    <library>/boost/algorithm//boost_algorithm ;
+
 test-suite boost-geometry-extensions-gis-io-wkb
     :
     [ run read_wkb.cpp ]

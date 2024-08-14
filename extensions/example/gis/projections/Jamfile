@@ -10,7 +10,8 @@
 
 
 project boost-geometry-example-extensions-gis-latlong
-    : # requirements
+    : requirements
+        <library>/boost/foreach//boost_foreach
     ;
 
 exe p01_projection_example : p01_projection_example.cpp ;
