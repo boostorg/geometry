@@ -21,7 +21,7 @@ function(boost_geometry_add_unit_test prefix item)
   set(unit_test_name "boost_geometry_${prefix}_${item}")
   add_executable(${unit_test_name} ${item}.cpp)
 
-  # Add a dependendcy to Boost.Geometry
+  # Add a dependency to Boost.Geometry
   target_link_libraries(${unit_test_name}
     PRIVATE
       Boost::geometry)
@@ -42,7 +42,10 @@ function(boost_geometry_add_unit_test prefix item)
   target_compile_features(${unit_test_name} PRIVATE cxx_std_14)
 
   # To be able to run ctest
-  add_test(NAME ${unit_test_name} COMMAND ${unit_test_name})
+  if (NOT ("boost_geometry_${prefix}_${item}" STREQUAL "boost_geometry_cs_undefined_setops1") AND
+      NOT ("boost_geometry_${prefix}_${item}" STREQUAL "boost_geometry_cs_undefined_setops2"))
+    add_test(NAME ${unit_test_name} COMMAND ${unit_test_name})
+  endif()
 
   # Add a dependency to the global tests target
   add_dependencies(tests ${unit_test_name})
