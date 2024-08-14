@@ -65,9 +65,8 @@ add_subdirectory(geometries)
 add_subdirectory(io)
 add_subdirectory(iterators)
 add_subdirectory(policies)
-
+add_subdirectory(robustness)
 add_subdirectory(srs)
 add_subdirectory(strategies)
-
 add_subdirectory(util)
 add_subdirectory(views)
