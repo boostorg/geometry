@@ -3,6 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2020.
 // Modifications copyright (c) 2020, Oracle and/or its affiliates.
@@ -30,14 +31,14 @@ namespace boost { namespace geometry
 namespace core_dispatch
 {
 
-template <typename Nsphere, typename CoordinateType, std::size_t Dimension>
-struct access<nsphere_tag, Nsphere, CoordinateType, Dimension, std::false_type>
+template <typename Nsphere, std::size_t Dimension>
+struct access<nsphere_tag, Nsphere, Dimension, false>
 {
-    static inline CoordinateType get(Nsphere const& nsphere)
+    static inline coordinate_type_t<Nsphere> get(Nsphere const& nsphere)
     {
         return traits::access<Nsphere, Dimension>::get(nsphere);
     }
-    static inline void set(Nsphere& s, CoordinateType const& value)
+    static inline void set(Nsphere& s, coordinate_type_t<Nsphere> const& value)
     {
         traits::access<Nsphere, Dimension>::set(s, value);
     }

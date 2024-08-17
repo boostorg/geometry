@@ -3,10 +3,10 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014-2020.
 // Modifications copyright (c) 2014-2020 Oracle and/or its affiliates.
-
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -44,7 +44,7 @@ struct radius_type<nsphere_tag, S>
 };
 
 template <typename S, std::size_t D>
-struct radius_access<nsphere_tag, S, D, std::false_type>
+struct radius_access<nsphere_tag, S, D, false>
     : detail::radius_access<nsphere_tag, S, D>
 {
     BOOST_STATIC_ASSERT((D == 0));
