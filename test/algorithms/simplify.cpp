@@ -27,49 +27,6 @@
 #include <test_geometries/wrapped_boost_array.hpp>
 #include <test_common/test_point.hpp>
 
-// #define TEST_PULL89
-#ifdef TEST_PULL89
-#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
-#endif
-
-
-#ifdef TEST_PULL89
-template <typename Geometry, typename T>
-void test_with_ax(std::string const& wkt,
-        std::string const& expected,
-        T const& adt,
-        T const& xdt)
-{
-    typedef typename bg::point_type<Geometry>::type point_type;
-    typedef bg::strategy::distance::detail::projected_point_ax<> ax_type;
-    typedef typename bg::strategy::distance::services::return_type
-    <
-        bg::strategy::distance::detail::projected_point_ax<>,
-        point_type,
-        point_type
-    >::type return_type;
-
-    typedef bg::strategy::distance::detail::projected_point_ax_less
-    <
-        return_type
-    > comparator_type;
-
-    typedef bg::strategy::simplify::detail::douglas_peucker
-    <
-        point_type,
-        bg::strategy::distance::detail::projected_point_ax<>,
-        comparator_type
-    > dp_ax;
-
-    return_type max_distance(adt, xdt);
-    comparator_type comparator(max_distance);
-    dp_ax strategy(comparator);
-
-    test_geometry<Geometry>(wkt, expected, max_distance, strategy);
-}
-#endif
-
-
 template <typename P>
 void test_all()
 {
@@ -253,13 +210,6 @@ void test_all()
     test_geometry<bg::model::ring<P> >(
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,2 1,4 0))",
         "POLYGON((4 0,8 2,8 7,4 9,0 7,0 2,4 0))", 1.0);
-
-
-#ifdef TEST_PULL89
-    test_with_ax<bg::model::linestring<P> >(
-        "LINESTRING(0 0,120 6,80 10,200 0)",
-        "LINESTRING(0 0,80 10,200 0)", 10, 7);
-#endif
 }
 
 template <typename P>
@@ -275,16 +225,6 @@ void test_zigzag()
     test_geometry<bg::model::linestring<P> >(zigzag, expected150, 1.5001);
     test_geometry<bg::model::linestring<P> >(zigzag, expected200, 2.0001);
     test_geometry<bg::model::linestring<P> >(zigzag, expected225, 2.25); // should be larger than sqrt(5)=2.236
-
-#ifdef TEST_PULL89
-    // This should work (results might vary but should have LESS points then expected above
-    // Small xtd, larger adt,
-    test_with_ax<bg::model::linestring<P> >(zigzag, expected100, 1.0001, 1.0001);
-    test_with_ax<bg::model::linestring<P> >(zigzag, expected150, 1.5001, 1.0001);
-    test_with_ax<bg::model::linestring<P> >(zigzag, expected200, 2.0001, 1.0001);
-    test_with_ax<bg::model::linestring<P> >(zigzag, expected225, 2.25, 1.0001);
-#endif
-
 }
 
 

@@ -19,7 +19,6 @@ foreach(item IN ITEMS
     haversine
     point_in_box
     projected_point
-    projected_point_ax
     pythagoras
     pythagoras_point_box
     segment_intersection

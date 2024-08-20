@@ -58,7 +58,6 @@
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_point_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_pythagoras_box_box.hpp>
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
-#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
 #include <boost/geometry/strategies/cartesian/distance_segment_box.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
