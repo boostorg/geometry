@@ -26,7 +26,6 @@
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/strategies/cartesian/distance_projected_point.hpp>
-#include <boost/geometry/strategies/cartesian/distance_projected_point_ax.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
 
 #include <boost/geometry/io/wkt/read.hpp>
@@ -108,15 +107,6 @@ template <typename T1, typename T2>
 void test_check_close(T1 const& v1, T2 const& v2, double f)
 {
     BOOST_CHECK_CLOSE(v1, v2, f);
-}
-
-template <typename T1, typename T2>
-void test_check_close(bg::strategy::distance::detail::projected_point_ax_result<T1> const& v1,
-                      bg::strategy::distance::detail::projected_point_ax_result<T2> const& v2,
-                      double f)
-{
-    BOOST_CHECK_CLOSE(v1.atd, v2.atd, f);
-    BOOST_CHECK_CLOSE(v1.xtd, v2.xtd, f);
 }
 
 template <typename P1, typename P2, typename T, typename Strategy, typename ComparableStrategy>
