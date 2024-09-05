@@ -17,7 +17,7 @@ foreach(item IN ITEMS
     #ticket_9081
   )
   boost_geometry_add_unit_test("robustness" ${item})
-  target_include_directories(boost_geometry_robustness_${item}
+  target_include_directories(${BOOST_GEOMETRY_UNIT_TEST_NAME}
     PRIVATE
       "${PROJECT_SOURCE_DIR}/test/robustness"
       .)
