@@ -42,8 +42,8 @@ function(boost_geometry_add_unit_test prefix item)
   target_compile_features(${unit_test_name} PRIVATE cxx_std_14)
 
   # To be able to run ctest
-  if (NOT ("boost_geometry_${prefix}_${item}" STREQUAL "boost_geometry_cs_undefined_setops1") AND
-      NOT ("boost_geometry_${prefix}_${item}" STREQUAL "boost_geometry_cs_undefined_setops2"))
+  set(extra_macro_args ${ARGN})
+  if (NOT extra_macro_args STREQUAL "not_run")
     add_test(NAME ${unit_test_name} COMMAND ${unit_test_name})
   endif()
 
@@ -52,6 +52,7 @@ function(boost_geometry_add_unit_test prefix item)
 
   # Inform the caller about the test name. It can then set defines, if necessary.
   set(BOOST_GEOMETRY_UNIT_TEST_NAME ${unit_test_name} PARENT_SCOPE)
+
 endfunction()
 
 if (NOT TARGET tests)

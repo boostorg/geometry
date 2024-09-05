@@ -14,8 +14,9 @@ foreach(item IN ITEMS
     other
     relops1
     relops2
-    setops1
-    setops2
   )
   boost_geometry_add_unit_test("cs_undefined" ${item})
 endforeach()
+
+boost_geometry_add_unit_test("cs_undefined" setops1 "not_run")
+boost_geometry_add_unit_test("cs_undefined" setops2 "not_run")
