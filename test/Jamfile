@@ -26,7 +26,6 @@ project boost-geometry-test
 		<toolset>intel:<define>BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
         <library>/boost/test//included
-        <library>/boost/foreach//boost_foreach
         <library>/boost/assign//boost_assign
     ;
 
