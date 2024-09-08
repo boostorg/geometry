@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.8...3.20)
 
 project(wx_widgets_world_mapper)
 
-add_executable(${PROJECT_NAME} x04_wxwidgets_world_mapper.cpp)
+add_executable(${PROJECT_NAME} wxwidgets_world_mapper.cpp)
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 
 # Link the wxWidgets libraries to our executable
@@ -21,7 +21,7 @@ target_link_libraries(${PROJECT_NAME} wxWidgets::wxWidgets)
 
 # Link the Boost.Geometry library to our executable
 # By default, it is assumed to be relative to this directory.
-target_include_directories(${PROJECT_NAME} PRIVATE ../../../../..)
+target_include_directories(${PROJECT_NAME} PRIVATE .. ../../../../..)
 
 # If this does not work, or you build from elsewhere
 # First set BOOST_ROOT
