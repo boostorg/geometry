@@ -13,7 +13,6 @@
 
 // #define EXAMPLE_WX_USE_GRAPHICS_CONTEXT 1
 
-#include <fstream>
 #include <sstream>
 
 #include <boost/geometry/geometry.hpp>
@@ -34,6 +33,8 @@
 #include "wx/dcgraph.h"
 #endif
 
+#include "common/read_countries.hpp"
+
 using point_2d = boost::geometry::model::d2::point_xy<double>;
 using country_type = boost::geometry::model::multi_polygon
     <
@@ -44,41 +45,6 @@ using country_type = boost::geometry::model::multi_polygon
 // in e.g. transformations (see below)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxPoint, int, cs::cartesian, x, y)
 BOOST_GEOMETRY_REGISTER_POINT_2D(wxRealPoint, double, cs::cartesian, x, y)
-
-// ----------------------------------------------------------------------------
-// Read an ASCII file containing WKT's of either POLYGON or MULTIPOLYGON
-// ----------------------------------------------------------------------------
-template <typename Geometry, typename Box>
-inline void read_wkt(std::string const& filename, std::vector<Geometry>& geometries, Box& box)
-{
-    std::ifstream cpp_file(filename.c_str());
-    if (cpp_file.is_open())
-    {
-        while (! cpp_file.eof() )
-        {
-            std::string line;
-            std::getline(cpp_file, line);
-            if (line.empty())
-            {
-                continue;
-            }
-            Geometry geometry;
-            if (line.substr(0, 4) == "POLY")
-            {
-                boost::geometry::model::polygon<point_2d> polygon;
-                boost::geometry::read_wkt(line, polygon);
-                geometry.push_back(polygon);
-            }
-            else
-            {
-                boost::geometry::read_wkt(line, geometry);
-            }
-
-            geometries.push_back(geometry);
-            boost::geometry::expand(box, boost::geometry::return_envelope<Box>(geometry));
-        }
-    }
-}
 
 
 // ----------------------------------------------------------------------------
@@ -195,8 +161,8 @@ HelloWorldCanvas::HelloWorldCanvas(wxFrame *frame, const std::string& filename)
     , m_owner(frame)
     , m_filename(filename)
 {
-    boost::geometry::assign_inverse(m_box);
-    read_wkt(m_filename, m_countries, m_box);
+    m_countries = read_countries<country_type>(m_filename);
+    m_box = calculate_envelope<boost::geometry::model::box<point_2d>>(m_countries);
 }
 
 
