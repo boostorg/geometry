@@ -8,7 +8,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[svg_mapper
-//` Shows the usage of svg_mapper
+//` Shows the usage of svg_mapper.
+//` Make sure to first call only the method [^add] and then call only the methods [^map] or [^text]. 
+//` Because [^add] calculates the bounding box internally and that should be finished
+//` before calling mapping functions. This might require two loops.
 
 #include <iostream>
 #include <fstream>

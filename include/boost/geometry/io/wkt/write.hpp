@@ -87,7 +87,7 @@ struct stream_coordinate<P, Count, Count>
 };
 
 /*!
-\brief Stream points as \ref WKT
+\brief Stream points as \wkt
 */
 template <typename Point, typename Policy>
 struct wkt_point
@@ -510,7 +510,7 @@ private:
 /*!
 \brief Generic geometry template manipulator class, takes corresponding output class from traits class
 \ingroup wkt
-\details Stream manipulator, streams geometry classes as \ref WKT streams
+\details Stream manipulator, streams geometry classes as \wkt streams
 \par Example:
 Small example showing how to use the wkt class
 \dontinclude doxygen_1.cpp
@@ -567,7 +567,6 @@ inline wkt_manipulator<Geometry> wkt(Geometry const& geometry)
 \brief WKT-string formulating function
 \tparam Geometry \tparam_geometry
 \param geometry \param_geometry
-\param significant_digits Specifies the no of significant digits to use in the output wkt
 \ingroup wkt
 \qbk{[include reference/io/to_wkt.qbk]}
 */
@@ -579,6 +578,14 @@ inline std::string to_wkt(Geometry const& geometry)
     return ss.str();
 }
 
+/*!
+\brief WKT-string formulating function (with significant digits)
+\tparam Geometry \tparam_geometry
+\param geometry \param_geometry
+\param significant_digits Specifies the number of significant digits to use in the output wkt
+\ingroup wkt
+\qbk{distinguish, with significant digits}
+*/
 template <typename Geometry>
 inline std::string to_wkt(Geometry const& geometry, int significant_digits)
 {

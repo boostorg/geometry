@@ -24,6 +24,7 @@ testing.make-test run-pyd :
     :
     <pythonpath>$(here)
     <dependency>src/docutils/tools/doxygen_xml2qbk//doxygen_xml2qbk
+    <dependency>doxy/Doxyfile
     <testing.arg>"--release-build --doxygen-xml2qbk"
     <testing.input-file>src/docutils/tools/doxygen_xml2qbk//doxygen_xml2qbk
     :

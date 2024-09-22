@@ -48,8 +48,6 @@ namespace strategy { namespace centroid
 \ingroup strategies
 \details Calculates centroid using triangulation method published by
     Bashein / Detmer
-\tparam Point point type of centroid to calculate
-\tparam PointOfSegment point type of segments, defaults to Point
 \tparam CalculationType \tparam_calculation
 
 \author Adapted from  "Centroid of a Polygon" by

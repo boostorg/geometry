@@ -847,7 +847,6 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionVec
     \param geometry geometry to create sections from
     \param sections structure with sections
     \param strategy strategy for envelope calculation
-    \param expand_strategy strategy for partitions
     \param source_index index to assign to the ring_identifiers
     \param max_count maximal number of points per section
         (defaults to 10, this seems to give the fastest results)

@@ -1188,10 +1188,10 @@ struct read_wkt<Geometry, geometry_collection_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry)
+\brief Parses OGC \well_known_text (\wkt) into a geometry (any geometry)
 \ingroup wkt
 \tparam Geometry \tparam_geometry
-\param wkt string containing \ref WKT
+\param wkt string containing \wkt
 \param geometry \param_geometry output geometry
 \ingroup wkt
 \qbk{[include reference/io/read_wkt.qbk]}
@@ -1204,10 +1204,10 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
 }
 
 /*!
-\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry) and returns it
+\brief Parses OGC \well_known_text (\wkt) into a geometry (any geometry) and returns it
 \ingroup wkt
 \tparam Geometry \tparam_geometry
-\param wkt string containing \ref WKT
+\param wkt string containing \wkt
 \ingroup wkt
 \qbk{[include reference/io/from_wkt.qbk]}
 */
