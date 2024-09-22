@@ -8,7 +8,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[svg_mapper_custom
-//` Shows the usage of svg_mapper with arrows, groups and a larger margin
+//` Shows the usage of svg_mapper with arrows, groups and a larger margin.
 
 #include <iostream>
 #include <fstream>

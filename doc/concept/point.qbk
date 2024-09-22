@@ -68,7 +68,7 @@ struct access<std::array<T, D>, Index> {
 * [link geometry.reference.adapted.boost_fusion Boost.Fusion]
 * [link geometry.reference.adapted.boost_polygon Boost.Polygon]
 * [link geometry.reference.adapted.boost_tuple Boost.Tuple]
-* other point types, adapted e.g. using one of the [link geometry.reference.adapted registration macro's]
+* other point types, adapted e.g. using one of the [link geometry.reference.adapted.register registration macro's]
 
 [endsect]
 

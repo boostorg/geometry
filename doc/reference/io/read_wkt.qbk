@@ -14,11 +14,11 @@ Other libraries refer to this functionality as [*ST_GeomFromText] or [*STGeomFro
 That is not done here because Boost.Geometry support more text formats. The name GeomFromText
 is reserved for future usage, which will then have an indication of the used text format.
 
-
 [heading Example]
 [read_wkt]
 
 [heading See also]
+* [@http://en.wikipedia.org/wiki/Well-known_text Well-known text specification]
 * [link geometry.reference.io.wkt.from_wkt From WKT]
-* [link geometry.reference.io.wkt.to_wkt To WKT]
+* [link geometry.reference.io.wkt.to_wkt_1 To WKT]
 * [link geometry.reference.io.wkt.wkt WKT streaming manipulator]

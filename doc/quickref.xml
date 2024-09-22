@@ -437,7 +437,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.length">length</link></member>
     </simplelist>
-    <bridgehead renderas="sect3">line_interpolate</bridgehead>
+    <bridgehead renderas="sect3">Line Interpolate</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.line_interpolate">line_interpolate</link></member>
     </simplelist>
@@ -599,7 +599,7 @@
     </simplelist>
    </entry>
    <entry valign="top">
-    <bridgehead renderas="sect3">Line interpolate point</bridgehead>
+    <bridgehead renderas="sect3">Line Interpolate</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_cartesian">strategy::line_interpolate::cartesian</link></member>
      <member><link linkend="geometry.reference.strategies.strategy_line_interpolate_geographic">strategy::line_interpolate::geographic</link></member>
@@ -723,7 +723,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.io.wkt.read_wkt">read_wkt</link></member>
      <member><link linkend="geometry.reference.io.wkt.wkt">wkt</link></member>
-     <member><link linkend="geometry.reference.io.wkt.to_wkt">to_wkt</link></member>
+     <member><link linkend="geometry.reference.io.wkt.to_wkt_1">to_wkt</link></member>
      <member><link linkend="geometry.reference.io.wkt.from_wkt">from_wkt</link></member>
     </simplelist>
    </entry>
@@ -862,7 +862,7 @@
      <member><link linkend="geometry.reference.spatial_indexes.group__predicates.overlaps_geometry_const___">overlaps(Geometry const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.group__predicates.within_geometry_const___">within(Geometry const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.group__predicates.satisfies_unarypredicate_const___">satisfies(UnaryPredicate const &amp;)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_geometry_const____unsigned_">nearest(Geometry const &amp;, unsigned)</link></member>
+     <member><link linkend="geometry.reference.spatial_indexes.group__predicates.nearest_geometry_const____std__size_t_">nearest(Geometry const &amp;, unsigned)</link></member>
     </simplelist>
    </entry>
    <!--entry valign="top">

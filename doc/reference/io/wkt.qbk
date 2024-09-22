@@ -19,6 +19,7 @@ also supports other textformats (svg, dsv)]
 [wkt_output]
 
 [heading See also]
+* [@http://en.wikipedia.org/wiki/Well-known_text Well-known text specification]
 * [link geometry.reference.io.wkt.read_wkt Read WKT]
 * [link geometry.reference.io.wkt.from_wkt From WKT]
 * [link geometry.reference.io.wkt.from_wkt To WKT]

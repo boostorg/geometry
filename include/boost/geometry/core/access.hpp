@@ -289,8 +289,7 @@ constexpr inline coordinate_type_t<Geometry> get(Geometry const& geometry
 \details \details_get_set
 \tparam Dimension \tparam_dimension_required
 \tparam Geometry \tparam_geometry (usually a Point Concept)
-\param geometry geometry to assign coordinate to
-\param geometry \param_geometry (usually a point)
+\param geometry \param_geometry
 \param value The coordinate value to set
 \ingroup set
 
@@ -350,7 +349,6 @@ constexpr inline coordinate_type_t<Geometry> get(Geometry const& geometry
 \tparam Index \tparam_index_required
 \tparam Dimension \tparam_dimension_required
 \tparam Geometry \tparam_box_or_segment
-\param geometry geometry to assign coordinate to
 \param geometry \param_geometry
 \param value The coordinate value to set
 \ingroup set
