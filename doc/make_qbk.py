@@ -20,10 +20,21 @@ script_dir = os.path.dirname(__file__)
 os.chdir(os.path.abspath(script_dir))
 print("Boost.Geometry is making .qbk files in %s" % os.getcwd())
 
+# Resolves the path to an executable and returns an absolute path to it
+def resolve_executable(orig_path):
+    resolved_path = shutil.which(orig_path)
+    if resolved_path is None:
+        raise Exception("%s is not found or not executable" % orig_path)
+    return os.path.abspath(resolved_path)
+
+# Resolve paths to executables early so that commands are executable from arbitrary locations
 if 'DOXYGEN' in os.environ:
     doxygen_cmd = os.environ['DOXYGEN']
 else:
     doxygen_cmd = 'doxygen'
+doxygen_cmd = resolve_executable(doxygen_cmd)
+os.environ['DOXYGEN'] = doxygen_cmd
+doxygen_cmd = '"' + doxygen_cmd + '"'
 
 if 'DOXYGEN_XML2QBK' in os.environ:
     doxygen_xml2qbk_cmd = os.environ['DOXYGEN_XML2QBK']
@@ -31,8 +42,9 @@ elif '--doxygen-xml2qbk' in sys.argv:
     doxygen_xml2qbk_cmd = sys.argv[sys.argv.index('--doxygen-xml2qbk')+1]
 else:
     doxygen_xml2qbk_cmd = 'doxygen_xml2qbk'
-os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.path.dirname(doxygen_xml2qbk_cmd)
-doxygen_xml2qbk_cmd = os.path.basename(doxygen_xml2qbk_cmd)
+doxygen_xml2qbk_cmd = resolve_executable(doxygen_xml2qbk_cmd)
+os.environ['DOXYGEN_XML2QBK'] = doxygen_xml2qbk_cmd
+doxygen_xml2qbk_cmd = '"' + doxygen_xml2qbk_cmd + '"'
 
 cmd = doxygen_xml2qbk_cmd
 cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
