@@ -20,8 +20,8 @@
 int main()
 {
     namespace bg = boost::geometry;
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > point_type;
-    typedef bg::model::linestring<point_type> linestring_type;
+    using point_type = bg::model::point<double, 2, bg::cs::geographic<bg::degree>>;
+    using linestring_type = bg::model::linestring<point_type>;
 
     linestring_type ls;
     bg::read_wkt("LINESTRING(0 0,1 1)", ls);

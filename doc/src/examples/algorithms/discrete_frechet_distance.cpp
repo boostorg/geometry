@@ -17,8 +17,8 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::linestring<point_type> linestring_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using linestring_type = boost::geometry::model::linestring<point_type>;
 
     linestring_type ls1, ls2;
     boost::geometry::read_wkt("LINESTRING(0 0,1 1,1 2,2 1,2 2)", ls1);

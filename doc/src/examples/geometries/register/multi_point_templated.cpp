@@ -23,7 +23,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 int main()
 {
     // Normal usage of std::
-    std::deque<boost::tuple<float, float> > multi_point;
+    std::deque<boost::tuple<float, float>> multi_point;
     multi_point.push_back(boost::tuple<float, float>(1, 1));
     multi_point.push_back(boost::tuple<float, float>(3, 2));
 

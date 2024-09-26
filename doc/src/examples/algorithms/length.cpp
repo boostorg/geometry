@@ -19,7 +19,7 @@
 int main()
 {
     using namespace boost::geometry;
-    model::linestring<model::d2::point_xy<double> > line;
+    model::linestring<model::d2::point_xy<double>> line;
     read_wkt("linestring(0 0,1 1,4 8,3 2)", line);
     std::cout << "linestring length is "
         << length(line)

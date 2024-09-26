@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,17 +18,13 @@
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#include <boost/assign.hpp>
-
 int main()
 {
-    using boost::assign::tuple_list_of;
-
-    typedef boost::tuple<int, int> point;
+    using point = boost::tuple<int, int>;
 
     boost::geometry::model::polygon<point> poly1, poly2;
-    boost::geometry::exterior_ring(poly1) = tuple_list_of(0, 0)(0, 5)(5, 5)(5, 0)(0, 0);
-    boost::geometry::exterior_ring(poly2) = tuple_list_of(5, 0)(0, 0)(0, 5)(5, 5)(5, 0);
+    boost::geometry::exterior_ring(poly1) = {{0, 0}, {0, 5}, {5, 5}, {5, 0}, {0, 0}};
+    boost::geometry::exterior_ring(poly2) = {{5, 0}, {0, 0}, {0, 5}, {5, 5}, {5, 0}};
 
     std::cout
         << "polygons are spatially "
@@ -42,7 +38,6 @@ int main()
         << "polygon and box are spatially "
         << (boost::geometry::equals(box, poly2) ? "equal" : "not equal")
         << std::endl;
-
 
     return 0;
 }

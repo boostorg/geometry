@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Quickbook Examples, for main page
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
@@ -73,8 +73,8 @@ BOOST_GEOMETRY_REGISTER_POINT_2D(QPoint, int, cs::cartesian, x, y)
 namespace boost { namespace geometry { namespace traits
 {
 
-template <> struct tag<QRect> { typedef box_tag type; };
-template <> struct point_type<QRect> { typedef QPoint type; };
+template <> struct tag<QRect> { using type = box_tag; };
+template <> struct point_type<QRect> { using type = QPoint; };
 
 template <size_t C, size_t D>
 struct indexed_access<QRect, C, D>
@@ -119,7 +119,7 @@ int main(void)
 
     //[quickstart_point_in_polygon
     double points[][2] = {{2.0, 1.3}, {4.1, 3.0}, {5.3, 2.6}, {2.9, 0.7}, {2.0, 1.3}};
-    model::polygon<model::d2::point_xy<double> > poly;
+    model::polygon<model::d2::point_xy<double>> poly;
     append(poly, points);
     boost::tuple<double, double> p = boost::make_tuple(3.7, 2.0);
     std::cout << "Point p is in polygon? " << std::boolalpha << within(p, poly) << std::endl;
@@ -135,10 +135,10 @@ int main(void)
     //]
 
     //[quick_start_spherical
-    typedef boost::geometry::model::point
+    using spherical_point = boost::geometry::model::point
         <
             double, 2, boost::geometry::cs::spherical_equatorial<boost::geometry::degree>
-        > spherical_point;
+        >;
 
     spherical_point amsterdam(4.90, 52.37);
     spherical_point paris(2.35, 48.86);

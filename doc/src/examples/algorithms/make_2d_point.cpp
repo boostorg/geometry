@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,7 +16,6 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-#include <boost/geometry/geometries/adapted/boost_polygon/point.hpp>
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
@@ -39,10 +38,9 @@ void construct_and_display()
 
 int main()
 {
-    construct_and_display<boost::geometry::model::d2::point_xy<double> >();
-    construct_and_display<boost::geometry::model::d2::point_xy<int> >();
-    construct_and_display<boost::tuple<double, double> >();
-    construct_and_display<boost::polygon::point_data<int> >();
+    construct_and_display<boost::geometry::model::d2::point_xy<double>>();
+    construct_and_display<boost::geometry::model::d2::point_xy<int>>();
+    construct_and_display<boost::tuple<double, double>>();
     construct_and_display<mypoint>();
     return 0;
 }

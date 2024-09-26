@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,18 +16,12 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
-/*< For this example we use Boost.Assign to add points >*/
-#include <boost/assign.hpp>
-
-using namespace boost::assign;
-
-
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> xy;
+    using xy = boost::geometry::model::d2::point_xy<double>;
 
-    boost::geometry::model::linestring<xy> line;
-    line += xy(1.1, 1.1), xy(2.5, 2.1), xy(3.1, 3.1), xy(4.9, 1.1), xy(3.1, 1.9); /*< With Boost.Assign >*/
+    const boost::geometry::model::linestring<xy> line
+        {{1.1, 1.1}, {2.5, 2.1}, {3.1, 3.1}, {4.9, 1.1}, {3.1, 1.9}};
 
     // Simplify it, using distance of 0.5 units
     boost::geometry::model::linestring<xy> simplified;
@@ -35,7 +29,6 @@ int main()
     std::cout
         << "  original: " << boost::geometry::dsv(line) << std::endl
         << "simplified: " << boost::geometry::dsv(simplified) << std::endl;
-
 
     return 0;
 }

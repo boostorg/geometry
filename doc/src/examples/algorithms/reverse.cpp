@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,20 +19,15 @@
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#include <boost/assign.hpp>
-
 int main()
 {
-    using boost::assign::tuple_list_of;
-
-    typedef boost::tuple<int, int> point;
-    typedef boost::geometry::model::polygon<point> polygon;
-    typedef boost::geometry::model::ring<point> ring;
-
+    using point = boost::tuple<int, int>;
+    using polygon = boost::geometry::model::polygon<point>;
+    using ring = boost::geometry::model::ring<point>;
 
     polygon poly;
-    boost::geometry::exterior_ring(poly) = tuple_list_of(0, 0)(0, 9)(10, 10)(0, 0);
-    boost::geometry::interior_rings(poly).push_back(tuple_list_of(1, 2)(4, 6)(2, 8)(1, 2));
+    boost::geometry::exterior_ring(poly) = {{0, 0}, {0, 9}, {10, 10}, {0, 0}};
+    boost::geometry::interior_rings(poly).push_back({{1, 2}, {4, 6}, {2, 8}, {1, 2}});
 
     double area_before = boost::geometry::area(poly);
     boost::geometry::reverse(poly);
@@ -40,7 +35,7 @@ int main()
     std::cout << boost::geometry::dsv(poly) << std::endl;
     std::cout << area_before << " -> " << area_after << std::endl;
 
-    ring r = tuple_list_of(0, 0)(0, 9)(8, 8)(0, 0);
+    ring r = {{0, 0}, {0, 9}, {8, 8}, {0, 0}};
 
     area_before = boost::geometry::area(r);
     boost::geometry::reverse(r);

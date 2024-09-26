@@ -31,7 +31,7 @@ int main()
     boost::geometry::assign_values(b, 2.2, 3.3);
     std::cout << boost::geometry::distance(a, b) << std::endl;
 
-    boost::geometry::model::linestring<boost::array<double, 2> > line;
+    boost::geometry::model::linestring<boost::array<double, 2>> line;
     line.push_back(b);
 
     return 0;

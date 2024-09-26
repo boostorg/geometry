@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,8 +17,8 @@
 
 int main()
 {
-    typedef boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian> point_type;
-    point_type p = boost::geometry::make<point_type>(1, 2, 3);
+    using point_type = boost::geometry::model::point<double, 3, boost::geometry::cs::cartesian>;
+    const auto p = boost::geometry::make<point_type>(1, 2, 3);
     std::cout << boost::geometry::dsv(p) << std::endl;
     return 0;
 }

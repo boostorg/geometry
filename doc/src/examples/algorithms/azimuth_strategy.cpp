@@ -19,7 +19,7 @@
 int main()
 {
     namespace bg = boost::geometry;
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > point_type;
+    using point_type = bg::model::point<double, 2, bg::cs::geographic<bg::degree>>;
 
     point_type p1(0, 0);
     point_type p2(1, 1);

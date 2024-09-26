@@ -21,7 +21,7 @@ template <typename Geometry1, typename Geometry2>
 void create_svg_buffer(std::string const& filename, Geometry1 const& original, Geometry2 const& buffer)
 {
 #if defined(HAVE_SVG)
-    typedef typename boost::geometry::point_type<Geometry1>::type point_type;
+    using point_type = typename boost::geometry::point_type<Geometry1>::type;
     std::ofstream svg(filename.c_str());
 
     boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);

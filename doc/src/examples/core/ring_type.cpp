@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,11 +19,11 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point;
-    typedef boost::geometry::model::polygon<point> polygon;
+    using point = boost::geometry::model::d2::point_xy<double>;
+    using polygon = boost::geometry::model::polygon<point>;
 
-    typedef boost::geometry::ring_type<polygon>::type ring_type;
-    typedef boost::geometry::interior_type<polygon>::type int_type;
+    using ring_type = boost::geometry::ring_type<polygon>::type;
+    using int_type = boost::geometry::interior_type<polygon>::type;
 
     std::cout << typeid(ring_type).name() << std::endl;
     std::cout << typeid(int_type).name() << std::endl;
@@ -32,7 +32,7 @@ int main()
     // which is a Boost.Range compatible range
     // The type of an element of the collection is the very same ring type again.
     // We show that.
-    typedef boost::range_value<int_type>::type int_ring_type;
+    using int_ring_type = boost::range_value<int_type>::type;
 
     std::cout
         << std::boolalpha

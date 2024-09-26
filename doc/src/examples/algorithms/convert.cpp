@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -22,9 +22,9 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point;
-    typedef boost::geometry::model::box<point> box;
-    typedef boost::geometry::model::polygon<point> polygon;
+    using point = boost::geometry::model::d2::point_xy<double>;
+    using box = boost::geometry::model::box<point>;
+    using polygon = boost::geometry::model::polygon<point>;
 
     point p1(1, 1);
     box bx = boost::geometry::make<box>(1, 1, 2, 2);
