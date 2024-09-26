@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -19,11 +19,11 @@ int main()
     namespace bg = boost::geometry;
 
     // Select a point near the pole (theta=5.0, phi=15.0)
-    bg::model::point<long double, 2, bg::cs::spherical<bg::degree> > p1(15.0, 5.0);
+    bg::model::point<long double, 2, bg::cs::spherical<bg::degree>> p1(15.0, 5.0);
 
     // Transform from degree to radian. Default strategy is automatically selected,
     // it will convert from degree to radian
-    bg::model::point<long double, 2, bg::cs::spherical<bg::radian> > p2;
+    bg::model::point<long double, 2, bg::cs::spherical<bg::radian>> p2;
     bg::transform(p1, p2);
 
     // Transform from degree (lon-lat) to 3D (x,y,z). Default strategy is automatically selected,

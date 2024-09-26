@@ -26,7 +26,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 int main()
 {
-    boost::geometry::model::polygon<boost::tuple<double, double> > poly;
+    boost::geometry::model::polygon<boost::tuple<double, double>> poly;
     poly.outer().push_back(boost::make_tuple(1.0, 2.0));
     poly.outer().push_back(boost::make_tuple(6.0, 4.0));
     poly.outer().push_back(boost::make_tuple(5.0, 1.0));

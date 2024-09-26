@@ -1,7 +1,7 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,8 +19,8 @@ namespace bg = boost::geometry;
 
 int main()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-    typedef bg::model::multi_point<point_t> mpoint_t;
+    using point_t = bg::model::point<double, 2, bg::cs::cartesian>;
+    using mpoint_t = bg::model::multi_point<point_t>;
 
     mpoint_t mpt1; /*< Default-construct a multi_point. >*/
     mpoint_t mpt2{{{0.0, 0.0}, {1.0, 1.0}, {2.0, 2.0}}}; /*< Construct a multi_point containing three points, using C++11 unified initialization syntax. >*/

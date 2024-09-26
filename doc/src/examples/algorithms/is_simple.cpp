@@ -21,9 +21,9 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::linestring<point_type> linestring_type;
-    typedef boost::geometry::model::multi_linestring<linestring_type> multi_linestring_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using linestring_type = boost::geometry::model::linestring<point_type>;
+    using multi_linestring_type = boost::geometry::model::multi_linestring<linestring_type>;
 
     multi_linestring_type multi_linestring;
     boost::geometry::read_wkt("MULTILINESTRING((0 0,0 10,10 10,10 0,0 0),(10 10,20 20))", multi_linestring);

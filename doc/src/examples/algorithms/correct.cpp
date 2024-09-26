@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,38 +18,37 @@
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
-#include <boost/assign.hpp>
-
 int main()
 {
-    using boost::assign::tuple_list_of;
-
-    typedef boost::geometry::model::polygon
+    using clockwise_closed_polygon = boost::geometry::model::polygon
         <
             boost::tuple<int, int>
-        > clockwise_closed_polygon;
+        >;
 
     clockwise_closed_polygon cwcp;
 
     // Fill it counterclockwise (so wrongly), forgetting the closing point
-    boost::geometry::exterior_ring(cwcp) = tuple_list_of(0, 0)(10, 10)(0, 9);
+    boost::geometry::exterior_ring(cwcp) = {{0, 0}, {10, 10}, {0, 9}};
 
     // Add a counterclockwise closed inner ring (this is correct)
-    boost::geometry::interior_rings(cwcp).push_back(tuple_list_of(1, 2)(4, 6)(2, 8)(1, 2));
+    boost::geometry::interior_rings(cwcp).push_back({{1, 2}, {4, 6}, {2, 8}, {1, 2}});
 
     // Its area should be negative (because of wrong orientation)
     //     and wrong (because of omitted closing point)
-    double area_before = boost::geometry::area(cwcp);
+    const auto area_before = boost::geometry::area(cwcp);
+    const auto count_before = boost::geometry::num_points(cwcp);
 
     // Correct it!
     boost::geometry::correct(cwcp);
 
     // Check its new area
-    double area_after = boost::geometry::area(cwcp);
+    const auto area_after = boost::geometry::area(cwcp);
+    const auto count_after = boost::geometry::num_points(cwcp);
 
     // And output it
     std::cout << boost::geometry::dsv(cwcp) << std::endl;
     std::cout << area_before << " -> " << area_after << std::endl;
+    std::cout << count_before << " -> " << count_after << std::endl;
 
     return 0;
 }
@@ -63,6 +62,7 @@ Output:
 [pre
 (((0, 0), (0, 9), (10, 10), (0, 0)), ((1, 2), (4, 6), (2, 8), (1, 2)))
 -7 -> 38
+7 -> 8
 ]
 */
 //]

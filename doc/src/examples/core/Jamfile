@@ -1,6 +1,6 @@
 # Boost.Geometry (aka GGL, Generic Geometry Library)
 #
-# Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+# Copyright (c) 2007-2024 Barend Gehrels, Amsterdam, the Netherlands.
 # Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 # Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
@@ -29,5 +29,5 @@ exe interior_type : interior_type.cpp ;
 exe point_type : point_type.cpp ;
 exe ring_type : ring_type.cpp ;
 exe rings : rings.cpp ;
-exe tag : tag.cpp : <library>/boost/assign//boost_assign ;
+exe tag : tag.cpp ;
 exe tag_cast : tag_cast.cpp ;

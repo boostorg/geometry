@@ -20,7 +20,7 @@ using namespace boost::geometry;
 
 int main()
 {
-    typedef model::d2::point_xy<double,cs::geographic<degree> > point_type;
+    using point_type = model::d2::point_xy<double,cs::geographic<degree>>;
     using segment_type = model::segment<point_type>;
     using linestring_type = model::linestring<point_type>;
     using multipoint_type = model::multi_point<point_type>;

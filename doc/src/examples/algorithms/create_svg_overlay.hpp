@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -13,7 +13,6 @@
 
 #include <fstream>
 
-#include <boost/foreach.hpp>
 #include <boost/core/ignore_unused.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -27,7 +26,7 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
 #if defined(HAVE_SVG)
     std::cout  << std::endl << "[$img/algorithms/" << boost::replace_all_copy(filename, ".svg", ".png") << "]" << std::endl << std::endl;
 
-    typedef typename boost::geometry::point_type<Geometry>::type point_type;
+    using point_type = typename boost::geometry::point_type<Geometry>::type;
     std::ofstream svg(filename.c_str());
 
     boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);
@@ -37,7 +36,7 @@ void create_svg(std::string const& filename, Geometry const& a, Geometry const& 
     mapper.map(a, "fill-opacity:0.5;fill:rgb(153,204,0);stroke:rgb(153,204,0);stroke-width:2");
     mapper.map(b, "fill-opacity:0.3;fill:rgb(51,51,153);stroke:rgb(51,51,153);stroke-width:2");
     int i = 0;
-    BOOST_FOREACH(typename boost::range_value<Range>::type const& g, range)
+    for (typename boost::range_value<Range>::type const& g : range)
     {
         mapper.map(g, "opacity:0.8;fill:none;stroke:rgb(255,128,0);stroke-width:4;stroke-dasharray:1,7;stroke-linecap:round");
         std::ostringstream out;

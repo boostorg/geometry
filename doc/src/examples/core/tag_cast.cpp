@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,11 +20,11 @@
 namespace geo = boost::geometry;
 int main()
 {
-    typedef geo::model::d2::point_xy<double> point_type;
-    typedef geo::model::polygon<point_type> polygon_type;
+    using point_type = geo::model::d2::point_xy<double>;
+    using polygon_type = geo::model::polygon<point_type>;
 
-    typedef geo::tag<polygon_type>::type tag;
-    typedef geo::tag_cast<tag, geo::linear_tag, geo::areal_tag>::type base_tag;
+    using tag = geo::tag<polygon_type>::type;
+    using base_tag = geo::tag_cast<tag, geo::linear_tag, geo::areal_tag>::type;
 
     std::cout << "tag: " << typeid(tag).name() << std::endl
         << "base tag: " << typeid(base_tag).name() << std::endl;

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -26,7 +26,7 @@ void list_coordinates(Point const& p)
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point;
+    using point = boost::geometry::model::d2::point_xy<double>;
     boost::geometry::model::polygon<point> poly;
     boost::geometry::read_wkt("POLYGON((0 0,0 4,4 0,0 0))", poly);
     boost::geometry::for_each_point(poly, list_coordinates<point>);

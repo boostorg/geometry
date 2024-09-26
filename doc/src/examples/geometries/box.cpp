@@ -1,7 +1,7 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -18,8 +18,8 @@ namespace bg = boost::geometry;
 
 int main()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-    typedef bg::model::box<point_t> box_t;
+    using point_t = bg::model::point<double, 2, bg::cs::cartesian>;
+    using box_t = bg::model::box<point_t>;
 
     box_t box1; /*< Default-construct a box. >*/
     box_t box2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning min and max corner point. >*/

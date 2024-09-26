@@ -18,7 +18,7 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
 
     point_type p1(0, 0);
     point_type p2(1, 1);

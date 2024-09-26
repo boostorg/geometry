@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -18,14 +18,14 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> P;
-    typedef boost::geometry::model::linestring<P> L;
+    using P = boost::geometry::model::d2::point_xy<double>;
+    using L = boost::geometry::model::linestring<P>;
 
     L line;
     boost::geometry::read_wkt("linestring(1.1 1.1, 2.5 2.1, 3.1 3.1, 4.9 1.1, 3.1 1.9)", line);
 
-    typedef boost::geometry::strategy::distance::projected_point<P, P> DS;
-    typedef boost::geometry::strategy::simplify::douglas_peucker<P, DS> simplification;
+    using DS = boost::geometry::strategy::distance::projected_point<P, P>;
+    using simplification = boost::geometry::strategy::simplify::douglas_peucker<P, DS>;
 
     L simplified;
     boost::geometry::simplify_inserter(line, std::back_inserter(simplified), 0.5, simplification()); //std::ostream_iterator<P>(std::cout, "\n"), 0.5);//);

@@ -25,7 +25,7 @@ namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 int main()
 {
     // Create spherical polygon
-    bg::model::polygon<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree> > > sph_poly;
+    bg::model::polygon<bg::model::point<double, 2, bg::cs::spherical_equatorial<bg::degree>>> sph_poly;
     bg::read_wkt("POLYGON((0 0,0 1,1 0,0 0))", sph_poly);
 
     // Create spherical strategy with mean Earth radius in meters
@@ -36,7 +36,7 @@ int main()
     std::cout << "Area: " << area << std::endl;
 
     // Create geographic polygon
-    bg::model::polygon<bg::model::point<double, 2, bg::cs::geographic<bg::degree> > > geo_poly;
+    bg::model::polygon<bg::model::point<double, 2, bg::cs::geographic<bg::degree>>> geo_poly;
     bg::read_wkt("POLYGON((0 0,0 1,1 0,0 0))", geo_poly);
 
     // Create geographic strategy with WGS84 spheroid

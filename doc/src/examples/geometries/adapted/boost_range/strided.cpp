@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,15 +17,12 @@
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/adapted/boost_range/strided.hpp>
 
-#include <boost/assign.hpp> /*< At the end to avoid conflicts with Boost.QVM >*/
-
-
 int main()
 {
     using namespace boost::assign;
     using boost::adaptors::strided;
 
-    typedef boost::geometry::model::d2::point_xy<int> xy;
+    using xy = boost::geometry::model::d2::point_xy<int>;
     boost::geometry::model::ring<xy> ring;
     ring += xy(0, 0);
     ring += xy(0, 1);

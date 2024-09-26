@@ -24,8 +24,8 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using polygon_type = boost::geometry::model::polygon<point_type>;
 
     polygon_type poly;
     boost::geometry::read_wkt(

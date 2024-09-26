@@ -21,9 +21,9 @@ namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 int main()
 {
     // Checks if the two geometries touch
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly1;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly1;
     bg::read_wkt("POLYGON((0 0,0 4,4 4,4 0,0 0))", poly1);
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly2;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly2;
     bg::read_wkt("POLYGON((0 0,0 -4,-4 -4,-4 0,0 0))", poly2);
     bool check_touches = bg::touches(poly1, poly2);
     if (check_touches) {
@@ -32,7 +32,7 @@ int main()
         std::cout << "Touches: No" << std::endl;
     }
 
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly3;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly3;
     bg::read_wkt("POLYGON((1 1,0 -4,-4 -4,-4 0,1 1))", poly3);
     check_touches = bg::touches(poly1, poly3);
     if (check_touches) {

@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,13 +17,13 @@
 
 int main()
 {
-    typedef boost::geometry::model::box
+    using box_type = boost::geometry::model::box
         <
             boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>
-        > box_type;
+        >;
 
     // Define the Boost.Range compatible type:
-    typedef boost::geometry::box_view<box_type> box_view;
+    using box_view = boost::geometry::box_view<box_type>;
 
     box_type box;
     boost::geometry::assign_values(box, 0, 0, 4, 4);

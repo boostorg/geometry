@@ -23,10 +23,10 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
-    typedef boost::geometry::model::linestring<point_type> linestring_type;
-    typedef boost::geometry::model::multi_point<point_type> multi_point_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using polygon_type = boost::geometry::model::polygon<point_type>;
+    using linestring_type = boost::geometry::model::linestring<point_type>;
+    using multi_point_type = boost::geometry::model::multi_point<point_type>;
 
     point_type p(4.3,1.9);
     point_type p0(0,0);

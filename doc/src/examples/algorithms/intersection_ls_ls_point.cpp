@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,14 +17,12 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
 
-#include <boost/foreach.hpp>
-
 BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> P;
+    using P = boost::geometry::model::d2::point_xy<double>;
     std::vector<P> line1, line2;
     boost::geometry::read_wkt("linestring(1 1,2 2,3 1)", line1);
     boost::geometry::read_wkt("linestring(1 2,2 1,3 2)", line2);
@@ -32,7 +30,7 @@ int main()
     std::deque<P> intersection_points;
     boost::geometry::intersection(line1, line2, intersection_points);
 
-    BOOST_FOREACH(P const& p, intersection_points)
+    for (P const& p : intersection_points)
     {
         std::cout << " " << boost::geometry::wkt(p);
     }

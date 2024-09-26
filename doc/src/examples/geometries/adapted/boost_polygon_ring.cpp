@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,8 +17,8 @@
 
 int main()
 {
-    typedef boost::polygon::polygon_data<int> polygon;
-    typedef boost::polygon::polygon_traits<polygon>::point_type point;
+    using polygon = boost::polygon::polygon_data<int>;
+    using point = boost::polygon::polygon_traits<polygon>::point_type;
 
     point pts[5] = {
         boost::polygon::construct<point>(0, 0),

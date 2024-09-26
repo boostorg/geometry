@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,14 +20,12 @@
 #include <boost/geometry/geometries/multi_point.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 
-#include <boost/foreach.hpp>
-
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
-    typedef boost::geometry::model::linestring<point_type> linestring_type;
-    typedef boost::geometry::model::multi_point<point_type> multi_point_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using polygon_type = boost::geometry::model::polygon<point_type>;
+    using linestring_type = boost::geometry::model::linestring<point_type>;
+    using multi_point_type = boost::geometry::model::multi_point<point_type>;
 
     point_type p(1,2);
     polygon_type poly;
