@@ -27,7 +27,7 @@ int main()
     assign_values(b, 2, 2, 5, 5);
 
     point ll, lr, ul, ur;
-    assign_box_corners(b, ll, lr, ul, ur);
+    detail::assign_box_corners(b, ll, lr, ul, ur);
 
     std::cout << "box: " << dsv(b) << std::endl << std::endl;
 

@@ -19,17 +19,10 @@
 
 int main()
 {
-    using namespace boost::assign;
     using boost::adaptors::strided;
 
     using xy = boost::geometry::model::d2::point_xy<int>;
-    boost::geometry::model::ring<xy> ring;
-    ring += xy(0, 0);
-    ring += xy(0, 1);
-    ring += xy(0, 2);
-    ring += xy(1, 2);
-    ring += xy(2, 2);
-    ring += xy(2, 0);
+    boost::geometry::model::ring<xy> ring {{0, 0}, {0, 1}, {0, 2}, {1, 2}, {2, 2}, {2, 0}};
 
     boost::geometry::correct(ring);
 

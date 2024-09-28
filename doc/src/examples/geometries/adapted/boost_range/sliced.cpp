@@ -19,15 +19,8 @@
 
 int main()
 {
-    using namespace boost::assign;
-
     using xy = boost::geometry::model::d2::point_xy<int>;
-    boost::geometry::model::linestring<xy> line;
-    line += xy(0, 0);
-    line += xy(1, 1);
-    line += xy(2, 2);
-    line += xy(3, 3);
-    line += xy(4, 4);
+    boost::geometry::model::linestring<xy> line = {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}};
 
     std::cout
         << boost::geometry::dsv(line | boost::adaptors::sliced(1, 3)) << std::endl;

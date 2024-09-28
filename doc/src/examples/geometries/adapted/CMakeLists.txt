@@ -5,22 +5,16 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    box
-    linestring
-    point
-    point_xy
-    point_xyz
-    polygon
-    multi_linestring
-    multi_point
-    multi_polygon
-    ring
-    segment
+    boost_array
+    boost_fusion
+    boost_tuple
+    c_array
+    std_array
   )
 
-  boost_geometry_add_example("geometries" ${item})
+  boost_geometry_add_example("geometries_adapted" ${item})
   
 endforeach()
 
-add_subdirectory(adapted)
-add_subdirectory(register)
+add_subdirectory(boost_range)
+
