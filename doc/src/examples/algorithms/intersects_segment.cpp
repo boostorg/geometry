@@ -20,14 +20,14 @@ int main()
 {
     // Calculate the intersects of a cartesian polygon
     using P = boost::geometry::model::d2::point_xy<double>;
-    bg::model::linestring<P> line1, line2;
+    boost::geometry::model::linestring<P> line1, line2;
 
     boost::geometry::read_wkt("linestring(1 1,2 2)", line1);
     boost::geometry::read_wkt("linestring(2 1,1 2)", line2);
 
-    bool b = boost::geometry::intersects(line1, line2);
+    bool intersects = boost::geometry::intersects(line1, line2);
 
-    std::cout << "Intersects: " << (b ? "YES" : "NO") << std::endl;
+    std::cout << "Intersects: " << (intersects ? "YES" : "NO") << std::endl;
 
     return 0;
 }

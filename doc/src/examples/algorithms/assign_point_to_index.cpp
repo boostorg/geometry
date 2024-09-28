@@ -26,8 +26,8 @@ int main()
     point lower_left(0, 0), upper_right(2, 2);
 
     box b;
-    assign_point_to_index<0>(lower_left, b);
-    assign_point_to_index<1>(upper_right, b);
+    detail::assign_point_to_index<0>(lower_left, b);
+    detail::assign_point_to_index<1>(upper_right, b);
     std::cout << "box: " << dsv(b) << std::endl;
 
     return 0;

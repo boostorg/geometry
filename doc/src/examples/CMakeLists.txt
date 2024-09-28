@@ -33,6 +33,7 @@ foreach(item IN ITEMS
 endforeach()
 
 add_subdirectory(algorithms)
+add_subdirectory(arithmetic)
 add_subdirectory(core)
 add_subdirectory(geometries)
 add_subdirectory(io)

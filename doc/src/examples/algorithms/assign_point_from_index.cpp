@@ -27,8 +27,8 @@ int main()
     assign_values(s, 1, 1, 2, 2);
 
     point first, second;
-    assign_point_from_index<0>(s, first);
-    assign_point_from_index<1>(s, second);
+    detail::assign_point_from_index<0>(s, first);
+    detail::assign_point_from_index<1>(s, second);
     std::cout
         << "segment: " << dsv(s) << std::endl
         << "first: " << dsv(first) << std::endl

@@ -65,9 +65,28 @@ foreach(item IN ITEMS
     union
     unique
     within
+
+    # Entries not present in Jamfile
+    # Some of them are used in the documentation, but not all of them.
+    assign_box_corners         # uses detail, not used in documentation
+    assign_point_from_index    # uses detail, not used in documentation
+    assign_point_to_index      # uses detail, not used in documentation
+    azimuth
+    azimuth_strategy
+    covered_by
+    crosses
+    disjoint
+    intersection_poly_poly
+    intersects_segment
+    is_empty
+    make_with_range            # uses detail, not used in documentation
+    overlaps
+    perimeter
+    simplify_insert            # uses detail, not used in documentation
+    touches_one_geometry
+    touches_two_geometries
   )
 
   boost_geometry_add_example("algorithms" ${item})
 
 endforeach()
-

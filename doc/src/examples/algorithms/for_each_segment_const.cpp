@@ -33,7 +33,7 @@ int main()
     boost::geometry::for_each_segment(polyline, 
         [&](auto const& s)
         {
-            const auto length = boost::geometry::length(s);
+            const auto length = static_cast<double>(boost::geometry::length(s));
             min_length = std::min(min_length, length);
             max_length = std::max(max_length, length);
         });

@@ -5,22 +5,14 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    box
-    linestring
-    point
-    point_xy
-    point_xyz
-    polygon
-    multi_linestring
-    multi_point
-    multi_polygon
-    ring
-    segment
+    filtered
+    reversed
+    sliced
+    strided
+    # uniqued Fails to compile, also commented in Jamfile
   )
 
-  boost_geometry_add_example("geometries" ${item})
+  boost_geometry_add_example("geometries_adapted_range" ${item})
   
 endforeach()
 
-add_subdirectory(adapted)
-add_subdirectory(register)

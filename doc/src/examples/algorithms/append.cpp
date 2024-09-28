@@ -28,7 +28,7 @@ int main()
     polygon poly;
 
     // Append a range
-    append(poly, vector{{0.0, 0.0}, {0.0, 10.0}, {11.0, 11.0}, {10.0, 0.0}}); /*< vector models a range and can therefore be used in boost::geometry::append >*/
+    append(poly, vector{{0, 0}, {0, 10}, {11, 11}, {10, 0}}); /*< vector models a range and can therefore be used in boost::geometry::append >*/
     // Append a point (in this case the closing point)
     append(poly, boost::make_tuple(0, 0));
 

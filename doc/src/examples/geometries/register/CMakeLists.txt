@@ -6,21 +6,19 @@
 
 foreach(item IN ITEMS
     box
-    linestring
+    box_templated
+    box_2d_4values
     point
-    point_xy
-    point_xyz
-    polygon
-    multi_linestring
-    multi_point
-    multi_polygon
+    linestring
+    linestring_templated
     ring
-    segment
+    ring_templated
+    multi_point
+    multi_point_templated
+    multi_linestring
+    multi_polygon
   )
 
-  boost_geometry_add_example("geometries" ${item})
+  boost_geometry_add_example("geometries_register" ${item})
   
 endforeach()
-
-add_subdirectory(adapted)
-add_subdirectory(register)
