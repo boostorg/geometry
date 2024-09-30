@@ -371,7 +371,6 @@ public:
                                     sin_sigma1, cos_sigma1,
                                     sin_sigma2, cos_sigma2,
                                     eps, diff_omega12,
-                                    iteration < max_iterations,
                                     dv, f, n, ep2, tiny, coeffs_C1);
 
                     // Reversed test to allow escape with NaNs.
@@ -392,7 +391,7 @@ public:
                         cos_alpha1a = cos_alpha1;
                     }
 
-                    if (iteration < max_iterations && dv > c0)
+                    if (dv > c0)
                     {
                         CT diff_alpha1 = -v / dv;
 
@@ -843,7 +842,7 @@ public:
                               CT& sin_sigma1, CT& cos_sigma1,
                               CT& sin_sigma2, CT& cos_sigma2,
                               CT& eps, CT& diff_omega12,
-                              bool diffp, CT& diff_lam12,
+                              CT& diff_lam12,
                               CT const& f, CT const& n, CT const& ep2, CT const& tiny,
                               CoeffsC1 const& coeffs_C1)
     {
@@ -929,24 +928,22 @@ public:
         diff_omega12 = -f * A3 * sin_alpha0 * (sigma12 + B312);
         lam12 = eta + diff_omega12;
 
-        if (diffp)
+        if (cos_alpha2 == c0)
         {
-            if (cos_alpha2 == c0)
-            {
-                diff_lam12 = - c2 * one_minus_f * dn1 / sin_beta1;
-            }
-            else
-            {
-                CT dummy;
-                meridian_length(eps, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
-                                                   sin_sigma2, cos_sigma2, dn2,
-                                                   cos_beta1, cos_beta2, dummy,
-                                                   diff_lam12, dummy, dummy,
-                                                   dummy, coeffs_C1);
-
-                diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
-            }
+            diff_lam12 = - c2 * one_minus_f * dn1 / sin_beta1;
         }
+        else
+        {
+            CT dummy;
+            meridian_length(eps, ep2, sigma12, sin_sigma1, cos_sigma1, dn1,
+                                                sin_sigma2, cos_sigma2, dn2,
+                                                cos_beta1, cos_beta2, dummy,
+                                                diff_lam12, dummy, dummy,
+                                                dummy, coeffs_C1);
+
+            diff_lam12 *= one_minus_f / (cos_alpha2 * cos_beta2);
+        }
+
         return lam12;
     }
 
