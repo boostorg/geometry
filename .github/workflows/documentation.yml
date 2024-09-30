@@ -4,6 +4,10 @@
 # Copyright (c) 2020 Mateusz Loskot <mateusz@loskot.net>
 # Copyright (c) 2020 Adam Wulkiewicz, Lodz, Poland
 #
+# This file was modified by Oracle on 2024.
+# Modifications copyright (c) 2024 Oracle and/or its affiliates.
+# Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+#
 # Use, modification and distribution is subject to the Boost Software License,
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
@@ -84,22 +88,13 @@ jobs:
         echo "using xsltproc ;" >> $HOME/user-config.jam
         test -f $HOME/user-config.jam && cat $HOME/user-config.jam
 
-    - name: Install libs/geometry/doc/src/docutils/tools/doxygen_xml2qbk
-      run: |
-        cd $BOOST_ROOT
-        $BOOST_ROOT/b2 variant=release libs/geometry/doc/src/docutils/tools/doxygen_xml2qbk
-        test -f /usr/local/bin/doxygen_xml2qbk && rm -rf /usr/local/bin/doxygen_xml2qbk
-        sudo cp $BOOST_ROOT/dist/bin/doxygen_xml2qbk /usr/local/bin/
-        ls -l /usr/local/bin/b2
-        doxygen_xml2qbk --version
-
-    - name: Build libs/geometry/doc/src/examples
+    - name: Build examples
       run: |
         cd $BOOST_ROOT
         $BOOST_ROOT/b2 libs/geometry/doc/src/examples
 
-    - name: Run libs/geometry/doc/make_qbk.py
+    - name: Build documentation
       run: |
         cd $BOOST_ROOT
         cd libs/geometry/doc
-        python ./make_qbk.py
+        $BOOST_ROOT/b2
