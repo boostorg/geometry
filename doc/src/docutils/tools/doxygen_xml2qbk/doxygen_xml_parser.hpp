@@ -1,6 +1,6 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Doxygen XML to Quickbook Converter
 //
-// Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -358,6 +358,7 @@ static void copy_parameters_properties(Parameters const& source, Parameters& tar
 template <typename Element>
 static void parse_element(rapidxml::xml_node<>* node, configuration const& config, std::string const& parent, Element& el)
 {
+    bool parse_sub_nodes = true;
     if (node != NULL)
     {
         std::string name = node->name();
@@ -389,23 +390,6 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
             }
             el.location = loc;
             el.line = atol(get_attribute(node, "line").c_str());
-        }
-        else if (full == ".detaileddescription.para.qbk")
-        {
-            el.qbk_markup.push_back(markup(node->value()));
-        }
-        else if (full == ".detaileddescription.para.qbk.after.synopsis")
-        {
-            el.qbk_markup.push_back(markup(markup_after, markup_synopsis, node->value()));
-        }
-        else if (full == ".detaileddescription.para.qbk.before.synopsis")
-        {
-            el.qbk_markup.push_back(markup(markup_before, markup_synopsis, node->value()));
-        }
-        else if (full == ".detaileddescription.para.qbk.distinguish")
-        {
-            el.additional_description = node->value();
-            boost::trim(el.additional_description);
         }
         else if (full == ".templateparamlist")
         {
@@ -458,9 +442,58 @@ static void parse_element(rapidxml::xml_node<>* node, configuration const& confi
             parse_parameter(node->first_node(), config, p);
             el.parameters.push_back(p);
         }
+        else if (boost::contains(full, ".qbk."))
+        {
+            if (boost::ends_with(full, ".distinguish"))
+            {
+                // To distinguish betweeen function overloads
+                // Marked in the source code as, for example:
+                //   \qbk{distinguish,with strategy}
+                //   \qbk{distinguish, 2 coordinate values}
+                el.additional_description = node->value();
+                boost::trim(el.additional_description);
+                parse_sub_nodes = false;
+            }
+            else if (boost::ends_with(full, ".synopsis"))
+            {
+                // To place the extra quickbook section before or after the synopsis.
+                // Marked in the source code as, for example:
+                //   \qbk{before.synopsis
+                if (boost::contains(full, ".before."))
+                {
+                    el.qbk_markup.push_back(markup(markup_before, markup_synopsis, node->value()));
+                    parse_sub_nodes = false;
+                }
+                else if (boost::contains(full, ".after."))
+                {
+                    el.qbk_markup.push_back(markup(markup_after, markup_synopsis, node->value()));
+                    parse_sub_nodes = false;
+                }
+                else
+                {
+                    std::cerr << "WARNING: Skipping: " << full << " with " << node->value() << std::endl;
+                }
+            }
+            else
+            {
+                // To make a quickbook section
+                // Marked in the source code as, for example:
+                //   \qbk{[include reference/algorithms/area.qbk]}
+                //   \qbk{heading Example}
+                //   \qbk{heading See also}
+                // \qbk{
+                // [include reference/algorithms/area.qbk]
+                // [heading Available Strategies]
+                // \* [link geometry.reference.strategies.strategy_area_cartesian Cartesian]
+                // ...
+                el.qbk_markup.push_back(markup(node->value()));
+            }
+        }
 
-
-        parse_element(node->first_node(), config, full, el);
+        if (parse_sub_nodes)
+        {
+            parse_element(node->first_node(), config, full, el);
+        }
         parse_element(node->next_sibling(), config, parent, el);
     }
 }

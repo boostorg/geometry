@@ -1,6 +1,6 @@
-// doxml2qbk (developed in the context of Boost.Geometry documentation)
+// Doxygen XML to Quickbook Converter
 //
-// Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2010-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.
 //
 // This file was modified by Oracle on 2020.
@@ -22,7 +22,6 @@
 //       using /xmlonly
 //     currently this is the element <qbk.example> which will make a reference
 //     to an example.
-// - currently still in draft
 
 #include <iostream>
 #include <fstream>

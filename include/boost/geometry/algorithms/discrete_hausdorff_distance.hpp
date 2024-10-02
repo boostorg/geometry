@@ -314,16 +314,15 @@ struct discrete_hausdorff_distance<default_strategy, false>
 
 
 /*!
-\brief Calculate discrete Hausdorff distance between two geometries (currently
-    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
-    MultiLineString-MultiLineString) using specified strategy.
+\brief \brief_calc2{discrete Hausdorff distance, between} \brief_strategy
+\details \details_free_function{discrete_hausdorff_distance, discrete Hausdorff distance, between}.
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Strategy A type fulfilling a DistanceStrategy concept
-\param geometry1 Input geometry
-\param geometry2 Input geometry
-\param strategy Distance strategy to be used to calculate Pt-Pt distance
+\tparam Strategy \tparam_strategy{Distance}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy \param_strategy{point to point distance}
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
@@ -332,7 +331,7 @@ struct discrete_hausdorff_distance<default_strategy, false>
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
-[/ \* more (currently extensions): Vincenty\, Andoyer (geographic) ]
+\* One of the geographic point to point strategies
 
 [heading Example]
 [discrete_hausdorff_distance_strategy]
@@ -351,14 +350,13 @@ inline auto discrete_hausdorff_distance(Geometry1 const& geometry1,
 }
 
 /*!
-\brief Calculate discrete Hausdorff distance between two geometries (currently
-    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
-    MultiLineString-MultiLineString).
+\brief \brief_calc2{discrete Hausdorff distance, between}
+\details \details_free_function{discrete_hausdorff_distance, discrete Hausdorff distance, between}.
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 Input geometry
-\param geometry2 Input geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
 
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
 
