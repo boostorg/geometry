@@ -520,10 +520,10 @@ struct expect_output_assert
                     TupledOut,
                     is_tag_same_as_pred<Tag>::template pred
                 >::value,
-            typename geometry::tag_cast
+            tag_cast_t
                 <
                     Tag, pointlike_tag, linear_tag, areal_tag
-                >::type
+                >
         >
 {};
 
@@ -539,29 +539,6 @@ template
 struct expect_output
     : expect_output_assert<Geometry1, Geometry2, TupledOut, Tags>...
 {};
-
-
-template <typename CastedTag>
-struct single_tag_from_base_tag;
-
-template <>
-struct single_tag_from_base_tag<pointlike_tag>
-{
-    typedef point_tag type;
-};
-
-template <>
-struct single_tag_from_base_tag<linear_tag>
-{
-    typedef linestring_tag type;
-};
-
-template <>
-struct single_tag_from_base_tag<areal_tag>
-{
-    typedef polygon_tag type;
-};
-
 
 template
 <

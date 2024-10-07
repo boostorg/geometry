@@ -334,7 +334,7 @@ private:
 
 
 // Default version (cartesian)
-template <typename Box, typename Collection, typename CSTag = typename cs_tag<Box>::type>
+template <typename Box, typename Collection, typename CSTag = cs_tag_t<Box>>
 struct box_collect_vectors
 {
     // Calculate on coordinate type, but if it is integer,

@@ -235,7 +235,7 @@ struct envelope_range_of_boxes
 
         static const bool is_equatorial = ! std::is_same
                                             <
-                                                typename cs_tag<box_type>::type,
+                                                cs_tag_t<box_type>,
                                                 spherical_polar_tag
                                             >::value;
 

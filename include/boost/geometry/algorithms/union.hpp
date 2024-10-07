@@ -24,7 +24,9 @@
 #include <boost/geometry/algorithms/detail/overlay/pointlike_pointlike.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/primary_single_tag.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
@@ -47,12 +49,12 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
-    typename TagIn1 = typename tag<Geometry1>::type,
-    typename TagIn2 = typename tag<Geometry2>::type,
+    typename TagIn1 = tag_t<Geometry1>,
+    typename TagIn2 = tag_t<Geometry2>,
     typename TagOut = typename detail::setop_insert_output_tag<GeometryOut>::type,
-    typename CastedTagIn1 = typename geometry::tag_cast<TagIn1, areal_tag, linear_tag, pointlike_tag>::type,
-    typename CastedTagIn2 = typename geometry::tag_cast<TagIn2, areal_tag, linear_tag, pointlike_tag>::type,
-    typename CastedTagOut = typename geometry::tag_cast<TagOut, areal_tag, linear_tag, pointlike_tag>::type,
+    typename CastedTagIn1 = tag_cast_t<TagIn1, areal_tag, linear_tag, pointlike_tag>,
+    typename CastedTagIn2 = tag_cast_t<TagIn2, areal_tag, linear_tag, pointlike_tag>,
+    typename CastedTagOut = tag_cast_t<TagOut, areal_tag, linear_tag, pointlike_tag>,
     bool Reverse = geometry::reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct union_insert: not_implemented<TagIn1, TagIn2, TagOut>
@@ -164,10 +166,7 @@ struct union_insert
         false
     >
 {
-    using single_tag = typename geometry::detail::single_tag_from_base_tag
-        <
-            CastedTagIn
-        >::type;
+    using single_tag = primary_single_tag_t<CastedTagIn>;
 
     using expect_check = detail::expect_output
         <
@@ -278,20 +277,14 @@ struct union_insert
         false
     >
 {
-    using single_tag1 = typename geometry::detail::single_tag_from_base_tag
-        <
-            CastedTagIn1
-        >::type;
+    using single_tag1 = primary_single_tag_t<CastedTagIn1>;
 
     using expect_check1 = detail::expect_output
         <
             Geometry1, Geometry2, SingleTupledOut, single_tag1
         >;
 
-    using single_tag2 = typename geometry::detail::single_tag_from_base_tag
-        <
-            CastedTagIn2
-        >::type;
+    using single_tag2 = primary_single_tag_t<CastedTagIn2>;
 
     using expect_check2 = detail::expect_output
         <

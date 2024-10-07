@@ -37,6 +37,7 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/ring.hpp>
@@ -177,8 +178,7 @@ struct buffer_range
             output_point_type const& p1,
             output_point_type const& p2)
     {
-        typedef typename cs_tag<output_point_type>::type cs_tag;
-        return direction_code<cs_tag>(p0, p1, p2) == 1;
+        return direction_code<cs_tag_t<output_point_type>>(p0, p1, p2) == 1;
     }
 
     template <typename Strategies>
@@ -929,11 +929,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     dispatch::buffer_inserter
         <
-            typename tag_cast
-                <
-                    typename tag<GeometryInput>::type,
-                    multi_tag
-                >::type,
+            tag_cast_t<tag_t<GeometryInput>, multi_tag>,
             GeometryInput,
             GeometryOutput
         >::apply(geometry_input, collection,

@@ -40,7 +40,7 @@ template
     typename Point,
     typename NewCoordinateType,
     typename NewUnits,
-    typename CS_Tag = typename cs_tag<Point>::type
+    typename CS_Tag = cs_tag_t<Point>
 >
 struct helper_point
 {

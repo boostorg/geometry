@@ -86,10 +86,7 @@ template
 <
     typename Geometry,
     bool AddForOpen,
-    typename Tag = typename tag_cast
-        <
-            typename tag<Geometry>::type, multi_tag
-        >::type
+    typename Tag = tag_cast_t<tag_t<Geometry>, multi_tag>
 >
 struct num_points: not_implemented<Tag>
 {};

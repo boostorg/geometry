@@ -21,6 +21,8 @@
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/primary_single_tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -106,14 +108,10 @@ template
 >
 struct call_intersection_insert_tupled_base
 {
-    typedef typename geometry::detail::single_tag_from_base_tag
+    using single_tag = primary_single_tag_t
         <
-            typename geometry::tag_cast
-                <
-                    typename geometry::tag<Geometry1>::type,
-                    pointlike_tag, linear_tag, areal_tag
-                >::type
-        >::type single_tag;
+            tag_cast_t<tag_t<Geometry1>, pointlike_tag, linear_tag, areal_tag>
+        >;
 
     typedef detail::expect_output
         <
@@ -283,11 +281,7 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
 template
 <
     typename Geometry, typename Collection,
-    typename CastedTag = typename geometry::tag_cast
-        <
-            typename geometry::tag<Geometry>::type,
-            pointlike_tag, linear_tag, areal_tag
-        >::type
+    typename CastedTag = tag_cast_t<tag_t<Geometry>, pointlike_tag, linear_tag, areal_tag>
 >
 struct multi_output_type
 {

@@ -42,6 +42,7 @@
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
@@ -504,13 +505,13 @@ template
     bool Reverse1 = detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
     bool Reverse2 = detail::overlay::do_reverse<geometry::point_order<Geometry2>::value>::value,
     // tag dispatching:
-    typename TagIn1 = typename geometry::tag<Geometry1>::type,
-    typename TagIn2 = typename geometry::tag<Geometry2>::type,
+    typename TagIn1 = tag_t<Geometry1>,
+    typename TagIn2 = tag_t<Geometry2>,
     typename TagOut = typename detail::setop_insert_output_tag<GeometryOut>::type,
     // metafunction finetuning helpers:
-    typename CastedTagIn1 = typename geometry::tag_cast<TagIn1, areal_tag, linear_tag, pointlike_tag>::type,
-    typename CastedTagIn2 = typename geometry::tag_cast<TagIn2, areal_tag, linear_tag, pointlike_tag>::type,
-    typename CastedTagOut = typename geometry::tag_cast<TagOut, areal_tag, linear_tag, pointlike_tag>::type
+    typename CastedTagIn1 = tag_cast_t<TagIn1, areal_tag, linear_tag, pointlike_tag>,
+    typename CastedTagIn2 = tag_cast_t<TagIn2, areal_tag, linear_tag, pointlike_tag>,
+    typename CastedTagOut = tag_cast_t<TagOut, areal_tag, linear_tag, pointlike_tag>
 >
 struct intersection_insert
 {
@@ -1064,7 +1065,7 @@ struct intersection_insert
     > : detail_dispatch::overlay::pointlike_linear_point
         <
             Point, Linear, PointOut, OverlayType,
-            point_tag, typename tag_cast<Tag, segment_tag, linear_tag>::type
+            point_tag, tag_cast_t<Tag, segment_tag, linear_tag>
         >
 {};
 
@@ -1086,7 +1087,7 @@ struct intersection_insert
         <
             MultiPoint, Linear, PointOut, OverlayType,
             multi_point_tag,
-            typename tag_cast<Tag, segment_tag, linear_tag>::type
+            tag_cast_t<Tag, segment_tag, linear_tag>
         >
 {};
 
