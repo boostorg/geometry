@@ -40,6 +40,7 @@
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>

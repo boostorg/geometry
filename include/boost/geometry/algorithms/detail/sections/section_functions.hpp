@@ -16,6 +16,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 
 // For spherical/geographic longitudes covered_by point/box
 #include <boost/geometry/strategies/cartesian/point_in_box.hpp>
@@ -36,11 +37,7 @@ template
 <
     std::size_t Dimension,
     typename Geometry,
-    typename CastedCSTag = typename tag_cast
-                            <
-                                typename cs_tag<Geometry>::type,
-                                spherical_tag
-                            >::type
+    typename CastedCSTag = tag_cast_t<cs_tag_t<Geometry>, spherical_tag>
 >
 struct preceding_check
 {

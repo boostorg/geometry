@@ -45,13 +45,12 @@ namespace detail { namespace centroid
 // cartesian. But if it was needed then one should translate using
 // CS-specific technique, e.g. in spherical/geographic a translation
 // vector should contain coordinates being multiplies of 2PI or 360 deg.
-template <typename Geometry,
-          typename CastedTag = typename tag_cast
-                                <
-                                    typename tag<Geometry>::type,
-                                    areal_tag
-                                >::type,
-    typename CSTag = typename cs_tag<Geometry>::type>
+template
+<
+    typename Geometry,
+    typename CastedTag = tag_cast_t<tag_t<Geometry>, areal_tag>,
+    typename CSTag = cs_tag_t<Geometry>
+>
 struct translating_transformer
 {
     typedef typename geometry::point_type<Geometry>::type point_type;

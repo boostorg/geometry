@@ -65,10 +65,10 @@ class oriented_winding
         >::type calculation_type;
 
 
-    typedef typename strategy::side::services::default_strategy
+    using strategy_side_type = typename strategy::side::services::default_strategy
         <
-            typename cs_tag<Point>::type
-        >::type strategy_side_type;
+            cs_tag_t<Point>
+        >::type;
 
 
     /*! subclass to keep state */

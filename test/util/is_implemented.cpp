@@ -49,8 +49,8 @@ template
 <
     typename Geometry1, typename Geometry2,
     typename Strategy,
-    typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
-    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
+    typename Tag1 = tag_cast_t<tag_t<Geometry1>, multi_tag>,
+    typename Tag2 = tag_cast_t<tag_t<Geometry2>, multi_tag>,
     typename StrategyTag = typename strategy::services::tag<Strategy>::type,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >

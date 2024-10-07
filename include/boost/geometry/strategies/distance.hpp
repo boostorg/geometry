@@ -94,8 +94,8 @@ template
     typename GeometryTag2,
     typename Point1,
     typename Point2 = Point1,
-    typename CsTag1 = typename cs_tag<Point1>::type,
-    typename CsTag2 = typename cs_tag<Point2>::type,
+    typename CsTag1 = cs_tag_t<Point1>,
+    typename CsTag2 = cs_tag_t<Point2>,
     typename UnderlyingStrategy = void
 >
 struct default_strategy

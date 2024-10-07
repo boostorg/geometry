@@ -61,8 +61,8 @@ namespace detail { namespace disjoint
 {
 
 template <typename Geometry1, typename Geometry2,
-          typename Tag1 = typename tag<Geometry1>::type,
-          typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
+          typename Tag1 = tag_t<Geometry1>,
+          typename Tag1OrMulti = tag_cast_t<Tag1, multi_tag>>
 struct disjoint_no_intersections_policy
 {
     /*!

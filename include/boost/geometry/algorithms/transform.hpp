@@ -203,8 +203,8 @@ struct select_strategy
 {
     typedef typename strategy::transform::services::default_strategy
         <
-            typename cs_tag<Point1>::type,
-            typename cs_tag<Point2>::type,
+            cs_tag_t<Point1>,
+            cs_tag_t<Point2>,
             typename coordinate_system<Point1>::type,
             typename coordinate_system<Point2>::type,
             dimension<Point1>::type::value,
@@ -268,8 +268,8 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
-    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type
+    typename Tag1 = tag_cast_t<tag_t<Geometry1>, multi_tag>,
+    typename Tag2 = tag_cast_t<tag_t<Geometry2>, multi_tag>
 >
 struct transform {};
 

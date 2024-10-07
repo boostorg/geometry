@@ -326,11 +326,11 @@ public:
     {
         dispatch::dsv
             <
-                typename tag_cast
+                tag_cast_t
                     <
-                        typename tag<Geometry>::type,
+                        tag_t<Geometry>,
                         multi_tag
-                    >::type,
+                    >,
                 Geometry
             >::apply(os, m.m_geometry, m.m_settings);
         os.flush();

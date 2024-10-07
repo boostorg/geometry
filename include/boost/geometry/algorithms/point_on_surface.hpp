@@ -310,10 +310,10 @@ inline void point_on_surface(Geometry const& geometry, Point & point,
 template <typename Geometry, typename Point>
 inline void point_on_surface(Geometry const& geometry, Point & point)
 {
-    typedef typename strategy::side::services::default_strategy
+    using strategy_type = typename strategy::side::services::default_strategy
         <
-            typename cs_tag<Geometry>::type
-        >::type strategy_type;
+            cs_tag_t<Geometry>
+        >::type;
 
     point_on_surface(geometry, point, strategy_type());
 }

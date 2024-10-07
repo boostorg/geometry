@@ -46,6 +46,7 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -148,11 +149,7 @@ template
     typename DimensionVector,
     std::size_t Index,
     std::size_t Count,
-    typename CastedCSTag = typename tag_cast
-                            <
-                                typename cs_tag<Point>::type,
-                                spherical_tag
-                            >::type
+    typename CastedCSTag = tag_cast_t<cs_tag_t<Point>, spherical_tag>
 >
 struct get_direction_loop
 {
@@ -497,14 +494,14 @@ struct sectionalize_part
 
                 // In cartesian this is envelope of previous point expanded with current point
                 // in non-cartesian this is envelope of a segment
-                box_first_in_section<typename cs_tag<point_type>::type>
+                box_first_in_section<cs_tag_t<point_type>>
                     ::apply(section.bounding_box, previous_point, current_point, strategy);
             }
             else
             {
                 // In cartesian this is expand with current point
                 // in non-cartesian this is expand with a segment
-                box_next_in_section<typename cs_tag<point_type>::type>
+                box_next_in_section<cs_tag_t<point_type>>
                     ::apply(section.bounding_box, previous_point, current_point, strategy);
             }
 

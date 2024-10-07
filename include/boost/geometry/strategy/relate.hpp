@@ -90,10 +90,7 @@ namespace detail
 
 template <typename Geometry>
 struct default_intersection_strategy
-    : strategy::intersection::services::default_strategy
-        <
-            typename cs_tag<Geometry>::type
-        >
+    : strategy::intersection::services::default_strategy<cs_tag_t<Geometry>>
 {};
 
 template <typename PointLike, typename Geometry>

@@ -258,10 +258,10 @@ struct remove_spikes
 
     static void apply(Geometry& geometry, geometry::default_strategy const&)
     {
-        typedef typename strategy::side::services::default_strategy
+        using side_strategy = typename strategy::side::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
-            >::type side_strategy;
+                cs_tag_t<Geometry>
+            >::type;
 
         apply(geometry, side_strategy());
     }

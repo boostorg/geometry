@@ -66,7 +66,6 @@ struct tag_cast<Tag, BaseTag, BaseTags...>
 template <typename Tag, typename ...BaseTags>
 using tag_cast_t = typename tag_cast<Tag, BaseTags...>::type;
 
-
 }} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_CORE_TAG_CAST_HPP

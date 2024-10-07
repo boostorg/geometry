@@ -216,8 +216,8 @@ template
     typename Point1,
     typename Point2 = Point1,
     int Dimension = -1,
-    typename CSTag1 = typename cs_tag<Point1>::type,
-    typename CSTag2 = typename cs_tag<Point2>::type
+    typename CSTag1 = cs_tag_t<Point1>,
+    typename CSTag2 = cs_tag_t<Point2>
 >
 struct default_strategy
 {

@@ -45,6 +45,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/reverse_dispatch.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
@@ -811,7 +812,7 @@ struct get_turns_multi_polygon_cs
 template <typename Geometry>
 struct topological_tag_base
 {
-    typedef typename tag_cast<typename tag<Geometry>::type, pointlike_tag, linear_tag, areal_tag>::type type;
+    using type = tag_cast_t<tag_t<Geometry>, pointlike_tag, linear_tag, areal_tag>;
 };
 
 template <typename Geometry1, typename Geometry2, typename AssignPolicy,

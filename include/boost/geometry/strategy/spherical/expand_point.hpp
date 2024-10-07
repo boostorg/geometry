@@ -189,7 +189,7 @@ struct spherical_point
         expand::detail::point_loop_on_spheroid
             <
                 dimension<Point>::value,
-                ! std::is_same<typename cs_tag<Point>::type, spherical_polar_tag>::value
+                ! std::is_same<cs_tag_t<Point>, spherical_polar_tag>::value
             >::apply(box, point);
     }
 };

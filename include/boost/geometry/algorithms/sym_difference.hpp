@@ -18,6 +18,8 @@
 
 #include <iterator>
 
+#include <boost/geometry/core/primary_single_tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/union.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
@@ -268,14 +270,14 @@ template
     typename Geometry1,
     typename Geometry2,
     typename GeometryOut,
-    typename TagIn1 = typename geometry::tag_cast
+    typename TagIn1 = tag_cast_t
         <
-            typename tag<Geometry1>::type, pointlike_tag, linear_tag, areal_tag
-        >::type,
-    typename TagIn2 = typename geometry::tag_cast
+            tag_t<Geometry1>, pointlike_tag, linear_tag, areal_tag
+        >,
+    typename TagIn2 = tag_cast_t
         <
-            typename tag<Geometry2>::type, pointlike_tag, linear_tag, areal_tag
-        >::type,
+            tag_t<Geometry2>, pointlike_tag, linear_tag, areal_tag
+        >,
     typename TagOut = typename detail::setop_insert_output_tag<GeometryOut>::type
 >
 struct sym_difference_insert
@@ -380,15 +382,11 @@ struct sym_difference_insert
     >
     : detail::expect_output
         <
-            Geometry1, Geometry2, GeometryOut,
-            typename detail::single_tag_from_base_tag<TagIn1>::type,
-            typename detail::single_tag_from_base_tag<TagIn2>::type
+            Geometry1, Geometry2, GeometryOut, primary_single_tag_t<TagIn1>, primary_single_tag_t<TagIn2>
         >
     , detail::sym_difference::sym_difference_different_inputs_tupled_output
         <
-            GeometryOut,
-            typename detail::single_tag_from_base_tag<TagIn1>::type,
-            typename detail::single_tag_from_base_tag<TagIn2>::type
+            GeometryOut, primary_single_tag_t<TagIn1>, primary_single_tag_t<TagIn2>
         >
 {};
 
