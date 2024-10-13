@@ -634,7 +634,7 @@ struct sectionalize_box
                 Strategy const& strategy,
                 ring_identifier const& ring_id, std::size_t max_count)
     {
-        using point_type = typename point_type<Box>::type;
+        using point_type = point_type_t<Box>;
 
         assert_dimension<Box, 2>();
 

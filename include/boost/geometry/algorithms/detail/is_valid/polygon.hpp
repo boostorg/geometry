@@ -305,8 +305,8 @@ protected:
             ring_indices.insert(tit->operations[1].seg_id.ring_index);
         }
 
-        typedef geometry::model::box<typename point_type<Polygon>::type> box_type;
-        typedef partition_item<RingIterator, box_type> item_type;
+        using box_type = geometry::model::box<point_type_t<Polygon>>;
+        using item_type = partition_item<RingIterator, box_type>;
 
         // put iterators for interior rings without turns in a vector
         std::vector<item_type> ring_iterators;

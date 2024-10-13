@@ -54,9 +54,7 @@ struct segment_box_spherical
     template <typename Segment, typename Box>
     static inline bool apply(Segment const& segment, Box const& box)
     {
-        typedef typename point_type<Segment>::type segment_point_type;
-        typedef typename coordinate_type<segment_point_type>::type CT;
-        geometry::strategy::azimuth::spherical<CT> azimuth_strategy;
+        geometry::strategy::azimuth::spherical<coordinate_type_t<point_type_t<Segment>>> azimuth_strategy;
 
         return geometry::detail::disjoint::disjoint_segment_box_sphere_or_spheroid
                 <

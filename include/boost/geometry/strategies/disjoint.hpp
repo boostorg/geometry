@@ -61,7 +61,7 @@ template <typename MultiPoint, typename Box>
 struct default_strategy<MultiPoint, Box, multi_point_tag, box_tag, 0, 2>
     : strategy::covered_by::services::default_strategy
         <
-            typename point_type<MultiPoint>::type,
+            point_type_t<MultiPoint>,
             Box
         >
 {};
@@ -70,7 +70,7 @@ template <typename Box, typename MultiPoint>
 struct default_strategy<Box, MultiPoint, box_tag, multi_point_tag, 2, 0>
     : strategy::covered_by::services::default_strategy
         <
-            typename point_type<MultiPoint>::type,
+            point_type_t<MultiPoint>,
             Box
         >
 {};

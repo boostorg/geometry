@@ -87,8 +87,8 @@ public :
         // this method assumes that the coordinates of the point and
         // the box are normalized
 
-        typedef typename point_type<Box1>::type box_point_type1;
-        typedef typename point_type<Box2>::type box_point_type2;
+        using box_point_type1 = point_type_t<Box1>;
+        using box_point_type2 = point_type_t<Box2>;
 
         box_point_type1 bottom_left1, bottom_right1, top_left1, top_right1;
         geometry::detail::assign_box_corners(box1,
@@ -277,8 +277,8 @@ public:
     template <typename Box1, typename Box2>
     struct return_type
         : services::return_type<Strategy,
-                                typename point_type<Box1>::type,
-                                typename point_type<Box2>::type>
+                                point_type_t<Box1>,
+                                point_type_t<Box2>>
     {};
 
     typedef typename Strategy::radius_type radius_type;
@@ -338,8 +338,8 @@ public:
                 (concepts::PointDistanceStrategy
                     <
                         Strategy,
-                        typename point_type<Box1>::type,
-                        typename point_type<Box2>::type
+                        point_type_t<Box1>,
+                        point_type_t<Box2>
                     >)
             );
 #endif
@@ -429,8 +429,8 @@ public:
         return result_from_distance
             <
                 Strategy,
-                typename point_type<Box1>::type,
-                typename point_type<Box2>::type
+                point_type_t<Box1>,
+                point_type_t<Box2>
             >::apply(s, distance);
     }
 };
@@ -455,7 +455,7 @@ struct default_strategy
                     typename default_strategy
                         <
                             point_tag, point_tag,
-                            typename point_type<Box1>::type, typename point_type<Box2>::type,
+                            point_type_t<Box1>, point_type_t<Box2>,
                             spherical_equatorial_tag, spherical_equatorial_tag
                         >::type,
                     Strategy

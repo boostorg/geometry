@@ -55,14 +55,12 @@ struct disjoint_segment
     static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
                              Strategy const& strategy)
     {
-        typedef typename point_type<Segment1>::type point_type;
-
-        typedef segment_intersection_points<point_type> intersection_return_type;
-
-        typedef policies::relate::segments_intersection_points
+        using point_type = point_type_t<Segment1>;
+        using intersection_return_type = segment_intersection_points<point_type>;
+        using intersection_policy = policies::relate::segments_intersection_points
             <
                 intersection_return_type
-            > intersection_policy;
+            >;
 
         detail::segment_as_subrange<Segment1> sub_range1(segment1);
         detail::segment_as_subrange<Segment2> sub_range2(segment2);

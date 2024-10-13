@@ -78,15 +78,13 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
     {
         typedef typename boost::range_value<Output>::type polygon_type;
 
-        typedef typename point_type<Input>::type point_type;
-
         if (geometry::is_empty(geometry_in))
         {
             // Then output geometry is kept empty as well
             return;
         }
 
-        model::box<point_type> box;
+        model::box<point_type_t<Input>> box;
         geometry::envelope(geometry_in, box);
         geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
 

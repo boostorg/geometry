@@ -1078,7 +1078,7 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
 {
     // Concept: output point type = point type of input geometry
     concepts::check<Geometry const>();
-    concepts::check<typename point_type<Geometry>::type>();
+    concepts::check<point_type_t<Geometry>>();
 
     simplify_insert(geometry, out, max_distance, default_strategy());
 }

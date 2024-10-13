@@ -117,7 +117,7 @@ struct fe_point_type
     typedef util::transcribe_const_t
         <
             Range,
-            typename point_type<Range>::type
+            point_type_t<Range>
         > type;
 };
 

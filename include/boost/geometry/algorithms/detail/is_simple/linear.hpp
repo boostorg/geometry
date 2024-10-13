@@ -187,22 +187,19 @@ private:
 template <typename Linear, typename Strategy>
 inline bool has_self_intersections(Linear const& linear, Strategy const& strategy)
 {
-    typedef typename point_type<Linear>::type point_type;
-
-    // compute self turns
-    typedef detail::overlay::turn_info<point_type> turn_info;
-
-    std::deque<turn_info> turns;
-
-    typedef detail::overlay::get_turn_info
+    using point_type = point_type_t<Linear>;
+    using turn_info = detail::overlay::turn_info<point_type>;
+    using turn_policy = detail::overlay::get_turn_info
         <
             detail::disjoint::assign_disjoint_policy
-        > turn_policy;
-
-    typedef is_acceptable_turn
+        >;
+    using is_acceptable_turn_type = is_acceptable_turn
         <
             Linear, Strategy
-        > is_acceptable_turn_type;
+        >;
+
+    // Compute self turns
+    std::deque<turn_info> turns;
 
     is_acceptable_turn_type predicate(linear, strategy);
     detail::overlay::predicate_based_interrupt_policy

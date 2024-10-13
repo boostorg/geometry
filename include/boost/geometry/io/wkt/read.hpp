@@ -786,7 +786,7 @@ struct box_parser
             BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'POLYGON' or 'BOX'", wkt));
         }
 
-        using point_type = typename point_type<Box>::type;
+        using point_type = point_type_t<Box>;
         std::vector<point_type> points;
         container_inserter<point_type>::apply(it, end, wkt, std::back_inserter(points));
 
@@ -855,7 +855,7 @@ struct segment_parser
             BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'LINESTRING' or 'SEGMENT'", wkt));
         }
 
-        using point_type = typename point_type<Segment>::type;
+        using point_type = point_type_t<Segment>;
         std::vector<point_type> points;
         container_inserter<point_type>::apply(it, end, wkt, std::back_inserter(points));
 

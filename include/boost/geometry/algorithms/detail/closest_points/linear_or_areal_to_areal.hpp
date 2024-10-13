@@ -39,8 +39,8 @@ struct linear_to_areal
         using point_type = typename std::conditional
             <
                 std::is_same<typename coordinate_type<Linear>::type, most_precise_type>::value,
-                typename point_type<Linear>::type,
-                typename point_type<Areal>::type
+                point_type_t<Linear>,
+                point_type_t<Areal>
             >::type;
 
         using linestring_type = geometry::model::linestring<point_type>;
@@ -108,7 +108,7 @@ struct segment_to_areal
                              Strategies const& strategies,
                              bool = false)
     {
-        using linestring_type = geometry::model::linestring<typename point_type<Segment>::type>;
+        using linestring_type = geometry::model::linestring<point_type_t<Segment>>;
         linestring_type linestring;
         convert(segment, linestring);
         linear_to_areal::apply(linestring, areal, shortest_seg, strategies);
@@ -142,8 +142,8 @@ struct areal_to_areal
         using point_type = typename std::conditional
             <
                 std::is_same<typename coordinate_type<Areal1>::type, most_precise_type>::value,
-                typename point_type<Areal1>::type,
-                typename point_type<Areal2>::type
+                point_type_t<Areal1>,
+                point_type_t<Areal2>
             >::type;
 
         using linestring_type = geometry::model::linestring<point_type>;

@@ -35,8 +35,8 @@ template <typename Geometry1, typename Geometry2, typename Strategies>
 using return_t = typename strategy::distance::services::return_type
     <
         strategy_t<Geometry1, Geometry2, Strategies>,
-        typename point_type<Geometry1>::type,
-        typename point_type<Geometry2>::type
+        point_type_t<Geometry1>,
+        point_type_t<Geometry2>
     >::type;
 
 
@@ -51,8 +51,8 @@ template <typename Geometry1, typename Geometry2, typename Strategies>
 using creturn_t = typename strategy::distance::services::return_type
     <
         cstrategy_t<Geometry1, Geometry2, Strategies>,
-        typename point_type<Geometry1>::type,
-        typename point_type<Geometry2>::type
+        point_type_t<Geometry1>,
+        point_type_t<Geometry2>
     >::type;
 
 

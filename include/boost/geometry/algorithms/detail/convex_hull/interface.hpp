@@ -213,7 +213,7 @@ struct convex_hull
         detail::convex_hull::input_geometry_proxy<Geometry> in_proxy(geometry);
         detail::convex_hull::graham_andrew
             <
-                typename point_type<Geometry>::type
+                point_type_t<Geometry>
             >::apply(in_proxy, out, strategy);
     }
 };
@@ -234,7 +234,7 @@ struct convex_hull<Box, box_tag>
         static bool const Reverse
             = geometry::point_order<OutputGeometry>::value == counterclockwise;
 
-        std::array<typename point_type<OutputGeometry>::type, 4> arr;
+        std::array<point_type_t<OutputGeometry>, 4> arr;
         // TODO: This assigns only 2d cooridnates!
         //       And it is also used in box_view<>!
         geometry::detail::assign_box_corners_oriented<Reverse>(box, arr);

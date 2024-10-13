@@ -84,8 +84,7 @@ struct disjoint_segment_box_sphere_or_spheroid
                              DisjointPointBoxStrategy const& disjoint_point_box_strategy,
                              DisjointBoxBoxStrategy const& disjoint_box_box_strategy)
     {
-        typedef typename point_type<Segment>::type segment_point;
-        segment_point vertex;
+        point_type_t<Segment> vertex;
         return apply(segment, box, vertex,
                      azimuth_strategy,
                      normalize_strategy,
@@ -112,13 +111,13 @@ struct disjoint_segment_box_sphere_or_spheroid
     {
         assert_dimension_equal<Segment, Box>();
 
-        typedef typename point_type<Segment>::type segment_point_type;
+        using segment_point_type = point_type_t<Segment>;
 
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);
 
-        //vertex not computed here
+        // Vertex is not computed here
         disjoint_info disjoint_return_value = disjoint_info::disjoint_no_vertex;
 
         // Simplest cases first
