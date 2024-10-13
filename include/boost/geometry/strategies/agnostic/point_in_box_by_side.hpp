@@ -85,7 +85,7 @@ inline bool point_in_box_by_side(Point const& point, Box const& box,
     // Create (counterclockwise) array of points, the fifth one closes it
     // Every point should be on the LEFT side (=1), or ON the border (=0),
     // So >= 1 or >= 0
-    std::array<typename point_type<Box>::type, 5> bp;
+    std::array<point_type_t<Box>, 5> bp;
     geometry::detail::assign_box_corners_oriented<true>(box, bp);
     bp[4] = bp[0];
 

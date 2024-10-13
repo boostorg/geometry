@@ -125,7 +125,7 @@ struct segment_to_multipoint
     {
         using linestring_type = geometry::model::linestring
             <
-                typename point_type<Segment>::type
+                point_type_t<Segment>
             >;
         linestring_type linestring;
         convert(segment, linestring);
@@ -150,7 +150,7 @@ struct multipoint_to_segment
     {
         using linestring_type = geometry::model::linestring
             <
-                typename point_type<Segment>::type
+                point_type_t<Segment>
             >;
         linestring_type linestring;
         convert(segment, linestring);

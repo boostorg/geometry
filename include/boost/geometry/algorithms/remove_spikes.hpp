@@ -68,9 +68,7 @@ struct range_remove_spikes
     template <typename Range, typename SideStrategy>
     static inline void apply(Range& range, SideStrategy const& strategy)
     {
-        typedef typename point_type<Range>::type point_type;
-
-        std::size_t n = boost::size(range);
+        std::size_t const n = boost::size(range);
         std::size_t const min_num_points = core_detail::closure::minimum_ring_size
             <
                 geometry::closure<Range>::value
@@ -80,7 +78,7 @@ struct range_remove_spikes
             return;
         }
 
-        std::vector<point_type> cleaned;
+        std::vector<point_type_t<Range>> cleaned;
         cleaned.reserve(n);
 
         for (auto const& p : range)

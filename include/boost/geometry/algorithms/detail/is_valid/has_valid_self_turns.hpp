@@ -44,14 +44,14 @@ template
 class has_valid_self_turns
 {
 private:
-    typedef typename point_type<Geometry>::type point_type;
+    using point_type = point_type_t<Geometry>;
 
 public:
-    typedef detail::overlay::turn_info
+    using turn_type = detail::overlay::turn_info
         <
             point_type,
             typename segment_ratio_type<point_type>::type
-        > turn_type;
+        >;
 
     // returns true if all turns are valid
     template <typename Turns, typename VisitPolicy, typename Strategy>

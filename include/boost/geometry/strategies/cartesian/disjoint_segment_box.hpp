@@ -257,12 +257,12 @@ struct segment_box
     {
         assert_dimension_equal<Segment, Box>();
 
-        typedef typename util::calculation_type::geometric::binary
+        using relative_distance_type = typename util::calculation_type::geometric::binary
             <
                 Segment, Box, void
-            >::type relative_distance_type;
+            >::type;
 
-        typedef typename point_type<Segment>::type segment_point_type;
+        using segment_point_type = point_type_t<Segment>;
         segment_point_type p0, p1;
         geometry::detail::assign_point_from_index<0>(segment, p0);
         geometry::detail::assign_point_from_index<1>(segment, p1);

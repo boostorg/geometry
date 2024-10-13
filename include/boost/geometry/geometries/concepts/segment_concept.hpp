@@ -36,7 +36,7 @@ template <typename Geometry>
 class Segment
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
+    using point_type = point_type_t<Geometry>;
 
     BOOST_CONCEPT_ASSERT( (concepts::Point<point_type>) );
 
@@ -80,8 +80,8 @@ template <typename Geometry>
 class ConstSegment
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename coordinate_type<Geometry>::type coordinate_type;
+    using point_type = point_type_t<Geometry>;
+    using coordinate_type = coordinate_type_t<Geometry>;
 
     BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point_type>) );
 

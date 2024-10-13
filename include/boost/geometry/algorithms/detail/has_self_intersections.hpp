@@ -70,12 +70,12 @@ inline bool has_self_intersections(Geometry const& geometry,
         Strategy const& strategy,
         bool throw_on_self_intersection = true)
 {
-    typedef typename point_type<Geometry>::type point_type;
-    typedef turn_info
+    using point_type = point_type_t<Geometry>;
+    using turn_info = turn_info
     <
         point_type,
         typename segment_ratio_type<point_type>::type
-    > turn_info;
+    >;
     std::deque<turn_info> turns;
     detail::disjoint::disjoint_interrupt_policy policy;
 

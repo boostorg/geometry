@@ -95,11 +95,7 @@ struct default_intersection_strategy
 
 template <typename PointLike, typename Geometry>
 struct default_point_in_geometry_strategy
-    : point_in_geometry::services::default_strategy
-        <
-            typename point_type<PointLike>::type,
-            Geometry
-        >
+    : point_in_geometry::services::default_strategy<point_type_t<PointLike>, Geometry>
 {};
 
 } // namespace detail

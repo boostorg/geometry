@@ -165,7 +165,7 @@ struct default_strategy
     typedef weighted_length
         <
             Point,
-            typename point_type<Geometry>::type
+            point_type_t<Geometry>
         > type;
 };
 

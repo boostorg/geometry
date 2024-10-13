@@ -86,8 +86,8 @@ inline void simplify_input(RangeIn const& range,
 template <typename RingOutput>
 struct buffer_range
 {
-    typedef typename point_type<RingOutput>::type output_point_type;
-    typedef typename coordinate_type<RingOutput>::type coordinate_type;
+    using output_point_type = point_type_t<RingOutput>;
+    using coordinate_type = coordinate_type_t<RingOutput>;
 
     template
     <
@@ -432,7 +432,7 @@ struct buffer_inserter<point_tag, Point, RingOutput>
     {
         detail::buffer::buffer_point
         <
-            typename point_type<RingOutput>::type
+            point_type_t<RingOutput>
         >(point, collection, distance_strategy, point_strategy);
     }
 };
@@ -446,7 +446,7 @@ template
 >
 struct buffer_inserter_ring
 {
-    using output_point_type = typename point_type<RingOutput>::type;
+    using output_point_type = point_type_t<RingOutput>;
 
     template
     <
@@ -609,8 +609,8 @@ template
 >
 struct buffer_inserter<linestring_tag, Linestring, Polygon>
 {
-    using output_ring_type = typename ring_type<Polygon>::type;
-    using output_point_type = typename point_type<output_ring_type>::type;
+    using output_ring_type = ring_type_t<Polygon>;
+    using output_point_type = point_type_t<output_ring_type>;
 
     template
     <

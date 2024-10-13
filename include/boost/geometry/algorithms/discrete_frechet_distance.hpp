@@ -76,8 +76,8 @@ struct linestring_linestring
     {
         typedef typename distance_result
             <
-                typename point_type<Linestring1>::type,
-                typename point_type<Linestring2>::type,
+                point_type_t<Linestring1>,
+                point_type_t<Linestring2>,
                 Strategies
             >::type result_type;
         typedef typename boost::range_size<Linestring1>::type size_type1;

@@ -103,8 +103,8 @@ private:
             }
         }
 
-        typedef geometry::model::box<typename point_type<MultiPolygon>::type> box_type;
-        typedef typename base::template partition_item<PolygonIterator, box_type> item_type;
+        using box_type = geometry::model::box<point_type_t<MultiPolygon>>;
+        using item_type = typename base::template partition_item<PolygonIterator, box_type>;
 
         // put polygon iterators without turns in a vector
         std::vector<item_type> polygon_iterators;
@@ -123,7 +123,7 @@ private:
 
         geometry::partition
             <
-                geometry::model::box<typename point_type<MultiPolygon>::type>
+                geometry::model::box<point_type_t<MultiPolygon>>
             >::apply(polygon_iterators, item_visitor,
                      typename base::template expand_box<Strategy>(strategy),
                      typename base::template overlaps_box<Strategy>(strategy));

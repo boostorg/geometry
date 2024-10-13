@@ -241,7 +241,7 @@ struct tag< index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> >
 template <typename Geometry, typename Box, typename Strategy, typename Tag>
 struct point_type< index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> >
 {
-    typedef typename point_type<Box>::type type;
+    using type = point_type_t<Box>;
 };
 
 template <typename Geometry, typename Box, typename Strategy, typename Tag, std::size_t Dimension>

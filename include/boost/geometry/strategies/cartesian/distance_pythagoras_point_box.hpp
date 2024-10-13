@@ -115,7 +115,7 @@ public :
     {
         BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<Point>) );
         BOOST_CONCEPT_ASSERT
-            ( (concepts::ConstPoint<typename point_type<Box>::type>) );
+            ( (concepts::ConstPoint<point_type_t<Box>>) );
 
         // Calculate distance using Pythagoras
         // (Leave comment above for Doxygen)

@@ -25,8 +25,8 @@ namespace boost { namespace geometry
 template <typename Box>
 bool is_inverse_spheroidal_coordinates(Box const& box)
 {
-    typedef typename point_type<Box>::type point_type;
-    typedef typename coordinate_type<point_type>::type bound_type;
+    using point_type = point_type_t<Box>;
+    using bound_type = coordinate_type_t<point_type>;
 
     bound_type const high = util::bounds<bound_type>::highest();
     bound_type const low = util::bounds<bound_type>::lowest();

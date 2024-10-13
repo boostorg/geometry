@@ -52,12 +52,11 @@ struct path_intersection
 template <typename Indexable, typename Segment>
 struct path_intersection<Indexable, Segment, box_tag, segment_tag>
 {
-    typedef typename default_distance_result<typename point_type<Segment>::type>::type comparable_distance_type;
+    using comparable_distance_type = typename default_distance_result<point_type_t<Segment>>::type;
 
     static inline bool apply(Indexable const& b, Segment const& segment, comparable_distance_type & comparable_distance)
     {
-        typedef typename point_type<Segment>::type point_type;
-        point_type p1, p2;
+        point_type_t<Segment> p1, p2;
         geometry::detail::assign_point_from_index<0>(segment, p1);
         geometry::detail::assign_point_from_index<1>(segment, p2);
         return index::detail::segment_intersection(b, p1, p2, comparable_distance);
@@ -67,7 +66,7 @@ struct path_intersection<Indexable, Segment, box_tag, segment_tag>
 template <typename Indexable, typename Linestring>
 struct path_intersection<Indexable, Linestring, box_tag, linestring_tag>
 {
-    typedef typename default_length_result<Linestring>::type comparable_distance_type;
+    using comparable_distance_type = typename default_length_result<Linestring>::type;
 
     static inline bool apply(Indexable const& b, Linestring const& path, comparable_distance_type & comparable_distance)
     {

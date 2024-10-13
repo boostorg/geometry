@@ -65,10 +65,7 @@ struct debug_boundary_points_printer<MultiLinestring, multi_linestring_tag>
 {
     static inline void apply(MultiLinestring const& multilinestring)
     {
-        typedef typename point_type<MultiLinestring>::type point_type;
-        typedef std::vector<point_type> point_vector;
-
-        point_vector boundary_points;
+        std::vector<point_type_t<MultiLinestring>> boundary_points;
         for (auto it = boost::begin(multilinestring); it != boost::end(multilinestring); ++it)
         {
             if ( boost::size(*it) > 1

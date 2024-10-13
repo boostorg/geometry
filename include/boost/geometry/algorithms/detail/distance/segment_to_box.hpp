@@ -82,17 +82,16 @@ template
 class segment_to_box_2D_generic
 {
 private:
-    typedef typename point_type<Segment>::type segment_point;
-    typedef typename point_type<Box>::type box_point;
+    using segment_point = point_type_t<Segment>;
+    using box_point = point_type_t<Box>;
+    using ps_strategy_type = distance::strategy_t<box_point, Segment, Strategies>;
 
-    typedef distance::strategy_t<box_point, Segment, Strategies> ps_strategy_type;
-
-    typedef detail::closest_feature::point_to_point_range
+    using point_to_point_range = detail::closest_feature::point_to_point_range
         <
             segment_point,
             std::vector<box_point>,
             open
-        > point_to_point_range;
+        >;
 
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
@@ -187,15 +186,15 @@ template
 class segment_to_box_2D_generic<Segment, Box, Strategies, true> // Use both PointSegment and PointBox strategies
 {
 private:
-    typedef typename point_type<Segment>::type segment_point;
-    typedef typename point_type<Box>::type box_point;
+    using segment_point = point_type_t<Segment>;
+    using box_point = point_type_t<Box>;
 
-    typedef distance::strategy_t<box_point, Segment, Strategies> ps_strategy_type;
-    typedef distance::strategy_t<segment_point, Box, Strategies> pb_strategy_type;
+    using ps_strategy_type = distance::strategy_t<box_point, Segment, Strategies>;
+    using pb_strategy_type = distance::strategy_t<segment_point, Box, Strategies>;
 
 public:
     // TODO: Or should the return type be defined by sb_strategy_type?
-    typedef distance::return_t<box_point, Segment, Strategies> return_type;
+    using return_type = distance::return_t<box_point, Segment, Strategies>;
 
     static inline return_type apply(Segment const& segment,
                                     Box const& box,
@@ -732,8 +731,8 @@ public:
                                     Box const& box,
                                     Strategies const& strategies)
     {
-        typedef typename point_type<Segment>::type segment_point;
-        typedef typename point_type<Box>::type box_point;
+        using segment_point = point_type_t<Segment>;
+        using box_point = point_type_t<Box>;
 
         segment_point p[2];
         detail::assign_point_from_index<0>(segment, p[0]);

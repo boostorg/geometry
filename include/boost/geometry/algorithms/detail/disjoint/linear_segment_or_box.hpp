@@ -86,7 +86,7 @@ struct disjoint_range_segment_or_box
                              SegmentOrBox const& segment_or_box,
                              Strategy const& strategy)
     {
-        using point_type = typename point_type<Range>::type;
+        using point_type = point_type_t<Range>;
         using range_segment = typename geometry::model::referring_segment<point_type const>;
 
         detail::closed_view<Range const> const view(range);

@@ -53,8 +53,8 @@ class Polygon
     typedef typename traits::interior_const_type<polygon_type>::type interior_const_type;
     typedef typename traits::interior_mutable_type<polygon_type>::type interior_mutable_type;
 
-    typedef typename point_type<PolygonType>::type point_type;
-    typedef typename ring_type<PolygonType>::type ring_type;
+    using point_type = point_type_t<PolygonType>;
+    using ring_type = ring_type_t<PolygonType>;
 
     BOOST_CONCEPT_ASSERT( (concepts::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (concepts::Ring<ring_type>) );
@@ -102,8 +102,8 @@ class ConstPolygon
     typedef typename traits::ring_const_type<const_polygon_type>::type ring_const_type;
     typedef typename traits::interior_const_type<const_polygon_type>::type interior_const_type;
 
-    typedef typename point_type<const_polygon_type>::type point_type;
-    typedef typename ring_type<const_polygon_type>::type ring_type;
+    using point_type = point_type_t<const_polygon_type>;
+    using ring_type = ring_type_t<const_polygon_type>;
 
     BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point_type>) );
     BOOST_CONCEPT_ASSERT( (concepts::ConstRing<ring_type>) );

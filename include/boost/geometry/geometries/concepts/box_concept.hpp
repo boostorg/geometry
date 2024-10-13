@@ -34,8 +34,7 @@ template <typename Geometry>
 class Box
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
-
+    using point_type = point_type_t<Geometry>;
 
     template
     <
@@ -80,8 +79,8 @@ template <typename Geometry>
 class ConstBox
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename coordinate_type<Geometry>::type coordinate_type;
+    using point_type = point_type_t<Geometry>;
+    using coordinate_type = coordinate_type_t<Geometry>;
 
     template
     <

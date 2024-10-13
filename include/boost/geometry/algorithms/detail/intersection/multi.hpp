@@ -173,8 +173,7 @@ struct clip_multi_linestring
             Box const& box,
             OutputIterator out, Strategy const& )
     {
-        typedef typename point_type<LinestringOut>::type point_type;
-        strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
+        strategy::intersection::liang_barsky<Box, point_type_t<LinestringOut>> lb_strategy;
         for (auto it = boost::begin(multi_linestring); it != boost::end(multi_linestring); ++it)
         {
             out = detail::intersection::clip_range_with_box

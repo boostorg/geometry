@@ -16,8 +16,8 @@ inline void make_square_polygon(Polygon& polygon, Generator& generator, Settings
 {
     using namespace boost::geometry;
 
-    typedef typename point_type<Polygon>::type point_type;
-    typedef typename coordinate_type<Polygon>::type coordinate_type;
+    using point_type = point_type_t<Polygon>;
+    using coordinate_type = coordinate_type_t<Polygon>;
 
     coordinate_type x, y;
     x = generator();

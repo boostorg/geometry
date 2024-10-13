@@ -247,7 +247,7 @@ struct default_strategy<cartesian_tag, areal_tag, 2, Point, Geometry>
     typedef bashein_detmer
         <
             Point,
-            typename point_type<Geometry>::type
+            point_type_t<Geometry>
         > type;
 };
 

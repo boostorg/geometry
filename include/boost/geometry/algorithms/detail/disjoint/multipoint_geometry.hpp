@@ -254,7 +254,7 @@ public:
         // should be passed, where envelope would be lazily calculated when needed the first time
         geometry::partition
             <
-                geometry::model::box<typename point_type<MultiPoint>::type>
+                geometry::model::box<point_type_t<MultiPoint>>
             >::apply(multipoint, segment_range(linear), visitor,
                      expand_box_point<Strategy>(strategy),
                      overlaps_box_point<Strategy>(strategy),
@@ -282,9 +282,9 @@ public:
                              SingleGeometry const& single_geometry,
                              Strategy const& strategy)
     {
-        typedef typename point_type<MultiPoint>::type point1_type;
-        typedef typename point_type<SingleGeometry>::type point2_type;
-        typedef model::box<point2_type> box2_type;
+        using point1_type = point_type_t<MultiPoint>;
+        using point2_type = point_type_t<SingleGeometry>;
+        using box2_type = model::box<point2_type>;
 
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
@@ -424,11 +424,11 @@ public:
     template <typename Strategy>
     static inline bool apply(MultiPoint const& multi_point, MultiGeometry const& multi_geometry, Strategy const& strategy)
     {
-        typedef typename point_type<MultiPoint>::type point1_type;
-        typedef typename point_type<MultiGeometry>::type point2_type;
-        typedef model::box<point1_type> box1_type;
-        typedef model::box<point2_type> box2_type;
-        typedef std::pair<box2_type, std::size_t> box_pair_type;
+        using point1_type = point_type_t<MultiPoint>;
+        using point2_type = point_type_t<MultiGeometry>;
+        using box1_type = model::box<point1_type>;
+        using box2_type = model::box<point2_type>;
+        using box_pair_type = std::pair<box2_type, std::size_t>;
 
         std::size_t count2 = boost::size(multi_geometry);
         std::vector<box_pair_type> boxes(count2);

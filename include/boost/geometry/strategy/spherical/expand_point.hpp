@@ -61,15 +61,14 @@ struct point_loop_on_spheroid
     template <typename Box, typename Point>
     static inline void apply(Box& box, Point const& point)
     {
-        typedef typename point_type<Box>::type box_point_type;
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
-        typedef typename geometry::detail::cs_angular_units<Box>::type units_type;
-
-        typedef math::detail::constants_on_spheroid
+        using box_point_type = point_type_t<Box>;
+        using box_coordinate_type = coordinate_type_t<Box>;
+        using units_type = typename geometry::detail::cs_angular_units<Box>::type;
+        using constants = math::detail::constants_on_spheroid
             <
                 box_coordinate_type,
                 units_type
-            > constants;
+            >;
 
         // normalize input point and input box
         Point p_normalized;

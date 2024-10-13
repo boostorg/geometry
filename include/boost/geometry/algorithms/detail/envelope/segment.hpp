@@ -70,7 +70,7 @@ struct envelope_segment
     static inline void apply(Segment const& segment, Box& mbr,
                              Strategy const& strategy)
     {
-        typename point_type<Segment>::type p[2];
+        point_type_t<Segment> p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);
 

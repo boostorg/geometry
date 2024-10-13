@@ -254,7 +254,7 @@ struct wkt_multi
 template <typename Box>
 struct wkt_box
 {
-    using point_type = typename point_type<Box>::type;
+    using point_type = point_type_t<Box>;
 
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
@@ -298,7 +298,7 @@ struct wkt_box
 template <typename Segment>
 struct wkt_segment
 {
-    using point_type = typename point_type<Segment>::type;
+    using point_type = point_type_t<Segment>;
 
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,

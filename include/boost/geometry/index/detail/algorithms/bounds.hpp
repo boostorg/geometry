@@ -186,9 +186,9 @@ struct covered_by_bounds<Geometry, Bounds, segment_tag, box_tag>
 {
     static inline bool apply(Geometry const& g, Bounds & b)
     {
-        typedef typename point_type<Geometry>::type point_type;
-        typedef geometry::model::box<point_type> bounds_type;
-        typedef index::detail::bounded_view<Geometry, bounds_type, default_strategy> view_type;
+        using point_type = point_type_t<Geometry>;
+        using bounds_type = geometry::model::box<point_type>;
+        using view_type = index::detail::bounded_view<Geometry, bounds_type, default_strategy>;
 
         return geometry::covered_by(view_type(g, default_strategy()), b);
     }
@@ -196,9 +196,9 @@ struct covered_by_bounds<Geometry, Bounds, segment_tag, box_tag>
     template <typename Strategy>
     static inline bool apply(Geometry const& g, Bounds & b, Strategy const& strategy)
     {
-        typedef typename point_type<Geometry>::type point_type;
-        typedef geometry::model::box<point_type> bounds_type;
-        typedef index::detail::bounded_view<Geometry, bounds_type, Strategy> view_type;
+        using point_type = point_type_t<Geometry>;
+        using bounds_type = geometry::model::box<point_type>;
+        using view_type = index::detail::bounded_view<Geometry, bounds_type, Strategy>;
 
         return geometry::covered_by(view_type(g, strategy), b, strategy);
     }

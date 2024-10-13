@@ -118,7 +118,7 @@ struct default_strategy
     typedef average
         <
             Point,
-            typename point_type<Geometry>::type
+            point_type_t<Geometry>
         > type;
 };
 
