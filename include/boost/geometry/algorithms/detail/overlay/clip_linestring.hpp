@@ -191,7 +191,7 @@ OutputIterator clip_range_with_box(Box const& b, Range const& range,
         return out;
     }
 
-    typedef typename point_type<OutputLinestring>::type point_type;
+    using point_type = point_type_t<OutputLinestring>;
 
     OutputLinestring line_out;
 

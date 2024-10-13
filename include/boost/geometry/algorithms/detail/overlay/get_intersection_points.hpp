@@ -98,8 +98,8 @@ inline void get_intersection_points(Geometry1 const& geometry1,
 
     typedef detail::get_intersection_points::get_turn_without_info
                         <
-                            typename point_type<Geometry1>::type,
-                            typename point_type<Geometry2>::type,
+                            point_type_t<Geometry1>,
+                            point_type_t<Geometry2>,
                             typename boost::range_value<Turns>::type
                         > TurnPolicy;
 

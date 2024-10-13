@@ -77,8 +77,8 @@ inline void make_random_linestring(Linestring& line, Generator& generator, Setti
 {
     using namespace boost::geometry;
 
-    typedef typename point_type<Linestring>::type point_type;
-    typedef typename coordinate_type<Linestring>::type coordinate_type;
+    using point_type = point_type_t<Linestring>;
+    using coordinate_type = coordinate_type_t<Linestring>;
 
     coordinate_type x, y;
     x = generator();

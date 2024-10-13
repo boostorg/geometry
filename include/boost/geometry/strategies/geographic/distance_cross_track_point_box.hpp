@@ -69,7 +69,7 @@ public:
     template <typename Point, typename Box>
     struct return_type
         : services::return_type<typename distance_ps_strategy::type,
-                                Point, typename point_type<Box>::type>
+                                Point, point_type_t<Box>>
     {};
 
     //constructor
@@ -88,7 +88,7 @@ public:
             (
                 (concepts::PointSegmentDistanceStrategy
                     <
-                        Strategy, Point, typename point_type<Box>::type
+                        Strategy, Point, point_type_t<Box>
                     >)
             );
 #endif
@@ -190,7 +190,7 @@ public:
     {
         result_from_distance
             <
-                Strategy, P, typename point_type<Box>::type
+                Strategy, P, point_type_t<Box>
             >::apply(strategy, distance);
     }
 };

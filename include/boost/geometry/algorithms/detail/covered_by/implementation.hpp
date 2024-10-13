@@ -65,7 +65,7 @@ struct geometry_covered_by_box
     template <typename Geometry, typename Box, typename Strategy>
     static inline bool apply(Geometry const& geometry, Box const& box, Strategy const& strategy)
     {
-        using point_type = typename point_type<Geometry>::type;
+        using point_type = point_type_t<Geometry>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
         using box_type = model::box<mutable_point_type>;
 

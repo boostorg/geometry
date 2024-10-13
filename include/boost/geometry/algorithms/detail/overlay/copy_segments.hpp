@@ -225,7 +225,7 @@ struct copy_segments_box
             : 5 - index + to_index + 1;
 
         // Create array of points, the fifth one closes it
-        std::array<typename point_type<Box>::type, 5> bp;
+        std::array<point_type_t<Box>, 5> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
         bp[4] = bp[0];
 

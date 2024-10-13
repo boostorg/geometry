@@ -81,20 +81,16 @@ template
 class geometry_to_segment_or_box
 {
 private:
-    typedef typename point_type<SegmentOrBox>::type segment_or_box_point;
-
-    typedef distance::strategy_t<Geometry, SegmentOrBox, Strategies> strategy_type;
-
-    typedef detail::closest_feature::point_to_point_range
+    using segment_or_box_point = point_type_t<SegmentOrBox>;
+    using strategy_type = distance::strategy_t<Geometry, SegmentOrBox, Strategies>;
+    using point_to_point_range = detail::closest_feature::point_to_point_range
         <
-            typename point_type<Geometry>::type,
+            point_type_t<Geometry>,
             std::vector<segment_or_box_point>,
             segment_or_box_point_range_closure<SegmentOrBox>::value
-        > point_to_point_range;
-
-    typedef detail::closest_feature::geometry_to_range geometry_to_range;
-
-    typedef distance::creturn_t<Geometry, SegmentOrBox, Strategies> comparable_return_type;
+        >;
+    using geometry_to_range = detail::closest_feature::geometry_to_range;
+    using comparable_return_type = distance::creturn_t<Geometry, SegmentOrBox, Strategies>;
 
     // assign the new minimum value for an iterator of the point range
     // of a segment or a box
@@ -320,7 +316,7 @@ public:
             :
             dispatch::distance
                 <
-                    typename point_type<MultiPoint>::type,
+                    point_type_t<MultiPoint>,
                     SegmentOrBox,
                     Strategies
                 >::apply(*it_min, segment_or_box, strategies);

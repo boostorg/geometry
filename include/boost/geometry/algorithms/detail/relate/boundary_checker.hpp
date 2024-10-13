@@ -150,7 +150,7 @@ inline void copy_boundary_points_of_mls(MultiLinestring const& mls, Strategy con
 template <typename Geometry, typename Strategy>
 class boundary_checker<Geometry, Strategy, multi_linestring_tag>
 {
-    using point_type = typename point_type<Geometry>::type;
+    using point_type = point_type_t<Geometry>;
     using mutable_point_type = typename helper_geometry<point_type>::type;
 
 public:

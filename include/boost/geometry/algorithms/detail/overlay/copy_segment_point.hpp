@@ -115,7 +115,7 @@ struct copy_segment_point_box
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
-        std::array<typename point_type<Box>::type, 4> bp;
+        std::array<point_type_t<Box>, 4> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
 
         signed_size_type const target = circular_offset(4, seg_id.segment_index, offset);

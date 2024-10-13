@@ -79,16 +79,14 @@ struct intersection_segment_segment_point
             OutputIterator out,
             Strategy const& strategy)
     {
-        typedef typename point_type<PointOut>::type point_type;
-
-        // Get the intersection point (or two points)
-        typedef segment_intersection_points<point_type> intersection_return_type;
-
-        typedef policies::relate::segments_intersection_points
+        using point_type = point_type_t<PointOut>;
+        using intersection_return_type = segment_intersection_points<point_type>;
+        using policy_type = policies::relate::segments_intersection_points
             <
                 intersection_return_type
-            > policy_type;
+            >;
 
+        // Get the intersection point (or two points)
         detail::segment_as_subrange<Segment1> sub_range1(segment1);
         detail::segment_as_subrange<Segment2> sub_range2(segment2);
 
@@ -286,10 +284,7 @@ struct intersection_of_linestring_with_areal
                 GeometryOut, linestring_tag, linestring_tag
             > linear;
 
-        typedef typename point_type
-            <
-                typename linear::type
-            >::type point_type;
+        using point_type = point_type_t<typename linear::type>;
 
         typedef geometry::segment_ratio
             <
@@ -632,8 +627,7 @@ struct intersection_insert
             Box const& box,
             OutputIterator out, Strategy const& )
     {
-        typedef typename point_type<GeometryOut>::type point_type;
-        strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
+        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
         return detail::intersection::clip_range_with_box
             <GeometryOut>(box, linestring, out, lb_strategy);
     }
@@ -713,8 +707,7 @@ struct intersection_insert
     {
         geometry::segment_view<Segment> range(segment);
 
-        typedef typename point_type<GeometryOut>::type point_type;
-        strategy::intersection::liang_barsky<Box, point_type> lb_strategy;
+        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
         return detail::intersection::clip_range_with_box
             <GeometryOut>(box, range, out, lb_strategy);
     }
