@@ -13,3 +13,4 @@ project boost-geometry-examples-extensions
     ;
 
 build-project gis ;
+build-project triangulation ;
