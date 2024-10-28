@@ -288,7 +288,7 @@ struct intersection_of_linestring_with_areal
 
         typedef geometry::segment_ratio
             <
-                typename coordinate_type<point_type>::type
+                coordinate_type_t<point_type>
             > ratio_type;
 
         typedef detail::overlay::turn_info
@@ -419,9 +419,9 @@ struct intersection_linear_areal_point
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
-        typedef geometry::segment_ratio<typename geometry::coordinate_type<PointOut>::type> ratio_type;
+        using ratio_type = geometry::segment_ratio<geometry::coordinate_type_t<PointOut>>;
 
-        typedef detail::overlay::turn_info
+        using turn_info = detail::overlay::turn_info
             <
                 PointOut,
                 ratio_type,
@@ -430,12 +430,12 @@ struct intersection_linear_areal_point
                         PointOut,
                         ratio_type
                     >
-            > turn_info;
+            >;
 
-        typedef detail::overlay::get_turn_info_linear_areal
+        using turn_policy = detail::overlay::get_turn_info_linear_areal
             <
                 detail::overlay::assign_null_policy
-            > turn_policy;
+            >;
 
         std::vector<turn_info> turns;
 

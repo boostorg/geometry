@@ -32,7 +32,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 //    typedef typename select_most_precise<
 //        typename select_most_precise<
 //        typename coordinate_type<Indexable>::type,
-//        typename coordinate_type<Point>::type
+//        coordinate_type_t<Point>
 //        >::type,
 //        float // TODO - use bigger type, calculated from the size of coordinate types
 //    >::type type;

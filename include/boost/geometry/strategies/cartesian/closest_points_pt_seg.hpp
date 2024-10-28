@@ -117,8 +117,8 @@ public:
           <
             typename select_most_precise
                 <
-                    typename coordinate_type<Point>::type,
-                    typename coordinate_type<PointOfSegment>::type,
+                    coordinate_type_t<Point>,
+                    coordinate_type_t<PointOfSegment>,
                     CalculationType
                 >::type
           >

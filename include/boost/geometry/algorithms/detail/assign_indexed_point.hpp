@@ -59,10 +59,7 @@ inline void assign_point_to_index(Point const& point, Geometry& geometry)
     detail::for_each_dimension<Geometry>([&](auto dimension)
     {
         geometry::set<Index, dimension>(geometry,
-            util::numeric_cast
-                <
-                    typename coordinate_type<Geometry>::type
-                >(geometry::get<dimension>(point)));
+            util::numeric_cast<coordinate_type_t<Geometry>>(geometry::get<dimension>(point)));
     });
 }
 
@@ -93,7 +90,7 @@ inline void assign_point_from_index(Geometry const& geometry, Point& point)
         geometry::set<dimension>(point,
             util::numeric_cast
                 <
-                    typename coordinate_type<Point>::type
+                    coordinate_type_t<Point>
                 >(geometry::get<Index, dimension>(geometry)));
     });
 }

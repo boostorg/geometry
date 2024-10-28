@@ -92,11 +92,10 @@ struct point_loop_on_spheroid
             box_coordinate_type p_lon = geometry::get<0>(box_point);
             box_coordinate_type p_lat = geometry::get<1>(box_point);
 
-            typename coordinate_type<Box>::type
-                    b_lon_min = geometry::get<min_corner, 0>(box),
-                    b_lat_min = geometry::get<min_corner, 1>(box),
-                    b_lon_max = geometry::get<max_corner, 0>(box),
-                    b_lat_max = geometry::get<max_corner, 1>(box);
+            box_coordinate_type b_lon_min = geometry::get<min_corner, 0>(box);
+            box_coordinate_type b_lat_min = geometry::get<min_corner, 1>(box);
+            box_coordinate_type b_lon_max = geometry::get<max_corner, 0>(box);
+            box_coordinate_type b_lat_max = geometry::get<max_corner, 1>(box);
 
             if (math::is_latitude_pole<units_type, IsEquatorial>(p_lat))
             {

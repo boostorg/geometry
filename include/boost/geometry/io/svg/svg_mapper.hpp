@@ -270,7 +270,7 @@ class svg_mapper : boost::noncopyable
 
     typedef typename geometry::select_most_precise
         <
-            typename coordinate_type<Point>::type,
+            coordinate_type_t<Point>,
             double
         >::type calculation_type;
 

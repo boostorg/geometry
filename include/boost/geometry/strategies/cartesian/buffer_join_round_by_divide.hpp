@@ -85,13 +85,11 @@ public :
                 DistanceType const& buffer_distance,
                 RangeOut& range_out) const
     {
-        typedef typename coordinate_type<Point>::type coordinate_type;
-
-        typedef typename geometry::select_most_precise
+        using promoted_type = typename geometry::select_most_precise
             <
-                coordinate_type,
+                coordinate_type_t<Point>,
                 double
-            >::type promoted_type;
+            >::type;
 
         geometry::equal_to<Point> equals;
 

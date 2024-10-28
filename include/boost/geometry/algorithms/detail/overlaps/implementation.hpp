@@ -59,8 +59,8 @@ struct box_box_loop
     {
         assert_dimension_equal<Box1, Box2>();
 
-        typedef typename coordinate_type<Box1>::type coordinate_type1;
-        typedef typename coordinate_type<Box2>::type coordinate_type2;
+        using coordinate_type1 = coordinate_type_t<Box1>;
+        using coordinate_type2 = coordinate_type_t<Box2>;
 
         coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
         coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);

@@ -57,7 +57,7 @@ struct point_type<std::pair<Point, Point> >
 template <typename Point, std::size_t Dimension>
 struct indexed_access<std::pair<Point, Point>, 0, Dimension>
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
 
     static inline coordinate_type get(std::pair<Point, Point> const& s)
     {
@@ -74,7 +74,7 @@ struct indexed_access<std::pair<Point, Point>, 0, Dimension>
 template <typename Point, std::size_t Dimension>
 struct indexed_access<std::pair<Point, Point>, 1, Dimension>
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
 
     static inline coordinate_type get(std::pair<Point, Point> const& s)
     {

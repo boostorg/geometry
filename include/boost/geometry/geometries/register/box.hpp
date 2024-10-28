@@ -23,7 +23,7 @@
 template <size_t D> \
 struct indexed_access<Box, min_corner, D> \
 { \
-    typedef typename coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) \
     { return geometry::get<D>(b. MinCorner);  } \
     static inline void set(Box& b, ct const& value) \
@@ -32,7 +32,7 @@ struct indexed_access<Box, min_corner, D> \
 template <size_t D> \
 struct indexed_access<Box, max_corner, D> \
 { \
-    typedef typename coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) \
     { return geometry::get<D>(b. MaxCorner);  } \
     static inline void set(Box& b, ct const& value) \
@@ -44,7 +44,7 @@ struct indexed_access<Box, max_corner, D> \
 template <typename P, size_t D> \
 struct indexed_access<Box<P>, min_corner, D> \
 { \
-    typedef typename coordinate_type<P>::type ct; \
+    using ct = coordinate_type_t<P>; \
     static inline ct get(Box<P> const& b) \
     { return geometry::get<D>(b. MinCorner);  } \
     static inline void set(Box<P>& b, ct const& value) \
@@ -53,7 +53,7 @@ struct indexed_access<Box<P>, min_corner, D> \
 template <typename P, size_t D> \
 struct indexed_access<Box<P>, max_corner, D> \
 { \
-    typedef typename coordinate_type<P>::type ct; \
+    using ct = coordinate_type_t<P>; \
     static inline ct get(Box<P> const& b) \
     { return geometry::get<D>(b. MaxCorner);  } \
     static inline void set(Box<P>& b, ct const& value) \
@@ -64,25 +64,25 @@ struct indexed_access<Box<P>, max_corner, D> \
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_BOX_ACCESS_4VALUES(Box, Point, Left, Bottom, Right, Top) \
 template <> struct indexed_access<Box, min_corner, 0> \
 { \
-    typedef coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) { return b. Left;  } \
     static inline void set(Box& b, ct const& value) { b. Left = value; } \
 }; \
 template <> struct indexed_access<Box, min_corner, 1> \
 { \
-    typedef coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) { return b. Bottom;  } \
     static inline void set(Box& b, ct const& value) { b. Bottom = value; } \
 }; \
 template <> struct indexed_access<Box, max_corner, 0> \
 { \
-    typedef coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) { return b. Right;  } \
     static inline void set(Box& b, ct const& value) { b. Right = value; } \
 }; \
 template <> struct indexed_access<Box, max_corner, 1> \
 { \
-    typedef coordinate_type<Point>::type ct; \
+    using ct = coordinate_type_t<Point>; \
     static inline ct get(Box const& b) { return b. Top; } \
     static inline void set(Box& b, ct const& value) { b. Top = value; } \
 };

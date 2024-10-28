@@ -211,9 +211,9 @@ public :
         using promoted_t = typename select_most_precise<coor_t, double>::type;
 
         bool const are_all_integral_coordinates =
-            std::is_integral<typename coordinate_type<P1>::type>::value
-            && std::is_integral<typename coordinate_type<P2>::type>::value
-            && std::is_integral<typename coordinate_type<P>::type>::value;
+            std::is_integral<coordinate_type_t<P1>>::value
+            && std::is_integral<coordinate_type_t<P2>>::value
+            && std::is_integral<coordinate_type_t<P>>::value;
 
         eps_policy< math::detail::equals_factor_policy<promoted_t> > epsp;
         promoted_t s = compute_side_value

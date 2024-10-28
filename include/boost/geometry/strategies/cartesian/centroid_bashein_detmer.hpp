@@ -134,8 +134,8 @@ private :
                 std::is_void<CalculationType>::value,
                 typename select_most_precise
                     <
-                        typename coordinate_type<GeometryPoint>::type,
-                        typename coordinate_type<ResultPoint>::type,
+                        coordinate_type_t<GeometryPoint>,
+                        coordinate_type_t<ResultPoint>,
                         double
                     >::type,
                 CalculationType
@@ -211,10 +211,7 @@ public :
             calc_type const v3 = 3;
             calc_type const a3 = v3 * state.sum_a2;
 
-            typedef typename geometry::coordinate_type
-                <
-                    ResultPoint
-                >::type coordinate_type;
+            using coordinate_type = geometry::coordinate_type_t<ResultPoint>;
 
             // Prevent NaN centroid coordinates
             if (boost::math::isfinite(a3))

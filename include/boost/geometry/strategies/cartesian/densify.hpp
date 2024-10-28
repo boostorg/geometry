@@ -53,15 +53,15 @@ public:
     template <typename Point, typename AssignPolicy, typename T>
     static inline void apply(Point const& p0, Point const& p1, AssignPolicy & policy, T const& length_threshold)
     {
-        typedef typename AssignPolicy::point_type out_point_t;
-        typedef typename coordinate_type<out_point_t>::type out_coord_t;
-        typedef typename select_most_precise
+        using out_point_t = typename AssignPolicy::point_type;
+        using out_coord_t = coordinate_type_t<out_point_t>;
+        using calc_t = typename select_most_precise
             <
-                typename coordinate_type<Point>::type, out_coord_t,
+                coordinate_type_t<Point>, out_coord_t,
                 CalculationType
-            >::type calc_t;
+            >::type;
 
-        typedef model::point<calc_t, geometry::dimension<Point>::value, cs::cartesian> calc_point_t;
+        using calc_point_t = model::point<calc_t, geometry::dimension<Point>::value, cs::cartesian>;
 
         assert_dimension_equal<calc_point_t, out_point_t>();
 

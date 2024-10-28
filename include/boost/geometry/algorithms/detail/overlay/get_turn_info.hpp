@@ -216,7 +216,7 @@ struct turn_info_verification_functions
         BOOST_GEOMETRY_ASSERT(index_p > 0 && index_p <= 2);
         BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
 
-        using distance_measure_result_type = typename geometry::coordinate_type<decltype(ti.point)>::type;
+        using distance_measure_result_type = geometry::coordinate_type_t<decltype(ti.point)>;
 
         bool const p_in_range = index_p < range_p.size();
         bool const q_in_range = index_q < range_q.size();

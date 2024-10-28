@@ -53,8 +53,8 @@ template
 >
 struct translating_transformer
 {
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef boost::reference_wrapper<point_type const> result_type;
+    using point_type = geometry::point_type_t<Geometry>;
+    using result_type = boost::reference_wrapper<point_type const>;
 
     explicit translating_transformer(Geometry const&) {}
     explicit translating_transformer(point_type const&) {}
@@ -72,8 +72,8 @@ struct translating_transformer
 template <typename Geometry>
 struct translating_transformer<Geometry, areal_tag, cartesian_tag>
 {
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef point_type result_type;
+    using point_type = geometry::point_type_t<Geometry>;
+    using result_type = point_type;
 
     explicit translating_transformer(Geometry const& geom)
         : m_origin(NULL)

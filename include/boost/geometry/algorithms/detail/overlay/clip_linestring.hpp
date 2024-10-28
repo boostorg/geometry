@@ -99,8 +99,8 @@ public:
 
     inline bool clip_segment(Box const& b, segment_type& s, bool& sp1_clipped, bool& sp2_clipped) const
     {
-        typedef typename select_coordinate_type<Box, Point>::type coordinate_type;
-        typedef typename select_most_precise<coordinate_type, double>::type calc_type;
+        using coordinate_type = typename select_coordinate_type<Box, Point>::type;
+        using calc_type = typename select_most_precise<coordinate_type, double>::type;
 
         calc_type t1 = 0;
         calc_type t2 = 1;

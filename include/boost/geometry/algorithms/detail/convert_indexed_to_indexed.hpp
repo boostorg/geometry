@@ -42,7 +42,7 @@ struct indexed_to_indexed
 {
     static inline void apply(Source const& source, Destination& destination)
     {
-        typedef typename coordinate_type<Destination>::type coordinate_type;
+        using coordinate_type = coordinate_type_t<Destination>;
 
         geometry::set<min_corner, Dimension>(destination,
             util::numeric_cast<coordinate_type>(

@@ -58,7 +58,7 @@ struct fraction_type
 template
 <
     typename Point,
-    typename SegmentRatio = segment_ratio<typename coordinate_type<Point>::type>
+    typename SegmentRatio = segment_ratio<coordinate_type_t<Point>>
 >
 struct segment_intersection_points
 {

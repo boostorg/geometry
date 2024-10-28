@@ -57,7 +57,7 @@ struct turn_operation
     segment_identifier seg_id;
     SegmentRatio fraction;
 
-    typedef typename coordinate_type<Point>::type comparable_distance_type;
+    using comparable_distance_type = coordinate_type_t<Point>;
     comparable_distance_type remaining_distance;
 
     inline turn_operation()
@@ -79,7 +79,7 @@ struct turn_operation
 template
 <
     typename Point,
-    typename SegmentRatio = geometry::segment_ratio<typename coordinate_type<Point>::type>,
+    typename SegmentRatio = geometry::segment_ratio<coordinate_type_t<Point>>,
     typename Operation = turn_operation<Point, SegmentRatio>,
     typename Container = std::array<Operation, 2>
 >

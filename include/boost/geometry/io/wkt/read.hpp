@@ -132,7 +132,7 @@ struct parsing_assigner
                              Point& point,
                              std::string const& wkt)
     {
-        using coordinate_type = typename coordinate_type<Point>::type;
+        using coordinate_type = coordinate_type_t<Point>;
 
         // Stop at end of tokens, or at "," ot ")"
         bool finished = (it == end || *it == "," || *it == ")");
@@ -263,7 +263,7 @@ template <typename Geometry,
 struct stateful_range_appender
 {
     // NOTE: Geometry is a reference
-    inline void append(Geometry geom, typename geometry::point_type<Geometry>::type const& point, bool)
+    inline void append(Geometry geom, geometry::point_type_t<Geometry> const& point, bool)
     {
         geometry::append(geom, point);
     }
@@ -272,7 +272,7 @@ struct stateful_range_appender
 template <typename Geometry>
 struct stateful_range_appender<Geometry, open>
 {
-    using point_type = typename geometry::point_type<Geometry>::type;
+    using point_type = geometry::point_type_t<Geometry>;
     using size_type = typename boost::range_size
         <
             typename util::remove_cptrref<Geometry>::type
@@ -329,7 +329,7 @@ private:
 template <typename Geometry>
 struct container_appender
 {
-    using point_type = typename geometry::point_type<Geometry>::type;
+    using point_type = geometry::point_type_t<Geometry>;
 
     template <typename TokenizerIterator>
     static inline void apply(TokenizerIterator& it,

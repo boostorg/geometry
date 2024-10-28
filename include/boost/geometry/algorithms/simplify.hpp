@@ -393,7 +393,7 @@ private :
         auto const cdistance_strategy = strategies::distance::detail::make_comparable(strategies)
             .distance(detail::dummy_point(), detail::dummy_point());
 
-        using point_type = typename geometry::point_type<Ring>::type;
+        using point_type = geometry::point_type_t<Ring>;
         using cdistance_type = decltype(cdistance_strategy.apply(
             std::declval<point_type>(), std::declval<point_type>()));
 
@@ -444,7 +444,7 @@ public :
         // Rotate it into a copied vector
         // (vector, because source type might not support rotation)
         // (duplicate end point will be simplified away)
-        typedef typename geometry::point_type<RingIn>::type point_type;
+        using point_type = geometry::point_type_t<RingIn>;
 
         std::vector<point_type> rotated;
         rotated.reserve(size + 1); // 1 because open rings are closed

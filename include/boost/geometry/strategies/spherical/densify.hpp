@@ -79,13 +79,13 @@ public:
     template <typename Point, typename AssignPolicy, typename T>
     inline void apply(Point const& p0, Point const& p1, AssignPolicy & policy, T const& length_threshold) const
     {
-        typedef typename AssignPolicy::point_type out_point_t;
-        typedef typename select_most_precise
+        using out_point_t = typename AssignPolicy::point_type;
+        using calc_t = typename select_most_precise
             <
-                typename coordinate_type<Point>::type,
-                typename coordinate_type<out_point_t>::type,
+                coordinate_type_t<Point>,
+                coordinate_type_t<out_point_t>,
                 CalculationType
-            >::type calc_t;
+            >::type;
 
         calc_t angle01;
 

@@ -306,7 +306,7 @@ private:
     mutable bool m_has_interior;
     mutable bool m_has_boundary;
 
-    typedef typename geometry::point_type<MultiLinestring>::type point_type;
+    using point_type = geometry::point_type_t<MultiLinestring>;
     mutable std::vector<point_type> m_endpoints;
 };
 

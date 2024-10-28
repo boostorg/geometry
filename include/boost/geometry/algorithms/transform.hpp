@@ -84,10 +84,10 @@ struct transform_box
         {
             // Create a valid box and therefore swap if necessary
             using coordinate_type = coordinate_type_t<point_type2>;
-            coordinate_type x1 = geometry::get<0>(p1)
-                    , y1  = geometry::get<1>(p1)
-                    , x2  = geometry::get<0>(p2)
-                    , y2  = geometry::get<1>(p2);
+            coordinate_type x1 = geometry::get<0>(p1);
+            coordinate_type y1 = geometry::get<1>(p1);
+            coordinate_type x2 = geometry::get<0>(p2);
+            coordinate_type y2 = geometry::get<1>(p2);
 
             if (x1 > x2) { std::swap(x1, x2); }
             if (y1 > y2) { std::swap(y1, y2); }

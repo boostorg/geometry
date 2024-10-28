@@ -92,16 +92,16 @@ private :
 
     static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-    typedef typename sort_by_side::side_compare<target_operation>::type side_compare_type;
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type turn_operation_type;
+    using side_compare_type = typename sort_by_side::side_compare<target_operation>::type;
+    using turn_type = typename boost::range_value<Turns>::type;
+    using turn_operation_type = typename turn_type::turn_operation_type;
 
-    typedef typename geometry::point_type<Geometry1>::type point_type;
-    typedef sort_by_side::side_sorter
+    using point_type = geometry::point_type_t<Geometry1>;
+    using sbs_type = sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType,
             point_type, Strategy, side_compare_type
-        > sbs_type;
+        >;
 
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,

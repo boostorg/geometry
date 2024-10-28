@@ -129,7 +129,7 @@ struct helper_geometry<Ring, NewCoordinateType, NewUnits, ring_tag>
 template
 <
     typename Geometry,
-    typename NewCoordinateType = typename coordinate_type<Geometry>::type,
+    typename NewCoordinateType = coordinate_type_t<Geometry>,
     typename NewUnits = typename detail::cs_angular_units<Geometry>::type
 >
 struct helper_geometry

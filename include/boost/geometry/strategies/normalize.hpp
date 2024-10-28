@@ -58,7 +58,7 @@ struct assign_loop
     {
         geometry::set<Dimension>(point_out, util::numeric_cast
             <
-                typename coordinate_type<PointOut>::type
+                coordinate_type_t<PointOut>
             >(geometry::get<Dimension>(point_in)));
 
         assign_loop
@@ -89,10 +89,7 @@ struct assign_loop<0, DimensionCount>
                              PointIn const& point_in,
                              PointOut& point_out)
     {
-        geometry::set<0>(point_out, util::numeric_cast
-            <
-                typename coordinate_type<PointOut>::type
-            >(longitude));
+        geometry::set<0>(point_out, util::numeric_cast<coordinate_type_t<PointOut>>(longitude));
 
         assign_loop
             <
@@ -112,7 +109,7 @@ struct assign_loop<1, DimensionCount>
     {
         geometry::set<1>(point_out, util::numeric_cast
             <
-                typename coordinate_type<PointOut>::type
+                coordinate_type_t<PointOut>
             >(latitude));
 
         assign_loop
@@ -128,7 +125,7 @@ struct normalize_point
 {
     static inline void apply(PointIn const& point_in, PointOut& point_out)
     {
-        typedef typename coordinate_type<PointIn>::type in_coordinate_type;
+        using in_coordinate_type = coordinate_type_t<PointIn>;
 
         in_coordinate_type longitude = geometry::get<0>(point_in);
         in_coordinate_type latitude = geometry::get<1>(point_in);
@@ -187,7 +184,7 @@ class normalize_box
 public:
     static inline void apply(BoxIn const& box_in, BoxOut& box_out)
     {
-        typedef typename coordinate_type<BoxIn>::type in_coordinate_type;
+        using in_coordinate_type = coordinate_type_t<BoxIn>;
 
         in_coordinate_type lon_min = geometry::get<min_corner, 0>(box_in);
         in_coordinate_type lat_min = geometry::get<min_corner, 1>(box_in);

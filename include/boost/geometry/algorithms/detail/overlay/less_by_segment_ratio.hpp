@@ -88,7 +88,7 @@ private :
     Geometry2 const& m_geometry2;
     Strategy const& m_strategy;
 
-    typedef typename geometry::point_type<Geometry1>::type point_type;
+    using point_type = geometry::point_type_t<Geometry1>;
 
     inline bool default_order(Indexed const& left, Indexed const& right) const
     {

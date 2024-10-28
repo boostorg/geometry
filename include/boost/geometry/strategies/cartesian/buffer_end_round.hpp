@@ -118,13 +118,12 @@ public :
                 RangeOut& range_out) const
     {
         boost::ignore_unused(perp_left_point);
-        typedef typename coordinate_type<Point>::type coordinate_type;
 
-        typedef typename geometry::select_most_precise
+        using promoted_type = typename geometry::select_most_precise
         <
-            coordinate_type,
+            coordinate_type_t<Point>,
             double
-        >::type promoted_type;
+        >::type;
 
         promoted_type const dist_left = distance.apply(penultimate_point, ultimate_point, buffer_side_left);
         promoted_type const dist_right = distance.apply(penultimate_point, ultimate_point, buffer_side_right);

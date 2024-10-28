@@ -34,7 +34,7 @@ struct default_margin_result
 {
     using type = typename select_most_precise
         <
-            typename coordinate_type<Box>::type,
+            coordinate_type_t<Box>,
             double
         >::type;
 };

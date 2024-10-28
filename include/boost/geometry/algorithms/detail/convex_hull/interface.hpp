@@ -258,7 +258,7 @@ struct convex_hull<GeometryCollection, geometry_collection_tag>
     {
         // Assuming that single point_type is used by the GeometryCollection
         using subgeometry_type = typename detail::first_geometry_type<GeometryCollection>::type;
-        using point_type = typename geometry::point_type<subgeometry_type>::type;
+        using point_type = geometry::point_type_t<subgeometry_type>;
         using ring_type = model::ring<point_type, true, false>;
 
         // Calculate box rings once
