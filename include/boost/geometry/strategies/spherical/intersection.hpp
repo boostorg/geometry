@@ -794,7 +794,7 @@ struct spherical_segments_calc_policy
     template <typename Point3d>
     struct plane
     {
-        typedef typename coordinate_type<Point3d>::type coord_t;
+        using coord_t = coordinate_type_t<Point3d>;
 
         // not normalized
         plane(Point3d const& p1, Point3d const& p2)
@@ -832,7 +832,7 @@ struct spherical_segments_calc_policy
                                     plane<Point3d> const& plane2,
                                     Point3d & ip1, Point3d & ip2)
     {
-        typedef typename coordinate_type<Point3d>::type coord_t;
+        using coord_t = coordinate_type_t<Point3d>;
 
         ip1 = cross_product(plane1.normal, plane2.normal);
         // NOTE: the length should be greater than 0 at this point

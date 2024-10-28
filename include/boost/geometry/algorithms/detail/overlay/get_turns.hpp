@@ -390,8 +390,8 @@ public :
 
 
 private :
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-    typedef typename geometry::point_type<Geometry2>::type point2_type;
+    using point1_type = geometry::point_type_t<Geometry1>;
+    using point2_type = geometry::point_type_t<Geometry2>;
 
     // It is NOT possible to have section-iterators here
     // because of the logistics of "index" (the section-iterator automatically
@@ -540,9 +540,9 @@ template
 >
 struct get_turns_cs
 {
-    typedef typename geometry::point_type<Range>::type range_point_type;
-    typedef typename geometry::point_type<Box>::type box_point_type;
-    typedef std::array<box_point_type, 4> box_array;
+    using range_point_type = geometry::point_type_t<Range>;
+    using box_point_type = geometry::point_type_t<Box>;
+    using box_array = std::array<box_point_type, 4>;
 
     using view_type = detail::closed_clockwise_view
         <

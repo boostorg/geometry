@@ -94,7 +94,7 @@ struct point_in_geometry<Segment, segment_tag>
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Segment const& segment, Strategy const& strategy)
     {
-        typedef typename geometry::point_type<Segment>::type point_type;
+        using point_type = geometry::point_type_t<Segment>;
         point_type p0, p1;
 // TODO: don't copy points
         detail::assign_point_from_index<0>(segment, p0);

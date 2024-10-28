@@ -122,8 +122,8 @@ template<typename Ring, std::size_t Dimension>
 struct extreme_points_on_ring
 {
 
-    typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
-    typedef typename geometry::point_type<Ring>::type point_type;
+    using coordinate_type = geometry::coordinate_type_t<Ring>;
+    using point_type = geometry::point_type_t<Ring>;
 
     template <typename CirclingIterator, typename Points>
     static inline bool extend(CirclingIterator& it,

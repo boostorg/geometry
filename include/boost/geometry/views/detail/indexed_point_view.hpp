@@ -37,8 +37,8 @@ class indexed_point_view
     indexed_point_view & operator=(indexed_point_view const&);
 
 public:
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+    using point_type = geometry::point_type_t<Geometry>;
+    using coordinate_type = geometry::coordinate_type_t<Geometry>;
 
     indexed_point_view(Geometry & geometry)
         : m_geometry(geometry)
@@ -69,13 +69,13 @@ namespace traits
 template <typename Geometry, std::size_t Index>
 struct tag< geometry::detail::indexed_point_view<Geometry, Index> >
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 template <typename Geometry, std::size_t Index>
 struct coordinate_type< geometry::detail::indexed_point_view<Geometry, Index> >
 {
-    typedef typename geometry::coordinate_type<Geometry>::type type;
+    using type = geometry::coordinate_type_t<Geometry>;
 };
 
 template <typename Geometry, std::size_t Index>
@@ -84,7 +84,7 @@ struct coordinate_system
         geometry::detail::indexed_point_view<Geometry, Index>
     >
 {
-    typedef typename geometry::coordinate_system<Geometry>::type type;
+    using type = geometry::coordinate_system_t<Geometry>;
 };
 
 template <typename Geometry, std::size_t Index>
@@ -98,7 +98,7 @@ struct access
        geometry::detail::indexed_point_view<Geometry, Index>, Dimension
     >
 {
-    typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Geometry>;
 
     static inline coordinate_type get(
         geometry::detail::indexed_point_view<Geometry, Index> const& p)

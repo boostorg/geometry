@@ -250,7 +250,7 @@ struct collected_vector_polar
 private:
     static base_point_type to_equatorial(Point const& p)
     {
-        using coord_type = typename coordinate_type<Point>::type;
+        using coord_type = coordinate_type_t<Point>;
         using constants = math::detail::constants_on_spheroid
             <
                 coord_type,

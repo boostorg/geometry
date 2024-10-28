@@ -43,7 +43,7 @@ struct point_to_point
 {
     static inline void apply(Source const& source, Destination& destination)
     {
-        typedef typename coordinate_type<Destination>::type coordinate_type;
+        using coordinate_type = coordinate_type_t<Destination>;
 
         set<Dimension>(destination, util::numeric_cast<coordinate_type>(get<Dimension>(source)));
         point_to_point<Source, Destination, Dimension + 1, DimensionCount>::apply(source, destination);

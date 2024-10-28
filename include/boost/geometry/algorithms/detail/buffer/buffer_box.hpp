@@ -26,7 +26,7 @@ namespace detail { namespace buffer
 template <typename BoxIn, typename BoxOut, typename T, std::size_t C, std::size_t D, std::size_t N>
 struct box_loop
 {
-    typedef typename coordinate_type<BoxOut>::type coordinate_type;
+    using coordinate_type = coordinate_type_t<BoxOut>;
 
     static inline void apply(BoxIn const& box_in, T const& distance, BoxOut& box_out)
     {

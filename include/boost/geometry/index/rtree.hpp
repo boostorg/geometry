@@ -193,7 +193,7 @@ public:
     /*! \brief The Box type used by the R-tree. */
     typedef geometry::model::box<
                 geometry::model::point<
-                    typename coordinate_type<indexable_type>::type,
+                    coordinate_type_t<indexable_type>,
                     dimension<indexable_type>::value,
                     typename coordinate_system<indexable_type>::type
                 >

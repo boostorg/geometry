@@ -38,7 +38,7 @@ struct linear_to_areal
 
         using point_type = typename std::conditional
             <
-                std::is_same<typename coordinate_type<Linear>::type, most_precise_type>::value,
+                std::is_same<coordinate_type_t<Linear>, most_precise_type>::value,
                 point_type_t<Linear>,
                 point_type_t<Areal>
             >::type;
@@ -141,7 +141,7 @@ struct areal_to_areal
 
         using point_type = typename std::conditional
             <
-                std::is_same<typename coordinate_type<Areal1>::type, most_precise_type>::value,
+                std::is_same<coordinate_type_t<Areal1>, most_precise_type>::value,
                 point_type_t<Areal1>,
                 point_type_t<Areal2>
             >::type;

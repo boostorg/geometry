@@ -33,9 +33,9 @@ namespace detail
 template <typename Box, std::size_t Dimension>
 struct get_max_size_box
 {
-    static inline typename coordinate_type<Box>::type apply(Box const& box)
+    static inline coordinate_type_t<Box> apply(Box const& box)
     {
-        typename coordinate_type<Box>::type s
+        coordinate_type_t<Box> s
             = geometry::math::abs(geometry::get<1, Dimension>(box) - geometry::get<0, Dimension>(box));
 
         return (std::max)(s, get_max_size_box<Box, Dimension - 1>::apply(box));
@@ -45,7 +45,7 @@ struct get_max_size_box
 template <typename Box>
 struct get_max_size_box<Box, 0>
 {
-    static inline typename coordinate_type<Box>::type apply(Box const& box)
+    static inline coordinate_type_t<Box> apply(Box const& box)
     {
         return geometry::math::abs(geometry::get<1, 0>(box) - geometry::get<0, 0>(box));
     }
@@ -54,7 +54,7 @@ struct get_max_size_box<Box, 0>
 // This might be implemented later on for other geometries too.
 // Not dispatched yet.
 template <typename Box>
-inline typename coordinate_type<Box>::type get_max_size(Box const& box)
+inline coordinate_type_t<Box> get_max_size(Box const& box)
 {
     return get_max_size_box<Box, dimension<Box>::value - 1>::apply(box);
 }

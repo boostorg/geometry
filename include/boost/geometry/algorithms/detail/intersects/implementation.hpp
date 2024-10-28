@@ -46,20 +46,20 @@ struct self_intersects
     {
         concepts::check<Geometry const>();
 
-        typedef typename geometry::point_type<Geometry>::type point_type;
-        typedef typename strategies::relate::services::default_strategy
+        using point_type = geometry::point_type_t<Geometry>;
+        using strategy_type = typename strategies::relate::services::default_strategy
                 <
                     Geometry, Geometry
-                >::type strategy_type;
+                >::type;
 
-        typedef detail::overlay::turn_info<point_type> turn_info;
+        using turn_info = detail::overlay::turn_info<point_type>;
 
         std::deque<turn_info> turns;
 
-        typedef detail::overlay::get_turn_info
+        using turn_policy = detail::overlay::get_turn_info
             <
                 detail::overlay::assign_null_policy
-            > turn_policy;
+            >;
 
         strategy_type strategy;
 

@@ -129,13 +129,13 @@ struct closure<geometry::detail::buffer::buffered_ring<Ring> >
 template <typename Ring>
 struct point_type<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    typedef typename geometry::point_type<Ring>::type type;
+    using type = geometry::point_type_t<Ring>;
 };
 
 template <typename Ring>
 struct tag<geometry::detail::buffer::buffered_ring_collection<Ring> >
 {
-    typedef geometry::detail::buffer::buffered_ring_collection_tag type;
+    using type = geometry::detail::buffer::buffered_ring_collection_tag;
 };
 
 

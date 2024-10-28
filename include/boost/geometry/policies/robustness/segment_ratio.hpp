@@ -351,7 +351,7 @@ private :
 template <typename Point>
 struct segment_ratio_type
 {
-    using type = segment_ratio<typename geometry::coordinate_type<Point>::type>;
+    using type = segment_ratio<geometry::coordinate_type_t<Point>>;
 };
 
 }} // namespace boost::geometry

@@ -124,8 +124,8 @@ template
 >
 struct buffered_piece_collection
 {
-    typedef typename geometry::point_type<Ring>::type point_type;
-    typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
+    using point_type = geometry::point_type_t<Ring>;
+    using coordinate_type = geometry::coordinate_type_t<Ring>;
 
     // Ring/polygon type, always clockwise
     typedef geometry::model::ring<point_type> clockwise_ring_type;

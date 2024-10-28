@@ -322,7 +322,7 @@ public :
         // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
         using ct_type = typename geometry::select_most_precise
             <
-                typename geometry::coordinate_type<Point>::type,
+                geometry::coordinate_type_t<Point>,
                 double
             >::type;
 

@@ -89,7 +89,7 @@ inline
 typename select_most_precise
 <
     Type,
-    typename geometry::coordinate_type<Point>::type
+    geometry::coordinate_type_t<Point>
 >::type
 side_value(model::infinite_line<Type> const& line, Point const& p)
 {

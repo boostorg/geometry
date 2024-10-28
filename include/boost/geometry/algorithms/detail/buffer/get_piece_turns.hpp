@@ -43,8 +43,8 @@ namespace detail { namespace buffer
 template <typename Ring>
 struct unique_sub_range_from_piece
 {
-    typedef typename boost::range_iterator<Ring const>::type iterator_type;
-    typedef typename geometry::point_type<Ring const>::type point_type;
+    using iterator_type = typename boost::range_iterator<Ring const>::type;
+    using point_type = geometry::point_type_t<Ring const>;
 
     unique_sub_range_from_piece(Ring const& ring,
                                 iterator_type iterator_at_i, iterator_type iterator_at_j)

@@ -229,9 +229,9 @@ struct envelope_range_of_boxes
     {
         // boxes in the range are assumed to be normalized already
 
-        typedef typename boost::range_value<RangeOfBoxes>::type box_type;
-        typedef typename coordinate_type<box_type>::type coordinate_type;
-        typedef typename detail::cs_angular_units<box_type>::type units_type;
+        using box_type = typename boost::range_value<RangeOfBoxes>::type;
+        using coordinate_type = coordinate_type_t<box_type>;
+        using units_type = typename detail::cs_angular_units<box_type>::type;
 
         static const bool is_equatorial = ! std::is_same
                                             <
@@ -239,13 +239,13 @@ struct envelope_range_of_boxes
                                                 spherical_polar_tag
                                             >::value;
 
-        typedef math::detail::constants_on_spheroid
+        using constants = math::detail::constants_on_spheroid
             <
                 coordinate_type, units_type, is_equatorial
-            > constants;
+            >;
 
-        typedef longitude_interval<coordinate_type> interval_type;
-        typedef std::vector<interval_type> interval_range_type;
+        using interval_type = longitude_interval<coordinate_type>;
+        using interval_range_type = std::vector<interval_type>;
 
         BOOST_GEOMETRY_ASSERT(! boost::empty(range_of_boxes));
 

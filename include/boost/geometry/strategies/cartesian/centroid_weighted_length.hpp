@@ -129,7 +129,7 @@ public :
             // if e.g. distance_type is double and centroid contains floats
             geometry::detail::for_each_dimension<ResultPoint>([&](auto dimension)
             {
-                typedef typename geometry::coordinate_type<ResultPoint>::type coordinate_type;
+                using coordinate_type = geometry::coordinate_type_t<ResultPoint>;
                 geometry::set<dimension>(
                     centroid,
                     util::numeric_cast<coordinate_type>(

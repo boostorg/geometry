@@ -46,7 +46,7 @@ bool has_non_finite_coordinate(Point const& point)
             detail::is_not_finite,
             std::is_floating_point
                 <
-                    typename coordinate_type<Point>::type
+                    coordinate_type_t<Point>
                 >::value
         >::apply(point);
 }

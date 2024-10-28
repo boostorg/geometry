@@ -137,7 +137,7 @@ template <typename Point, std::size_t Dimension>
 struct indexed_access<model::segment<Point>, 0, Dimension>
 {
     typedef model::segment<Point> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static constexpr coordinate_type get(segment_type const& s)
     {
@@ -155,7 +155,7 @@ template <typename Point, std::size_t Dimension>
 struct indexed_access<model::segment<Point>, 1, Dimension>
 {
     typedef model::segment<Point> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static constexpr coordinate_type get(segment_type const& s)
     {
@@ -200,7 +200,7 @@ template <typename ConstOrNonConstPoint, std::size_t Dimension>
 struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 0, Dimension>
 {
     typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {
@@ -218,7 +218,7 @@ template <typename ConstOrNonConstPoint, std::size_t Dimension>
 struct indexed_access<model::referring_segment<ConstOrNonConstPoint>, 1, Dimension>
 {
     typedef model::referring_segment<ConstOrNonConstPoint> segment_type;
-    typedef typename geometry::coordinate_type<segment_type>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<segment_type>;
 
     static inline coordinate_type get(segment_type const& s)
     {

@@ -465,8 +465,8 @@ protected:
                           PointOfSegment const& se,
                           count_info const& ci) const
     {
-        typedef typename coordinate_type<PointOfSegment>::type scoord_t;
-        typedef typename geometry::detail::cs_angular_units<Point>::type units_t;
+        using scoord_t = coordinate_type_t<PointOfSegment>;
+        using units_t = typename geometry::detail::cs_angular_units<Point>::type;
 
         if (math::equals(get<1>(point), get<1>(se)))
         {

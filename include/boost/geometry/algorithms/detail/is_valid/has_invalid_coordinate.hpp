@@ -109,7 +109,7 @@ template
     typename Tag = typename tag<Geometry>::type,
     bool HasFloatingPointCoordinates = std::is_floating_point
         <
-            typename coordinate_type<Geometry>::type
+            coordinate_type_t<Geometry>
         >::value
 >
 struct has_invalid_coordinate

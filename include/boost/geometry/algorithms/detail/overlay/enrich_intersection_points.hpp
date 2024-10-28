@@ -318,12 +318,11 @@ inline void create_map(Turns const& turns, MappedVector& mapped_vector,
 }
 
 template <typename Point1, typename Point2>
-inline typename geometry::coordinate_type<Point1>::type
-        distance_measure(Point1 const& a, Point2 const& b)
+inline geometry::coordinate_type_t<Point1> distance_measure(Point1 const& a, Point2 const& b)
 {
     // TODO: use comparable distance for point-point instead - but that
     // causes currently cycling include problems
-    using ctype = typename geometry::coordinate_type<Point1>::type;
+    using ctype = geometry::coordinate_type_t<Point1>;
     ctype const dx = get<0>(a) - get<0>(b);
     ctype const dy = get<1>(a) - get<1>(b);
     return dx * dx + dy * dy;

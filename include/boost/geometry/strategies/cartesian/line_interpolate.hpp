@@ -55,11 +55,11 @@ public:
                       Point & p,
                       Distance const&) const
     {
-        typedef typename select_calculation_type_alt
+        using calc_t = typename select_calculation_type_alt
             <
                 CalculationType, Point
-            >::type calc_t;
-        typedef typename coordinate_type<Point>::type coord_t;
+            >::type;
+        using coord_t = coordinate_type_t<Point>;
 
         //segment convex combination: p0*fraction + p1*(1-fraction)
         Fraction const one_minus_fraction = 1-fraction;

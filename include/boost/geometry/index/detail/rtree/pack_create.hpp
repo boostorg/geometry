@@ -42,10 +42,10 @@ struct biggest_edge
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
     template <typename Box>
-    static inline void apply(Box const& box, typename coordinate_type<Box>::type & length, std::size_t & dim_index)
+    static inline void apply(Box const& box, coordinate_type_t<Box> & length, std::size_t & dim_index)
     {
         biggest_edge<Dimension-1>::apply(box, length, dim_index);
-        typename coordinate_type<Box>::type curr
+        coordinate_type_t<Box> curr
             = geometry::get<max_corner, Dimension-1>(box) - geometry::get<min_corner, Dimension-1>(box);
         if ( length < curr )
         {
@@ -59,7 +59,7 @@ template <>
 struct biggest_edge<1>
 {
     template <typename Box>
-    static inline void apply(Box const& box, typename coordinate_type<Box>::type & length, std::size_t & dim_index)
+    static inline void apply(Box const& box, coordinate_type_t<Box> & length, std::size_t & dim_index)
     {
         dim_index = 0;
         length = geometry::get<max_corner, 0>(box) - geometry::get<min_corner, 0>(box);

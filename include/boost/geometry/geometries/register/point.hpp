@@ -31,10 +31,10 @@
 
 // Starting point, specialize basic traits necessary to register a point
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, Dim, CoordinateType, CoordinateSystem) \
-    template<> struct tag<Point> { typedef point_tag type; }; \
+    template<> struct tag<Point> { using type = point_tag; }; \
     template<> struct dimension<Point> : std::integral_constant<std::size_t, Dim> {}; \
-    template<> struct coordinate_type<Point> { typedef CoordinateType type; }; \
-    template<> struct coordinate_system<Point> { typedef CoordinateSystem type; };
+    template<> struct coordinate_type<Point> { using type = CoordinateType; }; \
+    template<> struct coordinate_system<Point> { using type = CoordinateSystem; };
 
 // Specialize access class per dimension
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_ACCESS(Point, Dim, CoordinateType, Get, Set) \

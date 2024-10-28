@@ -212,11 +212,11 @@ public:
     {
         using point_type = point_type_t<MultiPoint>;
         using coordinate_type = coordinate_type_t<MultiPoint>;
-        typedef math::detail::constants_on_spheroid
+        using constants = math::detail::constants_on_spheroid
             <
                 coordinate_type,
                 typename geometry::detail::cs_angular_units<MultiPoint>::type
-            > constants;
+            >;
 
         if (boost::empty(multipoint))
         {

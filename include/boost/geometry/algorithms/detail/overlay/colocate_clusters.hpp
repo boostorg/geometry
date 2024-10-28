@@ -25,7 +25,7 @@ namespace detail { namespace overlay
 template
 <  
     typename Point,
-    typename CoordinateType = typename geometry::coordinate_type<Point>::type,
+    typename CoordinateType = geometry::coordinate_type_t<Point>,
     typename CsTag = typename geometry::cs_tag<Point>::type,
     bool IsIntegral = std::is_integral<CoordinateType>::value
 >            

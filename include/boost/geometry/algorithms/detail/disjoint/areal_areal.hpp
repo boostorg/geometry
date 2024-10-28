@@ -48,7 +48,7 @@ inline bool point_on_border_covered_by(Geometry1 const& geometry1,
                                        Geometry2 const& geometry2,
                                        Strategy const& strategy)
 {
-    using point_type = typename geometry::point_type<Geometry1>::type;
+    using point_type = geometry::point_type_t<Geometry1>;
     typename helper_geometry<point_type>::type pt;
     return geometry::point_on_border(pt, geometry1)
         && geometry::covered_by(pt, geometry2, strategy);

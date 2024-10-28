@@ -77,7 +77,7 @@ struct include_all_policy
 template <std::size_t Dimension, typename Box>
 inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 {
-    using coor_t = typename coordinate_type<Box>::type;
+    using coor_t = coordinate_type_t<Box>;
 
     // Divide input box into two halves
     // either left/right (Dimension 0)

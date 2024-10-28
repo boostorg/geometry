@@ -54,7 +54,7 @@ struct get_turns
 {
     using turn_point_type = typename helper_geometry
         <
-            typename geometry::point_type<Geometry1>::type
+            geometry::point_type_t<Geometry1>
         >::type;
 
     template

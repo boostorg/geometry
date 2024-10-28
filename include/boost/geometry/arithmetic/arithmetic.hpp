@@ -41,7 +41,7 @@ namespace boost { namespace geometry
     \param value value to add
  */
 template <typename Point>
-inline void add_value(Point& p, typename coordinate_type<Point>::type const& value)
+inline void add_value(Point& p, coordinate_type_t<Point> const& value)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
@@ -83,7 +83,7 @@ inline void add_point(Point1& p1, Point2 const& p2)
     \param value value to subtract
  */
 template <typename Point>
-inline void subtract_value(Point& p, typename coordinate_type<Point>::type const& value)
+inline void subtract_value(Point& p, coordinate_type_t<Point> const& value)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
@@ -125,7 +125,7 @@ inline void subtract_point(Point1& p1, Point2 const& p2)
     \param value value to multiply by
  */
 template <typename Point>
-inline void multiply_value(Point& p, typename coordinate_type<Point>::type const& value)
+inline void multiply_value(Point& p, coordinate_type_t<Point> const& value)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
@@ -168,7 +168,7 @@ inline void multiply_point(Point1& p1, Point2 const& p2)
     \param value value to divide by
  */
 template <typename Point>
-inline void divide_value(Point& p, typename coordinate_type<Point>::type const& value)
+inline void divide_value(Point& p, coordinate_type_t<Point> const& value)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 
@@ -210,7 +210,7 @@ inline void divide_point(Point1& p1, Point2 const& p2)
     \param value value to assign
  */
 template <typename Point>
-inline void assign_value(Point& p, typename coordinate_type<Point>::type const& value)
+inline void assign_value(Point& p, coordinate_type_t<Point> const& value)
 {
     BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
 

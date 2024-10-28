@@ -55,8 +55,8 @@ struct points_range
 template <typename Box>
 struct points_range<Box, box_tag>
 {
-    typedef typename geometry::point_type<Box>::type point_type;
-    typedef const point_type * iterator_type;
+    using point_type = geometry::point_type_t<Box>;
+    using iterator_type = const point_type *;
 
     explicit points_range(Box const& box)
     {
