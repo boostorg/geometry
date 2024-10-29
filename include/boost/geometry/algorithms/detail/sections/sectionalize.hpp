@@ -5,11 +5,11 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2014-2015 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2021.
-// Modifications copyright (c) 2013-2021 Oracle and/or its affiliates.
-
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// This file was modified by Oracle on 2013-2024.
+// Modifications copyright (c) 2013-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -38,7 +38,6 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
@@ -47,13 +46,12 @@
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/segment.hpp>
-#include <boost/geometry/policies/robustness/no_rescale_policy.hpp>
-#include <boost/geometry/policies/robustness/robust_point_type.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/sequence.hpp>
@@ -151,11 +149,7 @@ template
     typename DimensionVector,
     std::size_t Index,
     std::size_t Count,
-    typename CastedCSTag = typename tag_cast
-                            <
-                                typename cs_tag<Point>::type,
-                                spherical_tag
-                            >::type
+    typename CastedCSTag = tag_cast_t<cs_tag_t<Point>, spherical_tag>
 >
 struct get_direction_loop
 {
@@ -386,19 +380,15 @@ struct sectionalize_part
     template
     <
         typename Iterator,
-        typename RobustPolicy,
         typename Sections,
         typename Strategy
     >
     static inline void apply(Sections& sections,
                              Iterator begin, Iterator end,
-                             RobustPolicy const& robust_policy,
                              Strategy const& strategy,
                              ring_identifier ring_id,
                              std::size_t max_count)
     {
-        boost::ignore_unused(robust_policy);
-
         using section_type = typename boost::range_value<Sections>::type;
         using box_type = typename section_type::box_type;
         using point_type = typename geometry::point_type<box_type>::type;
@@ -408,12 +398,6 @@ struct sectionalize_part
                 section_type::dimension_count
                  == util::sequence_size<DimensionVector>::value
             );
-
-        using robust_point_type = typename geometry::robust_point_type
-            <
-                point_type,
-                RobustPolicy
-            >::type;
 
         std::size_t const count = std::distance(begin, end);
         if (count == 0)
@@ -429,23 +413,20 @@ struct sectionalize_part
         std::size_t last_non_duplicate_index = sections.size();
 
         Iterator it = begin;
-        robust_point_type previous_robust_point;
-        geometry::recalculate(previous_robust_point, *it, robust_policy);
+        point_type previous_point;
+        geometry::detail::conversion::convert_point_to_point(*it, previous_point);
 
-        for(Iterator previous = it++;
-            it != end;
-            ++previous, ++it, index++)
+        for (Iterator previous = it++; it != end; ++previous, ++it, index++)
         {
-            robust_point_type current_robust_point;
-            geometry::recalculate(current_robust_point, *it, robust_policy);
-            model::referring_segment<robust_point_type> robust_segment(
-                    previous_robust_point, current_robust_point);
+            point_type current_point;
+            geometry::detail::conversion::convert_point_to_point(*it, current_point);
+            model::referring_segment<point_type> segment(previous_point, current_point);
 
             int direction_classes[dimension_count] = {0};
             get_direction_loop
             <
                 point_type, DimensionVector, 0, dimension_count
-            >::apply(robust_segment, direction_classes);
+            >::apply(segment, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
             // Those sections might be omitted, if wished, lateron
@@ -459,7 +440,7 @@ struct sectionalize_part
                 if (check_duplicate_loop
                     <
                         0, geometry::dimension<point_type>::type::value
-                    >::apply(robust_segment)
+                    >::apply(segment)
                     )
                 {
                     duplicate = true;
@@ -513,15 +494,15 @@ struct sectionalize_part
 
                 // In cartesian this is envelope of previous point expanded with current point
                 // in non-cartesian this is envelope of a segment
-                box_first_in_section<typename cs_tag<robust_point_type>::type>
-                    ::apply(section.bounding_box, previous_robust_point, current_robust_point, strategy);
+                box_first_in_section<cs_tag_t<point_type>>
+                    ::apply(section.bounding_box, previous_point, current_point, strategy);
             }
             else
             {
                 // In cartesian this is expand with current point
                 // in non-cartesian this is expand with a segment
-                box_next_in_section<typename cs_tag<robust_point_type>::type>
-                    ::apply(section.bounding_box, previous_robust_point, current_robust_point, strategy);
+                box_next_in_section<cs_tag_t<point_type>>
+                    ::apply(section.bounding_box, previous_point, current_point, strategy);
             }
 
             section.end_index = index + 1;
@@ -530,7 +511,7 @@ struct sectionalize_part
             {
                 ndi++;
             }
-            previous_robust_point = current_robust_point;
+            previous_point = current_point;
         }
 
         // Add last section if applicable
@@ -564,12 +545,10 @@ struct sectionalize_range
     template
     <
         typename Range,
-        typename RobustPolicy,
         typename Sections,
         typename Strategy
     >
     static inline void apply(Range const& range,
-                             RobustPolicy const& robust_policy,
                              Sections& sections,
                              Strategy const& strategy,
                              ring_identifier ring_id,
@@ -597,7 +576,7 @@ struct sectionalize_range
 
         sectionalize_part<DimensionVector>::apply(sections,
             boost::begin(view), boost::end(view),
-            robust_policy, strategy,
+            strategy,
             ring_id, max_count);
     }
 };
@@ -612,12 +591,10 @@ struct sectionalize_polygon
     template
     <
         typename Polygon,
-        typename RobustPolicy,
         typename Sections,
         typename Strategy
     >
     static inline void apply(Polygon const& poly,
-                RobustPolicy const& robust_policy,
                 Sections& sections,
                 Strategy const& strategy,
                 ring_identifier ring_id,
@@ -629,7 +606,7 @@ struct sectionalize_polygon
             >;
 
         ring_id.ring_index = -1;
-        sectionalizer::apply(exterior_ring(poly), robust_policy, sections,
+        sectionalizer::apply(exterior_ring(poly), sections,
                          strategy, ring_id, max_count);
 
         ring_id.ring_index++;
@@ -637,7 +614,7 @@ struct sectionalize_polygon
         for (auto it = boost::begin(rings); it != boost::end(rings);
              ++it, ++ring_id.ring_index)
         {
-            sectionalizer::apply(*it, robust_policy, sections,
+            sectionalizer::apply(*it, sections,
                              strategy, ring_id, max_count);
         }
     }
@@ -649,17 +626,15 @@ struct sectionalize_box
     template
     <
         typename Box,
-        typename RobustPolicy,
         typename Sections,
         typename Strategy
     >
     static inline void apply(Box const& box,
-                RobustPolicy const& robust_policy,
                 Sections& sections,
                 Strategy const& strategy,
                 ring_identifier const& ring_id, std::size_t max_count)
     {
-        using point_type = typename point_type<Box>::type;
+        using point_type = point_type_t<Box>;
 
         assert_dimension<Box, 2>();
 
@@ -686,7 +661,7 @@ struct sectionalize_box
         sectionalize_range
             <
                 closed, false, DimensionVector
-            >::apply(points, robust_policy, sections,
+            >::apply(points, sections,
                      strategy, ring_id, max_count);
     }
 };
@@ -697,12 +672,10 @@ struct sectionalize_multi
     template
     <
         typename MultiGeometry,
-        typename RobustPolicy,
         typename Sections,
         typename Strategy
     >
     static inline void apply(MultiGeometry const& multi,
-                RobustPolicy const& robust_policy,
                 Sections& sections,
                 Strategy const& strategy,
                 ring_identifier ring_id,
@@ -711,7 +684,7 @@ struct sectionalize_multi
         ring_id.multi_index = 0;
         for (auto it = boost::begin(multi); it != boost::end(multi); ++it, ++ring_id.multi_index)
         {
-            Policy::apply(*it, robust_policy, sections,
+            Policy::apply(*it, sections,
                           strategy,
                           ring_id, max_count);
         }
@@ -869,10 +842,8 @@ struct sectionalize<multi_linestring_tag, MultiLinestring, Reverse, DimensionVec
     \tparam Geometry type of geometry to check
     \tparam Sections type of sections to create
     \param geometry geometry to create sections from
-    \param robust_policy policy to handle robustness issues
     \param sections structure with sections
     \param strategy strategy for envelope calculation
-    \param expand_strategy strategy for partitions
     \param source_index index to assign to the ring_identifiers
     \param max_count maximal number of points per section
         (defaults to 10, this seems to give the fastest results)
@@ -884,11 +855,9 @@ template
     typename DimensionVector,
     typename Geometry,
     typename Sections,
-    typename RobustPolicy,
     typename Strategy
 >
 inline void sectionalize(Geometry const& geometry,
-                RobustPolicy const& robust_policy,
                 Sections& sections,
                 Strategy const& strategy,
                 int source_index = 0,
@@ -907,7 +876,7 @@ inline void sectionalize(Geometry const& geometry,
             Geometry,
             Reverse,
             DimensionVector
-        >::apply(geometry, robust_policy, sections,
+        >::apply(geometry, sections,
                  strategy,
                  ring_id, max_count);
 
@@ -920,11 +889,9 @@ template
     bool Reverse,
     typename DimensionVector,
     typename Geometry,
-    typename Sections,
-    typename RobustPolicy
+    typename Sections
 >
 inline void sectionalize(Geometry const& geometry,
-                         RobustPolicy const& robust_policy,
                          Sections& sections,
                          int source_index = 0,
                          std::size_t max_count = 10)
@@ -939,7 +906,7 @@ inline void sectionalize(Geometry const& geometry,
     boost::geometry::sectionalize
         <
             Reverse, DimensionVector
-        >(geometry, robust_policy, sections,
+        >(geometry, sections,
           strategy_type(),
           source_index, max_count);
 }

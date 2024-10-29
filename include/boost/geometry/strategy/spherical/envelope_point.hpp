@@ -52,7 +52,7 @@ struct spherical_point
         Point normalized_point;
         strategy::normalize::spherical_point::apply(point, normalized_point);
 
-        typename point_type<Box>::type box_point;
+        point_type_t<Box> box_point;
 
         // transform units of input point to units of a box point
         geometry::detail::envelope::transform_units(normalized_point, box_point);

@@ -38,7 +38,7 @@ template <typename Geometry>
 class Ring
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
+    using point_type = point_type_t<Geometry>;
 
     BOOST_CONCEPT_ASSERT( (concepts::Point<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
@@ -67,7 +67,7 @@ template <typename Geometry>
 class ConstRing
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename point_type<Geometry>::type point_type;
+    using point_type = point_type_t<Geometry>;
 
     BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );

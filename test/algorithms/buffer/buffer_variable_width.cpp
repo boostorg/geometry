@@ -2,6 +2,10 @@
 
 // Copyright (c) 2024 Barend Gehrels, Amsterdam, the Netherlands.
 
+// This file was modified by Oracle on 2019-2024.
+// Modifications copyright (c) 2019-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -159,7 +163,6 @@ void test_buffer(std::string const& caseid, std::string const& wkt, std::vector<
           distance_strategy, buffer_side_strategy, join_strategy,
           end_strategy, point_strategy,
           strategy,
-          bg::detail::no_rescale_policy(),
           visitor);
 
 #if defined(TEST_WITH_SVG)

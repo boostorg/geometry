@@ -11,8 +11,9 @@
 project geometry/doc ;
 
 # Auto-index, experimental. Commented otherwise does not build without.
-#using auto-index ; 
+#using auto-index ;
 using quickbook ;
+using python ;
 
 path-constant here : . ;
 path-constant images_location : html ;
@@ -23,13 +24,14 @@ testing.make-test run-pyd :
     :
     <pythonpath>$(here)
     <dependency>src/docutils/tools/doxygen_xml2qbk//doxygen_xml2qbk
+    <dependency>doxy/Doxyfile
     <testing.arg>"--release-build --doxygen-xml2qbk"
     <testing.input-file>src/docutils/tools/doxygen_xml2qbk//doxygen_xml2qbk
     :
     make_qbk ;
 explicit make_qbk ;
 
-boostbook geometry 
+boostbook geometry
     : geometry.qbk
     : <dependency>Jamfile
         <dependency>quickref.xml
@@ -47,7 +49,7 @@ boostbook geometry
        <xsl:param>boost.root=../../../..
        <quickbook-define>enable_index
        <include>$(here)
-       <format>pdf:<xsl:param>img.src.path=$(images_location)/    
+       <format>pdf:<xsl:param>img.src.path=$(images_location)/
        <dependency>make_qbk
 ;
 

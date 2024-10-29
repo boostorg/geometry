@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2014 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2014-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,9 +17,9 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point;
-    typedef boost::geometry::model::linestring<point> linestring;
-    typedef boost::geometry::model::polygon<point> polygon;
+    using point = boost::geometry::model::d2::point_xy<double>;
+    using linestring = boost::geometry::model::linestring<point>;
+    using polygon = boost::geometry::model::polygon<point>;
 
     // Declare the symmetric distance strategy
     boost::geometry::strategy::buffer::distance_symmetric<double> distance_strategy(0.5);

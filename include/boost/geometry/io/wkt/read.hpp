@@ -786,7 +786,7 @@ struct box_parser
             BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'POLYGON' or 'BOX'", wkt));
         }
 
-        using point_type = typename point_type<Box>::type;
+        using point_type = point_type_t<Box>;
         std::vector<point_type> points;
         container_inserter<point_type>::apply(it, end, wkt, std::back_inserter(points));
 
@@ -855,7 +855,7 @@ struct segment_parser
             BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'LINESTRING' or 'SEGMENT'", wkt));
         }
 
-        using point_type = typename point_type<Segment>::type;
+        using point_type = point_type_t<Segment>;
         std::vector<point_type> points;
         container_inserter<point_type>::apply(it, end, wkt, std::back_inserter(points));
 
@@ -1188,10 +1188,10 @@ struct read_wkt<Geometry, geometry_collection_tag>
 #endif // DOXYGEN_NO_DISPATCH
 
 /*!
-\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry)
+\brief Parses OGC \well_known_text (\wkt) into a geometry (any geometry)
 \ingroup wkt
 \tparam Geometry \tparam_geometry
-\param wkt string containing \ref WKT
+\param wkt string containing \wkt
 \param geometry \param_geometry output geometry
 \ingroup wkt
 \qbk{[include reference/io/read_wkt.qbk]}
@@ -1204,10 +1204,10 @@ inline void read_wkt(std::string const& wkt, Geometry& geometry)
 }
 
 /*!
-\brief Parses OGC Well-Known Text (\ref WKT) into a geometry (any geometry) and returns it
+\brief Parses OGC \well_known_text (\wkt) into a geometry (any geometry) and returns it
 \ingroup wkt
 \tparam Geometry \tparam_geometry
-\param wkt string containing \ref WKT
+\param wkt string containing \wkt
 \ingroup wkt
 \qbk{[include reference/io/from_wkt.qbk]}
 */

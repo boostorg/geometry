@@ -54,26 +54,26 @@ template
     typename GeometryContaining,
     typename TagContained = typename tag<GeometryContained>::type,
     typename TagContaining = typename tag<GeometryContaining>::type,
-    typename CastedTagContained = typename tag_cast
+    typename CastedTagContained = tag_cast_t
                                     <
-                                        typename tag<GeometryContained>::type,
+                                        tag_t<GeometryContained>,
                                         pointlike_tag, linear_tag, polygonal_tag, areal_tag
-                                    >::type,
-    typename CastedTagContaining = typename tag_cast
+                                    >,
+    typename CastedTagContaining = tag_cast_t
                                     <
-                                        typename tag<GeometryContaining>::type,
+                                        tag_t<GeometryContaining>,
                                         pointlike_tag, linear_tag, polygonal_tag, areal_tag
-                                    >::type,
-    typename CsTagContained = typename tag_cast
+                                    >,
+    typename CsTagContained = tag_cast_t
                                 <
-                                    typename cs_tag<typename point_type<GeometryContained>::type>::type,
+                                    cs_tag_t<point_type_t<GeometryContained>>,
                                     spherical_tag
-                                >::type,
-    typename CsTagContaining = typename tag_cast
+                                >,
+    typename CsTagContaining = tag_cast_t
                                 <
-                                    typename cs_tag<typename point_type<GeometryContaining>::type>::type,
+                                    cs_tag_t<point_type_t<GeometryContaining>>,
                                     spherical_tag
-                                >::type
+                                >
 >
 struct default_strategy
 {

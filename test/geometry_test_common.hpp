@@ -184,13 +184,6 @@ inline T1 const& bg_if_mp(T1 const& value_mp, T2 const& value)
     return std::is_same<CoordinateType, mp_test_type>::type::value ? value_mp : value;
 }
 
-//! Macro for expectations depending on rescaling
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-#define BG_IF_RESCALED(a, b) a
-#else
-#define BG_IF_RESCALED(a, b) b
-#endif
-
 //! Macro for turning of a test setting when testing without failures
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
 #define BG_IF_TEST_FAILURES true
@@ -207,14 +200,6 @@ inline void BoostGeometryWriteTestConfiguration()
 #if defined(BOOST_GEOMETRY_COMPILER_MODE_DEBUG)
     std::cout << "  - Debug mode" << std::endl;
 #endif
-#if defined(BOOST_GEOMETRY_ROBUSTNESS_ALTERNATIVE)
-    std::cout << "  - Flipping the robustness alternative" << std::endl;
-#endif
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-    std::cout << "  - Using rescaling" << std::endl;
-#else
-    std::cout << "  - No rescaling" << std::endl;
-#endif
 #if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     std::cout << "  - Testing only one type" << std::endl;
 #endif
@@ -230,34 +215,28 @@ inline void BoostGeometryWriteTestConfiguration()
 
 #ifdef BOOST_GEOMETRY_TEST_FAILURES
 #define BG_NO_FAILURES 0
-inline void BoostGeometryWriteExpectedFailures(std::size_t for_rescaling,
-                                               std::size_t for_no_rescaling_double,
-                                               std::size_t for_no_rescaling_float,
-                                               std::size_t for_no_rescaling_extended)
+inline void BoostGeometryWriteExpectedFailures(std::size_t for_double,
+                                               std::size_t for_float,
+                                               std::size_t for_extended)
 {
-    std::size_t const for_no_rescaling
-        = if_typed<default_test_type, double>(for_no_rescaling_double,
-              if_typed<default_test_type, float>(for_no_rescaling_float,
-                  for_no_rescaling_extended));
+    std::size_t const expected
+        = if_typed<default_test_type, double>(for_double,
+              if_typed<default_test_type, float>(for_float,
+                  for_extended));
 
-    boost::ignore_unused(for_rescaling, for_no_rescaling, for_no_rescaling_double,
-                         for_no_rescaling_float, for_no_rescaling_extended);
+    boost::ignore_unused(expected, for_double, for_float, for_extended);
 
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-    std::cout << "RESCALED - Expected: " << for_rescaling << " error(s)" << std::endl;
-#elif defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) && defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
-    std::cout << "NOT RESCALED - Expected: " << for_no_rescaling << " error(s)" << std::endl;
+#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) && defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
+    std::cout << "Expected: " << expected << " error(s)" << std::endl;
 #else
     std::cout << std::endl;
 #endif
 }
 
-inline void BoostGeometryWriteExpectedFailures(std::size_t for_rescaling,
-                                               std::size_t for_no_rescaling_double = BG_NO_FAILURES)
+inline void BoostGeometryWriteExpectedFailures(std::size_t for_double = BG_NO_FAILURES)
 {
-    BoostGeometryWriteExpectedFailures(for_rescaling, for_no_rescaling_double,
-                                       for_no_rescaling_double, for_no_rescaling_double);
+    BoostGeometryWriteExpectedFailures(for_double, for_double, for_double);
 }
 
 #endif

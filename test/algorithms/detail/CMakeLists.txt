@@ -4,6 +4,8 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+add_subdirectory(sections)
+
 foreach(item IN ITEMS
     calculate_point_order
     approximately_equals

@@ -1,7 +1,8 @@
 // Boost.Geometry
 
-// Copyright (c) 2020-2021, Oracle and/or its affiliates.
+// Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
+// Copyright (c) 2020-2021, Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
@@ -26,85 +27,129 @@ namespace util
 
 template <typename T>
 struct is_geometry
-    : bool_constant<! std::is_void<typename tag<T>::type>::value>
+    : bool_constant<! std::is_void<tag_t<T>>::value>
 {};
 
 template <typename T>
 struct is_not_geometry
-    : std::is_void<typename tag<T>::type>
+    : std::is_void<tag_t<T>>
 {};
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename T>
+inline constexpr bool is_geometry_v = is_geometry<T>::value;
+template <typename T>
+inline constexpr bool is_not_geometry_v = is_not_geometry<T>::value;
+#endif
 
 template <typename T>
 struct is_point
-    : std::is_same<point_tag, typename tag<T>::type>
+    : std::is_same<point_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_multi_point
-    : std::is_same<multi_point_tag, typename tag<T>::type>
+    : std::is_same<multi_point_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_pointlike
-    : std::is_base_of<pointlike_tag, typename tag<T>::type>
+    : std::is_base_of<pointlike_tag, tag_t<T>>
 {};
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename T>
+inline constexpr bool is_point_v = is_point<T>::value;
+template <typename T>
+inline constexpr bool is_multi_point_v = is_multi_point<T>::value;
+template <typename T>
+inline constexpr bool is_pointlike_v = is_pointlike<T>::value;
+#endif
 
 
 template <typename T>
 struct is_segment
-    : std::is_same<segment_tag, typename tag<T>::type>
+    : std::is_same<segment_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_linestring
-    : std::is_same<linestring_tag, typename tag<T>::type>
+    : std::is_same<linestring_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_multi_linestring
-    : std::is_same<multi_linestring_tag, typename tag<T>::type>
+    : std::is_same<multi_linestring_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_polylinear
-    : std::is_base_of<polylinear_tag, typename tag<T>::type>
+    : std::is_base_of<polylinear_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_linear
-    : std::is_base_of<linear_tag, typename tag<T>::type>
+    : std::is_base_of<linear_tag, tag_t<T>>
 {};
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename T>
+inline constexpr bool is_segment_v = is_segment<T>::value;
+template <typename T>
+inline constexpr bool is_linestring_v = is_linestring<T>::value;
+template <typename T>
+inline constexpr bool is_multi_linestring_v = is_multi_linestring<T>::value;
+template <typename T>
+inline constexpr bool is_polylinear_v = is_polylinear<T>::value;
+template <typename T>
+inline constexpr bool is_linear_v = is_linear<T>::value;
+#endif
 
 
 template <typename T>
 struct is_box
-    : std::is_same<box_tag, typename tag<T>::type>
+    : std::is_same<box_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_ring
-    : std::is_same<ring_tag, typename tag<T>::type>
+    : std::is_same<ring_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_polygon
-    : std::is_same<polygon_tag, typename tag<T>::type>
+    : std::is_same<polygon_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_multi_polygon
-    : std::is_same<multi_polygon_tag, typename tag<T>::type>
+    : std::is_same<multi_polygon_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_polygonal
-    : std::is_base_of<polygonal_tag, typename tag<T>::type>
+    : std::is_base_of<polygonal_tag, tag_t<T>>
 {};
 
 template <typename T>
 struct is_areal
-    : std::is_base_of<areal_tag, typename tag<T>::type>
+    : std::is_base_of<areal_tag, tag_t<T>>
 {};
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename T>
+inline constexpr bool is_box_v = is_box<T>::value;
+template <typename T>
+inline constexpr bool is_ring_v = is_ring<T>::value;
+template <typename T>
+inline constexpr bool is_polygon_v = is_polygon<T>::value;
+template <typename T>
+inline constexpr bool is_multi_polygon_v = is_multi_polygon<T>::value;
+template <typename T>
+inline constexpr bool is_polygonal_v = is_polygonal<T>::value;
+template <typename T>
+inline constexpr bool is_areal_v = is_areal<T>::value;
+#endif
 
 
 template <typename T>
@@ -117,35 +162,47 @@ struct is_polysegmental
     : bool_constant<is_polylinear<T>::value || is_polygonal<T>::value>
 {};
 
-
 template <typename T>
 struct is_multi
-    : std::is_base_of<multi_tag, typename tag<T>::type>
+    : std::is_base_of<multi_tag, tag_t<T>>
 {};
-
 
 template <typename T>
 struct is_multi_element
     : bool_constant<is_point<T>::value || is_linestring<T>::value || is_polygon<T>::value>
 {};
 
-
 template <typename T>
 struct is_single
-    : std::is_base_of<single_tag, typename tag<T>::type>
+    : std::is_base_of<single_tag, tag_t<T>>
 {};
-
 
 template <typename T>
 struct is_geometry_collection
-    : std::is_same<geometry_collection_tag, typename tag<T>::type>
+    : std::is_same<geometry_collection_tag, tag_t<T>>
 {};
-
 
 template <typename T>
 struct is_dynamic_geometry
-    : std::is_same<dynamic_geometry_tag, typename tag<T>::type>
+    : std::is_same<dynamic_geometry_tag, tag_t<T>>
 {};
+
+#ifndef BOOST_NO_CXX17_INLINE_VARIABLES
+template <typename T>
+inline constexpr bool is_segmental_v = is_segmental<T>::value;
+template <typename T>
+inline constexpr bool is_polysegmental_v = is_polysegmental<T>::value;
+template <typename T>
+inline constexpr bool is_multi_v = is_multi<T>::value;
+template <typename T>
+inline constexpr bool is_multi_element_v = is_multi_element<T>::value;
+template <typename T>
+inline constexpr bool is_single_v = is_single<T>::value;
+template <typename T>
+inline constexpr bool is_geometry_collection_v = is_geometry_collection<T>::value;
+template <typename T>
+inline constexpr bool is_dynamic_geometry_v = is_dynamic_geometry<T>::value;
+#endif
 
 
 template <typename Geometry, typename T = void>
@@ -307,7 +364,8 @@ using enable_if_geometry_collection_t = typename enable_if_geometry_collection<G
     \note Also a "ring" has areal properties within Boost.Geometry
     \ingroup core
 */
-using util::is_areal;
+template <typename T>
+using is_areal [[deprecated("Use util::is_areal<> instead.")]] = util::is_areal<T>;
 
 
 }} // namespace boost::geometry

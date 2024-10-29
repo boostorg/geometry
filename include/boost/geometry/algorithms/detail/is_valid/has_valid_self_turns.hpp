@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
-
+// Copyright (c) 2014-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -26,8 +26,6 @@
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/policies/predicate_based_interrupt_policy.hpp>
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 
 namespace boost { namespace geometry
 {
@@ -46,24 +44,14 @@ template
 class has_valid_self_turns
 {
 private:
-    typedef typename point_type<Geometry>::type point_type;
-
-    typedef typename geometry::rescale_policy_type
-        <
-            point_type,
-            CSTag
-        >::type rescale_policy_type;
+    using point_type = point_type_t<Geometry>;
 
 public:
-    typedef detail::overlay::turn_info
+    using turn_type = detail::overlay::turn_info
         <
             point_type,
-            typename segment_ratio_type
-                <
-                    point_type,
-                    rescale_policy_type
-                >::type
-        > turn_type;
+            typename segment_ratio_type<point_type>::type
+        >;
 
     // returns true if all turns are valid
     template <typename Turns, typename VisitPolicy, typename Strategy>
@@ -74,9 +62,6 @@ public:
     {
         boost::ignore_unused(visitor);
 
-        rescale_policy_type robust_policy
-            = geometry::get_rescale_policy<rescale_policy_type>(geometry, strategy);
-
         detail::overlay::stateless_predicate_based_interrupt_policy
             <
                 is_acceptable_turn<Geometry>
@@ -86,7 +71,7 @@ public:
         detail::self_get_turn_points::self_turns
             <
                 false, detail::overlay::assign_null_policy
-            >(geometry, strategy, robust_policy, turns, interrupt_policy,
+            >(geometry, strategy, turns, interrupt_policy,
               0, true);
 
         if (interrupt_policy.has_intersections)

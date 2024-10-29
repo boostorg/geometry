@@ -3,7 +3,7 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2014-2024 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2017-2023.
 // Modifications copyright (c) 2017-2023, Oracle and/or its affiliates.
@@ -40,6 +40,7 @@
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
@@ -77,10 +78,8 @@ struct point_to_box
 {
     static inline void apply(Point const& point, Box& box)
     {
-        typedef typename coordinate_type<Box>::type coordinate_type;
-
         set<Index, Dimension>(box,
-                util::numeric_cast<coordinate_type>(get<Dimension>(point)));
+                util::numeric_cast<coordinate_type_t<Box>>(get<Dimension>(point)));
         point_to_box
             <
                 Point, Box,
@@ -171,8 +170,7 @@ struct range_to_range
         // point for open output.
         view_type const view(source);
 
-        typedef typename boost::range_size<Range1>::type size_type;
-        size_type n = boost::size(view);
+        auto n = boost::size(view);
         if (geometry::closure<Range2>::value == geometry::open)
         {
             n--;
@@ -181,7 +179,7 @@ struct range_to_range
         // If size == 0 && geometry::open <=> n = numeric_limits<size_type>::max()
         // but ok, sice below it == end()
 
-        size_type i = 0;
+        decltype(n) i = 0;
         for (auto it = boost::begin(view);
             it != boost::end(view) && i < n;
             ++it, ++i)
@@ -198,13 +196,12 @@ struct range_to_range
 template <typename Polygon1, typename Polygon2>
 struct polygon_to_polygon
 {
-    typedef range_to_range
+    using per_ring = range_to_range
         <
-            typename geometry::ring_type<Polygon1>::type,
-            typename geometry::ring_type<Polygon2>::type,
-            geometry::point_order<Polygon1>::value
-                != geometry::point_order<Polygon2>::value
-        > per_ring;
+            geometry::ring_type_t<Polygon1>,
+            geometry::ring_type_t<Polygon2>,
+            geometry::point_order<Polygon1>::value != geometry::point_order<Polygon2>::value
+        >;
 
     static inline void apply(Polygon1 const& source, Polygon2& destination)
     {
@@ -216,10 +213,10 @@ struct polygon_to_polygon
         // Container should be resizeable
         traits::resize
             <
-                typename std::remove_reference
-                <
-                    typename traits::interior_mutable_type<Polygon2>::type
-                >::type
+                std::remove_reference_t
+                    <
+                        typename traits::interior_mutable_type<Polygon2>::type
+                    >
             >::apply(interior_rings(destination), num_interior_rings(source));
 
         auto const& rings_source = interior_rings(source);
@@ -280,9 +277,9 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename tag_cast<typename tag<Geometry1>::type, multi_tag>::type,
-    typename Tag2 = typename tag_cast<typename tag<Geometry2>::type, multi_tag>::type,
-    std::size_t DimensionCount = dimension<Geometry1>::type::value,
+    typename Tag1 = tag_cast_t<tag_t<Geometry1>, multi_tag>,
+    typename Tag2 = tag_cast_t<tag_t<Geometry2>, multi_tag>,
+    std::size_t DimensionCount = dimension<Geometry1>::value,
     bool UseAssignment = std::is_same<Geometry1, Geometry2>::value
                          && !std::is_array<Geometry1>::value
 >
@@ -353,8 +350,7 @@ struct convert<Ring1, Ring2, ring_tag, ring_tag, DimensionCount, false>
         <
             Ring1,
             Ring2,
-            geometry::point_order<Ring1>::value
-                != geometry::point_order<Ring2>::value
+            geometry::point_order<Ring1>::value != geometry::point_order<Ring2>::value
         >
 {};
 
@@ -461,14 +457,8 @@ struct convert<Multi1, Multi2, multi_tag, multi_tag, DimensionCount, false>
                 <
                     typename boost::range_value<Multi1>::type,
                     typename boost::range_value<Multi2>::type,
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi1>::type
-                                >::type,
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi2>::type
-                                >::type,
+                    single_tag_of_t<tag_t<Multi1>>,
+                    single_tag_of_t<tag_t<Multi2>>,
                     DimensionCount
                 >
         >
@@ -485,11 +475,8 @@ struct convert<Single, Multi, SingleTag, multi_tag, DimensionCount, false>
                 <
                     Single,
                     typename boost::range_value<Multi>::type,
-                    typename tag<Single>::type,
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi>::type
-                                >::type,
+                    tag_t<Single>,
+                    single_tag_of_t<tag_t<Multi>>,
                     DimensionCount,
                     false
                 >

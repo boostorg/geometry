@@ -1,10 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2007-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2023-2024 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,7 +23,6 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/cluster_exits.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -83,7 +83,6 @@ template
     typename Geometry2,
     typename Turns,
     typename Clusters,
-    typename RobustPolicy,
     typename Strategy,
     typename Visitor
 >
@@ -107,13 +106,12 @@ private :
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
-            RobustPolicy const& robust_policy, Strategy const& strategy,
+            Strategy const& strategy,
             Visitor& visitor)
         : m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
-        , m_robust_policy(robust_policy)
         , m_strategy(strategy)
         , m_visitor(visitor)
     {
@@ -232,26 +230,12 @@ public :
                               segment_identifier const& previous_seg_id) const
     {
         // For uu/ii, only switch sources if indicated
-
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_buffer)
-        {
-            // Buffer does not use source_index (always 0).
-            return select_source_generic<&segment_identifier::multi_index>(
+        // Buffer and self-turns do not use source_index (always 0).
+        return OverlayType == overlay_buffer || is_self_turn<OverlayType>(turn)
+            ? select_source_generic<&segment_identifier::multi_index>(
+                        turn, candidate_seg_id, previous_seg_id)
+            : select_source_generic<&segment_identifier::source_index>(
                         turn, candidate_seg_id, previous_seg_id);
-        }
-        else // else prevents unreachable code warning
-        {
-            if (is_self_turn<OverlayType>(turn))
-            {
-                // Also, if it is a self-turn, stay on same ring (multi/ring)
-                return select_source_generic<&segment_identifier::multi_index>(
-                            turn, candidate_seg_id, previous_seg_id);
-            }
-
-            // Use source_index
-            return select_source_generic<&segment_identifier::source_index>(
-                        turn, candidate_seg_id, previous_seg_id);
-        }
     }
 
     inline bool traverse_possible(signed_size_type turn_index) const
@@ -570,7 +554,7 @@ public :
     //   3: OK
     //   4: OK and start turn matches
     //   5: OK and start turn and start operation both match, this is the best
-    inline int priority_of_turn_in_cluster_union(sort_by_side::rank_type selected_rank,
+    inline int priority_of_turn_in_cluster(sort_by_side::rank_type selected_rank,
             typename sbs_type::rp const& ranked_point,
             cluster_info const& cinfo,
             signed_size_type start_turn_index, int start_op_index) const
@@ -592,14 +576,14 @@ public :
 
         if BOOST_GEOMETRY_CONSTEXPR (OverlayType != overlay_dissolve)
         {
-            if (op.enriched.count_left != 0 || op.enriched.count_right == 0)
+            if ((op.enriched.count_left != 0 || op.enriched.count_right == 0) && cinfo.spike_count > 0)
             {
                 // Check counts: in some cases interior rings might be generated with
                 // polygons on both sides. For dissolve it can be anything.
 
                 // If this forms a spike, going to/from the cluster point in the same
                 // (opposite) direction, it can still be used.
-                return cinfo.spike_count > 0 ? 1 : 0;
+                return 1;
             }
         }
 
@@ -658,9 +642,8 @@ public :
         return -1;
     }
 
-    inline bool select_from_cluster_union(signed_size_type& turn_index,
-        cluster_info const& cinfo,
-        int& op_index, sbs_type const& sbs,
+    inline bool select_from_cluster(signed_size_type& turn_index, int& op_index,
+        cluster_info const& cinfo, sbs_type const& sbs,
         signed_size_type start_turn_index, int start_op_index) const
     {
         sort_by_side::rank_type const selected_rank = select_rank(sbs);
@@ -675,7 +658,7 @@ public :
                 break;
             }
 
-            int const priority = priority_of_turn_in_cluster_union(selected_rank,
+            int const priority = priority_of_turn_in_cluster(selected_rank,
                 ranked_point, cinfo, start_turn_index, start_op_index);
 
             if (priority > current_priority)
@@ -688,7 +671,9 @@ public :
         return current_priority > 0;
     }
 
-    inline bool analyze_cluster_intersection(signed_size_type& turn_index,
+    // Analyzes a clustered intersection, as if it is clustered.
+    // This is used for II intersections
+    inline bool analyze_ii_cluster(signed_size_type& turn_index,
                 int& op_index, sbs_type const& sbs) const
     {
         // Select the rank based on regions and isolation
@@ -824,34 +809,13 @@ public :
             }
         }
 
-        cluster_exits<OverlayType, Turns, sbs_type> exits(m_turns, cinfo.turn_indices, sbs);
-
-        if (exits.apply(turn_index, op_index))
-        {
-            return true;
-        }
-
-        bool result = false;
-
-        if BOOST_GEOMETRY_CONSTEXPR (is_union)
-        {
-            result = select_from_cluster_union(turn_index, cinfo,
-                                               op_index, sbs,
-                                               start_turn_index, start_op_index);
-            if (! result)
-            {
-               // There no way out found, try second pass in collected cluster exits
-               result = exits.apply(turn_index, op_index, false);
-            }
-        }
-        else
-        {
-            result = analyze_cluster_intersection(turn_index, op_index, sbs);
-        }
-        return result;
+        return select_from_cluster(turn_index, op_index, cinfo, sbs, start_turn_index, start_op_index);
     }
 
     // Analyzes a non-clustered "ii" intersection, as if it is clustered.
+    // TODO: it, since select_from_cluster is generalized (July 2024),
+    // uses a specific function used only for "ii" intersections.
+    // Therefore the sort-by-side solution should not be necessary and can be refactored.
     inline bool analyze_ii_intersection(signed_size_type& turn_index, int& op_index,
                     turn_type const& current_turn,
                     segment_identifier const& previous_seg_id)
@@ -875,9 +839,7 @@ public :
 
         sbs.apply(current_turn.point);
 
-        bool result = analyze_cluster_intersection(turn_index, op_index, sbs);
-
-        return result;
+        return analyze_ii_cluster(turn_index, op_index, sbs);
     }
 
     inline void change_index_for_self_turn(signed_size_type& to_vertex_index,
@@ -1071,11 +1033,9 @@ private :
     Geometry2 const& m_geometry2;
     Turns& m_turns;
     Clusters const& m_clusters;
-    RobustPolicy const& m_robust_policy;
     Strategy m_strategy;
     Visitor& m_visitor;
 };
-
 
 
 }} // namespace detail::overlay

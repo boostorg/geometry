@@ -151,13 +151,9 @@ void test_areal()
         simplex_normal[0], simplex_normal[1],
         1, 7, 5.47363293);
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails if rescaling is used in combination with get_clusters, because a cluster is generated
-    // and use as the start of the traversal
     test_one<Polygon, Polygon, Polygon>("distance_zero",
         distance_zero[0], distance_zero[1],
         1, 0, 0.29516139);
-#endif
 
     test_one<Polygon, Polygon, Polygon>("equal_holes_disjoint",
         equal_holes_disjoint[0], equal_holes_disjoint[1],
@@ -182,10 +178,10 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_INTERSECTION(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
 #else
-    // Reported as invalid without rescaling and get_clusters
+    // Reported as invalid
     TEST_INTERSECTION_IGNORE(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
 #endif
 
@@ -291,31 +287,28 @@ void test_areal()
     {
         // Not yet valid when rescaling is turned off
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         test_one<Polygon, Polygon, Polygon>("ticket_9563", ticket_9563[0], ticket_9563[1],
                     1, 8, 129.90381, settings);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // With rescaling the output is empty
     TEST_INTERSECTION(issue_548, 1, -1, expectation_limits(1958821942, 1958824416));
-#endif
 
     TEST_INTERSECTION(issue_566_a, 1, -1, 70.7107);
     TEST_INTERSECTION(issue_566_b, 1, -1, 70.7107);
 
     TEST_INTERSECTION(issue_838, 1, -1, (expectation_limits{0.6582, 0.6650}));
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // With rescaling the output is wrong
     TEST_INTERSECTION(issue_861, 1, -1, 1.4715007684573677693e-10);
-#endif
 
     TEST_INTERSECTION(issue_1229, 0, -1, 0);
 
     TEST_INTERSECTION(issue_1231, 1, -1, 54.701340543162516);
 
     TEST_INTERSECTION(issue_1244, 1, -1, 7);
+
+    TEST_INTERSECTION(issue_1293, 1, -1, 1.49123);
+    TEST_INTERSECTION(issue_1295, 1, -1, 4.90121);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
@@ -843,16 +836,13 @@ int test_main(int, char* [])
     // test_exception<bg::model::d2::point_xy<double> >();
 
     test_pointer_version();
-#if ! defined(BOOST_GEOMETRY_RESCALE_TO_ROBUST)
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
-#endif
-
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
     // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(6, 2, 7, 1);
+    BoostGeometryWriteExpectedFailures(2, 7, 1);
 #endif
 
     return 0;

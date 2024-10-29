@@ -1,14 +1,17 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2013 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2013-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[svg_mapper
-//` Shows the usage of svg_mapper
+//` Shows the usage of svg_mapper.
+//` Make sure to first call only the method [^add] and then call only the methods [^map] or [^text]. 
+//` Because [^add] calculates the bounding box internally and that should be finished
+//` before calling mapping functions. This might require two loops.
 
 #include <iostream>
 #include <fstream>
@@ -20,7 +23,7 @@
 int main()
 {
     // Specify the basic type
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
 
     // Declare some geometries and set their values
     point_type a;

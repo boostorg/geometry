@@ -61,8 +61,8 @@ namespace detail { namespace disjoint
 {
 
 template <typename Geometry1, typename Geometry2,
-          typename Tag1 = typename tag<Geometry1>::type,
-          typename Tag1OrMulti = typename tag_cast<Tag1, multi_tag>::type>
+          typename Tag1 = tag_t<Geometry1>,
+          typename Tag1OrMulti = tag_cast_t<Tag1, multi_tag>>
 struct disjoint_no_intersections_policy
 {
     /*!
@@ -71,8 +71,7 @@ struct disjoint_no_intersections_policy
     template <typename Strategy>
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
-        using point_type = typename point_type<Geometry1>::type;
-        typename helper_geometry<point_type>::type p;
+        typename helper_geometry<point_type_t<Geometry1>>::type p;
         geometry::point_on_border(p, g1);
 
         return ! geometry::covered_by(p, g2, strategy);
@@ -183,7 +182,7 @@ public:
             return false;
         }
 
-        typename point_type<Segment>::type p;
+        point_type_t<Segment> p;
         detail::assign_point_from_index<0>(segment, p);
 
         return ! geometry::covered_by(p, polygon, strategy);
@@ -219,7 +218,7 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
             return false;
         }
 
-        typename point_type<Segment>::type p;
+        point_type_t<Segment> p;
         detail::assign_point_from_index<0>(segment, p);
 
         return ! geometry::covered_by(p, ring, strategy);

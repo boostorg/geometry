@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -24,7 +24,7 @@ void create_svg(std::string const& filename, Geometry1 const& a, Geometry2 const
 #if defined(HAVE_SVG)
     std::cout  << std::endl << "[$img/algorithms/" << boost::replace_all_copy(filename, ".svg", ".png") << "]" << std::endl << std::endl;
 
-    typedef typename boost::geometry::point_type<Geometry1>::type point_type;
+    using point_type = typename boost::geometry::point_type<Geometry1>::type;
     std::ofstream svg(filename.c_str());
 
     boost::geometry::svg_mapper<point_type> mapper(svg, 400, 400);

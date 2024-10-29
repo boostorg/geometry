@@ -109,7 +109,7 @@ void test_areal()
     {
         ut_settings settings;
 
-        settings.sym_difference = BG_IF_RESCALED(false, true);
+        settings.sym_difference = true;
 
         test_one<Polygon, MultiPolygon, MultiPolygon>("case_108_multi",
             case_108_multi[0], case_108_multi[1],
@@ -148,33 +148,31 @@ void test_areal()
     {
         ut_settings settings;
         settings.percentage = 0.001;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // 1: Very small sliver for B (discarded when rescaling)
         // 2: sym difference is not considered as valid (without rescaling
         //    this is a false negative)
         // 3: with rescaling A is considered as invalid (robustness problem)
         ut_settings settings;
-        settings.validity_of_sym = BG_IF_RESCALED(false, true);
+        settings.validity_of_sym = true;
         settings.validity_false_negative_sym = true;
         TEST_DIFFERENCE_WITH(0, 1, bug_21155501,
                              (count_set(1, 4)), expectation_limits(3.75893, 3.75894),
                              (count_set(1, 4)), (expectation_limits(1.776357e-15, 7.661281e-15)),
                              (count_set(2, 5)));
     }
-#endif
 
-#if defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
         // With rescaling, it is complete but invalid
         // Without rescaling, one ring is missing (for a and s)
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(false, true));
-        settings.validity_of_sym = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(true);
+        settings.validity_of_sym = true;
         TEST_DIFFERENCE_WITH(0, 1, ticket_9081,
                              2, 0.0907392476356186,
                              4, 0.126018011439877,
@@ -189,21 +187,12 @@ void test_areal()
         ut_settings settings;
         settings.percentage = 0.001;
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, expectation_limits(0.0), 1, (expectation_limits(2.023, 2.2004)), 1);
-#endif
-
         TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
-#endif
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
         // Symmetrical difference fails without get_clusters
         settings.sym_difference = BG_IF_TEST_FAILURES;
         TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, expectation_limits(76.5385), optional(), optional_sliver(1.0e-6), 1);
-#endif
     }
 
     // Cases below go (or went) wrong in either a ( [0] - [1] ) or b ( [1] - [0] )
@@ -387,10 +376,7 @@ void test_areal()
     TEST_DIFFERENCE(case_recursive_boxes_82, 5, 7.25, 7, 4.5, 8);
     TEST_DIFFERENCE(case_recursive_boxes_83, 9, 5.25, 8, 5.25, 12);
     TEST_DIFFERENCE(case_recursive_boxes_84, 4, 8.0, 7, 9.0, 4);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DIFFERENCE(case_recursive_boxes_85, 4, 4.0, 7, 3.75, 9);
-#endif
-
     TEST_DIFFERENCE(case_recursive_boxes_86, 1, 1.5, 2, 1.5, 3);
     TEST_DIFFERENCE(case_recursive_boxes_87, 4, 2.0, 4, 2.5, 8);
     TEST_DIFFERENCE(case_recursive_boxes_88, 3, 4.75, 5, 6.75, 4);
@@ -402,7 +388,7 @@ void test_areal()
 
     {
         ut_settings settings;
-        settings.sym_difference = BG_IF_RESCALED(true, BG_IF_TEST_FAILURES);
+        settings.sym_difference = BG_IF_TEST_FAILURES;
         test_one<Polygon, MultiPolygon, MultiPolygon>("mysql_21965285_b",
             mysql_21965285_b[0],
             mysql_21965285_b[1],
@@ -525,7 +511,7 @@ int test_main(int, char* [])
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Not yet fully tested for float.
     // The difference algorithm can generate (additional) slivers
-    BoostGeometryWriteExpectedFailures(24, 11, 21, 7);
+    BoostGeometryWriteExpectedFailures(11, 21, 7);
 #endif
 
     return 0;

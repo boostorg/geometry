@@ -26,6 +26,7 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -122,17 +123,17 @@ inline void check_detailed(MetaTurns& meta_turns, MetaTurn const& meta_turn,
 
 
 template <typename TurnPoints>
-inline bool check_graph(TurnPoints& turn_points, operation_type for_operation)
+inline bool check_graph(TurnPoints const& turn_points, operation_type for_operation)
 {
-    typedef typename boost::range_value<TurnPoints>::type turn_point_type;
+    using turn_point_type = typename boost::range_value<TurnPoints>::type;
 
     bool error = false;
 
     std::vector<meta_turn<turn_point_type> > meta_turns;
-    for_each_with_index(turn_points, [&](std::size_t index, auto const& point)
+    for (auto const& item : util::enumerate(turn_points))
     {
-        meta_turns.push_back(meta_turn<turn_point_type>(index, point));
-    });
+        meta_turns.push_back(meta_turn<turn_point_type>(item.index, item.value));
+    }
 
     int cycle = 0;
     for (auto& meta_turn : meta_turns)

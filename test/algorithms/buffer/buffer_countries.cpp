@@ -103,10 +103,8 @@ void test_one(std::string const& caseid, std::string const& wkt, double expected
 
     settings.tolerance = 10000.0;
 
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING)
     // in case robustness policies are changed, areas should be adapted
     settings.tolerance = boost::starts_with(caseid, "no") ? 200000.0 : 100000.0;
-#endif
 
     test_one<MP, P>(caseid, wkt, join_round, end_flat,
         expected_area, distance * 1000.0, settings);
@@ -213,7 +211,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, BG_NO_FAILURES, 2, BG_NO_FAILURES);
+    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES, 2, BG_NO_FAILURES);
 #endif
 
     return 0;

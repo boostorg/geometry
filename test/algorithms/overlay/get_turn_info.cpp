@@ -3,8 +3,9 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -77,24 +78,21 @@ void test_with_point(std::string const& caseid,
             P, P
         >::type strategy_type;
 
-    typedef typename bg::detail::no_rescale_policy rescale_policy_type;
-
     typedef bg::detail::overlay::turn_info
         <
             P,
-            typename bg::detail::segment_ratio_type<P, rescale_policy_type>::type
+            typename bg::segment_ratio_type<P>::type
         > turn_info;
     typedef std::vector<turn_info> tp_vector;
     turn_info model;
     tp_vector info;
     strategy_type strategy;
-    rescale_policy_type rescale_policy;
     sub_range_from_points<P> sub_range_p(pi, pj, pk);
     sub_range_from_points<P> sub_range_q(qi, qj, qk);
     bg::detail::overlay::get_turn_info
         <
             bg::detail::overlay::assign_null_policy
-        >::apply(sub_range_p, sub_range_q, model, strategy, rescale_policy, std::back_inserter(info));
+        >::apply(sub_range_p, sub_range_q, model, strategy, std::back_inserter(info));
 
     if (info.size() == 0)
     {
@@ -224,7 +222,7 @@ void test_both(std::string const& caseid,
             method, expected_touch_only, ip_x, ip_y, expected, ip_x2, ip_y2);
 
     std::string reversed(expected.rbegin(), expected.rend());
-    
+
     if (ip_x2 >= 0 && ip_y2 >= 0)
     {
         std::swap(ip_x, ip_x2);

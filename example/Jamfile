@@ -10,8 +10,10 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 
-project boost-geometry-example 
-    : # requirements
+project boost-geometry-example
+    : requirements
+        <library>/boost/geometry//boost_geometry
+        <library>/boost/foreach//boost_foreach
     ;
 
 exe 01_point_example : 01_point_example.cpp ;
@@ -21,8 +23,8 @@ exe 05_a_overlay_polygon_example : 05_a_overlay_polygon_example.cpp ;
 exe 05_b_overlay_linestring_polygon_example : 05_b_overlay_linestring_polygon_example.cpp ;
 exe 06_a_transformation_example : 06_a_transformation_example.cpp ;
 exe 06_b_transformation_example : 06_b_transformation_example.cpp ;
-exe 07_a_graph_route_example : 07_a_graph_route_example.cpp ;
-exe 07_b_graph_route_example : 07_b_graph_route_example.cpp ;
+exe 07_a_graph_route_example : 07_a_graph_route_example.cpp : <library>/boost/graph//boost_graph ;
+exe 07_b_graph_route_example : 07_b_graph_route_example.cpp : <library>/boost/graph//boost_graph ;
 
 exe c01_custom_point_example : c01_custom_point_example.cpp ;
 exe c02_custom_box_example : c02_custom_box_example.cpp ;

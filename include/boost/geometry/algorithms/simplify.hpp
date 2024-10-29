@@ -983,7 +983,6 @@ struct simplify<GeometryIn, GeometryOut, geometry_collection_tag, geometry_colle
 \tparam GeometryOut The output geometry
 \tparam Distance A numerical distance measure
 \tparam Strategy A type fulfilling a SimplifyStrategy concept
-\param strategy A strategy to calculate simplification
 \param geometry input geometry, to be simplified
 \param out output geometry, simplified version of the input geometry
 \param max_distance distance (in units of input coordinates) of a vertex
@@ -1079,7 +1078,7 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
 {
     // Concept: output point type = point type of input geometry
     concepts::check<Geometry const>();
-    concepts::check<typename point_type<Geometry>::type>();
+    concepts::check<point_type_t<Geometry>>();
 
     simplify_insert(geometry, out, max_distance, default_strategy());
 }

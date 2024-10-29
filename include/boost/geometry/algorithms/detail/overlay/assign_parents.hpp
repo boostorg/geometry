@@ -27,10 +27,10 @@
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
 
-#include <boost/geometry/util/for_each_with_index.hpp>
 
 namespace boost { namespace geometry
 {
@@ -271,25 +271,28 @@ inline void assign_parents(Geometry1 const& geometry1,
         std::size_t index_positive = 0; // only used if count_positive>0
 
         // Copy to vector (this might be obsolete, using the map directly)
+        // The index in the map is also the index in the vector.
         using helper = ring_info_helper<point_type, area_result_type>;
         std::vector<helper> vector(count_total);
 
-        for_each_with_index(ring_map, [&](std::size_t index, auto const& pair)
+        for (auto const& enumerated : util::enumerate(ring_map))
         {
-            vector[index] = helper(pair.first, pair.second.get_area());
-            helper& item = vector[index];
-            switch(pair.first.source_index)
+            auto const& ring_id = enumerated.value.first;
+            auto const& info = enumerated.value.second;
+            vector[enumerated.index] = helper(ring_id, info.get_area());
+            helper& item = vector[enumerated.index];
+            switch(ring_id.source_index)
             {
                 case 0 :
-                    geometry::envelope(get_ring<tag1>::apply(pair.first, geometry1),
+                    geometry::envelope(get_ring<tag1>::apply(ring_id, geometry1),
                                        item.envelope, strategy);
                     break;
                 case 1 :
-                    geometry::envelope(get_ring<tag2>::apply(pair.first, geometry2),
+                    geometry::envelope(get_ring<tag2>::apply(ring_id, geometry2),
                                        item.envelope, strategy);
                     break;
                 case 2 :
-                    geometry::envelope(get_ring<void>::apply(pair.first, collection),
+                    geometry::envelope(get_ring<void>::apply(ring_id, collection),
                                        item.envelope, strategy);
                     break;
             }
@@ -300,9 +303,9 @@ inline void assign_parents(Geometry1 const& geometry1,
             if (item.real_area > 0)
             {
                 count_positive++;
-                index_positive = index;
+                index_positive = enumerated.index;
             }
-        });
+        }
 
         if (! check_for_orientation)
         {
@@ -323,15 +326,16 @@ inline void assign_parents(Geometry1 const& geometry1,
                 // located outside the outer ring, this cannot be done
                 ring_identifier id_of_positive = vector[index_positive].id;
                 ring_info_type& outer = ring_map[id_of_positive];
-                for_each_with_index(vector, [&](std::size_t index, auto const& item)
+                for (auto const& item : util::enumerate(vector))
                 {
-                    if (index != index_positive)
+                    if (item.index != index_positive)
                     {
-                        ring_info_type& inner = ring_map[item.id];
+                        auto const id = item.value.id;
+                        ring_info_type& inner = ring_map[id];
                         inner.parent = id_of_positive;
-                        outer.children.push_back(item.id);
+                        outer.children.push_back(id);
                     }
-                });
+                }
                 return;
             }
         }

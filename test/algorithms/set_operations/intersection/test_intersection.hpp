@@ -250,9 +250,6 @@ typename bg::default_area_result<G1>::type test_intersection(std::string const& 
             << string_from_type<CalculationType>::name()
             << (is_ccw ? "_ccw" : "")
             << (is_open ? "_open" : "")
-#if defined(BOOST_GEOMETRY_USE_RESCALING)
-            << "_rescaled"
-#endif
             << ".svg";
 
         std::ofstream svg(filename.str().c_str());

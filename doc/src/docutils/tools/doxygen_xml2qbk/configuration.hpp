@@ -1,4 +1,4 @@
-// Boost.Geometry (aka GGL, Generic Geometry Library)
+// Doxygen XML to Quickbook Converter
 //
 // Copyright (c) 2010-2013 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2012-2013 Adam Wulkiewicz, Lodz, Poland.

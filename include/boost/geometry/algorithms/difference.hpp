@@ -2,8 +2,8 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2023.
-// Modifications copyright (c) 2017-2023, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -21,8 +21,9 @@
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/core/geometry_types.hpp>
+#include <boost/geometry/core/primary_single_tag.hpp>
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
-#include <boost/geometry/policies/robustness/get_rescale_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
@@ -62,12 +63,10 @@ struct call_intersection_insert
     template
     <
         typename OutputIterator,
-        typename RobustPolicy,
         typename Strategy
     >
     static inline OutputIterator apply(Geometry1 const& geometry1,
                                        Geometry2 const& geometry2,
-                                       RobustPolicy const& robust_policy,
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
@@ -78,7 +77,7 @@ struct call_intersection_insert
                 overlay_difference,
                 geometry::detail::overlay::do_reverse<geometry::point_order<Geometry1>::value>::value,
                 geometry::detail::overlay::do_reverse<geometry::point_order<Geometry2>::value, true>::value
-            >::apply(geometry1, geometry2, robust_policy, out, strategy);
+            >::apply(geometry1, geometry2, out, strategy);
     }
 };
 
@@ -86,10 +85,9 @@ struct call_intersection_insert
 template <typename Geometry1, typename Geometry2, typename SingleOut, typename OutTag>
 struct call_intersection_insert<Geometry1, Geometry2, SingleOut, OutTag, true>
 {
-    template <typename OutputIterator, typename RobustPolicy, typename Strategy>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry1 const& geometry1,
                                        Geometry2 const& ,
-                                       RobustPolicy const& ,
                                        OutputIterator out,
                                        Strategy const& )
     {
@@ -110,14 +108,10 @@ template
 >
 struct call_intersection_insert_tupled_base
 {
-    typedef typename geometry::detail::single_tag_from_base_tag
+    using single_tag = primary_single_tag_t
         <
-            typename geometry::tag_cast
-                <
-                    typename geometry::tag<Geometry1>::type,
-                    pointlike_tag, linear_tag, areal_tag
-                >::type
-        >::type single_tag;
+            tag_cast_t<tag_t<Geometry1>, pointlike_tag, linear_tag, areal_tag>
+        >;
 
     typedef detail::expect_output
         <
@@ -149,12 +143,10 @@ struct call_intersection_insert
     template
     <
         typename OutputIterator,
-        typename RobustPolicy,
         typename Strategy
     >
     static inline OutputIterator apply(Geometry1 const& geometry1,
                                        Geometry2 const& geometry2,
-                                       RobustPolicy const& robust_policy,
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
@@ -162,7 +154,7 @@ struct call_intersection_insert
             <
                 Geometry1, Geometry2,
                 typename base_t::access::type
-            >::apply(geometry1, geometry2, robust_policy,
+            >::apply(geometry1, geometry2,
                      base_t::access::get(out), strategy);
 
         return out;
@@ -188,12 +180,10 @@ struct call_intersection_insert
     template
     <
         typename OutputIterator,
-        typename RobustPolicy,
         typename Strategy
     >
     static inline OutputIterator apply(Geometry1 const& geometry1,
                                        Geometry2 const& ,
-                                       RobustPolicy const& ,
                                        OutputIterator out,
                                        Strategy const& )
     {
@@ -244,21 +234,10 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
     //concepts::check<GeometryOut>();
     geometry::detail::output_geometry_concept_check<GeometryOut>::apply();
 
-    typedef typename geometry::rescale_overlay_policy_type
-        <
-            Geometry1,
-            Geometry2,
-            typename Strategy::cs_tag
-        >::type rescale_policy_type;
-
-    rescale_policy_type robust_policy
-        = geometry::get_rescale_policy<rescale_policy_type>(
-            geometry1, geometry2, strategy);
-
     return geometry::detail::difference::call_intersection_insert
         <
             Geometry1, Geometry2, GeometryOut
-        >::apply(geometry1, geometry2, robust_policy, out, strategy);
+        >::apply(geometry1, geometry2, out, strategy);
 }
 
 /*!
@@ -302,11 +281,7 @@ inline OutputIterator difference_insert(Geometry1 const& geometry1,
 template
 <
     typename Geometry, typename Collection,
-    typename CastedTag = typename geometry::tag_cast
-        <
-            typename geometry::tag<Geometry>::type,
-            pointlike_tag, linear_tag, areal_tag
-        >::type
+    typename CastedTag = tag_cast_t<tag_t<Geometry>, pointlike_tag, linear_tag, areal_tag>
 >
 struct multi_output_type
 {

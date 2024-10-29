@@ -29,7 +29,7 @@ namespace strategy { namespace within
 template
 <
     typename Point1, typename Point2,
-    typename CSTag = typename cs_tag<Point1>::type
+    typename CSTag = cs_tag_t<Point1>
 >
 struct point_in_point
     : strategy::within::cartesian_point_point

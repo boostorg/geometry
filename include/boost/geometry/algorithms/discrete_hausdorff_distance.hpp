@@ -59,29 +59,29 @@ namespace detail { namespace discrete_hausdorff_distance
 struct point_range
 {
     template <typename Point, typename Range, typename Strategies>
-    static inline auto apply(Point const& pnt, Range const& rng,
+    static inline auto apply(Point const& pnt, Range const& range,
                              Strategies const& strategies)
     {
         typedef typename distance_result
             <
                 Point,
-                typename point_type<Range>::type,
+                point_type_t<Range>,
                 Strategies
             >::type result_type;
 
         typedef typename boost::range_size<Range>::type size_type;
 
-        boost::geometry::detail::throw_on_empty_input(rng);
+        boost::geometry::detail::throw_on_empty_input(range);
 
         auto const strategy = strategies.distance(dummy_point(), dummy_point());
 
-        size_type const n = boost::size(rng);
+        size_type const n = boost::size(range);
         result_type dis_min = 0;
         bool is_dis_min_set = false;
 
         for (size_type i = 0 ; i < n ; i++)
         {
-            result_type dis_temp = strategy.apply(pnt, range::at(rng, i));
+            result_type dis_temp = strategy.apply(pnt, range::at(range, i));
             if (! is_dis_min_set || dis_temp < dis_min)
             {
                 dis_min = dis_temp;
@@ -100,8 +100,8 @@ struct range_range
     {
         typedef typename distance_result
             <
-                typename point_type<Range1>::type,
-                typename point_type<Range2>::type,
+                point_type_t<Range1>,
+                point_type_t<Range2>,
                 Strategies
             >::type result_type;
 
@@ -115,8 +115,8 @@ struct range_range
 
 #ifdef BOOST_GEOMETRY_ENABLE_SIMILARITY_RTREE
         namespace bgi = boost::geometry::index;
-        typedef typename point_type<Range1>::type point_t;
-        typedef bgi::rtree<point_t, bgi::linear<4> > rtree_type;
+        using point_t = point_type_t<Range1>;
+        using rtree_type = bgi::rtree<point_t, bgi::linear<4> >;
         rtree_type rtree(boost::begin(r2), boost::end(r2));
         point_t res;
 #endif
@@ -141,27 +141,27 @@ struct range_range
 
 struct range_multi_range
 {
-    template <typename Range, typename Multi_range, typename Strategies>
-    static inline auto apply(Range const& rng, Multi_range const& mrng,
+    template <typename Range, typename MultiRange, typename Strategies>
+    static inline auto apply(Range const& range, MultiRange const& multi_range,
                              Strategies const& strategies)
     {
         typedef typename distance_result
             <
-                typename point_type<Range>::type,
-                typename point_type<Multi_range>::type,
+                point_type_t<Range>,
+                point_type_t<MultiRange>,
                 Strategies
             >::type result_type;
-        typedef typename boost::range_size<Multi_range>::type size_type;
+        typedef typename boost::range_size<MultiRange>::type size_type;
 
-        boost::geometry::detail::throw_on_empty_input(rng);
-        boost::geometry::detail::throw_on_empty_input(mrng);
+        boost::geometry::detail::throw_on_empty_input(range);
+        boost::geometry::detail::throw_on_empty_input(multi_range);
 
-        size_type b = boost::size(mrng);
+        size_type b = boost::size(multi_range);
         result_type haus_dis = 0;
 
         for (size_type j = 0 ; j < b ; j++)
         {
-            result_type dis_max = range_range::apply(rng, range::at(mrng, j), strategies);
+            result_type dis_max = range_range::apply(range, range::at(multi_range, j), strategies);
             if (dis_max > haus_dis)
             {
                 haus_dis = dis_max;
@@ -175,27 +175,27 @@ struct range_multi_range
 
 struct multi_range_multi_range
 {
-    template <typename Multi_Range1, typename Multi_range2, typename Strategies>
-    static inline auto apply(Multi_Range1 const& mrng1, Multi_range2 const& mrng2,
+    template <typename MultiRange1, typename MultiRange2, typename Strategies>
+    static inline auto apply(MultiRange1 const& multi_range1, MultiRange2 const& multi_range2,
                              Strategies const& strategies)
     {
         typedef typename distance_result
             <
-                typename point_type<Multi_Range1>::type,
-                typename point_type<Multi_range2>::type,
+                point_type_t<MultiRange1>,
+                point_type_t<MultiRange2>,
                 Strategies
             >::type result_type;
-        typedef typename boost::range_size<Multi_Range1>::type size_type;
+        typedef typename boost::range_size<MultiRange1>::type size_type;
 
-        boost::geometry::detail::throw_on_empty_input(mrng1);
-        boost::geometry::detail::throw_on_empty_input(mrng2);
+        boost::geometry::detail::throw_on_empty_input(multi_range1);
+        boost::geometry::detail::throw_on_empty_input(multi_range2);
 
-        size_type n = boost::size(mrng1);
+        size_type n = boost::size(multi_range1);
         result_type haus_dis = 0;
 
         for (size_type i = 0 ; i < n ; i++)
         {
-            result_type dis_max = range_multi_range::apply(range::at(mrng1, i), mrng2, strategies);
+            result_type dis_max = range_multi_range::apply(range::at(multi_range1, i), multi_range2, strategies);
             if (dis_max > haus_dis)
             {
                 haus_dis = dis_max;
@@ -314,16 +314,15 @@ struct discrete_hausdorff_distance<default_strategy, false>
 
 
 /*!
-\brief Calculate discrete Hausdorff distance between two geometries (currently
-    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
-    MultiLineString-MultiLineString) using specified strategy.
+\brief \brief_calc2{discrete Hausdorff distance, between} \brief_strategy
+\details \details_free_function{discrete_hausdorff_distance, discrete Hausdorff distance, between}.
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\tparam Strategy A type fulfilling a DistanceStrategy concept
-\param geometry1 Input geometry
-\param geometry2 Input geometry
-\param strategy Distance strategy to be used to calculate Pt-Pt distance
+\tparam Strategy \tparam_strategy{Distance}
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
+\param strategy \param_strategy{point to point distance}
 
 \qbk{distinguish,with strategy}
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
@@ -332,7 +331,7 @@ struct discrete_hausdorff_distance<default_strategy, false>
 [heading Available Strategies]
 \* [link geometry.reference.strategies.strategy_distance_pythagoras Pythagoras (cartesian)]
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
-[/ \* more (currently extensions): Vincenty\, Andoyer (geographic) ]
+\* One of the geographic point to point strategies
 
 [heading Example]
 [discrete_hausdorff_distance_strategy]
@@ -351,14 +350,13 @@ inline auto discrete_hausdorff_distance(Geometry1 const& geometry1,
 }
 
 /*!
-\brief Calculate discrete Hausdorff distance between two geometries (currently
-    works for LineString-LineString, MultiPoint-MultiPoint, Point-MultiPoint,
-    MultiLineString-MultiLineString).
+\brief \brief_calc2{discrete Hausdorff distance, between}
+\details \details_free_function{discrete_hausdorff_distance, discrete Hausdorff distance, between}.
 \ingroup discrete_hausdorff_distance
 \tparam Geometry1 \tparam_geometry
 \tparam Geometry2 \tparam_geometry
-\param geometry1 Input geometry
-\param geometry2 Input geometry
+\param geometry1 \param_geometry
+\param geometry2 \param_geometry
 
 \qbk{[include reference/algorithms/discrete_hausdorff_distance.qbk]}
 

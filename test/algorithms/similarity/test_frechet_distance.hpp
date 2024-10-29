@@ -28,8 +28,8 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
     using namespace bg;
     typedef typename distance_result
         <
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type
+            point_type_t<Geometry1>,
+            point_type_t<Geometry2>
         >::type result_type;
     result_type h_distance = bg::discrete_frechet_distance(geometry1,geometry2);
 
@@ -81,8 +81,8 @@ void test_frechet_distance(Geometry1 const& geometry1,Geometry2 const& geometry2
     using namespace bg;
     typedef typename distance_result
         <
-            typename point_type<Geometry1>::type,
-            typename point_type<Geometry2>::type,
+            point_type_t<Geometry1>,
+            point_type_t<Geometry2>,
             Strategy
         >::type result_type;
     result_type h_distance = bg::discrete_frechet_distance(geometry1,geometry2,strategy);

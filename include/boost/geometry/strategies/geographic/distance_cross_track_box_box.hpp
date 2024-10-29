@@ -83,8 +83,8 @@ public:
     struct return_type : services::return_type
             <
                 typename distance_ps_strategy::type,
-                typename point_type<Box1>::type,
-                typename point_type<Box2>::type
+                point_type_t<Box1>,
+                point_type_t<Box2>
             >
     {};
 
@@ -105,8 +105,8 @@ public:
                 (concepts::PointSegmentDistanceStrategy
                     <
                         Strategy,
-                        typename point_type<Box1>::type,
-                        typename point_type<Box2>::type
+                        point_type_t<Box1>,
+                        point_type_t<Box2>
                     >)
             );
 #endif
@@ -208,8 +208,8 @@ public:
         result_from_distance
             <
                 Strategy,
-                typename point_type<Box1>::type,
-                typename point_type<Box2>::type
+                point_type_t<Box1>,
+                point_type_t<Box2>
             >::apply(strategy, distance);
     }
 };

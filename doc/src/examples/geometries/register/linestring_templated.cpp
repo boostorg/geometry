@@ -22,7 +22,7 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::deque)
 
 int main()
 {
-    std::deque<boost::geometry::model::d2::point_xy<double> > line(2);
+    std::deque<boost::geometry::model::d2::point_xy<double>> line(2);
     boost::geometry::assign_values(line[0], 1, 1);
     boost::geometry::assign_values(line[1], 2, 2);
 

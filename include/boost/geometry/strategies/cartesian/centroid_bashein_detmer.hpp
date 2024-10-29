@@ -48,8 +48,6 @@ namespace strategy { namespace centroid
 \ingroup strategies
 \details Calculates centroid using triangulation method published by
     Bashein / Detmer
-\tparam Point point type of centroid to calculate
-\tparam PointOfSegment point type of segments, defaults to Point
 \tparam CalculationType \tparam_calculation
 
 \author Adapted from  "Centroid of a Polygon" by
@@ -249,7 +247,7 @@ struct default_strategy<cartesian_tag, areal_tag, 2, Point, Geometry>
     typedef bashein_detmer
         <
             Point,
-            typename point_type<Geometry>::type
+            point_type_t<Geometry>
         > type;
 };
 

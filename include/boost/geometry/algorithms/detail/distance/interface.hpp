@@ -297,7 +297,7 @@ struct distance<DynamicGeometry1, DynamicGeometry2, dynamic_geometry_tag, dynami
 \* [link geometry.reference.strategies.strategy_distance_haversine Haversine (spherical)]
 \* [link geometry.reference.strategies.strategy_distance_cross_track Cross track (spherical\, point-to-segment)]
 \* [link geometry.reference.strategies.strategy_distance_projected_point Projected point (cartesian\, point-to-segment)]
-\* more (currently extensions): Vincenty\, Andoyer (geographic)
+\* One of the geographic point to point strategies
 }
  */
 

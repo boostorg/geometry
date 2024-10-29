@@ -22,7 +22,7 @@ BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(std::deque)
 
 int main()
 {
-    std::deque<boost::geometry::model::d2::point_xy<double> > ring(3);
+    std::deque<boost::geometry::model::d2::point_xy<double>> ring(3);
     boost::geometry::assign_values(ring[0], 0, 0);
     boost::geometry::assign_values(ring[2], 4, 1);
     boost::geometry::assign_values(ring[1], 1, 4);

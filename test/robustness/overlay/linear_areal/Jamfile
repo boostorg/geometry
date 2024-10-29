@@ -12,7 +12,7 @@ project recursive_polygons_linear_areal
     : requirements
         <include>.
         <include>../..
-        <library>../../../../../program_options/build//boost_program_options
+        <library>/boost/program_options//boost_program_options
         <link>static
     ;
 

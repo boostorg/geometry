@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2015.
 // Modifications copyright (c) 2015 Oracle and/or its affiliates.
@@ -25,8 +25,8 @@
 
 int main()
 {
-    typedef boost::geometry::model::d2::point_xy<double> point_type;
-    typedef boost::geometry::model::polygon<point_type> polygon_type;
+    using point_type = boost::geometry::model::d2::point_xy<double>;
+    using polygon_type = boost::geometry::model::polygon<point_type>;
 
     polygon_type poly;
     boost::geometry::read_wkt(

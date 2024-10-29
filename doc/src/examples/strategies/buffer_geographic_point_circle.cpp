@@ -1,7 +1,7 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2019 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2019-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,7 +17,7 @@ int main()
 {
     namespace bg = boost::geometry;
 
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::degree> > point;
+    using point = bg::model::point<double, 2, bg::cs::geographic<bg::degree>>;
 
     // Declare the geographic_point_circle strategy (with 36 points)
     // Default template arguments (taking Andoyer strategy)
@@ -36,7 +36,7 @@ int main()
     bg::read_wkt("POINT(4.9 52.1)", p);
 
     // Create the buffer of a point on the Earth
-    bg::model::multi_polygon<bg::model::polygon<point> > result;
+    bg::model::multi_polygon<bg::model::polygon<point>> result;
     bg::buffer(p, result,
                 distance_strategy, side_strategy,
                 join_strategy, end_strategy, point_strategy);

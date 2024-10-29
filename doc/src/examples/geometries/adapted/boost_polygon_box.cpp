@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2014 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -17,7 +17,7 @@
 
 int main()
 {
-    typedef boost::polygon::rectangle_data<int> rect;
+    using rect = boost::polygon::rectangle_data<int>;
 
     rect b = boost::polygon::construct<rect>(1, 2, 3, 4);
 

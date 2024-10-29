@@ -54,7 +54,7 @@ public:
     {
         using intersection_return_type = segment_intersection_points
             <
-                typename point_type<Segment1>::type
+                point_type_t<Segment1>
             >;
 
         using intersection_policy = policies::relate::segments_intersection_points
@@ -74,11 +74,11 @@ public:
             return;
         }
 
-        typename point_type<Segment1>::type p[2];
+        point_type_t<Segment1> p[2];
         detail::assign_point_from_index<0>(segment1, p[0]);
         detail::assign_point_from_index<1>(segment1, p[1]);
 
-        typename point_type<Segment2>::type q[2];
+        point_type_t<Segment2> q[2];
         detail::assign_point_from_index<0>(segment2, q[0]);
         detail::assign_point_from_index<1>(segment2, q[1]);
 

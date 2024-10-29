@@ -4,8 +4,9 @@
 // Copyright (c) 2016 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2017-2021.
-// Modifications copyright (c) 2017-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -124,11 +125,10 @@ template
     bool Reverse1, bool Reverse2, bool ReverseOut,
     typename GeometryOut,
     typename Geometry1, typename Geometry2,
-    typename RobustPolicy, typename Strategy
+    typename Strategy
 >
 std::vector<std::size_t> apply_overlay(
             Geometry1 const& geometry1, Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy,
             Strategy const& strategy)
 {
     using namespace boost::geometry;
@@ -137,7 +137,7 @@ std::vector<std::size_t> apply_overlay(
     typedef bg::detail::overlay::traversal_turn_info
     <
         point_type,
-        typename bg::detail::segment_ratio_type<point_type, RobustPolicy>::type
+        typename bg::segment_ratio_type<point_type>::type
     > turn_info;
     typedef std::deque<turn_info> turn_container_type;
 
@@ -155,12 +155,12 @@ std::vector<std::size_t> apply_overlay(
         <
             Reverse1, Reverse2,
             detail::overlay::assign_null_policy
-        >(geometry1, geometry2, strategy, robust_policy, turns, policy);
+        >(geometry1, geometry2, strategy, turns, policy);
 
     cluster_type clusters;
 
     bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
-            clusters, geometry1, geometry2, robust_policy, strategy);
+            clusters, geometry1, geometry2, strategy);
 
     // Gather cluster properties, with test option
     return ::gather_cluster_properties<Reverse1, Reverse2, OverlayType>(
@@ -188,15 +188,6 @@ void test_sort_by_side(std::string const& case_id,
 
     typedef typename boost::range_value<Geometry>::type geometry_out;
 
-    typedef typename bg::rescale_overlay_policy_type
-    <
-        Geometry,
-        Geometry
-    >::type rescale_policy_type;
-
-    rescale_policy_type robust_policy
-        = bg::get_rescale_policy<rescale_policy_type>(g1, g2);
-
     typedef typename bg::strategies::relate::services::default_strategy
         <
             Geometry, Geometry
@@ -207,7 +198,7 @@ void test_sort_by_side(std::string const& case_id,
     std::vector<std::size_t> result = ::apply_overlay
                                         <
                                             OverlayType, false, false, false, geometry_out
-                                        >(g1, g2, robust_policy, strategy);
+                                        >(g1, g2, strategy);
 
     BOOST_CHECK_MESSAGE(result == expected_open_count,
                         "  caseid="  << case_id

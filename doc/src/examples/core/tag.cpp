@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -16,8 +16,6 @@
 #include <boost/geometry/geometries/polygon.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
-
-#include <boost/assign.hpp> /*< At the end to avoid conflicts with Boost.QVM >*/
 
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
@@ -79,11 +77,11 @@ inline void hello(Geometry const& geometry)
 int main()
 {
     // Define polygon type (here: based on a Boost.Tuple)
-    typedef boost::geometry::model::polygon<boost::tuple<int, int> > polygon_type;
+    using polygon_type = boost::geometry::model::polygon<boost::tuple<int, int>>;
 
     // Declare and fill a polygon and a multipolygon
     polygon_type poly;
-    boost::geometry::exterior_ring(poly) = boost::assign::tuple_list_of(0, 0)(0, 10)(10, 5)(0, 0);
+    boost::geometry::exterior_ring(poly) = {{0, 0}, {0, 10}, {10, 5}, {0, 0}};
 
     boost::geometry::model::multi_polygon<polygon_type> multi;
     multi.push_back(poly);

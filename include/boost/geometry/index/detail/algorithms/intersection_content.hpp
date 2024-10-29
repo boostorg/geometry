@@ -4,8 +4,9 @@
 //
 // Copyright (c) 2011-2018 Adam Wulkiewicz, Lodz, Poland.
 //
-// This file was modified by Oracle on 2019-2021.
-// Modifications copyright (c) 2019-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2019-2024.
+// Modifications copyright (c) 2019-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 //
 // Use, modification and distribution is subject to the Boost Software License,
@@ -57,7 +58,7 @@ inline typename default_content_result<Box>::type intersection_content(Box const
         bool const ok = geometry::detail::intersection::intersection_box_box
                             <
                                 0, geometry::dimension<Box>::value
-                            >::apply(box1, box2, 0, box_intersection, 0);
+                            >::apply(box1, box2, box_intersection, 0);
         if ( ok )
         {
             return index::detail::content(box_intersection);

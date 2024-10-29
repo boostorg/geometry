@@ -1,14 +1,14 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2020 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2020-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //[svg_mapper_custom
-//` Shows the usage of svg_mapper with arrows, groups and a larger margin
+//` Shows the usage of svg_mapper with arrows, groups and a larger margin.
 
 #include <iostream>
 #include <fstream>

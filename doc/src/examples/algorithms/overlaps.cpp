@@ -21,22 +21,22 @@ namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 int main()
 {
     // Checks if the two geometries overlaps or not. 
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly1;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly1;
     bg::read_wkt("POLYGON((0 0,0 4,4 4,4 0,0 0))", poly1);
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly2;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly2;
     bg::read_wkt("POLYGON((2 2,2 6,6 7,6 1,2 2))", poly2);
     bool check_overlap = bg::overlaps(poly1, poly2);
     if (check_overlap) {
-         std::cout << "Overlaps: Yes" << std::endl;
+        std::cout << "Overlaps: Yes" << std::endl;
     } else {
         std::cout << "Overlaps: No" << std::endl;
     }
 
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly3;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly3;
     bg::read_wkt("POLYGON((-1 -1,-3 -4,-7 -7,-4 -3,-1 -1))", poly3);
     check_overlap = bg::overlaps(poly1, poly3);
     if (check_overlap) {
-         std::cout << "Overlaps: Yes" << std::endl;
+        std::cout << "Overlaps: Yes" << std::endl;
     } else {
         std::cout << "Overlaps: No" << std::endl;
     }

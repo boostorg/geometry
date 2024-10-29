@@ -229,11 +229,7 @@ struct spherical_point
         detail::normalize_point
             <
                 PointIn, PointOut,
-                (! std::is_same
-                    <
-                        typename cs_tag<PointIn>::type,
-                        spherical_polar_tag
-                    >::value)
+                (! std::is_same<cs_tag_t<PointIn>, spherical_polar_tag>::value)
             >::apply(point_in, point_out);
     }
 };
@@ -246,11 +242,7 @@ struct spherical_box
         detail::normalize_box
             <
                 BoxIn, BoxOut,
-                (! std::is_same
-                    <
-                        typename cs_tag<BoxIn>::type,
-                        spherical_polar_tag
-                    >::value)
+                (! std::is_same<cs_tag_t<BoxIn>, spherical_polar_tag>::value)
             >::apply(box_in, box_out);
     }
 };

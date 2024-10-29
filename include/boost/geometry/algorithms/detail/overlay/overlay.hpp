@@ -3,8 +3,9 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2013-2017 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2015-2020.
-// Modifications copyright (c) 2015-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015-2024.
+// Modifications copyright (c) 2015-2024, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -35,8 +36,6 @@
 #include <boost/geometry/algorithms/detail/overlay/self_turn_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-#include <boost/geometry/algorithms/detail/recalculate.hpp>
-
 #include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/reverse.hpp>
 
@@ -46,13 +45,7 @@
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
-#include <boost/geometry/policies/robustness/segment_ratio_type.hpp>
-
 #include <boost/geometry/util/condition.hpp>
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-#  include <boost/geometry/io/dsv/write.hpp>
-#endif
 
 
 namespace boost { namespace geometry
@@ -232,10 +225,9 @@ template
 >
 struct overlay
 {
-    template <typename RobustPolicy, typename OutputIterator, typename Strategy, typename Visitor>
+    template <typename OutputIterator, typename Strategy, typename Visitor>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
-                RobustPolicy const& robust_policy,
                 OutputIterator out,
                 Strategy const& strategy,
                 Visitor& visitor)
@@ -260,7 +252,7 @@ struct overlay
         typedef detail::overlay::traversal_turn_info
         <
             point_type,
-            typename segment_ratio_type<point_type, RobustPolicy>::type
+            typename segment_ratio_type<point_type>::type
         > turn_info;
         typedef std::deque<turn_info> turn_container_type;
 
@@ -276,15 +268,12 @@ struct overlay
 
         turn_container_type turns;
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "get turns" << std::endl;
-#endif
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
             <
                 Reverse1, Reverse2,
                 assign_policy_only_start_turns
-            >(geometry1, geometry2, strategy, robust_policy, turns, policy);
+            >(geometry1, geometry2, strategy, turns, policy);
 
         visitor.visit_turns(1, turns);
 
@@ -296,34 +285,26 @@ std::cout << "get turns" << std::endl;
             if (needs_self_turns<Geometry1>::apply(geometry1))
             {
                 self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
-                    strategy, robust_policy, turns, policy, 0);
+                    strategy, turns, policy, 0);
             }
             if (needs_self_turns<Geometry2>::apply(geometry2))
             {
                 self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
-                    strategy, robust_policy, turns, policy, 1);
+                    strategy, turns, policy, 1);
             }
         }
-#endif
-
-
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "enrich" << std::endl;
 #endif
 
         cluster_type clusters;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(
-            turns, clusters, geometry1, geometry2, robust_policy, strategy);
+            turns, clusters, geometry1, geometry2, strategy);
 
         visitor.visit_turns(2, turns);
 
         visitor.visit_clusters(clusters, turns);
 
-#ifdef BOOST_GEOMETRY_DEBUG_ASSEMBLE
-std::cout << "traverse" << std::endl;
-#endif
         // Traverse through intersection/turn points and create rings of them.
         // These rings are always in clockwise order.
         // In CCW polygons they are marked as "to be reversed" below.
@@ -332,7 +313,6 @@ std::cout << "traverse" << std::endl;
                 (
                     geometry1, geometry2,
                     strategy,
-                    robust_policy,
                     turns, rings,
                     turn_info_per_ring,
                     clusters,
@@ -390,15 +370,14 @@ std::cout << "traverse" << std::endl;
                                       );
     }
 
-    template <typename RobustPolicy, typename OutputIterator, typename Strategy>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(
                 Geometry1 const& geometry1, Geometry2 const& geometry2,
-                RobustPolicy const& robust_policy,
                 OutputIterator out,
                 Strategy const& strategy)
     {
         overlay_null_visitor visitor;
-        return apply(geometry1, geometry2, robust_policy, out, strategy, visitor);
+        return apply(geometry1, geometry2, out, strategy, visitor);
     }
 };
 

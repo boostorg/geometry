@@ -21,7 +21,7 @@ namespace bg = boost::geometry; /*< Convenient namespace alias >*/
 int main()
 {
     // Calculate the perimeter of a cartesian polygon
-    bg::model::polygon<bg::model::d2::point_xy<double> > poly;
+    bg::model::polygon<bg::model::d2::point_xy<double>> poly;
     bg::read_wkt("POLYGON((0 0,3 4,5 -5,-2 -4, 0 0))", poly);
     double perimeter = bg::perimeter(poly);
     std::cout << "Perimeter: " << perimeter << std::endl;

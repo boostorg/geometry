@@ -159,6 +159,7 @@ struct equal_to
 
     \param l First value.
     \param r Second value.
+    \param strategy Strategy to be used.
     \return true if values are equal.
     */
     template <typename Strategy>
@@ -188,6 +189,7 @@ struct equal_to<std::pair<T1, T2>, false>
 
     \param l First value.
     \param r Second value.
+    \param strategy Strategy to be used.
     \return true if values are equal.
     */
     template <typename Strategy>
@@ -219,6 +221,7 @@ struct equal_to<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>, false>
 
     \param l First value.
     \param r Second value.
+    \param strategy Strategy to be used.
     \return true if values are equal.
     */
     template <typename Strategy>
@@ -278,6 +281,7 @@ struct equal_to<std::tuple<Args...>, false>
 
     \param l First value.
     \param r Second value.
+    \param strategy Strategy to be used.
     \return true if values are equal.
     */
     template <typename Strategy>

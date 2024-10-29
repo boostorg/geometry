@@ -20,10 +20,21 @@ script_dir = os.path.dirname(__file__)
 os.chdir(os.path.abspath(script_dir))
 print("Boost.Geometry is making .qbk files in %s" % os.getcwd())
 
+# Resolves the path to an executable and returns an absolute path to it
+def resolve_executable(orig_path):
+    resolved_path = shutil.which(orig_path)
+    if resolved_path is None:
+        raise Exception("%s is not found or not executable" % orig_path)
+    return os.path.abspath(resolved_path)
+
+# Resolve paths to executables early so that commands are executable from arbitrary locations
 if 'DOXYGEN' in os.environ:
     doxygen_cmd = os.environ['DOXYGEN']
 else:
     doxygen_cmd = 'doxygen'
+doxygen_cmd = resolve_executable(doxygen_cmd)
+os.environ['DOXYGEN'] = doxygen_cmd
+doxygen_cmd = '"' + doxygen_cmd + '"'
 
 if 'DOXYGEN_XML2QBK' in os.environ:
     doxygen_xml2qbk_cmd = os.environ['DOXYGEN_XML2QBK']
@@ -31,8 +42,9 @@ elif '--doxygen-xml2qbk' in sys.argv:
     doxygen_xml2qbk_cmd = sys.argv[sys.argv.index('--doxygen-xml2qbk')+1]
 else:
     doxygen_xml2qbk_cmd = 'doxygen_xml2qbk'
-os.environ['PATH'] = os.environ['PATH']+os.pathsep+os.path.dirname(doxygen_xml2qbk_cmd)
-doxygen_xml2qbk_cmd = os.path.basename(doxygen_xml2qbk_cmd)
+doxygen_xml2qbk_cmd = resolve_executable(doxygen_xml2qbk_cmd)
+os.environ['DOXYGEN_XML2QBK'] = doxygen_xml2qbk_cmd
+doxygen_xml2qbk_cmd = '"' + doxygen_xml2qbk_cmd + '"'
 
 cmd = doxygen_xml2qbk_cmd
 cmd = cmd + " --xml doxy/doxygen_output/xml/%s.xml"
@@ -44,7 +56,12 @@ cmd = cmd + " --copyright src/copyright_block.qbk"
 cmd = cmd + " --output_member_variables false"
 cmd = cmd + " > generated/%s.qbk"
 
+def print_verbose(s):
+    if "--verbose" in sys.argv:
+        print("`make_qbk.py` -- " + s)
+
 def run_command(command):
+    print_verbose("Running %s" % command)
     if os.system(command) != 0:
         raise Exception("Error running %s" % command)
 
@@ -55,6 +72,7 @@ def remove_all_files(dir_relpath):
         shutil.rmtree(dir_abspath, ignore_errors=True)
 
 def call_doxygen():
+    print_verbose("Calling doxygen...")
     os.chdir("doxy")
     remove_all_files("doxygen_output/xml/")
     run_command(doxygen_cmd)
@@ -86,14 +104,13 @@ def strategy_to_quickbook(section):
     ns = section[:p]
     strategy = section[p+2:]
     run_command(cmd % ("classboost_1_1geometry_1_1strategy_1_1"
-        + ns.replace("_", "__") + "_1_1" + strategy.replace("_", "__"), 
+        + ns.replace("_", "__") + "_1_1" + strategy.replace("_", "__"),
         ns + "_" + strategy))
-        
+
 def cs_to_quickbook(section):
     run_command(cmd % ("structboost_1_1geometry_1_1cs_1_1" + section.replace("_", "__"), section))
-        
 
-call_doxygen()
+# MAIN PROGRAM
 
 algorithms = ["append", "assign", "make", "clear"
     , "area", "azimuth", "buffer", "centroid", "closest_points", "convert"
@@ -110,7 +127,7 @@ arithmetic = ["cross_product"]
 
 access_functions = ["get", "set", "exterior_ring", "interior_rings"
     , "num_points", "num_interior_rings", "num_geometries"]
-    
+
 coordinate_systems = ["cartesian", "geographic", "polar", "spherical", "spherical_equatorial"]
 
 core = ["closure", "coordinate_system", "coordinate_type", "cs_tag"
@@ -153,18 +170,20 @@ strategies = ["area::cartesian", "area::spherical", "area::geographic"
     , "transform::translate_transformer", "transform::matrix_transformer"
     , "within::winding", "within::franklin", "within::crossings_multiply"
     ]
-    
+
 views = ["box_view", "segment_view"
     , "closeable_view", "reversible_view", "identity_view"]
 
 
+if "--skip_doxygen" not in sys.argv:
+    call_doxygen()
 
 for i in algorithms:
     group_to_quickbook(i)
-    
+
 for i in access_functions:
     group_to_quickbook(i)
-    
+
 for i in coordinate_systems:
     cs_to_quickbook(i)
 
@@ -179,7 +198,7 @@ for i in iterators:
 
 for i in models:
     model_to_quickbook(i)
-   
+
 for i in srs:
     srs_class_to_quickbook(i)
 
@@ -188,7 +207,6 @@ for i in strategies:
 
 for i in views:
     struct_to_quickbook(i)
-    
 
 model_to_quickbook2("d2_1_1point__xy", "point_xy")
 model_to_quickbook2("d3_1_1point__xyz", "point_xyz")
@@ -205,9 +223,10 @@ class_to_quickbook2("de9im_1_1matrix", "de9im_matrix")
 class_to_quickbook2("de9im_1_1mask", "de9im_mask")
 class_to_quickbook2("de9im_1_1static__mask", "de9im_static_mask")
 
-os.chdir("index")
-exec(compile(open("make_qbk.py", "rb").read(), "make_qbk.py", 'exec'))
-os.chdir("..")
+if "--skip_index" not in sys.argv:
+    os.chdir("index")
+    exec(compile(open("make_qbk.py", "rb").read(), "make_qbk.py", 'exec'))
+    os.chdir("..")
 
 # Clean up generated intermediate files
 if "--release-build" in sys.argv:
@@ -217,5 +236,5 @@ if "--release-build" in sys.argv:
     remove_all_files("index/html_by_doxygen/")
 
 # Use either bjam or b2 or ../../../b2 (the last should be done on Release branch)
-if "--release-build" not in sys.argv:
+if "--release-build" not in sys.argv and "--skip_doxygen" not in sys.argv:
     run_command("b2")

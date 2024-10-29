@@ -98,22 +98,22 @@ template
         <
             Geometry1, Geometry2
         >::type,
-    typename Tag1 = typename tag_cast
+    typename Tag1 = tag_cast_t
         <
-            typename tag<Geometry1>::type,
+            tag_t<Geometry1>,
             segment_tag,
             box_tag,
             linear_tag,
             areal_tag
-        >::type,
-    typename Tag2 = typename tag_cast
+        >,
+    typename Tag2 = tag_cast_t
         <
-            typename tag<Geometry2>::type,
+            tag_t<Geometry2>,
             segment_tag,
             box_tag,
             linear_tag,
             areal_tag
-        >::type,
+        >,
     typename StrategyTag = typename distance_strategy_tag
         <
             Geometry1, Geometry2, Strategy

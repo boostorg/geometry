@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -24,8 +24,8 @@ int main()
     using boost::geometry::make;
     using boost::geometry::detail::make::make_points;
 
-    typedef boost::geometry::model::d2::point_xy<double> point;
-    typedef boost::geometry::model::linestring<point> linestring;
+    using point = boost::geometry::model::d2::point_xy<double>;
+    using linestring = boost::geometry::model::linestring<point>;
 
     double coordinates[][2] = {{1,2}, {3,4}, {5, 6}}; /*< Initialize with C array points >*/
     linestring ls = make_points<linestring>(coordinates);

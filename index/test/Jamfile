@@ -21,6 +21,7 @@ project boost-geometry-index-test
         <toolset>msvc:<cxxflags>/bigobj
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
         <library>/boost/timer//boost_timer
+        <library>/boost/test//included
     ;
 
 test-suite boost-geometry-index-detail

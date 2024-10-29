@@ -334,7 +334,7 @@ private:
 
 
 // Default version (cartesian)
-template <typename Box, typename Collection, typename CSTag = typename cs_tag<Box>::type>
+template <typename Box, typename Collection, typename CSTag = cs_tag_t<Box>>
 struct box_collect_vectors
 {
     // Calculate on coordinate type, but if it is integer,
@@ -344,7 +344,7 @@ struct box_collect_vectors
 
     static inline void apply(Collection& collection, Box const& box)
     {
-        typename point_type<Box>::type lower_left, lower_right,
+        point_type_t<Box> lower_left, lower_right,
             upper_left, upper_right;
         geometry::detail::assign_box_corners(box, lower_left, lower_right,
             upper_left, upper_right);
@@ -365,7 +365,7 @@ struct box_collect_vectors<Box, Collection, spherical_equatorial_tag>
 {
     static inline void apply(Collection& collection, Box const& box)
     {
-        typename point_type<Box>::type lower_left, lower_right,
+        point_type_t<Box> lower_left, lower_right,
                 upper_left, upper_right;
         geometry::detail::assign_box_corners(box, lower_left, lower_right,
                 upper_left, upper_right);

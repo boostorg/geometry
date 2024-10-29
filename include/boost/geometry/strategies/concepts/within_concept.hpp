@@ -369,9 +369,9 @@ inline void check()
         <
             Geometry1,
             Geometry2,
-            typename tag<Geometry1>::type,
-            typename tag<Geometry2>::type,
-            typename tag_cast<typename tag<Geometry2>::type, areal_tag>::type,
+            tag_t<Geometry1>,
+            tag_t<Geometry2>,
+            tag_cast_t<tag_t<Geometry2>, areal_tag>,
             Strategy
         > c;
     boost::ignore_unused(c);

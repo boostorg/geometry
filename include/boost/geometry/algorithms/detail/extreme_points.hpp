@@ -546,10 +546,10 @@ inline bool extreme_points(Geometry const& geometry,
                            Extremes& extremes,
                            Intruders& intruders)
 {
-    typedef typename strategy::side::services::default_strategy
+    using strategy_type = typename strategy::side::services::default_strategy
             <
-                typename cs_tag<Geometry>::type
-            >::type strategy_type;
+                cs_tag_t<Geometry>
+            >::type;
 
     return geometry::extreme_points<Edge>(geometry,extremes, intruders, strategy_type());
 }

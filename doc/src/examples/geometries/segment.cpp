@@ -1,7 +1,7 @@
 // Boost.Geometry
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2015 Adam Wulkiewicz, Lodz, Poland.
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -19,8 +19,8 @@ namespace bg = boost::geometry;
 
 int main()
 {
-    typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
-    typedef bg::model::segment<point_t> segment_t;
+    using point_t = bg::model::point<double, 2, bg::cs::cartesian>;
+    using segment_t = bg::model::segment<point_t>;
 
     segment_t seg1; /*< Default-construct a segment. >*/
     segment_t seg2(point_t(0.0, 0.0), point_t(5.0, 5.0)); /*< Construct, assigning the first and the second point. >*/

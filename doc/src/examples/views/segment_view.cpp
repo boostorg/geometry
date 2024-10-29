@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // QuickBook Example
 
-// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,12 +17,12 @@
 
 int main()
 {
-    typedef boost::geometry::model::segment
+    using segment_type = boost::geometry::model::segment
         <
             boost::geometry::model::point<double, 2, boost::geometry::cs::cartesian>
-        > segment_type;
+        >;
 
-    typedef boost::geometry::segment_view<segment_type> segment_view;
+    using segment_view = boost::geometry::segment_view<segment_type>;
 
     segment_type segment;
     boost::geometry::assign_values(segment, 0, 0, 1, 1);

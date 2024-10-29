@@ -30,7 +30,6 @@
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/core/tag.hpp>
-#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
@@ -123,12 +122,8 @@ struct multi_point_single_geometry
                              LinearOrAreal const& linear_or_areal,
                              Strategy const& strategy)
     {
-        //typedef typename boost::range_value<MultiPoint>::type point1_type;
-        typedef typename point_type<LinearOrAreal>::type point2_type;
-        typedef model::box<point2_type> box2_type;
-
         // Create envelope of geometry
-        box2_type box;
+        model::box<point_type_t<LinearOrAreal>> box;
         geometry::envelope(linear_or_areal, box, strategy);
         geometry::detail::expand_by_epsilon(box);
 
@@ -171,16 +166,17 @@ struct multi_point_multi_geometry
                              LinearOrAreal const& linear_or_areal,
                              Strategy const& strategy)
     {
-        typedef typename point_type<LinearOrAreal>::type point2_type;
-        typedef model::box<point2_type> box2_type;
+        using point2_type = point_type_t<LinearOrAreal>;
+        using box2_type = model::box<point2_type>;
+        using box_pair_type = std::pair<box2_type, std::size_t>;
+        using box_pair_vector = std::vector<box_pair_type>;
+
         static const bool is_linear = util::is_linear<LinearOrAreal>::value;
 
         // TODO: box pairs could be constructed on the fly, inside the rtree
 
         // Prepare range of envelopes and ids
         std::size_t count2 = boost::size(linear_or_areal);
-        typedef std::pair<box2_type, std::size_t> box_pair_type;
-        typedef std::vector<box_pair_type> box_pair_vector;
         box_pair_vector boxes(count2);
         for (std::size_t i = 0 ; i < count2 ; ++i)
         {
@@ -246,7 +242,7 @@ struct multi_point_multi_geometry
                     }
                     else
                     {
-                        found_boundary = true;    
+                        found_boundary = true;
                     }
                 }
                 else

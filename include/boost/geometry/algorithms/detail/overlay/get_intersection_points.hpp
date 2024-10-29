@@ -2,9 +2,9 @@
 
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2017-2020.
-// Modifications copyright (c) 2017-2020 Oracle and/or its affiliates.
-
+// This file was modified by Oracle on 2017-2024.
+// Modifications copyright (c) 2017-2024 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -22,7 +22,6 @@
 
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
-#include <boost/geometry/policies/robustness/rescale_policy_tags.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
 
@@ -48,23 +47,14 @@ struct get_turn_without_info
         typename UniqueSubRange1,
         typename UniqueSubRange2,
         typename Strategy,
-        typename RobustPolicy,
         typename OutputIterator
     >
     static inline OutputIterator apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& ,
                 Strategy const& strategy,
-                RobustPolicy const& ,
                 OutputIterator out)
     {
-        // Make sure this is only called with no rescaling
-        BOOST_STATIC_ASSERT((std::is_same
-           <
-               no_rescale_policy_tag,
-               typename rescale_policy_type<RobustPolicy>::type
-           >::value));
-
         typedef typename TurnInfo::point_type turn_point_type;
 
         typedef policies::relate::segments_intersection_points
@@ -96,13 +86,11 @@ template
 <
     typename Geometry1,
     typename Geometry2,
-    typename RobustPolicy,
     typename Turns,
     typename Strategy
 >
 inline void get_intersection_points(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
-            RobustPolicy const& robust_policy,
             Turns& turns,
             Strategy const& strategy)
 {
@@ -110,8 +98,8 @@ inline void get_intersection_points(Geometry1 const& geometry1,
 
     typedef detail::get_intersection_points::get_turn_without_info
                         <
-                            typename point_type<Geometry1>::type,
-                            typename point_type<Geometry2>::type,
+                            point_type_t<Geometry1>,
+                            point_type_t<Geometry2>,
                             typename boost::range_value<Turns>::type
                         > TurnPolicy;
 
@@ -139,7 +127,6 @@ inline void get_intersection_points(Geometry1 const& geometry1,
         >::apply(0, geometry1,
                  1, geometry2,
                  strategy,
-                 robust_policy,
                  turns, interrupt_policy);
 }
 

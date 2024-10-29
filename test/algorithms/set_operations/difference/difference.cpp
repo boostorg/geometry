@@ -175,7 +175,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.validity_of_sym = BG_IF_RESCALED(false, true);
+        settings.validity_of_sym = true;
         test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
             intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
             2, 16, 15.75,
@@ -344,8 +344,8 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.percentage = BG_IF_RESCALED(0.001, 0.1);
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.percentage = 0.1;
+        settings.set_test_validity(false);
         settings.sym_difference = false;
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
@@ -375,7 +375,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(false, true));
+        settings.set_test_validity(true);
 
         // Output polygons for sym difference might be combined
         expectation_limits a{138.5312, 138.6924};
@@ -453,8 +453,8 @@ void test_all()
     {
         // With rescaling, difference of output a-b and a sym b is invalid
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(false, true));
-        settings.validity_of_sym = BG_IF_RESCALED(false, true);
+        settings.set_test_validity(true);
+        settings.validity_of_sym = true;
         TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1,
                 count_set(1, 2), 0.18461532,
                 count_set(1, 2), 0.617978,
@@ -592,7 +592,7 @@ void test_all()
 
     {
         ut_settings settings;
-        settings.set_test_validity(BG_IF_RESCALED(true, false));
+        settings.set_test_validity(false);
         settings.validity_false_negative_a = true;
         TEST_DIFFERENCE_WITH(issue_838,
             count_set(1, 2), expectation_limits(0.000026, 0.0002823),
@@ -616,6 +616,15 @@ void test_all()
     TEST_DIFFERENCE(issue_1231, 2, 36.798659456837477, 3, 195.2986, 5);
 
     TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
+
+    TEST_DIFFERENCE(issue_1293, 1, 1.40999, 1, 2.318951, 2);
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Difference fails for this case. This was not reported for this case.
+    // Reported as a failing intersection, which is fixed.
+    // The failing difference should be investigated more thoroughly.
+    TEST_DIFFERENCE(issue_1295, 1, 9.999, 1, 9.999, 1);
+#endif
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
@@ -685,7 +694,7 @@ int test_main(int, char* [])
     // Not yet fully tested for float and long double.
     // The difference algorithm can generate (additional) slivers
     // Many of the failures are self-intersection points.
-    BoostGeometryWriteExpectedFailures(15, 5, 17, 10);
+    BoostGeometryWriteExpectedFailures(5, 17, 10);
 #endif
 
     return 0;

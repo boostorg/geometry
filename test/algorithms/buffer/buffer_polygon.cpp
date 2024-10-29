@@ -157,6 +157,15 @@ static std::string const issue_1019
 static std::string const issue_1262
     = "POLYGON((-2.447356204196278639528828 57.21240623671037894837355,34.00960378453005006349485 54.01542955431686721112783,-0.000789642333984375 18.712947845458984375,-41.480987548828125 60.193248748779296875,-3.12519073486328125 57.271846771240234375,-2.447356204196278639528828 57.21240623671037894837355),(-36.24821876005196230607908 57.78889760314127244100746,-0.000785932392148191993896944 21.54137477179954629491476,30.75139677038663066355184 52.2934724874262641947098,-36.24821876005196230607908 57.78889760314127244100746))";
 
+static std::string const issue_1294_original
+    = "POLYGON((730.35 750,730.35 740,726.02 740,726.02 735,730.35 735,730.35 0,0 0,0 750,730.35 750))";
+// With 600 subtracted (with 700, the problem does not reproduce)
+static std::string const issue_1294
+    = "POLYGON((130.35 150,130.35 140,126.02 140,126.02 135,130.35 135,130.35 0,0 0,0 150,130.35 150))";
+// The dent is 10 lower and then it does not reproduce
+static std::string const issue_1294_shifted
+    = "POLYGON((130.35 150,130.35 130,126.02 130,126.02 125,130.35 125,130.35 0,0 0,0 150,130.35 150))";
+
 // CCW Polygons not working in 1.56
 static std::string const mysql_report_2014_10_24
     = "POLYGON((0 0, 0 8, 8 8, 8 10, -10 10, -10 0, 0 0))";
@@ -538,12 +547,8 @@ void test_all()
         join_round, end_flat, {11363180033, 11363180045}, 50.0 * 1000.0);
     test_one<polygon_type, polygon_type>("italy_part1_60", italy_part1,
         join_round, end_flat, 15479097108.720, 60.0 * 1000.0);
-
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Fails with rescaling after removing pretraverse
     test_one<polygon_type, polygon_type>("italy_part2_5", italy_part2,
         join_round, end_flat, {12496082120, 12496082124}, 5 * 1000.0);
-#endif
 
     if (! BOOST_GEOMETRY_CONDITION((std::is_same<coor_type, float>::value)))
     {
@@ -605,10 +610,7 @@ void test_all()
         // Test issue 555 as reported (-0.000001) and some variants
         bg::strategy::buffer::join_round jr(180);
         bg::strategy::buffer::end_round er(180);
-#if ! defined(BOOST_GEOMETRY_USE_RESCALING) || defined(BOOST_GEOMETRY_TEST_FAILURES)
-        // With rescaling the interior ring is missing
         test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7942, -0.000001);
-#endif
         test_one<polygon_type, polygon_type>("issue_555", issue_555, jr, er, 4520.7957, +0.000001);
         test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4521.6280, +0.001);
         test_one<polygon_type, polygon_type>("issue_555_1000", issue_555, jr, er, 4519.9627, -0.001);
@@ -625,6 +627,12 @@ void test_all()
         test_one<polygon_type, polygon_type>("issue_1262_1", issue_1262, join_round4, end_round4, 8.9161, -1.0);
         test_one<polygon_type, polygon_type>("issue_1262_2", issue_1262, join_round4, end_round4, 62.5276, -0.8);
         test_one<polygon_type, polygon_type>("issue_1262_3", issue_1262, join_round4, end_round4, 193.47288, -0.4);
+    }
+
+    {
+        test_one<polygon_type, polygon_type>("issue_1294", issue_1294, join_miter, end_flat, 22456.0, 5.0);
+        test_one<polygon_type, polygon_type>("issue_1294_shifted", issue_1294_shifted, join_miter, end_flat, 22456.0, 5.0);
+        test_one<polygon_type, polygon_type>("issue_1294_original", issue_1294_original, join_miter, end_flat, 562666.0, 5.0);
     }
 
     {
@@ -948,7 +956,7 @@ int test_main(int, char* [])
 #endif
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(2, 1, 9, 1);
+    BoostGeometryWriteExpectedFailures(1, 9, 1);
 #endif
 
     test_different();

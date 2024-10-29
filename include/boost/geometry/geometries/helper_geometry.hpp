@@ -40,7 +40,7 @@ template
     typename Point,
     typename NewCoordinateType,
     typename NewUnits,
-    typename CS_Tag = typename cs_tag<Point>::type
+    typename CS_Tag = cs_tag_t<Point>
 >
 struct helper_point
 {
@@ -87,7 +87,7 @@ struct helper_geometry<Box, NewCoordinateType, NewUnits, box_tag>
         <
             typename helper_geometry
                 <
-                    typename point_type<Box>::type, NewCoordinateType, NewUnits
+                    point_type_t<Box>, NewCoordinateType, NewUnits
                 >::type
         >;
 };
@@ -100,7 +100,7 @@ struct helper_geometry<Linestring, NewCoordinateType, NewUnits, linestring_tag>
         <
             typename helper_geometry
                 <
-                    typename point_type<Linestring>::type, NewCoordinateType, NewUnits
+                    point_type_t<Linestring>, NewCoordinateType, NewUnits
                 >::type
         >;
 };
@@ -112,7 +112,7 @@ struct helper_geometry<Ring, NewCoordinateType, NewUnits, ring_tag>
         <
             typename helper_geometry
                 <
-                    typename point_type<Ring>::type, NewCoordinateType, NewUnits
+                    point_type_t<Ring>, NewCoordinateType, NewUnits
                 >::type,
             point_order<Ring>::value != counterclockwise,
             closure<Ring>::value != open
