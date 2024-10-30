@@ -66,7 +66,7 @@ struct range_count
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_segments
     : not_implemented<Tag>
 {};
@@ -140,7 +140,7 @@ namespace resolve_dynamic
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_segments
 {
     static inline std::size_t apply(Geometry const& geometry)

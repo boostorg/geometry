@@ -88,7 +88,7 @@ namespace traits
 template<typename Segment>
 struct tag<segment_view<Segment> >
 {
-    typedef linestring_tag type;
+    using type = linestring_tag;
 };
 
 }

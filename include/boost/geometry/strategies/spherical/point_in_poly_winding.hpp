@@ -122,7 +122,7 @@ class spherical_winding_base
     };
 
 public:
-    typedef typename SideStrategy::cs_tag cs_tag;
+    using cs_tag = typename SideStrategy::cs_tag;
 
     spherical_winding_base() = default;
 

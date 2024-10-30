@@ -31,7 +31,7 @@ namespace index { namespace detail {
 template <typename Geometry, typename BoundingGeometry, typename Strategy>
 struct bounded_view_base_cs_tag
 {
-    typedef typename Strategy::cs_tag type;
+    using type = typename Strategy::cs_tag;
 };
 
 template <typename Geometry, typename BoundingGeometry>
@@ -45,8 +45,8 @@ template
     typename Geometry,
     typename BoundingGeometry,
     typename Strategy,
-    typename Tag = typename geometry::tag<Geometry>::type,
-    typename BoundingTag = typename geometry::tag<BoundingGeometry>::type,
+    typename Tag = geometry::tag_t<Geometry>,
+    typename BoundingTag = geometry::tag_t<BoundingGeometry>,
     typename CSTag = typename bounded_view_base_cs_tag
                         <
                             Geometry, BoundingGeometry, Strategy
@@ -182,8 +182,8 @@ private:
 template <typename Geometry,
           typename BoundingGeometry,
           typename Strategy,
-          typename Tag = typename geometry::tag<Geometry>::type,
-          typename BoundingTag = typename geometry::tag<BoundingGeometry>::type>
+          typename Tag = geometry::tag_t<Geometry>,
+          typename BoundingTag = geometry::tag_t<BoundingGeometry>>
 struct bounded_view
     : bounded_view_base<Geometry, BoundingGeometry, Strategy>
 {
@@ -235,7 +235,7 @@ namespace traits
 template <typename Geometry, typename Box, typename Strategy, typename Tag>
 struct tag< index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> >
 {
-    typedef box_tag type;
+    using type = box_tag;
 };
 
 template <typename Geometry, typename Box, typename Strategy, typename Tag>

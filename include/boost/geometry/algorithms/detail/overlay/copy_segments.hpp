@@ -349,7 +349,7 @@ inline void copy_segments(Geometry const& geometry,
 
     dispatch::copy_segments
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Reverse
         >::apply(geometry, seg_id, to_index, strategy, range_out);
 }

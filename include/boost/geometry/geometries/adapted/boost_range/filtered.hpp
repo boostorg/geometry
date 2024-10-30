@@ -29,7 +29,7 @@ struct tag<boost::filtered_range<Filter, Geometry> >
 struct tag<boost::range_detail::filter_range<Filter, Geometry> >
 #endif
 {
-    typedef typename geometry::tag<Geometry>::type type;
+    using type = geometry::tag_t<Geometry>;
 };
 
 }

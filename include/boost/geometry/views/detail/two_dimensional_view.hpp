@@ -37,7 +37,7 @@ template
     typename Geometry,
     std::size_t Dimension1 = 0,
     std::size_t Dimension2 = 1,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct two_dimensional_view
     : not_implemented<Tag>
@@ -85,7 +85,7 @@ struct tag
             >
     >
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>

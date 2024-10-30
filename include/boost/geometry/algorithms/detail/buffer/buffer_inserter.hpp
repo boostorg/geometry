@@ -873,10 +873,7 @@ struct buffer_inserter<multi_tag, Multi, PolygonOutput>
                 PolygonOutput,
                 dispatch::buffer_inserter
                 <
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi>::type
-                                >::type,
+                    typename single_tag_of<tag_t<Multi>>::type,
                     typename boost::range_value<Multi const>::type,
                     typename geometry::ring_type<PolygonOutput>::type
                 >

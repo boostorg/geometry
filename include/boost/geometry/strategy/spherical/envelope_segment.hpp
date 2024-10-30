@@ -343,7 +343,7 @@ public:
                              Box& mbr,
                              Strategy const& strategy)
     {
-        typedef envelope_segment_convert_polar<Units, cs_tag_t<Box>> convert_polar;
+        using convert_polar = envelope_segment_convert_polar<Units, cs_tag_t<Box>>;
 
         convert_polar::pre(lat1, lat2);
 

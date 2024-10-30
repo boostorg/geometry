@@ -47,7 +47,7 @@ template
 <
     std::size_t OpId,
     typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type,
+    typename Tag = geometry::tag_t<Geometry>,
     bool IsMulti = util::is_multi<Geometry>::value
 >
 struct for_each_disjoint_geometry_if

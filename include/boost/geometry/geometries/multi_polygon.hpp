@@ -102,7 +102,7 @@ template
 >
 struct tag< model::multi_polygon<Polygon, Container, Allocator> >
 {
-    typedef multi_polygon_tag type;
+    using type = multi_polygon_tag;
 };
 
 } // namespace traits

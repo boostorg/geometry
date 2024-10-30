@@ -313,8 +313,8 @@ struct intersection_of_linestring_with_areal
 
         dispatch::get_turns
             <
-                typename geometry::tag<LineString>::type,
-                typename geometry::tag<Areal>::type,
+                geometry::tag_t<LineString>,
+                geometry::tag_t<Areal>,
                 LineString,
                 Areal,
                 false,
@@ -443,8 +443,8 @@ struct intersection_linear_areal_point
 
         dispatch::get_turns
             <
-                typename geometry::tag<Geometry1>::type,
-                typename geometry::tag<Geometry2>::type,
+                geometry::tag_t<Geometry1>,
+                geometry::tag_t<Geometry2>,
                 Geometry1,
                 Geometry2,
                 false,

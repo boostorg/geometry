@@ -92,7 +92,7 @@ namespace traits
 template<typename Box, bool Clockwise>
 struct tag<box_view<Box, Clockwise> >
 {
-    typedef ring_tag type;
+    using type = ring_tag;
 };
 
 template<typename Box>

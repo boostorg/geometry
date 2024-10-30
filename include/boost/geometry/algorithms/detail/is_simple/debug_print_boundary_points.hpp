@@ -43,7 +43,7 @@ namespace detail { namespace is_simple
 
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-template <typename Linear, typename Tag = typename tag<Linear>::type>
+template <typename Linear, typename Tag = tag_t<Linear>>
 struct debug_boundary_points_printer
     : not_implemented<Linear>
 {};

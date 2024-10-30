@@ -65,7 +65,7 @@ struct generic_segment_box
                     <
                         std::is_same
                             <
-                                typename geometry::cs_tag<segment_type>::type,
+                                geometry::cs_tag_t<segment_type>,
                                 spherical_polar_tag
                             >::value,
                         spherical_polar_tag, spherical_equatorial_tag
@@ -216,7 +216,7 @@ struct spherical_segment_box
           >
     {};
 
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
     // constructors
 

@@ -447,7 +447,7 @@ struct buffered_piece_collection
         // Check if turns are inside pieces
         turn_in_piece_visitor
             <
-                typename geometry::cs_tag<point_type>::type,
+                geometry::cs_tag_t<point_type>,
                 turn_vector_type, piece_vector_type, DistanceStrategy, Strategy
             > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
 

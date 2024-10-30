@@ -128,7 +128,7 @@ private:
 
 // TODO: Or just implement point_type<> for GeometryCollection
 //   and enforce the same point_type used in the whole sequence in check().
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct default_strategy
 {
     using type = typename strategies::convex_hull::services::default_strategy
@@ -201,7 +201,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct convex_hull
 {
@@ -304,7 +304,7 @@ private:
 };
 
 
-template <typename OutputGeometry, typename Tag = typename tag<OutputGeometry>::type>
+template <typename OutputGeometry, typename Tag = tag_t<OutputGeometry>>
 struct convex_hull_out
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE("This OutputGeometry is not supported.", OutputGeometry, Tag);
@@ -531,7 +531,7 @@ struct convex_hull<default_strategy>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct convex_hull
 {
     template <typename OutputGeometry, typename Strategy>

@@ -29,7 +29,7 @@ struct tag<boost::uniqued_range<Geometry> >
 struct tag<boost::range_detail::unique_range<Geometry> >
 #endif
 {
-    typedef typename geometry::tag<Geometry>::type type;
+    using type = geometry::tag_t<Geometry>;
 };
 
 }

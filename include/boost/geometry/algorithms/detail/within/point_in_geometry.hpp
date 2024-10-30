@@ -71,8 +71,7 @@ namespace detail_dispatch { namespace within {
 // returns 0 if P is on the boundry of G
 // returns -1 if P is in the exterior of G
 
-template <typename Geometry,
-          typename Tag = typename geometry::tag<Geometry>::type>
+template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
 struct point_in_geometry
     : not_implemented<Tag>
 {};

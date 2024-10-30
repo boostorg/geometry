@@ -39,7 +39,7 @@ namespace detail { namespace segment_iterator
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct iterator_type
     : not_implemented<Geometry>
 {};

@@ -80,7 +80,7 @@ inline void spheroidal_linestring(Range const& range, Box& mbr,
 template <typename CalculationType = void>
 struct side_of_pole
 {
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
     template <typename P>
     static inline int apply(P const& p1, P const& p2, P const& pole)

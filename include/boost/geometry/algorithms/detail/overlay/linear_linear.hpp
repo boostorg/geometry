@@ -252,7 +252,7 @@ public:
                     LinestringOut,
                     OverlayType,
                     Linear1,
-                    typename tag<Linear1>::type
+                    tag_t<Linear1>
                 >::apply(linear1, oit);
         }
 
@@ -299,7 +299,7 @@ struct linear_linear_linestring
                 LinestringOut,
                 overlay_difference,
                 Linear1,
-                typename tag<Linear1>::type
+                tag_t<Linear1>
             >::apply(linear1, oit);
 
         return linear_linear_linestring

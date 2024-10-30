@@ -153,7 +153,7 @@ struct svg_map<multi_tag, Multi, SvgPoint>
 {
     typedef typename single_tag_of
       <
-          typename geometry::tag<Multi>::type
+          geometry::tag_t<Multi>
       >::type stag;
 
     template <typename TransformStrategy>

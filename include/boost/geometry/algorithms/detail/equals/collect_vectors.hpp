@@ -504,7 +504,7 @@ inline void collect_vectors(Collection& collection, Geometry const& geometry)
 
     dispatch::collect_vectors
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Collection,
             Geometry
         >::apply(collection, geometry);

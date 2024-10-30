@@ -139,7 +139,7 @@ struct num_points<Geometry, AddForOpen, multi_tag>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_points
 {
     static inline std::size_t apply(Geometry const& geometry, bool add_for_open)

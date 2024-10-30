@@ -192,7 +192,7 @@ namespace traits
 template <typename Point>
 struct tag<model::box<Point> >
 {
-    typedef box_tag type;
+    using type = box_tag;
 };
 
 template <typename Point>

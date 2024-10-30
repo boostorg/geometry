@@ -40,7 +40,7 @@ namespace traits
 template <typename CoordinateType>
 struct tag<boost::polygon::point_data<CoordinateType> >
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 

@@ -31,7 +31,7 @@ using ring_of_const_point = std::vector<const_point>;
 
 // Register a vector of const_pos as a non-const-ring with const points
 namespace boost { namespace geometry { namespace traits {
-    template<> struct tag<ring_of_const_point> { typedef ring_tag type; };
+    template<> struct tag<ring_of_const_point> { using type = ring_tag; };
 
 }}}
 
@@ -39,7 +39,7 @@ using linestring_of_const_point = std::deque<const_point>;
 
 // Register a vector of const_pos as a non-const-ring with const points
 namespace boost { namespace geometry { namespace traits {
-    template<> struct tag<linestring_of_const_point> { typedef linestring_tag type; };
+    template<> struct tag<linestring_of_const_point> { using type = linestring_tag; };
 
 }}}
 

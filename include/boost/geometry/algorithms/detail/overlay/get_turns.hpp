@@ -815,9 +815,15 @@ struct topological_tag_base
     using type = tag_cast_t<tag_t<Geometry>, pointlike_tag, linear_tag, areal_tag>;
 };
 
-template <typename Geometry1, typename Geometry2, typename AssignPolicy,
-          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename AssignPolicy,
+    typename Tag1 = tag_t<Geometry1>,
+    typename Tag2 = tag_t<Geometry2>,
+    typename TagBase1 = typename topological_tag_base<Geometry1>::type,
+    typename TagBase2 = typename topological_tag_base<Geometry2>::type
+>
 struct get_turn_info_type
     : overlay::get_turn_info<AssignPolicy>
 {};
@@ -833,8 +839,9 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
 {};
 
 template <typename Geometry1, typename Geometry2, typename Point, typename SegmentRatio,
-          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
+          typename Tag1 = tag_t<Geometry1>, typename Tag2 = tag_t<Geometry2>,
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type,
+          typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
     using type = overlay::turn_operation<Point, SegmentRatio>;
@@ -1017,16 +1024,16 @@ inline void get_turns(Geometry1 const& geometry1,
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::get_turns_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
                 TurnPolicy
             >,
             dispatch::get_turns
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
                 TurnPolicy

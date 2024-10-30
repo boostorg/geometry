@@ -37,7 +37,7 @@ namespace detail_dispatch {
 template
 <
     typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type,
+    typename Tag = geometry::tag_t<Geometry>,
     bool IsMulti = util::is_multi<Geometry>::value
 >
 struct sub_range : not_implemented<Tag>

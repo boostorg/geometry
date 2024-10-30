@@ -26,7 +26,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type,
+    typename Tag = tag_t<Geometry>,
     // for multi-geometries: determines if empty multi-geometries are allowed
     bool AllowEmptyMultiGeometries = true
 >

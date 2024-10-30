@@ -431,7 +431,7 @@ struct static_srs_tag_check_nonexpanded
 template <typename Params>
 struct static_srs_tag_check_ellps
 {
-    typedef typename geometry::tag
+    using type = geometry::tag_t
         <
             typename srs::spar::detail::ellps_traits
                 <
@@ -441,13 +441,13 @@ struct static_srs_tag_check_ellps
                             srs::spar::detail::is_param_tr<srs::spar::detail::ellps_traits>::pred
                         >::type
                 >::template model_type<double>::type // dummy type
-        >::type type;
+        >;
 };
 
 template <typename Params>
 struct static_srs_tag_check_datum
 {
-    typedef typename geometry::tag
+    using type = geometry::tag_t
         <
             typename srs::spar::detail::ellps_traits
                 <
@@ -460,7 +460,7 @@ struct static_srs_tag_check_datum
                                 >::type
                         >::ellps_type
                 >::template model_type<double>::type // dummy type
-        >::type type;
+        >;
 };
 
 template

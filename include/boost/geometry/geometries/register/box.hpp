@@ -91,11 +91,11 @@ template <> struct indexed_access<Box, max_corner, 1> \
 
 
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_BOX_TRAITS(Box, PointType) \
-    template<> struct tag<Box > { typedef box_tag type; }; \
+    template<> struct tag<Box > { using type = box_tag; }; \
     template<> struct point_type<Box > { typedef PointType type; };
 
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_BOX_TRAITS_TEMPLATED(Box) \
-    template<typename P> struct tag<Box<P> > { typedef box_tag type; }; \
+    template<typename P> struct tag<Box<P> > { using type = box_tag; }; \
     template<typename P> struct point_type<Box<P> > { typedef P type; };
 
 #endif // DOXYGEN_NO_SPECIALIZATIONS

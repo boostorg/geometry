@@ -653,11 +653,7 @@ struct has_same_tag_as
 {
     template <typename OtherGeometry>
     struct pred
-        : std::is_same
-            <
-                typename geometry::tag<Geometry>::type,
-                typename geometry::tag<OtherGeometry>::type
-            >
+        : std::is_same<geometry::tag_t<Geometry>, geometry::tag_t<OtherGeometry>>
     {};
 };
 
@@ -689,8 +685,8 @@ template
 <
     typename GeometryIn,
     typename GeometryOut,
-    typename TagIn = typename tag<GeometryIn>::type,
-    typename TagOut = typename tag<GeometryOut>::type
+    typename TagIn = tag_t<GeometryIn>,
+    typename TagOut = tag_t<GeometryOut>
 >
 struct simplify: not_implemented<TagIn, TagOut>
 {};
@@ -751,7 +747,7 @@ struct simplify<MultiPolygonIn, MultiPolygonOut, multi_polygon_tag, multi_polygo
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct simplify_insert: not_implemented<Tag>
 {};
@@ -826,8 +822,8 @@ struct simplify<default_strategy, false>
                              default_strategy)
     {
         // NOTE: Alternatively take two geometry types in default_strategy
-        using cs_tag1_t = typename geometry::cs_tag<GeometryIn>::type;
-        using cs_tag2_t = typename geometry::cs_tag<GeometryOut>::type;
+        using cs_tag1_t = geometry::cs_tag_t<GeometryIn>;
+        using cs_tag2_t = geometry::cs_tag_t<GeometryOut>;
         BOOST_GEOMETRY_STATIC_ASSERT(
             (std::is_same<cs_tag1_t, cs_tag2_t>::value),
             "Incompatible coordinate systems",
@@ -915,8 +911,8 @@ namespace resolve_dynamic {
 template
 <
     typename GeometryIn, typename GeometryOut,
-    typename TagIn = typename tag<GeometryIn>::type,
-    typename TagOut = typename tag<GeometryOut>::type
+    typename TagIn = tag_t<GeometryIn>,
+    typename TagOut = tag_t<GeometryOut>
 >
 struct simplify
 {

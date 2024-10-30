@@ -149,8 +149,8 @@ namespace resolve_dynamic {
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>
 >
 struct touches
 {
@@ -228,7 +228,7 @@ struct touches<Geometry1, Geometry2, dynamic_geometry_tag, dynamic_geometry_tag>
     }
 };
 
-template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
+template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
 struct self_touches;
 
 template <typename Geometry>

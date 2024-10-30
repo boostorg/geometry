@@ -117,8 +117,7 @@ template <typename Tag>
 struct tupled_output_find_index_pred
 {
     template <typename T>
-    struct pred
-        : std::is_same<typename geometry::tag<T>::type, Tag>
+    struct pred : std::is_same<geometry::tag_t<T>, Tag>
     {};
 };
 
@@ -360,8 +359,7 @@ template <typename Tag>
 struct is_tag_same_as_pred
 {
     template <typename T>
-    struct pred
-        : std::is_same<typename geometry::tag<T>::type, Tag>
+    struct pred : std::is_same<geometry::tag_t<T>, Tag>
     {};
 };
 
@@ -374,7 +372,7 @@ template
     typename GeometryOut,
     typename Tag,
     typename DefaultTag,
-    typename GeometryTag = typename geometry::tag<GeometryOut>::type
+    typename GeometryTag = geometry::tag_t<GeometryOut>
 >
 struct output_geometry_access
 {};
@@ -474,7 +472,7 @@ struct setop_insert_output_tag
         <
             geometry::detail::is_tupled_single_output<GeometryOut>::value,
             tupled_output_tag,
-            typename geometry::tag<GeometryOut>::type
+            geometry::tag_t<GeometryOut>
         >
 {};
 

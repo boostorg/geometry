@@ -134,7 +134,7 @@ struct interior_type
 {
     typedef typename core_dispatch::interior_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::type type;
 };
@@ -144,7 +144,7 @@ struct interior_return_type
 {
     typedef typename core_dispatch::interior_return_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::type type;
 };

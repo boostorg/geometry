@@ -22,7 +22,7 @@ namespace boost { namespace geometry
 namespace detail_dispatch
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct boundary_view
     : not_implemented<Tag>
 {};

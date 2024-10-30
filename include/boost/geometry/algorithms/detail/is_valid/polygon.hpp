@@ -453,10 +453,10 @@ public:
         else // else prevents unreachable code warning
         {
             // compute turns and check if all are acceptable
-            typedef debug_validity_phase<Polygon> debug_phase;
+            using debug_phase = debug_validity_phase<Polygon>;
             debug_phase::apply(3);
 
-            typedef has_valid_self_turns<Polygon, typename Strategy::cs_tag> has_valid_turns;
+            using has_valid_turns = has_valid_self_turns<Polygon, typename Strategy::cs_tag>;
 
             std::deque<typename has_valid_turns::turn_type> turns;
             bool has_invalid_turns

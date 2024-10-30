@@ -143,11 +143,8 @@ struct spherical_longitude
     using same_units_type = std::is_same<units1_type, units2_type>;
     using units_type = std::conditional_t<same_units_type::value, units1_type, geometry::radian>;
 
-    static const bool is_equatorial = ! std::is_same
-                                        <
-                                            typename geometry::cs_tag<Point1>::type,
-                                            geometry::spherical_polar_tag
-                                        >::value;
+    static const bool is_equatorial = 
+        ! std::is_same<geometry::cs_tag_t<Point1>, geometry::spherical_polar_tag>::value;
 
     static inline bool are_both_at_antimeridian(coordinate1_type const& l0,
                                                 coordinate2_type const& r0,

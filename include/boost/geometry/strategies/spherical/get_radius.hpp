@@ -32,7 +32,7 @@ namespace strategy_detail
 template
 <
     typename RadiusTypeOrSphere,
-    typename Tag = typename tag<RadiusTypeOrSphere>::type
+    typename Tag = tag_t<RadiusTypeOrSphere>
 >
 struct get_radius
 {

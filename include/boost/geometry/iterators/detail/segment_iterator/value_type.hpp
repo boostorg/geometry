@@ -50,13 +50,7 @@ struct value_type
         <
             std::is_reference<point_iterator_reference_type>::value,
             geometry::model::pointing_segment<point_iterator_value_type>,
-            geometry::model::segment
-                <
-                    typename util::remove_cptrref
-                        <
-                            point_iterator_value_type
-                        >::type
-                >
+            geometry::model::segment<util::remove_cptrref_t<point_iterator_value_type>>
         > type;
 };
 

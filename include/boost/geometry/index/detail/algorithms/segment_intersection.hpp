@@ -154,9 +154,10 @@ bool segment_intersection(Indexable const& b,
 {
     // TODO check Indexable and Point concepts
 
-    return dispatch::segment_intersection<
+    return dispatch::segment_intersection
+        <
             Indexable, Point,
-            typename tag<Indexable>::type
+            tag_t<Indexable>
         >::apply(b, p0, p1, relative_distance);
 }
 

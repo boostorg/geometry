@@ -28,10 +28,13 @@ namespace boost { namespace geometry { namespace index { namespace detail
 namespace dispatch
 {
 
-template <typename Geometry,
-          typename Bounds,
-          typename TagGeometry = typename geometry::tag<Geometry>::type,
-          typename TagBounds = typename geometry::tag<Bounds>::type>
+template
+<
+    typename Geometry,
+    typename Bounds,
+    typename TagGeometry = geometry::tag_t<Geometry>,
+    typename TagBounds = geometry::tag_t<Bounds>
+>
 struct bounds
 {
     template <typename Strategy>
@@ -67,10 +70,13 @@ inline void bounds(Geometry const& g, Bounds & b, Strategy const& s)
 namespace dispatch
 {
 
-template <typename Bounds,
-          typename Geometry,
-          typename TagBounds = typename geometry::tag<Bounds>::type,
-          typename TagGeometry = typename geometry::tag<Geometry>::type>
+template
+<
+    typename Bounds,
+    typename Geometry,
+    typename TagBounds = geometry::tag_t<Bounds>,
+    typename TagGeometry = geometry::tag_t<Geometry>
+>
 struct expand
 {
     // STATIC ASSERT
@@ -144,10 +150,13 @@ namespace dispatch
 {
 
 
-template <typename Geometry,
-          typename Bounds,
-          typename TagGeometry = typename geometry::tag<Geometry>::type,
-          typename TagBounds = typename geometry::tag<Bounds>::type>
+template
+<
+    typename Geometry,
+    typename Bounds,
+    typename TagGeometry = geometry::tag_t<Geometry>,
+    typename TagBounds = geometry::tag_t<Bounds>
+>
 struct covered_by_bounds
 {};
 

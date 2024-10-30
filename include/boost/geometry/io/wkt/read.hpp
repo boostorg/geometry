@@ -273,10 +273,7 @@ template <typename Geometry>
 struct stateful_range_appender<Geometry, open>
 {
     using point_type = geometry::point_type_t<Geometry>;
-    using size_type = typename boost::range_size
-        <
-            typename util::remove_cptrref<Geometry>::type
-        >::type;
+    using size_type = typename boost::range_size<util::remove_cptrref_t<Geometry>>::type;
 
     BOOST_STATIC_ASSERT((util::is_ring<Geometry>::value));
 
@@ -521,7 +518,7 @@ inline void handle_empty_z_m(TokenizerIterator& it,
 }
 
 
-template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
+template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
 struct dimension
     : geometry::dimension<Geometry>
 {};
@@ -982,7 +979,7 @@ private:
                                bool = true)
     {
         Geom g;
-        ReadWkt<Geom, typename tag<Geom>::type>::apply(it, end, wkt, g);
+        ReadWkt<Geom, tag_t<Geom>>::apply(it, end, wkt, g);
         AppendPolicy::apply(geometry, g);
         return true;
     }
@@ -1022,7 +1019,7 @@ private:
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct read_wkt {};
 
 

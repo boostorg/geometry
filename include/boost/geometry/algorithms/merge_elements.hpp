@@ -346,7 +346,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct merge_elements
     : not_implemented<Geometry, Tag>
 {};

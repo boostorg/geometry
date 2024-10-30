@@ -330,7 +330,7 @@ struct wkt_segment
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct wkt: not_implemented<Tag>
 {};
 

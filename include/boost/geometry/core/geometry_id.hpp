@@ -100,7 +100,7 @@ struct geometry_id<box_tag>                 : std::integral_constant<int, 94> {}
 \ingroup core
 */
 template <typename Geometry>
-struct geometry_id : core_dispatch::geometry_id<typename tag<Geometry>::type>
+struct geometry_id : core_dispatch::geometry_id<tag_t<Geometry>>
 {};
 
 

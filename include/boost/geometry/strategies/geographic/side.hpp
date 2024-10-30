@@ -65,7 +65,7 @@ template
 class geographic
 {
 public:
-    typedef geographic_tag cs_tag;
+    using cs_tag = geographic_tag;
 
     geographic() = default;
 

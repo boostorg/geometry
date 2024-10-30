@@ -253,7 +253,7 @@ template
     typename MultiGeometry,
     bool CheckCoveredBy = std::is_same
         <
-            typename tag<MultiGeometry>::type, multi_polygon_tag
+            tag_t<MultiGeometry>, multi_polygon_tag
         >::value
 >
 class point_to_multigeometry
@@ -429,7 +429,7 @@ struct closest_points
     > : closest_points
         <
             Point, Linear,
-            point_tag, typename tag<Linear>::type, false
+            point_tag, tag_t<Linear>, false
         >
 {};
 
@@ -441,7 +441,7 @@ struct closest_points
     > : closest_points
         <
             Point, Areal,
-            point_tag, typename tag<Areal>::type, false
+            point_tag, tag_t<Areal>, false
         >
 {};
 

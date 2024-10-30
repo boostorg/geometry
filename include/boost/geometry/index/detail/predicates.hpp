@@ -215,8 +215,8 @@ struct spatial_predicate_call<predicates::disjoint_tag>
 template
 <
     typename G1, typename G2,
-    typename Tag1 = typename tag<G1>::type,
-    typename Tag2 = typename tag<G2>::type
+    typename Tag1 = tag_t<G1>,
+    typename Tag2 = tag_t<G2>
 >
 struct spatial_predicate_intersects
 {

@@ -53,7 +53,7 @@ template
 <
     typename PointOut,
     typename GeometryIn,
-    typename TagIn = typename tag<GeometryIn>::type
+    typename TagIn = tag_t<GeometryIn>
 >
 struct copy_points
     : not_implemented<PointOut, GeometryIn>
@@ -421,8 +421,8 @@ struct union_pointlike_pointlike_point
         return detail_dispatch::overlay::pointlike_pointlike_point
             <
                 PointLike2, PointLike1, PointOut, overlay_difference,
-                typename tag<PointLike2>::type,
-                typename tag<PointLike1>::type
+                tag_t<PointLike2>,
+                tag_t<PointLike1>
             >::apply(pointlike2, pointlike1, oit, strategy);
     }
 

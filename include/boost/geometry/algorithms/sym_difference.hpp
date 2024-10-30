@@ -486,9 +486,9 @@ namespace resolve_collection
 template
 <
     typename Geometry1, typename Geometry2, typename Collection,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type,
-    typename CollectionTag = typename geometry::tag<Collection>::type
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>,
+    typename CollectionTag = geometry::tag_t<Collection>
 >
 struct sym_difference
 {
@@ -680,8 +680,8 @@ namespace resolve_dynamic
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>
 >
 struct sym_difference
 {

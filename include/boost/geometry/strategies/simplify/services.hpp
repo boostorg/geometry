@@ -27,7 +27,7 @@ namespace services
 template
 <
     typename Geometry,
-    typename CSTag = typename geometry::cs_tag<Geometry>::type
+    typename CSTag = geometry::cs_tag_t<Geometry>
 >
 struct default_strategy
 {

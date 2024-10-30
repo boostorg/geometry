@@ -22,7 +22,7 @@ namespace boost { namespace geometry { namespace index { namespace detail
 {
 
 template <typename Geometry,
-          typename Tag = typename geometry::tag<Geometry>::type>
+          typename Tag = geometry::tag_t<Geometry>>
 struct equals
 {
     template <typename Strategy>

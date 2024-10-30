@@ -44,8 +44,8 @@ struct gc_can_convert_element
     template <typename G>
     using has_same_tag_as_single = std::is_same
         <
-            typename geometry::tag<G>::type,
-            typename geometry::tag<typename boost::range_value<Multi>::type>::type
+            geometry::tag_t<G>,
+            geometry::tag_t<typename boost::range_value<Multi>::type>
         >;
     using gc_types = typename traits::geometry_types<GC>::type;
     using found_type = typename util::sequence_find_if<gc_types, has_same_tag_as_single>::type;

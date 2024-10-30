@@ -123,7 +123,7 @@ template
 >
 struct cartesian_segments
 {
-    typedef cartesian_tag cs_tag;
+    using cs_tag = cartesian_tag;
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info

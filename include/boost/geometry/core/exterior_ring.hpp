@@ -104,7 +104,7 @@ inline typename ring_return_type<Polygon>::type exterior_ring(Polygon& polygon)
 {
     return core_dispatch::exterior_ring
         <
-            typename tag<Polygon>::type,
+            tag_t<Polygon>,
             Polygon
         >::apply(polygon);
 }
@@ -126,7 +126,7 @@ inline typename ring_return_type<Polygon const>::type exterior_ring(
 {
     return core_dispatch::exterior_ring
         <
-            typename tag<Polygon>::type,
+            tag_t<Polygon>,
             Polygon const
         >::apply(polygon);
 }

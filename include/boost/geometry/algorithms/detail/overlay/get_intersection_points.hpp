@@ -110,16 +110,16 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::get_turns_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 false, false,
                 TurnPolicy
             >,
             dispatch::get_turns
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 false, false,
                 TurnPolicy

@@ -249,7 +249,7 @@ struct direction_code_impl<spherical_tag>
                     <
                         std::is_same
                             <
-                                typename geometry::cs_tag<PointSegmentA>::type,
+                                geometry::cs_tag_t<PointSegmentA>,
                                 spherical_polar_tag
                             >::value,
                         spherical_polar_tag,

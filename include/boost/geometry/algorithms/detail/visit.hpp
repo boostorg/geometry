@@ -30,7 +30,7 @@ namespace boost { namespace geometry
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct visit_one
 {
     template <typename F, typename G>
@@ -65,8 +65,8 @@ struct visit_one<Geometry, dynamic_geometry_tag>
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type
+    typename Tag1 = tag_t<Geometry1>,
+    typename Tag2 = tag_t<Geometry2>
 >
 struct visit_two
 {
@@ -144,7 +144,7 @@ struct visit_two<Geometry1, Geometry2, dynamic_geometry_tag, dynamic_geometry_ta
 };
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct visit_breadth_first
 {
     template <typename F, typename G>

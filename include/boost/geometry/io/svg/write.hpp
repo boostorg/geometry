@@ -221,7 +221,7 @@ The static method should have the signature:
 template <typename Char, typename Traits>
 static inline void apply(std::basic_ostream<Char, Traits>& os, G const& geometry)
 */
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct svg
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(

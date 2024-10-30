@@ -166,7 +166,7 @@ struct tag
         >
 >
 {
-    typedef polygon_tag type;
+    using type = polygon_tag;
 };
 
 template

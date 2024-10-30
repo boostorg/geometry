@@ -153,7 +153,7 @@ template
 <
     typename Geometry,
     typename CT,
-    typename Tag = typename geometry::tag<Geometry>::type
+    typename Tag = geometry::tag_t<Geometry>
 >
 struct transform_geometry
 {};
@@ -379,7 +379,7 @@ template
 <
     typename Geometry,
     typename CT,
-    typename Tag = typename geometry::tag<Geometry>::type
+    typename Tag = geometry::tag_t<Geometry>
 >
 struct transform
     : not_implemented<Tag>

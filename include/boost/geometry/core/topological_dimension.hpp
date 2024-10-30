@@ -100,7 +100,7 @@ struct top_dim<geometry_collection_tag> : std::integral_constant<int, -1> {};
 */
 template <typename Geometry>
 struct topological_dimension
-    : core_dispatch::top_dim<typename tag<Geometry>::type> {};
+    : core_dispatch::top_dim<tag_t<Geometry>> {};
 
 
 #ifndef BOOST_NO_CXX17_INLINE_VARIABLES
