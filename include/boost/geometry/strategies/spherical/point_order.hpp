@@ -95,11 +95,8 @@ namespace strategy { namespace point_order
 //    template <typename Point, typename CalcT>
 //    static void convert_latitudes(CalcT & lat1, CalcT & lat2)
 //    {
-//        static const bool is_polar = std::is_same
-//            <
-//                typename geometry::cs_tag<Point>::type,
-//                spherical_polar_tag
-//            >::value;
+//        static const bool is_polar =
+//            std::is_same<geometry::cs_tag_t<Point>, spherical_polar_tag>::value;
 //
 //        if BOOST_GEOMETRY_CONSTEXPR (is_polar)
 //        {

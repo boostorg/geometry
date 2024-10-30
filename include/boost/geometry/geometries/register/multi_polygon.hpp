@@ -33,7 +33,7 @@
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_POLYGON(MultiPolygon) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<> struct tag<MultiPolygon> { typedef multi_polygon_tag type; }; \
+    template<> struct tag<MultiPolygon> { using type = multi_polygon_tag; }; \
 }}}
 
 
@@ -52,7 +52,7 @@ namespace boost { namespace geometry { namespace traits {  \
 */
 #define BOOST_GEOMETRY_REGISTER_MULTI_POLYGON_TEMPLATED(MultiPolygon) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<typename Polygon> struct tag< MultiPolygon<Polygon> > { typedef multi_polygon_tag type; }; \
+    template<typename Polygon> struct tag< MultiPolygon<Polygon> > { using type = multi_polygon_tag; }; \
 }}}
 
 

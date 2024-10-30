@@ -288,7 +288,7 @@ struct self_get_turn_points
         dispatch::self_get_turn_points
                 <
                     Reverse,
-                    typename tag<Geometry>::type,
+                    tag_t<Geometry>,
                     Geometry,
                     turn_policy
                 >::apply(geometry, strategies, turns, interrupt_policy,

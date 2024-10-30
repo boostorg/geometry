@@ -124,7 +124,7 @@ namespace traits
 template <typename Point>
 struct tag<model::segment<Point> >
 {
-    typedef segment_tag type;
+    using type = segment_tag;
 };
 
 template <typename Point>
@@ -187,7 +187,7 @@ struct make<model::segment<Point> >
 template <typename ConstOrNonConstPoint>
 struct tag<model::referring_segment<ConstOrNonConstPoint> >
 {
-    typedef segment_tag type;
+    using type = segment_tag;
 };
 
 template <typename ConstOrNonConstPoint>

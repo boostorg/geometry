@@ -315,10 +315,7 @@ template
     typename Point,
     typename MultiGeometry,
     typename Strategies,
-    bool CheckCoveredBy = std::is_same
-        <
-            typename tag<MultiGeometry>::type, multi_polygon_tag
-        >::value
+    bool CheckCoveredBy = std::is_same<tag_t<MultiGeometry>, multi_polygon_tag>::value
 >
 class point_to_multigeometry
 {
@@ -509,7 +506,7 @@ struct distance
     > : distance
         <
             Point, Linear, Strategy,
-            point_tag, typename tag<Linear>::type,
+            point_tag, tag_t<Linear>,
             strategy_tag_distance_point_segment, false
         >
 {};
@@ -523,7 +520,7 @@ struct distance
     > : distance
         <
             Point, Areal, Strategy,
-            point_tag, typename tag<Areal>::type,
+            point_tag, tag_t<Areal>,
             strategy_tag_distance_point_segment, false
         >
 {};

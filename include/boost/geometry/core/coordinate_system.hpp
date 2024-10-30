@@ -58,20 +58,20 @@ namespace core_dispatch
     template <typename GeometryTag, typename G>
     struct coordinate_system
     {
-        typedef typename point_type<GeometryTag, G>::type P;
+        using P = typename point_type<GeometryTag, G>::type;
 
         // Call its own specialization on point-tag
-        typedef typename coordinate_system<point_tag, P>::type type;
+        using type = typename coordinate_system<point_tag, P>::type;
     };
 
 
     template <typename Point>
     struct coordinate_system<point_tag, Point>
     {
-        typedef typename traits::coordinate_system
+        using type = typename traits::coordinate_system
             <
-                typename util::remove_cptrref<Point>::type
-            >::type type;
+                util::remove_cptrref_t<Point>
+            >::type;
     };
 
 

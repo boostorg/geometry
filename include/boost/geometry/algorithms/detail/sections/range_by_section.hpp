@@ -178,7 +178,7 @@ inline typename ring_return_type<Geometry const>::type
 
     return dispatch::range_by_section
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             Section
         >::apply(geometry, section);

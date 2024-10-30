@@ -112,11 +112,12 @@ template <typename Point, typename Indexable>
 typename geometry::default_comparable_distance_result<Point, Indexable>::type
 minmaxdist(Point const& pt, Indexable const& i)
 {
-    return detail::minmaxdist_impl<
-        Point,
-        Indexable,
-        typename tag<Indexable>::type
-    >::apply(pt, i);
+    return detail::minmaxdist_impl
+        <
+            Point,
+            Indexable,
+            tag_t<Indexable>
+        >::apply(pt, i);
 }
 
 }}}} // namespace boost::geometry::index::detail

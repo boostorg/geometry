@@ -45,7 +45,7 @@ namespace detail { namespace disjoint
 template
 <
     typename SegmentOrBox,
-    typename Tag = typename tag<SegmentOrBox>::type
+    typename Tag = tag_t<SegmentOrBox>
 >
 struct disjoint_point_segment_or_box
     : not_implemented<Tag>
@@ -135,7 +135,7 @@ template
 <
     typename Linear,
     typename SegmentOrBox,
-    typename Tag = typename tag<Linear>::type
+    typename Tag = tag_t<Linear>
 >
 struct disjoint_linear_segment_or_box
     : not_implemented<Linear, SegmentOrBox>

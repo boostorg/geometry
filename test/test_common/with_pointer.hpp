@@ -45,7 +45,7 @@ struct test_point_xy
 namespace boost { namespace geometry { namespace traits {
 
 template<> struct tag<test::test_point_xy>
-{ typedef point_tag type; };
+{ using type = point_tag; };
 
 template<> struct coordinate_type<test::test_point_xy>
 { typedef double type; };

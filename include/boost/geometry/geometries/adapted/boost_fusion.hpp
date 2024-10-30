@@ -165,7 +165,7 @@ struct tag
             >
     >
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 

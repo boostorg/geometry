@@ -117,7 +117,7 @@ inline typename interior_return_type<Polygon>::type interior_rings(Polygon& poly
 {
     return core_dispatch::interior_rings
         <
-            typename tag<Polygon>::type,
+            tag_t<Polygon>,
             Polygon
         >::apply(polygon);
 }
@@ -139,7 +139,7 @@ inline typename interior_return_type<Polygon const>::type interior_rings(
 {
     return core_dispatch::interior_rings
         <
-            typename tag<Polygon>::type,
+            tag_t<Polygon>,
             Polygon const
         >::apply(polygon);
 }

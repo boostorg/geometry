@@ -37,8 +37,8 @@ template
 <
     typename GeometryIn,
     typename GeometryOut,
-    typename TagIn = typename tag<GeometryIn>::type,
-    typename TagOut = typename tag<GeometryOut>::type
+    typename TagIn = tag_t<GeometryIn>,
+    typename TagOut = tag_t<GeometryOut>
 >
 struct transform_units_impl
     : not_implemented<TagIn, TagOut>

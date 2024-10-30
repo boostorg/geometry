@@ -43,8 +43,8 @@ struct relate_impl_base
                 >::value,
             not_implemented
                 <
-                    typename geometry::tag<Geometry1>::type,
-                    typename geometry::tag<Geometry2>::type
+                    geometry::tag_t<Geometry1>,
+                    geometry::tag_t<Geometry2>
                 >,
             implemented_tag
         >

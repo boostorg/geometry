@@ -86,7 +86,7 @@ class spherical_side_formula
 {
 
 public :
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)

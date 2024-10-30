@@ -55,7 +55,7 @@ namespace traits
 template <typename Point>
 struct tag<all_custom_polygon<Point> >
 {
-    typedef polygon_tag type;
+    using type = polygon_tag;
 };
 
 template <typename Point>

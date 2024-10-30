@@ -100,7 +100,7 @@ struct envelope<default_strategy, false>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct envelope
 {
     template <typename Box, typename Strategy>

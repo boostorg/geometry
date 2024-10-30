@@ -122,7 +122,7 @@ template <typename Geometry>
 inline signed_size_type segment_count_on_ring(Geometry const& geometry,
                                               ring_identifier const& ring_id)
 {
-    using tag = typename geometry::tag<Geometry>::type;
+    using tag = geometry::tag_t<Geometry>;
 
     // A closed polygon, a triangle of 4 points, including starting point,
     // contains 3 segments. So handle as if it is closed, and subtract one.

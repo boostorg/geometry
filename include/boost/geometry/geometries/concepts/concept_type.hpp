@@ -18,7 +18,7 @@
 namespace boost { namespace geometry { namespace concepts
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct concept_type
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE("Not implemented for this Tag.", Tag);

@@ -499,7 +499,7 @@ template
     overlay_type OverlayType,
     bool FollowIsolatedPoints,
     bool FollowContinueTurns,
-    typename TagIn1 = typename tag<Geometry1>::type
+    typename TagIn1 = tag_t<Geometry1>
 >
 struct follow
     : not_implemented<Geometry1>

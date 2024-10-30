@@ -40,8 +40,8 @@ namespace dispatch
 template
 <
     typename GeometryOut, typename Geometry,
-    typename TagOut = typename tag<GeometryOut>::type,
-    typename Tag = typename tag<Geometry>::type
+    typename TagOut = tag_t<GeometryOut>,
+    typename Tag = tag_t<Geometry>
 >
 struct expand : not_implemented<TagOut, Tag>
 {};

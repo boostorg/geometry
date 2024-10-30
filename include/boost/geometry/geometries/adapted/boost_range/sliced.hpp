@@ -25,7 +25,7 @@ namespace traits
 template<typename Geometry>
 struct tag<boost::adaptors::sliced_range<Geometry> >
 {
-    typedef typename geometry::tag<Geometry>::type type;
+    using type = geometry::tag_t<Geometry>;
 };
 
 }

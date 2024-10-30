@@ -42,7 +42,7 @@ namespace traits
     template <typename Point>
     struct tag<all_custom_ring<Point> >
     {
-        typedef ring_tag type;
+        using type = ring_tag;
     };
 
 

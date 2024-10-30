@@ -461,7 +461,7 @@ public:
 };
 
 
-template <typename MultiPoint, typename Areal, typename Tag = typename tag<Areal>::type>
+template <typename MultiPoint, typename Areal, typename Tag = tag_t<Areal>>
 struct multipoint_areal
     : multi_point_single_geometry<MultiPoint, Areal>
 {};

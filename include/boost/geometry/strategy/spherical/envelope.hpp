@@ -41,7 +41,7 @@ template <typename CalculationType = void>
 class spherical
 {
 public:
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
     // Linestring, Ring, Polygon
 

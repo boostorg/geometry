@@ -117,7 +117,7 @@ namespace boost { namespace geometry { namespace traits
     template <typename Point, std::size_t Count>
     struct tag< wrapped_boost_array<Point, Count> >
     {
-        typedef linestring_tag type;
+        using type = linestring_tag;
     };
 
     template <typename Point, std::size_t Count>

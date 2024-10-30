@@ -46,7 +46,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_interior_rings
     : detail::counting::other_count<0>
 {};

@@ -288,7 +288,7 @@ inline bool copy_segment_point(Geometry const& geometry,
 
     return dispatch::copy_segment_point
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             Reverse,
             SegmentIdentifier,
@@ -322,7 +322,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
     {
         return dispatch::copy_segment_point
             <
-                typename tag<Geometry1>::type,
+                tag_t<Geometry1>,
                 Geometry1,
                 Reverse1,
                 SegmentIdentifier,
@@ -333,7 +333,7 @@ inline bool copy_segment_point(Geometry1 const& geometry1, Geometry2 const& geom
     {
         return dispatch::copy_segment_point
             <
-                typename tag<Geometry2>::type,
+                tag_t<Geometry2>,
                 Geometry2,
                 Reverse2,
                 SegmentIdentifier,

@@ -94,7 +94,7 @@ inline Geometry make(Type const& c1, Type const& c2)
     Geometry geometry;
     dispatch::assign
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2);
@@ -150,7 +150,7 @@ inline Geometry make(Type const& c1, Type const& c2, Type const& c3)
     Geometry geometry;
     dispatch::assign
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2, c3);
@@ -181,7 +181,7 @@ inline Geometry make(Type const& c1, Type const& c2, Type const& c3, Type const&
     Geometry geometry;
     dispatch::assign
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             geometry::dimension<Geometry>::type::value
         >::apply(geometry, c1, c2, c3, c4);
@@ -217,7 +217,7 @@ inline Geometry make_inverse()
     Geometry geometry;
     dispatch::assign_inverse
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::apply(geometry);
     return geometry;
@@ -238,7 +238,7 @@ inline Geometry make_zero()
     Geometry geometry;
     dispatch::assign_zero
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::apply(geometry);
     return geometry;

@@ -51,7 +51,7 @@ namespace detail { namespace distance
 template
 <
     typename SegmentOrBox,
-    typename Tag = typename tag<SegmentOrBox>::type
+    typename Tag = tag_t<SegmentOrBox>
 >
 struct segment_or_box_point_range_closure
     : not_implemented<SegmentOrBox>
@@ -76,7 +76,7 @@ template
     typename Geometry,
     typename SegmentOrBox,
     typename Strategies,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 class geometry_to_segment_or_box
 {
@@ -97,7 +97,7 @@ private:
     template
     <
         typename SegOrBox,
-        typename SegOrBoxTag = typename tag<SegOrBox>::type
+        typename SegOrBoxTag = tag_t<SegOrBox>
     >
     struct assign_new_min_iterator
         : not_implemented<SegOrBox>
@@ -128,7 +128,7 @@ private:
     <
         typename SegOrBox,
         typename PointRange,
-        typename SegOrBoxTag = typename tag<SegOrBox>::type
+        typename SegOrBoxTag = tag_t<SegOrBox>
     >
     struct assign_segment_or_box_points
     {};

@@ -111,8 +111,8 @@ struct disjoint_linear
         disjoint_interrupt_policy interrupt_policy;
         dispatch::get_turns
             <
-                typename geometry::tag<Geometry1>::type,
-                typename geometry::tag<Geometry2>::type,
+                geometry::tag_t<Geometry1>,
+                geometry::tag_t<Geometry2>,
                 Geometry1,
                 Geometry2,
                 overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false

@@ -545,7 +545,7 @@ struct parameter
         typename Sphere,
         std::enable_if_t
             <
-                std::is_same<typename geometry::tag<Sphere>::type, srs_sphere_tag>::value,
+                std::is_same<geometry::tag_t<Sphere>, srs_sphere_tag>::value,
                 int
             > = 0
     >
@@ -559,7 +559,7 @@ struct parameter
         typename Spheroid,
         std::enable_if_t
             <
-                std::is_same<typename geometry::tag<Spheroid>::type, srs_spheroid_tag>::value,
+                std::is_same<geometry::tag_t<Spheroid>, srs_spheroid_tag>::value,
                 int
             > = 0
     >

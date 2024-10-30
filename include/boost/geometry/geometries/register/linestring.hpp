@@ -34,7 +34,7 @@
 */
 #define BOOST_GEOMETRY_REGISTER_LINESTRING(Linestring) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<> struct tag<Linestring> { typedef linestring_tag type; }; \
+    template<> struct tag<Linestring> { using type = linestring_tag; }; \
 }}}
 
 
@@ -53,7 +53,7 @@ namespace boost { namespace geometry { namespace traits {  \
 */
 #define BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(Linestring) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<typename P> struct tag< Linestring<P> > { typedef linestring_tag type; }; \
+    template<typename P> struct tag< Linestring<P> > { using type = linestring_tag; }; \
 }}}
 
 

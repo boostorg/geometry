@@ -187,8 +187,8 @@ template
 <
     typename Geometry,
     typename Pointlike,
-    typename Tag1 = typename tag<Geometry>::type,
-    typename Tag2 = typename tag<Pointlike>::type
+    typename Tag1 = tag_t<Geometry>,
+    typename Tag2 = tag_t<Pointlike>
 >
 struct line_interpolate
 {

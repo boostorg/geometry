@@ -393,7 +393,7 @@ template
 <
     typename Geometry,
     std::size_t Dimension,
-    typename GeometryTag = typename tag<Geometry>::type
+    typename GeometryTag = tag_t<Geometry>
 >
 struct extreme_points
 {};

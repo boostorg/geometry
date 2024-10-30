@@ -117,10 +117,11 @@ struct gl_draw_indexable<Segment, segment_tag>
 template <typename Indexable> inline
 void gl_draw_indexable(Indexable const& i, coordinate_type_t<Indexable> z)
 {
-    dispatch::gl_draw_indexable<
-        Indexable,
-        typename tag<Indexable>::type
-    >::apply(i, z);
+    dispatch::gl_draw_indexable
+        <
+            Indexable,
+            tag_t<Indexable>
+        >::apply(i, z);
 }
 
 } // namespace utilities

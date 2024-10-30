@@ -51,7 +51,7 @@ namespace dispatch
 {
 
 // Default perimeter is 0.0, specializations implement calculated values
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct perimeter : detail::calculate_null
 {
     typedef typename default_length_result<Geometry>::type return_type;
@@ -163,7 +163,7 @@ struct perimeter<default_strategy, false>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
+template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
 struct perimeter
 {
     template <typename Strategy>

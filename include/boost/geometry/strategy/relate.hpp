@@ -40,8 +40,8 @@ template
 <
     typename Point,
     typename Geometry,
-    typename Tag1 = typename tag<Point>::type,
-    typename Tag2 = typename tag<Geometry>::type
+    typename Tag1 = tag_t<Point>,
+    typename Tag2 = tag_t<Geometry>
 >
 struct default_strategy
     : strategy::within::services::default_strategy

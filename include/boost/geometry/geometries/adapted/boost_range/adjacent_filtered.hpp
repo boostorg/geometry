@@ -29,7 +29,7 @@ struct tag<boost::adjacent_filtered_range<Filter, Geometry, DefaultPass> >
 struct tag<boost::range_detail::adjacent_filter_range<Filter, Geometry, DefaultPass> >
 #endif
 {
-    typedef typename geometry::tag<Geometry>::type type;
+    using type = geometry::tag_t<Geometry>;
 };
 
 }

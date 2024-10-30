@@ -26,7 +26,7 @@ template
 <  
     typename Point,
     typename CoordinateType = geometry::coordinate_type_t<Point>,
-    typename CsTag = typename geometry::cs_tag<Point>::type,
+    typename CsTag = geometry::cs_tag_t<Point>,
     bool IsIntegral = std::is_integral<CoordinateType>::value
 >            
 struct cluster_colocator 

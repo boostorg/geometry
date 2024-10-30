@@ -231,7 +231,7 @@ public:
 };
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_rings
 {};
 
@@ -255,7 +255,7 @@ struct num_rings<MultiPolygon, multi_polygon_tag>
 };
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct views_container_initializer
 {};
 

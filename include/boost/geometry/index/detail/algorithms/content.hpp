@@ -94,7 +94,7 @@ typename default_content_result<Indexable>::type content(Indexable const& b)
     return dispatch::content
             <
                 Indexable,
-                typename tag<Indexable>::type
+                tag_t<Indexable>
             >::apply(b);
 }
 

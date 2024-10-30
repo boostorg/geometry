@@ -348,10 +348,7 @@ struct dsv_multi
 {
     typedef dispatch::dsv
                 <
-                    typename single_tag_of
-                        <
-                            typename tag<MultiGeometry>::type
-                        >::type,
+                    typename single_tag_of<tag_t<MultiGeometry>>::type,
                     typename boost::range_value<MultiGeometry>::type
                 > dispatch_one;
 

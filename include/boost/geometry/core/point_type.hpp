@@ -149,8 +149,8 @@ struct point_type<dynamic_geometry_tag, DynamicGeometry>
         >::type;
     using type = typename point_type
         <
-            typename tag<geometry_t>::type,
-            typename util::remove_cptrref<geometry_t>::type
+            tag_t<geometry_t>,
+            util::remove_cptrref_t<geometry_t>
         >::type;
 };
 
@@ -164,8 +164,8 @@ struct point_type<geometry_collection_tag, GeometryCollection>
         >::type;
     using type = typename point_type
         <
-            typename tag<geometry_t>::type,
-            typename util::remove_cptrref<geometry_t>::type
+            tag_t<geometry_t>,
+            util::remove_cptrref_t<geometry_t>
         >::type;
 };
 

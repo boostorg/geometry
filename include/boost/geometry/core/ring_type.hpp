@@ -204,7 +204,7 @@ struct ring_type
 {
     using type = typename core_dispatch::ring_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::type;
 };
@@ -218,7 +218,7 @@ struct ring_return_type
 {
     using type = typename core_dispatch::ring_return_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
         >::type;
 };

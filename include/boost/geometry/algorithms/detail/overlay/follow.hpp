@@ -164,7 +164,7 @@ inline bool is_touching(Turn const& turn, Operation const& op,
 template
 <
     typename GeometryOut,
-    typename Tag = typename geometry::tag<GeometryOut>::type
+    typename Tag = geometry::tag_t<GeometryOut>
 >
 struct add_isolated_point
 {};

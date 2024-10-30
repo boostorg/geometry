@@ -52,8 +52,8 @@ template
 <
     typename GeometryContained,
     typename GeometryContaining,
-    typename TagContained = typename tag<GeometryContained>::type,
-    typename TagContaining = typename tag<GeometryContaining>::type,
+    typename TagContained = tag_t<GeometryContained>,
+    typename TagContaining = tag_t<GeometryContaining>,
     typename CastedTagContained = tag_cast_t
                                     <
                                         tag_t<GeometryContained>,

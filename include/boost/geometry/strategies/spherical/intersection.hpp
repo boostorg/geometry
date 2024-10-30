@@ -94,7 +94,7 @@ template
 >
 struct ecef_segments
 {
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 

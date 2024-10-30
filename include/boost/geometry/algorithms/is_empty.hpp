@@ -94,7 +94,7 @@ struct multi_is_empty
 namespace dispatch
 {
 
-template <typename Geometry, typename Tag =  typename tag<Geometry>::type>
+template <typename Geometry, typename Tag =  tag_t<Geometry>>
 struct is_empty : not_implemented<Tag>
 {};
 
@@ -150,7 +150,7 @@ struct is_empty<Geometry, multi_polygon_tag>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct is_empty
 {
     static inline bool apply(Geometry const& geometry)

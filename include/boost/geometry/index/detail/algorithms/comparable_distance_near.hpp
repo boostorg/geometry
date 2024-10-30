@@ -70,13 +70,14 @@ template <typename Point, typename Indexable>
 typename geometry::default_comparable_distance_result<Point, Indexable>::type
 comparable_distance_near(Point const& pt, Indexable const& i)
 {
-    return detail::sum_for_indexable<
-        Point,
-        Indexable,
-        typename tag<Indexable>::type,
-        detail::comparable_distance_near_tag,
-        dimension<Indexable>::value
-    >::apply(pt, i);
+    return detail::sum_for_indexable
+        <
+            Point,
+            Indexable,
+            tag_t<Indexable>,
+            detail::comparable_distance_near_tag,
+            dimension<Indexable>::value
+        >::apply(pt, i);
 }
 
 }}}} // namespace boost::geometry::index::detail

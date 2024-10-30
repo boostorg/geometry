@@ -37,7 +37,7 @@ struct read<format_wkt, Geometry>
 {
     static inline void apply(Geometry& geometry, std::string const& wkt)
     {
-        read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
+        read_wkt<tag_t<Geometry>, Geometry>::apply(wkt, geometry);
     }
 };
 

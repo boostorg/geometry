@@ -29,7 +29,7 @@ namespace detail { namespace overlay
 template
 <
     typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type
+    typename Tag = geometry::tag_t<Geometry>
 >
 struct points_range
 {
@@ -80,7 +80,7 @@ struct points_range<Box, box_tag>
 template
 <
     typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type
+    typename Tag = geometry::tag_t<Geometry>
 >
 struct point_in_geometry_helper
 {

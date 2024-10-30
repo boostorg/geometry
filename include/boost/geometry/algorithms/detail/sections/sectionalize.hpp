@@ -872,7 +872,7 @@ inline void sectionalize(Geometry const& geometry,
 
     dispatch::sectionalize
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             Reverse,
             DimensionVector

@@ -114,7 +114,7 @@ template
 >
 struct tag<model::ring<Point, ClockWise, Closed, Container, Allocator> >
 {
-    typedef ring_tag type;
+    using type = ring_tag;
 };
 
 

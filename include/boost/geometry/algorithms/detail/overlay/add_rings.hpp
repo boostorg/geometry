@@ -48,9 +48,9 @@ inline void convert_and_add(GeometryOut& result,
             ring_identifier id,
             bool reversed, bool append)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
-    typedef typename geometry::tag<GeometryOut>::type tag_out;
+    using tag1 = geometry::tag_t<Geometry1>;
+    using tag2 = geometry::tag_t<Geometry2>;
+    using tag_out = geometry::tag_t<GeometryOut>;
 
     if (id.source_index == 0)
     {

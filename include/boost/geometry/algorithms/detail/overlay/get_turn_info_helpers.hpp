@@ -167,18 +167,18 @@ class intersection_info
     : public intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, UmbrellaStrategy>
 {
-    typedef intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, UmbrellaStrategy> base;
+    using base = intersection_info_base<UniqueSubRange1, UniqueSubRange2,
+        TurnPoint, UmbrellaStrategy>;
 
 public:
 
-    typedef typename UmbrellaStrategy::cs_tag cs_tag;
+    using cs_tag = typename UmbrellaStrategy::cs_tag;
 
-    typedef typename base::side_calculator_type side_calculator_type;
-    typedef typename base::result_type result_type;
+    using side_calculator_type = typename base::side_calculator_type;
+    using result_type = typename base::result_type;
 
-    typedef typename result_type::intersection_points_type i_info_type;
-    typedef typename result_type::direction_type d_info_type;
+    using i_info_type = typename result_type::intersection_points_type;
+    using d_info_type = typename result_type::direction_type;
 
     intersection_info(UniqueSubRange1 const& range_p,
                       UniqueSubRange2 const& range_q,

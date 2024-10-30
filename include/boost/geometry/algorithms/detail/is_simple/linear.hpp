@@ -80,7 +80,7 @@ template
 <
     typename Geometry,
     typename Strategy,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 class is_acceptable_turn
     : not_implemented<Geometry>

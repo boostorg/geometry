@@ -79,7 +79,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct reverse
 {
     static inline void apply(Geometry&)
@@ -125,7 +125,7 @@ struct reverse<Geometry, multi_polygon_tag>
 namespace resolve_dynamic
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct reverse
 {
     static void apply(Geometry& geometry)

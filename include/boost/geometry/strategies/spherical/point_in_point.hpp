@@ -59,7 +59,7 @@ namespace detail { namespace within
 class point_point_on_spheroid
 {
 public:
-    typedef spherical_tag cs_tag;
+    using cs_tag = spherical_tag;
 
 private:
     template <typename Point1, typename Point2, bool SameUnits>
