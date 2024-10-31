@@ -18,6 +18,7 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/convert.hpp>
+#include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
 
@@ -57,7 +58,7 @@ public:
     nsphere()
         : m_radius(0)
     {
-        assign_value(m_center, coordinate_type());
+        geometry::assign_value(m_center, coordinate_type());
     }
 
     nsphere(P const& center, T const& radius)
