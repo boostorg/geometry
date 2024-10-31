@@ -187,7 +187,7 @@ private:
             <
                 geometry::coordinate_type_t<MultiPoint>,
                 geometry::dimension<MultiPoint>::value,
-                typename geometry::coordinate_system<MultiPoint>::type
+                geometry::coordinate_system_t<MultiPoint>
             >;
         using box_type = geometry::model::box<point_type>;
         using box_pair = std::pair<box_type, std::size_t>;

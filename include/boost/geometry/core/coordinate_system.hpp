@@ -96,10 +96,25 @@ struct coordinate_system
         >::type;
 };
 
-
 template <typename Geometry>
 using coordinate_system_t = typename coordinate_system<Geometry>::type;
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail {
+
+// Short cut for coordinate system units
+template <typename Geometry>
+struct coordinate_system_units
+{
+    using type = typename coordinate_system<Geometry>::type::units;
+};
+
+
+template <typename Geometry>
+using coordinate_system_units_t = typename coordinate_system_units<Geometry>::type;
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 

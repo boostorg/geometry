@@ -55,11 +55,8 @@ struct preceding_check<0, Geometry, spherical_tag>
     template <typename Point, typename Box>
     static inline bool apply(int dir, Point const& point, Box const& point_box, Box const& other_box)
     {
-        typedef typename select_coordinate_type
-            <
-                Point, Box
-            >::type calc_t;
-        typedef typename coordinate_system<Point>::type::units units_t;
+        using calc_t = typename select_coordinate_type<Point, Box>::type;
+        using units_t = detail::coordinate_system_units_t<Point>;
 
         calc_t const c0 = 0;
 

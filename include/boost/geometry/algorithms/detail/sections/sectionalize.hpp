@@ -190,7 +190,7 @@ struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
                 int directions[Count])
     {
         using coordinate_type = coordinate_type_t<Segment>;
-        using units_t = typename coordinate_system<Point>::type::units;
+        using units_t = detail::coordinate_system_units_t<Point>;
 
         coordinate_type const diff = math::longitude_distance_signed
                                         <

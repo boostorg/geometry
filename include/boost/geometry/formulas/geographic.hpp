@@ -128,7 +128,7 @@ inline PointGeo cart3d_to_geo(Point3d const& point_3d, Spheroid const& spheroid)
 
     math::normalize_spheroidal_coordinates
         <
-            typename coordinate_system<PointGeo>::type::units,
+            geometry::detail::coordinate_system_units_t<PointGeo>,
             coord_t
         >(lon, lat);
 

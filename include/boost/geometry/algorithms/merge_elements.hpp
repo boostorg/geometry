@@ -271,7 +271,7 @@ struct merge_gc
         using original_point_t = geometry::point_type_t<GeometryCollection>;
         using iterator_t = typename boost::range_iterator<GeometryCollection const>::type;
         using coor_t = geometry::coordinate_type_t<original_point_t>;
-        using cs_t = typename geometry::coordinate_system<original_point_t>::type;
+        using cs_t = geometry::coordinate_system_t<original_point_t>;
         using point_t = model::point<coor_t, 2, cs_t>;
 
         using multi_point_t = typename util::sequence_find_if
