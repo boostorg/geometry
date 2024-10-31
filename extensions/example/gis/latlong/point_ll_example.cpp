@@ -60,7 +60,7 @@ int main()
     using namespace boost::geometry;
 
     typedef model::ll::point<degree> latlon_point;
-    
+
     latlon_point paris;
 
     // Assign coordinates to the latlong point, using the methods lat and lon
@@ -115,7 +115,7 @@ int main()
 
     // Other way round: have Amsterdam and go 430 km to the south (i.e. first calculate direction)
     double tc = get_course(amsterdam, paris);
-    std::cout << "Course: " << (tc * boost::geometry::math::r2d) << std::endl;
+    std::cout << "Course: " << (tc * boost::geometry::math::r2d<double>()) << std::endl;
 
     latlon_point paris_calculated;
     point_at_distance(amsterdam, 430 * 1000.0, tc, average_earth_radius, paris_calculated);

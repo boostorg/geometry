@@ -16,4 +16,3 @@ project boost-geometry-extensions-gis-examples
 
 
 build-project latlong ;
-build-project projections ;

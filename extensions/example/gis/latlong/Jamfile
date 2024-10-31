@@ -13,5 +13,5 @@ project boost-geometry-example-extensions-gis-projections
     : # requirements
     ;
 
-exe distance_example : distance_example.cpp ;
-exe point_ll_example : point_ll_example.cpp ;
+#exe distance_example : distance_example.cpp ;
+#exe point_ll_example : point_ll_example.cpp ;
