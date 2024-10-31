@@ -98,7 +98,7 @@ public:
 
         CT const radius_a = CT(get_radius<0>(spheroid));
         CT const radius_b = CT(get_radius<2>(spheroid));
-        CT const f = formula::flattening<CT>(spheroid);
+        CT const f = flattening<CT>(spheroid);
 
         // U: reduced latitude, defined by tan U = (1-f) tan phi
         CT const one_min_f = c1 - f;

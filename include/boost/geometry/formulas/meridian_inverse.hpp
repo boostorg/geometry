@@ -113,8 +113,8 @@ public :
     template <typename T, typename Spheroid>
     static CT apply(T lat, Spheroid const& spheroid)
     {
-        CT const a = get_radius<0>(spheroid);
-        CT const f = formula::flattening<CT>(spheroid);
+        CT const a = geometry::get_radius<0>(spheroid);
+        CT const f = flattening<CT>(spheroid);
         CT n = f / (CT(2) - f);
         CT M = a/(1+n);
         CT C0 = 1;
