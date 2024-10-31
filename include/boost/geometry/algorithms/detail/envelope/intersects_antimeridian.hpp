@@ -62,7 +62,7 @@ struct intersects_antimeridian
 
         return apply
             <
-                typename coordinate_system<Point>::type::units
+                detail::coordinate_system_units_t<Point>
             >(geometry::get<0>(p1_normalized),
               geometry::get<1>(p1_normalized),
               geometry::get<0>(p2_normalized),

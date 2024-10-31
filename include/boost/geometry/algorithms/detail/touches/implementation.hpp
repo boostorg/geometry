@@ -114,8 +114,8 @@ struct box_box
     {
         BOOST_STATIC_ASSERT((std::is_same
                                 <
-                                    typename geometry::coordinate_system<Box1>::type,
-                                    typename geometry::coordinate_system<Box2>::type
+                                    geometry::coordinate_system_t<Box1>,
+                                    geometry::coordinate_system_t<Box2>
                                 >::value
                            ));
         assert_dimension_equal<Box1, Box2>();

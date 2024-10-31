@@ -191,7 +191,7 @@ template <std::size_t Dimension, typename Geometry>
 inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
 {
     return detail::radian_access<Dimension, Geometry,
-            typename coordinate_system<Geometry>::type>::get(geometry);
+            coordinate_system_t<Geometry>>::get(geometry);
 }
 
 /*!
@@ -211,7 +211,7 @@ inline void set_from_radian(Geometry& geometry,
             typename fp_coordinate_type<Geometry>::type const& radians)
 {
     detail::radian_access<Dimension, Geometry,
-            typename coordinate_system<Geometry>::type>::set(geometry, radians);
+            coordinate_system_t<Geometry>>::set(geometry, radians);
 }
 
 /*!
@@ -231,7 +231,7 @@ template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline typename fp_coordinate_type<Geometry>::type get_as_radian(Geometry const& geometry)
 {
     return detail::radian_access_box_segment<Index, Dimension, Geometry,
-            typename coordinate_system<Geometry>::type>::get(geometry);
+            coordinate_system_t<Geometry>>::get(geometry);
 }
 
 /*!
@@ -252,7 +252,7 @@ inline void set_from_radian(Geometry& geometry,
             typename fp_coordinate_type<Geometry>::type const& radians)
 {
     detail::radian_access_box_segment<Index, Dimension, Geometry,
-            typename coordinate_system<Geometry>::type>::set(geometry, radians);
+            coordinate_system_t<Geometry>>::set(geometry, radians);
 }
 
 }} // namespace boost::geometry

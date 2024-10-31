@@ -254,7 +254,7 @@ private:
         using constants = math::detail::constants_on_spheroid
             <
                 coord_type,
-                typename coordinate_system<Point>::type::units
+                detail::coordinate_system_units_t<Point>
             > ;
 
         constexpr coord_type pi_2 = constants::half_period() / 2;

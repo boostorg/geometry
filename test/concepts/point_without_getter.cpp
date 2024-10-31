@@ -25,9 +25,9 @@ struct point
 
 namespace boost { namespace geometry { namespace traits {
 
-template <> struct tag<point> { typedef point_tag type; };
-template <> struct coordinate_type<point> { typedef float type; };
-template <> struct coordinate_system<point> { typedef bg::cs::cartesian type; };
+template <> struct tag<point> { using type = point_tag; };
+template <> struct coordinate_type<point> { using type = float; };
+template <> struct coordinate_system<point> { using type = bg::cs::cartesian; };
 template <> struct dimension<point> { enum { value = 2 }; };
 
 template <> struct access<point, 0>

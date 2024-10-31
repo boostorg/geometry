@@ -42,7 +42,7 @@ struct compute_closest_point_to_segment
             <
                 CalculationType,
                 dimension<PointOfSegment>::value,
-                typename coordinate_system<PointOfSegment>::type
+                coordinate_system_t<PointOfSegment>
             >;
 
         // For convenience

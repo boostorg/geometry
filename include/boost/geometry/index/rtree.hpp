@@ -195,7 +195,7 @@ public:
                 geometry::model::point<
                     coordinate_type_t<indexable_type>,
                     dimension<indexable_type>::value,
-                    typename coordinate_system<indexable_type>::type
+                    coordinate_system_t<indexable_type>
                 >
             >
     bounds_type;

@@ -103,7 +103,7 @@ struct transform_geometry_point
                     CT
                 >::type,
             geometry::dimension<point_type>::type::value,
-            typename geometry::coordinate_system<point_type>::type
+            geometry::coordinate_system_t<point_type>
         >;
 
     template <typename PtIn, typename PtOut>

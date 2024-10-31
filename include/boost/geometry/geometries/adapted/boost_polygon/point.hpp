@@ -47,14 +47,14 @@ struct tag<boost::polygon::point_data<CoordinateType> >
 template <typename CoordinateType>
 struct coordinate_type<boost::polygon::point_data<CoordinateType> >
 {
-    typedef CoordinateType type;
+    using type = CoordinateType;
 };
 
 
 template <typename CoordinateType>
 struct coordinate_system<boost::polygon::point_data<CoordinateType> >
 {
-    typedef cs::cartesian type;
+    using type = cs::cartesian;
 };
 
 

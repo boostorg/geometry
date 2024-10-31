@@ -23,16 +23,16 @@
 
 #include "test_hausdorff_distance.hpp"
 
-    template <typename P>
+template <typename P>
 void test_all_cartesian()
 {
-    typedef bg::model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
+    using linestring_2d = bg::model::linestring<P>;
+    using mlinestring_t = bg::model::multi_linestring<linestring_2d>;
+    using mpoint_t = bg::model::multi_point<P>;
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", sqrt(5.0));
@@ -48,15 +48,16 @@ void test_all_cartesian()
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(4 3,3 4,0 0)",0);
 }
 
-    template <typename P>
+template <typename P>
 void test_all_geographic()
 {
-    typedef bg::model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
+    using linestring_2d = bg::model::linestring<P>;
+    using mlinestring_t = bg::model::multi_linestring<linestring_2d>;
+    using mpoint_t = bg::model::multi_point<P>;
+
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", 247552);
@@ -74,16 +75,16 @@ void test_all_geographic()
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(0 0,3 4,4 3)","LINESTRING(4 3,3 4,0 0)",0);
 }
 
-    template <typename P>
+template <typename P>
 void test_all_spherical_equ()
 {
-    typedef bg::model::linestring<P> linestring_2d;
-    typedef bg::model::multi_linestring<linestring_2d> mlinestring_t;
-    typedef bg::model::multi_point<P> mpoint_t;
+    using linestring_2d = bg::model::linestring<P>;
+    using mlinestring_t = bg::model::multi_linestring<linestring_2d>;
+    using mpoint_t = bg::model::multi_point<P>;
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<P,mpoint_t>("POINT(3 1)","MULTIPOINT(0 0,3 4,4 3)", 0.03902);

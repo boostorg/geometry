@@ -59,10 +59,10 @@ template<>
 struct tag<test::test_point> { using type = point_tag; };
 
 template<>
-struct coordinate_type<test::test_point> { typedef float type; };
+struct coordinate_type<test::test_point> { using type = float; };
 
 template<>
-struct coordinate_system<test::test_point> { typedef cs::cartesian type; };
+struct coordinate_system<test::test_point> { using type = cs::cartesian; };
 
 template<>
 struct dimension<test::test_point> : std::integral_constant<int, 3> {};

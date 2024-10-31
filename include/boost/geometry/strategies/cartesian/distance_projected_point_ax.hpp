@@ -170,7 +170,7 @@ public :
             <
                 calculation_type,
                 dimension<PointOfSegment>::value,
-                typename coordinate_system<PointOfSegment>::type
+                coordinate_system_t<PointOfSegment>
             > fp_point_type;
 
         // For convenience
