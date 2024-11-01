@@ -395,9 +395,7 @@ struct polygon_collect_vectors
 {
     static inline void apply(Collection& collection, Polygon const& polygon)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
-        typedef range_collect_vectors<ring_type, Collection> per_range;
+        using per_range = range_collect_vectors<geometry::ring_type_t<Polygon>, Collection>;
         per_range::apply(collection, exterior_ring(polygon));
 
         auto const& rings = interior_rings(polygon);

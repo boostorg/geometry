@@ -419,8 +419,7 @@ struct ring_parser
 template <typename Polygon>
 struct polygon_parser
 {
-    using ring_return_type = typename ring_return_type<Polygon>::type;
-    using appender = container_appender<ring_return_type>;
+    using appender = container_appender<ring_return_type_t<Polygon>>;
 
     template <typename TokenizerIterator>
     static inline void apply(TokenizerIterator& it,
@@ -443,7 +442,7 @@ struct polygon_parser
             }
             else
             {
-                typename ring_type<Polygon>::type ring;
+                ring_type_t<Polygon> ring;
                 appender::apply(it, end, wkt, ring);
                 range::push_back(geometry::interior_rings(poly), std::move(ring));
             }

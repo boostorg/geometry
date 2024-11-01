@@ -355,9 +355,9 @@ struct test_distance_of_geometries
 >
     : public test_distance_of_geometries<Segment, Polygon, 0, 0>
 {
-    typedef test_distance_of_geometries<Segment, Polygon, 0, 0> base;
+    using base = test_distance_of_geometries<Segment, Polygon, 0, 0>;
 
-    typedef typename bg::ring_type<Polygon>::type ring_type;
+    using ring_type = bg::ring_type_t<Polygon>;
 
     template
     <
@@ -462,7 +462,7 @@ struct test_distance_of_geometries
 >
     : public test_distance_of_geometries<Segment, Box, 0, 0>
 {
-    typedef test_distance_of_geometries<Segment, Box, 0, 0> base;
+    using base = test_distance_of_geometries<Segment, Box, 0, 0>;
 
     template
     <

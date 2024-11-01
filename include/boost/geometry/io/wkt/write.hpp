@@ -199,7 +199,7 @@ struct wkt_poly
     static inline void apply(std::basic_ostream<Char, Traits>& os,
                 Polygon const& poly, bool force_closure)
     {
-        using ring = typename ring_type<Polygon const>::type;
+        using ring_t = ring_type_t<Polygon const>;
 
         auto const& exterior = exterior_ring(poly);
         auto const& rings = interior_rings(poly);
@@ -215,12 +215,12 @@ struct wkt_poly
         os << "(";
         if (point_count > 0)
         {
-            wkt_sequence<ring>::apply(os, exterior, force_closure);
+            wkt_sequence<ring_t>::apply(os, exterior, force_closure);
 
             for (auto it = boost::begin(rings); it != boost::end(rings); ++it)
             {
                 os << ",";
-                wkt_sequence<ring>::apply(os, *it, force_closure);
+                wkt_sequence<ring_t>::apply(os, *it, force_closure);
             }
         }
         os << ")";

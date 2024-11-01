@@ -122,15 +122,14 @@ protected:
                                  VisitPolicy& visitor,
                                  Strategy const& strategy)
         {
-            typedef debug_validity_phase<Polygon> debug_phase;
-            typedef typename ring_type<Polygon>::type ring_type;
+            using debug_phase = debug_validity_phase<Polygon>;
 
             // check validity of exterior ring
             debug_phase::apply(1);
 
             if (! detail::is_valid::is_valid_ring
                      <
-                         ring_type,
+                         ring_type_t<Polygon>,
                          false // do not check self intersections
                      >::apply(exterior_ring(polygon), visitor, strategy))
             {

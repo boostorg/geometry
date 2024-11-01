@@ -75,12 +75,12 @@ struct perimeter<Geometry, ring_tag>
 template <typename Polygon>
 struct perimeter<Polygon, polygon_tag> : detail::calculate_polygon_sum
 {
-    typedef typename default_length_result<Polygon>::type return_type;
-    typedef detail::length::range_length
+    using return_type = typename default_length_result<Polygon>::type;
+    using policy = detail::length::range_length
                 <
-                    typename ring_type<Polygon>::type,
+                    ring_type_t<Polygon>,
                     closure<Polygon>::value
-                > policy;
+                >;
 
     template <typename Strategy>
     static inline return_type apply(Polygon const& polygon, Strategy const& strategy)

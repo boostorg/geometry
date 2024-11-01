@@ -177,14 +177,14 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out, Strategy const& strategy)
 {
-    typedef typename geometry::ring_type<GeometryOut>::type ring_type;
-    typedef std::deque<ring_type> ring_container_type;
+    using ring_type = geometry::ring_type_t<GeometryOut>;
+    using ring_container_type = std::deque<ring_type>;
 
-    typedef ring_properties
+    using properties = ring_properties
         <
             geometry::point_type_t<ring_type>,
             typename geometry::area_result<ring_type, Strategy>::type
-        > properties;
+        >;
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
@@ -256,7 +256,7 @@ struct overlay
         >;
         using turn_container_type = std::deque<turn_info>;
 
-        using ring_type = typename geometry::ring_type<GeometryOut>::type;
+        using ring_type = geometry::ring_type_t<GeometryOut>;
         using ring_container_type = std::deque<ring_type>;
 
         // Define the clusters, mapping cluster_id -> turns

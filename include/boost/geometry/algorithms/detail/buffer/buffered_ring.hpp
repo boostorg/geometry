@@ -269,7 +269,7 @@ template<>
 struct get_ring<detail::buffer::buffered_ring_collection_tag>
 {
     template<typename MultiGeometry>
-    static inline typename ring_type<MultiGeometry>::type const& apply(
+    static inline ring_type_t<MultiGeometry> const& apply(
                 ring_identifier const& id,
                 MultiGeometry const& multi_ring)
     {
