@@ -381,11 +381,9 @@ struct convert<Box, Polygon, box_tag, polygon_tag, 2, false>
 {
     static inline void apply(Box const& box, Polygon& polygon)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
-
         convert
             <
-                Box, ring_type,
+                Box, ring_type_t<Polygon>,
                 box_tag, ring_tag,
                 2, false
             >::apply(box, exterior_ring(polygon));
@@ -415,10 +413,9 @@ struct convert<Ring, Polygon, ring_tag, polygon_tag, DimensionCount, false>
 {
     static inline void apply(Ring const& ring, Polygon& polygon)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
         convert
             <
-                Ring, ring_type,
+                Ring, ring_type_t<Polygon>,
                 ring_tag, ring_tag,
                 DimensionCount, false
             >::apply(ring, exterior_ring(polygon));
@@ -431,11 +428,9 @@ struct convert<Polygon, Ring, polygon_tag, ring_tag, DimensionCount, false>
 {
     static inline void apply(Polygon const& polygon, Ring& ring)
     {
-        typedef typename ring_type<Polygon>::type ring_type;
-
         convert
             <
-                ring_type, Ring,
+                ring_type_t<Polygon>, Ring,
                 ring_tag, ring_tag,
                 DimensionCount, false
             >::apply(exterior_ring(polygon), ring);

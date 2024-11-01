@@ -253,7 +253,7 @@ public:
 private:
     typedef point_to_range
         <
-            Point, typename ring_type<Polygon>::type, Closure, Strategies
+            Point, ring_type_t<Polygon>, Closure, Strategies
         > per_ring;
 
     struct distance_to_interior_rings

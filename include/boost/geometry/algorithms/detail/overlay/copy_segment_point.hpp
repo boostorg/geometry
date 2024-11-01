@@ -92,7 +92,7 @@ struct copy_segment_point_polygon
         // Call ring-version with the right ring
         return copy_segment_point_range
             <
-                typename geometry::ring_type<Polygon>::type,
+                geometry::ring_type_t<Polygon>,
                 Reverse,
                 SegmentIdentifier,
                 PointOut

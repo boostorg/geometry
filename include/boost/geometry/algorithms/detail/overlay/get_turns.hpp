@@ -200,13 +200,13 @@ class get_turns_in_sections
 {
     using range1_view = detail::closed_clockwise_view
         <
-            typename ring_type<Geometry1>::type const,
+            ring_type_t<Geometry1> const,
             geometry::closure<Geometry1>::value,
             Reverse1 ? counterclockwise : clockwise
         >;
     using range2_view = detail::closed_clockwise_view
         <
-            typename ring_type<Geometry2>::type const,
+            ring_type_t<Geometry2> const,
             geometry::closure<Geometry2>::value,
             Reverse2 ? counterclockwise : clockwise
         >;
@@ -740,14 +740,12 @@ struct get_turns_polygon_cs
             InterruptPolicy& interrupt_policy,
             signed_size_type multi_index = -1)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
-        typedef detail::get_turns::get_turns_cs
+        using intersector_type = detail::get_turns::get_turns_cs
             <
-                ring_type, Box,
+                geometry::ring_type_t<Polygon>, Box,
                 Reverse, ReverseBox,
                 TurnPolicy
-            > intersector_type;
+            >;
 
         intersector_type::apply(
                 source_id1, geometry::exterior_ring(polygon),

@@ -23,7 +23,7 @@ inline void make_square_polygon(Polygon& polygon, Generator& generator, Settings
     x = generator();
     y = generator();
 
-    typename ring_type<Polygon>::type& ring = exterior_ring(polygon);
+    auto& ring = exterior_ring(polygon);
 
     point_type p;
     set<0>(p, x); set<1>(p, y);         append(ring, p);

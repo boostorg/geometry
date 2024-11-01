@@ -207,17 +207,17 @@ struct dsv_poly
                 Polygon const& poly,
                 dsv_settings const& settings)
     {
-        typedef typename ring_type<Polygon>::type ring;
+        using ring_t = ring_type_t<Polygon>;
 
         os << settings.list_open;
 
-        dsv_range<ring>::apply(os, exterior_ring(poly), settings);
+        dsv_range<ring_t>::apply(os, exterior_ring(poly), settings);
 
         auto const& rings = interior_rings(poly);
         for (auto it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             os << settings.list_separator;
-            dsv_range<ring>::apply(os, *it, settings);
+            dsv_range<ring_t>::apply(os, *it, settings);
         }
         os << settings.list_close;
     }

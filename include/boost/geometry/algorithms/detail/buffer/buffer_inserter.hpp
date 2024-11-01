@@ -747,11 +747,10 @@ template
 struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
 {
 private:
-    typedef typename ring_type<PolygonInput>::type input_ring_type;
-    typedef typename ring_type<PolygonOutput>::type output_ring_type;
+    using input_ring_type = ring_type_t<PolygonInput>;
+    using output_ring_type = ring_type_t<PolygonOutput>;
 
-    typedef buffer_inserter_ring<input_ring_type, output_ring_type> policy;
-
+    using policy = buffer_inserter_ring<input_ring_type, output_ring_type>;
 
     template
     <
@@ -875,7 +874,7 @@ struct buffer_inserter<multi_tag, Multi, PolygonOutput>
                 <
                     typename single_tag_of<tag_t<Multi>>::type,
                     typename boost::range_value<Multi const>::type,
-                    typename geometry::ring_type<PolygonOutput>::type
+                    geometry::ring_type_t<PolygonOutput>
                 >
             >
 {};
@@ -915,7 +914,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     using collection_type = detail::buffer::buffered_piece_collection
         <
-            typename geometry::ring_type<GeometryOutput>::type,
+            geometry::ring_type_t<GeometryOutput>,
             Strategies,
             DistanceStrategy
         >;

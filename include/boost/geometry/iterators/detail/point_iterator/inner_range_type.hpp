@@ -51,8 +51,8 @@ struct inner_range_type<Polygon, polygon_tag>
     typedef std::conditional_t
         <
             ! std::is_const<Polygon>::value,
-            typename geometry::ring_type<Polygon>::type,
-            typename geometry::ring_type<Polygon>::type const
+            geometry::ring_type_t<Polygon>,
+            geometry::ring_type_t<Polygon> const
         > type;
 };
 

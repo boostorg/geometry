@@ -412,11 +412,10 @@ struct extreme_points<Polygon, Dimension, polygon_tag>
     static inline bool apply(Polygon const& polygon, Extremes& extremes, Intruders& intruders,
                              SideStrategy const& strategy)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-        typedef detail::extreme_points::extreme_points_on_ring
+        using ring_implementation = detail::extreme_points::extreme_points_on_ring
             <
-                ring_type, Dimension
-            > ring_implementation;
+                geometry::ring_type_t<Polygon>, Dimension
+            >;
 
         if (! ring_implementation::apply(geometry::exterior_ring(polygon),
                                          extremes, intruders, strategy))

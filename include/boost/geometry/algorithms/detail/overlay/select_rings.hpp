@@ -113,8 +113,7 @@ namespace dispatch
                     ring_identifier id, RingPropertyMap& ring_properties,
                     Strategy const& strategy)
         {
-            typedef typename geometry::ring_type<Polygon>::type ring_type;
-            typedef select_rings<ring_tag, ring_type> per_ring;
+            using per_ring = select_rings<ring_tag, geometry::ring_type_t<Polygon>>;
 
             per_ring::apply(exterior_ring(polygon), geometry, id, ring_properties, strategy);
 
@@ -131,8 +130,7 @@ namespace dispatch
                 ring_identifier id, RingPropertyMap& ring_properties,
                 Strategy const& strategy)
         {
-            typedef typename geometry::ring_type<Polygon>::type ring_type;
-            typedef select_rings<ring_tag, ring_type> per_ring;
+            using per_ring = select_rings<ring_tag, geometry::ring_type_t<Polygon>>;
 
             per_ring::apply(exterior_ring(polygon), id, ring_properties, strategy);
 

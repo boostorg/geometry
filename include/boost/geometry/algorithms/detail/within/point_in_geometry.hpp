@@ -194,7 +194,7 @@ struct point_in_geometry<Polygon, polygon_tag>
     {
         int const code = point_in_geometry
             <
-                typename ring_type<Polygon>::type
+                ring_type_t<Polygon>
             >::apply(point, exterior_ring(polygon), strategy);
 
         if (code == 1)
@@ -204,7 +204,7 @@ struct point_in_geometry<Polygon, polygon_tag>
             {
                 int const interior_code = point_in_geometry
                     <
-                        typename ring_type<Polygon>::type
+                        ring_type_t<Polygon>
                     >::apply(point, *it, strategy);
 
                 if (interior_code != -1)

@@ -170,7 +170,7 @@ public:
     {
         if (! disjoint_range_segment_or_box
                 <
-                    typename geometry::ring_type<Polygon>::type,
+                    geometry::ring_type_t<Polygon>,
                     Segment
                 >::apply(geometry::exterior_ring(polygon), segment, strategy))
         {

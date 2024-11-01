@@ -139,12 +139,10 @@ struct svg_poly
     static inline void apply(std::basic_ostream<Char, Traits>& os,
         Polygon const& polygon, std::string const& style, double)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
         bool first = true;
         os << "<g fill-rule=\"evenodd\"><path d=\"";
 
-        ring_type const& ring = geometry::exterior_ring(polygon);
+        auto const& ring = geometry::exterior_ring(polygon);
         for (auto it = boost::begin(ring); it != boost::end(ring); ++it, first = false)
         {
             os << (first ? "M" : " L") << " "

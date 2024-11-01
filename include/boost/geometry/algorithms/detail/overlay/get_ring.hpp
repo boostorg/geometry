@@ -83,7 +83,7 @@ template<>
 struct get_ring<polygon_tag>
 {
     template<typename Polygon>
-    static inline typename ring_return_type<Polygon const>::type const apply(
+    static inline ring_return_type_t<Polygon const> const apply(
                 ring_identifier const& id,
                 Polygon const& polygon)
     {
@@ -103,7 +103,7 @@ template<>
 struct get_ring<multi_polygon_tag>
 {
     template<typename MultiPolygon>
-    static inline typename ring_type<MultiPolygon>::type const& apply(
+    static inline ring_type_t<MultiPolygon> const& apply(
                 ring_identifier const& id,
                 MultiPolygon const& multi_polygon)
     {
