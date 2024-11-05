@@ -201,7 +201,7 @@ private:
         T3 const& lon_max, T4 const& lat_max, double height_max,
         double tolerance)
     {
-        using box_units_type = bg::detail::coordinate_system_unit_t<Box>;
+        using box_units_type = bg::detail::coordinate_system_units_t<Box>;
 
         std::string const units_str = units2string<box_units_type>();
 
