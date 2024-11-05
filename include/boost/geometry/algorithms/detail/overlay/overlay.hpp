@@ -322,11 +322,11 @@ struct overlay
 
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
-        typedef ring_properties
+        using properties = ring_properties
             <
                 point_type,
                 typename geometry::area_result<ring_type, Strategy>::type
-            > properties;
+            >;
 
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;

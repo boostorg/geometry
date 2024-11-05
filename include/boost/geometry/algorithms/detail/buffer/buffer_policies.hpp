@@ -39,7 +39,7 @@ namespace detail { namespace buffer
 class backtrack_for_buffer
 {
 public :
-    typedef detail::overlay::backtrack_state state_type;
+    using state_type = detail::overlay::backtrack_state;
 
     template
         <
@@ -148,7 +148,7 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
-    typedef Point point_type;
+    using point_type = Point;
 
     std::size_t turn_index;
 

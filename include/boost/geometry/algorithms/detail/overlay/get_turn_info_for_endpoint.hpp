@@ -231,7 +231,7 @@ private:
 template <bool EnableFirst, bool EnableLast>
 struct get_turn_info_for_endpoint
 {
-    typedef std::pair<operation_type, operation_type> operations_pair;
+    using operations_pair = std::pair<operation_type, operation_type>;
 
     BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
 

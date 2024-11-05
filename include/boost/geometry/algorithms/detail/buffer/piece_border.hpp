@@ -475,7 +475,7 @@ private :
     template <typename It>
     inline void calculate_radii(Point const& center, It begin, It end)
     {
-        typedef geometry::model::referring_segment<Point const> segment_type;
+        using segment_type = geometry::model::referring_segment<Point const>;
 
         bool first = true;
 

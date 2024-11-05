@@ -221,10 +221,10 @@ struct buffer_range
     {
         boost::ignore_unused(segment_strategy);
 
-        typedef typename std::iterator_traits
+        using point_type = typename std::iterator_traits
         <
             Iterator
-        >::value_type point_type;
+        >::value_type;
 
         point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
@@ -469,7 +469,7 @@ struct buffer_inserter_ring
     {
         output_point_type first_p1, first_p2, last_p1, last_p2;
 
-        typedef detail::buffer::buffer_range<RingOutput> buffer_range;
+        using buffer_range = detail::buffer::buffer_range<RingOutput>;
 
         geometry::strategy::buffer::result_code result
             = buffer_range::iterate(collection, begin, end,

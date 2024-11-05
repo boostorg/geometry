@@ -178,7 +178,7 @@ template
 >
 struct assign_visitor
 {
-    typedef typename RingMap::mapped_type ring_info_type;
+    using ring_info_type = typename RingMap::mapped_type;
 
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;

@@ -227,7 +227,7 @@ public:
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        typedef typename detail::relate::turns::get_turns
+        using turn_info = typename detail::relate::turns::get_turns
             <
                 Linear1,
                 Linear2,
@@ -237,9 +237,9 @@ public:
                         Linear2,
                         assign_policy
                     >
-            >::template turn_info_type<Strategy>::type turn_info;
+            >::template turn_info_type<Strategy>::type;
 
-        typedef std::vector<turn_info> turns_container;
+        using turns_container = std::vector<turn_info>;
 
         turns_container turns;
         compute_turns(turns, linear1, linear2, strategy);

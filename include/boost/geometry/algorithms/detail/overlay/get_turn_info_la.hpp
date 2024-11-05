@@ -54,12 +54,12 @@ struct get_turn_info_linear_areal
                 UmbrellaStrategy const& umbrella_strategy,
                 OutputIterator out)
     {
-        typedef intersection_info
+        using inters_info = intersection_info
             <
                 UniqueSubRange1, UniqueSubRange2,
                 typename TurnInfo::point_type,
                 UmbrellaStrategy
-            > inters_info;
+            >;
 
         inters_info inters(range_p, range_q, umbrella_strategy);
 
@@ -702,7 +702,7 @@ struct get_turn_info_linear_areal
                             Strategy const& strategy)
     {
         namespace ov = overlay;
-        typedef ov::get_turn_info_for_endpoint<EnableFirst, EnableLast> get_info_e;
+        using get_info_e = ov::get_turn_info_for_endpoint<EnableFirst, EnableLast>;
 
         std::size_t const ip_count = inters.i_info().count;
         // no intersection points
