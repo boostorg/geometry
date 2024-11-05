@@ -133,7 +133,7 @@ inline OutputIterator add_rings(SelectionMap const& map,
             // everything is figured out yet (sum of positive/negative rings)
             if (geometry::num_points(result) >= min_num_points)
             {
-                typedef typename geometry::area_result<GeometryOut, Strategy>::type area_type;
+                using area_type = typename geometry::area_result<GeometryOut, Strategy>::type;
                 area_type const area = geometry::area(result, strategy);
                 area_type const zero = 0;
                 // Ignore if area is 0

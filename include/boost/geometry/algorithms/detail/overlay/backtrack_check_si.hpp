@@ -100,7 +100,7 @@ class backtrack_check_self_intersections
         {}
     };
 public :
-    typedef state state_type;
+    using state_type = state;
 
     template
     <
@@ -155,7 +155,7 @@ template
 class backtrack_debug
 {
 public :
-    typedef backtrack_state state_type;
+    using state_type = backtrack_state;
 
     template <typename Operation, typename Rings, typename Turns>
     static inline void apply(std::size_t size_at_start,

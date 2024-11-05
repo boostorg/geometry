@@ -39,7 +39,7 @@ namespace detail { namespace overlay
 template <typename TurnOperation>
 struct indexed_turn_operation
 {
-    typedef TurnOperation type;
+    using type = TurnOperation;
 
     std::size_t turn_index;
     std::size_t operation_index;

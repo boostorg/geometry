@@ -154,7 +154,7 @@ struct ring_type
     detail::buffer::buffered_ring_collection<Ring>
 >
 {
-    typedef Ring type;
+    using type = Ring;
 };
 
 

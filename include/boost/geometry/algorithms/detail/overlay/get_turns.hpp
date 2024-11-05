@@ -357,7 +357,7 @@ public :
                                             *prev2, *it2,
                                             strategy);
 
-                    typedef typename boost::range_value<Turns>::type turn_info;
+                    using turn_info = typename boost::range_value<Turns>::type;
 
                     turn_info ti;
                     ti.operations[0].seg_id
@@ -496,14 +496,14 @@ public:
             InterruptPolicy& interrupt_policy)
     {
         // First create monotonic sections...
-        typedef typename boost::range_value<Turns>::type ip_type;
-        typedef typename ip_type::point_type point_type;
+        using ip_type = typename boost::range_value<Turns>::type;
+        using point_type = typename ip_type::point_type;
 
-        typedef model::box<point_type> box_type;
-        typedef geometry::sections<box_type, 2> sections_type;
+        using box_type = model::box<point_type>;
+        using sections_type = geometry::sections<box_type, 2>;
 
         sections_type sec1, sec2;
-        typedef std::integer_sequence<std::size_t, 0, 1> dimensions;
+        using dimensions = std::integer_sequence<std::size_t, 0, 1>;
 
         geometry::sectionalize<Reverse1, dimensions>(geometry1,
                                                      sec1, strategy, 0);
@@ -555,7 +555,7 @@ struct get_turns_cs
 
     struct unique_sub_range_from_box_policy
     {
-        typedef box_point_type point_type;
+        using point_type = box_point_type;
 
         unique_sub_range_from_box_policy(box_array const& box)
           : m_box(box)
@@ -584,7 +584,7 @@ struct get_turns_cs
 
     struct unique_sub_range_from_view_policy
     {
-        typedef range_point_type point_type;
+        using point_type = range_point_type;
 
         unique_sub_range_from_view_policy(view_type const& view, point_type const& pi, point_type const& pj, iterator_type it)
           : m_view(view)
@@ -684,7 +684,7 @@ private:
 
         // Depending on code some relations can be left out
 
-        typedef typename boost::range_value<Turns>::type turn_info;
+        using turn_info = typename boost::range_value<Turns>::type;
 
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
@@ -1014,8 +1014,10 @@ inline void get_turns(Geometry1 const& geometry1,
 {
     concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
-    typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
-    //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
+    using turn_policy_t = detail::overlay::get_turn_info<AssignPolicy>;
+    // Using get_turn_info_type would be more generic. But that is currently not compiling,
+    // because it misses the is_collinear field as used later in the algorithm.
+    // using turn_policy_t = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy>;
 
     std::conditional_t
         <
@@ -1026,7 +1028,7 @@ inline void get_turns(Geometry1 const& geometry1,
                 tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                TurnPolicy
+                turn_policy_t
             >,
             dispatch::get_turns
             <
@@ -1034,7 +1036,7 @@ inline void get_turns(Geometry1 const& geometry1,
                 tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                TurnPolicy
+                turn_policy_t
             >
         >::apply(0, geometry1,
                  1, geometry2,

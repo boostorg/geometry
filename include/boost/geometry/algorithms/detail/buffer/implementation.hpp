@@ -76,7 +76,7 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
                              PointStrategy const& point_strategy,
                              Strategies const& strategies)
     {
-        typedef typename boost::range_value<Output>::type polygon_type;
+        using polygon_type = typename boost::range_value<Output>::type;
 
         if (geometry::is_empty(geometry_in))
         {

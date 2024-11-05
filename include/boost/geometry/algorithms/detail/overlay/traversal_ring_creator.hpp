@@ -51,16 +51,16 @@ template
 >
 struct traversal_ring_creator
 {
-    typedef traversal
+    using traversal_type = traversal
             <
                 Reverse1, Reverse2, OverlayType,
                 Geometry1, Geometry2, Turns, Clusters,
                 Strategy,
                 Visitor
-            > traversal_type;
+            >;
 
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type turn_operation_type;
+    using turn_type = typename boost::range_value<Turns>::type;
+    using turn_operation_type = typename turn_type::turn_operation_type;
 
     static const operation_type target_operation
         = operation_from_overlay<OverlayType>::value;
@@ -254,7 +254,7 @@ struct traversal_ring_creator
             Rings& rings, std::size_t& finalized_ring_size,
             typename Backtrack::state_type& state)
     {
-        typedef typename boost::range_value<Rings>::type ring_type;
+        using ring_type = typename boost::range_value<Rings>::type;
 
         turn_operation_type const& start_op = start_turn.operations[op_index];
 

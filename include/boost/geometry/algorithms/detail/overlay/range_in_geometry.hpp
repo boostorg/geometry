@@ -33,7 +33,7 @@ template
 >
 struct points_range
 {
-    typedef geometry::point_iterator<Geometry const> iterator_type;
+    using iterator_type = geometry::point_iterator<Geometry const>;
 
     explicit points_range(Geometry const& geometry)
         : m_geometry(geometry)
@@ -113,7 +113,7 @@ static inline int range_in_geometry(Geometry1 const& geometry1,
 {
     int result = 0;
     points_range<Geometry1> points(geometry1);
-    typedef typename points_range<Geometry1>::iterator_type iterator_type;
+    using iterator_type = typename points_range<Geometry1>::iterator_type;
     iterator_type const end = points.end();
     iterator_type it = points.begin();
     if (it == end)
