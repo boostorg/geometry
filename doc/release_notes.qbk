@@ -20,6 +20,20 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.88]
+[/=================]
+
+[*Improvements]
+
+* Use using instead of typedef in part of the code
+* Modernize meta function with alias in part of the code
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1226 1226] [@https://github.com/boostorg/geometry/issues/1326 1326] Fix extra round on ring
+
+
+[/=================]
 [heading Boost 1.85]
 [/=================]
 
