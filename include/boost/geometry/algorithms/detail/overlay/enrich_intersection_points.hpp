@@ -441,7 +441,7 @@ inline void enrich_intersection_points(Turns& turns,
         has_colocations = ! clusters.empty();
     }
 
-    discard_duplicate_start_turns(turns, geometry1, geometry2);
+    discard_duplicate_turns(turns, geometry1, geometry2);
 
     // Discard turns not part of target overlay
     for (auto& turn : turns)
