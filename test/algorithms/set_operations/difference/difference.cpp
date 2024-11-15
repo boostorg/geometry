@@ -613,6 +613,13 @@ void test_all()
 
     TEST_DIFFERENCE(issue_1138, 1, 203161.751, 2, 1237551.0171, 1);
 
+    {
+        ut_settings settings;
+        settings.set_test_validity(false);
+        settings.validity_of_sym = false;
+        TEST_DIFFERENCE_WITH(issue_1226, 1, 0.238037722, 0, 0.0, 1, settings);
+    }
+
     TEST_DIFFERENCE(issue_1231, 2, 36.798659456837477, 3, 195.2986, 5);
 
     TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
@@ -625,6 +632,8 @@ void test_all()
     // The failing difference should be investigated more thoroughly.
     TEST_DIFFERENCE(issue_1295, 1, 9.999, 1, 9.999, 1);
 #endif
+
+    TEST_DIFFERENCE(issue_1326, 3, 6.7128537626409130468, 6, 0.00372806966532758478, 9);
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
