@@ -624,7 +624,16 @@ void test_all()
 
     TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
 
-    TEST_DIFFERENCE(issue_1293, 1, 1.40999, 1, 2.318951, 2);
+    {
+        // The symmetric difference reports an invalidity since the choice of
+        // discarding start/touch turns.
+        // This might be a false negative.
+        // Clockwise: "method: t; operations: u/x"
+        // CCW: "method: m; operations: i/x"
+        ut_settings settings;
+        settings.validity_of_sym = false;
+        TEST_DIFFERENCE_WITH(issue_1293, 1, 1.40999, 1, 2.318951, 2, settings);
+    }
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Difference fails for this case. This was not reported for this case.
@@ -634,6 +643,9 @@ void test_all()
 #endif
 
     TEST_DIFFERENCE(issue_1326, 3, 6.7128537626409130468, 6, 0.00372806966532758478, 9);
+
+    TEST_DIFFERENCE(issue_1342_a, 2, 5.762381026454777, 0, 0.0, 2);
+    TEST_DIFFERENCE(issue_1342_b, 2, 5.762381026454777, 1, 2.55e-14, 3);
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
