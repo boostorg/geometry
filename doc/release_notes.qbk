@@ -20,17 +20,28 @@
 [section:release_notes Release Notes]
 
 [/=================]
-[heading Boost 1.88]
+[heading Boost 1.87]
 [/=================]
 
 [*Improvements]
 
 * Use using instead of typedef in part of the code
 * Modernize meta function with alias in part of the code
+* Add support for modular build structure
+* Complete CMake coverage
+* Improve documentation workflow
+* Update Qt end WxWidgets examples
+* Add enumerate to prepare for 17 and 23
+
+[*Breaking changes]
+
+* Remove deprecated rescaling code
 
 [*Solved issues]
 
+* [@https://github.com/boostorg/geometry/issues/1309 1309] Fix some missing qbk includes
 * [@https://github.com/boostorg/geometry/issues/1226 1226] [@https://github.com/boostorg/geometry/issues/1326 1326] Fix extra round on ring
+* [@https://github.com/boostorg/geometry/issues/1293 1293] [@https://github.com/boostorg/geometry/issues/1294 1294] [@https://github.com/boostorg/geometry/issues/1295 1295] Fix traversal through non clustered rings
 
 
 [/=================]
