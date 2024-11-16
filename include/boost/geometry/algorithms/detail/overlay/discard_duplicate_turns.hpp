@@ -104,7 +104,7 @@ void discard_duplicate_start_turns(Turns& turns,
         return multi_and_ring_id_type{seg_id.multi_index, seg_id.ring_index};
     };
 
-    for (auto const& turn : turns)
+    for (auto& turn : turns)
     {
         // Any turn which "crosses" does not have a corresponding turn.
         // Also avoid comparing "start" with itself
@@ -112,18 +112,23 @@ void discard_duplicate_start_turns(Turns& turns,
         {
             continue;
         }
+        bool const is_touch = turn.method == method_touch;
         for (auto const& op : turn.operations)
         {
             auto it = start_turns_by_segment.find(adapt_id(op.seg_id));
-            if (it != start_turns_by_segment.end())
+            if (it == start_turns_by_segment.end())
             {
-                for (std::size_t const& i : it->second)
+                continue;
+            }
+            for (std::size_t const& i : it->second)
+            {
+                auto& start_turn = turns[i];
+                if (start_turn.cluster_id == turn.cluster_id
+                    && corresponding_turn(turn, start_turn, geometry0, geometry1))
                 {
-                    if (turns[i].cluster_id == turn.cluster_id
-                        && corresponding_turn(turn, turns[i], geometry0, geometry1))
-                    {
-                        turns[i].discarded = true;
-                    }
+                    // Discard the start turn, unless there is a touch before.
+                    // In that case the start is used and the touch is discarded.
+                    (is_touch ? turn : start_turn).discarded = true;
                 }
             }
         }
