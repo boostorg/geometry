@@ -569,7 +569,7 @@ struct touch : public base_turn_handler
             // ||
             // |^----
             // >----->P
-            // *            * they touch here (P/Q are (nearly) on top)
+            // *            * they touch here (P/Q are (nearly) on top of each other)
             //
             // Q continues from where P comes.
             // P continues from where Q comes
@@ -585,6 +585,14 @@ struct touch : public base_turn_handler
             // |  ^------   set Q to Union
             // >----->P     qj is LEFT of P1 and pi is LEFT of Q2
             //              (the other way round is also possible)
+
+            // There are also cases like this:
+            //      P
+            //      ^
+            //      ||
+            //      ||
+            // P----^-----<Q
+            // This code is not for these cases because of the condition opposite(side.pi_wrt_q1(), side.qk_wrt_p2())
 
             auto has_distance = [&](auto const& r1, auto const& r2) -> bool
             {
@@ -674,6 +682,7 @@ struct touch : public base_turn_handler
             {
                 if (side_qk_p1 == 0 && side_pk_q1 == 0
                     && has_pk && has_qk
+                    && opposite(side.pi_wrt_q1(), side.qk_wrt_p2())
                     && handle_imperfect_touch(range_p, range_q, side_pk_q2, umbrella_strategy, ti))
                 {
                     // If q continues collinearly (opposite) with p, it should be blocked
