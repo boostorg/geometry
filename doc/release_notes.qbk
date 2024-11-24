@@ -42,6 +42,7 @@
 * [@https://github.com/boostorg/geometry/issues/1309 1309] Fix some missing qbk includes
 * [@https://github.com/boostorg/geometry/issues/1226 1226] [@https://github.com/boostorg/geometry/issues/1326 1326] Fix extra round on ring
 * [@https://github.com/boostorg/geometry/issues/1293 1293] [@https://github.com/boostorg/geometry/issues/1294 1294] [@https://github.com/boostorg/geometry/issues/1295 1295] Fix traversal through non clustered rings
+* [@https://github.com/boostorg/geometry/issues/893 893] [@https://github.com/boostorg/geometry/issues/1299 1299] Fix blocking rings for non union conditions
 * [@https://github.com/boostorg/geometry/issues/1342 1342] Fix discarding a start turn for combination with touch
 
 [/=================]
