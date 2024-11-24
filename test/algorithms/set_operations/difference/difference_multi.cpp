@@ -152,19 +152,7 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 
-    {
-        // 1: Very small sliver for B (discarded when rescaling)
-        // 2: sym difference is not considered as valid (without rescaling
-        //    this is a false negative)
-        // 3: with rescaling A is considered as invalid (robustness problem)
-        ut_settings settings;
-        settings.validity_of_sym = true;
-        settings.validity_false_negative_sym = true;
-        TEST_DIFFERENCE_WITH(0, 1, bug_21155501,
-                             (count_set(1, 4)), expectation_limits(3.75893, 3.75894),
-                             (count_set(1, 4)), (expectation_limits(1.776357e-15, 7.661281e-15)),
-                             (count_set(2, 5)));
-    }
+    TEST_DIFFERENCE(bug_21155501, 1, 3.758937, 1, 1.78e-15, 1);
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     {
@@ -400,6 +388,8 @@ void test_areal()
     TEST_DIFFERENCE(mysql_regression_1_65_2017_08_31,
                     optional(), optional_sliver(1e-6),
                     3, 152.064185, count_set(3, 4));
+
+    TEST_DIFFERENCE(issue_1299, 1, 3.9706, 0, 0, 1);
 }
 
 
