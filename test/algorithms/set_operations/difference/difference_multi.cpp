@@ -211,6 +211,16 @@ void test_areal()
 
     TEST_DIFFERENCE(issue_900, 0, 0.0, 2, 35, 2);
 
+    TEST_DIFFERENCE(issue_1222, 2, 32.0, 1, 4.0, 1);
+    {
+        // "method: t; operations: c/c;" still happening in the result
+        // for multi/multi
+        ut_settings settings;
+        settings.set_test_validity(BG_IF_TEST_FAILURES);
+        settings.validity_of_sym = BG_IF_TEST_FAILURES;
+        TEST_DIFFERENCE_WITH(0, 1, issue_1288, 2, 10.95, 0, 0.0, 2);
+    }
+
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],

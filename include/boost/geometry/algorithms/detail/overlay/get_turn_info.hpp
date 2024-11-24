@@ -343,10 +343,14 @@ struct touch_interior : public base_turn_handler
     template
     <
         typename IntersectionInfo,
-        typename UniqueSubRange
+        typename SideCalculator,
+        typename UniqueSubRange1,
+        typename UniqueSubRange2
     >
     static bool handle_as_touch(IntersectionInfo const& info,
-                                UniqueSubRange const& non_touching_range)
+                                SideCalculator const& side,
+                                UniqueSubRange1 const& non_touching_range,
+                                UniqueSubRange2 const& other_range)
     {
         if BOOST_GEOMETRY_CONSTEXPR (! VerifyPolicy::use_handle_as_touch)
         {
@@ -354,6 +358,20 @@ struct touch_interior : public base_turn_handler
         }
         else // else prevents unreachable code warning
         {
+            bool const has_k = ! non_touching_range.is_last_segment()
+                && ! other_range.is_last_segment();
+            if (has_k
+                && (same(side.pj_wrt_q1(), side.qj_wrt_p2())
+                 || same(side.pj_wrt_q2(), side.qj_wrt_p1())))
+            {
+                // At a touch, the touching points (pj and qj) should be collinear
+                // with both other segments.
+                // If that is not the case (both left or both right), it should not be handled as a touch,
+                // (though the intersection point might be close to the end),
+                // because segments might cross each other or touch the other in the middle.
+                return false;
+            }
+
             //
             //
             //                         ^  Q(i)                ^ P(i)
@@ -1461,7 +1479,7 @@ struct get_turn_info
             if ( inters.d_info().arrival[1] == 1 )
             {
                 // Q arrives
-                if (handler::handle_as_touch(inters.i_info(), range_p))
+                if (handler::handle_as_touch(inters.i_info(), inters.sides(), range_p, range_q))
                 {
                     handle_as_touch = true;
                 }
@@ -1475,7 +1493,7 @@ struct get_turn_info
             else
             {
                 // P arrives, swap p/q
-                if (handler::handle_as_touch(inters.i_info(), range_q))
+                if (handler::handle_as_touch(inters.i_info(), inters.swapped_sides(), range_q, range_p))
                 {
                     handle_as_touch = true;
                 }
