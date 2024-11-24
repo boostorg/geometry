@@ -368,6 +368,8 @@ void test_areal()
     TEST_INTERSECTION(mysql_23023665_7, 2, 11, 9.80505786783);
     TEST_INTERSECTION(mysql_23023665_12, 2, 0, 11.812440191387557);
     TEST_INTERSECTION(mysql_regression_1_65_2017_08_31, 2, -1, 29.9022122);
+
+    TEST_INTERSECTION(issue_1299, 1, -1, 0.2964);
 }
 
 template <typename Polygon, typename MultiPolygon, typename Box>

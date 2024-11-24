@@ -102,38 +102,42 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             = target_operation == operation_union
             ? operation_intersection
             : operation_union;
+    static const bool is_union = target_operation == operation_union;
 
     for (auto const& turn : turns)
     {
         bool cluster_checked = false;
         bool has_blocked = false;
 
-        if (is_self_turn<OverlayType>(turn) && turn.discarded)
+        if (turn.discarded && (turn.method == method_start || is_self_turn<OverlayType>(turn)))
         {
-            // Discarded self-turns don't count as traversed
+            // Discarded self-turns or start turns don't need to block the ring
             continue;
         }
 
-        for (auto const& op : turn.operations)
+        for (int i = 0; i < 2; i++)
         {
+            auto const& op = turn.operations[i];
+            auto const& other_op = turn.operations[1 - i];
             ring_identifier const ring_id = ring_id_by_seg_id(op.seg_id);
 
-            if (! is_self_turn<OverlayType>(turn)
-                && (
-                    (BOOST_GEOMETRY_CONDITION(target_operation == operation_union)
-                      && op.enriched.count_left > 0)
-                  || (BOOST_GEOMETRY_CONDITION(target_operation == operation_intersection)
-                      && op.enriched.count_right <= 2)))
+            // If the turn (one of its operations) is used during traversal,
+            // and it is an intersection or difference, it cannot be set to blocked.
+            // This is a rare case, related to floating point precision,
+            // and can happen if there is, for example, only one start turn which is
+            // used to traverse through one of the rings (the other should be marked
+            // as not traversed, but neither blocked).
+            bool const can_block
+                = is_union
+                || ! (op.visited.finalized() || other_op.visited.finalized());
+
+            if (! is_self_turn<OverlayType>(turn) && can_block)
             {
-                // Avoid including untraversed rings which have polygons on
-                // their left side (union) or not two on their right side (int)
-                // This can only be done for non-self-turns because of count
-                // information
                 turn_info_map[ring_id].has_blocked_turn = true;
                 continue;
             }
 
-            if (turn.any_blocked())
+            if (is_union && turn.any_blocked())
             {
                 turn_info_map[ring_id].has_blocked_turn = true;
             }
@@ -157,6 +161,7 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             //             don't block (for union) i/u if there is an self-ii too
             if (has_blocked
                 || (op.operation == opposite_operation
+                    && can_block
                     && ! turn.has_colocated_both
                     && ! (turn.both(opposite_operation)
                           && is_self_turn<OverlayType>(turn))))
