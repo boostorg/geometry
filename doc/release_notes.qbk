@@ -20,6 +20,35 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.87]
+[/=================]
+
+[*Improvements]
+
+* Use using instead of typedef in part of the code
+* Modernize meta function with alias in part of the code
+* Add support for modular build structure
+* Complete CMake coverage (added github actions cmake tests)
+* Improve documentation workflow
+* Update Qt end WxWidgets examples
+* Add enumerate to prepare for 17 and 23
+
+[*Breaking changes]
+
+* Remove deprecated rescaling code
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1309 1309] Fix some missing qbk includes
+* [@https://github.com/boostorg/geometry/issues/1226 1226] [@https://github.com/boostorg/geometry/issues/1326 1326] Fix extra round on ring
+* [@https://github.com/boostorg/geometry/issues/1293 1293] [@https://github.com/boostorg/geometry/issues/1294 1294] [@https://github.com/boostorg/geometry/issues/1295 1295] Fix traversal through non clustered rings
+* [@https://github.com/boostorg/geometry/issues/893 893] [@https://github.com/boostorg/geometry/issues/1299 1299] Fix blocking rings for non union conditions
+* [@https://github.com/boostorg/geometry/issues/1342 1342] Fix discarding a start turn for combination with touch
+* [@https://github.com/boostorg/geometry/issues/1288 1288] [@https://github.com/boostorg/geometry/issues/1345 1345] Fixes in handling (imperfect) touch
+* [https://github.com/boostorg/geometry/issues/1279 1279] Fix covered_by incorrect results
+* Various fixes of errors and warnings
+
+[/=================]
 [heading Boost 1.85]
 [/=================]
 
