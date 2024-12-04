@@ -77,8 +77,6 @@ namespace detail { namespace overlay
 // There is also "isolated", making it more complex, and documented below.
 template
 <
-    bool Reverse1,
-    bool Reverse2,
     overlay_type OverlayType,
     typename Geometry1,
     typename Geometry2,
@@ -88,18 +86,34 @@ template
 >
 struct traversal_switch_detector
 {
-    static const operation_type target_operation
-            = operation_from_overlay<OverlayType>::value;
+    static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
     enum isolation_type
     {
-        isolation_no = 0,
+        isolation_unknown = 0,
         isolation_yes = 1,
-        isolation_multiple = 2
+        isolation_multiple = 2,
+        isolation_via = 3,
+        isolation_never = 4
     };
 
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
+    static std::string isolation_to_string(isolation_type const& iso) 
+    {
+        switch(iso)
+        {
+            case isolation_unknown : return "unknown";
+            case isolation_yes : return "yes";
+            case isolation_via : return "via";
+            case isolation_multiple : return "multiple";
+            case isolation_never : return "never";
+        }
+        return "error";
+    }
+#endif    
+
     using turn_type = typename boost::range_value<Turns>::type;
-    using set_type= std::set<signed_size_type>;
+    using set_type = std::set<signed_size_type>;
 
     // Per ring, first turns are collected (in turn_indices), and later
     // a region_id is assigned
@@ -124,7 +138,7 @@ struct traversal_switch_detector
     struct region_properties
     {
         signed_size_type region_id = -1;
-        isolation_type isolated = isolation_no;
+        isolation_type isolated = isolation_unknown;
         set_type unique_turn_ids;
         connection_map connected_region_counts;
     };
@@ -224,130 +238,100 @@ struct traversal_switch_detector
         return true;
     }
 
-    bool ii_turn_connects_two_regions(region_properties const& region,
-            region_properties const& connected_region,
-            signed_size_type turn_index) const
+    bool detect_connected_isolation_for_region(region_properties& properties)
     {
-        turn_type const& turn = m_turns[turn_index];
-        if (! turn.both(operation_intersection))
+        // If all but one are isolated, 
+        // and the connection to the remaining one is via one turn
+        // then it is complex isolated
+
+        set_type turns_of_region;
+        bool has_other_region_turns = false;
+        for (auto const& turn_id : properties.unique_turn_ids)
         {
-            return false;
-        }
-
-        signed_size_type const id0 = turn.operations[0].enriched.region_id;
-        signed_size_type const id1 = turn.operations[1].enriched.region_id;
-
-        return (id0 == region.region_id && id1 == connected_region.region_id)
-            || (id1 == region.region_id && id0 == connected_region.region_id);
-    }
-
-
-    bool isolated_multiple_connection(region_properties const& region,
-            region_properties const& connected_region) const
-    {
-        if (connected_region.isolated != isolation_multiple)
-        {
-            return false;
-        }
-
-        // First step: compare turns of regions with turns of connected region
-        set_type turn_ids = region.unique_turn_ids;
-        for (auto turn_id : connected_region.unique_turn_ids)
-        {
-            turn_ids.erase(turn_id);
-        }
-
-        // There should be one connection (turn or cluster) left
-        if (turn_ids.size() != 1)
-        {
-            return false;
-        }
-
-        for (auto id_or_index : connected_region.unique_turn_ids)
-        {
-            if (id_or_index >= 0)
+            if (turn_id < 0)
             {
-                if (! ii_turn_connects_two_regions(region, connected_region, id_or_index))
-                {
-                    return false;
-                }
+                turns_of_region.insert(turn_id);
+                continue;
+            }
+            turn_type const& turn = m_turns[turn_id];
+            if (turn.operations[0].enriched.region_id != turn.operations[1].enriched.region_id)
+            {
+                turns_of_region.insert(turn_id);
             }
             else
             {
-                signed_size_type const cluster_id = -id_or_index;
-                auto it = m_clusters.find(cluster_id);
-                if (it != m_clusters.end())
-                {
-                    cluster_info const& cinfo = it->second;
-                    for (auto turn_index : cinfo.turn_indices)
-                    {
-                        if (! ii_turn_connects_two_regions(region, connected_region, turn_index))
-                        {
-                            return false;
-                        }
-                    }
-                }
+                has_other_region_turns = true;
             }
         }
+        
+        set_type turns_to_remaining;
+        set_type turns_multiple;
 
-        return true;
-    }
-
-    bool has_only_isolated_children(region_properties const& region) const
-    {
-        bool first_with_turn = true;
-        signed_size_type first_turn_id = 0;
-
-        for (auto const& key_val : region.connected_region_counts)
+        for (auto const& key_val : properties.connected_region_counts)
         {
-            signed_size_type const region_id = key_val.first;
-            connection_properties const& cprop = key_val.second;
+            signed_size_type const& region_id = key_val.first;
+            region_properties const& connected_region = m_connected_regions[region_id];
 
-            auto mit = m_connected_regions.find(region_id);
-            if (mit == m_connected_regions.end())
+            if (connected_region.isolated == isolation_yes 
+                || connected_region.isolated == isolation_via)
             {
-                // Should not occur
-                return false;
-            }
-
-            region_properties const& connected_region = mit->second;
-
-            if (cprop.count != 1)
-            {
-                // If there are more connections, check their isolation
-                if (! isolated_multiple_connection(region, connected_region))
+                for (auto const& turn_id : key_val.second.unique_turn_ids)
                 {
-                    return false;
+                    turns_of_region.erase(turn_id);
                 }
             }
-
-            if (connected_region.isolated != isolation_yes
-                && connected_region.isolated != isolation_multiple)
+            else if (connected_region.isolated == isolation_multiple)
             {
-                signed_size_type const unique_turn_id = *cprop.unique_turn_ids.begin();
-                if (first_with_turn)
-                {
-                    first_turn_id = unique_turn_id;
-                    first_with_turn = false;
-                }
-                else if (first_turn_id != unique_turn_id)
-                {
-                    return false;
-                }
+                turns_multiple.insert(key_val.second.unique_turn_ids.begin(), key_val.second.unique_turn_ids.end());
+            }
+            else
+            {
+                turns_to_remaining.insert(key_val.second.unique_turn_ids.begin(), key_val.second.unique_turn_ids.end());
             }
         }
 
-        // If there is only one connection (with a 'parent'), and all other
-        // connections are itself isolated, it is isolated
-        return true;
+        bool const has_one_remaining = turns_to_remaining.size() == 1;
+
+        turns_to_remaining.insert(turns_multiple.begin(), turns_multiple.end());
+        if (!has_other_region_turns
+            && has_one_remaining
+            && turns_multiple.size() > 0
+            && turns_to_remaining == turns_of_region)
+        {
+            // Handles cases like this (#case_141_multi):
+            // +----------------------+  * where "m" are turns classified as multiple
+            // |          _____ m ___ |  * E is separate output polygon, located WITHIN the interior ring
+            // |         |    /  \   \|  * around it is an isolated interior ring (one, it is not divided)
+            // |   O     |   x E |    x  * located within the exterior ring E
+            // |         | ___\m/____/|
+            // |                      |
+            // +----------------------+
+
+            // There are geometrically quite different cases with a similar configuration (#case_128_multi)
+            // where this condition applies for the whole exterior ring as well.
+            // And #case_recursive_boxes_81 which is similar, but reversed (a polygon with an interior ring
+            // touching at two sides of the exterior - and therefore splitting it)
+            // At this place of the code, it is not known whether it will be (in the result)
+            // an exterior ring and the area is not known yet.
+
+            properties.isolated = isolation_via;
+            return true;
+        }
+
+        if (turns_of_region.size() <= 1 && turns_to_remaining.size() <= 1)
+        {
+            // It is connected to the remaining with maximum one turn (or cluster.
+            // The other turns of this region (if there were) were isolated (and therefore removed).
+            properties.isolated = isolation_via;
+            return true;
+        }
+
+        return false;
     }
+
 
     void get_isolated_regions()
     {
-        // First time: check regions isolated (one connection only),
-        // semi-isolated (multiple connections between same region),
-        // and complex isolated (connection with multiple rings but all
-        // at same point)
         for (auto& key_val : m_connected_regions)
         {
             region_properties& properties = key_val.second;
@@ -364,9 +348,10 @@ struct traversal_switch_detector
                 properties.isolated = isolation_yes;
             }
         }
+    }
 
-        // Propagate isolation to next level
-        // TODO: should be optimized
+    void get_connecting_isolated_regions()
+    {
         std::size_t defensive_check = 0;
         bool changed = true;
         while (changed && defensive_check++ < m_connected_regions.size())
@@ -375,11 +360,13 @@ struct traversal_switch_detector
             for (auto& key_val : m_connected_regions)
             {
                 region_properties& properties = key_val.second;
-
-                if (properties.isolated == isolation_no
-                        && has_only_isolated_children(properties))
+                if (properties.isolated != isolation_unknown)
                 {
-                    properties.isolated = isolation_yes;
+                    continue;
+                }
+
+                if (detect_connected_isolation_for_region(properties))
+                {
                     changed = true;
                 }
             }
@@ -390,45 +377,19 @@ struct traversal_switch_detector
     {
         for (turn_type& turn : m_turns)
         {
-            constexpr auto order1 = geometry::point_order<Geometry1>::value;
-            constexpr bool reverse1 = (order1 == boost::geometry::counterclockwise)
-                ? ! Reverse1 : Reverse1;
-
-            constexpr auto order2 = geometry::point_order<Geometry2>::value;
-            constexpr bool reverse2 = (order2 == boost::geometry::counterclockwise)
-                ? ! Reverse2 : Reverse2;
-
-            // For difference, for the input walked through in reverse,
-            // the meaning is reversed: what is isolated is actually not,
-            // and vice versa.
-            bool const reverseMeaningInTurn
-                    = (reverse1 || reverse2)
-                      && ! turn.is_self()
-                      && ! turn.is_clustered()
-                      && uu_or_ii(turn)
-                      && turn.operations[0].enriched.region_id
-                         != turn.operations[1].enriched.region_id;
-
             for (auto& op : turn.operations)
             {
                 auto mit = m_connected_regions.find(op.enriched.region_id);
-                if (mit != m_connected_regions.end())
+                if (mit == m_connected_regions.end())
                 {
-                    bool const reverseMeaningInOp
-                        = reverseMeaningInTurn
-                          && ((op.seg_id.source_index == 0 && reverse1)
-                               || (op.seg_id.source_index == 1 && reverse2));
-
-                    // It is assigned to isolated if it's property is "Yes",
-                    // (one connected interior, or chained).
-                    // "Multiple" doesn't count for isolation,
-                    // neither for intersection, neither for difference.
-                    region_properties const& prop = mit->second;
-                    op.enriched.isolated
-                            = reverseMeaningInOp
-                            ? false
-                            : prop.isolated == isolation_yes;
+                    continue;
                 }
+                // It is assigned to isolated if its property is "Yes",
+                // (one connected interior, or chained).
+                // "Multiple" doesn't count for isolation,
+                // neither for intersection, neither for difference.
+                region_properties const& prop = mit->second;
+                op.enriched.isolated = prop.isolated == isolation_yes || prop.isolated == isolation_via;
             }
         }
     }
@@ -605,18 +566,8 @@ struct traversal_switch_detector
     }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-    void debug_show_results()
+    void debug_show_region(region_properties const& prop) const
     {
-        auto isolation_to_string = [](isolation_type const& iso) -> std::string
-        {
-            switch(iso)
-            {
-                case isolation_no : return "no";
-                case isolation_yes : return "yes";
-                case isolation_multiple : return "multiple";
-            }
-            return "error";
-        };
         auto set_to_string = [](auto const& s) -> std::string
         {
             std::ostringstream result;
@@ -624,24 +575,27 @@ struct traversal_switch_detector
             return result.str();
         };
 
+        std::ostringstream sub;
+        sub << "[turns" << set_to_string(prop.unique_turn_ids)
+            << "] regions";
+        for (auto const& kvs : prop.connected_region_counts)
+        {
+            sub << " { " << kvs.first
+                << " : turns [" << set_to_string(kvs.second.unique_turn_ids)
+                << " ] }";
+        }
+
+        std::cout << "REGION " << prop.region_id
+                    << " " << isolation_to_string(prop.isolated)
+                    << " " << sub.str()
+                    << std::endl;
+    }
+
+    void debug_show_results()
+    {
         for (auto const& kv : m_connected_regions)
         {
-            auto const& prop = kv.second;
-
-            std::ostringstream sub;
-            sub << "[turns" << set_to_string(prop.unique_turn_ids)
-                << "] regions";
-            for (auto const& kvs : prop.connected_region_counts)
-            {
-                sub << " { " << kvs.first
-                    << " : via [" << set_to_string(kvs.second.unique_turn_ids)
-                    << " ] }";
-            }
-
-            std::cout << "REGION " << prop.region_id
-                      << " " << isolation_to_string(prop.isolated)
-                      << " " << sub.str()
-                      << std::endl;
+            debug_show_region(kv.second);
         }
 
         for (std::size_t turn_index = 0; turn_index < m_turns.size(); ++turn_index)
@@ -677,10 +631,7 @@ struct traversal_switch_detector
     void iterate()
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-        std::cout << "BEGIN SWITCH DETECTOR (region_ids and isolation)"
-                  << (Reverse1 ? " REVERSE_1" : "")
-                  << (Reverse2 ? " REVERSE_2" : "")
-                  << std::endl;
+        std::cout << "BEGIN SWITCH DETECTOR (region_ids and isolation)" << std::endl;
 #endif
 
         // Collect turns per ring
@@ -717,6 +668,7 @@ struct traversal_switch_detector
             assign_region_ids_to_enriched();
             assign_connected_regions();
             get_isolated_regions();
+            get_connecting_isolated_regions();
             assign_isolation_to_enriched();
         }
 

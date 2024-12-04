@@ -209,6 +209,8 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, issue_1288, 2, 10.95, 0, 0.0, 2);
     }
 
+    TEST_DIFFERENCE(issue_1349, 1, 2124933.296, 1, 1010.147, 2);
+
     // Areas and #clips correspond with POSTGIS (except sym case)
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_101_multi",
         case_101_multi[0], case_101_multi[1],
