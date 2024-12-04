@@ -356,7 +356,8 @@ void test_areal()
 
     TEST_INTERSECTION(issue_643, 1, -1, 3.4615);
 
-    TEST_INTERSECTION(issue_869_c, 3, -1, 3600);
+    TEST_INTERSECTION(issue_869_a_inverse, 3, -1, 3600.0);
+    TEST_INTERSECTION(issue_869_c, 3, -1, 3600.0);
 
     TEST_INTERSECTION(issue_888_34, 7, -1, 0.0256838);
     TEST_INTERSECTION(issue_888_37, 13, -1, 0.0567043);
