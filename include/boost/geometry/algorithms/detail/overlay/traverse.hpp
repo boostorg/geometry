@@ -78,7 +78,7 @@ public :
     {
         traversal_switch_detector
             <
-                Reverse1, Reverse2, OverlayType,
+                OverlayType,
                 Geometry1, Geometry2,
                 Turns, Clusters,
                 Visitor
