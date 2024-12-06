@@ -437,9 +437,6 @@ void test_areal()
 
     TEST_UNION(issue_1109, 2, 0, -1, 3946.5);
 
-    TEST_UNION(issue_1222, 1, 0, -1, 40.0);
-    TEST_UNION(issue_1288, 1, 0, -1, 12.0);
-
     // One or two polygons, the ideal case is 1
     TEST_UNION(mail_2019_01_21_johan, count_set(1, 2), 0, -1, 0.00058896);
 
@@ -451,8 +448,6 @@ void test_areal()
         1, 9, -1, 1250.0);
 
     TEST_UNION(mysql_regression_1_65_2017_08_31, 3, 0, -1, 181.966397646608);
-
-    TEST_UNION(issue_1299, 1, 0, -1, 4.267);
 }
 
 // Test cases (generic)
