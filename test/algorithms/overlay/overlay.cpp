@@ -1,7 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2015 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2015-2024 Barend Gehrels, Amsterdam, the Netherlands.
 
 // This file was modified by Oracle on 2017-2024.
 // Modifications copyright (c) 2017-2024, Oracle and/or its affiliates.
@@ -12,6 +12,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#if defined(TEST_WITH_GEOJSON)
+#define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#endif
 
 #include <iostream>
 #include <iomanip>
@@ -25,314 +28,89 @@
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
+#include <boost/geometry/algorithms/sym_difference.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/views/enumerate_view.hpp>
 
-#if defined(TEST_WITH_SVG)
-#  include <boost/geometry/io/svg/svg_mapper.hpp>
+#if defined(TEST_WITH_GEOJSON)
+#include <boost/geometry/extensions/gis/io/geojson/geojson_writer.hpp>
 #endif
 
 #include "multi_overlay_cases.hpp"
 
 
-#if defined(TEST_WITH_SVG)
-template <typename Mapper>
-struct map_visitor
+#if defined(TEST_WITH_GEOJSON)
+struct geojson_visitor : public boost::geometry::detail::overlay::overlay_null_visitor
 {
-    map_visitor(Mapper& mapper)
-        : m_mapper(mapper)
-        , m_traverse_seq(0)
-        , m_do_output(true)
+    geojson_visitor(boost::geometry::geojson_writer& writer)
+        : m_writer(writer)
     {}
-
-    void print(char const* header)
-    {}
-
-    template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index)
-    {
-        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
-        stream(turns, turns[turn_index], turns[turn_index].operations[0], header, style);
-    }
-
-    template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index, int op_index)
-    {
-        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
-        stream(turns, turns[turn_index], turns[turn_index].operations[op_index], header, style);
-    }
 
     template <typename Turns>
     void visit_turns(int phase, Turns const& turns)
     {
-        int index = 0;
-        for (auto const& turn : turns)
-        {
-            switch (phase)
-            {
-                case 1 :
-                    m_mapper.map(turn.point, "fill:rgb(255,128,0);"
-                            "stroke:rgb(0,0,0);stroke-width:1", 3);
-                    break;
-                case 11 :
-                    m_mapper.map(turn.point, "fill:rgb(92,255,0);" // Greenish
-                            "stroke:rgb(0,0,0);stroke-width:1", 3);
-                    break;
-                case 21 :
-                    m_mapper.map(turn.point, "fill:rgb(0,128,255);" // Blueish
-                            "stroke:rgb(0,0,0);stroke-width:1", 3);
-                    break;
-                case 3 :
-                    label_turn(index, turn);
-                    break;
-            }
-            index++;
-        }
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    std::string stream_turn_index(Turns const& turns, Turn const& turn, Operation const& op)
-    {
-        std::ostringstream out;
-
-        if (turn.cluster_id >= 0)
-        {
-            out << "cl=" << turn.cluster_id << " ";
-        }
-
-        // Because turn index is unknown here, and still useful for debugging,
-        std::size_t index = 0;
-        for (typename Turns::const_iterator it = turns.begin();
-           it != turns.end(); ++it, ++index)
-        {
-          Turn const& t = *it;
-          if (&t == &turn)
-          {
-              out << index;
-              break;
-          }
-        }
-
-        if (&op == &turn.operations[0]) { out << "[0]"; }
-        if (&op == &turn.operations[1]) { out << "[1]"; }
-        return out.str();
-    }
-
-    template <typename Clusters, typename Turns>
-    void visit_clusters(Clusters const& clusters, Turns const& turns)
-    {
-        int index = 0;
-        for (auto const& turn : turns)
-        {
-            if (turn.cluster_id >= 0)
-            {
-                std::cout << " TURN: " << index << "  part of cluster "  << turn.cluster_id << std::endl;
-            }
-            index++;
-        }
-
-        for (typename Clusters::const_iterator it = clusters.begin(); it != clusters.end(); ++it)
-        {
-            std::cout << " CLUSTER " << it->first << ": ";
-            for (typename std::set<bg::signed_size_type>::const_iterator sit
-                 = it->second.turn_indices.begin();
-                 sit != it->second.turn_indices.end(); ++sit)
-            {
-                std::cout << " "  << *sit;
-            }
-            std::cout << std::endl;
-        }
-
-        std::cout << std::endl;
-
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header)
-    {
-        if (! m_do_output)
+        if (phase != 3)
         {
             return;
         }
 
-        std::cout << "Visit turn " << stream_turn_index(turns, turn, op)
-                  << " " << bg::operation_char(turn.operations[0].operation)
-                    << bg::operation_char(turn.operations[1].operation)
-                << " (" << bg::operation_char(op.operation) << ")"
-                << " "  << header << std::endl;
-
-        // Uncomment for more detailed debug info in SVG on traversal
-        std::string style
-                = header == "Visit" ? "fill:rgb(80,80,80)" : "fill:rgb(0,0,0)";
-
-        style += ";font-family:Arial;font-size:6px";
-
-        stream(turns, turn, op, header.substr(0, 1), style);
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& turns, Turn const& turn, Operation const& op,
-                               bg::detail::overlay::traverse_error_type error)
-    {
-        if (! m_do_output)
+        for (auto const& enumerated : boost::geometry::util::enumerate(turns))
         {
-            return;
-        }
-        std::cout << "Reject turn " << stream_turn_index(turns, turn, op)
-                  << bg::operation_char(turn.operations[0].operation)
-                    << bg::operation_char(turn.operations[1].operation)
-                << " (" << bg::operation_char(op.operation) << ")"
-                << " "  << bg::detail::overlay::traverse_error_string(error) << std::endl;
-        //return;
-
-        std::string style =  "fill:rgb(255,0,0);font-family:Arial;font-size:7px";
-        stream(turns, turn, op, bg::detail::overlay::traverse_error_string(error), style);
-
-        m_do_output = false;
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_select_turn_from_cluster(Turns const& turns, Turn const& turn, Operation const& op)
-    {
-        std::cout << "Visit turn from cluster " << stream_turn_index(turns, turn, op)
-                  << " " << bg::operation_char(turn.operations[0].operation)
-                    << bg::operation_char(turn.operations[1].operation)
-                << " (" << bg::operation_char(op.operation) << ")"
-                << std::endl;
-        return;
-    }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void stream(Turns const& turns, Turn const& turn, Operation const& op, const std::string& header, const std::string& style)
-    {
-        std::ostringstream out;
-        out << m_traverse_seq++ << " " << header
-            << " " << stream_turn_index(turns, turn, op);
-
-        out << " " << bg::visited_char(op.visited);
-
-        add_text(turn, out.str(), style);
-    }
-
-    template <typename Turn>
-    bool label_operation(Turn const& turn, int index, std::ostream& os)
-    {
-        os << bg::operation_char(turn.operations[index].operation);
-        bool result = false;
-        if (! turn.discarded)
-        {
-            if (turn.operations[index].enriched.next_ip_index != -1)
+            auto index = enumerated.index;
+            auto const& turn = enumerated.value;
+            auto label_enriched = [&turn](int i)
             {
-                os << "->" << turn.operations[index].enriched.next_ip_index;
-                if (turn.operations[index].enriched.next_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
-            else
+                auto const& op = turn.operations[i].enriched;
+                std::ostringstream out;
+                out //<< " l:" << op.count_left << " r:" << op.count_right
+                    //<< " rank:" << op.rank
+                    // << " z:" << op.zone
+                    << " region:" << op.region_id
+                    << (op.isolated ? " ISOLATED" : "");
+                return out.str();
+            };
+            auto label_operation_ids = [&turn](int op_index)
             {
-                os << "->"  << turn.operations[index].enriched.travels_to_ip_index;
-                if (turn.operations[index].enriched.travels_to_ip_index != -1)
-                {
-                    result = true;
-                }
-            }
-
-            os << " {" << turn.operations[index].enriched.region_id
-               << (turn.operations[index].enriched.isolated ? " ISO" : "")
-               << "}";
-
-            if (! turn.operations[index].enriched.startable)
+                std::ostringstream out;
+                out << bg::operation_char(turn.operations[op_index].operation)
+                    << ": " << turn.operations[op_index].seg_id
+                    << " " << turn.operations[op_index].enriched.next_ip_index
+                    << "|" << turn.operations[op_index].enriched.travels_to_ip_index;
+                return out.str();
+            };
+            auto label_operations = [&turn]()
             {
-                os << "$";
-            }
+                std::ostringstream out;
+                out << bg::operation_char(turn.operations[0].operation)
+                    << bg::operation_char(turn.operations[1].operation);
+                return out.str();
+            };
+            auto label_travel = [&turn]()
+            {
+                std::ostringstream out;
+                out << turn.operations[0].enriched.travels_to_ip_index
+                    << "|" << turn.operations[1].enriched.travels_to_ip_index;
+                return out.str();
+            };
+
+            m_writer.feature(turn.point);
+            m_writer.add_property("index", index);
+            m_writer.add_property("method", bg::method_char(turn.method));
+            m_writer.add_property("operations", label_operations());
+            m_writer.add_property("travels_to", label_travel());
+            m_writer.add_property("cluster_id", turn.cluster_id);
+            m_writer.add_property("discarded", turn.discarded);
+            m_writer.add_property("has_colocated_both", turn.has_colocated_both);
+            m_writer.add_property("self_turn", bg::detail::overlay::is_self_turn<bg::overlay_union>(turn));
+            m_writer.add_property("operation_0", label_operation_ids(0));
+            m_writer.add_property("operation_1", label_operation_ids(1));
+            m_writer.add_property("enriched_0", label_enriched(0));
+            m_writer.add_property("enriched_1", label_enriched(1));
         }
-
-        return result;
     }
 
-    template <typename Turn>
-    void label_turn(int index, Turn const& turn)
-    {
-        std::ostringstream out;
-        out << index << " ";
-        if (turn.cluster_id != -1)
-        {
-            out << " c=" << turn.cluster_id << " ";
-        }
-        bool lab1 = label_operation(turn, 0, out);
-        out << " / ";
-        bool lab2 = label_operation(turn, 1, out);
-        if (turn.discarded)
-        {
-            out << "!";
-        }
-        if (turn.has_colocated_both)
-        {
-            out << "+";
-        }
-        bool const self_turn = bg::detail::overlay::is_self_turn<bg::overlay_union>(turn);
-        if (self_turn)
-        {
-            out << "@";
-        }
-
-        std::string font8 = "font-family:Arial;font-size:6px";
-        std::string font6 = "font-family:Arial;font-size:4px";
-        std::string style =  "fill:rgb(0,0,255);" + font8;
-        if (self_turn)
-        {
-            if (turn.discarded)
-            {
-                style =  "fill:rgb(128,28,128);" + font6;
-            }
-            else
-            {
-                style =  "fill:rgb(255,0,255);" + font8;
-            }
-        }
-        else if (turn.discarded)
-        {
-            style =  "fill:rgb(92,92,92);" + font6;
-        }
-        else if (turn.cluster_id != -1)
-        {
-            style =  "fill:rgb(0,0,255);" + font8;
-        }
-        else if (! lab1 || ! lab2)
-        {
-            style =  "fill:rgb(0,0,255);" + font6;
-        }
-
-        add_text(turn, out.str(), style);
-    }
-
-    template <typename Turn>
-    void add_text(Turn const& turn, std::string const& text, std::string const& style)
-    {
-        int const margin = 5;
-        int const lineheight = 6;
-        double const half = 0.5;
-        double const ten = 10;
-
-        // Map characteristics
-        // Create a rounded off point
-        std::pair<int, int> p
-            = std::make_pair(
-                util::numeric_cast<int>(half
-                    + ten * bg::get<0>(turn.point)),
-                util::numeric_cast<int>(half
-                    + ten * bg::get<1>(turn.point))
-                );
-        m_mapper.text(turn.point, text, style, margin, m_offsets[p], lineheight);
-        m_offsets[p] += lineheight;
-    }
-
-
-    Mapper& m_mapper;
-    std::map<std::pair<int, int>, int> m_offsets;
-    int m_traverse_seq;
-    bool m_do_output;
+    boost::geometry::geojson_writer& m_writer;
 
 };
 #endif
@@ -350,35 +128,22 @@ void test_overlay(std::string const& caseid,
     Geometry g2;
     bg::read_wkt(wkt2, g2);
 
-    // Reverse if necessary
     bg::correct(g1);
     bg::correct(g2);
 
-#if defined(TEST_WITH_SVG)
-    bool const ccw = bg::point_order<Geometry>::value == bg::counterclockwise;
-    bool const open = bg::closure<Geometry>::value == bg::open;
-
+#if defined(TEST_WITH_GEOJSON)
     std::ostringstream filename;
-    filename << "overlay"
-        << "_" << caseid
-        << "_" << string_from_type<typename bg::coordinate_type<Geometry>::type>::name()
-        << (ccw ? "_ccw" : "")
-        << (open ? "_open" : "")
-        << ".svg";
+    // For QGis, it is usually convenient to always write to the same geojson file.
+    filename << "/tmp/"
+        // << caseid << "_"
+        << "overlay.geojson";
+    std::ofstream geojson_file(filename.str().c_str());
 
-    std::ofstream svg(filename.str().c_str());
-
-    using svg_mapper = bg::svg_mapper<typename bg::point_type<Geometry>::type>;
-
-    svg_mapper mapper(svg, 500, 500);
-    mapper.add(g1);
-    mapper.add(g2);
-
-    // Input shapes in green (src=0) / blue (src=1)
-    mapper.map(g1, "fill-opacity:0.5;fill:rgb(153,204,0);"
-            "stroke:rgb(153,204,0);stroke-width:3");
-    mapper.map(g2, "fill-opacity:0.3;fill:rgb(51,51,153);"
-            "stroke:rgb(51,51,153);stroke-width:3");
+    boost::geometry::geojson_writer writer(geojson_file);
+    writer.feature(g1);
+    writer.add_property("type", "input1");
+    writer.feature(g2);
+    writer.add_property("type", "input2");
 #endif
 
 
@@ -402,15 +167,14 @@ void test_overlay(std::string const& caseid,
 
     strategy_type strategy;
 
-#if defined(TEST_WITH_SVG)
-    map_visitor<svg_mapper> visitor(mapper);
+#if defined(TEST_WITH_GEOJSON)
+    geojson_visitor visitor(writer);
 #else
     bg::detail::overlay::overlay_null_visitor visitor;
 #endif
 
     Geometry result;
-    overlay::apply(g1, g2, std::back_inserter(result),
-                   strategy, visitor);
+    overlay::apply(g1, g2, std::back_inserter(result), strategy, visitor);
 
     std::string message;
     bool const valid = check_validity<Geometry>::apply(result, caseid, g1, g2, message);
@@ -428,10 +192,24 @@ void test_overlay(std::string const& caseid,
                         << " clip count: detected: " << result.size()
                         << " expected: "  << expected_clip_count);
 
-#if defined(TEST_WITH_SVG)
-    mapper.map(result, "fill-opacity:0.2;stroke-opacity:0.4;fill:rgb(255,0,0);"
-                        "stroke:rgb(255,0,255);stroke-width:8");
+#if defined(TEST_WITH_GEOJSON)
+    std::size_t result_index = 0;
+    for (auto const& p : result)
+    {
+        writer.feature(p);
+        writer.add_property("type", "result");
+        writer.add_property("index", result_index++);
+    }
 
+    for (auto const& p : result)
+    {
+        for (const auto& ring : bg::interior_rings(p))
+        {
+            writer.feature(ring);
+            writer.add_property("type", "hole");
+            writer.add_property("index", result_index++);
+        }
+    }
 #endif
 }
 
