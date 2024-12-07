@@ -40,9 +40,5 @@ int test_main(int, char* [])
     test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 #endif
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES);
-#endif
-
     return 0;
 }

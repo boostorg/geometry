@@ -123,7 +123,8 @@ template<> struct EndTestProperties<boost::geometry::strategy::buffer::end_flat>
 
 struct ut_settings : public ut_base_settings
 {
-    explicit ut_settings(double tol = 0.01, bool val = true, int points = 88)
+    static constexpr double default_tolerance = 0.01;
+    explicit ut_settings(double tol = default_tolerance, bool val = true, int points = 88)
         : ut_base_settings(val)
         , tolerance(tol)
         , points_per_circle(points)

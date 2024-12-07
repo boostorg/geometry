@@ -955,10 +955,6 @@ int test_main(int, char* [])
     test_mixed<dpoint, dpoint, true, true, false, true>();
 #endif
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 9, 1);
-#endif
-
     test_different();
 
     return 0;

@@ -51,10 +51,11 @@ void test_all()
     test_one<multi_point_type, polygon>("simplex3", simplex, join, end_flat, 44.5619, 3.0);
 
     test_one<multi_point_type, polygon>("three1", three, join, end_flat, 3.0 * expectation, 1.0);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // fails in CCW mode
-    test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7528, 2.0);
-#endif
+    {
+        // Is reported as invalid for in CCW mode: test validity only for clockwise
+        ut_settings const settings(ut_settings::default_tolerance, Clockwise);
+        test_one<multi_point_type, polygon>("three2", three, join, end_flat, 36.7528, 2.0, settings);
+    }
     test_one<multi_point_type, polygon>("three19", three, join, end_flat, 33.6857, 1.9);
     test_one<multi_point_type, polygon>("three21", three, join, end_flat, 39.6337, 2.1);
     test_one<multi_point_type, polygon>("three3", three, join, end_flat, 65.5243, 3.0);
@@ -218,10 +219,6 @@ int test_main(int, char* [])
     test_many_points_per_circle<bg::model::point<double, 2, bg::cs::cartesian> >();
 #else
     std::cout << "Skipping some tests in debug or unknown mode" << std::endl;
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(BG_NO_FAILURES);
 #endif
 
     return 0;

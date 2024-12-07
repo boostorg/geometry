@@ -213,32 +213,4 @@ inline void BoostGeometryWriteTestConfiguration()
     std::cout << std::endl;
 }
 
-#ifdef BOOST_GEOMETRY_TEST_FAILURES
-#define BG_NO_FAILURES 0
-inline void BoostGeometryWriteExpectedFailures(std::size_t for_double,
-                                               std::size_t for_float,
-                                               std::size_t for_extended)
-{
-    std::size_t const expected
-        = if_typed<default_test_type, double>(for_double,
-              if_typed<default_test_type, float>(for_float,
-                  for_extended));
-
-    boost::ignore_unused(expected, for_double, for_float, for_extended);
-
-
-#if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE) && defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
-    std::cout << "Expected: " << expected << " error(s)" << std::endl;
-#else
-    std::cout << std::endl;
-#endif
-}
-
-inline void BoostGeometryWriteExpectedFailures(std::size_t for_double = BG_NO_FAILURES)
-{
-    BoostGeometryWriteExpectedFailures(for_double, for_double, for_double);
-}
-
-#endif
-
 #endif // GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP
