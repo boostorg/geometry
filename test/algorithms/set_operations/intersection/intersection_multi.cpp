@@ -484,10 +484,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float> >();
 #endif
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 2, 1);
-#endif
-
     return 0;
 }
 
