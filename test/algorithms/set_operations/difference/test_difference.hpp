@@ -79,7 +79,9 @@ struct ut_settings : ut_base_settings
     bool validity_false_negative_b = false;
     bool validity_false_negative_sym = false;
 
-    explicit ut_settings(double p = 0.0001, bool validity = true, bool sd = true)
+    static constexpr double default_tolerance = 0.0001;
+
+    explicit ut_settings(double p = default_tolerance, bool validity = true, bool sd = true)
         : ut_base_settings(validity)
         , percentage(p)
         , sym_difference(sd)
@@ -215,7 +217,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
 #if ! defined(BOOST_GEOMETRY_NO_BOOST_TEST)
     if (settings.test_validity_of_diff(dtype))
     {
-        // std::cout << bg::dsv(result) << std::endl;
         typedef bg::model::multi_polygon<OutputType> result_type;
         std::string message;
         bool const valid = check_validity<result_type>::apply(result, caseid, g1, g2, message);
