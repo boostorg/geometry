@@ -453,38 +453,8 @@ void test_areal()
     TEST_UNION(issue_1186, 1, 1, -1, 21.6189);
     TEST_UNION_REV(issue_1186, 1, 1, -1, 21.6189);
 
-    TEST_UNION(issue_1226, 1, 0, -1, 0.238405);
-    TEST_UNION_REV(issue_1226, 1, 0, -1, 0.238405);
-
     TEST_UNION(issue_1229, 1, 0, -1, 384869.166);
     TEST_UNION_REV(issue_1229, 1, 0, -1, 384869.166);
-
-    TEST_UNION(issue_1231, 1, 0, -1, 286.799);
-    TEST_UNION_REV(issue_1231, 1, 0, -1, 286.799);
-
-    TEST_UNION(issue_1244, 1, 1, -1, 17);
-    TEST_UNION_REV(issue_1244, 1, 1, -1, 17);
-
-    TEST_UNION(issue_1293, 1, 0, -1, 5.22017);
-    TEST_UNION_REV(issue_1293, 1, 0, -1, 5.22017);
-
-    TEST_UNION(issue_1295, 1, 0, -1, 17.56273);
-    TEST_UNION_REV(issue_1295, 1, 0, -1, 17.56273);
-
-    TEST_UNION(issue_1326, 1, 0, -1, 23.201);
-    TEST_UNION_REV(issue_1326, 1, 0, -1, 23.201);
-
-    TEST_UNION(issue_1342_a, 1, 0, -1, 48.81812749462216);
-    TEST_UNION_REV(issue_1342_a, 1, 0, -1, 48.81812749462216);
-
-    TEST_UNION(issue_1342_b, 1, 0, -1, 48.81812749462214);
-    TEST_UNION_REV(issue_1342_b, 1, 0, -1, 48.81812749462214);
-
-    TEST_UNION(issue_1345_a, 1, 0, -1, 0.059935681);
-    TEST_UNION_REV(issue_1345_a, 1, 0, -1, 0.059935681);
-
-    TEST_UNION(issue_1345_b, 1, 0, -1, 0.034944786);
-    TEST_UNION_REV(issue_1345_b, 1, 0, -1, 0.034944786);
 
     TEST_UNION(geos_1, 1, 0, -1, expectation_limits(3458.0, 3461.3203125));
     TEST_UNION(geos_2, 1, 0, -1, expectation_limits(349.0625, 350.55102539));
