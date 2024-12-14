@@ -199,7 +199,6 @@ void test_areal()
     TEST_UNION(case_138_multi, 2, 1, -1, 65.225);
     TEST_UNION(case_139_multi, 2, 1, -1, 64.953);
     TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
-    TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
     TEST_UNION(case_multi_rectangular, 1, 1, -1, 33125);
     TEST_UNION(case_multi_diagonal, 1, 2, -1, 5350);

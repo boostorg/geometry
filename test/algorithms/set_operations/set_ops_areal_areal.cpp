@@ -17,40 +17,71 @@
 // Use another alias, on purpose it is not "bg::" here
 namespace bgeo = boost::geometry;
 
+// For convenience and to test current failures
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+#define BG_IF_TEST_FAILURES true
+#else
+#define BG_IF_TEST_FAILURES false
+#endif
+
 struct ut_settings
 {
     explicit ut_settings()
     {}
 
+    inline ut_settings& ignore_reverse()
+    {
+        test_reverse = BG_IF_TEST_FAILURES;
+        return *this;
+    }
+
+    inline ut_settings& ignore_diff()
+    {
+        test_difference = BG_IF_TEST_FAILURES;
+        return *this;
+    }
+
     inline ut_settings& ignore_validity()
     {
-        test_validity = false;
+        test_validity = BG_IF_TEST_FAILURES;
+        return *this;
+    }
+
+    inline ut_settings& ignore_validity_union()
+    {
+        test_validity_union = BG_IF_TEST_FAILURES;
+        return *this;
+    }
+
+    inline ut_settings& ignore_validity_intersection()
+    {
+        test_validity_intersection = BG_IF_TEST_FAILURES;
         return *this;
     }
 
     inline ut_settings& ignore_validity_diff()
     {
-        test_validity_diff1 = false;
-        test_validity_diff2 = false;
-        test_validity_diff_sym = false;
+        test_validity_diff1 = BG_IF_TEST_FAILURES;
+        test_validity_diff2 = BG_IF_TEST_FAILURES;
+        test_validity_diff_sym = BG_IF_TEST_FAILURES;
         return *this;
     }
 
     inline ut_settings& ignore_validity_diff1()
     {
-        test_validity_diff1 = false;
+        test_validity_diff1 = BG_IF_TEST_FAILURES;
         return *this;
     }
 
     inline ut_settings& ignore_validity_diff2()
     {
-        test_validity_diff2 = false;
+        test_validity_diff2 = BG_IF_TEST_FAILURES;
         return *this;
     }
 
     inline ut_settings& ignore_validity_diff_sym()
     {
-        test_validity_diff_sym = false;
+        test_validity_diff_sym = BG_IF_TEST_FAILURES;
         return *this;
     }
 
@@ -60,7 +91,12 @@ struct ut_settings
         return *this;
     }
 
+    bool test_reverse{true};
+    bool test_difference{true};
+
     bool test_validity{true};
+    bool test_validity_union{true};
+    bool test_validity_intersection{true};
     bool test_validity_diff1{true};
     bool test_validity_diff2{true};
     bool test_validity_diff_sym{true};
@@ -112,17 +148,23 @@ void test_detail(std::string const& name, std::string const& wkt1, std::string c
 
     BOOST_CHECK_MESSAGE(bgeo::math::abs(balance) < eps,
         "Case: " << name << " wrong union or intersection " << balance);
-    BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_d1) < eps,
-        "Case: " << name << " wrong difference (a-b) " << balance_d1);
-    BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_d2) < eps,
-        "Case: " << name << " wrong difference (b-a) " << balance_d2);
-    BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_sym) < eps,
-        "Case: " << name << " wrong symmetric difference " << balance_sym);
+    if (settings.test_difference)
+    {
+        BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_d1) < eps,
+            "Case: " << name << " wrong difference (a-b) " << balance_d1);
+        BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_d2) < eps,
+            "Case: " << name << " wrong difference (b-a) " << balance_d2);
+        BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_sym) < eps,
+            "Case: " << name << " wrong symmetric difference " << balance_sym);
+    }
 
-    BOOST_CHECK_MESSAGE(bgeo::math::abs(area_union - bgeo::area(result_union_rev)) < eps,
-        "Case: " << name << " wrong union reversed: " << area_union << " != " << bgeo::area(result_union_rev));
-    BOOST_CHECK_MESSAGE(bgeo::math::abs(area_intersection - bgeo::area(result_intersection_rev)) < eps,
-        "Case: " << name << " wrong intersection reversed: " << area_intersection << " != " << bgeo::area(result_intersection_rev));
+    if (settings.test_reverse)
+    {
+        BOOST_CHECK_MESSAGE(bgeo::math::abs(area_union - bgeo::area(result_union_rev)) < eps,
+            "Case: " << name << " wrong union reversed: " << area_union << " != " << bgeo::area(result_union_rev));
+        BOOST_CHECK_MESSAGE(bgeo::math::abs(area_intersection - bgeo::area(result_intersection_rev)) < eps,
+            "Case: " << name << " wrong intersection reversed: " << area_intersection << " != " << bgeo::area(result_intersection_rev));
+    }
 
     if (settings.test_validity)
     {
@@ -130,10 +172,16 @@ void test_detail(std::string const& name, std::string const& wkt1, std::string c
             "Case: " << name << " geometry1 is not valid");
         BOOST_CHECK_MESSAGE(bgeo::is_valid(geometry2),
             "Case: " << name << " geometry2 is not valid");
-        BOOST_CHECK_MESSAGE(bgeo::is_valid(result_union),
-            "Case: " << name << " union is not valid");
-        BOOST_CHECK_MESSAGE(bgeo::is_valid(result_intersection),
-            "Case: " << name << " intersection is not valid");
+        if (settings.test_validity_union)
+        {
+            BOOST_CHECK_MESSAGE(bgeo::is_valid(result_union),
+                "Case: " << name << " union is not valid");
+        }
+        if (settings.test_validity_intersection)
+        {
+            BOOST_CHECK_MESSAGE(bgeo::is_valid(result_intersection),
+                "Case: " << name << " intersection is not valid");
+        }
         if (settings.test_validity_diff1)
         {
             BOOST_CHECK_MESSAGE(bgeo::is_valid(diff1),
@@ -193,9 +241,20 @@ void test_all(std::string const& name, std::string const& wkt1, std::string cons
 
 int test_main(int, char* [])
 {
+    TEST_CASE_WITH(case_141_multi, 0, 1, ut_settings().ignore_reverse());
+    TEST_CASE(case_142_multi);
+    TEST_CASE(case_143_multi);
+    TEST_CASE(case_144_multi);
+    TEST_CASE(case_145_multi);
+    TEST_CASE_WITH(case_146_multi, 0, 1, ut_settings().ignore_validity_intersection());
+    TEST_CASE(case_147_multi);
+
+    TEST_CASE_WITH(issue_1221, 0, 1, ut_settings().ignore_validity_diff());
+
     TEST_CASE(issue_1222);
     TEST_CASE_WITH(issue_1226, 0, 1, ut_settings().ignore_validity_diff());
     TEST_CASE(issue_1231);
+    TEST_CASE_WITH(issue_1241, 0, 1, ut_settings().ignore_diff());
     TEST_CASE(issue_1244);
     TEST_CASE_WITH(issue_1288, 0, 1, ut_settings().ignore_validity_diff());
     TEST_CASE_WITH(issue_1288, 0, 2, ut_settings());
@@ -212,7 +271,15 @@ int test_main(int, char* [])
     TEST_CASE_WITH(issue_1345_a, 1, 0, ut_settings());
     TEST_CASE_WITH(issue_1345_b, 1, 0, ut_settings());
 
+    TEST_CASE_WITH(issue_1349, 0, 1, ut_settings().ignore_diff());
+    TEST_CASE(issue_1349_inverse);
+
     TEST_CASE(issue_1350_comment);
+
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails in union or intersection, and in difference. Also the union is invalid.
+    TEST_CASE_WITH(issue_1354, 0, 1, ut_settings().ignore_validity_union().ignore_diff());
+#endif
 
     return 0;
 }
