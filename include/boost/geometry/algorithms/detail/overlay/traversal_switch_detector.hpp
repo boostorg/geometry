@@ -98,7 +98,7 @@ struct traversal_switch_detector
     };
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSAL_SWITCH_DETECTOR)
-    static std::string isolation_to_string(isolation_type const& iso) 
+    static std::string isolation_to_string(isolation_type const& iso)
     {
         switch(iso)
         {
@@ -110,7 +110,7 @@ struct traversal_switch_detector
         }
         return "error";
     }
-#endif    
+#endif
 
     using turn_type = typename boost::range_value<Turns>::type;
     using set_type = std::set<signed_size_type>;
@@ -238,9 +238,58 @@ struct traversal_switch_detector
         return true;
     }
 
+    bool one_connection_having_one_multiple_region(region_properties const& region) const
+    {
+        for (auto const& turn_id : region.unique_turn_ids)
+        {
+            // This loop avoids satisfying the condition for the main (exterior ring) region.
+            if (turn_id < 0)
+            {
+                // Skip clustered turns
+                continue;
+            }
+            turn_type const& turn = m_turns[turn_id];
+            if (turn.has(operation_blocked))
+            {
+                return false;
+            }
+        }
+
+        std::size_t multiple_count = 0;
+        std::size_t via_count = 0;
+        std::size_t other_count = 0;
+        for (auto const& key_val : region.connected_region_counts)
+        {
+            signed_size_type const& region_id = key_val.first;
+            auto it = m_connected_regions.find(region_id);
+            if (it == m_connected_regions.end())
+            {
+                continue;
+            }
+            auto const& connected_region = it->second;
+
+            if (connected_region.isolated == isolation_multiple)
+            {
+                multiple_count++;
+            }
+            else if (connected_region.isolated == isolation_unknown && key_val.second.count <= 1)
+            {
+                // It is connected with just one turn to the exterior.
+                via_count++;
+            }
+            else
+            {
+                other_count++;
+            }
+        }
+
+        return multiple_count == 1 && via_count == 1 && other_count == 0;
+    }
+
+
     bool detect_connected_isolation_for_region(region_properties& properties)
     {
-        // If all but one are isolated, 
+        // If all but one are isolated,
         // and the connection to the remaining one is via one turn
         // then it is complex isolated
 
@@ -250,7 +299,7 @@ struct traversal_switch_detector
         {
             if (turn_id < 0)
             {
-                turns_of_region.insert(turn_id);
+                // Skip clusters
                 continue;
             }
             turn_type const& turn = m_turns[turn_id];
@@ -263,7 +312,7 @@ struct traversal_switch_detector
                 has_other_region_turns = true;
             }
         }
-        
+
         set_type turns_to_remaining;
         set_type turns_multiple;
 
@@ -272,7 +321,7 @@ struct traversal_switch_detector
             signed_size_type const& region_id = key_val.first;
             region_properties const& connected_region = m_connected_regions[region_id];
 
-            if (connected_region.isolated == isolation_yes 
+            if (connected_region.isolated == isolation_yes
                 || connected_region.isolated == isolation_via)
             {
                 for (auto const& turn_id : key_val.second.unique_turn_ids)
@@ -344,6 +393,16 @@ struct traversal_switch_detector
                 properties.isolated = isolation_multiple;
             }
             else if (one_connection_to_multiple_regions(properties))
+            {
+                properties.isolated = isolation_yes;
+            }
+        }
+
+        // Second pass - for isolated regions, itself containing a multiple connected region.
+        for (auto& key_val : m_connected_regions)
+        {
+            region_properties& properties = key_val.second;
+            if (one_connection_having_one_multiple_region(properties))
             {
                 properties.isolated = isolation_yes;
             }
