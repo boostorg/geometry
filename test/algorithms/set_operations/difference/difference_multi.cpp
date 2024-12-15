@@ -132,12 +132,7 @@ void test_areal()
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
             2, 13, 17.0, 0, 0, 0.0);
 
-    {
-        ut_settings settings;
-        settings.percentage = 0.001;
-        settings.set_test_validity(false);
-        TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
-    }
+    TEST_DIFFERENCE(ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
 
     TEST_DIFFERENCE(bug_21155501, 1, 3.758937, 1, 1.78e-15, 1);
 
