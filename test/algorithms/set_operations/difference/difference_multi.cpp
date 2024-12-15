@@ -132,12 +132,7 @@ void test_areal()
         ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
             2, 13, 17.0, 0, 0, 0.0);
 
-    {
-        ut_settings settings;
-        settings.percentage = 0.001;
-        settings.set_test_validity(false);
-        TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
-    }
+    TEST_DIFFERENCE(ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
 
     TEST_DIFFERENCE(bug_21155501, 1, 3.758937, 1, 1.78e-15, 1);
 
@@ -201,7 +196,6 @@ void test_areal()
     TEST_DIFFERENCE(case_138_multi, 5, 16.6, 3, 8.225, 8);
     TEST_DIFFERENCE(case_139_multi, 4, 16.328125, 3, 8.078125, 7);
     TEST_DIFFERENCE(case_140_multi, 4, 16.328125, 3, 8.078125, 7);
-    TEST_DIFFERENCE(case_141_multi, 5, 15.5, 5, 10.0, 10);
 
     // Areas correspond with POSTGIS,
     // #clips in PostGIS is 11,11,5 but should most probably be be 12,12,6

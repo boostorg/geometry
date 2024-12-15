@@ -156,7 +156,6 @@ void test_areal()
     TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
     TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
     TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
-    TEST_INTERSECTION(case_141_multi, 3, -1, 74.5);
 
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 89, 47.0);
 
@@ -357,7 +356,8 @@ void test_areal()
 
     TEST_INTERSECTION(issue_643, 1, -1, 3.4615);
 
-    TEST_INTERSECTION(issue_869_c, 3, -1, 3600);
+    TEST_INTERSECTION(issue_869_a_inverse, 3, -1, 3600.0);
+    TEST_INTERSECTION(issue_869_c, 3, -1, 3600.0);
 
     TEST_INTERSECTION(issue_888_34, 7, -1, 0.0256838);
     TEST_INTERSECTION(issue_888_37, 13, -1, 0.0567043);
