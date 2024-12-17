@@ -2,8 +2,9 @@
 
 // Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// Copyright (c) 2015-2022, Oracle and/or its affiliates.
+// Copyright (c) 2015-2025, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 // Contributed and/or modified by Adeel Ahmad, as part of Google Summer of Code 2018 program
@@ -236,17 +237,22 @@ protected:
     }
 
 public:
-    static inline void apply(CoordinateType& longitude)
+    static inline void apply(CoordinateType& longitude, bool exact = true)
     {
         // normalize longitude
-        if (math::equals(math::abs(longitude), constants::half_period()))
+        CoordinateType const epsilon = std::numeric_limits<float>::epsilon();
+        static constexpr bool is_integer = std::numeric_limits<CoordinateType>::is_integer;
+
+        if (exact || is_integer ? math::equals(math::abs(longitude), constants::half_period())
+            : math::abs(math::abs(longitude) - constants::half_period()) <= epsilon)
         {
             longitude = constants::half_period();
         }
         else if (longitude > constants::half_period())
         {
             longitude = normalize_up(longitude);
-            if (math::equals(longitude, -constants::half_period()))
+            if (exact || is_integer ? math::equals(longitude, -constants::half_period())
+                : math::abs(longitude + constants::half_period()) <= epsilon)
             {
                 longitude = constants::half_period();
             }
@@ -259,7 +265,8 @@ public:
 
     static inline void apply(CoordinateType& longitude,
                              CoordinateType& latitude,
-                             bool normalize_poles = true)
+                             bool normalize_poles = true,
+                             bool exact = true)
     {
         latitude_convert_if_polar<Units, IsEquatorial>::apply(latitude);
 
@@ -288,7 +295,7 @@ public:
 #endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
         // normalize longitude
-        apply(longitude);
+        apply(longitude, exact);
 
         // finally normalize poles
         if (normalize_poles)
@@ -353,22 +360,24 @@ inline void normalize_angle_cond(CoordinateType& angle)
 */
 template <typename Units, typename CoordinateType>
 inline void normalize_spheroidal_coordinates(CoordinateType& longitude,
-                                             CoordinateType& latitude)
+                                             CoordinateType& latitude,
+                                             bool exact = true)
 {
     detail::normalize_spheroidal_coordinates
         <
             Units, CoordinateType
-        >::apply(longitude, latitude);
+        >::apply(longitude, latitude, true, exact);
 }
 
 template <typename Units, bool IsEquatorial, typename CoordinateType>
 inline void normalize_spheroidal_coordinates(CoordinateType& longitude,
-                                             CoordinateType& latitude)
+                                             CoordinateType& latitude,
+                                             bool exact = true)
 {
     detail::normalize_spheroidal_coordinates
         <
             Units, CoordinateType, IsEquatorial
-        >::apply(longitude, latitude);
+        >::apply(longitude, latitude, true, exact);
 }
 
 /*!
@@ -381,12 +390,12 @@ inline void normalize_spheroidal_coordinates(CoordinateType& longitude,
 \ingroup utility
 */
 template <typename Units, typename CoordinateType>
-inline void normalize_longitude(CoordinateType& longitude)
+inline void normalize_longitude(CoordinateType& longitude, bool exact = true)
 {
     detail::normalize_spheroidal_coordinates
         <
             Units, CoordinateType
-        >::apply(longitude);
+        >::apply(longitude, exact);
 }
 
 /*!
@@ -400,7 +409,7 @@ inline void normalize_longitude(CoordinateType& longitude)
 template <typename Units, typename CoordinateType>
 inline void normalize_azimuth(CoordinateType& angle)
 {
-    normalize_longitude<Units, CoordinateType>(angle);
+    math::normalize_longitude<Units, CoordinateType>(angle, true);
 }
 
 /*!
@@ -435,7 +444,7 @@ inline CoordinateType longitude_distance_signed(CoordinateType const& longitude1
                                                 CoordinateType const& longitude2)
 {
     CoordinateType diff = longitude2 - longitude1;
-    math::normalize_longitude<Units, CoordinateType>(diff);
+    math::normalize_longitude<Units, CoordinateType>(diff, true);
     return diff;
 }
 

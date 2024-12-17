@@ -5,11 +5,12 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2025.
+// Modifications copyright (c) 2013-2025, Oracle and/or its affiliates.
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -71,9 +72,10 @@ private:
             typedef typename helper_geometry<Point2>::type helper_point_type2;
 
             helper_point_type1 point1_normalized;
-            strategy::normalize::spherical_point::apply(point1, point1_normalized);
+            bool const exact_normalized = false;
+            strategy::normalize::spherical_point::apply(point1, point1_normalized, exact_normalized);
             helper_point_type2 point2_normalized;
-            strategy::normalize::spherical_point::apply(point2, point2_normalized);
+            strategy::normalize::spherical_point::apply(point2, point2_normalized, exact_normalized);
 
             return point_point_generic
                 <

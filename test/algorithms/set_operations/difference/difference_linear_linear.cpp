@@ -1,10 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2015, Oracle and/or its affiliates.
+// Copyright (c) 2014-2025, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #include <iostream>
@@ -1160,7 +1161,7 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_degenerate )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE" 
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE"
               << " (DEGENERATE) ***"
               << std::endl;
     std::cout << std::endl;
@@ -1247,7 +1248,7 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl << std::endl;
-    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE" 
+    std::cout << "*** MULTILINESTRING / MULTILINESTRING DIFFERENCE"
               << " (WITH SPIKES) ***"
               << std::endl;
     std::cout << std::endl;
@@ -1452,7 +1453,7 @@ BOOST_AUTO_TEST_CASE( test_difference_ls_mls_geo_rad )
     bg::srs::spheroid<double> sph_wgs84(6378137.0, 6356752.3142451793);
     boost::geometry::strategy::intersection::geographic_segments<> wgs84(sph_wgs84);
 
-    ls g1 = from_wkt<ls>("LINESTRING(0 0, -3.14159265358979 0)");
+    ls g1 = from_wkt<ls>("LINESTRING(0 0,-3.14159265358979 0)");
     mls g2 = from_wkt<mls>("MULTILINESTRING((-2.1467549799530232 -0.12217304763960295,"
                                             "-2.5481807079117185 -0.90757121103705041,"
                                             "-2.6529004630313784 0.85521133347722067,"
