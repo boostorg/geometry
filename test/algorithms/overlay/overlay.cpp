@@ -55,6 +55,35 @@ struct geojson_visitor : public boost::geometry::detail::overlay::overlay_null_v
             return;
         }
 
+        auto label_component = [](auto const& turn)
+        {
+            std::ostringstream out;
+            auto const& c0 = turn.operations[0].enriched.component_id;
+            auto const& c1 = turn.operations[1].enriched.component_id;
+            if (c0 < 0 && c1 < 0)
+            {
+                out << "-";
+            }
+            else if (c0 == c1)
+            {
+                out << c0;
+            }
+            else if (c0 < 0)
+            {
+                out << c1;
+            }
+            else if (c1 < 0)
+            {
+                out << c0;
+            }
+            else
+            {
+                out << c0 << " | " << c1;
+            }
+            return out.str();
+        };
+
+
         for (auto const& enumerated : boost::geometry::util::enumerate(turns))
         {
             auto index = enumerated.index;
@@ -66,8 +95,7 @@ struct geojson_visitor : public boost::geometry::detail::overlay::overlay_null_v
                 out //<< " l:" << op.count_left << " r:" << op.count_right
                     //<< " rank:" << op.rank
                     // << " z:" << op.zone
-                    << " region:" << op.region_id
-                    << (op.isolated ? " ISOLATED" : "");
+                    << " region:" << op.region_id;
                 return out.str();
             };
             auto label_operation_ids = [&turn](int op_index)
@@ -107,6 +135,8 @@ struct geojson_visitor : public boost::geometry::detail::overlay::overlay_null_v
             m_writer.add_property("operation_1", label_operation_ids(1));
             m_writer.add_property("enriched_0", label_enriched(0));
             m_writer.add_property("enriched_1", label_enriched(1));
+
+            m_writer.add_property("component", label_component(turn));
         }
     }
 
@@ -130,6 +160,15 @@ void test_overlay(std::string const& caseid,
 
     bg::correct(g1);
     bg::correct(g2);
+
+    if (! bg::is_valid(g1))
+    {
+        std::cerr << "WARNING: Invalid input 1: " << caseid << std::endl;
+    }
+    if (! bg::is_valid(g2))
+    {
+        std::cerr << "WARNING: Invalid input 2: " << caseid << std::endl;
+    }
 
 #if defined(TEST_WITH_GEOJSON)
     std::ostringstream filename;

@@ -18,8 +18,10 @@
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
+#include <boost/geometry/algorithms/detail/overlay/detect_biconnected_components.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_ring_creator.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_switch_detector.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 
 
 namespace boost { namespace geometry
@@ -76,9 +78,16 @@ public :
                 Clusters& clusters,
                 Visitor& visitor)
     {
+        constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
+
+        if BOOST_GEOMETRY_CONSTEXPR (target_operation == operation_intersection)
+        {
+            detect_biconnected_components<target_operation>(turns, clusters);
+        }
+
         traversal_switch_detector
             <
-                Reverse1, Reverse2, OverlayType,
+                target_operation,
                 Geometry1, Geometry2,
                 Turns, Clusters,
                 Visitor

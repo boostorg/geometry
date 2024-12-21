@@ -44,6 +44,8 @@ target_link_libraries(boost_geometry
     Boost::type_traits
     Boost::utility
     Boost::variant
+
+    Boost::graph
 )
 
 # Required for Boost.Geometry Index
@@ -112,7 +114,10 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
           serialization
           tokenizer
           variant
-          test)
+          test
+
+          graph
+          )
 
     if (BOOST_SRC_DIR_IS_VALID)
       set(BOOST_EXCLUDE_LIBRARIES ${PROJECT_NAME})
