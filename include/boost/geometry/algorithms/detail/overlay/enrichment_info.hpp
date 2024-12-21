@@ -41,7 +41,6 @@ struct enrichment_info
         , rank(-1)
         , zone(-1)
         , region_id(-1)
-        , isolated(false)
     {}
 
     inline signed_size_type get_next_turn_index() const
@@ -69,7 +68,8 @@ struct enrichment_info
     signed_size_type rank; // in cluster
     signed_size_type zone; // open zone, in cluster
     signed_size_type region_id;
-    bool isolated;
+
+    signed_size_type component_id{-1};
 };
 
 

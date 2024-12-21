@@ -609,8 +609,14 @@ public :
 
     inline sort_by_side::rank_type select_rank(sbs_type const& sbs) const
     {
-        static bool const is_intersection
-                = target_operation == operation_intersection;
+        auto is_isolated = [](turn_operation_type const& op1, turn_operation_type const& op2) -> bool
+        {
+            return //(op1.seg_id.ring_index >=0 || op2.seg_id.ring_index >= 0) &&
+                    op1.enriched.component_id >= 0 && op2.enriched.component_id >= 0
+                && op1.enriched.component_id != op2.enriched.component_id;
+        };
+
+        static bool const is_intersection = target_operation == operation_intersection;
 
         // Take the first outgoing rank corresponding to incoming region,
         // or take another region if it is not isolated
@@ -631,8 +637,8 @@ public :
                 continue;
             }
 
-            if (in_op.enriched.region_id == out_op.enriched.region_id
-                || (is_intersection && ! out_op.enriched.isolated))
+            if ((in_op.enriched.region_id == out_op.enriched.region_id)
+                || (is_intersection && ! is_isolated(in_op, out_op)))
             {
                 // Region corresponds to incoming region, or (for intersection)
                 // there is a non-isolated other region which should be taken

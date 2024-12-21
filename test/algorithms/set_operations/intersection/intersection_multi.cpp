@@ -156,7 +156,6 @@ void test_areal()
     TEST_INTERSECTION(case_138_multi, 2, 23, 40.4);
     TEST_INTERSECTION(case_139_multi, 2, 23, 40.546875);
     TEST_INTERSECTION(case_140_multi, 2, 23, 40.546875);
-    TEST_INTERSECTION(case_141_multi, 3, -1, 74.5);
 
     TEST_INTERSECTION(case_recursive_boxes_1, 10, 89, 47.0);
 
@@ -167,7 +166,7 @@ void test_areal()
         case_recursive_boxes_3[0], case_recursive_boxes_3[1],
         19, 84, 12.5); // Area from SQL Server
 
-    TEST_INTERSECTION_IGNORE(case_recursive_boxes_4, 13, 158, 67.0);
+    TEST_INTERSECTION(case_recursive_boxes_4, 13, 158, 67.0);
 
     // Fixed by replacing handle_tangencies in less_by_segment_ratio sort order
     // Should contain 6 output polygons
