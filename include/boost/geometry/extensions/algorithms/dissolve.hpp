@@ -173,6 +173,8 @@ struct dissolve_ring
                 typename segment_ratio_type<point_type, RescalePolicy>::type
             >;
 
+        constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
+
         std::deque<turn_info> turns;
         detail::dissolve::no_interrupt_policy policy;
         detail::self_get_turn_points::self_turns
@@ -198,6 +200,21 @@ struct dissolve_ring
         std::map<signed_size_type, detail::overlay::cluster_info> clusters;
 
         // Enrich/traverse the polygons
+        // Handle colocations, gathering clusters and (below) their properties.
+        detail::overlay::handle_colocations
+                    <
+                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+                    >(turns, clusters);
+
+        // Gather cluster properties (using even clusters with
+        // discarded turns - for open turns)
+        detail::overlay::gather_cluster_properties
+            <
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, target_operation, geometry1, geometry2, strategy);
+
         enrich_intersection_points<Reverse, Reverse, overlay_dissolve>(turns,
                     clusters, input_ring, input_ring, rescale_policy,
                     strategy);

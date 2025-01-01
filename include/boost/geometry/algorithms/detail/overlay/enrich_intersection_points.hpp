@@ -104,8 +104,7 @@ inline void enrich_sort(Operations& operations,
 
 // Assign travel-to-vertex/ip index for each turn.
 template <typename Operations, typename Turns>
-inline void enrich_assign(Operations& operations, Turns& turns,
-                          bool check_consecutive_turns)
+inline void enrich_assign(Operations& operations, Turns& turns)
 {
     for (auto const& item : util::enumerate(operations))
     {
@@ -130,34 +129,6 @@ inline void enrich_assign(Operations& operations, Turns& turns,
             auto const& next_turn = turns[operations[next_index].turn_index];
             return next_turn.operations[operations[next_index].operation_index];
         };
-
-        if (check_consecutive_turns
-            && indexed.turn_index == operations[next_index].turn_index
-            && op.seg_id == next_operation().seg_id)
-        {
-            // If the two operations on the same turn are ordered consecutively,
-            // and they are on the same segment, then the turn where to travel to should
-            // be considered one further. Therefore next is increased.
-            //
-            // It often happens in buffer, in these configurations:
-            // +---->--+
-            // |       |
-            // |   +->-*---->
-            // |   |   |
-            // ^   +-<-+
-            // If the next index is not corrected, the small rectangle
-            // will be kept in the output.
-
-            // This is a normal situation and occurs, for example, in every concave bend.
-            // In general it should always travel from turn to next turn.
-            // Only in some circumstances traveling to the same turn is necessary, for example
-            // if there is only one turn in the outer ring.
-            //
-            // (For dissolve this is not done, turn_index is often
-            // the same for two consecutive operations - but the conditions are changed
-            // and this should be verified again)
-            next_index = advance(next_index);
-        }
 
         // Cluster behaviour: next should point after cluster, unless
         // their seg_ids are not the same
@@ -285,36 +256,50 @@ struct enriched_map_default_include_policy
 // Add all (non discarded) operations on this ring
 // Blocked operations or uu on clusters (for intersection)
 // should be included, to block potential paths in clusters
-template <typename Turns, typename MappedVector, typename IncludePolicy>
-inline void create_map(Turns const& turns, MappedVector& mapped_vector,
-                       IncludePolicy const& include_policy)
+template <typename Turns, typename IncludePolicy>
+inline auto create_map(Turns const& turns, IncludePolicy const& include_policy)
 {
+    using turn_type = typename boost::range_value<Turns>::type;
+    using indexed_turn_operation = detail::overlay::indexed_turn_operation
+        <
+            typename turn_type::turn_operation_type
+        >;
+
+    std::map
+    <
+        ring_identifier,
+        std::vector<indexed_turn_operation>
+    > mapped_vector;
+
     for (auto const& turn_item : util::enumerate(turns))
     {
         auto const& index = turn_item.index;
         auto const& turn = turn_item.value;
-        if (! turn.discarded)
+        if (turn.discarded)
         {
-            for (auto const& op_item : util::enumerate(turn.operations))
+            continue;
+        }
+
+        for (auto const& op_item : util::enumerate(turn.operations))
+        {
+            auto const& op_index = op_item.index;
+            auto const& op = op_item.value;
+            if (include_policy.include(op.operation))
             {
-                auto const& op_index = op_item.index;
-                auto const& op = op_item.value;
-                if (include_policy.include(op.operation))
-                {
-                    ring_identifier const ring_id
-                        (
-                            op.seg_id.source_index,
-                            op.seg_id.multi_index,
-                            op.seg_id.ring_index
-                        );
-                    mapped_vector[ring_id].emplace_back
-                        (
-                            index, op_index, op, turn.operations[1 - op_index].seg_id
-                        );
-                }
+                ring_identifier const ring_id
+                    (
+                        op.seg_id.source_index,
+                        op.seg_id.multi_index,
+                        op.seg_id.ring_index
+                    );
+                mapped_vector[ring_id].emplace_back
+                    (
+                        index, op_index, op, turn.operations[1 - op_index].seg_id
+                    );
             }
         }
     }
+    return mapped_vector;
 }
 
 template <typename Point1, typename Point2>
@@ -355,7 +340,6 @@ inline void calculate_remaining_distance(Turns& turns)
         }
     }
 }
-
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL
@@ -398,50 +382,13 @@ inline void enrich_intersection_points(Turns& turns,
             ? detail::overlay::operation_intersection
             : detail::overlay::operation_union;
     constexpr bool is_dissolve = OverlayType == overlay_dissolve;
-    constexpr bool is_buffer = OverlayType == overlay_buffer;
-
-    using turn_type = typename boost::range_value<Turns>::type;
-    using indexed_turn_operation = detail::overlay::indexed_turn_operation
-        <
-            typename turn_type::turn_operation_type
-        > ;
-
-    using mapped_vector_type = std::map
-        <
-            ring_identifier,
-            std::vector<indexed_turn_operation>
-        >;
 
     // Turns are often used by index (in clusters, next_index, etc)
     // and turns may therefore NOT be DELETED - they may only be flagged as discarded
 
-    bool has_cc = false;
-    bool has_colocations = false;
-
-    if BOOST_GEOMETRY_CONSTEXPR (! is_buffer)
-    {
-        // Handle colocations, gathering clusters and (below) their properties.
-        has_colocations = detail::overlay::handle_colocations
-                    <
-                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
-                    >(turns, clusters);
-        // Gather cluster properties (using even clusters with
-        // discarded turns - for open turns)
-        detail::overlay::gather_cluster_properties
-            <
-                Reverse1,
-                Reverse2,
-                OverlayType
-            >(clusters, turns, target_operation,
-            geometry1, geometry2, strategy);
-    }
-    else
-    {
-        // For buffer, this was already done before calling enrich_intersection_points.
-        has_colocations = ! clusters.empty();
-    }
-
     discard_duplicate_turns(turns, geometry1, geometry2);
+
+    bool has_cc = false;
 
     // Discard turns not part of target overlay
     for (auto& turn : turns)
@@ -491,11 +438,15 @@ inline void enrich_intersection_points(Turns& turns,
                      strategy);
     }
 
+    if (! clusters.empty())
+    {
+        detail::overlay::cleanup_clusters(turns, clusters);
+        detail::overlay::colocate_clusters(clusters, turns);
+    }
+
     // Create a map of vectors of indexed operation-types to be able
     // to sort intersection points PER RING
-    mapped_vector_type mapped_vector;
-
-    detail::overlay::create_map(turns, mapped_vector,
+    auto mapped_vector = detail::overlay::create_map(turns,
                                 detail::overlay::enriched_map_default_include_policy());
 
     for (auto& pair : mapped_vector)
@@ -505,14 +456,6 @@ inline void enrich_intersection_points(Turns& turns,
                     geometry1, geometry2,
                     strategy);
     }
-
-    if (has_colocations)
-    {
-        detail::overlay::cleanup_clusters(turns, clusters);
-        detail::overlay::colocate_clusters(clusters, turns);
-    }
-
-    // After cleaning up clusters assign the next turns
 
     for (auto& pair : mapped_vector)
     {
@@ -524,7 +467,7 @@ inline void enrich_intersection_points(Turns& turns,
             detail::overlay::enrich_adapt(pair.second, turns);
         }
 
-        detail::overlay::enrich_assign(pair.second, turns, ! is_dissolve);
+        detail::overlay::enrich_assign(pair.second, turns);
     }
 
     if (has_cc)

@@ -185,23 +185,6 @@ struct map_visitor
         : m_mapper(mapper)
     {}
 
-    void print(char const* header)
-    {}
-
-    template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index)
-    {
-        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
-        stream(turns, turns[turn_index], turns[turn_index].operations[0], header, style);
-    }
-
-    template <typename Turns>
-    void print(char const* header, Turns const& turns, int turn_index, int op_index)
-    {
-        std::string style = "fill:rgb(0,0,0);font-family:Arial;font-size:6px";
-        stream(turns, turns[turn_index], turns[turn_index].operations[op_index], header, style);
-    }
-
     template <typename Turns>
     void visit_turns(int phase, Turns const& turns)
     {
