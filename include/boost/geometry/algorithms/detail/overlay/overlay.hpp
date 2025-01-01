@@ -60,14 +60,6 @@ namespace detail { namespace overlay
 //! Default visitor for overlay, doing nothing
 struct overlay_null_visitor
 {
-    void print(char const* ) {}
-
-    template <typename Turns>
-    void print(char const* , Turns const& , int) {}
-
-    template <typename Turns>
-    void print(char const* , Turns const& , int , int ) {}
-
     template <typename Turns>
     void visit_turns(int , Turns const& ) {}
 
@@ -271,6 +263,8 @@ struct overlay
                 cluster_info
             >;
 
+        constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
+
         turn_container_type turns;
 
         detail::get_turns::no_interrupt_policy policy;
@@ -302,6 +296,21 @@ struct overlay
 
         cluster_type clusters;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
+
+        // Handle colocations, gathering clusters and (below) their properties.
+        detail::overlay::handle_colocations
+                    <
+                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+                    >(turns, clusters);
+
+        // Gather cluster properties (using even clusters with
+        // discarded turns - for open turns)
+        detail::overlay::gather_cluster_properties
+            <
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, target_operation, geometry1, geometry2, strategy);
 
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(
             turns, clusters, geometry1, geometry2, strategy);

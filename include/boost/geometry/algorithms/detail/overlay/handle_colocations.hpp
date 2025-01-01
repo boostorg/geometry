@@ -364,23 +364,6 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters)
     return true;
 }
 
-
-struct is_turn_index
-{
-    is_turn_index(signed_size_type index)
-        : m_index(index)
-    {}
-
-    template <typename Indexed>
-    inline bool operator()(Indexed const& indexed) const
-    {
-        // Indexed is a indexed_turn_operation<Operation>
-        return indexed.turn_index == m_index;
-    }
-
-    signed_size_type m_index;
-};
-
 template
 <
     typename Sbs,

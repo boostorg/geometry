@@ -159,6 +159,12 @@ std::vector<std::size_t> apply_overlay(
 
     cluster_type clusters;
 
+    // Handle colocations, gathering clusters and (below) their properties.
+    bg::detail::overlay::handle_colocations
+                <
+                    Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+                >(turns, clusters);
+
     bg::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(turns,
             clusters, geometry1, geometry2, strategy);
 
