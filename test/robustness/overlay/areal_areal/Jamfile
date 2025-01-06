@@ -25,4 +25,4 @@ exe recursive_polygons : recursive_polygons.cpp ;
 exe star_comb : star_comb.cpp ;
 
 exe ticket_9081 : ticket_9081.cpp ;
-
+exe random_integer_grids : random_integer_grids.cpp ;

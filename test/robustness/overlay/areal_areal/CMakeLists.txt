@@ -15,6 +15,7 @@ foreach(item IN ITEMS
     recursive_polygons
     star_comb
     #ticket_9081
+    #random_integer_grid
   )
   boost_geometry_add_unit_test("robustness" ${item})
   target_include_directories(${BOOST_GEOMETRY_UNIT_TEST_NAME}
