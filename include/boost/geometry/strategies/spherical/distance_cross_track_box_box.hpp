@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2020 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fisikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -45,11 +47,11 @@ class cross_track_box_box_generic
 {
 public :
 
-    template <typename Point, typename PPStrategy, typename PSStrategy>
-    ReturnType static inline diagonal_case(Point topA,
-                                           Point topB,
-                                           Point bottomA,
-                                           Point bottomB,
+    template <typename Point1, typename Point2, typename PPStrategy, typename PSStrategy>
+    ReturnType static inline diagonal_case(Point1 topA,
+                                           Point2 topB,
+                                           Point1 bottomA,
+                                           Point2 bottomB,
                                            bool north_shortest,
                                            bool non_overlap,
                                            PPStrategy pp_strategy,
