@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -14,6 +16,8 @@
 #include <boost/geometry/strategies/area/geographic.hpp>
 #include <boost/geometry/strategies/azimuth/geographic.hpp>
 #include <boost/geometry/strategies/buffer/geographic.hpp>
+#include <boost/geometry/strategies/centroid/geographic.hpp>
+#include <boost/geometry/strategies/closest_points/geographic.hpp>
 #include <boost/geometry/strategies/convex_hull/geographic.hpp>
 #include <boost/geometry/strategies/distance/geographic.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
@@ -41,9 +45,10 @@ template
 >
 class geographic
     // derived from the umbrella strategy defining the most strategies
-    : public index::geographic<FormulaPolicy, Spheroid, CalculationType>
+    : public strategies::closest_points::geographic<FormulaPolicy, Spheroid, CalculationType>
+    , public strategies::centroid::detail::geographic
 {
-    using base_t = index::geographic<FormulaPolicy, Spheroid, CalculationType>;
+    using base_t = strategies::closest_points::geographic<FormulaPolicy, Spheroid, CalculationType>;
 
 public:
     geographic() = default;

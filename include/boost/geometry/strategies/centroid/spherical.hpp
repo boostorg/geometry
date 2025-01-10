@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -22,18 +24,13 @@ namespace boost { namespace geometry
 namespace strategies { namespace centroid
 {
 
-template
-<
-    typename CalculationType = void
->
-class spherical
-    : public strategies::detail::spherical_base<void>
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
 {
-    using base_t = strategies::detail::spherical_base<void>;
 
+class spherical
+{
 public:
-    spherical() = default;
-
     // TODO: Box and Segment should have proper strategies.
     template <typename Geometry, typename Point>
     static auto centroid(Geometry const&, Point const&,
@@ -45,6 +42,20 @@ public:
     {
         return strategy::centroid::not_applicable_strategy();
     }
+};
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+template <typename CalculationType = void>
+class spherical
+    : public strategies::detail::spherical_base<void>
+    , public strategies::centroid::detail::spherical
+{
+public:
+    spherical() = default;
 };
 
 

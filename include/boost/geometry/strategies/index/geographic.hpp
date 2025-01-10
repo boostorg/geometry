@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -11,6 +13,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_INDEX_GEOGRAPHIC_HPP
 
 
+#include <boost/geometry/strategies/centroid/geographic.hpp>
 #include <boost/geometry/strategies/distance/geographic.hpp>
 #include <boost/geometry/strategies/index/services.hpp>
 
@@ -26,6 +29,7 @@ template
 >
 class geographic
     : public distance::geographic<FormulaPolicy, Spheroid, CalculationType>
+    , public strategies::centroid::detail::geographic
 {
     typedef distance::geographic<FormulaPolicy, Spheroid, CalculationType> base_t;
 
