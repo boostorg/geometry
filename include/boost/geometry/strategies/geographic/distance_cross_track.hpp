@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2023-2025 Adam Wulkiewicz, Lodz, Poland.
 
 // Copyright (c) 2016-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -697,10 +697,13 @@ protected:
         point p2 = point(lon2, lat2);
         point p3 = point(lon3, lat3);
 
-        geometry::strategy::distance::cross_track<CT> cross_track(earth_radius);
+        using haversine_t = geometry::strategy::distance::haversine<CT>;
+        using cross_track_t = geometry::strategy::distance::cross_track<void, haversine_t>;
+
+        cross_track_t cross_track(earth_radius);
         CT s34_sph = cross_track.apply(p3, p1, p2);
 
-        geometry::strategy::distance::haversine<CT> str(earth_radius);
+        haversine_t str(earth_radius);
         CT s13_sph = str.apply(p1, p3);
 
         //CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius) ) * earth_radius;
