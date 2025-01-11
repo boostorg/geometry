@@ -1,6 +1,8 @@
 // Boost.Geometry
 // Unit Test
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2016-2019 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -185,6 +187,19 @@ void test_bugs()
     }
 }
 
+void test_special_cases()
+{
+    {
+        double lon, lat;
+        bg::formula::sjoberg_intersection<double, bg::formula::andoyer_inverse, 1>
+            ::apply(-0.01, 0.0, 0.01, 0.0,
+                    0.0, -0.01, 0.0, 0.01,
+                    lon, lat, bg::srs::spheroid<double>());
+        check_one("geodesic on equator", lon, 0.0);
+        check_one("geodesic on equator", lat, 0.0);
+    }
+}
+
 int test_main(int, char*[])
 {
     for (size_t i = 0; i < expected_size; ++i)
@@ -193,6 +208,7 @@ int test_main(int, char*[])
     }
 
     test_bugs();
+    test_special_cases();
 
     return 0;
 }
