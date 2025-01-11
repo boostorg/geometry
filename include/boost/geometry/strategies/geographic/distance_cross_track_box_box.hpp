@@ -1,5 +1,7 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2017-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -133,67 +135,52 @@ private :
 namespace services
 {
 
-template <typename Strategy, typename Spheroid, typename CalculationType>
-struct tag<geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> >
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
+struct tag<geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType> >
 {
     typedef strategy_tag_distance_box_box type;
 };
 
 
-template <typename Strategy, typename Spheroid, typename CalculationType, typename Box1, typename Box2>
-struct return_type<geographic_cross_track_box_box<Strategy, Spheroid, CalculationType>, Box1, Box2>
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType, typename Box1, typename Box2>
+struct return_type<geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType>, Box1, Box2>
     : geographic_cross_track_box_box
         <
-            Strategy, Spheroid, CalculationType
+            FormulaPolicy, Spheroid, CalculationType
         >::template return_type<Box1, Box2>
 {};
 
-template <typename Strategy, typename Spheroid, typename Box1, typename Box2>
-struct return_type<geographic_cross_track_box_box<Strategy, Spheroid>, Box1, Box2>
-    : geographic_cross_track_box_box
-        <
-            Strategy, Spheroid
-        >::template return_type<Box1, Box2>
-{};
 
-template <typename Strategy, typename Box1, typename Box2>
-struct return_type<geographic_cross_track_box_box<Strategy>, Box1, Box2>
-    : geographic_cross_track_box_box
-        <
-            Strategy
-        >::template return_type<Box1, Box2>
-{};
-
-template <typename Strategy, typename Spheroid, typename CalculationType>
-struct comparable_type<geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> >
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
+struct comparable_type<geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType> >
 {
     typedef geographic_cross_track_box_box
         <
-            typename comparable_type<Strategy>::type, Spheroid, CalculationType
+            FormulaPolicy, Spheroid, CalculationType
         > type;
 };
 
 
-template <typename Strategy, typename Spheroid, typename CalculationType>
-struct get_comparable<geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> >
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType>
+struct get_comparable<geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType> >
 {
 public:
-    static inline geographic_cross_track_box_box<Strategy, Spheroid, CalculationType>
-    apply(geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> const& str)
+    static inline geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType>
+    apply(geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType> const& str)
     {
         return str;
     }
 };
 
 
-template <typename Strategy, typename Spheroid, typename CalculationType, typename Box1, typename Box2>
+template <typename FormulaPolicy, typename Spheroid, typename CalculationType, typename Box1, typename Box2>
 struct result_from_distance
     <
-        geographic_cross_track_box_box<Strategy, Spheroid, CalculationType>, Box1, Box2
+        geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType>, Box1, Box2
     >
 {
 private:
-    typedef geographic_cross_track_box_box<Strategy, Spheroid, CalculationType> this_strategy;
+    typedef geographic_cross_track_box_box<FormulaPolicy, Spheroid, CalculationType> this_strategy;
 
     typedef typename this_strategy::template return_type
         <
@@ -205,12 +192,7 @@ public:
     static inline return_type apply(this_strategy const& strategy,
                                     T const& distance)
     {
-        result_from_distance
-            <
-                Strategy,
-                point_type_t<Box1>,
-                point_type_t<Box2>
-            >::apply(strategy, distance);
+        return static_cast<return_type>(distance);
     }
 };
 
