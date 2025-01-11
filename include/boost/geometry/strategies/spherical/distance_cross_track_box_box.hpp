@@ -48,14 +48,14 @@ class cross_track_box_box_generic
 public :
 
     template <typename Point1, typename Point2, typename PPStrategy, typename PSStrategy>
-    ReturnType static inline diagonal_case(Point1 topA,
-                                           Point2 topB,
-                                           Point1 bottomA,
-                                           Point2 bottomB,
+    static inline ReturnType diagonal_case(Point1 const& topA,
+                                           Point2 const& topB,
+                                           Point1 const& bottomA,
+                                           Point2 const& bottomB,
                                            bool north_shortest,
                                            bool non_overlap,
-                                           PPStrategy pp_strategy,
-                                           PSStrategy ps_strategy)
+                                           PPStrategy const& pp_strategy,
+                                           PSStrategy const& ps_strategy)
     {
         if (north_shortest && non_overlap)
         {
@@ -80,10 +80,10 @@ public :
             typename PPStrategy,
             typename PSStrategy
     >
-    ReturnType static inline apply (Box1 const& box1,
-                                    Box2 const& box2,
-                                    PPStrategy pp_strategy,
-                                    PSStrategy ps_strategy)
+    static inline ReturnType apply(Box1 const& box1,
+                                   Box2 const& box2,
+                                   PPStrategy const& pp_strategy,
+                                   PSStrategy const& ps_strategy)
     {
 
         // this method assumes that the coordinates of the point and
