@@ -1,6 +1,6 @@
 // Boost.Geometry
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2023-2025 Adam Wulkiewicz, Lodz, Poland.
 
 // Copyright (c) 2016-2019 Oracle and/or its affiliates.
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -566,7 +566,6 @@ public:
     {
         CT const c0 = 0;
         CT const dLj = d_lambda(c0);
-        CT const asin_tj_t0j = asin(Cj * tan_betaj / sqrt_1_Cj_sqr);
         return lonj - asin_tj_t0j + dLj;
     }
 
@@ -676,8 +675,8 @@ public:
         CT const f = formula::flattening<CT>(spheroid);
         CT const one_minus_f = c1 - f;
 
-        geodesic_type geod1(lon_a1, lat_a1, alpha_a1, f);
-        geodesic_type geod2(lon_b1, lat_b1, alpha_b1, f);
+        geodesic_type const geod1(lon_a1, lat_a1, alpha_a1, f);
+        geodesic_type const geod2(lon_b1, lat_b1, alpha_b1, f);
 
         // Cj = 1 if on equator <=> sqrt_1_Cj_sqr = 0
         // Cj = 0 if vertical <=> sqrt_1_Cj_sqr = 1
