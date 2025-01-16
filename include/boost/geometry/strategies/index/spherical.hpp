@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -11,6 +13,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_INDEX_SPHERICAL_HPP
 
 
+#include <boost/geometry/strategies/centroid/spherical.hpp>
 #include <boost/geometry/strategies/distance/spherical.hpp>
 #include <boost/geometry/strategies/index/services.hpp>
 
@@ -28,6 +31,7 @@ namespace detail
 template <typename RadiusTypeOrSphere, typename CalculationType>
 class spherical
     : public strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>
+    , public strategies::centroid::detail::spherical
 {
     using base_t = strategies::distance::detail::spherical<RadiusTypeOrSphere, CalculationType>;
 

@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -27,9 +29,12 @@ namespace boost { namespace geometry
 namespace strategies { namespace centroid
 {
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
+{
+
 template <typename CalculationType = void>
 struct cartesian
-    : public strategies::detail::cartesian_base
 {
     template <typename Geometry>
     static auto centroid(Geometry const&,
@@ -75,6 +80,17 @@ struct cartesian
         return strategy::centroid::not_applicable_strategy();
     }
 };
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+template <typename CalculationType = void>
+struct cartesian
+    : public strategies::detail::cartesian_base
+    , public strategies::centroid::detail::cartesian<CalculationType>
+{};
 
 
 namespace services

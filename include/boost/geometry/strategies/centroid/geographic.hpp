@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -22,24 +24,13 @@ namespace boost { namespace geometry
 namespace strategies { namespace centroid
 {
 
-template
-<
-    typename FormulaPolicy = strategy::andoyer,
-    typename Spheroid = srs::spheroid<double>,
-    typename CalculationType = void
->
-class geographic
-    : public strategies::detail::geographic_base<Spheroid>
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail
 {
-    using base_t = strategies::detail::geographic_base<Spheroid>;
 
+class geographic
+{
 public:
-    geographic() = default;
-
-    explicit geographic(Spheroid const& spheroid)
-        : base_t(spheroid)
-    {}
-
     // TODO: Box and Segment should have proper strategies.
     template <typename Geometry, typename Point>
     static auto centroid(Geometry const&, Point const&,
@@ -52,6 +43,32 @@ public:
         return strategy::centroid::not_applicable_strategy();
     }
 };
+
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
+
+
+template
+<
+    typename FormulaPolicy = strategy::andoyer,
+    typename Spheroid = srs::spheroid<double>,
+    typename CalculationType = void
+>
+class geographic
+    : public strategies::detail::geographic_base<Spheroid>
+    , public strategies::centroid::detail::geographic
+{
+    using base_t = strategies::detail::geographic_base<Spheroid>;
+
+public:
+    geographic() = default;
+
+    explicit geographic(Spheroid const& spheroid)
+        : base_t(spheroid)
+    {}
+};
+
 
 namespace services
 {
