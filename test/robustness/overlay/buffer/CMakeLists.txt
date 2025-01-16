@@ -10,9 +10,5 @@ foreach(item IN ITEMS
     #multi_point_growth
     recursive_polygons_buffer
   )
-  boost_geometry_add_unit_test("robustness" ${item})
-  target_include_directories(${BOOST_GEOMETRY_UNIT_TEST_NAME}
-    PRIVATE
-      "${PROJECT_SOURCE_DIR}/test/robustness"
-      .)
+  boost_geometry_add_robustness_test(${item})
 endforeach()

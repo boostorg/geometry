@@ -20,6 +20,8 @@
 #include <boost/geometry/strategies/spherical/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
+#include <boost/geometry/strategies/distance/detail.hpp>
+#include <boost/geometry/strategies/distance/services.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -77,6 +79,16 @@ public:
             >(base_t::radius());
     }
 
+    template <typename Geometry1, typename Geometry2>
+    auto comparable_distance(Geometry1 const&, Geometry2 const&,
+                             distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr) const
+    {
+        return strategy::distance::comparable::haversine
+                <
+                    typename base_t::radius_type, CalculationType
+                >(base_t::radius());
+    }
+    
     // covered_by
 
     template <typename Geometry1, typename Geometry2>

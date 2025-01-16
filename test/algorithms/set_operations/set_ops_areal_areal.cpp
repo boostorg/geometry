@@ -248,6 +248,8 @@ int test_main(int, char* [])
     TEST_CASE(case_145_multi);
     TEST_CASE_WITH(case_146_multi, 0, 1, ut_settings().ignore_validity_intersection());
     TEST_CASE(case_147_multi);
+    TEST_CASE(case_148_multi);
+    TEST_CASE(case_149_multi);
 
     TEST_CASE_WITH(issue_1221, 0, 1, ut_settings().ignore_validity_diff());
 
@@ -274,7 +276,32 @@ int test_main(int, char* [])
     TEST_CASE_WITH(issue_1349, 0, 1, ut_settings().ignore_diff());
     TEST_CASE(issue_1349_inverse);
 
-    TEST_CASE(issue_1350_comment);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Fails in nearly all operations
+    TEST_CASE(issue_1363);
+#endif
+
+    TEST_CASE(case_bitset_1);
+    TEST_CASE(case_bitset_2);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    // Needs a fix in assign_parents
+    TEST_CASE(case_bitset_3);
+#endif
+
+    TEST_CASE(case_recursive_boxes_89);
+    TEST_CASE(case_recursive_boxes_90);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_CASE(case_recursive_boxes_91);
+#endif
+    TEST_CASE(case_recursive_boxes_92);
+    TEST_CASE(case_recursive_boxes_93);
+    TEST_CASE(case_recursive_boxes_94);
+    TEST_CASE(case_recursive_boxes_95);
+    TEST_CASE(case_recursive_boxes_96);
+    TEST_CASE(case_recursive_boxes_97);
+    TEST_CASE(case_recursive_boxes_98);
+    TEST_CASE(case_recursive_boxes_99);
+    TEST_CASE_WITH(case_recursive_boxes_99, 2, 3, ut_settings());
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     // Fails in union or intersection, and in difference. Also the union is invalid.

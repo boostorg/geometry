@@ -12,6 +12,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_buffer.hpp"
+#include "buffer_cases.hpp"
 
 static std::string const simplex
     = "MULTIPOLYGON(((0 1,2 5,5 3,0 1)),((1 1,5 2,5 0,1 1)))";
@@ -411,6 +412,10 @@ static std::string const mysql_report_2015_07_05_1
 static std::string const mysql_report_2015_07_05_2
     = "MULTIPOLYGON(((19777 -21893,3.22595e+307 6.86823e+307,-40 -13,19777 -21893)),((-1322 4851,8.49998e+307 3.94481e+307,75 -69,8.64636e+307 3.94909e+307,-1.15292e+18 7.20576e+16,-1322 4851)))";
 
+
+#define TEST_BUFFER(caseid, join, end, area, distance) (test_one<multi_polygon_type, polygon_type>) \
+    ( #caseid "_buf", caseid, join, end, area, distance)
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -596,6 +601,50 @@ void test_all()
     test_one<multi_polygon_type, polygon_type>("rt_v2", rt_v2, join_round32, end_flat, 47.3510, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_v3", rt_v3, join_round32, end_flat, 22.9158, 1.0);
     test_one<multi_polygon_type, polygon_type>("rt_v4", rt_v4, join_round32, end_flat, 23.4146, 1.0);
+
+    TEST_BUFFER(rt_w1, join_miter, end_flat, 30.3995, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w2, join_miter, end_flat, 13.65685, 1.0);
+    TEST_BUFFER(rt_w3, join_miter, end_flat, 19.39949, 1.0);
+#endif
+    TEST_BUFFER(rt_w4, join_miter, end_flat, 57.37, 1.0);
+    TEST_BUFFER(rt_w5, join_miter, end_flat, 106.7279, 1.0);
+    TEST_BUFFER(rt_w6, join_miter, end_flat, 79.799, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w7, join_miter, end_flat, 58.8701, 1.0);
+#endif    
+    TEST_BUFFER(rt_w8, join_miter, end_flat, 83.4852, 1.0);
+    TEST_BUFFER(rt_w9, join_miter, end_flat, 68.9852, 1.0);
+    TEST_BUFFER(rt_w10, join_miter, end_flat, 88.1985, 1.0);
+    TEST_BUFFER(rt_w11, join_miter, end_flat, 53.4853, 1.0);
+    TEST_BUFFER(rt_w12, join_miter, end_flat, 28.7353, 1.0);
+    TEST_BUFFER(rt_w13, join_miter, end_flat, 25.5711, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w14, join_miter, end_flat, 58.05634, 1.0);
+#endif
+    TEST_BUFFER(rt_w15, join_miter, end_flat, 80.1348, 1.0);
+    TEST_BUFFER(rt_w16, join_miter, end_flat, 31.6495, 1.0);
+    TEST_BUFFER(rt_w17, join_miter, end_flat, 33.74264, 1.0);
+    TEST_BUFFER(rt_w18, join_miter, end_flat, 82.4779, 1.0);
+    TEST_BUFFER(rt_w19, join_miter, end_flat, 53.7132, 1.0);
+    TEST_BUFFER(rt_w20, join_miter, end_flat, 63.0269, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w21, join_miter, end_flat, 26.3137, 1.0);
+#endif    
+    TEST_BUFFER(rt_w22, join_miter, end_flat, 86.0416, 1.0);
+    TEST_BUFFER(rt_w23, join_miter, end_flat, 59.5711, 1.0);
+    TEST_BUFFER(rt_w24, join_miter, end_flat, 64.1985, 1.0);
+    TEST_BUFFER(rt_w25, join_miter, end_flat, 84.3848, 1.0);
+    TEST_BUFFER(rt_w26, join_miter, end_flat, 91.6569, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w27, join_miter, end_flat, 31.6569, 1.0);
+#endif
+    TEST_BUFFER(rt_w28, join_miter, end_flat, 100.0710, 1.0);
+    TEST_BUFFER(rt_w29, join_miter, end_flat, 25.1421, 1.0);
+#if defined(BOOST_GEOMETRY_TEST_FAILURES)
+    TEST_BUFFER(rt_w30, join_miter, end_flat, 59.4485, 1.0);
+    TEST_BUFFER(rt_w31, join_miter, end_flat, 85.7916, 1.0);
+#endif
 
     test_one<multi_polygon_type, polygon_type>("nores_mt_1", nores_mt_1, join_round32, end_flat, 13.4113, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_mt_2", nores_mt_2, join_round32, end_flat, 17.5265, 1.0);

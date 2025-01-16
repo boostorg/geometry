@@ -26,6 +26,7 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
+#include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/constexpr.hpp>
