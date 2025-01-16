@@ -12,16 +12,18 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#define BOOST_GEOMETRY_NO_BOOST_TEST
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <sstream>
 #include <string>
 
-#include <geometry_test_common.hpp>
-
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
+
+#include <geometry_test_common.hpp>
 
 // Basic case. Union should deliver 22.0
 static std::string case_a[2] =
@@ -207,18 +209,17 @@ std::size_t test_all(std::size_t case_index, std::size_t min_vertex_index,
 
     std::cout << case_index
             << " #cases: " << n << " #errors: " << error_count << std::endl;
-    BOOST_CHECK_EQUAL(error_count, 0u);
 
     return error_count;
 }
 
-int test_main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     BoostGeometryWriteTestConfiguration();
     using coor_t = default_test_type;
 
     test_settings settings;
-    settings.do_output = argc > 2 && atol(argv[2]) == 1;
+    settings.do_output = true;
 
     // Test three polygons, for the last test two types of intersections
     test_all<coor_t, true, bg::overlay_union>(1, 0, 3, 22.0, settings);

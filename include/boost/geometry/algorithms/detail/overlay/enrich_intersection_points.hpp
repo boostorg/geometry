@@ -138,6 +138,7 @@ inline void enrich_assign(Operations& operations, Turns& turns)
                 && op.seg_id == next_operation().seg_id
                 && indexed.turn_index != operations[next_index].turn_index)
         {
+            // In same cluster, on same segment, but not same turn
             next_index = advance(next_index);
         }
 
@@ -286,15 +287,9 @@ inline auto create_map(Turns const& turns, IncludePolicy const& include_policy)
             auto const& op = op_item.value;
             if (include_policy.include(op.operation))
             {
-                ring_identifier const ring_id
+                mapped_vector[ring_id_by_seg_id(op.seg_id)].emplace_back
                     (
-                        op.seg_id.source_index,
-                        op.seg_id.multi_index,
-                        op.seg_id.ring_index
-                    );
-                mapped_vector[ring_id].emplace_back
-                    (
-                        index, op_index, op, turn.operations[1 - op_index].seg_id
+                         index, op_index, op, turn.operations[1 - op_index].seg_id
                     );
             }
         }
@@ -403,8 +398,6 @@ inline void enrich_intersection_points(Turns& turns,
             // For all operations, discard xx and none/none
             // For intersections, remove uu to avoid the need to travel
             // a union (during intersection) in uu/cc clusters (e.g. #31,#32,#33)
-            // The ux is necessary to indicate impossible paths
-            // (especially if rescaling is removed)
 
             // Similarly, for union, discard ii and ix
 
@@ -456,6 +449,8 @@ inline void enrich_intersection_points(Turns& turns,
                     geometry1, geometry2,
                     strategy);
     }
+
+    // After cleaning up clusters assign the next turns
 
     for (auto& pair : mapped_vector)
     {

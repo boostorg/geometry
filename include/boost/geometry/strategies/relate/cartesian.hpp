@@ -22,6 +22,8 @@
 #include <boost/geometry/strategies/cartesian/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/cartesian/disjoint_box_box.hpp>
 
+#include <boost/geometry/strategies/distance/detail.hpp>
+#include <boost/geometry/strategies/distance/services.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -153,6 +155,13 @@ public:
                             > * = nullptr*/)
     {
         return strategy::intersection::cartesian_segments<CalculationType>();
+    }
+
+    template <typename Geometry1, typename Geometry2>
+    static auto comparable_distance(Geometry1 const&, Geometry2 const&,
+                                    distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr)
+    {
+        return strategy::distance::comparable::pythagoras<CalculationType>();
     }
 
     // side

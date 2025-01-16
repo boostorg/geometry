@@ -23,6 +23,7 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -43,36 +44,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-template <typename Turn, typename Operation>
-#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
-inline void debug_traverse(Turn const& turn, Operation op,
-                std::string const& header, bool condition = true)
-{
-    if (! condition)
-    {
-        return;
-    }
-    std::cout << " " << header
-        << " at " << op.seg_id
-        << " meth: " << method_char(turn.method)
-        << " op: " << operation_char(op.operation)
-        << " vis: " << visited_char(op.visited)
-        << " of:  " << operation_char(turn.operations[0].operation)
-        << operation_char(turn.operations[1].operation)
-        << " " << geometry::wkt(turn.point)
-        << std::endl;
-
-    if (boost::contains(header, "Finished"))
-    {
-        std::cout << std::endl;
-    }
-}
-#else
-inline void debug_traverse(Turn const& , Operation, const char*, bool = true)
-{
-}
-#endif
 
 template
 <

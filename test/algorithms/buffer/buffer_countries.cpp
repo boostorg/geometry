@@ -119,6 +119,13 @@ void test_all()
 
     const std::string base_folder = "data/";
     const std::string gr = read_from_wkt_file<mpt>(base_folder + "gr.wkt");
+    if (gr.empty())
+    {
+        // If this file is not found, the others won't be find either.
+        std::cerr << "Error: cannot read WKT files from " << base_folder << std::endl;
+        return;
+    }
+
     const std::string it = read_from_wkt_file<mpt>(base_folder + "it.wkt");
     const std::string nl = read_from_wkt_file<mpt>(base_folder + "nl.wkt");
     const std::string no = read_from_wkt_file<mpt>(base_folder + "no.wkt");

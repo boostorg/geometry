@@ -20,7 +20,7 @@
 
 // check less functor for turns
 template <typename Turns, typename Less>
-inline void verify_less_for_turns(Turns turns, Less const& less)
+inline void verify_less_for_turns(Turns const& turns, Less const& less)
 {
     typedef typename boost::range_iterator<Turns const>::type iterator_type;
 

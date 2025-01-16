@@ -20,6 +20,8 @@
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/spherical/disjoint_box_box.hpp>
 
+#include <boost/geometry/strategies/distance/detail.hpp>
+#include <boost/geometry/strategies/distance/services.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/detail.hpp>
@@ -78,6 +80,16 @@ public:
             >(base_t::m_spheroid);
     }
 
+    template <typename Geometry1, typename Geometry2>
+    auto comparable_distance(Geometry1 const&, Geometry2 const&,
+                             distance::detail::enable_if_pp_t<Geometry1, Geometry2> * = nullptr) const
+    {
+        return strategy::distance::geographic
+                <
+                    FormulaPolicy, Spheroid, CalculationType
+                >(base_t::m_spheroid);
+    }
+    
     // covered_by
 
     template <typename Geometry1, typename Geometry2>
