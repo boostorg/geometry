@@ -282,17 +282,20 @@ jobs:
       fail-fast: false
       matrix:
         b2_toolset: [
-          msvc-14.3,
-          msvc-15,
-          msvc-16,
+          msvc-14.0,
+          msvc-14.1,
+          msvc-14.2,
+          msvc-14.3
         ]
 
         include:
+          - b2_toolset: msvc-14.0
+            b2_cxxstd: 14,17,2a
+          - b2_toolset: msvc-14.1
+            b2_cxxstd: 14,17,2a
+          - b2_toolset: msvc-14.2
+            b2_cxxstd: 14,17,2a
           - b2_toolset: msvc-14.3
-            b2_cxxstd: 14,17,2a
-          - b2_toolset: msvc-15
-            b2_cxxstd: 14,17,2a
-          - b2_toolset: msvc-16
             b2_cxxstd: 14,17,2a
 
     steps:
