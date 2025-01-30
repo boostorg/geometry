@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit test
 
-// Copyright (c) 2015, Oracle and/or its affiliates.
+// Copyright (c) 2015-2025, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -174,6 +175,33 @@ BOOST_AUTO_TEST_CASE( equals_point_point_se )
         <
             bgm::point<double, 2, cs_type>, bgm::point<long double, 2, cs_type>
         >::apply("se");
+}
+
+template <typename T>
+std::string to_string_with_precision(const T value, const int precision = 15)
+{
+    std::ostringstream out;
+    out << std::fixed << std::setprecision(precision) << value;
+    return out.str();
+}
+
+void test_pp_rad(double half_pi)
+{
+    using cs_radian = bg::cs::spherical_equatorial<bg::radian>;
+    using P = bgm::point<double, 2, cs_radian>;
+
+    test_geometry<P, P>("ser_pp_half_pi",
+                        "POINT(" + to_string_with_precision(-half_pi)  + " 0)",
+                        "POINT(" + to_string_with_precision(half_pi)  + " 0)", true);
+}
+
+BOOST_AUTO_TEST_CASE( equals_point_point_radian )
+{
+    test_pp_rad(bg::math::d2r<float>() * 180);
+    // half pi value with less accuracy
+    test_pp_rad(-3.14159265358979);
+    // convert from degrees to radians with constant from epsg 4326 (WGS84)
+    test_pp_rad(0.017453292519943278 * 180);
 }
 
 BOOST_AUTO_TEST_CASE( equals_point_point_with_height_se )
