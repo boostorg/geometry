@@ -5,6 +5,10 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
+// This file was modified by Oracle on 2025.
+// Modifications copyright (c) 2025 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -46,7 +50,6 @@ template <typename T>
 void test_bounds()
 {
     using coordinate_t = boost::rational<T>;
-    using point_t = bg::model::point<coordinate_t, 2, bg::cs::cartesian>;
 
     auto const lowest = bg::util::bounds<coordinate_t>::lowest();
     auto const highest = bg::util::bounds<coordinate_t>::highest();
