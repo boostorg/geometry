@@ -253,12 +253,11 @@ void test_areal()
         case_recursive_boxes_14[0], case_recursive_boxes_14[1],
             5, 0, -1, 4.5);
 
-    // 12, 13, 14 with invalid input. To make then valid it is necessary
-    // to break regions at self-intersection points (postponed)
-
-    TEST_UNION_IGNORE(case_recursive_boxes_12_invalid, 5, 0, -1, 6.0);
-    TEST_UNION_IGNORE(case_recursive_boxes_13_invalid, 2, 0, -1, 10.25);
-    TEST_UNION_IGNORE(case_recursive_boxes_14_invalid, 4, 0, -1, 4.5);
+    // 12, 13, 14 with invalid input. Since using biconnected components,
+    // the resulting union is valid and the number of output rings is correct.
+    TEST_UNION(case_recursive_boxes_12_invalid, 6, 0, -1, 6.0);
+    TEST_UNION(case_recursive_boxes_13_invalid, 3, 0, -1, 10.25);
+    TEST_UNION(case_recursive_boxes_14_invalid, 5, 0, -1, 4.5);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("case_recursive_boxes_15",
         case_recursive_boxes_15[0], case_recursive_boxes_15[1],

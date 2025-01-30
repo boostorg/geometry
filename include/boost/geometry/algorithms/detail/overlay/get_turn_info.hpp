@@ -168,6 +168,12 @@ struct base_turn_handler
                                                    : info.fractions[index].rb;
             }
         }
+
+#if defined(BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL)
+        // Override the assignments above, they are sometimes (but not always) wrong.
+        ti.operations[0].fraction = info.fractions[index].ra;
+        ti.operations[1].fraction = info.fractions[index].rb;
+#endif
     }
 
     template <typename IntersectionInfo>
@@ -220,23 +226,22 @@ struct turn_info_verification_functions
 
         bool const p_in_range = index_p < range_p.size();
         bool const q_in_range = index_q < range_q.size();
-        ti.operations[IndexP].remaining_distance
-            = p_in_range
-              ? distance_measure(ti.point, range_p.at(index_p))
-              : distance_measure_result_type{0};
-        ti.operations[IndexQ].remaining_distance
-            = q_in_range
-              ? distance_measure(ti.point, range_q.at(index_q))
-              : distance_measure_result_type{0};
+        std::array<distance_measure_result_type, 2> distance_measures{};
+        if (p_in_range)
+        {
+            distance_measures[IndexP] = distance_measure(ti.point, range_p.at(index_p));
+        }
+        if (q_in_range)
+        {
+            distance_measures[IndexQ] = distance_measure(ti.point, range_q.at(index_q));
+        }
 
         if (p_in_range && q_in_range)
         {
             // pk/q2 is considered as collinear, but there might be
             // a tiny measurable difference. If so, use that.
             // Calculate pk // qj-qk
-            bool const p_closer
-                = ti.operations[IndexP].remaining_distance
-                  <  ti.operations[IndexQ].remaining_distance;
+            bool const p_closer = distance_measures[IndexP] < distance_measures[IndexQ];
             auto const dm
                 = p_closer
                 ? get_distance_measure(range_q.at(index_q - 1),
@@ -723,6 +728,7 @@ struct touch : public base_turn_handler
                     ti.operations[0].operation = operation_blocked;
                     // Q turns right -> union (both independent),
                     // Q turns left -> intersection
+                    // NOTE: the block is suspicious!
                     ti.operations[1].operation = block_q ? operation_blocked
                         : q_turns_left ? operation_intersection
                         : operation_union;
@@ -736,6 +742,7 @@ struct touch : public base_turn_handler
                     ui_else_iu(q_turns_left, ti);
                     if (block_q)
                     {
+                        // The block is suspicious! It is sometimes wrong!
                         ti.operations[1].operation = operation_blocked;
                     }
                     return;
@@ -777,6 +784,15 @@ struct touch : public base_turn_handler
                             : side_qi_p1 == 1 || side_qk_p1 == 1
                             ? operation_union
                             : operation_intersection;
+#if defined(BOOST_GEOMETRY_CONCEPT_FIX_BLOCK_Q)
+                // NOTE: this block is suspicious! Override it.
+                // This concept fix is not complete.
+                // The exact situation should be adapted.
+                ti.operations[1].operation = side_qi_p1 == 1 || side_qk_p1 == 1
+                            ? operation_union
+                            : operation_intersection;
+#endif
+
                 if (! block_q)
                 {
                     ti.touch_only = true;
@@ -1151,16 +1167,6 @@ struct collinear : public base_turn_handler
             ui_else_iu(product == 1, ti);
         }
 
-        // Calculate remaining distance. If it continues collinearly it is
-        // measured until the end of the next segment
-        ti.operations[0].remaining_distance
-                = side_p == 0 && has_pk
-                ? fun::distance_measure(ti.point, range_p.at(2))
-                : fun::distance_measure(ti.point, range_p.at(1));
-        ti.operations[1].remaining_distance
-                = side_q == 0 && has_qk
-                ? fun::distance_measure(ti.point, range_q.at(2))
-                : fun::distance_measure(ti.point, range_q.at(1));
     }
 };
 

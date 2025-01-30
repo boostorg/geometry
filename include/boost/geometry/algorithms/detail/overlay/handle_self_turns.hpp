@@ -53,6 +53,22 @@ struct check_within
 };
 
 template <>
+struct check_within<overlay_buffer>
+{
+    template
+    <
+        typename Turn, typename Geometry0, typename Geometry1,
+        typename UmbrellaStrategy
+    >
+    static inline
+    bool apply(Turn const& turn, Geometry0 const& geometry0,
+               Geometry1 const& geometry1, UmbrellaStrategy const& strategy)
+    {
+        return false;
+    }
+};
+
+template <>
 struct check_within<overlay_difference>
 {
     template

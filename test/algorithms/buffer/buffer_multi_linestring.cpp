@@ -195,6 +195,8 @@ void test_all()
     test_one<multi_linestring_type, polygon>("mysql_23023665_1_20",
             mysql_23023665_1, join_round32, end_flat, 1, 1, 350.1135, 2.0);
 
+    // A heavy buffer operation, most lines start at the same point, causing clusters of up to 121 turns,
+    // having mainly the same segments.
     test_one<multi_linestring_type, polygon>("ticket_13444_1",
             ticket_13444, join_round32, end_round32, 3, 0, 11799.2681, 1.0);
     test_one<multi_linestring_type, polygon>("ticket_13444_3",
