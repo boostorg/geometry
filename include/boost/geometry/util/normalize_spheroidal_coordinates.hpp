@@ -152,11 +152,7 @@ struct constants_on_spheroid<CoordinateType, degree, false>
 template <typename Units, typename CoordinateType>
 inline CoordinateType latitude_convert_ep(CoordinateType const& lat)
 {
-    typedef math::detail::constants_on_spheroid
-            <
-                CoordinateType,
-                Units
-            > constants;
+    using constants = math::detail::constants_on_spheroid<CoordinateType, Units>;
 
     return constants::quarter_period() - lat;
 }
@@ -165,31 +161,21 @@ inline CoordinateType latitude_convert_ep(CoordinateType const& lat)
 template <typename Units, bool IsEquatorial, typename T>
 static bool is_latitude_pole(T const& lat)
 {
-    typedef math::detail::constants_on_spheroid
-        <
-            T,
-            Units
-        > constants;
+    using constants = math::detail::constants_on_spheroid<T, Units>;
 
     return math::equals(math::abs(IsEquatorial
                                     ? lat
                                     : math::latitude_convert_ep<Units>(lat)),
                         constants::quarter_period());
-
 }
 
 
 template <typename Units, typename T>
 static bool is_longitude_antimeridian(T const& lon)
 {
-    typedef math::detail::constants_on_spheroid
-        <
-            T,
-            Units
-        > constants;
+    using constants = math::detail::constants_on_spheroid<T, Units>;
 
     return math::equals(math::abs(lon), constants::half_period());
-
 }
 
 
@@ -219,7 +205,7 @@ struct latitude_convert_if_polar<Units, false>
 template <typename Units, typename CoordinateType, bool IsEquatorial = true>
 class normalize_spheroidal_coordinates
 {
-    typedef constants_on_spheroid<CoordinateType, Units> constants;
+    using constants = constants_on_spheroid<CoordinateType, Units>;
 
 protected:
     static inline CoordinateType normalize_up(CoordinateType const& value)
@@ -324,7 +310,7 @@ public:
 template <typename Units, typename CoordinateType>
 inline void normalize_angle_loop(CoordinateType& angle)
 {
-    typedef constants_on_spheroid<CoordinateType, Units> constants;
+    using constants = constants_on_spheroid<CoordinateType, Units>;
     CoordinateType const pi = constants::half_period();
     CoordinateType const two_pi = constants::period();
     while (angle > pi)
@@ -336,7 +322,7 @@ inline void normalize_angle_loop(CoordinateType& angle)
 template <typename Units, typename CoordinateType>
 inline void normalize_angle_cond(CoordinateType& angle)
 {
-    typedef constants_on_spheroid<CoordinateType, Units> constants;
+    using constants = constants_on_spheroid<CoordinateType, Units>;
     CoordinateType const pi = constants::half_period();
     CoordinateType const two_pi = constants::period();
     if (angle > pi)
@@ -462,10 +448,7 @@ template <typename Units, typename CoordinateType>
 inline CoordinateType longitude_distance_unsigned(CoordinateType const& longitude1,
                                                   CoordinateType const& longitude2)
 {
-    typedef math::detail::constants_on_spheroid
-        <
-            CoordinateType, Units
-        > constants;
+    using constants = math::detail::constants_on_spheroid<CoordinateType, Units>;
 
     CoordinateType const c0 = 0;
     CoordinateType diff = longitude_distance_signed<Units>(longitude1, longitude2);

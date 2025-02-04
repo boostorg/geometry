@@ -68,8 +68,8 @@ private:
     {
         static inline bool apply(Point1 const& point1, Point2 const& point2)
         {
-            typedef typename helper_geometry<Point1>::type helper_point_type1;
-            typedef typename helper_geometry<Point2>::type helper_point_type2;
+            using helper_point_type1 = typename helper_geometry<Point1>::type;
+            using helper_point_type2 = typename helper_geometry<Point2>::type;
 
             helper_point_type1 point1_normalized;
             bool const exact_normalized = false;
@@ -89,11 +89,11 @@ private:
     {
         static inline bool apply(Point1 const& point1, Point2 const& point2)
         {
-            typedef typename geometry::select_most_precise
+            using calculation_type = typename geometry::select_most_precise
                 <
                     typename fp_coordinate_type<Point1>::type,
                     typename fp_coordinate_type<Point2>::type
-                >::type calculation_type;
+                >::type;
 
             typename helper_geometry
                 <
@@ -151,7 +151,7 @@ namespace services
 template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2>
 struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::spherical_point_point type;
+    using type = strategy::within::spherical_point_point;
 };
 
 } // namespace services
@@ -168,7 +168,7 @@ namespace strategy { namespace covered_by { namespace services
 template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2>
 struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::spherical_point_point type;
+    using type = strategy::within::spherical_point_point;
 };
 
 }}} // namespace strategy::covered_by::services

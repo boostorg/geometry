@@ -130,7 +130,7 @@ struct test_point_point_with_height
 template <typename P>
 void test_segment_segment(std::string const& header)
 {
-    typedef bgm::segment<P> seg;
+    using seg = bgm::segment<P>;
 
     std::string const str = header + "-";
 
@@ -159,7 +159,7 @@ void test_segment_segment(std::string const& header)
 
 BOOST_AUTO_TEST_CASE( equals_point_point_se )
 {
-    typedef bg::cs::spherical_equatorial<bg::degree> cs_type;
+    using cs_type = bg::cs::spherical_equatorial<bg::degree>;
 
     test_point_point<bgm::point<int, 2, cs_type> >::apply("se");
     test_point_point<bgm::point<double, 2, cs_type> >::apply("se");
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( equals_point_point_radian )
 
 BOOST_AUTO_TEST_CASE( equals_point_point_with_height_se )
 {
-    typedef bg::cs::spherical_equatorial<bg::degree> cs_type;
+    using cs_type = bg::cs::spherical_equatorial<bg::degree>;
 
     test_point_point<bgm::point<int, 3, cs_type> >::apply("seh");
     test_point_point<bgm::point<double, 3, cs_type> >::apply("seh");
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( equals_point_point_with_height_se )
 
 BOOST_AUTO_TEST_CASE( equals_point_point_geo )
 {
-    typedef bg::cs::geographic<bg::degree> cs_type;
+    using cs_type = bg::cs::geographic<bg::degree>;
 
     test_point_point<bgm::point<int, 2, cs_type> >::apply("geo");
     test_point_point<bgm::point<double, 2, cs_type> >::apply("geo");
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( equals_point_point_geo )
 
 BOOST_AUTO_TEST_CASE( equals_segment_segment_se )
 {
-    typedef bg::cs::spherical_equatorial<bg::degree> cs_type;
+    using cs_type = bg::cs::spherical_equatorial<bg::degree>;
 
     test_segment_segment<bgm::point<int, 2, cs_type> >("se");
     test_segment_segment<bgm::point<double, 2, cs_type> >("se");
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( equals_segment_segment_se )
 
 BOOST_AUTO_TEST_CASE( equals_segment_segment_geo )
 {
-    typedef bg::cs::geographic<bg::degree> cs_type;
+    using cs_type = bg::cs::geographic<bg::degree>;
 
     test_segment_segment<bgm::point<int, 2, cs_type> >("geo");
     test_segment_segment<bgm::point<double, 2, cs_type> >("geo");

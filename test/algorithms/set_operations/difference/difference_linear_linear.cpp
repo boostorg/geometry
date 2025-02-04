@@ -27,11 +27,12 @@
 #include <boost/geometry/geometries/multi_linestring.hpp>
 #include <boost/geometry/algorithms/difference.hpp>
 
-typedef bg::model::point<double,2,bg::cs::cartesian>  point_type;
-typedef bg::model::segment<point_type>                segment_type;
-typedef bg::model::linestring<point_type>             linestring_type;
-typedef bg::model::multi_linestring<linestring_type>  multi_linestring_type;
-
+using point_type = bg::model::point<double,2,bg::cs::cartesian>;
+using segment_type = bg::model::segment<point_type>;
+using linestring_type = bg::model::linestring<point_type>;
+using multi_linestring_type = bg::model::multi_linestring<linestring_type>;
+using L = linestring_type;
+using ML = multi_linestring_type;
 
 
 //===========================================================================
@@ -47,10 +48,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
     std::cout << std::endl;
 #endif
 
-    typedef linestring_type L;
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<L, L, ML> tester;
+    using tester = test_difference_of_geometries<L, L, ML>;
 
     tester::apply
         (from_wkt<L>("LINESTRING(0 0,1 1,2 1,3 2)"),
@@ -566,10 +564,7 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_multilinestring )
     std::cout << std::endl;
 #endif
 
-    typedef linestring_type L;
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<L, ML, ML> tester;
+    using tester = test_difference_of_geometries<L, ML, ML>;
 
     // disjoint linestrings
     tester::apply
@@ -790,10 +785,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_linestring )
     std::cout << std::endl;
 #endif
 
-    typedef linestring_type L;
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<ML, L, ML> tester;
+    using tester = test_difference_of_geometries<ML, L, ML>;
 
     // disjoint linestrings
     tester::apply
@@ -875,9 +867,7 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
     std::cout << std::endl;
 #endif
 
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<ML, ML, ML> tester;
+    using tester = test_difference_of_geometries<ML, ML, ML>;
 
     // disjoint linestrings
     tester::apply
@@ -1167,9 +1157,7 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_degenerate )
     std::cout << std::endl;
 #endif
 
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<ML, ML, ML> tester;
+    using tester = test_difference_of_geometries<ML, ML, ML>;
 
     // the following test cases concern linestrings with duplicate
     // points and possibly linestrings with zero length.
@@ -1254,9 +1242,7 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
     std::cout << std::endl;
 #endif
 
-    typedef multi_linestring_type ML;
-
-    typedef test_difference_of_geometries<ML, ML, ML> tester;
+    using tester = test_difference_of_geometries<ML, ML, ML>;
 
     // the following test cases concern linestrings with spikes
 
@@ -1446,9 +1432,9 @@ BOOST_AUTO_TEST_CASE( test_difference_ml_ml_spikes )
 
 BOOST_AUTO_TEST_CASE( test_difference_ls_mls_geo_rad )
 {
-    typedef bg::model::point<double, 2, bg::cs::geographic<bg::radian> > pt;
-    typedef bg::model::linestring<pt> ls;
-    typedef bg::model::multi_linestring<ls> mls;
+    using pt = bg::model::point<double, 2, bg::cs::geographic<bg::radian>>;
+    using ls = bg::model::linestring<pt>;
+    using mls = bg::model::multi_linestring<ls>;
 
     bg::srs::spheroid<double> sph_wgs84(6378137.0, 6356752.3142451793);
     boost::geometry::strategy::intersection::geographic_segments<> wgs84(sph_wgs84);
