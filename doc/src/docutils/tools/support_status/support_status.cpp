@@ -14,10 +14,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <type_traits>
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
-#include <boost/type_traits/is_base_of.hpp>
 
 #define BOOST_GEOMETRY_IMPLEMENTATION_STATUS_BUILD true
 #include <boost/geometry/core/cs.hpp>
@@ -145,7 +145,7 @@ struct do_unary_test
 
     void operator()()
     {
-        if (boost::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G> >::type::value)
+        if (std::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G> >::type::value)
         {
             m_outputter.nyi();
         }
@@ -167,7 +167,7 @@ struct do_binary_test
     template <typename G1>
     void operator()(G1)
     {
-        if (boost::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G1, G2> >::type::value)
+        if (std::is_base_of<boost::geometry::nyi::not_implemented_tag, Dispatcher<G1, G2> >::type::value)
         {
             m_outputter.nyi();
         }

@@ -10,6 +10,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <type_traits>
 
 #include <geometry_test_common.hpp>
 
@@ -23,7 +24,6 @@
 
 #include <boost/geometry/util/is_implemented.hpp>
 
-#include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 

@@ -46,7 +46,6 @@ template <typename T>
 void test_bounds()
 {
     using coordinate_t = boost::rational<T>;
-    using point_t = bg::model::point<coordinate_t, 2, bg::cs::cartesian>;
 
     auto const lowest = bg::util::bounds<coordinate_t>::lowest();
     auto const highest = bg::util::bounds<coordinate_t>::highest();
