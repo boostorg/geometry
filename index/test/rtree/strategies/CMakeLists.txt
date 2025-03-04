@@ -7,16 +7,15 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    rtree_contains_point
-    rtree_epsilon
-    rtree_insert_remove
-    rtree_intersects_geom
-    rtree_move_pack
-    rtree_non_cartesian
-    rtree_values
-    #compile-fail rtree_values_invalid
+    rtree_with_strategies_b_l
+    rtree_with_strategies_b_q
+    rtree_with_strategies_b_r
+    rtree_with_strategies_p_l
+    rtree_with_strategies_p_q
+    rtree_with_strategies_p_r
+    rtree_with_strategies_s_l
+    rtree_with_strategies_s_q
+    rtree_with_strategies_s_r
   )
   boost_geometry_add_unit_test("index" ${item})
 endforeach()
-
-add_subdirectory(strategies)
