@@ -19,4 +19,6 @@ foreach(item IN ITEMS
   boost_geometry_add_unit_test("index" ${item})
 endforeach()
 
+add_subdirectory(exceptions)
+add_subdirectory(generated)
 add_subdirectory(strategies)

@@ -5,15 +5,15 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 foreach(item IN ITEMS
-    rtree_with_strategies_b_l
-    rtree_with_strategies_b_q
-    rtree_with_strategies_b_r
-    rtree_with_strategies_p_l
-    rtree_with_strategies_p_q
-    rtree_with_strategies_p_r
-    rtree_with_strategies_s_l
-    rtree_with_strategies_s_q
-    rtree_with_strategies_s_r
+    rtree_lin_add_b2d
+    rtree_lin_mod_b2d
+    rtree_lin_que_b2d
+    rtree_qua_add_b2d
+    rtree_qua_mod_b2d
+    rtree_qua_que_b2d
+    rtree_rst_add_b2d
+    rtree_rst_mod_b2d
+    rtree_rst_que_b2d
   )
   boost_geometry_add_unit_test("index" ${item})
 endforeach()
