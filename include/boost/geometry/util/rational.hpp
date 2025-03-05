@@ -101,16 +101,16 @@ struct coordinate_cast<rational<T> >
 template <typename T1, typename T2>
 struct select_most_precise<boost::rational<T1>, boost::rational<T2> >
 {
-    typedef typename boost::rational
+    using type = typename boost::rational
         <
             typename select_most_precise<T1, T2>::type
-        > type;
+        > ;
 };
 
 template <typename T>
 struct select_most_precise<boost::rational<T>, double>
 {
-    typedef typename boost::rational<T> type;
+    using type = typename boost::rational<T>;
 };
 
 namespace util
