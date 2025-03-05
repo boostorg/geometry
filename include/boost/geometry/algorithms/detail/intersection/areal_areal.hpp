@@ -75,10 +75,10 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
                              TupledOut& geometry_out,
                              Strategy const& strategy)
     {
-        typedef typename geometry::detail::output_geometry_value
+        using single_out = typename geometry::detail::output_geometry_value
             <
                 TupledOut
-            >::type single_out;
+            >::type;
 
         boost::ignore_unused
             <
@@ -89,18 +89,18 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
                     >
             >();
 
-        typedef geometry::detail::output_geometry_access
+        using areal = geometry::detail::output_geometry_access
             <
                 single_out, polygon_tag, polygon_tag
-            > areal;
-        typedef geometry::detail::output_geometry_access
+            >;
+        using linear = geometry::detail::output_geometry_access
             <
                 single_out, linestring_tag, linestring_tag
-            > linear;
-        typedef geometry::detail::output_geometry_access
+            >;
+        using pointlike = geometry::detail::output_geometry_access
             <
                 single_out, point_tag, point_tag
-            > pointlike;
+            >;
 
         // A * A -> A
         call_intersection(areal1, areal2,
@@ -124,15 +124,15 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
             //   however this results in static assert failure related to rescale policy
             // After the removing of rescaling replacing boundary with areal geometry results in
             // some tests failing.
-            typedef typename geometry::tuples::element
+            using areal_out_type = typename geometry::tuples::element
             <
                 areal::index, TupledOut
-            >::type areal_out_type;
+            >::type;
 
-            typedef geometry::detail::boundary_view
+            using areal_out_boundary_type = geometry::detail::boundary_view
                 <
                     areal_out_type const
-                > areal_out_boundary_type;
+                >;
 
             areal_out_boundary_type areal_out_boundary(areal::get(geometry_out));
 

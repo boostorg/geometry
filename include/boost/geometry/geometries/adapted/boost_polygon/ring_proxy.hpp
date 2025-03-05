@@ -243,7 +243,7 @@ namespace traits
 template <typename Polygon>
 struct tag<adapt::bp::ring_proxy<Polygon> >
 {
-    typedef ring_tag type;
+    using type = ring_tag;
 };
 
 

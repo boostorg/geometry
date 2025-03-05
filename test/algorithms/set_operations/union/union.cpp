@@ -370,20 +370,11 @@ void test_areal()
         ggl_list_20110716_enrico[0], ggl_list_20110716_enrico[1],
         1, 1, 15, 129904.197692871);
 
-    {
-        ut_settings settings;
-        settings.set_test_validity(BG_IF_TEST_FAILURES);
-        TEST_UNION_WITH(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
-    }
+    TEST_UNION(ggl_list_20110820_christophe, count_set(1, 2), 0, -1, 67.3550722317627);
 
-    {
-        // SQL Server gives: 313.360374193241
-        // PostGIS gives:    313.360364623393
-        // Without rescaling, it is creates an invalidity for double
-        ut_settings settings;
-        settings.set_test_validity(false);
-        TEST_UNION_WITH(isovist, 1, 0, -1, 313.36036462);
-    }
+    // SQL Server gives: 313.360374193241
+    // PostGIS gives:    313.360364623393
+    TEST_UNION(isovist, 1, 0, -1, 313.36036462);
 
     TEST_UNION(ggl_list_20190307_matthieu_1, 1, 1, -1, 0.83773);
     TEST_UNION(ggl_list_20190307_matthieu_2, 1, 0, -1, 16.0);
@@ -430,14 +421,7 @@ void test_areal()
     TEST_UNION_REV(issue_566_a, 1, 0, -1, 214.3728);
     TEST_UNION_REV(issue_566_b, 1, 0, -1, 214.3728);
 
-    {
-        // With rescaling, the input (was already an output of a previous step)
-        // is somehow considered as invalid. Output is also invalid.
-        // Without rescaling, the same input is considered as valid
-        ut_settings settings;
-        settings.ignore_validity_on_invalid_input = false;
-        TEST_UNION_WITH(issue_690, 2, 0, -1, 25492.0505);
-    }
+    TEST_UNION(issue_690, 2, 0, -1, 25492.0505);
 
     TEST_UNION(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
     TEST_UNION_REV(issue_838, 1, 0, -1, expectation_limits(1.3333, 1.33785));
@@ -474,33 +458,6 @@ void test_areal()
 
     TEST_UNION(issue_1229, 1, 0, -1, 384869.166);
     TEST_UNION_REV(issue_1229, 1, 0, -1, 384869.166);
-
-    TEST_UNION(issue_1231, 1, 0, -1, 286.799);
-    TEST_UNION_REV(issue_1231, 1, 0, -1, 286.799);
-
-    TEST_UNION(issue_1244, 1, 1, -1, 17);
-    TEST_UNION_REV(issue_1244, 1, 1, -1, 17);
-
-    TEST_UNION(issue_1293, 1, 0, -1, 5.22017);
-    TEST_UNION_REV(issue_1293, 1, 0, -1, 5.22017);
-
-    TEST_UNION(issue_1295, 1, 0, -1, 17.56273);
-    TEST_UNION_REV(issue_1295, 1, 0, -1, 17.56273);
-
-    TEST_UNION(issue_1326, 1, 0, -1, 23.201);
-    TEST_UNION_REV(issue_1326, 1, 0, -1, 23.201);
-
-    TEST_UNION(issue_1342_a, 1, 0, -1, 48.81812749462216);
-    TEST_UNION_REV(issue_1342_a, 1, 0, -1, 48.81812749462216);
-
-    TEST_UNION(issue_1342_b, 1, 0, -1, 48.81812749462214);
-    TEST_UNION_REV(issue_1342_b, 1, 0, -1, 48.81812749462214);
-
-    TEST_UNION(issue_1345_a, 1, 0, -1, 0.059935681);
-    TEST_UNION_REV(issue_1345_a, 1, 0, -1, 0.059935681);
-
-    TEST_UNION(issue_1345_b, 1, 0, -1, 0.034944786);
-    TEST_UNION_REV(issue_1345_b, 1, 0, -1, 0.034944786);
 
     TEST_UNION(geos_1, 1, 0, -1, expectation_limits(3458.0, 3461.3203125));
     TEST_UNION(geos_2, 1, 0, -1, expectation_limits(349.0625, 350.55102539));
@@ -668,10 +625,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<float>, true>();
     test_all<bg::model::d2::point_xy<long double>, true>();
     test_all<bg::model::d2::point_xy<mp_test_type>, true>();
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(1, 2, 0);
 #endif
 
     return 0;

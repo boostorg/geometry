@@ -39,7 +39,7 @@ namespace detail { namespace buffer
 class backtrack_for_buffer
 {
 public :
-    typedef detail::overlay::backtrack_state state_type;
+    using state_type = detail::overlay::backtrack_state;
 
     template
         <
@@ -87,20 +87,6 @@ g_backtrack_warning_count++;
 struct buffer_overlay_visitor
 {
 public :
-    void print(char const* /*header*/)
-    {
-    }
-
-    template <typename Turns>
-    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/)
-    {
-    }
-
-    template <typename Turns>
-    void print(char const* /*header*/, Turns const& /*turns*/, int /*turn_index*/, int /*op_index*/)
-    {
-    }
-
     template <typename Turns>
     void visit_turns(int , Turns const& ) {}
 
@@ -148,7 +134,7 @@ struct buffer_turn_info
             buffer_turn_operation<Point, SegmentRatio>
         >
 {
-    typedef Point point_type;
+    using point_type = Point;
 
     std::size_t turn_index;
 
@@ -168,26 +154,6 @@ struct buffer_turn_info
         , within_original(false)
         , count_in_original(0)
     {}
-};
-
-struct buffer_less
-{
-    template <typename Indexed>
-    inline bool operator()(Indexed const& left, Indexed const& right) const
-    {
-        if (! (left.subject->seg_id == right.subject->seg_id))
-        {
-            return left.subject->seg_id < right.subject->seg_id;
-        }
-
-        // Both left and right are located on the SAME segment.
-        if (! (left.subject->fraction == right.subject->fraction))
-        {
-            return left.subject->fraction < right.subject->fraction;
-        }
-
-        return left.turn_index < right.turn_index;
-    }
 };
 
 template <typename Strategy>

@@ -257,11 +257,6 @@ void test_aimes()
         double const aimes_width = width / 1000000.0;
         for (int i = 0; i < n; i++)
         {
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-            // There are 4 false positives
-            bool const possible_invalid = width == 18 && (i == 75 || i == 80 || i == 140);
-            settings.set_test_validity(! possible_invalid);
-#endif
             std::ostringstream name;
             try
             {
@@ -293,12 +288,6 @@ int test_main(int, char* [])
     BoostGeometryWriteTestConfiguration();
 
     test_aimes<bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Type float is not supported for these cases.
-    // Type double has (judging the svg) 4 false negatives for validity
-    BoostGeometryWriteExpectedFailures(0, 0, 0);
-#endif
 
     return 0;
 }

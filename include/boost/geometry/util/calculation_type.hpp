@@ -108,7 +108,7 @@ struct unary
 {
     typedef typename detail::calculation_type
         <
-            typename geometry::coordinate_type<Geometry>::type,
+            geometry::coordinate_type_t<Geometry>,
             CalculationType,
             DefaultFloatingPointCalculationType,
             DefaultIntegralCalculationType
@@ -153,7 +153,7 @@ struct ternary
         <
             typename select_most_precise
                 <
-                    typename coordinate_type<Geometry1>::type,
+                    coordinate_type_t<Geometry1>,
                     typename select_coordinate_type
                         <
                             Geometry2,

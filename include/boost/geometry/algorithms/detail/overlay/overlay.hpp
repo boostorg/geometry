@@ -60,14 +60,6 @@ namespace detail { namespace overlay
 //! Default visitor for overlay, doing nothing
 struct overlay_null_visitor
 {
-    void print(char const* ) {}
-
-    template <typename Turns>
-    void print(char const* , Turns const& , int) {}
-
-    template <typename Turns>
-    void print(char const* , Turns const& , int , int ) {}
-
     template <typename Turns>
     void visit_turns(int , Turns const& ) {}
 
@@ -182,14 +174,14 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             OutputIterator out, Strategy const& strategy)
 {
-    typedef typename geometry::ring_type<GeometryOut>::type ring_type;
-    typedef std::deque<ring_type> ring_container_type;
+    using ring_type = geometry::ring_type_t<GeometryOut>;
+    using ring_container_type = std::deque<ring_type>;
 
-    typedef ring_properties
+    using properties = ring_properties
         <
-            typename geometry::point_type<ring_type>::type,
+            geometry::point_type_t<ring_type>,
             typename geometry::area_result<ring_type, Strategy>::type
-        > properties;
+        >;
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
@@ -253,23 +245,25 @@ struct overlay
                 >(geometry1, geometry2, out, strategy);
         }
 
-        typedef typename geometry::point_type<GeometryOut>::type point_type;
-        typedef detail::overlay::traversal_turn_info
+        using point_type = geometry::point_type_t<GeometryOut>;
+        using turn_info = detail::overlay::traversal_turn_info
         <
             point_type,
             typename segment_ratio_type<point_type>::type
-        > turn_info;
-        typedef std::deque<turn_info> turn_container_type;
+        >;
+        using turn_container_type = std::deque<turn_info>;
 
-        typedef typename geometry::ring_type<GeometryOut>::type ring_type;
-        typedef std::deque<ring_type> ring_container_type;
+        using ring_type = geometry::ring_type_t<GeometryOut>;
+        using ring_container_type = std::deque<ring_type>;
 
         // Define the clusters, mapping cluster_id -> turns
-        typedef std::map
+        using cluster_type = std::map
             <
                 signed_size_type,
                 cluster_info
-            > cluster_type;
+            >;
+
+        constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
         turn_container_type turns;
 
@@ -303,6 +297,21 @@ struct overlay
         cluster_type clusters;
         std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
+        // Handle colocations, gathering clusters and (below) their properties.
+        detail::overlay::handle_colocations
+                    <
+                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
+                    >(turns, clusters);
+
+        // Gather cluster properties (using even clusters with
+        // discarded turns - for open turns)
+        detail::overlay::gather_cluster_properties
+            <
+                Reverse1,
+                Reverse2,
+                OverlayType
+            >(clusters, turns, target_operation, geometry1, geometry2, strategy);
+
         geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(
             turns, clusters, geometry1, geometry2, strategy);
 
@@ -327,11 +336,11 @@ struct overlay
 
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
 
-        typedef ring_properties
+        using properties = ring_properties
             <
                 point_type,
                 typename geometry::area_result<ring_type, Strategy>::type
-            > properties;
+            >;
 
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;

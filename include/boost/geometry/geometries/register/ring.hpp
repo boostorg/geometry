@@ -34,7 +34,7 @@
 */
 #define BOOST_GEOMETRY_REGISTER_RING(Ring) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<> struct tag<Ring> { typedef ring_tag type; }; \
+    template<> struct tag<Ring> { using type = ring_tag; }; \
 }}}
 
 
@@ -53,7 +53,7 @@ namespace boost { namespace geometry { namespace traits {  \
 */
 #define BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(Ring) \
 namespace boost { namespace geometry { namespace traits {  \
-    template<typename P> struct tag< Ring<P> > { typedef ring_tag type; }; \
+    template<typename P> struct tag< Ring<P> > { using type = ring_tag; }; \
 }}}
 
 

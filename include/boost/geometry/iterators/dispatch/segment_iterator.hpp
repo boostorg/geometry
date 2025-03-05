@@ -23,7 +23,7 @@ namespace dispatch
 
 
 // dispatch for segments_begin
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct segments_begin
     : not_implemented<Geometry>
 {};
@@ -31,7 +31,7 @@ struct segments_begin
 
 
 // dispatch for segments_end
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct segments_end
     : not_implemented<Geometry>
 {};

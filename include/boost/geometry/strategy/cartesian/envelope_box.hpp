@@ -80,7 +80,7 @@ namespace strategy { namespace envelope
 
 struct cartesian_box
 {
-    typedef cartesian_tag cs_tag;
+    using cs_tag = cartesian_tag;
 
     template<typename BoxIn, typename BoxOut>
     static inline void apply(BoxIn const& box_in, BoxOut& mbr)

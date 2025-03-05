@@ -116,7 +116,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct length : detail::calculate_null
 {
     typedef typename default_length_result<Geometry>::type return_type;
@@ -220,7 +220,7 @@ struct length<default_strategy, false>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = typename geometry::tag<Geometry>::type>
+template <typename Geometry, typename Tag = geometry::tag_t<Geometry>>
 struct length
 {
     template <typename Strategy>

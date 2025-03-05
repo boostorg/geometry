@@ -75,7 +75,7 @@ template
 >
 struct z_access
 {
-    typedef typename coordinate_type<Point>::type type;
+    using type = coordinate_type_t<Point>;
     static inline type get(Point const& point)
     {
         return geometry::get<2>(point);
@@ -89,7 +89,7 @@ struct z_access
 template <typename Point>
 struct z_access<Point, false>
 {
-    typedef typename coordinate_type<Point>::type type;
+    using type = coordinate_type_t<Point>;
     static inline type get(Point const& )
     {
         return type(0);
@@ -119,9 +119,9 @@ template
 >
 struct range_wrapper
 {
-    typedef Range range_type;
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef typename coordinate_type<point_type>::type coord_t;
+    using range_type = Range;
+    using point_type = typename boost::range_value<Range>::type;
+    using coord_t = coordinate_type_t<point_type>;
 
     range_wrapper(Range & range)
         : m_range(range)
@@ -139,9 +139,9 @@ private:
 template <typename Range>
 struct range_wrapper<Range, true>
 {
-    typedef Range range_type;
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef typename coordinate_type<point_type>::type coord_t;
+    using range_type = Range;
+    using point_type = typename boost::range_value<Range>::type;
+    using coord_t = coordinate_type_t<point_type>;
 
     range_wrapper(Range & range)
         : m_range(range)
@@ -237,8 +237,8 @@ inline bool pj_transform(SrcPrj const& srcprj, Par const& srcdefn,
                          Grids const& dstgrids)
 
 {
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef typename coordinate_type<point_type>::type coord_t;
+    using point_type = typename boost::range_value<Range>::type;
+    using coord_t = coordinate_type_t<point_type>;
     static const std::size_t dimension = geometry::dimension<point_type>::value;
     std::size_t point_count = boost::size(range);
     bool result = true;
@@ -616,9 +616,7 @@ inline int pj_geodetic_to_geocentric( T const& a, T const& es,
                                       range_wrapper<Range, AddZ> & range_wrapper )
 
 {
-    //typedef typename boost::range_iterator<Range>::type iterator;
-    typedef typename boost::range_value<Range>::type point_type;
-    //typedef typename coordinate_type<point_type>::type coord_t;
+    using point_type = typename boost::range_value<Range>::type;
 
     Range & rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
@@ -671,9 +669,7 @@ inline int pj_geocentric_to_geodetic( T const& a, T const& es,
                                       range_wrapper<Range, AddZ> & range_wrapper )
 
 {
-    //typedef typename boost::range_iterator<Range>::type iterator;
-    typedef typename boost::range_value<Range>::type point_type;
-    //typedef typename coordinate_type<point_type>::type coord_t;
+    using point_type = typename boost::range_value<Range>::type;
 
     Range & rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
@@ -762,20 +758,22 @@ inline int pj_geocentric_to_wgs84( Par const& defn,
                                    range_wrapper<Range, AddZ> & range_wrapper )
 
 {
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef typename coordinate_type<point_type>::type coord_t;
+    using point_type = typename boost::range_value<Range>::type;
+    using coord_t = coordinate_type_t<point_type>;
 
-    Range & rng = range_wrapper.get_range();
+    Range& rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
 
-    if( defn.datum_type == datum_3param )
+    if (defn.datum_type == datum_3param)
     {
-        for(std::size_t i = 0; i < point_count; i++ )
+        for (std::size_t i = 0; i < point_count; i++ )
         {
-            point_type & point = range::at(rng, i);
+            point_type& point = range::at(rng, i);
 
-            if( is_invalid_point(point) )
+            if (is_invalid_point(point))
+            {
                 continue;
+            }
 
             set<0>(point,                   get<0>(point) + Dx_BF(defn));
             set<1>(point,                   get<1>(point) + Dy_BF(defn));
@@ -819,20 +817,22 @@ inline int pj_geocentric_from_wgs84( Par const& defn,
                                      range_wrapper<Range, AddZ> & range_wrapper )
 
 {
-    typedef typename boost::range_value<Range>::type point_type;
-    typedef typename coordinate_type<point_type>::type coord_t;
+    using point_type = typename boost::range_value<Range>::type;
+    using coord_t = coordinate_type_t<point_type>;
 
-    Range & rng = range_wrapper.get_range();
+    Range& rng = range_wrapper.get_range();
     std::size_t point_count = boost::size(rng);
 
-    if( defn.datum_type == datum_3param )
+    if (defn.datum_type == datum_3param)
     {
-        for(std::size_t i = 0; i < point_count; i++ )
+        for (std::size_t i = 0; i < point_count; i++ )
         {
-            point_type & point = range::at(rng, i);
+            point_type& point = range::at(rng, i);
 
-            if( is_invalid_point(point) )
+            if (is_invalid_point(point))
+            {
                 continue;
+            }
 
             set<0>(point,                   get<0>(point) - Dx_BF(defn));
             set<1>(point,                   get<1>(point) - Dy_BF(defn));

@@ -51,14 +51,11 @@ namespace detail { namespace boundary_views
 template
 <
     typename Polygon,
-    typename Value = typename ring_type<Polygon>::type,
-    typename Reference = typename ring_return_type<Polygon>::type,
+    typename Value = ring_type_t<Polygon>,
+    typename Reference = ring_return_type_t<Polygon>,
     typename Difference = typename boost::range_difference
         <
-            typename std::remove_reference
-                <
-                    typename interior_return_type<Polygon>::type
-                >::type
+            std::remove_reference_t<interior_return_type_t<Polygon>>
         >::type
 >
 class polygon_rings_iterator
@@ -71,13 +68,10 @@ class polygon_rings_iterator
             Difference
         >
 {
-    typedef typename boost::range_size
+    using size_type = typename boost::range_size
         <
-            typename std::remove_reference
-                <
-                    typename interior_return_type<Polygon>::type
-                >::type
-        >::type size_type;
+            std::remove_reference_t<interior_return_type_t<Polygon>>
+        >::type;
 
 public:
     // default constructor
@@ -231,7 +225,7 @@ public:
 };
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct num_rings
 {};
 
@@ -255,7 +249,7 @@ struct num_rings<MultiPolygon, multi_polygon_tag>
 };
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct views_container_initializer
 {};
 
@@ -328,7 +322,7 @@ public:
 template <typename Areal>
 class areal_boundary
 {
-    typedef boundary_view<typename ring_type<Areal>::type> boundary_view_type;
+    typedef boundary_view<ring_type_t<Areal>> boundary_view_type;
     typedef views_container_initializer<Areal> exception_safe_initializer;
 
     template <typename T>

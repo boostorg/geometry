@@ -61,7 +61,7 @@ struct set_point_from_vec
     template <typename Vector>
     static inline void apply(Point & p, Vector const& v)
     {
-        typedef typename geometry::coordinate_type<Point>::type coord_t;
+        using coord_t = geometry::coordinate_type_t<Point>;
         set<Dimension>(p, util::numeric_cast<coord_t>(qvm::A<Dimension>(v)));
         set_point_from_vec<Point, Dimension + 1, DimensionCount>::apply(p, v);
     }
@@ -197,7 +197,7 @@ public :
         ct const& c1 = get<0>(p1);
         ct const& c2 = get<1>(p1);
 
-        typedef typename geometry::coordinate_type<P2>::type ct2;
+        using ct2 = geometry::coordinate_type_t<P2>;
         set<0>(p2, util::numeric_cast<ct2>(c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + qvm::A<0,2>(this->m_matrix)));
         set<1>(p2, util::numeric_cast<ct2>(c1 * qvm::A<1,0>(this->m_matrix) + c2 * qvm::A<1,1>(this->m_matrix) + qvm::A<1,2>(this->m_matrix)));
 
@@ -240,7 +240,7 @@ public :
         ct const& c2 = get<1>(p1);
         ct const& c3 = get<2>(p1);
 
-        typedef typename geometry::coordinate_type<P2>::type ct2;
+        using ct2 = geometry::coordinate_type_t<P2>;
 
         set<0>(p2, util::numeric_cast<ct2>(
             c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + c3 * qvm::A<0,2>(this->m_matrix) + qvm::A<0,3>(this->m_matrix)));
@@ -289,7 +289,7 @@ public :
         ct const& c2 = get<1>(p1);
         ct const& c3 = get<2>(p1);
 
-        typedef typename geometry::coordinate_type<P2>::type ct2;
+        using ct2 = geometry::coordinate_type_t<P2>;
 
         set<0>(p2, util::numeric_cast<ct2>(
             c1 * qvm::A<0,0>(this->m_matrix) + c2 * qvm::A<0,1>(this->m_matrix) + c3 * qvm::A<0,2>(this->m_matrix) + qvm::A<0,3>(this->m_matrix)));

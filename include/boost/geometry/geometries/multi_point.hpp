@@ -108,7 +108,7 @@ template
 >
 struct tag< model::multi_point<Point, Container, Allocator> >
 {
-    typedef multi_point_tag type;
+    using type = multi_point_tag;
 };
 
 } // namespace traits

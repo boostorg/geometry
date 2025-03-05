@@ -27,7 +27,7 @@ namespace detail { namespace distance
 
 
 // class to choose between point_iterator and segment_iterator
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct iterator_selector
 {
     typedef geometry::segment_iterator<Geometry> iterator_type;

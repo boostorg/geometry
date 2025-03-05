@@ -427,7 +427,7 @@ struct for_each_point<MultiGeometry, multi_tag>
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct for_each_segment: not_implemented<Tag>
 {};

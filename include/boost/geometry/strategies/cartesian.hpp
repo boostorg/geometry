@@ -1,5 +1,7 @@
 // Boost.Geometry
 
+// Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
+
 // Copyright (c) 2020-2021, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
@@ -14,6 +16,8 @@
 #include <boost/geometry/strategies/area/cartesian.hpp>
 #include <boost/geometry/strategies/azimuth/cartesian.hpp>
 #include <boost/geometry/strategies/buffer/cartesian.hpp>
+#include <boost/geometry/strategies/centroid/cartesian.hpp>
+#include <boost/geometry/strategies/closest_points/cartesian.hpp>
 #include <boost/geometry/strategies/convex_hull/cartesian.hpp>
 #include <boost/geometry/strategies/distance/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
@@ -36,7 +40,8 @@ namespace strategies
 template <typename CalculationType = void>
 class cartesian
     // derived from the umbrella strategy defining the most strategies
-    : public strategies::index::cartesian<CalculationType>
+    : public strategies::closest_points::cartesian<CalculationType>
+    , public strategies::centroid::detail::cartesian<CalculationType>
 {
 public:
 

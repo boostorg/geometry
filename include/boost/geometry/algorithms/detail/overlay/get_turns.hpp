@@ -200,13 +200,13 @@ class get_turns_in_sections
 {
     using range1_view = detail::closed_clockwise_view
         <
-            typename ring_type<Geometry1>::type const,
+            ring_type_t<Geometry1> const,
             geometry::closure<Geometry1>::value,
             Reverse1 ? counterclockwise : clockwise
         >;
     using range2_view = detail::closed_clockwise_view
         <
-            typename ring_type<Geometry2>::type const,
+            ring_type_t<Geometry2> const,
             geometry::closure<Geometry2>::value,
             Reverse2 ? counterclockwise : clockwise
         >;
@@ -357,7 +357,7 @@ public :
                                             *prev2, *it2,
                                             strategy);
 
-                    typedef typename boost::range_value<Turns>::type turn_info;
+                    using turn_info = typename boost::range_value<Turns>::type;
 
                     turn_info ti;
                     ti.operations[0].seg_id
@@ -390,8 +390,8 @@ public :
 
 
 private :
-    typedef typename geometry::point_type<Geometry1>::type point1_type;
-    typedef typename geometry::point_type<Geometry2>::type point2_type;
+    using point1_type = geometry::point_type_t<Geometry1>;
+    using point2_type = geometry::point_type_t<Geometry2>;
 
     // It is NOT possible to have section-iterators here
     // because of the logistics of "index" (the section-iterator automatically
@@ -496,14 +496,14 @@ public:
             InterruptPolicy& interrupt_policy)
     {
         // First create monotonic sections...
-        typedef typename boost::range_value<Turns>::type ip_type;
-        typedef typename ip_type::point_type point_type;
+        using ip_type = typename boost::range_value<Turns>::type;
+        using point_type = typename ip_type::point_type;
 
-        typedef model::box<point_type> box_type;
-        typedef geometry::sections<box_type, 2> sections_type;
+        using box_type = model::box<point_type>;
+        using sections_type = geometry::sections<box_type, 2>;
 
         sections_type sec1, sec2;
-        typedef std::integer_sequence<std::size_t, 0, 1> dimensions;
+        using dimensions = std::integer_sequence<std::size_t, 0, 1>;
 
         geometry::sectionalize<Reverse1, dimensions>(geometry1,
                                                      sec1, strategy, 0);
@@ -540,9 +540,9 @@ template
 >
 struct get_turns_cs
 {
-    typedef typename geometry::point_type<Range>::type range_point_type;
-    typedef typename geometry::point_type<Box>::type box_point_type;
-    typedef std::array<box_point_type, 4> box_array;
+    using range_point_type = geometry::point_type_t<Range>;
+    using box_point_type = geometry::point_type_t<Box>;
+    using box_array = std::array<box_point_type, 4>;
 
     using view_type = detail::closed_clockwise_view
         <
@@ -555,7 +555,7 @@ struct get_turns_cs
 
     struct unique_sub_range_from_box_policy
     {
-        typedef box_point_type point_type;
+        using point_type = box_point_type;
 
         unique_sub_range_from_box_policy(box_array const& box)
           : m_box(box)
@@ -584,7 +584,7 @@ struct get_turns_cs
 
     struct unique_sub_range_from_view_policy
     {
-        typedef range_point_type point_type;
+        using point_type = range_point_type;
 
         unique_sub_range_from_view_policy(view_type const& view, point_type const& pi, point_type const& pj, iterator_type it)
           : m_view(view)
@@ -684,7 +684,7 @@ private:
 
         // Depending on code some relations can be left out
 
-        typedef typename boost::range_value<Turns>::type turn_info;
+        using turn_info = typename boost::range_value<Turns>::type;
 
         turn_info ti;
         ti.operations[0].seg_id = seg_id;
@@ -740,14 +740,12 @@ struct get_turns_polygon_cs
             InterruptPolicy& interrupt_policy,
             signed_size_type multi_index = -1)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
-        typedef detail::get_turns::get_turns_cs
+        using intersector_type = detail::get_turns::get_turns_cs
             <
-                ring_type, Box,
+                geometry::ring_type_t<Polygon>, Box,
                 Reverse, ReverseBox,
                 TurnPolicy
-            > intersector_type;
+            >;
 
         intersector_type::apply(
                 source_id1, geometry::exterior_ring(polygon),
@@ -815,9 +813,15 @@ struct topological_tag_base
     using type = tag_cast_t<tag_t<Geometry>, pointlike_tag, linear_tag, areal_tag>;
 };
 
-template <typename Geometry1, typename Geometry2, typename AssignPolicy,
-          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
+template
+<
+    typename Geometry1, typename Geometry2,
+    typename AssignPolicy,
+    typename Tag1 = tag_t<Geometry1>,
+    typename Tag2 = tag_t<Geometry2>,
+    typename TagBase1 = typename topological_tag_base<Geometry1>::type,
+    typename TagBase2 = typename topological_tag_base<Geometry2>::type
+>
 struct get_turn_info_type
     : overlay::get_turn_info<AssignPolicy>
 {};
@@ -833,8 +837,9 @@ struct get_turn_info_type<Geometry1, Geometry2, AssignPolicy, Tag1, Tag2, linear
 {};
 
 template <typename Geometry1, typename Geometry2, typename Point, typename SegmentRatio,
-          typename Tag1 = typename tag<Geometry1>::type, typename Tag2 = typename tag<Geometry2>::type,
-          typename TagBase1 = typename topological_tag_base<Geometry1>::type, typename TagBase2 = typename topological_tag_base<Geometry2>::type>
+          typename Tag1 = tag_t<Geometry1>, typename Tag2 = tag_t<Geometry2>,
+          typename TagBase1 = typename topological_tag_base<Geometry1>::type,
+          typename TagBase2 = typename topological_tag_base<Geometry2>::type>
 struct turn_operation_type
 {
     using type = overlay::turn_operation<Point, SegmentRatio>;
@@ -1009,27 +1014,29 @@ inline void get_turns(Geometry1 const& geometry1,
 {
     concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
-    typedef detail::overlay::get_turn_info<AssignPolicy> TurnPolicy;
-    //typedef detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy> TurnPolicy;
+    using turn_policy_t = detail::overlay::get_turn_info<AssignPolicy>;
+    // Using get_turn_info_type would be more generic. But that is currently not compiling,
+    // because it misses the is_collinear field as used later in the algorithm.
+    // using turn_policy_t = detail::get_turns::get_turn_info_type<Geometry1, Geometry2, AssignPolicy>;
 
     std::conditional_t
         <
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::get_turns_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                TurnPolicy
+                turn_policy_t
             >,
             dispatch::get_turns
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 Reverse1, Reverse2,
-                TurnPolicy
+                turn_policy_t
             >
         >::apply(0, geometry1,
                  1, geometry2,

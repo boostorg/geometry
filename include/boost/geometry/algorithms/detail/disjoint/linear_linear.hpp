@@ -90,12 +90,9 @@ struct disjoint_linear
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        using point_type = typename geometry::point_type<Geometry1>::type;
+        using point_type = geometry::point_type_t<Geometry1>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
-        using ratio_type = geometry::segment_ratio
-            <
-                typename coordinate_type<point_type>::type
-            > ;
+        using ratio_type = geometry::segment_ratio<coordinate_type_t<point_type>>;
         using turn_info_type = overlay::turn_info
             <
                 mutable_point_type,
@@ -114,8 +111,8 @@ struct disjoint_linear
         disjoint_interrupt_policy interrupt_policy;
         dispatch::get_turns
             <
-                typename geometry::tag<Geometry1>::type,
-                typename geometry::tag<Geometry2>::type,
+                geometry::tag_t<Geometry1>,
+                geometry::tag_t<Geometry2>,
                 Geometry1,
                 Geometry2,
                 overlay::do_reverse<geometry::point_order<Geometry1>::value>::value, // should be false

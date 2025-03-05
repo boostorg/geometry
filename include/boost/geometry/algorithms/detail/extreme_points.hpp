@@ -122,8 +122,8 @@ template<typename Ring, std::size_t Dimension>
 struct extreme_points_on_ring
 {
 
-    typedef typename geometry::coordinate_type<Ring>::type coordinate_type;
-    typedef typename geometry::point_type<Ring>::type point_type;
+    using coordinate_type = geometry::coordinate_type_t<Ring>;
+    using point_type = geometry::point_type_t<Ring>;
 
     template <typename CirclingIterator, typename Points>
     static inline bool extend(CirclingIterator& it,
@@ -393,7 +393,7 @@ template
 <
     typename Geometry,
     std::size_t Dimension,
-    typename GeometryTag = typename tag<Geometry>::type
+    typename GeometryTag = tag_t<Geometry>
 >
 struct extreme_points
 {};
@@ -412,11 +412,10 @@ struct extreme_points<Polygon, Dimension, polygon_tag>
     static inline bool apply(Polygon const& polygon, Extremes& extremes, Intruders& intruders,
                              SideStrategy const& strategy)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-        typedef detail::extreme_points::extreme_points_on_ring
+        using ring_implementation = detail::extreme_points::extreme_points_on_ring
             <
-                ring_type, Dimension
-            > ring_implementation;
+                geometry::ring_type_t<Polygon>, Dimension
+            >;
 
         if (! ring_implementation::apply(geometry::exterior_ring(polygon),
                                          extremes, intruders, strategy))

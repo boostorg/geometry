@@ -58,7 +58,7 @@ struct geographic_segment_box
           >
     {};
 
-    typedef geographic_tag cs_tag;
+    using cs_tag = geographic_tag;
 
     //constructor
 

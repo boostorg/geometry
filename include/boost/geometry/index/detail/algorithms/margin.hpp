@@ -34,7 +34,7 @@ struct default_margin_result
 {
     using type = typename select_most_precise
         <
-            typename coordinate_type<Box>::type,
+            coordinate_type_t<Box>,
             double
         >::type;
 };
@@ -168,10 +168,11 @@ struct comparable_margin<Box, box_tag>
 template <typename Geometry>
 typename default_margin_result<Geometry>::type comparable_margin(Geometry const& g)
 {
-    return dispatch::comparable_margin<
-        Geometry,
-        typename tag<Geometry>::type
-    >::apply(g);
+    return dispatch::comparable_margin
+        <
+            Geometry,
+            tag_t<Geometry>
+        >::apply(g);
 }
 
 //template <typename Box>

@@ -102,7 +102,7 @@ namespace dispatch
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct unique
 {
@@ -167,10 +167,10 @@ inline void unique(Geometry& geometry)
     concepts::check<Geometry>();
 
     // Default strategy is the default point-comparison policy
-    typedef geometry::equal_to
+    using policy = geometry::equal_to
         <
-            typename geometry::point_type<Geometry>::type
-        > policy;
+            geometry::point_type_t<Geometry>
+        >;
 
 
     dispatch::unique<Geometry>::apply(geometry, policy());

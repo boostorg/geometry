@@ -37,9 +37,9 @@ using gc_make_rtree_box_t = geometry::model::box
     <
         geometry::model::point
             <
-                typename geometry::coordinate_type<GC>::type,
+                geometry::coordinate_type_t<GC>,
                 geometry::dimension<GC>::value,
-                typename geometry::coordinate_system<GC>::type
+                geometry::coordinate_system_t<GC>
             >
     >;
 

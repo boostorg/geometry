@@ -189,8 +189,8 @@ struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
     static inline void apply(Segment const& seg,
                 int directions[Count])
     {
-        using coordinate_type = typename coordinate_type<Segment>::type;
-        using units_t = typename coordinate_system<Point>::type::units;
+        using coordinate_type = coordinate_type_t<Segment>;
+        using units_t = detail::coordinate_system_units_t<Point>;
 
         coordinate_type const diff = math::longitude_distance_signed
                                         <
@@ -391,7 +391,7 @@ struct sectionalize_part
     {
         using section_type = typename boost::range_value<Sections>::type;
         using box_type = typename section_type::box_type;
-        using point_type = typename geometry::point_type<box_type>::type;
+        using point_type = geometry::point_type_t<box_type>;
 
         BOOST_STATIC_ASSERT
             (
@@ -713,7 +713,7 @@ inline void enlarge_sections(Sections& sections, Strategy const&)
     // but that somehow is not accepted by the NVCC (CUDA 12.4) compiler.
     using section_t = typename boost::range_value<Sections>::type;
     using box_t = typename section_t::box_type;
-    using coor_t = typename geometry::coordinate_type<box_t>::type;
+    using coor_t = geometry::coordinate_type_t<box_t>;
 
     static auto const eps = math::scaled_epsilon<coor_t>(1000);
 
@@ -872,7 +872,7 @@ inline void sectionalize(Geometry const& geometry,
 
     dispatch::sectionalize
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             Reverse,
             DimensionVector

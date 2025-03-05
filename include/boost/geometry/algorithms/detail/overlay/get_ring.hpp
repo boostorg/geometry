@@ -83,7 +83,7 @@ template<>
 struct get_ring<polygon_tag>
 {
     template<typename Polygon>
-    static inline typename ring_return_type<Polygon const>::type const apply(
+    static inline ring_return_type_t<Polygon const> const apply(
                 ring_identifier const& id,
                 Polygon const& polygon)
     {
@@ -103,7 +103,7 @@ template<>
 struct get_ring<multi_polygon_tag>
 {
     template<typename MultiPolygon>
-    static inline typename ring_type<MultiPolygon>::type const& apply(
+    static inline ring_type_t<MultiPolygon> const& apply(
                 ring_identifier const& id,
                 MultiPolygon const& multi_polygon)
     {
@@ -122,7 +122,7 @@ template <typename Geometry>
 inline signed_size_type segment_count_on_ring(Geometry const& geometry,
                                               ring_identifier const& ring_id)
 {
-    using tag = typename geometry::tag<Geometry>::type;
+    using tag = geometry::tag_t<Geometry>;
 
     // A closed polygon, a triangle of 4 points, including starting point,
     // contains 3 segments. So handle as if it is closed, and subtract one.

@@ -48,7 +48,7 @@ template
 >
 struct side_calculator
 {
-    typedef decltype(std::declval<Strategy>().side()) side_strategy_type;
+    using side_strategy_type = decltype(std::declval<Strategy>().side());
 
     inline side_calculator(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
@@ -98,23 +98,23 @@ class intersection_info_base
 {
 public:
 
-    typedef segment_intersection_points<TurnPoint> intersection_point_type;
-    typedef policies::relate::segments_intersection_policy
+    using intersection_point_type = segment_intersection_points<TurnPoint>;
+    using intersection_policy_type = policies::relate::segments_intersection_policy
         <
             intersection_point_type
-        > intersection_policy_type;
+        >;
 
-    typedef typename intersection_policy_type::return_type result_type;
+    using result_type = typename intersection_policy_type::return_type;
 
-    typedef side_calculator
+    using side_calculator_type = side_calculator
         <
             UniqueSubRange1, UniqueSubRange2, UmbrellaStrategy
-        > side_calculator_type;
+        >;
 
-    typedef side_calculator
+    using swapped_side_calculator_type = side_calculator
         <
             UniqueSubRange2, UniqueSubRange1, UmbrellaStrategy
-        > swapped_side_calculator_type;
+        >;
 
     intersection_info_base(UniqueSubRange1 const& range_p,
                            UniqueSubRange2 const& range_q,
@@ -168,18 +168,18 @@ class intersection_info
     : public intersection_info_base<UniqueSubRange1, UniqueSubRange2,
         TurnPoint, UmbrellaStrategy>
 {
-    typedef intersection_info_base<UniqueSubRange1, UniqueSubRange2,
-        TurnPoint, UmbrellaStrategy> base;
+    using base = intersection_info_base<UniqueSubRange1, UniqueSubRange2,
+        TurnPoint, UmbrellaStrategy>;
 
 public:
 
-    typedef typename UmbrellaStrategy::cs_tag cs_tag;
+    using cs_tag = typename UmbrellaStrategy::cs_tag;
 
-    typedef typename base::side_calculator_type side_calculator_type;
-    typedef typename base::result_type result_type;
+    using side_calculator_type = typename base::side_calculator_type;
+    using result_type = typename base::result_type;
 
-    typedef typename result_type::intersection_points_type i_info_type;
-    typedef typename result_type::direction_type d_info_type;
+    using i_info_type = typename result_type::intersection_points_type;
+    using d_info_type = typename result_type::direction_type;
 
     intersection_info(UniqueSubRange1 const& range_p,
                       UniqueSubRange2 const& range_q,

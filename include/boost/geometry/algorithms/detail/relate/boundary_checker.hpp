@@ -42,7 +42,7 @@ template
 <
     typename Geometry,
     typename Strategy,
-    typename Tag = typename geometry::tag<Geometry>::type
+    typename Tag = geometry::tag_t<Geometry>
 >
 class boundary_checker {};
 

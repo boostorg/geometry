@@ -30,8 +30,8 @@ namespace detail { namespace overlay
 template <typename Point, typename AreaType>
 struct ring_properties
 {
-    typedef Point point_type;
-    typedef AreaType area_type;
+    using point_type = Point;
+    using area_type = AreaType;
 
     bool valid;
 

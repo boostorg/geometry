@@ -79,45 +79,52 @@ void create_svg(std::string const& filename
     mapper.map(buffer, "stroke-opacity:0.9;stroke:rgb(0,0,0);fill:none;stroke-width:1");
 }
 
-template <typename MultiPolygon, typename Settings>
-bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon const& buffer, Settings const& settings)
+template <typename Geometry, typename Buffer>
+bool verify_buffer(Geometry const& geometry, Buffer const& buffer, std::string& reason, bool check_validity)
 {
-    using polygon_type = typename boost::range_value<MultiPolygon const>::type;
-
-    bool result = true;
+    if (buffer.empty())
+    {
+        reason = "Buffer is empty";
+        return false;
+    }
 
     // Area of buffer must be larger than of original polygon
-    auto const area_mp = bg::area(mp);
+    auto const area_mp = bg::area(geometry);
     auto const area_buf = bg::area(buffer);
-
     if (area_buf < area_mp)
     {
-        result = false;
+        reason = "Buffer area is smaller than input area";
+        return false;    
     }
 
     // Verify if all points are IN the buffer
-    if (result)
+    bool all_within = true;
+    bg::for_each_point(geometry, [&all_within, &buffer](auto const& point)
     {
-        for (auto const& polygon : mp)
+        if (! bg::within(point, buffer))
         {
-            typename bg::point_type<polygon_type>::type point;
-            bg::point_on_border(point, polygon);
-            if (! bg::within(point, buffer))
-            {
-                result = false;
-            }
+            all_within = false;
         }
+    });
+
+    if (! all_within)
+    {
+        reason = "Any input points are outside the buffer";
+        return false;
     }
 
-    if (result && settings.check_validity)
+    return check_validity ? bg::is_valid(buffer, reason) : true;
+}
+
+template <typename Geometry, typename MultiPolygon, typename Settings>
+bool verify(std::string const& caseid, Geometry const& geometry, MultiPolygon const& buffer, Settings const& settings)
+{
+    std::string reason;
+    bool const result = verify_buffer(geometry, buffer, reason, settings.check_validity);
+
+    if (! result)
     {
-        bg::validity_failure_type failure;
-        if (! bg::is_valid(buffer, failure)
-            && failure != bg::failure_intersecting_interiors)
-        {
-            std::cout << "Buffer is not valid: " << bg::validity_failure_type_message(failure) << std::endl;
-            result = false;
-        }
+        std::cout << caseid << " " << reason << std::endl;
     }
 
     bool svg = settings.svg;
@@ -134,7 +141,7 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     {
         // Generate a unique name
         std::ostringstream out;
-        out << "rec_pol_buffer_" << geometry_to_crc(mp)
+        out << "rec_pol_buffer_" << geometry_to_crc(geometry)
             << "_" << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
             << ".";
         filename = out.str();
@@ -142,14 +149,14 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
 
     if (svg)
     {
-        create_svg(filename + "svg", mp, buffer);
+        create_svg(filename + "svg", geometry, buffer);
     }
 
     if (wkt)
     {
         std::ofstream stream(filename + "wkt");
         // Stream input WKT
-        stream << bg::wkt(mp) << std::endl;
+        stream << bg::wkt(geometry) << std::endl;
         // If you need the output WKT, then stream bg::wkt(buffer)
     }
 

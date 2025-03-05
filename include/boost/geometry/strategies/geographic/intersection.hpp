@@ -78,7 +78,7 @@ template
 >
 struct geographic_segments
 {
-    typedef geographic_tag cs_tag;
+    using cs_tag = geographic_tag;
 
     enum intersection_point_flag { ipi_inters = 0, ipi_at_a1, ipi_at_a2, ipi_at_b1, ipi_at_b2 };
 
@@ -148,10 +148,10 @@ struct geographic_segments
         BOOST_CONCEPT_ASSERT( (concepts::ConstPoint<point2_type>) );
 
         /*
-        typename coordinate_type<Point1>::type
+        coordinate_type_t<Point1>
             const a1_lon = get<0>(a1),
             const a2_lon = get<0>(a2);
-        typename coordinate_type<Point2>::type
+        coordinate_type_t<Point2>
             const b1_lon = get<0>(b1),
             const b2_lon = get<0>(b2);
         bool is_a_reversed = a1_lon > a2_lon || a1_lon == a2_lon && get<1>(a1) > get<1>(a2);

@@ -252,7 +252,7 @@ struct serialize_point
     template <typename Archive>
     static inline void save(Archive & ar, P const& p, unsigned int version)
     {
-        typename coordinate_type<P>::type c = get<I>(p);
+        coordinate_type_t<P> c = get<I>(p);
         ar << boost::serialization::make_nvp("c", c);
         serialize_point<P, I+1, D>::save(ar, p, version);
     }
@@ -260,7 +260,7 @@ struct serialize_point
     template <typename Archive>
     static inline void load(Archive & ar, P & p, unsigned int version)
     {
-        typename geometry::coordinate_type<P>::type c;
+        geometry::coordinate_type_t<P> c;
         ar >> boost::serialization::make_nvp("c", c);
         set<I>(p, c);
         serialize_point<P, I+1, D>::load(ar, p, version);

@@ -37,7 +37,7 @@ template
     typename Geometry,
     std::size_t Dimension1 = 0,
     std::size_t Dimension2 = 1,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct two_dimensional_view
     : not_implemented<Tag>
@@ -85,7 +85,7 @@ struct tag
             >
     >
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>
@@ -95,7 +95,7 @@ struct coordinate_system
             <
                 Point, Dimension1, Dimension2, point_tag
             >
-    > : coordinate_system<typename geometry::point_type<Point>::type>
+    > : coordinate_system<geometry::point_type_t<Point>>
 {};
 
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>
@@ -105,7 +105,7 @@ struct coordinate_type
             <
                 Point, Dimension1, Dimension2, point_tag
             >
-    > : coordinate_type<typename geometry::point_type<Point>::type>
+    > : coordinate_type<geometry::point_type_t<Point>>
 {};
 
 template <typename Point, std::size_t Dimension1, std::size_t Dimension2>
@@ -127,7 +127,7 @@ struct point_type
             >
     >
 {
-    typedef typename geometry::point_type<Point>::type type;
+    using type = geometry::point_type_t<Point>;
 };
 
 
@@ -141,7 +141,7 @@ struct access
         0
     >
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
     typedef geometry::detail::two_dimensional_view
         <
             Point, Dimension1, Dimension2, point_tag
@@ -168,11 +168,11 @@ struct access
         1
     >
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-    typedef geometry::detail::two_dimensional_view
+    using coordinate_type = geometry::coordinate_type_t<Point>;
+    using view_type = geometry::detail::two_dimensional_view
         <
             Point, Dimension1, Dimension2, point_tag
-        > view_type;
+        >;
 
     static inline coordinate_type get(view_type const& view)
     {

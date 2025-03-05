@@ -46,8 +46,8 @@ struct box_box_on_spheroid
     {
         typedef typename geometry::select_most_precise
             <
-                typename coordinate_type<Box1>::type,
-                typename coordinate_type<Box2>::type
+                coordinate_type_t<Box1>,
+                coordinate_type_t<Box2>
             >::type calc_t;
         typedef typename geometry::detail::cs_angular_units<Box1>::type units_t;
         typedef math::detail::constants_on_spheroid<calc_t, units_t> constants;

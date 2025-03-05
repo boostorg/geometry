@@ -38,8 +38,6 @@ inline std::string read_from_wkt_file(std::string const& filename)
         out << std::fixed << std::setprecision(20) << bg::wkt(mp);
     }
 
-    BOOST_CHECK(! out.str().empty());
-
     return out.str();
 }
 

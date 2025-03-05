@@ -52,9 +52,9 @@ void test_ring(std::string const& wkt,
     std::size_t expected_interior_ring_count,
     std::size_t expected_first_interior_count)
 {
-    typedef bg::model::polygon<P> the_polygon;
-    typedef typename bg::ring_type<the_polygon>::type the_ring;
-    typedef typename bg::interior_return_type<the_polygon const>::type the_interior;
+    using the_polygon = bg::model::polygon<P>;
+    using the_ring = bg::ring_type_t<the_polygon>;
+    using the_interior = bg::interior_return_type_t<the_polygon const>;
 
     the_polygon poly;
     bg::read_wkt(wkt, poly);

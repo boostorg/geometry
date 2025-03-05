@@ -31,7 +31,7 @@ namespace index { namespace detail {
 template <typename Geometry, typename BoundingGeometry, typename Strategy>
 struct bounded_view_base_cs_tag
 {
-    typedef typename Strategy::cs_tag type;
+    using type = typename Strategy::cs_tag;
 };
 
 template <typename Geometry, typename BoundingGeometry>
@@ -45,8 +45,8 @@ template
     typename Geometry,
     typename BoundingGeometry,
     typename Strategy,
-    typename Tag = typename geometry::tag<Geometry>::type,
-    typename BoundingTag = typename geometry::tag<BoundingGeometry>::type,
+    typename Tag = geometry::tag_t<Geometry>,
+    typename BoundingTag = geometry::tag_t<BoundingGeometry>,
     typename CSTag = typename bounded_view_base_cs_tag
                         <
                             Geometry, BoundingGeometry, Strategy
@@ -66,7 +66,7 @@ template <typename Segment, typename Box, typename Strategy>
 struct bounded_view_base<Segment, Box, Strategy, segment_tag, box_tag, cartesian_tag>
 {
 public:
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     bounded_view_base(Segment const& segment, Strategy const& )
         : m_segment(segment)
@@ -95,7 +95,7 @@ private:
 template <typename Segment, typename Box, typename Strategy, typename CSTag>
 struct bounded_view_base<Segment, Box, Strategy, segment_tag, box_tag, CSTag>
 {
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     bounded_view_base(Segment const& segment, Strategy const& strategy)
     {
@@ -124,7 +124,7 @@ template <typename BoxIn, typename Box, typename Strategy, typename CSTag>
 struct bounded_view_base<BoxIn, Box, Strategy, box_tag, box_tag, CSTag>
 {
 public:
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     bounded_view_base(BoxIn const& box, Strategy const& )
         : m_box(box)
@@ -154,7 +154,7 @@ template <typename Point, typename Box, typename Strategy, typename CSTag>
 struct bounded_view_base<Point, Box, Strategy, point_tag, box_tag, CSTag>
 {
 public:
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     bounded_view_base(Point const& point, Strategy const& )
         : m_point(point)
@@ -182,8 +182,8 @@ private:
 template <typename Geometry,
           typename BoundingGeometry,
           typename Strategy,
-          typename Tag = typename geometry::tag<Geometry>::type,
-          typename BoundingTag = typename geometry::tag<BoundingGeometry>::type>
+          typename Tag = geometry::tag_t<Geometry>,
+          typename BoundingTag = geometry::tag_t<BoundingGeometry>>
 struct bounded_view
     : bounded_view_base<Geometry, BoundingGeometry, Strategy>
 {
@@ -235,7 +235,7 @@ namespace traits
 template <typename Geometry, typename Box, typename Strategy, typename Tag>
 struct tag< index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> >
 {
-    typedef box_tag type;
+    using type = box_tag;
 };
 
 template <typename Geometry, typename Box, typename Strategy, typename Tag>
@@ -249,7 +249,7 @@ struct indexed_access<index::detail::bounded_view<Geometry, Box, Strategy, Tag, 
                       min_corner, Dimension>
 {
     typedef index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> box_type;
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     static inline coordinate_type get(box_type const& b)
     {
@@ -267,7 +267,7 @@ struct indexed_access<index::detail::bounded_view<Geometry, Box, Strategy, Tag, 
                       max_corner, Dimension>
 {
     typedef index::detail::bounded_view<Geometry, Box, Strategy, Tag, box_tag> box_type;
-    typedef typename geometry::coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Box>;
 
     static inline coordinate_type get(box_type const& b)
     {

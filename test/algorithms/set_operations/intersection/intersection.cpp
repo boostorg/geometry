@@ -26,6 +26,7 @@
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/register/linestring.hpp>
+#include <boost/geometry/algorithms/detail/has_self_intersections.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/constexpr.hpp>
@@ -50,11 +51,6 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 #define TEST_INTERSECTION_REV(caseid, clips, points, area) \
     (test_one<Polygon, Polygon, Polygon>) \
     ( #caseid "_rev", caseid[1], caseid[0], clips, points, area)
-
-#define TEST_INTERSECTION_IGNORE(caseid, clips, points, area) \
-    { ut_settings ignore_validity; ignore_validity.set_test_validity(false); \
-    (test_one<Polygon, Polygon, Polygon>) \
-    ( #caseid, caseid[0], caseid[1], clips, points, area, ignore_validity); }
 
 #define TEST_INTERSECTION_WITH(caseid, index1, index2, \
      clips, points, area, settings) \
@@ -178,14 +174,9 @@ void test_areal()
         pie_2_3_23_0[0], pie_2_3_23_0[1],
         1, 4, 163292.679042133, ut_settings(0.1));
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_INTERSECTION(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
-#else
-    // Reported as invalid
-    TEST_INTERSECTION_IGNORE(isovist, 1, 19, expectation_limits(88.19202, 88.19206));
-#endif
 
-    TEST_INTERSECTION_IGNORE(geos_1, 1, -1, expectation_limits(3454, 3462));
+    TEST_INTERSECTION(geos_1, 1, -1, expectation_limits(3454, 3462));
 
     // Can, in some cases, create small slivers
     // In some cases: 1.430511474609375e-05 (clang/gcc on Xubuntu using b2)
@@ -303,22 +294,7 @@ void test_areal()
 
     TEST_INTERSECTION(issue_893, 1, -1, 473001.5082956461);
 
-    TEST_INTERSECTION(issue_1226, 1, -1, 0.00036722862);
     TEST_INTERSECTION(issue_1229, 0, -1, 0);
-
-    TEST_INTERSECTION(issue_1231, 1, -1, 54.701340543162516);
-
-    TEST_INTERSECTION(issue_1244, 1, -1, 7);
-
-    TEST_INTERSECTION(issue_1293, 1, -1, 1.49123);
-    TEST_INTERSECTION(issue_1295, 1, -1, 4.90121);
-    TEST_INTERSECTION(issue_1326, 1, -1, 16.4844);
-
-    TEST_INTERSECTION(issue_1342_a, 1, -1, 43.05575);
-    TEST_INTERSECTION(issue_1342_b, 1, -1, 43.05575);
-
-    TEST_INTERSECTION(issue_1345_a, 1, -1, 0.00062682687);
-    TEST_INTERSECTION(issue_1345_b, 1, -1, 0.010896761);
 
     test_one<Polygon, Polygon, Polygon>("buffer_mp1", buffer_mp1[0], buffer_mp1[1],
                 1, 31, 2.271707796);
@@ -847,12 +823,6 @@ int test_main(int, char* [])
 
     test_pointer_version();
     test_rational<bg::model::d2::point_xy<boost::rational<int> > >();
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // llb_touch generates a polygon with 1 point and is therefore invalid everywhere
-    // TODO: this should be easy to fix
-    BoostGeometryWriteExpectedFailures(2, 7, 1);
 #endif
 
     return 0;

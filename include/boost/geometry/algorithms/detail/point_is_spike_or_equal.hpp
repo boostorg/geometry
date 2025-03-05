@@ -53,7 +53,7 @@ inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
                                     Point3 const& segment_b,  // curr | back - 1 | spike's vertex
                                     SideStrategy const& strategy)
 {
-    typedef typename SideStrategy::cs_tag cs_tag;
+    using cs_tag = typename SideStrategy::cs_tag;
 
     int const side = strategy.apply(segment_a, segment_b, last_point);
     if (side == 0)

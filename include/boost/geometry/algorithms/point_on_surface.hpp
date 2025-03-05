@@ -146,7 +146,7 @@ struct min_of_intruder
 template <typename Point, typename P>
 inline void calculate_average(Point& point, std::vector<P> const& points)
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
 
     coordinate_type x = 0;
     coordinate_type y = 0;
@@ -237,8 +237,8 @@ template <int Dimension, typename Geometry, typename Point, typename SideStrateg
 inline bool calculate_point_on_surface(Geometry const& geometry, Point& point,
                                        SideStrategy const& strategy)
 {
-    typedef typename geometry::point_type<Geometry>::type point_type;
-    typedef typename geometry::coordinate_type<Geometry>::type coordinate_type;
+    using point_type = geometry::point_type_t<Geometry>;
+    using coordinate_type = geometry::coordinate_type_t<Geometry>;
     std::vector<point_type> extremes;
 
     typedef std::vector<std::vector<point_type> > intruders_type;
@@ -327,10 +327,10 @@ inline void point_on_surface(Geometry const& geometry, Point & point)
 \return The Point guaranteed to lie on the surface of the Geometry
  */
 template<typename Geometry, typename SideStrategy>
-inline typename geometry::point_type<Geometry>::type
+inline geometry::point_type_t<Geometry>
 return_point_on_surface(Geometry const& geometry, SideStrategy const& strategy)
 {
-    typename geometry::point_type<Geometry>::type result;
+    geometry::point_type_t<Geometry> result;
     geometry::point_on_surface(geometry, result, strategy);
     return result;
 }
@@ -342,10 +342,10 @@ return_point_on_surface(Geometry const& geometry, SideStrategy const& strategy)
 \return The Point guaranteed to lie on the surface of the Geometry
  */
 template<typename Geometry>
-inline typename geometry::point_type<Geometry>::type
+inline geometry::point_type_t<Geometry>
 return_point_on_surface(Geometry const& geometry)
 {
-    typename geometry::point_type<Geometry>::type result;
+    geometry::point_type_t<Geometry> result;
     geometry::point_on_surface(geometry, result);
     return result;
 }

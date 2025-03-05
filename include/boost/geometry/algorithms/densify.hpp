@@ -170,8 +170,8 @@ template
 <
     typename Geometry,
     typename GeometryOut,
-    typename Tag1 = typename tag<Geometry>::type,
-    typename Tag2 = typename tag<GeometryOut>::type
+    typename Tag1 = tag_t<Geometry>,
+    typename Tag2 = tag_t<GeometryOut>
 >
 struct densify
     : not_implemented<Tag1, Tag2>
@@ -360,7 +360,7 @@ struct densify<default_strategy, false>
 
 namespace resolve_dynamic {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct densify
 {
     template <typename Distance, typename Strategy>

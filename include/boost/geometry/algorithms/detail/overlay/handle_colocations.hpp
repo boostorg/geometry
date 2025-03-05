@@ -260,7 +260,7 @@ template
 inline void check_colocation(bool& has_blocked,
         signed_size_type cluster_id, Turns const& turns, Clusters const& clusters)
 {
-    typedef typename boost::range_value<Turns>::type turn_type;
+    using turn_type = typename boost::range_value<Turns>::type;
 
     has_blocked = false;
 
@@ -364,23 +364,6 @@ inline bool handle_colocations(Turns& turns, Clusters& clusters)
     return true;
 }
 
-
-struct is_turn_index
-{
-    is_turn_index(signed_size_type index)
-        : m_index(index)
-    {}
-
-    template <typename Indexed>
-    inline bool operator()(Indexed const& indexed) const
-    {
-        // Indexed is a indexed_turn_operation<Operation>
-        return indexed.turn_index == m_index;
-    }
-
-    signed_size_type m_index;
-};
-
 template
 <
     typename Sbs,
@@ -431,16 +414,15 @@ inline void gather_cluster_properties(Clusters& clusters, Turns& turns,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
         Strategy const& strategy)
 {
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::point_type point_type;
-    typedef typename turn_type::turn_operation_type turn_operation_type;
+    using turn_type = typename boost::range_value<Turns>::type;
+    using point_type = typename turn_type::point_type;
+    using turn_operation_type = typename turn_type::turn_operation_type;
 
-    // Define sorter, sorting counter-clockwise such that polygons are on the
-    // right side
-    typedef sort_by_side::side_sorter
+    // Define sorter, sorting counter-clockwise such that polygons are on the right side
+    using sbs_type = sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType, point_type, Strategy, std::less<int>
-        > sbs_type;
+        >;
 
     for (auto& pair : clusters)
     {

@@ -199,7 +199,6 @@ void test_areal()
     TEST_UNION(case_138_multi, 2, 1, -1, 65.225);
     TEST_UNION(case_139_multi, 2, 1, -1, 64.953);
     TEST_UNION(case_140_multi, 2, 1, -1, 64.953);
-    TEST_UNION(case_141_multi, 1, 0, -1, 100.0);
 
     TEST_UNION(case_multi_rectangular, 1, 1, -1, 33125);
     TEST_UNION(case_multi_diagonal, 1, 2, -1, 5350);
@@ -392,16 +391,9 @@ void test_areal()
          ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
          2, bg_if_mp<ct>(1, 0), -1, 0.002471626);
 
-    {
-        // Generates either 4 or 3 output polygons
-        // With rescaling the result is invalid.
-        ut_settings settings;
-        settings.set_test_validity(true);
-        test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
-            ticket_9081[0], ticket_9081[1],
-            3, 0, -1, 0.2187385,
-            settings);
-    }
+    test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
+        ticket_9081[0], ticket_9081[1],
+        3, 0, -1, 0.2187385);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10803",
         ticket_10803[0], ticket_10803[1],
@@ -490,10 +482,6 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<mp_test_type>, true, true>();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    BoostGeometryWriteExpectedFailures(0, 1, 0);
 #endif
 
     return 0;

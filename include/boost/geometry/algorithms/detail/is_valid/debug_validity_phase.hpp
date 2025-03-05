@@ -24,7 +24,7 @@ namespace boost { namespace geometry
 namespace detail { namespace is_valid
 {
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct debug_validity_phase
 {
     static inline void apply(int)

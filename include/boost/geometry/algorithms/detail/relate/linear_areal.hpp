@@ -172,7 +172,7 @@ public:
         // TODO:
         // handle empty/invalid geometries in a different way than below?
 
-        using point_type = typename geometry::point_type<Areal>::type;
+        using point_type = geometry::point_type_t<Areal>;
         typename helper_geometry<point_type>::type pt;
         bool const ok = geometry::point_on_border(pt, areal);
 
@@ -271,7 +271,7 @@ inline bool calculate_from_inside(Geometry1 const& geometry1,
 
     auto const& range1 = sub_range(geometry1, turn.operations[op_id].seg_id);
 
-    using range2_view = detail::closed_clockwise_view<typename ring_type<Geometry2>::type const>;
+    using range2_view = detail::closed_clockwise_view<ring_type_t<Geometry2> const>;
     range2_view const range2(sub_range(geometry2, turn.operations[other_op_id].seg_id));
 
     BOOST_GEOMETRY_ASSERT(boost::size(range1));

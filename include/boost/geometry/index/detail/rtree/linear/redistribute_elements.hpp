@@ -243,22 +243,23 @@ struct pick_seeds_impl
 {
     BOOST_STATIC_ASSERT(0 < Dimension);
 
-    typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
+    using element_type = typename Elements::value_type;
+    using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;
 
-    typedef find_greatest_normalized_separation<
+    using find_norm_sep = find_greatest_normalized_separation
+    <
         Elements, Parameters, Translator,
-        typename tag<indexable_type>::type, Dimension - 1
-    > find_norm_sep;
+        tag_t<indexable_type>, Dimension - 1
+    >;
 
-    typedef typename find_norm_sep::separation_type separation_type;
+    using separation_type = typename find_norm_sep::separation_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& tr,
-                             separation_type & separation,
-                             size_t & seed1,
-                             size_t & seed2)
+                             separation_type& separation,
+                             size_t& seed1,
+                             size_t& seed2)
     {
         pick_seeds_impl<Elements, Parameters, Translator, Dimension - 1>::apply(elements, parameters, tr, separation, seed1, seed2);
 
@@ -279,23 +280,24 @@ struct pick_seeds_impl
 template <typename Elements, typename Parameters, typename Translator>
 struct pick_seeds_impl<Elements, Parameters, Translator, 1>
 {
-    typedef typename Elements::value_type element_type;
-    typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-    typedef typename coordinate_type<indexable_type>::type coordinate_type;
+    using element_type = typename Elements::value_type;
+    using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;
+    using coordinate_type = coordinate_type_t<indexable_type>;
 
-    typedef find_greatest_normalized_separation<
-        Elements, Parameters, Translator,
-        typename tag<indexable_type>::type, 0
-    > find_norm_sep;
+    using find_norm_sep = find_greatest_normalized_separation
+        <
+            Elements, Parameters, Translator,
+            tag_t<indexable_type>, 0
+        >;
 
-    typedef typename find_norm_sep::separation_type separation_type;
+    using separation_type = typename find_norm_sep::separation_type;
 
     static inline void apply(Elements const& elements,
                              Parameters const& parameters,
                              Translator const& tr,
-                             separation_type & separation,
-                             size_t & seed1,
-                             size_t & seed2)
+                             separation_type& separation,
+                             size_t& seed1,
+                             size_t& seed2)
     {
         find_norm_sep::apply(elements, parameters, tr, separation, seed1, seed2);
     }

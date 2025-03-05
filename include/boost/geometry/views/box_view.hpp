@@ -63,7 +63,7 @@ namespace boost { namespace geometry
 template <typename Box, bool Clockwise = true>
 struct box_view
 {
-    using array_t = std::array<typename geometry::point_type<Box>::type, 5>;
+    using array_t = std::array<geometry::point_type_t<Box>, 5>;
 
     using iterator = typename array_t::const_iterator;
     using const_iterator = typename array_t::const_iterator;
@@ -92,7 +92,7 @@ namespace traits
 template<typename Box, bool Clockwise>
 struct tag<box_view<Box, Clockwise> >
 {
-    typedef ring_tag type;
+    using type = ring_tag;
 };
 
 template<typename Box>

@@ -15,7 +15,6 @@ endforeach()
 # Tests for all geometry types, cartesian, for one floating point type
 foreach(item IN ITEMS
     buffer_point
-    buffer_linestring
     buffer_ring
     buffer_polygon
     buffer_multi_point
@@ -35,6 +34,17 @@ foreach(item IN ITEMS
     buffer_geo_spheroid
   )
   boost_geometry_add_unit_test("algorithms" ${item})
+  target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
+endforeach()
+
+# Tests which take a long time and are not run by default.
+# Besides that, the buffer_countries test requires the WKT files.
+foreach(item IN ITEMS
+    buffer_countries
+    buffer_linestring
+    buffer_linestring_geo
+  )
+  boost_geometry_add_unit_test("algorithms" ${item} "not_run")
   target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
 endforeach()
 

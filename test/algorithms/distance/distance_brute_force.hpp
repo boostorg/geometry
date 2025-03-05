@@ -45,9 +45,9 @@ struct distance_from_bg
     struct use_distance_from_bg
         : util::bool_constant
             <
-                std::is_same<typename tag<G>::type, point_tag>::value
-             || std::is_same<typename tag<G>::type, segment_tag>::value
-             || std::is_same<typename tag<G>::type, box_tag>::value
+                std::is_same<tag_t<G>, point_tag>::value
+             || std::is_same<tag_t<G>, segment_tag>::value
+             || std::is_same<tag_t<G>, box_tag>::value
             >
     {};
 

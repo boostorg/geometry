@@ -106,10 +106,10 @@ struct range_has_invalid_coordinate
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type,
+    typename Tag = tag_t<Geometry>,
     bool HasFloatingPointCoordinates = std::is_floating_point
         <
-            typename coordinate_type<Geometry>::type
+            coordinate_type_t<Geometry>
         >::value
 >
 struct has_invalid_coordinate

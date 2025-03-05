@@ -53,7 +53,7 @@ struct full_section_range
 template <typename Polygon, typename Section>
 struct full_section_polygon
 {
-    static inline typename ring_return_type<Polygon const>::type apply(Polygon const& polygon, Section const& section)
+    static inline ring_return_type_t<Polygon const> apply(Polygon const& polygon, Section const& section)
     {
         return section.ring_id.ring_index < 0
             ? geometry::exterior_ring(polygon)
@@ -71,10 +71,10 @@ template
 >
 struct full_section_multi
 {
-    static inline typename ring_return_type<MultiGeometry const>::type apply(
+    static inline ring_return_type_t<MultiGeometry const> apply(
                 MultiGeometry const& multi, Section const& section)
     {
-        typedef typename boost::range_size<MultiGeometry>::type size_type;
+        using size_type = typename boost::range_size<MultiGeometry>::type;
 
         BOOST_GEOMETRY_ASSERT
             (
@@ -171,14 +171,14 @@ struct range_by_section<multi_linestring_tag, MultiLinestring, Section>
     \param section structure with section
  */
 template <typename Geometry, typename Section>
-inline typename ring_return_type<Geometry const>::type
+inline ring_return_type_t<Geometry const>
             range_by_section(Geometry const& geometry, Section const& section)
 {
     concepts::check<Geometry const>();
 
     return dispatch::range_by_section
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry,
             Section
         >::apply(geometry, section);

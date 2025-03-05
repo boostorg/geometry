@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2023 Adam Wulkiewicz, Lodz, Poland.
+// Copyright (c) 2023-2025 Adam Wulkiewicz, Lodz, Poland.
 
 // Copyright (c) 2016-2022, Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
@@ -273,7 +273,7 @@ private:
                 pl_lat = res14.lat2;
             }
 
-            CT new_distance = inverse_distance_type::apply(lon3, lat3, res14.lon2, res14.lat2,
+            CT const new_distance = inverse_distance_type::apply(lon3, lat3, res14.lon2, res14.lat2,
                 spheroid).distance;
 
             dist_improve = new_distance != result.distance;
@@ -346,8 +346,8 @@ private:
             // g4 is the angle between segment (p1,p2) and segment (p3,p4)
             // that meet on p4 (GEO)
 
-            CT a4 = inverse_dist_azimuth_type::apply(res14.lon2, res14.lat2,
-                                                     lon2, lat2, spheroid).azimuth;
+            CT const a4 = inverse_dist_azimuth_type::apply(res14.lon2, res14.lat2,
+                                                           lon2, lat2, spheroid).azimuth;
             res34 = inverse_distance_azimuth_quantities_type::apply(res14.lon2, res14.lat2,
                                                                     lon3, lat3, spheroid);
             g4 = res34.azimuth - a4;
@@ -527,8 +527,8 @@ protected:
         CT lat1 = la1;
         CT lon2 = lo2;
         CT lat2 = la2;
-        CT lon3 = lo3;
-        CT lat3 = la3;
+        CT const lon3 = lo3;
+        CT const lat3 = la3;
 
         if (lon1 > lon2)
         {
@@ -549,14 +549,14 @@ protected:
         //segment on equator
         //Note: antipodal points on equator does not define segment on equator
         //but pass by the pole
-        CT diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
+        CT const diff = geometry::math::longitude_distance_signed<geometry::radian>(lon1, lon2);
 
         using meridian_inverse = typename formula::meridian_inverse<CT>;
 
-        bool meridian_not_crossing_pole =
+        bool const meridian_not_crossing_pole =
             meridian_inverse::meridian_not_crossing_pole(lat1, lat2, diff);
 
-        bool meridian_crossing_pole =
+        bool const meridian_crossing_pole =
             meridian_inverse::meridian_crossing_pole(diff);
 
         if (math::equals(lat1, c0) && math::equals(lat2, c0)
@@ -596,18 +596,18 @@ protected:
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Meridian segment crossing pole" << std::endl;
 #endif
-            CT sign_non_zero = lat3 >= c0 ? 1 : -1;
+            CT const sign_non_zero = lat3 >= c0 ? 1 : -1;
 
-            auto res13 = apply(lon1, lat1, lon1, half_pi * sign_non_zero, lon3, lat3, spheroid);
+            auto const res13 = apply(lon1, lat1, lon1, half_pi * sign_non_zero, lon3, lat3, spheroid);
 
-            auto res23 = apply(lon2, lat2, lon2, half_pi * sign_non_zero, lon3, lat3, spheroid);
+            auto const res23 = apply(lon2, lat2, lon2, half_pi * sign_non_zero, lon3, lat3, spheroid);
 
             return (res13.distance) < (res23.distance) ? res13 : res23;
         }
 
-        auto res12 = inverse_dist_azimuth_reverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
+        auto const res12 = inverse_dist_azimuth_reverse_type::apply(lon1, lat1, lon2, lat2, spheroid);
 
-        auto res13 = inverse_dist_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid);
+        auto const res13 = inverse_dist_azimuth_type::apply(lon1, lat1, lon3, lat3, spheroid);
 
         if (geometry::math::equals(res12.distance, c0))
         {
@@ -616,14 +616,14 @@ protected:
             std::cout << "distance between points="
                       << res13.distance << std::endl;
 #endif
-            auto res = meridian_inverse::apply(lon1, lat1, lon3, lat3, spheroid);
+            auto const res = meridian_inverse::apply(lon1, lat1, lon3, lat3, spheroid);
 
             return non_iterative_case(lon3, lat3, lon1, lat2,
                 res.meridian ? res.distance : res13.distance);
         }
 
         // Compute a12 (GEO)
-        CT a312 = res13.azimuth - res12.azimuth;
+        CT const a312 = res13.azimuth - res12.azimuth;
 
         // TODO: meridian case optimization
         if (geometry::math::equals(a312, c0) && meridian_not_crossing_pole)
@@ -640,7 +640,7 @@ protected:
             }
         }
 
-        CT projection1 = cos( a312 ) * res13.distance / res12.distance;
+        CT const projection1 = cos( a312 ) * res13.distance / res12.distance;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "a1=" << res12.azimuth * math::r2d<CT>() << std::endl;
@@ -661,10 +661,10 @@ protected:
             return non_iterative_case(lon3, lat3, lon1, lat1, spheroid);
         }
 
-        auto res23 = inverse_dist_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid);
+        auto const res23 = inverse_dist_azimuth_type::apply(lon2, lat2, lon3, lat3, spheroid);
 
-        CT a321 = res23.azimuth - res12.reverse_azimuth + pi;
-        CT projection2 = cos( a321 ) * res23.distance / res12.distance;
+        CT const a321 = res23.azimuth - res12.reverse_azimuth + pi;
+        CT const projection2 = cos( a321 ) * res23.distance / res12.distance;
 
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
         std::cout << "a21=" << res12.reverse_azimuth * math::r2d<CT>()
@@ -693,25 +693,28 @@ protected:
                 geometry::cs::spherical_equatorial<geometry::radian>
             >;
 
-        point p1 = point(lon1, lat1);
-        point p2 = point(lon2, lat2);
-        point p3 = point(lon3, lat3);
+        point const p1(lon1, lat1);
+        point const p2(lon2, lat2);
+        point const p3(lon3, lat3);
 
-        geometry::strategy::distance::cross_track<CT> cross_track(earth_radius);
-        CT s34_sph = cross_track.apply(p3, p1, p2);
+        using haversine_t = geometry::strategy::distance::haversine<CT>;
+        using cross_track_t = geometry::strategy::distance::cross_track<void, haversine_t>;
 
-        geometry::strategy::distance::haversine<CT> str(earth_radius);
-        CT s13_sph = str.apply(p1, p3);
+        cross_track_t const cross_track(earth_radius);
+        CT const s34_sph = cross_track.apply(p3, p1, p2);
+
+        haversine_t const str(earth_radius);
+        CT const s13_sph = str.apply(p1, p3);
 
         //CT s14 = acos( cos(s13/earth_radius) / cos(s34/earth_radius) ) * earth_radius;
-        CT cos_frac = cos(s13_sph / earth_radius) / cos(s34_sph / earth_radius);
-        CT s14_sph = cos_frac >= 1 ? CT(0)
+        CT const cos_frac = cos(s13_sph / earth_radius) / cos(s34_sph / earth_radius);
+        CT const s14_sph = cos_frac >= 1 ? CT(0)
             : cos_frac <= -1 ? pi * earth_radius
             : acos(cos_frac) * earth_radius;
 
         CT const a12_sph = geometry::formula::spherical_azimuth<>(lon1, lat1, lon2, lat2);
 
-        auto res = geometry::formula::spherical_direct<true, false>(lon1, lat1,
+        auto const res = geometry::formula::spherical_direct<true, false>(lon1, lat1,
             s14_sph, a12_sph, srs::sphere<CT>(earth_radius));
 
         // this is what postgis (version 2.5) returns
@@ -734,7 +737,7 @@ protected:
         }
         else
         {
-            CT s14_start = geometry::strategy::distance::geographic
+            CT const s14_start = geometry::strategy::distance::geographic
                 <
                     FormulaPolicy,
                     Spheroid,

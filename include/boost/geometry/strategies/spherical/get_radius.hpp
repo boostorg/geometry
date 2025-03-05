@@ -32,7 +32,7 @@ namespace strategy_detail
 template
 <
     typename RadiusTypeOrSphere,
-    typename Tag = typename tag<RadiusTypeOrSphere>::type
+    typename Tag = tag_t<RadiusTypeOrSphere>
 >
 struct get_radius
 {
@@ -57,11 +57,11 @@ struct get_radius<RadiusTypeOrSphere, void>
 template <typename Point>
 struct get_radius<Point, point_tag>
 {
-    typedef typename select_most_precise
+    using type = typename select_most_precise
         <
-            typename coordinate_type<Point>::type,
+            coordinate_type_t<Point>,
             double
-        >::type type;
+        >::type;
 
     template <typename RadiusOrSphere>
     static typename get_radius<RadiusOrSphere>::type

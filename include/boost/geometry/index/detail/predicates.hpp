@@ -174,9 +174,9 @@ template <>
 struct spatial_predicate_call<predicates::contains_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::within(g2, g1);
+        return geometry::within(g2, g1, s);
     }
 };
 
@@ -184,9 +184,9 @@ template <>
 struct spatial_predicate_call<predicates::covered_by_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::covered_by(g1, g2);
+        return geometry::covered_by(g1, g2, s);
     }
 };
 
@@ -194,9 +194,9 @@ template <>
 struct spatial_predicate_call<predicates::covers_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::covered_by(g2, g1);
+        return geometry::covered_by(g2, g1, s);
     }
 };
 
@@ -204,41 +204,9 @@ template <>
 struct spatial_predicate_call<predicates::disjoint_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
-    {
-        return geometry::disjoint(g1, g2);
-    }
-};
-
-// TEMP: used to implement CS-specific intersects predicate for certain
-// combinations of geometries until umbrella strategies are implemented
-template
-<
-    typename G1, typename G2,
-    typename Tag1 = typename tag<G1>::type,
-    typename Tag2 = typename tag<G2>::type
->
-struct spatial_predicate_intersects
-{
-    template <typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
-    {
-        return geometry::intersects(g1, g2);
-    }
-};
-// TEMP: used in within and relate
-template <typename G1, typename G2>
-struct spatial_predicate_intersects<G1, G2, box_tag, point_tag>
-{
-    static inline bool apply(G1 const& g1, G2 const& g2, default_strategy const&)
-    {
-        return geometry::intersects(g1, g2);
-    }
-
-    template <typename S>
     static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::intersects(g1, g2, s);
+        return geometry::disjoint(g1, g2, s);
     }
 };
 
@@ -248,7 +216,7 @@ struct spatial_predicate_call<predicates::intersects_tag>
     template <typename G1, typename G2, typename S>
     static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return spatial_predicate_intersects<G1, G2>::apply(g1, g2, s);
+        return geometry::intersects(g1, g2, s);
     }
 };
 
@@ -256,9 +224,9 @@ template <>
 struct spatial_predicate_call<predicates::overlaps_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::overlaps(g1, g2);
+        return geometry::overlaps(g1, g2, s);
     }
 };
 
@@ -266,9 +234,9 @@ template <>
 struct spatial_predicate_call<predicates::touches_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::touches(g1, g2);
+        return geometry::touches(g1, g2, s);
     }
 };
 
@@ -276,9 +244,9 @@ template <>
 struct spatial_predicate_call<predicates::within_tag>
 {
     template <typename G1, typename G2, typename S>
-    static inline bool apply(G1 const& g1, G2 const& g2, S const&)
+    static inline bool apply(G1 const& g1, G2 const& g2, S const& s)
     {
-        return geometry::within(g1, g2);
+        return geometry::within(g1, g2, s);
     }
 };
 

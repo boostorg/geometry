@@ -54,7 +54,7 @@ template<typename Box, typename Point>
 class liang_barsky
 {
 private:
-    typedef model::referring_segment<Point> segment_type;
+    using segment_type = model::referring_segment<Point>;
 
     template <typename CoordinateType, typename CalcType>
     inline bool check_edge(CoordinateType const& p, CoordinateType const& q, CalcType& t1, CalcType& t2) const
@@ -90,7 +90,7 @@ public:
 
 // TODO: Temporary, this strategy should be moved, it is cartesian-only
 
-    typedef strategy::within::cartesian_point_point equals_point_point_strategy_type;
+    using equals_point_point_strategy_type = strategy::within::cartesian_point_point;
 
     static inline equals_point_point_strategy_type get_equals_point_point_strategy()
     {
@@ -99,8 +99,8 @@ public:
 
     inline bool clip_segment(Box const& b, segment_type& s, bool& sp1_clipped, bool& sp2_clipped) const
     {
-        typedef typename select_coordinate_type<Box, Point>::type coordinate_type;
-        typedef typename select_most_precise<coordinate_type, double>::type calc_type;
+        using coordinate_type = typename select_coordinate_type<Box, Point>::type;
+        using calc_type = typename select_most_precise<coordinate_type, double>::type;
 
         calc_type t1 = 0;
         calc_type t2 = 1;

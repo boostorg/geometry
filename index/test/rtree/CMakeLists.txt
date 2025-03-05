@@ -1,4 +1,5 @@
 # Boost.Geometry
+# Copyright (c) 2025 Adam Wulkiewicz, Lodz, Poland.
 # Copyright (c) 2024, Oracle and/or its affiliates.
 # Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 # Use, modification and distribution is subject to the Boost Software License,
@@ -13,6 +14,7 @@ foreach(item IN ITEMS
     rtree_move_pack
     rtree_non_cartesian
     rtree_values
+    rtree_with_strategies
     #compile-fail rtree_values_invalid
   )
   boost_geometry_add_unit_test("index" ${item})

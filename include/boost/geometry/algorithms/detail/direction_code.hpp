@@ -105,9 +105,9 @@ struct direction_code_impl<spherical_equatorial_tag>
                 units_sa_t, units_p_t);
         }
 
-        using coor_sa_t = typename coordinate_type<PointSegmentA>::type;
-        using coor_sb_t = typename coordinate_type<PointSegmentB>::type;
-        using coor_p_t = typename coordinate_type<Point2>::type;
+        using coor_sa_t = coordinate_type_t<PointSegmentA>;
+        using coor_sb_t = coordinate_type_t<PointSegmentB>;
+        using coor_p_t = coordinate_type_t<Point2>;
 
         // Declare unit type (equal for all types) and calc type (coerced to most precise)
         using units_t = typename cs_angular_units<Point2>::type;
@@ -211,12 +211,12 @@ struct direction_code_impl<spherical_polar_tag>
     {
         using constants_sa_t = math::detail::constants_on_spheroid
             <
-                typename coordinate_type<PointSegmentA>::type,
+                coordinate_type_t<PointSegmentA>,
                 typename cs_angular_units<PointSegmentA>::type
             >;
         using constants_p_t = math::detail::constants_on_spheroid
             <
-                typename coordinate_type<Point2>::type,
+                coordinate_type_t<Point2>,
                 typename cs_angular_units<Point2>::type
             >;
 
@@ -249,7 +249,7 @@ struct direction_code_impl<spherical_tag>
                     <
                         std::is_same
                             <
-                                typename geometry::cs_tag<PointSegmentA>::type,
+                                geometry::cs_tag_t<PointSegmentA>,
                                 spherical_polar_tag
                             >::value,
                         spherical_polar_tag,

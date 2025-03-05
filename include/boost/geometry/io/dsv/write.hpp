@@ -37,6 +37,8 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/util/condition.hpp>
+
 namespace boost { namespace geometry
 {
 
@@ -53,6 +55,7 @@ struct dsv_settings
     std::string list_open;
     std::string list_close;
     std::string list_separator;
+    bool close_rings{false};
 
     dsv_settings(std::string const& sep
             , std::string const& open
@@ -61,6 +64,7 @@ struct dsv_settings
             , std::string const& lopen
             , std::string const& lclose
             , std::string const& lsep
+            , bool cr = false
             )
         : coordinate_separator(sep)
         , point_open(open)
@@ -69,6 +73,7 @@ struct dsv_settings
         , list_open(lopen)
         , list_close(lclose)
         , list_separator(lsep)
+        , close_rings(cr)
     {}
 };
 
@@ -161,7 +166,7 @@ struct dsv_point
 \brief Stream ranges as DSV
 \note policy is used to stream prefix/postfix, enabling derived classes to override this
 */
-template <typename Range>
+template <typename Range, bool Areal>
 struct dsv_range
 {
     template <typename Char, typename Traits>
@@ -173,18 +178,29 @@ struct dsv_range
 
         os << settings.list_open;
 
-        for (auto it = boost::begin(range); it != boost::end(range); ++it)
+        auto stream_point = [&os, &settings](std::string const& sep, auto const& point)
         {
-            os << (first ? "" : settings.point_separator)
-                << settings.point_open;
-
+            os << sep << settings.point_open;
             stream_coordinate
                 <
                     point_type, 0, dimension<point_type>::type::value
-                >::apply(os, *it, settings);
+                >::apply(os, point, settings);
             os << settings.point_close;
+        };
 
+        for (auto it = boost::begin(range); it != boost::end(range); ++it)
+        {
+            stream_point(first ? "" : settings.point_separator, *it);
             first = false;
+        }
+
+        if (BOOST_GEOMETRY_CONDITION(Areal))
+        {
+            if (settings.close_rings && boost::size(range) > 0)
+            {
+                // Close it explicitly
+                stream_point(settings.point_separator, *boost::begin(range));
+            }
         }
 
         os << settings.list_close;
@@ -207,17 +223,17 @@ struct dsv_poly
                 Polygon const& poly,
                 dsv_settings const& settings)
     {
-        typedef typename ring_type<Polygon>::type ring;
+        using ring_t = ring_type_t<Polygon>;
 
         os << settings.list_open;
 
-        dsv_range<ring>::apply(os, exterior_ring(poly), settings);
+        dsv_range<ring_t, true>::apply(os, exterior_ring(poly), settings);
 
         auto const& rings = interior_rings(poly);
         for (auto it = boost::begin(rings); it != boost::end(rings); ++it)
         {
             os << settings.list_separator;
-            dsv_range<ring>::apply(os, *it, settings);
+            dsv_range<ring_t, true>::apply(os, *it, settings);
         }
         os << settings.list_close;
     }
@@ -277,7 +293,7 @@ struct dsv<point_tag, Point>
 
 template <typename Linestring>
 struct dsv<linestring_tag, Linestring>
-    : detail::dsv::dsv_range<Linestring>
+    : detail::dsv::dsv_range<Linestring, false>
 {};
 
 template <typename Box>
@@ -292,7 +308,7 @@ struct dsv<segment_tag, Segment>
 
 template <typename Ring>
 struct dsv<ring_tag, Ring>
-    : detail::dsv::dsv_range<Ring>
+    : detail::dsv::dsv_range<Ring, true>
 {};
 
 template <typename Polygon>
@@ -348,10 +364,7 @@ struct dsv_multi
 {
     typedef dispatch::dsv
                 <
-                    typename single_tag_of
-                        <
-                            typename tag<MultiGeometry>::type
-                        >::type,
+                    typename single_tag_of<tag_t<MultiGeometry>>::type,
                     typename boost::range_value<MultiGeometry>::type
                 > dispatch_one;
 
@@ -407,6 +420,7 @@ inline detail::dsv::dsv_manipulator<Geometry> dsv(Geometry const& geometry
     , std::string const& list_open = "("
     , std::string const& list_close = ")"
     , std::string const& list_separator = ", "
+    , bool close_rings = false
     )
 {
     concepts::check<Geometry const>();
@@ -414,7 +428,7 @@ inline detail::dsv::dsv_manipulator<Geometry> dsv(Geometry const& geometry
     return detail::dsv::dsv_manipulator<Geometry>(geometry,
         detail::dsv::dsv_settings(coordinate_separator,
             point_open, point_close, point_separator,
-            list_open, list_close, list_separator));
+            list_open, list_close, list_separator, close_rings));
 }
 
 }} // namespace boost::geometry

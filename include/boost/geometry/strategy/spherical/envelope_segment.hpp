@@ -276,12 +276,12 @@ private:
                                   CalculationType lat2,
                                   Box& mbr)
     {
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
+        using box_coordinate_type = coordinate_type_t<Box>;
 
-        typedef typename helper_geometry
+        using helper_box_type = typename helper_geometry
             <
                 Box, box_coordinate_type, Units
-            >::type helper_box_type;
+            >::type;
 
         helper_box_type helper_mbr;
 
@@ -343,7 +343,7 @@ public:
                              Box& mbr,
                              Strategy const& strategy)
     {
-        typedef envelope_segment_convert_polar<Units, cs_tag_t<Box>> convert_polar;
+        using convert_polar = envelope_segment_convert_polar<Units, cs_tag_t<Box>>;
 
         convert_polar::pre(lat1, lat2);
 

@@ -66,7 +66,7 @@ template
 >
 inline void distribute_element(Geometry const& geometry, It it, PointLike& , Linear&, Areal& areal)
 {
-    typename geometry::point_type<Geometry>::type point;
+    geometry::point_type_t<Geometry> point;
     if (geometry::point_on_border(point, geometry))
     {
         using point_t = typename Areal::value_type::first_type;
@@ -81,7 +81,7 @@ template
 >
 inline void distribute_element(Geometry const& geometry, It it, PointLike& , Linear& linear, Areal& )
 {
-    typename geometry::point_type<Geometry>::type point;
+    geometry::point_type_t<Geometry> point;
     if (geometry::point_on_border(point, geometry))
     {
         using point_t = typename Linear::value_type::first_type;
@@ -96,7 +96,7 @@ template
 >
 inline void distribute_element(Geometry const& geometry, It it, PointLike& pointlike, Linear& , Areal& )
 {
-    typename geometry::point_type<Geometry>::type point;
+    geometry::point_type_t<Geometry> point;
     if (geometry::point_on_border(point, geometry))
     {
         using point_t = typename Linear::value_type::first_type;
@@ -268,11 +268,11 @@ struct merge_gc
                       GeometryCollection & out,
                       Strategy const& strategy)
     {
-        using original_point_t = typename geometry::point_type<GeometryCollection>::type;
+        using original_point_t = geometry::point_type_t<GeometryCollection>;
         using iterator_t = typename boost::range_iterator<GeometryCollection const>::type;
-        using coordinate_t = typename geometry::coordinate_type<original_point_t>::type;
-        using cs_t = typename geometry::coordinate_system<original_point_t>::type;
-        using point_t = model::point<coordinate_t, 2, cs_t>;
+        using coor_t = geometry::coordinate_type_t<original_point_t>;
+        using cs_t = geometry::coordinate_system_t<original_point_t>;
+        using point_t = model::point<coor_t, 2, cs_t>;
 
         using multi_point_t = typename util::sequence_find_if
             <
@@ -346,7 +346,7 @@ namespace dispatch
 {
 
 
-template <typename Geometry, typename Tag = typename tag<Geometry>::type>
+template <typename Geometry, typename Tag = tag_t<Geometry>>
 struct merge_elements
     : not_implemented<Geometry, Tag>
 {};

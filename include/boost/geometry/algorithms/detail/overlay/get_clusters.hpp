@@ -40,7 +40,7 @@ public:
     template <typename P>
     static inline bool equals(P const& p1, P const& p2)
     {
-        using coor_t = typename coordinate_type<P>::type;
+        using coor_t = coordinate_type_t<P>;
         static auto const tolerance
             = common_approximately_equals_epsilon_multiplier<coor_t>::value();
         return approximately_equals(p1, p2, tolerance);
@@ -101,7 +101,7 @@ inline void get_clusters(Turns& turns, Clusters& clusters)
 
     sweep_equal_policy
         <
-            std::is_integral<typename coordinate_type<point_type>::type>::value
+            std::is_integral<coordinate_type_t<point_type>>::value
         > equal_policy;
 
     std::vector<turn_with_point<point_type>> points;

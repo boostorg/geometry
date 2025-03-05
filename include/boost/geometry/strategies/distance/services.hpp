@@ -30,8 +30,8 @@ template
 <
     typename Geometry1,
     typename Geometry2,
-    typename CSTag1 = typename geometry::cs_tag<Geometry1>::type,
-    typename CSTag2 = typename geometry::cs_tag<Geometry2>::type
+    typename CSTag1 = geometry::cs_tag_t<Geometry1>,
+    typename CSTag2 = geometry::cs_tag_t<Geometry2>
 >
 struct default_strategy
 {
@@ -54,8 +54,8 @@ template
     typename Geometry1,
     typename Geometry2,
     typename Strategy,
-    typename CSTag1 = typename geometry::cs_tag<Geometry1>::type,
-    typename CSTag2 = typename geometry::cs_tag<Geometry2>::type
+    typename CSTag1 = geometry::cs_tag_t<Geometry1>,
+    typename CSTag2 = geometry::cs_tag_t<Geometry2>
 >
 struct custom_strategy_converter
 {

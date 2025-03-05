@@ -23,6 +23,7 @@
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/debug_traverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/sort_by_side.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -44,36 +45,6 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-template <typename Turn, typename Operation>
-#ifdef BOOST_GEOMETRY_DEBUG_TRAVERSE
-inline void debug_traverse(Turn const& turn, Operation op,
-                std::string const& header, bool condition = true)
-{
-    if (! condition)
-    {
-        return;
-    }
-    std::cout << " " << header
-        << " at " << op.seg_id
-        << " meth: " << method_char(turn.method)
-        << " op: " << operation_char(op.operation)
-        << " vis: " << visited_char(op.visited)
-        << " of:  " << operation_char(turn.operations[0].operation)
-        << operation_char(turn.operations[1].operation)
-        << " " << geometry::wkt(turn.point)
-        << std::endl;
-
-    if (boost::contains(header, "Finished"))
-    {
-        std::cout << std::endl;
-    }
-}
-#else
-inline void debug_traverse(Turn const& , Operation, const char*, bool = true)
-{
-}
-#endif
-
 template
 <
     bool Reverse1,
@@ -92,16 +63,16 @@ private :
 
     static const operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-    typedef typename sort_by_side::side_compare<target_operation>::type side_compare_type;
-    typedef typename boost::range_value<Turns>::type turn_type;
-    typedef typename turn_type::turn_operation_type turn_operation_type;
+    using side_compare_type = typename sort_by_side::side_compare<target_operation>::type;
+    using turn_type = typename boost::range_value<Turns>::type;
+    using turn_operation_type = typename turn_type::turn_operation_type;
 
-    typedef typename geometry::point_type<Geometry1>::type point_type;
-    typedef sort_by_side::side_sorter
+    using point_type = geometry::point_type_t<Geometry1>;
+    using sbs_type = sort_by_side::side_sorter
         <
             Reverse1, Reverse2, OverlayType,
             point_type, Strategy, side_compare_type
-        > sbs_type;
+        >;
 
 public :
     inline traversal(Geometry1 const& geometry1, Geometry2 const& geometry2,

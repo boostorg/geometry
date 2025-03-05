@@ -123,7 +123,7 @@ template
 >
 struct cartesian_segments
 {
-    typedef cartesian_tag cs_tag;
+    using cs_tag = cartesian_tag;
 
     template <typename CoordinateType, typename SegmentRatio>
     struct segment_intersection_info
@@ -295,13 +295,13 @@ struct cartesian_segments
         point2_type const& q1 = range_q.at(0);
         point2_type const& q2 = range_q.at(1);
 
-        typedef typename select_most_precise
+        using coordinate_type = typename select_most_precise
             <
-                typename geometry::coordinate_type<point1_type>::type,
-                typename geometry::coordinate_type<point2_type>::type
-            >::type coordinate_type;
+                geometry::coordinate_type_t<point1_type>,
+                geometry::coordinate_type_t<point2_type>
+            >::type;
 
-        typedef segment_ratio<coordinate_type> ratio_type;
+        using ratio_type = segment_ratio<coordinate_type>;
         segment_intersection_info
             <
                 typename select_calculation_type<point1_type, point2_type, CalculationType>::type,
@@ -361,8 +361,8 @@ struct cartesian_segments
                 UniqueSubRange2 const& range_q,
                 Policy const&)
     {
-        typedef typename UniqueSubRange1::point_type point1_type;
-        typedef typename UniqueSubRange2::point_type point2_type;
+        using point1_type = typename UniqueSubRange1::point_type;
+        using point2_type = typename UniqueSubRange2::point_type;
 
         point1_type const& p1 = range_p.at(0);
         point1_type const& p2 = range_p.at(1);
@@ -419,11 +419,11 @@ struct cartesian_segments
         // (only calculated for non-collinear segments)
         if (! collinear)
         {
-            typedef typename select_most_precise
+            using coordinate_type = typename select_most_precise
                 <
-                    typename geometry::coordinate_type<point1_type>::type,
-                    typename geometry::coordinate_type<point2_type>::type
-                >::type coordinate_type;
+                    geometry::coordinate_type_t<point1_type>,
+                    geometry::coordinate_type_t<point2_type>
+                >::type;
 
             coordinate_type denominator_a;
             coordinate_type nominator_a;

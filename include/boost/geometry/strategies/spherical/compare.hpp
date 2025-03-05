@@ -45,14 +45,14 @@ namespace detail
 {
 
 template <std::size_t I, typename P>
-static inline typename geometry::coordinate_type<P>::type
+static inline geometry::coordinate_type_t<P>
 get(P const& p, std::true_type /*same units*/)
 {
     return geometry::get<I>(p);
 }
 
 template <std::size_t I, typename P>
-static inline typename geometry::coordinate_type<P>::type
+static inline geometry::coordinate_type_t<P>
 get(P const& p, std::false_type /*different units*/)
 {
     return geometry::get_as_radian<I>(p);
@@ -68,11 +68,11 @@ template
 >
 struct spherical_latitude
 {
-    typedef typename geometry::coordinate_type<Point1>::type coordinate1_type;
-    typedef typename geometry::detail::cs_angular_units<Point1>::type units1_type;
-    typedef typename geometry::coordinate_type<Point2>::type coordinate2_type;
-    typedef typename geometry::detail::cs_angular_units<Point2>::type units2_type;
-    typedef std::is_same<units1_type, units2_type> same_units_type;
+    using coordinate1_type = geometry::coordinate_type_t<Point1>;
+    using units1_type = typename geometry::detail::cs_angular_units<Point1>::type;
+    using coordinate2_type = geometry::coordinate_type_t<Point2>;
+    using units2_type = typename geometry::detail::cs_angular_units<Point2>::type;
+    using same_units_type = std::is_same<units1_type, units2_type>;
 
     template <typename T1, typename T2>
     static inline bool apply(Point1 const& left, Point2 const& right,
@@ -136,18 +136,15 @@ template
 >
 struct spherical_longitude
 {
-    typedef typename geometry::coordinate_type<Point1>::type coordinate1_type;
-    typedef typename geometry::detail::cs_angular_units<Point1>::type units1_type;
-    typedef typename geometry::coordinate_type<Point2>::type coordinate2_type;
-    typedef typename geometry::detail::cs_angular_units<Point2>::type units2_type;
-    typedef std::is_same<units1_type, units2_type> same_units_type;
-    typedef std::conditional_t<same_units_type::value, units1_type, geometry::radian> units_type;
+    using coordinate1_type = geometry::coordinate_type_t<Point1>;
+    using units1_type = typename geometry::detail::cs_angular_units<Point1>::type;
+    using coordinate2_type = geometry::coordinate_type_t<Point2>;
+    using units2_type = typename geometry::detail::cs_angular_units<Point2>::type;
+    using same_units_type = std::is_same<units1_type, units2_type>;
+    using units_type = std::conditional_t<same_units_type::value, units1_type, geometry::radian>;
 
-    static const bool is_equatorial = ! std::is_same
-                                        <
-                                            typename geometry::cs_tag<Point1>::type,
-                                            geometry::spherical_polar_tag
-                                        >::value;
+    static const bool is_equatorial = 
+        ! std::is_same<geometry::cs_tag_t<Point1>, geometry::spherical_polar_tag>::value;
 
     static inline bool are_both_at_antimeridian(coordinate1_type const& l0,
                                                 coordinate2_type const& r0,

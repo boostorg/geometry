@@ -122,7 +122,7 @@ struct gc_gc
             typename traits::geometry_types<Geometry1>::type,
             util::is_multi_polygon
         >::type;
-    using pt1_t = typename geometry::point_type<Geometry1>::type;
+    using pt1_t = geometry::point_type_t<Geometry1>;
     using mpt1_t = std::conditional_t
         <
             std::is_void<mpt1_found_t>::value,
@@ -158,7 +158,7 @@ struct gc_gc
             typename traits::geometry_types<Geometry2>::type,
             util::is_multi_polygon
         >::type;
-    using pt2_t = typename geometry::point_type<Geometry2>::type;
+    using pt2_t = geometry::point_type_t<Geometry2>;
     using mpt2_t = std::conditional_t
         <
             std::is_void<mpt2_found_t>::value,

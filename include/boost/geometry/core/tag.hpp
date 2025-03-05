@@ -38,7 +38,7 @@ namespace traits
 \par Geometries:
     - all geometries
 \par Specializations should provide:
-    - typedef XXX_tag type; (point_tag, box_tag, ...)
+    - using type = XXX_tag; (point_tag, box_tag, ...)
 \tparam Geometry geometry
 */
 template <typename Geometry, typename Enable = void>

@@ -62,7 +62,7 @@ template
 >
 struct initialize
 {
-    typedef typename coordinate_type<Box>::type coordinate_type;
+    using coordinate_type = coordinate_type_t<Box>;
 
     static inline void apply(Box& box,
         coordinate_type min_value

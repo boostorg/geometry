@@ -250,11 +250,11 @@ struct collected_vector_polar
 private:
     static base_point_type to_equatorial(Point const& p)
     {
-        using coord_type = typename coordinate_type<Point>::type;
+        using coord_type = coordinate_type_t<Point>;
         using constants = math::detail::constants_on_spheroid
             <
                 coord_type,
-                typename coordinate_system<Point>::type::units
+                detail::coordinate_system_units_t<Point>
             > ;
 
         constexpr coord_type pi_2 = constants::half_period() / 2;
@@ -395,9 +395,7 @@ struct polygon_collect_vectors
 {
     static inline void apply(Collection& collection, Polygon const& polygon)
     {
-        typedef typename geometry::ring_type<Polygon>::type ring_type;
-
-        typedef range_collect_vectors<ring_type, Collection> per_range;
+        using per_range = range_collect_vectors<geometry::ring_type_t<Polygon>, Collection>;
         per_range::apply(collection, exterior_ring(polygon));
 
         auto const& rings = interior_rings(polygon);
@@ -504,7 +502,7 @@ inline void collect_vectors(Collection& collection, Geometry const& geometry)
 
     dispatch::collect_vectors
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Collection,
             Geometry
         >::apply(collection, geometry);

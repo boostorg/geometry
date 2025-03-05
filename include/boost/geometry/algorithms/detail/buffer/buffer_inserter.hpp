@@ -221,10 +221,10 @@ struct buffer_range
     {
         boost::ignore_unused(segment_strategy);
 
-        typedef typename std::iterator_traits
+        using point_type = typename std::iterator_traits
         <
             Iterator
-        >::value_type point_type;
+        >::value_type;
 
         point_type second_point, penultimate_point, ultimate_point; // last two points from begin/end
 
@@ -469,7 +469,7 @@ struct buffer_inserter_ring
     {
         output_point_type first_p1, first_p2, last_p1, last_p2;
 
-        typedef detail::buffer::buffer_range<RingOutput> buffer_range;
+        using buffer_range = detail::buffer::buffer_range<RingOutput>;
 
         geometry::strategy::buffer::result_code result
             = buffer_range::iterate(collection, begin, end,
@@ -747,11 +747,10 @@ template
 struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
 {
 private:
-    typedef typename ring_type<PolygonInput>::type input_ring_type;
-    typedef typename ring_type<PolygonOutput>::type output_ring_type;
+    using input_ring_type = ring_type_t<PolygonInput>;
+    using output_ring_type = ring_type_t<PolygonOutput>;
 
-    typedef buffer_inserter_ring<input_ring_type, output_ring_type> policy;
-
+    using policy = buffer_inserter_ring<input_ring_type, output_ring_type>;
 
     template
     <
@@ -873,12 +872,9 @@ struct buffer_inserter<multi_tag, Multi, PolygonOutput>
                 PolygonOutput,
                 dispatch::buffer_inserter
                 <
-                    typename single_tag_of
-                                <
-                                    typename tag<Multi>::type
-                                >::type,
+                    typename single_tag_of<tag_t<Multi>>::type,
                     typename boost::range_value<Multi const>::type,
-                    typename geometry::ring_type<PolygonOutput>::type
+                    geometry::ring_type_t<PolygonOutput>
                 >
             >
 {};
@@ -918,7 +914,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
 
     using collection_type = detail::buffer::buffered_piece_collection
         <
-            typename geometry::ring_type<GeometryOutput>::type,
+            geometry::ring_type_t<GeometryOutput>,
             Strategies,
             DistanceStrategy
         >;

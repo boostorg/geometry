@@ -54,7 +54,7 @@ struct get_turns
 {
     using turn_point_type = typename helper_geometry
         <
-            typename geometry::point_type<Geometry1>::type
+            geometry::point_type_t<Geometry1>
         >::type;
 
     template
@@ -94,8 +94,8 @@ struct get_turns
 
         dispatch::get_turns
             <
-                typename geometry::tag<Geometry1>::type,
-                typename geometry::tag<Geometry2>::type,
+                geometry::tag_t<Geometry1>,
+                geometry::tag_t<Geometry2>,
                 Geometry1,
                 Geometry2,
                 reverse1,

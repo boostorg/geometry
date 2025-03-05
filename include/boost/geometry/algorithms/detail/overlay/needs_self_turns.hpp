@@ -31,7 +31,7 @@ namespace detail { namespace overlay
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct needs_self_turns
 {
@@ -69,7 +69,7 @@ struct needs_self_turns<Geometry, multi_polygon_tag>
 {
     static inline bool apply(Geometry const& multi)
     {
-        typedef typename boost::range_value<Geometry>::type polygon_type;
+        using polygon_type = typename boost::range_value<Geometry>::type;
         std::size_t const n = boost::size(multi);
         return n > 1 || (n == 1
              && needs_self_turns<polygon_type>

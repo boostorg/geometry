@@ -54,14 +54,14 @@ namespace detail
 template <bool>
 struct boost_array_tag
 {
-    typedef geometry_not_recognized_tag type;
+    using type = geometry_not_recognized_tag;
 };
 
 
 template <>
 struct boost_array_tag<true>
 {
-    typedef point_tag type;
+    using type = point_tag;
 };
 
 

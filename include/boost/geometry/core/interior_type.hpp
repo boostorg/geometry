@@ -39,7 +39,7 @@ namespace traits
 \par Geometries:
     - polygon
 \par Specializations should provide:
-    - typedef X type ( e.g. std::vector&lt;myring&lt;P&gt;&gt; )
+    - using type = X ( e.g. std::vector&lt;myring&lt;P&gt;&gt; )
 \tparam Geometry geometry
 */
 template <typename Geometry>
@@ -81,14 +81,14 @@ struct interior_return_type
 template <typename Polygon>
 struct interior_return_type<polygon_tag, Polygon>
 {
-    typedef typename std::remove_const<Polygon>::type nc_polygon_type;
+    using nc_polygon_type = std::remove_const_t<Polygon>;
 
-    typedef std::conditional_t
+    using type = std::conditional_t
         <
             std::is_const<Polygon>::value,
             typename traits::interior_const_type<nc_polygon_type>::type,
             typename traits::interior_mutable_type<nc_polygon_type>::type
-        > type;
+        >;
 };
 
 
@@ -106,10 +106,10 @@ struct interior_type
 template <typename Polygon>
 struct interior_type<polygon_tag, Polygon>
 {
-    typedef typename std::remove_reference
+    using type = std::remove_reference_t
         <
             typename interior_return_type<polygon_tag, Polygon>::type
-        >::type type;
+        >;
 };
 
 
@@ -132,22 +132,30 @@ struct interior_type<polygon_tag, Polygon>
 template <typename Geometry>
 struct interior_type
 {
-    typedef typename core_dispatch::interior_type
+    using type = typename core_dispatch::interior_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
-        >::type type;
+        >::type;
 };
+
+template <typename Geometry>
+using interior_type_t = typename interior_type<Geometry>::type;
+
 
 template <typename Geometry>
 struct interior_return_type
 {
-    typedef typename core_dispatch::interior_return_type
+    using type = typename core_dispatch::interior_return_type
         <
-            typename tag<Geometry>::type,
+            tag_t<Geometry>,
             Geometry
-        >::type type;
+        >::type;
 };
+
+
+template <typename Geometry>
+using interior_return_type_t = typename interior_return_type<Geometry>::type;
 
 
 }} // namespace boost::geometry

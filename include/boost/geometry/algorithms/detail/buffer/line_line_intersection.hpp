@@ -64,7 +64,7 @@ struct line_line_intersection
         // in a custom strategy, then the calculation of the point in between
         // might be incorrect and the optimization is not used.
 
-        using ct = typename coordinate_type<Point>::type;
+        using ct = coordinate_type_t<Point>;
 
         auto const p = detail::make::make_infinite_line<ct>(pi, pj);
         auto const q = detail::make::make_infinite_line<ct>(qi, qj);

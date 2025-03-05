@@ -55,12 +55,12 @@ struct get_turn_without_info
                 Strategy const& strategy,
                 OutputIterator out)
     {
-        typedef typename TurnInfo::point_type turn_point_type;
+        using turn_point_type = typename TurnInfo::point_type;
 
-        typedef policies::relate::segments_intersection_points
+        using policy_type = policies::relate::segments_intersection_points
             <
                 segment_intersection_points<turn_point_type>
-            > policy_type;
+            >;
 
         typename policy_type::return_type const result
             = strategy.relate().apply(range_p, range_q, policy_type());
@@ -96,12 +96,12 @@ inline void get_intersection_points(Geometry1 const& geometry1,
 {
     concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
-    typedef detail::get_intersection_points::get_turn_without_info
-                        <
-                            point_type_t<Geometry1>,
-                            point_type_t<Geometry2>,
-                            typename boost::range_value<Turns>::type
-                        > TurnPolicy;
+    using turn_policy_t = detail::get_intersection_points::get_turn_without_info
+        <
+            point_type_t<Geometry1>,
+            point_type_t<Geometry2>,
+            typename boost::range_value<Turns>::type
+        >;
 
     detail::get_turns::no_interrupt_policy interrupt_policy;
 
@@ -110,19 +110,19 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             reverse_dispatch<Geometry1, Geometry2>::type::value,
             dispatch::get_turns_reversed
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 false, false,
-                TurnPolicy
+                turn_policy_t
             >,
             dispatch::get_turns
             <
-                typename tag<Geometry1>::type,
-                typename tag<Geometry2>::type,
+                tag_t<Geometry1>,
+                tag_t<Geometry2>,
                 Geometry1, Geometry2,
                 false, false,
-                TurnPolicy
+                turn_policy_t
             >
         >::apply(0, geometry1,
                  1, geometry2,

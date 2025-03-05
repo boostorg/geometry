@@ -53,7 +53,7 @@ template
 <
     typename PointOut,
     typename GeometryIn,
-    typename TagIn = typename tag<GeometryIn>::type
+    typename TagIn = tag_t<GeometryIn>
 >
 struct copy_points
     : not_implemented<PointOut, GeometryIn>
@@ -221,7 +221,7 @@ struct point_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        typedef action_selector_pl<PointOut, OverlayType> action;
+        using action = action_selector_pl<PointOut, OverlayType>;
 
         for (auto it = boost::begin(multipoint); it != boost::end(multipoint); ++it)
         {
@@ -255,7 +255,7 @@ struct multipoint_multipoint_point
                                        OutputIterator oit,
                                        Strategy const& strategy)
     {
-        typedef geometry::less<void, -1, Strategy> less_type;
+        using less_type = geometry::less<void, -1, Strategy>;
 
         if BOOST_GEOMETRY_CONSTEXPR (OverlayType != overlay_difference)
         {
@@ -268,7 +268,7 @@ struct multipoint_multipoint_point
             }
         }
 
-        typedef typename boost::range_value<MultiPoint2>::type point2_type;
+        using point2_type = typename boost::range_value<MultiPoint2>::type;
 
         std::vector<point2_type> points2(boost::begin(multipoint2),
                                          boost::end(multipoint2));
@@ -421,8 +421,8 @@ struct union_pointlike_pointlike_point
         return detail_dispatch::overlay::pointlike_pointlike_point
             <
                 PointLike2, PointLike1, PointOut, overlay_difference,
-                typename tag<PointLike2>::type,
-                typename tag<PointLike1>::type
+                tag_t<PointLike2>,
+                tag_t<PointLike1>
             >::apply(pointlike2, pointlike1, oit, strategy);
     }
 

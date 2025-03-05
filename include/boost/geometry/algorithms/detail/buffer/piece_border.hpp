@@ -103,9 +103,9 @@ namespace detail { namespace buffer
 template <typename Ring, typename Point>
 struct piece_border
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
-    typedef typename default_comparable_distance_result<Point>::type radius_type;
-    typedef typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type state_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
+    using radius_type = typename default_comparable_distance_result<Point>::type;
+    using state_type = typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type;
 
     bool m_reversed;
 
@@ -475,7 +475,7 @@ private :
     template <typename It>
     inline void calculate_radii(Point const& center, It begin, It end)
     {
-        typedef geometry::model::referring_segment<Point const> segment_type;
+        using segment_type = geometry::model::referring_segment<Point const>;
 
         bool first = true;
 

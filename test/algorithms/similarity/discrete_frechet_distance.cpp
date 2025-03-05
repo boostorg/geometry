@@ -16,13 +16,13 @@
 
 #include "test_frechet_distance.hpp"
 
-    template <typename P>
+template <typename P>
 void test_all_cartesian()
 {
-    typedef bg::model::linestring<P> linestring_2d;
+    using linestring_2d = bg::model::linestring<P>;
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 3);
@@ -37,14 +37,14 @@ void test_all_cartesian()
 
 }
 
-    template <typename P>
+template <typename P>
 void test_all_geographic()
 {
-    typedef bg::model::linestring<P> linestring_2d;
+    using linestring_2d = bg::model::linestring<P>;
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 333958);
@@ -59,14 +59,14 @@ void test_all_geographic()
 
 }
 
-    template <typename P>
+template <typename P>
 void test_all_spherical_equ()
 {
-    typedef bg::model::linestring<P> linestring_2d;
+    using linestring_2d = bg::model::linestring<P>;
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
-    typedef typename coordinate_system<P>::type CordType;
-    std::cout << typeid(CordType).name() << std::endl;
+    using coor_t = bg::coordinate_system_t<P>;
+    std::cout << typeid(coor_t).name() << std::endl;
 #endif
 
     test_geometry<linestring_2d,linestring_2d >("LINESTRING(3 0,2 1,3 2)","LINESTRING(0 0,3 4,4 3)", 0.05235987);

@@ -48,7 +48,7 @@ struct helper_point
         <
             NewCoordinateType,
             dimension<Point>::value,
-            typename cs_tag_to_coordinate_system<NewUnits, CS_Tag>::type
+            cs_tag_to_coordinate_system_t<NewUnits, CS_Tag>
         > type;
 };
 
@@ -65,7 +65,8 @@ template
     typename Geometry,
     typename NewCoordinateType,
     typename NewUnits,
-    typename Tag = typename tag<Geometry>::type>
+    typename Tag = tag_t<Geometry>
+>
 struct helper_geometry : not_implemented<Geometry>
 {};
 
@@ -129,7 +130,7 @@ struct helper_geometry<Ring, NewCoordinateType, NewUnits, ring_tag>
 template
 <
     typename Geometry,
-    typename NewCoordinateType = typename coordinate_type<Geometry>::type,
+    typename NewCoordinateType = coordinate_type_t<Geometry>,
     typename NewUnits = typename detail::cs_angular_units<Geometry>::type
 >
 struct helper_geometry

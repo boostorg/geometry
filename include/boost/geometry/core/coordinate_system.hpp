@@ -58,20 +58,20 @@ namespace core_dispatch
     template <typename GeometryTag, typename G>
     struct coordinate_system
     {
-        typedef typename point_type<GeometryTag, G>::type P;
+        using P = typename point_type<GeometryTag, G>::type;
 
         // Call its own specialization on point-tag
-        typedef typename coordinate_system<point_tag, P>::type type;
+        using type = typename coordinate_system<point_tag, P>::type;
     };
 
 
     template <typename Point>
     struct coordinate_system<point_tag, Point>
     {
-        typedef typename traits::coordinate_system
+        using type = typename traits::coordinate_system
             <
-                typename util::remove_cptrref<Point>::type
-            >::type type;
+                util::remove_cptrref_t<Point>
+            >::type;
     };
 
 
@@ -96,10 +96,25 @@ struct coordinate_system
         >::type;
 };
 
-
 template <typename Geometry>
 using coordinate_system_t = typename coordinate_system<Geometry>::type;
 
+#ifndef DOXYGEN_NO_DETAIL
+namespace detail {
+
+// Short cut for coordinate system units
+template <typename Geometry>
+struct coordinate_system_units
+{
+    using type = typename coordinate_system<Geometry>::type::units;
+};
+
+
+template <typename Geometry>
+using coordinate_system_units_t = typename coordinate_system_units<Geometry>::type;
+
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry
 

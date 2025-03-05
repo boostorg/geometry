@@ -121,9 +121,9 @@ struct choose_split_axis_and_index_for_corner
                              Parameters const& parameters,
                              Translator const& translator)
     {
-        typedef typename Elements::value_type element_type;
-        typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-        typedef typename tag<indexable_type>::type indexable_tag;
+        using element_type = typename Elements::value_type;
+        using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;
+        using indexable_tag = tag_t<indexable_type>;
 
         BOOST_GEOMETRY_INDEX_ASSERT(elements.size() == parameters.get_max_elements() + 1, "wrong number of elements");
 
@@ -306,13 +306,15 @@ struct choose_split_axis_and_index
         content_type overlap_val = (std::numeric_limits<content_type>::max)();
         content_type content_val = (std::numeric_limits<content_type>::max)();
 
-        choose_split_axis_and_index_for_axis<
-            Box,
-            Dimension - 1,
-            typename tag<element_indexable_type>::type
-        >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, parameters, translator); // MAY THROW, STRONG
+        choose_split_axis_and_index_for_axis
+            <
+                Box,
+                Dimension - 1,
+                tag_t<element_indexable_type>
+            >::apply(elements, corner, index, sum_of_margins, overlap_val, content_val, 
+                     parameters, translator); // MAY THROW, STRONG
 
-        if ( sum_of_margins < smallest_sum_of_margins )
+        if (sum_of_margins < smallest_sum_of_margins)
         {
             choosen_axis = Dimension - 1;
             choosen_corner = corner;
@@ -341,15 +343,17 @@ struct choose_split_axis_and_index<Box, 1>
                              Parameters const& parameters,
                              Translator const& translator)
     {
-        typedef typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type element_indexable_type;
+        using element_indexable_type = typename rtree::element_indexable_type<typename Elements::value_type, Translator>::type;
 
         choosen_axis = 0;
 
-        choose_split_axis_and_index_for_axis<
-            Box,
-            0,
-            typename tag<element_indexable_type>::type
-        >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins, smallest_overlap, smallest_content, parameters, translator); // MAY THROW
+        choose_split_axis_and_index_for_axis
+            <
+                Box,
+                0,
+                tag_t<element_indexable_type>
+            >::apply(elements, choosen_corner, choosen_index, smallest_sum_of_margins,
+                     smallest_overlap, smallest_content, parameters, translator); // MAY THROW
     }
 };
 
@@ -371,9 +375,9 @@ struct nth_element
         }
         else
         {
-            typedef typename Elements::value_type element_type;
-            typedef typename rtree::element_indexable_type<element_type, Translator>::type indexable_type;
-            typedef typename tag<indexable_type>::type indexable_tag;
+            using element_type = typename Elements::value_type;
+            using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;
+            using indexable_tag = tag_t<indexable_type>;
 
             typename index::detail::strategy_type<Parameters>::type
                 strategy = index::detail::get_strategy(parameters);

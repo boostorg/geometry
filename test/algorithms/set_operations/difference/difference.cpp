@@ -34,15 +34,6 @@
 namespace
 {
 
-// Change compiler defines to constexpr bools
-// to make conditions more readable
-// and to always compile all code.
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-constexpr bool test_failures = true;
-#else
-constexpr bool test_failures = false;
-#endif
-
 #if defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
 constexpr bool test_only_one_type = true;
 #else
@@ -95,16 +86,10 @@ void test_all()
         1, 5, 8.0,
         1, 5, 8.0);
 
-    {
-        // It reports self-intersections for symmetric difference
-        ut_settings settings;
-        settings.sym_difference = false;
-        test_one<polygon, polygon, polygon>("star_comb_15",
-            star_comb_15[0], star_comb_15[1],
-            30, -1, 227.658275102812,
-            30, -1, 480.485775259312,
-            settings);
-    }
+    test_one<polygon, polygon, polygon>("star_comb_15",
+        star_comb_15[0], star_comb_15[1],
+        30, -1, 227.658275102812,
+        30, -1, 480.485775259312);
 
     test_one<polygon, polygon, polygon>("new_hole",
         new_hole[0], new_hole[1],
@@ -173,31 +158,20 @@ void test_all()
         4, 20, 11.533333,
         5, 26, 29.783333);
 
-    {
-        ut_settings settings;
-        settings.validity_of_sym = true;
-        test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
-            intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
-            2, 16, 15.75,
-            3, 17, 6.75,
-            settings);
+    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_disjoint",
+        intersect_holes_intersect_and_disjoint[0], intersect_holes_intersect_and_disjoint[1],
+        2, 16, 15.75,
+        3, 17, 6.75);
 
-        test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
-            intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
-            3, 21, 16.25,
-            3, 17, 6.25,
-            settings);
-    }
+    test_one<polygon, polygon, polygon>("intersect_holes_intersect_and_touch",
+        intersect_holes_intersect_and_touch[0], intersect_holes_intersect_and_touch[1],
+        3, 21, 16.25,
+        3, 17, 6.25);
 
-    {
-        ut_settings settings;
-        settings.percentage = 0.01;
-        test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
-            intersect_holes_new_ring[0], intersect_holes_new_ring[1],
-            3, 15, 9.8961,
-            4, 25, 121.8961,
-            settings);
-    }
+    test_one<polygon, polygon, polygon>("intersect_holes_new_ring",
+        intersect_holes_new_ring[0], intersect_holes_new_ring[1],
+        3, 15, 9.8961,
+        4, 25, 121.8961);
 
     test_one<polygon, polygon, polygon>("first_within_hole_of_second",
         first_within_hole_of_second[0], first_within_hole_of_second[1],
@@ -209,14 +183,10 @@ void test_all()
         2, 14, 16.0,
         2, 10, 6.0);
 
-    {
-        ut_settings settings;
-        test_one<polygon, polygon, polygon>("intersect_holes_intersect",
-            intersect_holes_intersect[0], intersect_holes_intersect[1],
-            2, 16, 15.75,
-            2, 12, 5.75,
-            settings);
-    }
+    test_one<polygon, polygon, polygon>("intersect_holes_intersect",
+        intersect_holes_intersect[0], intersect_holes_intersect[1],
+        2, 16, 15.75,
+        2, 12, 5.75);
 
     test_one<polygon, polygon, polygon>(
             "case4", case_4[0], case_4[1],
@@ -279,11 +249,9 @@ void test_all()
     TEST_DIFFERENCE(case_precision_9, optional(), optional_sliver(), 1, 59.0, count_set(1, 2));
     TEST_DIFFERENCE_WITH(case_precision_10, optional(), optional_sliver(), 1, 59, count_set(1, 2), ut_settings(0.001));
 
-    if BOOST_GEOMETRY_CONSTEXPR(test_failures)
-    {
-        // Fails (since rescaling is turned off)
-        TEST_DIFFERENCE(case_precision_11, optional(), optional_sliver(), 1, 59.0, count_set(1, 2));
-    }
+    // Sym Difference fails (since rescaling is turned off)
+    TEST_DIFFERENCE_WITH(case_precision_11, optional(), optional_sliver(), 1, 59.0, count_set(1, 2),
+                         ut_settings(ut_settings::default_tolerance, true, BG_IF_TEST_FAILURES));
 
     TEST_DIFFERENCE(case_precision_12, 1, 12.0, 0, 0.0, 1);
     TEST_DIFFERENCE_WITH(case_precision_13, 1, 12, 0, 0.0, 1, ut_settings(0.001));
@@ -330,23 +298,25 @@ void test_all()
             count_set(1, 2), settings);
     }
 
-    /*** TODO: self-tangencies for difference
-    test_one<polygon, polygon, polygon>("wrapped_a",
-        wrapped[0], wrapped[1],
-        3, 1, 61,
-        1, 0, 13);
+    {
+        ut_settings settings(ut_settings::default_tolerance, false);
+        test_one<polygon, polygon, polygon>("wrapped_0_1",
+            wrapped[0], wrapped[1],
+            1, 1, 1.0,
+            1, 0, 15.0,
+            1, settings);
+    }
 
-    test_one<polygon, polygon, polygon>("wrapped_b",
+    test_one<polygon, polygon, polygon>("wrapped_0_2",
         wrapped[0], wrapped[2],
-        3, 1, 61,
-        1, 0, 13);
-    ***/
+        1, 1, 1.0,
+        1, 0, 15.0,
+        1);
 
     {
         ut_settings settings;
         settings.percentage = 0.1;
-        settings.set_test_validity(false);
-        settings.sym_difference = false;
+        settings.validity_of_sym = false;
 
         // Isovist - the # output polygons differ per compiler/pointtype, (very) small
         // rings might be discarded. We check area only
@@ -374,21 +344,15 @@ void test_all()
     }
 
     {
-        ut_settings settings;
-        settings.set_test_validity(true);
-
-        // Output polygons for sym difference might be combined
-        expectation_limits a{138.5312, 138.6924};
-        expectation_limits b{210.5312, 211.8594};
+        expectation_limits const a{138.5312, 138.6924};
+        expectation_limits const b{210.5312, 211.8594};
         test_one<polygon, polygon, polygon>("geos_2",
             geos_2[0], geos_2[1],
             1, -1, a,
             1, -1, b,
-            {1, 2}, -1, a + b,
-            settings);
+            {1, 2}, -1, a + b);
     }
 
-    // Output polygons for sym difference might be combined
     test_one<polygon, polygon, polygon>("geos_3",
         geos_3[0], geos_3[1],
         1, -1, 16211128.5,
@@ -418,15 +382,10 @@ void test_all()
         1, 58456.4964294434,
         1);
 
-    {
-      ut_settings settings(0.0001, false);
-      // Symmetric difference should output one polygon
-      // Using rescaling, it currently outputs two.
-      TEST_DIFFERENCE_WITH(ggl_list_20110820_christophe,
-          1, 2.8570121719168924,
-          1, 64.498061986388564,
-          count_set(1, 2), settings);
-    }
+    TEST_DIFFERENCE(ggl_list_20110820_christophe,
+        1, 2.8570121719168924,
+        1, 64.498061986388564,
+        count_set(1, 2));
 
     test_one<polygon, polygon, polygon>("ggl_list_20120717_volker",
         ggl_list_20120717_volker[0], ggl_list_20120717_volker[1],
@@ -439,28 +398,19 @@ void test_all()
     // sql server gives: 6.62295817619452E-05
     // PostGIS gives: 0.0 (no output)
     // Boost.Geometry gave results depending on FP-type, and compiler, and operating system.
-    // With rescaling results are equal w.r.t. compiler/FP type,
-    // however, some long spikes are still generated in the resulting difference
-    // Without rescaling there is no output, like PostGIS
+    // To be verified if some long spikes are still generated in the results
     test_one<polygon, polygon, polygon>("ggl_list_20110627_phillip",
         ggl_list_20110627_phillip[0], ggl_list_20110627_phillip[1],
         optional(), -1,
         optional_sliver(0.00013),
         1, -1, expectation_limits(3577.4096, 3577.415),
-        tolerance(0.01)
-        );
+        tolerance(0.01));
 
-    {
-        // With rescaling, difference of output a-b and a sym b is invalid
-        ut_settings settings;
-        settings.set_test_validity(true);
-        settings.validity_of_sym = true;
-        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_1,
-                count_set(1, 2), 0.18461532,
-                count_set(1, 2), 0.617978,
-                count_set(3, 4), settings);
-        TEST_DIFFERENCE_WITH(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2, settings);
-    }
+    TEST_DIFFERENCE(ggl_list_20190307_matthieu_1,
+            count_set(1, 2), 0.18461532,
+            count_set(1, 2), 0.617978,
+            count_set(3, 4));
+    TEST_DIFFERENCE(ggl_list_20190307_matthieu_2, 2, 12.357152, 0, 0.0, 2);
 
     // Ticket 8310, one should be completely subtracted from the other.
     test_one<polygon, polygon, polygon>("ticket_8310a",
@@ -494,14 +444,11 @@ void test_all()
                     count_set(1, 6), 20.096189,
                     count_set(1, 6));
 
-    if BOOST_GEOMETRY_CONSTEXPR(test_failures)
-    {
-        // Without rescaling the second case (labeled "b") produces no output.
-        test_one<polygon, polygon, polygon>("ticket_10108_a",
-                ticket_10108_a[0], ticket_10108_a[1],
-                1, 4,  {0.0145036, 0.0145037},
-                1, 4,  0.029019232);
-    }
+    test_one<polygon, polygon, polygon>("ticket_10108_a",
+            ticket_10108_a[0], ticket_10108_a[1],
+            1, 4, {0.0145036, 0.0145037},
+            1, 4, 0.029019232,
+            1);
 
     test_one<polygon, polygon, polygon>("ticket_10108_b",
             ticket_10108_b[0], ticket_10108_b[1],
@@ -570,7 +517,7 @@ void test_all()
         {
             using mp = bg::model::multi_polygon<polygon>;
 
-            static std::string const clip = "POLYGON((2 2,4 4))";
+            std::string const clip = "POLYGON((2 2,4 4))";
 
             test_one<polygon, box, mp>("simplex_multi_box_mp",
                 clip, case_multi_simplex[0],
@@ -590,16 +537,10 @@ void test_all()
                     optional(), optional_sliver(1.0e-5),
                     count_set(1, 2));
 
-    {
-        ut_settings settings;
-        settings.set_test_validity(false);
-        settings.validity_false_negative_a = true;
-        TEST_DIFFERENCE_WITH(issue_838,
-            count_set(1, 2), expectation_limits(0.000026, 0.0002823),
-            count_set(1, 2), expectation_limits(0.67257, 0.67499),
-            count_set(2, 3, 4),
-            settings);
-    }
+    TEST_DIFFERENCE(issue_838,
+        count_set(1, 2), expectation_limits(0.000026, 0.0002823),
+        count_set(1, 2), expectation_limits(0.67257, 0.67499),
+        count_set(2, 3, 4));
 
     {
         // The symmetric difference is invalid for ccw
@@ -612,7 +553,7 @@ void test_all()
     TEST_DIFFERENCE(issue_876b, 1, 6114.18234, 1, 4754.29449, count_set(1, 2));
 
     {
-        // Results are still invalid
+        // Results are reported as invalid
         ut_settings settings;
         settings.set_test_validity(false);
         settings.validity_of_sym = false;
@@ -620,43 +561,6 @@ void test_all()
     }
 
     TEST_DIFFERENCE(issue_1138, 1, 203161.751, 2, 1237551.0171, 1);
-
-    {
-        ut_settings settings;
-        settings.set_test_validity(false);
-        settings.validity_of_sym = false;
-        TEST_DIFFERENCE_WITH(issue_1226, 1, 0.238037722, 0, 0.0, 1, settings);
-    }
-
-    TEST_DIFFERENCE(issue_1231, 2, 36.798659456837477, 3, 195.2986, 5);
-
-    TEST_DIFFERENCE(issue_1244, 3, 8, 3, 2, 6);
-
-    {
-        // The symmetric difference reports an invalidity since the choice of
-        // discarding start/touch turns.
-        // This might be a false negative.
-        // Clockwise: "method: t; operations: u/x"
-        // CCW: "method: m; operations: i/x"
-        ut_settings settings;
-        settings.validity_of_sym = false;
-        TEST_DIFFERENCE_WITH(issue_1293, 1, 1.40999, 1, 2.318951, 2, settings);
-    }
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Difference fails for this case. This was not reported for this case.
-    // Reported as a failing intersection, which is fixed.
-    // The failing difference should be investigated more thoroughly.
-    TEST_DIFFERENCE(issue_1295, 1, 9.999, 1, 9.999, 1);
-#endif
-
-    TEST_DIFFERENCE(issue_1326, 3, 6.7128537626409130468, 6, 0.00372806966532758478, 9);
-
-    TEST_DIFFERENCE(issue_1342_a, 2, 5.762381026454777, 0, 0.0, 2);
-    TEST_DIFFERENCE(issue_1342_b, 2, 5.762381026454777, 1, 2.55e-14, 3);
-
-    TEST_DIFFERENCE(issue_1345_a, 1, 0.059308854, 0, 0.0, 1);
-    TEST_DIFFERENCE(issue_1345_b, 2, 0.024048025, 0, 0.0, 2);
 
     TEST_DIFFERENCE(mysql_21977775, 2, 160.856568913, 2, 92.3565689126, 4);
     TEST_DIFFERENCE(mysql_21965285, 1, 92.0, 1, 14.0, 1);
@@ -721,13 +625,6 @@ int test_main(int, char* [])
     {
         test_all<bg::model::d2::point_xy<float>, true>();
     }
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Not yet fully tested for float and long double.
-    // The difference algorithm can generate (additional) slivers
-    // Many of the failures are self-intersection points.
-    BoostGeometryWriteExpectedFailures(5, 17, 10);
-#endif
 
     return 0;
 }

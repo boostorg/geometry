@@ -192,7 +192,7 @@ namespace traits
 template <typename Point>
 struct tag<model::box<Point> >
 {
-    typedef box_tag type;
+    using type = box_tag;
 };
 
 template <typename Point>
@@ -204,7 +204,7 @@ struct point_type<model::box<Point> >
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::box<Point>, min_corner, Dimension>
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
 
     static constexpr coordinate_type get(model::box<Point> const& b)
     {
@@ -220,7 +220,7 @@ struct indexed_access<model::box<Point>, min_corner, Dimension>
 template <typename Point, std::size_t Dimension>
 struct indexed_access<model::box<Point>, max_corner, Dimension>
 {
-    typedef typename geometry::coordinate_type<Point>::type coordinate_type;
+    using coordinate_type = geometry::coordinate_type_t<Point>;
 
     static constexpr coordinate_type get(model::box<Point> const& b)
     {

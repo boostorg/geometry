@@ -54,11 +54,8 @@ struct compute_tmin_tmax_per_dim
                              RelativeDistance& ti_max,
                              RelativeDistance& diff)
     {
-        typedef typename coordinate_type<Box>::type box_coordinate_type;
-        typedef typename coordinate_type
-            <
-                SegmentPoint
-            >::type point_coordinate_type;
+        using box_coordinate_type = coordinate_type_t<Box>;
+        using point_coordinate_type = coordinate_type_t<SegmentPoint>;
 
         RelativeDistance c_p0 = util::numeric_cast
             <

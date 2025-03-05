@@ -130,7 +130,7 @@ template
 <
     typename Segment,
     typename Areal,
-    typename Tag = typename tag<Areal>::type
+    typename Tag = tag_t<Areal>
 >
 struct disjoint_segment_areal
     : not_implemented<Segment, Areal>
@@ -170,7 +170,7 @@ public:
     {
         if (! disjoint_range_segment_or_box
                 <
-                    typename geometry::ring_type<Polygon>::type,
+                    geometry::ring_type_t<Polygon>,
                     Segment
                 >::apply(geometry::exterior_ring(polygon), segment, strategy))
         {

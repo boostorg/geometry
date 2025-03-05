@@ -51,7 +51,7 @@ namespace detail { namespace relate
 template
 <
     typename Geometry,
-    typename Tag = typename tag<Geometry>::type
+    typename Tag = tag_t<Geometry>
 >
 struct multi_point_geometry_eb
 {

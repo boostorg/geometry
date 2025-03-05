@@ -57,8 +57,8 @@ static inline bool within_selected_input(Item const& item2,
         RingCollection const& collection,
         Strategy const& strategy)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
+    using tag1 = geometry::tag_t<Geometry1>;
+    using tag2 = geometry::tag_t<Geometry2>;
 
     // NOTE: range_in_geometry first checks the item2.point and then
     // if this point is on boundary it checks points of inner_geometry
@@ -92,8 +92,8 @@ static inline bool within_selected_input(Item const& item2,
         RingCollection const& collection,
         Strategy const& strategy)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
+    using tag1 = geometry::tag_t<Geometry1>;
+    using tag2 = geometry::tag_t<Geometry2>;
 
     switch (inner_id.source_index)
     {
@@ -178,7 +178,7 @@ template
 >
 struct assign_visitor
 {
-    typedef typename RingMap::mapped_type ring_info_type;
+    using ring_info_type = typename RingMap::mapped_type;
 
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
@@ -254,16 +254,16 @@ inline void assign_parents(Geometry1 const& geometry1,
     static bool const is_dissolve = OverlayType == overlay_dissolve;
     static bool const check_for_orientation = is_buffer || is_dissolve;
 
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
+    using tag1 = geometry::tag_t<Geometry1>;
+    using tag2 = geometry::tag_t<Geometry2>;
 
-    typedef typename RingMap::mapped_type ring_info_type;
-    typedef typename ring_info_type::point_type point_type;
-    typedef model::box<point_type> box_type;
-    typedef typename geometry::area_result
+    using ring_info_type = typename RingMap::mapped_type;
+    using point_type = typename ring_info_type::point_type;
+    using box_type = model::box<point_type>;
+    using area_result_type = typename geometry::area_result
         <
             point_type, Strategy // TODO: point_type is technically incorrect
-        >::type area_result_type;
+        >::type;
 
     {
         std::size_t count_total = ring_map.size();

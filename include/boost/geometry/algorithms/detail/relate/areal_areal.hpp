@@ -89,7 +89,7 @@ public:
             return false;
         }
 
-        using point_type = typename geometry::point_type<Areal>::type;
+        using point_type = geometry::point_type_t<Areal>;
         typename helper_geometry<point_type>::type pt;
         bool const ok = geometry::point_on_border(pt, areal);
 

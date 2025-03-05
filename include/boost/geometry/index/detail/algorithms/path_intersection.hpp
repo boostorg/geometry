@@ -113,11 +113,12 @@ struct path_intersection<Indexable, Linestring, box_tag, linestring_tag>
 template <typename Indexable, typename SegmentOrLinestring>
 struct default_path_intersection_distance_type
 {
-    typedef typename dispatch::path_intersection<
-        Indexable, SegmentOrLinestring,
-        typename tag<Indexable>::type,
-        typename tag<SegmentOrLinestring>::type
-    >::comparable_distance_type type;
+    using type = typename dispatch::path_intersection
+        <
+            Indexable, SegmentOrLinestring,
+            tag_t<Indexable>,
+            tag_t<SegmentOrLinestring>
+        >::comparable_distance_type;
 };
 
 template <typename Indexable, typename SegmentOrLinestring> inline
@@ -127,10 +128,11 @@ bool path_intersection(Indexable const& b,
 {
     // TODO check Indexable and Linestring concepts
 
-    return dispatch::path_intersection<
+    return dispatch::path_intersection
+        <
             Indexable, SegmentOrLinestring,
-            typename tag<Indexable>::type,
-            typename tag<SegmentOrLinestring>::type
+            tag_t<Indexable>,
+            tag_t<SegmentOrLinestring>
         >::apply(b, path, comparable_distance);
 }
 

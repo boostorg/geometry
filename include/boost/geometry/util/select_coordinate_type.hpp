@@ -35,10 +35,10 @@ namespace boost { namespace geometry
 template <typename ...Geometries>
 struct select_coordinate_type
 {
-    typedef typename select_most_precise
+    using type = typename select_most_precise
         <
-            typename coordinate_type<Geometries>::type...
-        >::type type;
+            coordinate_type_t<Geometries>...
+        >::type;
 };
 
 

@@ -68,9 +68,9 @@ inline auto collection_to_collection(GeometryCollection1 const& collection1,
 {
     using result_t = typename geometry::distance_result<GeometryCollection1, GeometryCollection2, Strategies>::type;
 
-    using point1_t = typename geometry::point_type<GeometryCollection1>::type;
+    using point1_t = geometry::point_type_t<GeometryCollection1>;
     using box1_t = model::box<point1_t>;
-    using point2_t = typename geometry::point_type<GeometryCollection2>::type;
+    using point2_t = geometry::point_type_t<GeometryCollection2>;
     using box2_t = model::box<point2_t>;
 
     using rtree_value_t = std::pair<box1_t, typename boost::range_iterator<GeometryCollection1 const>::type>;

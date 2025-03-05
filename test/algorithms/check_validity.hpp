@@ -16,7 +16,7 @@
 #include <boost/geometry/algorithms/is_valid.hpp>
 
 template<typename Geometry>
-inline bool input_is_valid(std::string const& case_id, std::string const& subcase,
+inline bool is_input_valid(std::string const& case_id, std::string const& subcase,
                          Geometry const& geometry)
 {
     std::string message;
@@ -42,8 +42,8 @@ inline bool is_output_valid(Geometry const& geometry,
     bool result = bg::is_valid(geometry, message);
     if (! result && ignore_validity_on_invalid_input)
     {
-        if (! input_is_valid(case_id, "a", g1)
-            || ! input_is_valid(case_id, "b", g2))
+        if (! is_input_valid(case_id, "a", g1)
+            || ! is_input_valid(case_id, "b", g2))
         {
             // Because input is invalid, output validity is ignored
             result = true;

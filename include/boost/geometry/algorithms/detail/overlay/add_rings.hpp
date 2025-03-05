@@ -48,9 +48,9 @@ inline void convert_and_add(GeometryOut& result,
             ring_identifier id,
             bool reversed, bool append)
 {
-    typedef typename geometry::tag<Geometry1>::type tag1;
-    typedef typename geometry::tag<Geometry2>::type tag2;
-    typedef typename geometry::tag<GeometryOut>::type tag_out;
+    using tag1 = geometry::tag_t<Geometry1>;
+    using tag2 = geometry::tag_t<Geometry2>;
+    using tag_out = geometry::tag_t<GeometryOut>;
 
     if (id.source_index == 0)
     {
@@ -133,7 +133,7 @@ inline OutputIterator add_rings(SelectionMap const& map,
             // everything is figured out yet (sum of positive/negative rings)
             if (geometry::num_points(result) >= min_num_points)
             {
-                typedef typename geometry::area_result<GeometryOut, Strategy>::type area_type;
+                using area_type = typename geometry::area_result<GeometryOut, Strategy>::type;
                 area_type const area = geometry::area(result, strategy);
                 area_type const zero = 0;
                 // Ignore if area is 0

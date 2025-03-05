@@ -214,7 +214,7 @@ inline bool point_on_border(Point& point, Geometry const& geometry)
 
     return dispatch::point_on_border
             <
-                typename tag<Geometry>::type
+                tag_t<Geometry>
             >::apply(point, geometry);
 }
 

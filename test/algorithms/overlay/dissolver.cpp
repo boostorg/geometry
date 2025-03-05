@@ -39,9 +39,8 @@ void test_dissolve_plusmin(std::string const& caseid, Collection const& input,
             T const& expected_positive_area,
             T const& expected_negative_area)
 {
-    typedef typename boost::range_value<GeometryOut>::type geometry_type;
-    typedef typename bg::point_type<geometry_type>::type point_type;
-
+    using geometry_type = typename boost::range_value<GeometryOut>::type;
+    using point_type = bg::point_type_t<geometry_type>;
 
     GeometryOut output;
     bg::dissolver(input, output);
@@ -117,8 +116,8 @@ void test_geometry(std::string const& caseid, std::string const& wkt,
 
     // Test std::vector<ring>
     {
-        typedef typename boost::range_value<MultiPolygon>::type polygon_type;
-        typedef typename bg::ring_type<MultiPolygon>::type ring_type;
+        using polygon_type = typename boost::range_value<MultiPolygon>::type;
+        using ring_type = bg::ring_type_t<MultiPolygon>;
         std::vector<ring_type> rings;
         for (polygon_type const& polygon : multi_polygon)
         {
@@ -163,8 +162,8 @@ void test_geometry(std::string const& caseid, std::string const& wkt,
 template <typename Point>
 void test_all()
 {
-    typedef bg::model::polygon<Point> polygon;
-    typedef bg::model::multi_polygon<polygon> multi_polygon;
+    using polygon = bg::model::polygon<Point>;
+    using multi_polygon = bg::model::multi_polygon<polygon>;
 
     test_geometry<multi_polygon>("simplex_one",
         "MULTIPOLYGON(((0 0,1 4,4 1,0 0)))",

@@ -153,7 +153,7 @@ struct svg_map<multi_tag, Multi, SvgPoint>
 {
     typedef typename single_tag_of
       <
-          typename geometry::tag<Multi>::type
+          geometry::tag_t<Multi>
       >::type stag;
 
     template <typename TransformStrategy>
@@ -270,7 +270,7 @@ class svg_mapper : boost::noncopyable
 
     typedef typename geometry::select_most_precise
         <
-            typename coordinate_type<Point>::type,
+            coordinate_type_t<Point>,
             double
         >::type calculation_type;
 

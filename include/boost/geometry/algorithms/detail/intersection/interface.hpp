@@ -37,8 +37,8 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type,
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>,
     bool Reverse = reverse_dispatch<Geometry1, Geometry2>::type::value
 >
 struct intersection
@@ -49,14 +49,14 @@ struct intersection
             GeometryOut& geometry_out,
             Strategy const& strategy)
     {
-        typedef typename geometry::detail::output_geometry_value
+        using single_out = typename geometry::detail::output_geometry_value
             <
                 GeometryOut
-            >::type SingleOut;
+            >::type;
 
         intersection_insert
             <
-                Geometry1, Geometry2, SingleOut,
+                Geometry1, Geometry2, single_out,
                 overlay_intersection
             >::apply(geometry1, geometry2,
                      geometry::detail::output_geometry_back_inserter(geometry_out),
@@ -109,9 +109,9 @@ namespace resolve_collection
 template
 <
     typename Geometry1, typename Geometry2, typename GeometryOut,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type,
-    typename TagOut = typename geometry::tag<GeometryOut>::type
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>,
+    typename TagOut = geometry::tag_t<GeometryOut>
 >
 struct intersection
 {
@@ -195,10 +195,10 @@ struct intersection<default_strategy, false>
                              GeometryOut & geometry_out,
                              default_strategy)
     {
-        typedef typename strategies::relate::services::default_strategy
+        using strategy_type = typename strategies::relate::services::default_strategy
             <
                 Geometry1, Geometry2
-            >::type strategy_type;
+            >::type;
 
         return intersection
             <
@@ -216,8 +216,8 @@ namespace resolve_dynamic
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename geometry::tag<Geometry1>::type,
-    typename Tag2 = typename geometry::tag<Geometry2>::type
+    typename Tag1 = geometry::tag_t<Geometry1>,
+    typename Tag2 = geometry::tag_t<Geometry2>
 >
 struct intersection
 {

@@ -43,8 +43,8 @@ namespace detail { namespace buffer
 template <typename Ring>
 struct unique_sub_range_from_piece
 {
-    typedef typename boost::range_iterator<Ring const>::type iterator_type;
-    typedef typename geometry::point_type<Ring const>::type point_type;
+    using iterator_type = typename boost::range_iterator<Ring const>::type;
+    using point_type = geometry::point_type_t<Ring const>;
 
     unique_sub_range_from_piece(Ring const& ring,
                                 iterator_type iterator_at_i, iterator_type iterator_at_j)
@@ -190,8 +190,8 @@ class piece_turn_visitor
     inline void calculate_turns(Piece const& piece1, Piece const& piece2,
         Section const& section1, Section const& section2)
     {
-        typedef typename boost::range_value<Rings const>::type ring_type;
-        typedef typename boost::range_value<Turns const>::type turn_type;
+        using ring_type = typename boost::range_value<Rings const>::type;
+        using turn_type = typename boost::range_value<Turns const>::type;
 
         signed_size_type const piece1_first_index = piece1.first_seg_id.segment_index;
         signed_size_type const piece2_first_index = piece2.first_seg_id.segment_index;
@@ -261,10 +261,10 @@ class piece_turn_visitor
             {
                 unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
 
-                typedef detail::overlay::get_turn_info
+                using turn_policy = detail::overlay::get_turn_info
                     <
                         detail::overlay::assign_policy_only_start_turns
-                    > turn_policy;
+                    >;
 
                 turn_policy::apply(unique_sub_range1, unique_sub_range2,
                                    the_model,
@@ -292,9 +292,8 @@ public:
     {
         boost::ignore_unused(first);
 
-        typedef typename boost::range_value<Pieces const>::type piece_type;
-        piece_type const& piece1 = m_pieces[section1.ring_id.source_index];
-        piece_type const& piece2 = m_pieces[section2.ring_id.source_index];
+        auto const& piece1 = m_pieces[section1.ring_id.source_index];
+        auto const& piece2 = m_pieces[section2.ring_id.source_index];
 
         if ( piece1.index == piece2.index
           || is_adjacent(piece1, piece2)

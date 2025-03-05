@@ -46,8 +46,8 @@ namespace dispatch
 template
 <
     typename Geometry1, typename Geometry2,
-    typename Tag1 = typename tag<Geometry1>::type,
-    typename Tag2 = typename tag<Geometry2>::type
+    typename Tag1 = tag_t<Geometry1>,
+    typename Tag2 = tag_t<Geometry2>
 >
 struct azimuth : not_implemented<Tag1, Tag2>
 {};
@@ -58,11 +58,12 @@ struct azimuth<Point1, Point2, point_tag, point_tag>
     template <typename Strategy>
     static auto apply(Point1 const& p1, Point2 const& p2, Strategy const& strategy)
     {
-        typedef typename decltype(strategy.azimuth())::template result_type
+        auto azimuth_strategy = strategy.azimuth();
+        using calc_t = typename decltype(azimuth_strategy)::template result_type
             <
-                typename coordinate_type<Point1>::type,
-                typename coordinate_type<Point2>::type
-            >::type calc_t;
+                coordinate_type_t<Point1>,
+                coordinate_type_t<Point2>
+            >::type;
 
         calc_t result = 0;
         calc_t const x1 = geometry::get_as_radian<0>(p1);
@@ -70,7 +71,7 @@ struct azimuth<Point1, Point2, point_tag, point_tag>
         calc_t const x2 = geometry::get_as_radian<0>(p2);
         calc_t const y2 = geometry::get_as_radian<1>(p2);
 
-        strategy.azimuth().apply(x1, y1, x2, y2, result);
+        azimuth_strategy.apply(x1, y1, x2, y2, result);
 
         // NOTE: It is not clear which units we should use for the result.
         //   For now radians are always returned but a user could expect

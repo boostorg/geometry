@@ -37,7 +37,7 @@ namespace detail_dispatch {
 template
 <
     typename Geometry,
-    typename Tag = typename geometry::tag<Geometry>::type,
+    typename Tag = geometry::tag_t<Geometry>,
     bool IsMulti = util::is_multi<Geometry>::value
 >
 struct sub_range : not_implemented<Tag>
@@ -58,7 +58,7 @@ struct sub_range<Geometry, Tag, false>
 template <typename Geometry>
 struct sub_range<Geometry, polygon_tag, false>
 {
-    typedef typename geometry::ring_return_type<Geometry>::type return_type;
+    using return_type = geometry::ring_return_type_t<Geometry>;
 
     template <typename Id> static inline
     return_type apply(Geometry & geometry, Id const& id)
@@ -69,10 +69,10 @@ struct sub_range<Geometry, polygon_tag, false>
         }
         else
         {
-            typedef typename boost::range_size
+            using size_type = typename boost::range_size
                 <
                     typename geometry::interior_type<Geometry>::type
-                >::type size_type;
+                >::type;
             size_type const ri = static_cast<size_type>(id.ring_index);
             return range::at(geometry::interior_rings(geometry), ri);
         }

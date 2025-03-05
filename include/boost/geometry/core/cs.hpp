@@ -194,33 +194,33 @@ struct cs_tag
 template<typename DegreeOrRadian>
 struct cs_tag<cs::geographic<DegreeOrRadian> >
 {
-    typedef geographic_tag type;
+    using type = geographic_tag;
 };
 
 template<typename DegreeOrRadian>
 struct cs_tag<cs::spherical<DegreeOrRadian> >
 {
-    typedef spherical_polar_tag type;
+    using type = spherical_polar_tag;
 };
 
 template<typename DegreeOrRadian>
 struct cs_tag<cs::spherical_equatorial<DegreeOrRadian> >
 {
-    typedef spherical_equatorial_tag type;
+    using type = spherical_equatorial_tag;
 };
 
 
 template<>
 struct cs_tag<cs::cartesian>
 {
-    typedef cartesian_tag type;
+    using type = cartesian_tag;
 };
 
 
 template <>
 struct cs_tag<cs::undefined>
 {
-    typedef cs_undefined_tag type;
+    using type = cs_undefined_tag;
 };
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -255,7 +255,7 @@ namespace traits
 template <typename CoordinateSystem>
 struct cs_angular_units
 {
-    typedef geometry::radian type;
+    using type = geometry::radian;
 };
 
 #ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -263,19 +263,19 @@ struct cs_angular_units
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::geographic<DegreeOrRadian> >
 {
-    typedef DegreeOrRadian type;
+    using type = DegreeOrRadian;
 };
 
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::spherical<DegreeOrRadian> >
 {
-    typedef DegreeOrRadian type;
+    using type = DegreeOrRadian;
 };
 
 template<typename DegreeOrRadian>
 struct cs_angular_units<cs::spherical_equatorial<DegreeOrRadian> >
 {
-    typedef DegreeOrRadian type;
+    using type = DegreeOrRadian;
 };
 
 #endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
@@ -313,31 +313,31 @@ struct cs_tag_to_coordinate_system
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, cs_undefined_tag>
 {
-    typedef cs::undefined type;
+    using type = cs::undefined;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, cartesian_tag>
 {
-    typedef cs::cartesian type;
+    using type = cs::cartesian;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, spherical_equatorial_tag>
 {
-    typedef cs::spherical_equatorial<Units> type;
+    using type = cs::spherical_equatorial<Units>;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, spherical_polar_tag>
 {
-    typedef cs::spherical<Units> type;
+    using type = cs::spherical<Units>;
 };
 
 template <typename Units>
 struct cs_tag_to_coordinate_system<Units, geographic_tag>
 {
-    typedef cs::geographic<Units> type;
+    using type = cs::geographic<Units>;
 };
 
 

@@ -65,8 +65,8 @@ struct box_box_loop
     template <typename Box1, typename Box2>
     static inline bool apply(Box1 const& b1, Box2 const& b2, bool & touch)
     {
-        typedef typename coordinate_type<Box1>::type coordinate_type1;
-        typedef typename coordinate_type<Box2>::type coordinate_type2;
+        using coordinate_type1 = coordinate_type_t<Box1>;
+        using coordinate_type2 = coordinate_type_t<Box2>;
 
         coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
         coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);
@@ -114,8 +114,8 @@ struct box_box
     {
         BOOST_STATIC_ASSERT((std::is_same
                                 <
-                                    typename geometry::coordinate_system<Box1>::type,
-                                    typename geometry::coordinate_system<Box2>::type
+                                    geometry::coordinate_system_t<Box1>,
+                                    geometry::coordinate_system_t<Box2>
                                 >::value
                            ));
         assert_dimension_equal<Box1, Box2>();
@@ -217,7 +217,7 @@ inline bool point_on_border_within(Geometry1 const& geometry1,
                                    Geometry2 const& geometry2,
                                    Strategy const& strategy)
 {
-    using point_type = typename geometry::point_type<Geometry1>::type;
+    using point_type = geometry::point_type_t<Geometry1>;
     typename helper_geometry<point_type>::type pt;
     return geometry::point_on_border(pt, geometry1)
         && geometry::within(pt, geometry2, strategy);
@@ -242,7 +242,7 @@ struct areal_areal
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        using point_type = typename geometry::point_type<Geometry1>::type;
+        using point_type = geometry::point_type_t<Geometry1>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
         using turn_info = detail::overlay::turn_info<mutable_point_type>;
 
@@ -505,17 +505,17 @@ struct self_touches
     {
         concepts::check<Geometry const>();
 
-        typedef typename strategies::relate::services::default_strategy
+        using strategy_type = typename strategies::relate::services::default_strategy
             <
                 Geometry, Geometry
-            >::type strategy_type;
-        typedef typename geometry::point_type<Geometry>::type point_type;
-        typedef detail::overlay::turn_info<point_type> turn_info;
+            >::type;
+        using point_type = geometry::point_type_t<Geometry>;
+        using turn_info = detail::overlay::turn_info<point_type>;
 
-        typedef detail::overlay::get_turn_info
+        using policy_type = detail::overlay::get_turn_info
             <
                 detail::overlay::assign_null_policy
-            > policy_type;
+            >;
 
         std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;

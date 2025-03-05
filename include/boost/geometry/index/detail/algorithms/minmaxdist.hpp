@@ -34,12 +34,12 @@ template <
     size_t DimensionIndex>
 struct smallest_for_indexable_dimension<Point, BoxIndexable, box_tag, minmaxdist_tag, DimensionIndex>
 {
-    typedef typename geometry::default_comparable_distance_result<Point, BoxIndexable>::type result_type;
+    using result_type = typename geometry::default_comparable_distance_result<Point, BoxIndexable>::type;
 
     inline static result_type apply(Point const& pt, BoxIndexable const& i, result_type const& maxd)
     {
-        typedef typename coordinate_type<Point>::type point_coord_t;
-        typedef typename coordinate_type<BoxIndexable>::type indexable_coord_t;
+        using point_coord_t = coordinate_type_t<Point>;
+        using indexable_coord_t = coordinate_type_t<BoxIndexable>;
 
         point_coord_t pt_c = geometry::get<DimensionIndex>(pt);
         indexable_coord_t ind_c_min = geometry::get<geometry::min_corner, DimensionIndex>(i);
@@ -112,11 +112,12 @@ template <typename Point, typename Indexable>
 typename geometry::default_comparable_distance_result<Point, Indexable>::type
 minmaxdist(Point const& pt, Indexable const& i)
 {
-    return detail::minmaxdist_impl<
-        Point,
-        Indexable,
-        typename tag<Indexable>::type
-    >::apply(pt, i);
+    return detail::minmaxdist_impl
+        <
+            Point,
+            Indexable,
+            tag_t<Indexable>
+        >::apply(pt, i);
 }
 
 }}}} // namespace boost::geometry::index::detail

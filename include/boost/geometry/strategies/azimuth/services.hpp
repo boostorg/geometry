@@ -27,8 +27,8 @@ namespace services
 template
 <
     typename Point1, typename Point2,
-    typename CSTag1 = typename geometry::cs_tag<Point1>::type,
-    typename CSTag2 = typename geometry::cs_tag<Point2>::type
+    typename CSTag1 = geometry::cs_tag_t<Point1>,
+    typename CSTag2 = geometry::cs_tag_t<Point2>
 >
 struct default_strategy
 {

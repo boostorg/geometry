@@ -39,11 +39,10 @@ namespace detail { namespace overlay
 template <typename TurnOperation>
 struct indexed_turn_operation
 {
-    typedef TurnOperation type;
+    using type = TurnOperation;
 
     std::size_t turn_index;
     std::size_t operation_index;
-    bool skip;
     // use pointers to avoid copies, const& is not possible because of usage in vector
     segment_identifier const* other_seg_id; // segment id of other segment of intersection of two segments
     TurnOperation const* subject;
@@ -53,7 +52,6 @@ struct indexed_turn_operation
                 segment_identifier const& oid)
         : turn_index(ti)
         , operation_index(oi)
-        , skip(false)
         , other_seg_id(&oid)
         , subject(boost::addressof(sub))
     {}
@@ -88,7 +86,7 @@ private :
     Geometry2 const& m_geometry2;
     Strategy const& m_strategy;
 
-    typedef typename geometry::point_type<Geometry1>::type point_type;
+    using point_type = geometry::point_type_t<Geometry1>;
 
     inline bool default_order(Indexed const& left, Indexed const& right) const
     {

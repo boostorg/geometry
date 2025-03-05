@@ -93,7 +93,7 @@ public:
             <
                 CT,
                 dimension<PointOfSegment>::value,
-                typename coordinate_system<PointOfSegment>::type
+                coordinate_system_t<PointOfSegment>
             > result;
 
         // http://williams.best.vwh.net/avform.htm#XTE

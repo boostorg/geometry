@@ -56,7 +56,7 @@ static inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z
 template <typename Point3d, typename PointSph>
 static inline Point3d sph_to_cart3d(PointSph const& point_sph)
 {
-    typedef typename coordinate_type<Point3d>::type calc_t;
+    using calc_t = coordinate_type_t<Point3d>;
 
     calc_t const lon = get_as_radian<0>(point_sph);
     calc_t const lat = get_as_radian<1>(point_sph);
@@ -81,8 +81,8 @@ static inline void cart3d_to_sph(T const& x, T const& y, T const& z, T & lon, T 
 template <typename PointSph, typename Point3d>
 static inline PointSph cart3d_to_sph(Point3d const& point_3d)
 {
-    typedef typename coordinate_type<PointSph>::type coord_t;
-    typedef typename coordinate_type<Point3d>::type calc_t;
+    using coord_t = coordinate_type_t<PointSph>;
+    using calc_t = coordinate_type_t<Point3d>;
 
     calc_t const x = get<0>(point_3d);
     calc_t const y = get<1>(point_3d);
