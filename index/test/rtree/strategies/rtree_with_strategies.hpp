@@ -7,6 +7,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_GEOMETRY_INDEX_TEST_RTREE_STRATEGIES_HPP
+#define BOOST_GEOMETRY_INDEX_TEST_RTREE_STRATEGIES_HPP
+
 #include <vector>
 
 #define BOOST_GEOMETRY_INDEX_DETAIL_EXPERIMENTAL_PREDICATES
@@ -132,7 +135,7 @@ void test_strategies()
 }
 
 template <typename Value, typename Params>
-void test_params()
+void test_rtree()
 {
     test_strategies<Value, Params, bg::strategies::index::cartesian<>>();
     test_strategies<Value, Params, bg::strategies::cartesian<>>();
@@ -142,19 +145,4 @@ void test_params()
     test_strategies<Value, Params, bg::strategies::geographic<>>();
 }
 
-template <typename Value>
-void test_value()
-{
-    test_params<Value, bgi::linear<4>>();
-    test_params<Value, bgi::quadratic<4>>();
-    test_params<Value, bgi::rstar<4>>();
-}
-
-int test_main(int, char* [])
-{
-    test_value<point>();
-    test_value<box>();
-    test_value<segment>();
-
-    return 0;
-}
+#endif // BOOST_GEOMETRY_INDEX_TEST_RTREE_STRATEGIES_HPP

@@ -9,6 +9,7 @@
 build-project exceptions ;
 build-project interprocess ;
 build-project generated ;
+build-project strategies ;
 
 test-suite boost-geometry-index-rtree
     :
@@ -19,6 +20,5 @@ test-suite boost-geometry-index-rtree
     [ run rtree_move_pack.cpp ]
     [ run rtree_non_cartesian.cpp ]
     [ run rtree_values.cpp ]
-    [ compile rtree_with_strategies.cpp ]
     [ compile-fail rtree_values_invalid.cpp ]
     ;
