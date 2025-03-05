@@ -14,8 +14,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 
-#include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/aligned_storage.hpp>
+#include <type_traits>
 
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_member.hpp>
@@ -65,10 +64,10 @@ public:
     }
     T * address()
     {
-        return static_cast<T*>(m_storage.address());
+        return static_cast<void*>(&m_storage);
     }
 private:
-    boost::aligned_storage<sizeof(T), boost::alignment_of<T>::value> m_storage;
+    std::aligned_storage<sizeof(T), std::alignment_of<T>::value> m_storage;
 };
 
 // TODO - save and load item_version? see: collections_load_imp and collections_save_imp

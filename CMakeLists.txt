@@ -41,7 +41,6 @@ target_link_libraries(boost_geometry
     Boost::throw_exception
     Boost::tokenizer
     Boost::tuple
-    Boost::type_traits
     Boost::utility
     Boost::variant
 )

@@ -12,13 +12,13 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <type_traits>
 
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/geometry/util/compress_variant.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal.hpp>
 #include <boost/mpl/vector.hpp>
-#include <boost/type_traits/is_same.hpp>
 #include <boost/variant/variant.hpp>
 
 
@@ -43,7 +43,7 @@ template <typename Variant, typename ExpectedType>
 void test_single_type_result()
 {
     BOOST_MPL_ASSERT((
-        boost::is_same<
+        std::is_same<
             typename boost::geometry::compress_variant<Variant>::type,
             ExpectedType
         >
