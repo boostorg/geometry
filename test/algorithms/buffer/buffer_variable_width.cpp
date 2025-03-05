@@ -19,9 +19,6 @@
 
 namespace bg = boost::geometry;
 
-#if defined(TEST_WITH_SVG)
-#include "test_buffer_svg.hpp"
-#endif
 
 // A point with extra info, such that
 // - it can influence the buffer with dynamically (input)
@@ -113,32 +110,13 @@ void test_buffer(std::string const& caseid, std::string const& wkt, std::vector<
         throw std::runtime_error("There should be correct widths");
     }
 
-    using point_type = specific_point;
-    using strategy_t = bg::strategies::buffer::services::default_strategy<
-        mls_t>::type;
-    strategy_t strategy;
 
-#if defined(TEST_WITH_SVG)
-    bg::model::box<point_type> envelope;
-    bg::envelope(mls, envelope, strategy);
-
-    buffer_svg_mapper<point_type> buffer_mapper(caseid);
-
-    std::ostringstream filename;
-    filename << "/tmp/buffer_variable_width_" << caseid << ".svg";
-    std::ofstream svg(filename.str().c_str());
-    typedef bg::svg_mapper<point_type> mapper_type;
-    mapper_type mapper(svg, 1000, 800);
-
-    svg_visitor<mapper_type, bg::model::box<point_type>> visitor(mapper);
-
-    // Set the SVG boundingbox, with a margin. The margin is necessary because
-    // drawing is already started before the buffer is finished. It is not
-    // possible to "add" the buffer (unless we buffer twice).
-    buffer_mapper.prepare(mapper, visitor, envelope, 2.0);
-#else
     bg::detail::buffer::visit_pieces_default_policy visitor;
-#endif
+
+
+    using point_type = specific_point;
+    using strategy_t = bg::strategies::buffer::services::default_strategy<mls_t>::type;
+    strategy_t strategy;
 
     for (std::size_t i = 0; i < mls.size(); i++)
     {
@@ -164,10 +142,6 @@ void test_buffer(std::string const& caseid, std::string const& wkt, std::vector<
           end_strategy, point_strategy,
           strategy,
           visitor);
-
-#if defined(TEST_WITH_SVG)
-    buffer_mapper.map_input_output(mapper, mls, result, false);
-#endif
 
     std::cout << caseid << " : " << boost::geometry::area(result) << std::endl;
     BOOST_CHECK_CLOSE_FRACTION(boost::geometry::area(result), expected_area, 0.001);

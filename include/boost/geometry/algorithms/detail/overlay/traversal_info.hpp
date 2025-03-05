@@ -12,7 +12,6 @@
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/visit_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 
 
@@ -28,7 +27,6 @@ template <typename Point, typename SegmentRatio>
 struct traversal_turn_operation : public turn_operation<Point, SegmentRatio>
 {
     enrichment_info<Point> enriched;
-    visit_info visited;
 };
 
 template <typename Point, typename SegmentRatio>

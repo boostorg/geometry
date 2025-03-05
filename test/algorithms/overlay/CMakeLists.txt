@@ -18,8 +18,6 @@ foreach(item IN ITEMS
     get_turns_linear_areal
     get_turns_linear_linear
     overlay
-    sort_by_side_basic
-    sort_by_side
     relative_order
     select_rings
     self_intersection_points

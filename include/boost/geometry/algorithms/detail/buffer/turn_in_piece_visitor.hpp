@@ -108,7 +108,7 @@ public:
     template <typename Turn, typename Piece>
     inline bool apply(Turn const& turn, Piece const& piece)
     {
-        if (! turn.is_turn_traversable)
+        if (! turn.is_traversable)
         {
             // Already handled
             return true;
@@ -154,7 +154,7 @@ public:
             if (d < border.m_min_comparable_radius)
             {
                 Turn& mutable_turn = m_turns[turn.turn_index];
-                mutable_turn.is_turn_traversable = false;
+                mutable_turn.is_traversable = false;
                 return true;
             }
             if (d > border.m_max_comparable_radius)
@@ -177,7 +177,7 @@ public:
         if (state.is_inside() && ! state.is_on_boundary())
         {
             Turn& mutable_turn = m_turns[turn.turn_index];
-            mutable_turn.is_turn_traversable = false;
+            mutable_turn.is_traversable = false;
         }
 
         return true;

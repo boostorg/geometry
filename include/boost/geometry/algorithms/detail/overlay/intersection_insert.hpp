@@ -154,7 +154,6 @@ struct intersection_of_linestring_with_areal
                   << " at " << op.seg_id
                   << " meth: " << method_char(turn.method)
                   << " op: " << operation_char(op.operation)
-                  << " vis: " << visited_char(op.visited)
                   << " of:  " << operation_char(turn.operations[0].operation)
                   << operation_char(turn.operations[1].operation)
                   << " " << geometry::wkt(turn.point)
