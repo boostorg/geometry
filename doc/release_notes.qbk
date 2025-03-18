@@ -20,6 +20,25 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.88]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1370 1370] Relax half period check in spheroidal normalization
+* [@https://github.com/boostorg/geometry/pull/1368 1368] Pass umbrella strategies in rtree spatial predicates
+* [@https://github.com/boostorg/geometry/pull/1367 1367] Improvements in traversal
+* [@https://github.com/boostorg/geometry/pull/1361 1361] Test set operations on random grids with integer coordinates
+* Several test cases has been added
+* Use using instead of typedef in part of the code
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/pull/1364 1364] Fix several strategies (add getters, fix compilation error and warning)
+* [@https://github.com/boostorg/geometry/issues/629 629] Avoid warnings for coordinate conversions and unused parameters
+* Various fixes of errors and warnings
+
+[/=================]
 [heading Boost 1.87]
 [/=================]
 
