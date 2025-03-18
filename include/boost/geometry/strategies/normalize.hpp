@@ -1,7 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2015-2020, Oracle and/or its affiliates.
+// Copyright (c) 2015-2025, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -123,7 +124,7 @@ struct assign_loop<1, DimensionCount>
 template <typename PointIn, typename PointOut, bool IsEquatorial = true>
 struct normalize_point
 {
-    static inline void apply(PointIn const& point_in, PointOut& point_out)
+    static inline void apply(PointIn const& point_in, PointOut& point_out, bool exact = true)
     {
         using in_coordinate_type = coordinate_type_t<PointIn>;
 
@@ -135,7 +136,7 @@ struct normalize_point
                 typename geometry::detail::cs_angular_units<PointIn>::type,
                 IsEquatorial,
                 in_coordinate_type
-            >(longitude, latitude);
+            >(longitude, latitude, exact);
 
         assign_loop
             <
@@ -221,13 +222,13 @@ struct cartesian_box
 struct spherical_point
 {
     template <typename PointIn, typename PointOut>
-    static inline void apply(PointIn const& point_in, PointOut& point_out)
+    static inline void apply(PointIn const& point_in, PointOut& point_out, bool exact = true)
     {
         detail::normalize_point
             <
                 PointIn, PointOut,
                 (! std::is_same<cs_tag_t<PointIn>, spherical_polar_tag>::value)
-            >::apply(point_in, point_out);
+            >::apply(point_in, point_out, exact);
     }
 };
 
