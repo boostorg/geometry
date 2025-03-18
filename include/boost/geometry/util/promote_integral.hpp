@@ -11,10 +11,10 @@
 #ifndef BOOST_GEOMETRY_UTIL_PROMOTE_INTEGRAL_HPP
 #define BOOST_GEOMETRY_UTIL_PROMOTE_INTEGRAL_HPP
 
-// For now deactivate the use of multiprecision integers
-// TODO: activate it later
+// Uncommenting this macro will use Boost.Multiprecision's cpp_int<> as a last resort
+// TODO (#1380): change this to BOOST_GEOMETRY_PROMOTE_INTEGER_TO_BOOST_MULTI_PRECISION
+// to be able to let users actively choose to use Boost.Multiprecision, but not enable it by default
 #define BOOST_GEOMETRY_NO_MULTIPRECISION_INTEGER
-
 
 #include <climits>
 #include <cstddef>
