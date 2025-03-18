@@ -5,11 +5,12 @@
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 // Copyright (c) 2013-2015 Adam Wulkiewicz, Lodz, Poland
 
-// This file was modified by Oracle on 2013-2020.
-// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013-2025.
+// Modifications copyright (c) 2013-2025, Oracle and/or its affiliates.
 
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -67,13 +68,14 @@ private:
     {
         static inline bool apply(Point1 const& point1, Point2 const& point2)
         {
-            typedef typename helper_geometry<Point1>::type helper_point_type1;
-            typedef typename helper_geometry<Point2>::type helper_point_type2;
+            using helper_point_type1 = typename helper_geometry<Point1>::type;
+            using helper_point_type2 = typename helper_geometry<Point2>::type;
 
             helper_point_type1 point1_normalized;
-            strategy::normalize::spherical_point::apply(point1, point1_normalized);
+            bool const exact_normalized = false;
+            strategy::normalize::spherical_point::apply(point1, point1_normalized, exact_normalized);
             helper_point_type2 point2_normalized;
-            strategy::normalize::spherical_point::apply(point2, point2_normalized);
+            strategy::normalize::spherical_point::apply(point2, point2_normalized, exact_normalized);
 
             return point_point_generic
                 <
@@ -87,11 +89,11 @@ private:
     {
         static inline bool apply(Point1 const& point1, Point2 const& point2)
         {
-            typedef typename geometry::select_most_precise
+            using calculation_type = typename geometry::select_most_precise
                 <
                     typename fp_coordinate_type<Point1>::type,
                     typename fp_coordinate_type<Point2>::type
-                >::type calculation_type;
+                >::type;
 
             typename helper_geometry
                 <
@@ -149,7 +151,7 @@ namespace services
 template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2>
 struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::spherical_point_point type;
+    using type = strategy::within::spherical_point_point;
 };
 
 } // namespace services
@@ -166,7 +168,7 @@ namespace strategy { namespace covered_by { namespace services
 template <typename PointLike1, typename PointLike2, typename Tag1, typename Tag2>
 struct default_strategy<PointLike1, PointLike2, Tag1, Tag2, pointlike_tag, pointlike_tag, spherical_tag, spherical_tag>
 {
-    typedef strategy::within::spherical_point_point type;
+    using type = strategy::within::spherical_point_point;
 };
 
 }}} // namespace strategy::covered_by::services

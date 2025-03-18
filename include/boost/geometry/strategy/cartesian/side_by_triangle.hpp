@@ -33,6 +33,7 @@
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
+#include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -205,23 +206,29 @@ public :
     template <typename P1, typename P2, typename P>
     static inline int apply(P1 const& p1, P2 const& p2, P const& p)
     {
-        using coor_t = typename select_calculation_type_alt<CalculationType, P1, P2, P>::type;
-
-        // Promote float->double, small int->int
-        using promoted_t = typename select_most_precise<coor_t, double>::type;
-
-        bool const are_all_integral_coordinates =
+        constexpr bool are_all_integral_coordinates =
             std::is_integral<coordinate_type_t<P1>>::value
             && std::is_integral<coordinate_type_t<P2>>::value
             && std::is_integral<coordinate_type_t<P>>::value;
 
+        // Promote float to double
+        // For integer: short -> int -> long
+        // For larger integers: long, long long, std::int64_t all stay as they are (on a Mac)
+        using coor_t = typename select_calculation_type_alt<CalculationType, P1, P2, P>::type;
+        using promoted_t = std::conditional_t
+            <
+                are_all_integral_coordinates,
+                typename promote_integral<coor_t>::type,
+                typename select_most_precise<coor_t, double>::type
+            >;
+
         eps_policy< math::detail::equals_factor_policy<promoted_t> > epsp;
-        promoted_t s = compute_side_value
+        promoted_t const s = compute_side_value
             <
                 coor_t, promoted_t, are_all_integral_coordinates
             >::apply(p1, p2, p, epsp);
 
-        promoted_t const zero = promoted_t();
+        static promoted_t const zero = promoted_t();
         return math::detail::equals_by_policy(s, zero, epsp.policy) ? 0
             : s > zero ? 1
             : -1;

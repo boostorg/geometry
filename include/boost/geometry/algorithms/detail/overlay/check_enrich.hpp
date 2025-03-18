@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <vector>
 
+#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
@@ -66,6 +67,8 @@ inline void display(MetaTurn const& meta_turn, const char* reason = "")
         //<< " -> " << op_index
         << " " << reason
         << std::endl;
+#else
+boost::ignore_unused(meta_turn, reason);
 #endif
 }
 

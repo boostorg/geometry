@@ -189,8 +189,7 @@ private:
 
 public:
     template <typename T>
-    static inline return_type apply(this_strategy const& strategy,
-                                    T const& distance)
+    static inline return_type apply(this_strategy const& , T const& distance)
     {
         return static_cast<return_type>(distance);
     }
