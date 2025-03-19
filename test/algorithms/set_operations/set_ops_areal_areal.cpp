@@ -241,17 +241,19 @@ void test_all(std::string const& name, std::string const& wkt1, std::string cons
 
 int test_main(int, char* [])
 {
-    TEST_CASE_WITH(case_141_multi, 0, 1, ut_settings().ignore_reverse());
+    TEST_CASE(case_141_multi);
     TEST_CASE(case_142_multi);
     TEST_CASE(case_143_multi);
     TEST_CASE(case_144_multi);
     TEST_CASE(case_145_multi);
-    TEST_CASE_WITH(case_146_multi, 0, 1, ut_settings().ignore_validity_intersection());
+    TEST_CASE(case_146_multi);
     TEST_CASE(case_147_multi);
     TEST_CASE(case_148_multi);
     TEST_CASE(case_149_multi);
+    TEST_CASE(case_150_multi);
+    TEST_CASE(case_151_multi);
 
-    TEST_CASE_WITH(issue_1221, 0, 1, ut_settings().ignore_validity_diff());
+    TEST_CASE(issue_1221);
 
     TEST_CASE(issue_1222);
     TEST_CASE_WITH(issue_1226, 0, 1, ut_settings().ignore_validity_diff());
@@ -261,7 +263,7 @@ int test_main(int, char* [])
     TEST_CASE_WITH(issue_1288, 0, 1, ut_settings().ignore_validity_diff());
     TEST_CASE_WITH(issue_1288, 0, 2, ut_settings());
     TEST_CASE(issue_1293);
-    TEST_CASE_WITH(issue_1295, 0, 1, ut_settings().ignore_validity_diff());
+    TEST_CASE(issue_1295);
     TEST_CASE(issue_1299);
 
     TEST_CASE(issue_1326);
@@ -273,7 +275,7 @@ int test_main(int, char* [])
     TEST_CASE_WITH(issue_1345_a, 1, 0, ut_settings());
     TEST_CASE_WITH(issue_1345_b, 1, 0, ut_settings());
 
-    TEST_CASE_WITH(issue_1349, 0, 1, ut_settings().ignore_diff());
+    TEST_CASE(issue_1349);
     TEST_CASE(issue_1349_inverse);
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
@@ -290,9 +292,7 @@ int test_main(int, char* [])
 
     TEST_CASE(case_recursive_boxes_89);
     TEST_CASE(case_recursive_boxes_90);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_CASE(case_recursive_boxes_91);
-#endif
     TEST_CASE(case_recursive_boxes_92);
     TEST_CASE(case_recursive_boxes_93);
     TEST_CASE(case_recursive_boxes_94);

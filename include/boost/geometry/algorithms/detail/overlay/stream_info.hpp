@@ -57,7 +57,6 @@ namespace detail { namespace overlay
                 << dir(info.sides.template get<1,1>())
             << " nxt seg " << info.travels_to_vertex_index
             << " , ip " << info.travels_to_ip_index
-            << " , or " << info.next_ip_index
             << " frac " << info.fraction
             << info.visit_state;
         if (info.flagged)

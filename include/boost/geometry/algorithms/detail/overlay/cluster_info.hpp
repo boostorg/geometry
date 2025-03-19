@@ -21,17 +21,12 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-
 struct cluster_info
 {
     std::set<signed_size_type> turn_indices;
 
     //! Number of open spaces (e.g. 2 for touch)
     std::size_t open_count{0};
-
-    //! Number of spikes, where a segment goes to the cluster point
-    //! and leaves immediately in the opposite direction.
-    std::size_t spike_count{0};
 };
 
 

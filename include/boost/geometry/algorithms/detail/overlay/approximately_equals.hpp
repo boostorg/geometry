@@ -21,7 +21,7 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-// Value for approximately_equals used by get_cluster and sort_by_side
+// Value for approximately_equals used by get_cluster and assign_side_counts
 // This is an "epsilon_multiplier" and, therefore, multiplied the epsilon
 // belonging to the used floating point type with this value.
 template <typename T>
@@ -29,7 +29,7 @@ struct common_approximately_equals_epsilon_multiplier
 {
     static T value()
     {
-        // The value is (a bit) arbitrary. For sort_by_side it should be large
+        // The value is (a bit) arbitrary. For assign_side_counts it should be large
         // enough to not take a point which is too close by, to calculate the
         // side value correctly. For get_cluster it is arbitrary as well, points
         // close to each other should form a cluster, which is also important

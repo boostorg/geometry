@@ -53,17 +53,9 @@ struct turn_operation
 {
     using segment_ratio_type = SegmentRatio;
 
-    operation_type operation;
+    operation_type operation{operation_none};
     segment_identifier seg_id;
     segment_ratio_type fraction;
-
-    using comparable_distance_type = coordinate_type_t<Point>;
-    comparable_distance_type remaining_distance;
-
-    inline turn_operation()
-        : operation(operation_none)
-        , remaining_distance(0)
-    {}
 };
 
 
@@ -95,7 +87,8 @@ struct turn_info
     bool touch_only; // True in case of method touch(interior) and lines do not cross
     signed_size_type cluster_id; // For multiple turns on same location, > 0. Else -1. 0 is unused.
     bool discarded;
-    bool has_colocated_both; // Colocated with a uu turn (for union) or ii (other)
+
+    bool is_traversable{true};
 
     Container operations;
 
@@ -104,7 +97,6 @@ struct turn_info
         , touch_only(false)
         , cluster_id(-1)
         , discarded(false)
-        , has_colocated_both(false)
     {}
 
     inline bool both(operation_type type) const

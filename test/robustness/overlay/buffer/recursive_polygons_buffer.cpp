@@ -80,7 +80,7 @@ void create_svg(std::string const& filename
 }
 
 template <typename Geometry, typename Buffer>
-bool verify_buffer(Geometry const& geometry, Buffer const& buffer, std::string& reason, bool check_validity)
+bool verify_buffer(Geometry const& geometry, Buffer const& buffer, std::string& reason)
 {
     if (buffer.empty())
     {
@@ -101,66 +101,20 @@ bool verify_buffer(Geometry const& geometry, Buffer const& buffer, std::string& 
     bool all_within = true;
     bg::for_each_point(geometry, [&all_within, &buffer](auto const& point)
     {
-        if (! bg::within(point, buffer))
-        {
-            all_within = false;
+            if (! bg::within(point, buffer))
+            {
+                all_within = false;
+            }
         }
-    });
+    );
 
     if (! all_within)
     {
-        reason = "Any input points are outside the buffer";
+        reason = "Not all points are within buffer";
         return false;
     }
 
-    return check_validity ? bg::is_valid(buffer, reason) : true;
-}
-
-template <typename Geometry, typename MultiPolygon, typename Settings>
-bool verify(std::string const& caseid, Geometry const& geometry, MultiPolygon const& buffer, Settings const& settings)
-{
-    std::string reason;
-    bool const result = verify_buffer(geometry, buffer, reason, settings.check_validity);
-
-    if (! result)
-    {
-        std::cout << caseid << " " << reason << std::endl;
-    }
-
-    bool svg = settings.svg;
-    bool wkt = settings.wkt;
-    if (! result)
-    {
-        // The result is wrong, override settings to create a SVG and WKT
-        svg = true;
-        wkt = true;
-    }
-
-    std::string filename;
-
-    {
-        // Generate a unique name
-        std::ostringstream out;
-        out << "rec_pol_buffer_" << geometry_to_crc(geometry)
-            << "_" << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
-            << ".";
-        filename = out.str();
-    }
-
-    if (svg)
-    {
-        create_svg(filename + "svg", geometry, buffer);
-    }
-
-    if (wkt)
-    {
-        std::ofstream stream(filename + "wkt");
-        // Stream input WKT
-        stream << bg::wkt(geometry) << std::endl;
-        // If you need the output WKT, then stream bg::wkt(buffer)
-    }
-
-    return result;
+    return bg::is_valid(buffer, reason);
 }
 
 template <typename MultiPolygon, typename Generator, typename Settings>
@@ -182,6 +136,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     }
     else
     {
+        // Recursive call
         bg::correct(p);
         bg::correct(q);
         if (! test_buffer(p, index, generator, level - 1, settings)
@@ -219,7 +174,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::strategy::buffer::side_straight side_strategy;
     bg::strategy::buffer::join_round join_round_strategy(settings.points_per_circle);
     bg::strategy::buffer::join_miter join_miter_strategy;
-
+    
     try
     {
         switch(settings.join_code)
@@ -245,7 +200,6 @@ bool test_buffer(MultiPolygon& result, int& index,
         MultiPolygon empty;
         std::cout << out.str() << std::endl;
         std::cout << "Exception " << e.what() << std::endl;
-        verify(out.str(), mp, empty, settings);
         return false;
     }
 
@@ -254,7 +208,34 @@ bool test_buffer(MultiPolygon& result, int& index,
         std::cout << " [" << bg::area(mp) << " " << bg::area(buffered) << "]";
     }
 
-    return verify(out.str(), mp, buffered, settings);
+    std::string verification_message;
+    if (verify_buffer(mp, buffered, verification_message))
+    {
+        if (settings.svg)
+        {
+            create_svg(out.str() + ".svg", mp, buffered);
+        }
+        return true;
+    }
+
+    std::string filename;
+
+    {
+        // Generate a unique name
+        std::ostringstream out;
+        out << "rec_pol_buffer_" << geometry_to_crc(mp)
+            << "_" << string_from_type<typename bg::coordinate_type<MultiPolygon>::type>::name()
+            << ".";
+        filename = out.str();
+    }
+
+    std::cout << "Failure" << " " << filename << " : " << verification_message << std::endl;
+    std::ofstream stream(filename + "wkt");
+    // Stream input WKT
+    stream << bg::wkt(mp) << std::endl;
+    // If you need the output WKT, then stream bg::wkt(buffer)
+
+    return false;
 }
 
 
