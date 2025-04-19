@@ -43,54 +43,54 @@ jobs:
           - b2_toolset: clang-3.9
             b2_cxxstd: 14
             version: "3.9"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-4.0
             b2_cxxstd: 14
             version: "4.0"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-5.0
             b2_cxxstd: 14
             version: "5.0"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-6.0
             b2_cxxstd: 14
             version: "6.0"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-7
             b2_cxxstd: 14,17
             version: "7"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-8
             b2_cxxstd: 14,17
             version: "8"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-9
             # At some point compilation started to fail with 2a from unknown reason
             # It may have something to do with the std library
             #b2_cxxstd: 14,17,2a
             b2_cxxstd: 14,17
             version: "9"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-10
             b2_cxxstd: 14,17,2a
             version: "10"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: clang-11
             b2_cxxstd: 14,17,2a
             version: "11"
-            os: ubuntu-22.04
+            os: ubuntu-latest
           - b2_toolset: clang-12
             b2_cxxstd: 14,17,2a
             version: "12"
-            os: ubuntu-22.04
+            os: ubuntu-latest
           - b2_toolset: clang-13
             b2_cxxstd: 14,17,2a
             version: "13"
-            os: ubuntu-22.04
+            os: ubuntu-latest
           - b2_toolset: clang-14
             b2_cxxstd: 14,17,2a
             version: "14"
-            os: ubuntu-22.04
+            os: ubuntu-latest
     steps:
       - name: Set up environment
         id: setenv
@@ -126,7 +126,7 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu 20.04
+          # Required for compilers not available in ubuntu (latest)
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
@@ -184,31 +184,31 @@ jobs:
           - b2_toolset: gcc-5
             b2_cxxstd: 14
             version: "5"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: gcc-6
             b2_cxxstd: 14
             version: "6"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: gcc-7
             b2_cxxstd: 14,17
             version: "7"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: gcc-8
             b2_cxxstd: 14,17
             version: "8"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: gcc-9
             b2_cxxstd: 14,17,2a
             version: "9"
-            os: ubuntu-20.04
+            os: ubuntu-latest
           - b2_toolset: gcc-10
             b2_cxxstd: 14,17,2a
             version: "10"
-            os: ubuntu-22.04
+            os: ubuntu-latest
           - b2_toolset: gcc-11
             b2_cxxstd: 14,17,2a
             version: "11"
-            os: ubuntu-22.04
+            os: ubuntu-latest
 
     steps:
       - name: Set up environment
@@ -245,7 +245,7 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu 20.04
+          # Required for compilers not available in ubuntu (latest)
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
