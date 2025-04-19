@@ -15,4 +15,18 @@
 
 #include <boost/config.hpp>
 
+#if    defined(BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_BY_TRIANGLE) \
+    && defined(BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_ROBUST)
+#error "Both BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_BY_TRIANGLE" \
+    " and BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_ROBUST are defined." \
+    " Only one of them should be defined."
+#endif
+
+// Define default side strategy, if not defined by the user.
+// Until Boost 1.88.0, the default strategy is side_by_triangle.
+#if    ! defined(BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_BY_TRIANGLE) \
+    && ! defined(BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_ROBUST)
+#define BOOST_GEOMETRY_DEFAULT_STRATEGY_SIDE_USE_SIDE_BY_TRIANGLE
+#endif
+
 #endif // BOOST_GEOMETRY_CORE_CONFIG_HPP
