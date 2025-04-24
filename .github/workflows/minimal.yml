@@ -43,38 +43,38 @@ jobs:
           - b2_toolset: clang-3.9
             b2_cxxstd: 14
             version: "3.9"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-4.0
             b2_cxxstd: 14
             version: "4.0"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-5.0
             b2_cxxstd: 14
             version: "5.0"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-6.0
             b2_cxxstd: 14
             version: "6.0"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-7
             b2_cxxstd: 14,17
             version: "7"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-8
             b2_cxxstd: 14,17
             version: "8"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-9
             # At some point compilation started to fail with 2a from unknown reason
             # It may have something to do with the std library
             #b2_cxxstd: 14,17,2a
             b2_cxxstd: 14,17
             version: "9"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-10
             b2_cxxstd: 14,17,2a
             version: "10"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: clang-11
             b2_cxxstd: 14,17,2a
             version: "11"
@@ -126,16 +126,20 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu 20.04
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic universe"
+          # Required for compilers not available in ubuntu 22.04
+          sudo mkdir -m 0755 -p /etc/apt/keyrings/
+          curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x40976EAF437D05B5" | gpg --dearmor | sudo tee /etc/apt/keyrings/xenial.gpg > /dev/null
+          curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3B4FE6ACC0B21F32" | gpg --dearmor | sudo tee /etc/apt/keyrings/bionic.gpg > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ xenial main" | sudo tee /etc/apt/sources.list.d/xenial.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ xenial universe" | sudo tee -a /etc/apt/sources.list.d/xenial.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ bionic main" | sudo tee -a /etc/apt/sources.list.d/bionic.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ bionic universe" | sudo tee -a /etc/apt/sources.list.d/bionic.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ focal main" | sudo tee -a /etc/apt/sources.list.d/focal.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ focal universe" | sudo tee -a /etc/apt/sources.list.d/focal.list
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt -q -y update
           sudo apt -q -y install clang-${{ matrix.version }} g++-multilib
+
 
       - name: Bootstrap boostorg/boost
         run: |
@@ -184,23 +188,23 @@ jobs:
           - b2_toolset: gcc-5
             b2_cxxstd: 14
             version: "5"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: gcc-6
             b2_cxxstd: 14
             version: "6"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: gcc-7
             b2_cxxstd: 14,17
             version: "7"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: gcc-8
             b2_cxxstd: 14,17
             version: "8"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: gcc-9
             b2_cxxstd: 14,17,2a
             version: "9"
-            os: ubuntu-20.04
+            os: ubuntu-22.04
           - b2_toolset: gcc-10
             b2_cxxstd: 14,17,2a
             version: "10"
@@ -245,13 +249,16 @@ jobs:
 
       - name: Install
         run: |
-          # Required for compilers not available in ubuntu 20.04
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 40976EAF437D05B5
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ xenial universe"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic main"
-          sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ bionic universe"
+          # Required for compilers not available in ubuntu 22.04
+          sudo mkdir -m 0755 -p /etc/apt/keyrings/
+          curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x40976EAF437D05B5" | gpg --dearmor | sudo tee /etc/apt/keyrings/xenial.gpg > /dev/null
+          curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3B4FE6ACC0B21F32" | gpg --dearmor | sudo tee /etc/apt/keyrings/bionic.gpg > /dev/null
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ xenial main" | sudo tee /etc/apt/sources.list.d/xenial.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ xenial universe" | sudo tee -a /etc/apt/sources.list.d/xenial.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ bionic main" | sudo tee -a /etc/apt/sources.list.d/bionic.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ bionic universe" | sudo tee -a /etc/apt/sources.list.d/bionic.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ focal main" | sudo tee -a /etc/apt/sources.list.d/focal.list
+          echo "deb [signed-by=/etc/apt/keyrings/xenial.gpg arch=amd64] http://dk.archive.ubuntu.com/ubuntu/ focal universe" | sudo tee -a /etc/apt/sources.list.d/focal.list
           sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
           sudo apt -q -y update
           sudo apt -q -y install g++-${{ matrix.version }} g++-${{ matrix.version }}-multilib
