@@ -17,11 +17,11 @@
 #include <iomanip>
 #include <limits>
 
-#include <boost/tuple/tuple.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/foreach.hpp>
-
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/linestring.hpp>
@@ -46,7 +46,6 @@ void read_wkt(std::string const& filename, std::vector<Tuple>& tuples, Box& box)
         {
             std::string line;
             std::getline(cpp_file, line);
-            Geometry geometry;
             boost::trim(line);
             if (! line.empty() && ! boost::starts_with(line, "#"))
             {
