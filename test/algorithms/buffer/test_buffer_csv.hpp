@@ -77,7 +77,7 @@ private:
                    << bg::method_char(turn.method) << ";"
                    << bg::operation_char(turn.operations[0].operation) << "/" << bg::operation_char(turn.operations[1].operation) << ";"
                    << turn.cluster_id << ";"
-                   << turn.is_turn_traversable << ";"
+                   << turn.is_traversable << ";"
                    << turn.blocked() << ";"
                    << std::endl;
         }

@@ -15,9 +15,6 @@
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 
-// #define BOOST_GEOMETRY_TEST_WITH_COUT
-// #define BOOST_GEOMETRY_TEST_FAILURES
-
 template <typename Point>
 void do_test(std::string const& case_id,
              Point const& s1,

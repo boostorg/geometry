@@ -21,7 +21,8 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/backtrack_check_si.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
@@ -36,54 +37,6 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
-class backtrack_for_buffer
-{
-public :
-    using state_type = detail::overlay::backtrack_state;
-
-    template
-        <
-            typename Operation,
-            typename Rings,
-            typename Turns,
-            typename Geometry,
-            typename Strategy,
-            typename Visitor
-        >
-    static inline void apply(std::size_t size_at_start,
-                Rings& rings, typename boost::range_value<Rings>::type& ring,
-                Turns& turns,
-                typename boost::range_value<Turns>::type const& /*turn*/,
-                Operation& operation,
-                detail::overlay::traverse_error_type /*traverse_error*/,
-                Geometry const& ,
-                Geometry const& ,
-                Strategy const& ,
-                state_type& state,
-                Visitor& /*visitor*/
-                )
-    {
-#if defined(BOOST_GEOMETRY_COUNT_BACKTRACK_WARNINGS)
-extern int g_backtrack_warning_count;
-g_backtrack_warning_count++;
-#endif
-//std::cout << "!";
-//std::cout << "WARNING " << traverse_error_string(traverse_error) << std::endl;
-
-        state.m_good = false;
-
-        // Make bad output clean
-        rings.resize(size_at_start);
-        ring.clear();
-
-        // Reject this as a starting point
-        operation.visited.set_rejected();
-
-        // And clear all visit info
-        clear_visit_info(turns);
-    }
-};
-
 struct buffer_overlay_visitor
 {
 public :
@@ -97,11 +50,6 @@ public :
     void visit_traverse(Turns const& /*turns*/, Turn const& /*turn*/, Operation const& /*op*/, const char* /*header*/)
     {
     }
-
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& , Turn const& , Operation const& ,
-            detail::overlay::traverse_error_type )
-    {}
 
     template <typename Rings>
     void visit_generated_rings(Rings const& )
@@ -141,7 +89,6 @@ struct buffer_turn_info
     // Information if turn can be used. It is not traversable if it is within
     // another piece, or within the original (depending on deflation),
     // or (for deflate) if there are not enough points to traverse it.
-    bool is_turn_traversable;
 
     bool is_linear_end_point;
     bool within_original;
@@ -149,7 +96,6 @@ struct buffer_turn_info
 
     inline buffer_turn_info()
         : turn_index(0)
-        , is_turn_traversable(true)
         , is_linear_end_point(false)
         , within_original(false)
         , count_in_original(0)

@@ -24,10 +24,13 @@
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/graph/assign_side_counts.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrich_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/enrichment_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_properties_ahead.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/overlay/is_self_turn.hpp>
 #include <boost/geometry/algorithms/detail/overlay/needs_self_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -66,12 +69,12 @@ struct overlay_null_visitor
     template <typename Clusters, typename Turns>
     void visit_clusters(Clusters const& , Turns const& ) {}
 
-    template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& , Turn const& , Operation const& , char const*)
-    {}
+    template <typename Turns, typename Cluster, typename Connections>
+    inline void visit_cluster_connections(signed_size_type cluster_id,
+            Turns const& turns, Cluster const& cluster, Connections const& connections) {}
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse_reject(Turns const& , Turn const& , Operation const& , traverse_error_type )
+    void visit_traverse(Turns const& , Turn const& , Operation const& , char const*)
     {}
 
     template <typename Rings>
@@ -98,9 +101,6 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
 
     for (auto const& turn : turns)
     {
-        bool cluster_checked = false;
-        bool has_blocked = false;
-
         if (turn.discarded && (turn.method == method_start || is_self_turn<OverlayType>(turn)))
         {
             // Discarded self-turns or start turns don't need to block the ring
@@ -113,15 +113,15 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
             auto const& other_op = turn.operations[1 - i];
             ring_identifier const ring_id = ring_id_by_seg_id(op.seg_id);
 
+            // The next condition is necessary for just two test cases.
+            // TODO: fix it in get_turn_info
             // If the turn (one of its operations) is used during traversal,
             // and it is an intersection or difference, it cannot be set to blocked.
             // This is a rare case, related to floating point precision,
             // and can happen if there is, for example, only one start turn which is
             // used to traverse through one of the rings (the other should be marked
             // as not traversed, but neither blocked).
-            bool const can_block
-                = is_union
-                || ! (op.visited.finalized() || other_op.visited.finalized());
+            bool const can_block = is_union || ! (op.enriched.is_traversed || other_op.enriched.is_traversed);
 
             if (! is_self_turn<OverlayType>(turn) && can_block)
             {
@@ -139,24 +139,15 @@ inline void get_ring_turn_info(TurnInfoMap& turn_info_map, Turns const& turns, C
                 continue;
             }
 
-            // Check information in colocated turns
-            if (! cluster_checked && turn.is_clustered())
-            {
-                check_colocation(has_blocked, turn.cluster_id, turns, clusters);
-                cluster_checked = true;
-            }
-
             // Block rings where any other turn is blocked,
             // and (with exceptions): i for union and u for intersection
             // Exceptions: don't block self-uu for intersection
             //             don't block self-ii for union
             //             don't block (for union) i/u if there is an self-ii too
-            if (has_blocked
-                || (op.operation == opposite_operation
+            if (op.operation == opposite_operation
                     && can_block
-                    && ! turn.has_colocated_both
                     && ! (turn.both(opposite_operation)
-                          && is_self_turn<OverlayType>(turn))))
+                          && is_self_turn<OverlayType>(turn)))
             {
                 turn_info_map[ring_id].has_blocked_turn = true;
             }
@@ -263,8 +254,6 @@ struct overlay
                 cluster_info
             >;
 
-        constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
-
         turn_container_type turns;
 
         detail::get_turns::no_interrupt_policy policy;
@@ -295,33 +284,40 @@ struct overlay
 #endif
 
         cluster_type clusters;
-        std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
 
         // Handle colocations, gathering clusters and (below) their properties.
-        detail::overlay::handle_colocations
-                    <
-                        Reverse1, Reverse2, OverlayType, Geometry1, Geometry2
-                    >(turns, clusters);
+        detail::overlay::handle_colocations(turns, clusters);
 
-        // Gather cluster properties (using even clusters with
-        // discarded turns - for open turns)
-        detail::overlay::gather_cluster_properties
-            <
-                Reverse1,
-                Reverse2,
-                OverlayType
-            >(clusters, turns, target_operation, geometry1, geometry2, strategy);
 
-        geometry::enrich_intersection_points<Reverse1, Reverse2, OverlayType>(
+        detail::overlay::enrich_discard_turns<OverlayType>(
             turns, clusters, geometry1, geometry2, strategy);
+
+        detail::overlay::enrich_turns<Reverse1, Reverse2, OverlayType>(
+            turns, geometry1, geometry2, strategy);
 
         visitor.visit_turns(2, turns);
 
-        visitor.visit_clusters(clusters, turns);
+        detail::overlay::colocate_clusters(clusters, turns);
+
+        // AssignCounts should be called:
+        // * after "colocate_clusters"
+        // * and "colocate_clusters" after "enrich_discard_turns"
+        // because assigning side counts needs cluster centroids.
+        //
+        // For BUFFER - it is called before, to be able to block closed clusters
+        // before enrichment.
+
+        assign_side_counts
+            <
+                Reverse1, Reverse2, OverlayType
+            >(geometry1, geometry2, turns, clusters, strategy, visitor);
+
+        get_properties_ahead<Reverse1, Reverse2>(turns, clusters, geometry1, geometry2, strategy);
 
         // Traverse through intersection/turn points and create rings of them.
         // These rings are always in clockwise order.
         // In CCW polygons they are marked as "to be reversed" below.
+        std::map<ring_identifier, ring_turn_info> turn_info_per_ring;
         ring_container_type rings;
         traverse<Reverse1, Reverse2, Geometry1, Geometry2, OverlayType>::apply
                 (
@@ -332,6 +328,8 @@ struct overlay
                     clusters,
                     visitor
                 );
+
+        visitor.visit_clusters(clusters, turns);
         visitor.visit_turns(3, turns);
 
         get_ring_turn_info<OverlayType>(turn_info_per_ring, turns, clusters);
