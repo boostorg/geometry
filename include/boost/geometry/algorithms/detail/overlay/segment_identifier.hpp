@@ -76,13 +76,11 @@ struct segment_identifier
 #if defined(BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER)
     friend std::ostream& operator<<(std::ostream &os, segment_identifier const& seg_id)
     {
-        os
-            << "s:" << seg_id.source_index
-            << ", v:" << seg_id.segment_index // v:vertex because s is used for source
-            ;
-        if (seg_id.ring_index >= 0) os << ", r:" << seg_id.ring_index;
+        os << "g:" << seg_id.source_index; // ('geometry' i/o source)
         if (seg_id.multi_index >= 0) os << ", m:" << seg_id.multi_index;
         if (seg_id.piece_index >= 0) os << ", p:" << seg_id.piece_index;
+        os << ", r:" << seg_id.ring_index;
+        os << ", s:" << seg_id.segment_index;
         return os;
     }
 #endif

@@ -363,6 +363,11 @@ struct visit_pieces_default_policy
     template <typename Collection>
     static inline void apply(Collection const&, int)
     {}
+
+    template <typename Turns, typename Cluster, typename Connections>
+    inline void visit_cluster_connections(signed_size_type cluster_id,
+            Turns const& turns, Cluster const& cluster, Connections const& connections) {}
+
 };
 
 template
@@ -940,6 +945,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     }
     collection.handle_colocations();
     collection.check_turn_in_pieces();
+    collection.assign_side_counts(visit_pieces_policy);
     collection.make_traversable_consistent_per_cluster();
 
     // Visit the piece collection. This does nothing (by default), but
@@ -949,7 +955,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     visit_pieces_policy.apply(const_collection, 0);
 
     collection.discard_rings();
-    collection.block_turns();
+    collection.discard_non_traversable_turns();
     collection.enrich();
 
     // phase 1: turns (after enrichment/clustering)
@@ -960,7 +966,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         collection.deflate_check_turns();
     }
 
-    collection.traverse();
+    collection.traverse(visit_pieces_policy);
 
     // Reverse all offsetted rings / traversed rings if:
     // - they were generated on the negative side (deflate) of polygons

@@ -104,6 +104,12 @@ void discard_duplicate_start_turns(Turns& turns,
         return multi_and_ring_id_type{seg_id.multi_index, seg_id.ring_index};
     };
 
+#if defined(BOOST_GEOMETRY_CONCEPT_FIX_START_TURNS)
+    // Handle it by removing them from clusters.
+    // Not complete yet.
+    return;
+#endif
+
     for (auto& turn : turns)
     {
         // Any turn which "crosses" does not have a corresponding turn.
