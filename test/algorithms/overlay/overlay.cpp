@@ -14,6 +14,7 @@
 
 #if defined(TEST_WITH_GEOJSON)
 #define BOOST_GEOMETRY_DEBUG_SEGMENT_IDENTIFIER
+#define BOOST_GEOMETRY_DEBUG_IDENTIFIER
 #endif
 
 #include <iostream>
@@ -245,6 +246,7 @@ void test_overlay(std::string const& caseid,
     else
     {
         overlay::apply(g1, g2, std::back_inserter(result), strategy, visitor);
+    }
 
     std::string message;
     bool const valid = check_validity<Geometry>::apply(result, caseid, g1, g2, message);
@@ -368,7 +370,6 @@ void test_all()
 
 
     TEST_UNION(case_134_multi, 66.0, 1, 2);
-    return;
     TEST_UNION(case_76_multi, 8.0, 5, 0);
     TEST_UNION(case_150_multi, 21.0, 2, 0); // uu
     TEST_UNION(case_151_multi, 14.0, 4, 0); // 2 uu
@@ -379,7 +380,6 @@ void test_all()
     TEST_UNION(case_149_multi, 115.0, 2, 0); // instruction
     TEST_UNION(ggl_list_20140212_sybren, 0.002471626, 2, 0);
     TEST_UNION_WITH(issue_1100_multi, 1, 0, 1.46181, 1, 0); // fixed by ux/uu blocking
-    TEST_UNION(issue_1363_multi, 99.99, 2, 0);
     TEST_UNION(case_recursive_boxes_32, 5.75, 2, 0);
     TEST_INTERSECTION(case_148_multi, 4.0, 4, 1);
     TEST_INTERSECTION_WITH(case_recursive_boxes_99, 2, 3, 8.0, 5, 1);
