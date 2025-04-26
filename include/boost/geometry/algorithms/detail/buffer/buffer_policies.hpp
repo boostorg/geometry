@@ -41,7 +41,7 @@ namespace buffer
 
 struct buffer_overlay_visitor
 {
-    public:
+public:
     template <typename Turns>
     void visit_turns(int, Turns const&)
     {

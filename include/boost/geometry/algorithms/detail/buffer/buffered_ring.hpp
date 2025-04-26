@@ -59,10 +59,10 @@ struct buffered_ring : public Ring
     bool is_untouched_outside_original;
 
     inline buffered_ring()
-        : has_concave(false),
-          has_accepted_intersections(false),
-          has_discarded_intersections(false),
-          is_untouched_outside_original(false)
+        : has_concave(false)
+        , has_accepted_intersections(false)
+        , has_discarded_intersections(false)
+        , is_untouched_outside_original(false)
     {
     }
 

@@ -208,7 +208,7 @@ inline int point_in_original(Point const& point,
 template <typename Turns, typename Strategy>
 class turn_in_original_visitor
 {
-    public:
+public:
     turn_in_original_visitor(Turns& turns, Strategy const& strategy)
         : m_mutable_turns(turns), m_strategy(strategy)
     {
@@ -271,7 +271,7 @@ class turn_in_original_visitor
         return true;
     }
 
-    private:
+private:
     Turns& m_mutable_turns;
     Strategy const& m_strategy;
 };

@@ -3,7 +3,7 @@ BasedOnStyle: LLVM
 ---
 Language: Cpp
 
-AccessModifierOffset: 0
+AccessModifierOffset: -4
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: true
 AllowShortBlocksOnASingleLine: Always
@@ -12,6 +12,8 @@ AllowShortEnumsOnASingleLine: true
 AllowShortLambdasOnASingleLine: true
 BreakBeforeBinaryOperators: All
 BreakBeforeBraces: Allman
+BreakConstructorInitializers: BeforeComma
+BreakBeforeTernaryOperators: true
 BinPackArguments: false
 BinPackParameters: false
 ColumnLimit: 100

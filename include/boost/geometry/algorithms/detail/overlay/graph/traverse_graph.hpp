@@ -62,12 +62,12 @@ struct traverse_graph
                           Turns& turns,
                           Clusters const& clusters,
                           Strategy const& strategy)
-        : m_edge_selector(geometry1, geometry2, turns, clusters, strategy),
-          m_geometry1(geometry1),
-          m_geometry2(geometry2),
-          m_turns(turns),
-          m_clusters(clusters),
-          m_strategy(strategy)
+        : m_edge_selector(geometry1, geometry2, turns, clusters, strategy)
+        , m_geometry1(geometry1)
+        , m_geometry2(geometry2)
+        , m_turns(turns)
+        , m_clusters(clusters)
+        , m_strategy(strategy)
     {
     }
 
@@ -397,7 +397,7 @@ struct traverse_graph
         update_administration();
     }
 
-    private:
+private:
     edge_selector<Reverse1, Reverse2, OverlayType, Geometry1, Geometry2, Turns, Clusters, Strategy>
         m_edge_selector;
 

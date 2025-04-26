@@ -93,15 +93,15 @@ class turn_in_piece_visitor
             m_distance_strategy.apply(point, point, strategy::buffer::buffer_side_right));
     }
 
-    public:
+public:
     inline turn_in_piece_visitor(Turns& turns,
                                  Pieces const& pieces,
                                  DistanceStrategy const& distance_strategy,
                                  UmbrellaStrategy const& umbrella_strategy)
-        : m_turns(turns),
-          m_pieces(pieces),
-          m_distance_strategy(distance_strategy),
-          m_umbrella_strategy(umbrella_strategy)
+        : m_turns(turns)
+        , m_pieces(pieces)
+        , m_distance_strategy(distance_strategy)
+        , m_umbrella_strategy(umbrella_strategy)
     {
     }
 

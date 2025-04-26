@@ -138,17 +138,17 @@ struct piece_border
     radius_type m_max_comparable_radius;
 
     piece_border()
-        : m_reversed(false),
-          m_ring(NULL),
-          m_begin(0),
-          m_end(0),
-          m_original_size(0),
-          m_has_envelope(false),
-          m_is_convex(false),
-          m_is_monotonic_increasing(false),
-          m_is_monotonic_decreasing(false),
-          m_min_comparable_radius(0),
-          m_max_comparable_radius(0)
+        : m_reversed(false)
+        , m_ring(NULL)
+        , m_begin(0)
+        , m_end(0)
+        , m_original_size(0)
+        , m_has_envelope(false)
+        , m_is_convex(false)
+        , m_is_monotonic_increasing(false)
+        , m_is_monotonic_decreasing(false)
+        , m_min_comparable_radius(0)
+        , m_max_comparable_radius(0)
     {
     }
 
@@ -296,7 +296,7 @@ struct piece_border
         return m_ring == NULL || m_begin >= m_end || m_original_size == 0;
     }
 
-    private:
+private:
     static geometry::strategy::buffer::place_on_ring_type
     adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_type target,
                           bool one_sided,

@@ -118,12 +118,12 @@ struct clustered_count_handler
                             Turns& m_turns,
                             Clusters& clusters,
                             Strategy const& strategy)
-        : m_geometry1(m_geometry1),
-          m_geometry2(m_geometry2),
-          m_turns(m_turns),
-          m_clusters(clusters),
-          m_intersection_strategy(strategy),
-          m_side_strategy(m_intersection_strategy.side())
+        : m_geometry1(m_geometry1)
+        , m_geometry2(m_geometry2)
+        , m_turns(m_turns)
+        , m_clusters(clusters)
+        , m_intersection_strategy(strategy)
+        , m_side_strategy(m_intersection_strategy.side())
     {
     }
 
@@ -593,7 +593,7 @@ struct clustered_count_handler
         }
     }
 
-    private:
+private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns& m_turns;

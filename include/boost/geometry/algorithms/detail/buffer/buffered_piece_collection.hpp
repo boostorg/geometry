@@ -181,15 +181,15 @@ struct buffered_piece_collection
         point_type m_center;
 
         piece()
-            : type(strategy::buffer::piece_type_unknown),
-              index(-1),
-              left_index(-1),
-              right_index(-1),
-              beyond_last_segment_index(-1),
-              offsetted_count(-1),
-              is_flat_start(false),
-              is_flat_end(false),
-              is_deflated(false)
+            : type(strategy::buffer::piece_type_unknown)
+            , index(-1)
+            , left_index(-1)
+            , right_index(-1)
+            , beyond_last_segment_index(-1)
+            , offsetted_count(-1)
+            , is_flat_start(false)
+            , is_flat_end(false)
+            , is_deflated(false)
         {
         }
     };
@@ -256,11 +256,11 @@ struct buffered_piece_collection
     DistanceStrategy m_distance_strategy;
 
     buffered_piece_collection(Strategy const& strategy, DistanceStrategy const& distance_strategy)
-        : m_first_piece_index(-1),
-          m_deflate(false),
-          m_has_deflated(false),
-          m_strategy(strategy),
-          m_distance_strategy(distance_strategy)
+        : m_first_piece_index(-1)
+        , m_deflate(false)
+        , m_has_deflated(false)
+        , m_strategy(strategy)
+        , m_distance_strategy(distance_strategy)
     {
     }
 
