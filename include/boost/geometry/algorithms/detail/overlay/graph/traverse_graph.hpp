@@ -397,7 +397,7 @@ struct traverse_graph
         update_administration();
     }
 
-  private:
+    private:
     edge_selector<Reverse1, Reverse2, OverlayType, Geometry1, Geometry2, Turns, Clusters, Strategy>
         m_edge_selector;
 

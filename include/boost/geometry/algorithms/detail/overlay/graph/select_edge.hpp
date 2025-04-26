@@ -51,7 +51,7 @@ template <bool Reverse1,
           typename Strategy>
 struct edge_selector
 {
-  private:
+    private:
     static constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
     using point_type = typename Turns::value_type::point_type;
     using edge_type = edge_and_side<point_type>;
@@ -203,7 +203,7 @@ struct edge_selector
         return edges.front().toi;
     }
 
-  public:
+    public:
     edge_selector(Geometry1 const& m_geometry1,
                   Geometry2 const& m_geometry2,
                   Turns const& m_turns,
@@ -296,7 +296,7 @@ struct edge_selector
         return select_by_side(edges, p1, p2);
     }
 
-  private:
+    private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns const& m_turns;

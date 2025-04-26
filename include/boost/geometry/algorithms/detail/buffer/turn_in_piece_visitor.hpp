@@ -93,7 +93,7 @@ class turn_in_piece_visitor
             m_distance_strategy.apply(point, point, strategy::buffer::buffer_side_right));
     }
 
-  public:
+    public:
     inline turn_in_piece_visitor(Turns& turns,
                                  Pieces const& pieces,
                                  DistanceStrategy const& distance_strategy,

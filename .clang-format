@@ -3,6 +3,7 @@ BasedOnStyle: LLVM
 ---
 Language: Cpp
 
+AccessModifierOffset: 0
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: true
 AllowShortBlocksOnASingleLine: Always
@@ -15,8 +16,10 @@ BinPackArguments: false
 BinPackParameters: false
 ColumnLimit: 100
 CompactNamespaces: true
+EmptyLineBeforeAccessModifier: Always
 IndentCaseLabels: true
 IndentWidth: 4
+IndentAccessModifiers: false
 PackConstructorInitializers: NextLine
 PointerAlignment: Left
 QualifierAlignment: Right

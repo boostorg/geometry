@@ -296,7 +296,7 @@ struct piece_border
         return m_ring == NULL || m_begin >= m_end || m_original_size == 0;
     }
 
-  private:
+    private:
     static geometry::strategy::buffer::place_on_ring_type
     adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_type target,
                           bool one_sided,

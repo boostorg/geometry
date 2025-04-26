@@ -593,7 +593,7 @@ struct clustered_count_handler
         }
     }
 
-  private:
+    private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns& m_turns;

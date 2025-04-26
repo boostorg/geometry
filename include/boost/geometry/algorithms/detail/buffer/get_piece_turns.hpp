@@ -75,7 +75,7 @@ struct unique_sub_range_from_piece
         }
     }
 
-  private:
+    private:
     inline point_type const& get_point_k() const
     {
         if (! m_point_retrieved)
@@ -298,7 +298,7 @@ class piece_turn_visitor
         }
     }
 
-  public:
+    public:
     piece_turn_visitor(Pieces const& pieces,
                        Rings const& ring_collection,
                        Turns& turns,

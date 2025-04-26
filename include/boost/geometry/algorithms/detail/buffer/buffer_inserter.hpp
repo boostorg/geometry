@@ -765,7 +765,7 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
 template <typename PolygonInput, typename PolygonOutput>
 struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
 {
-  private:
+    private:
     using input_ring_type = ring_type_t<PolygonInput>;
     using output_ring_type = ring_type_t<PolygonOutput>;
 
@@ -839,7 +839,7 @@ struct buffer_inserter<polygon_tag, PolygonInput, PolygonOutput>
                 true);
     }
 
-  public:
+    public:
     template <typename Collection,
               typename DistanceStrategy,
               typename SegmentStrategy,
