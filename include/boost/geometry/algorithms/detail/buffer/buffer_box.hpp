@@ -11,16 +11,19 @@
 
 #include <cstddef>
 
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/access.hpp>
 
-
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace buffer
+namespace detail
+{
+namespace buffer
 {
 
 template <typename BoxIn, typename BoxOut, typename T, std::size_t C, std::size_t D, std::size_t N>
@@ -43,7 +46,7 @@ struct box_loop<BoxIn, BoxOut, T, C, N, N>
 };
 
 // Extends a box with the same amount in all directions
-template<typename BoxIn, typename BoxOut, typename T>
+template <typename BoxIn, typename BoxOut, typename T>
 inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
 {
     assert_dimension_equal<BoxIn, BoxOut>();
@@ -54,9 +57,11 @@ inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
     box_loop<BoxIn, BoxOut, T, max_corner, 0, N>::apply(box_in, distance, box_out);
 }
 
-}} // namespace detail::buffer
+} // namespace buffer
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_BOX_HPP

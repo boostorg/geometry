@@ -9,14 +9,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_UTIL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_UTIL_HPP
 
-#include <boost/graph/biconnected_components.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/biconnected_components.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 struct edge_component
@@ -54,9 +58,11 @@ void fix_components(Components& components, Graph const& g)
     }
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_UTIL_HPP

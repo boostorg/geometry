@@ -9,22 +9,26 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ADAPT_OPERATIONS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ADAPT_OPERATIONS_HPP
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 // Changes the operation of a UU turn, following a UX turn, to X (blocked)
 // under certain conditions, such that it is not followed
-// ADAPT: still necessary for just 2 cases. It should be possible to fix it in get_turn_info instead.
-// It happens in issue_1100_rev (union) and in ticket_10108 (sym diff)
+// ADAPT: still necessary for just 2 cases. It should be possible to fix it in get_turn_info
+// instead. It happens in issue_1100_rev (union) and in ticket_10108 (sym diff)
 //
 // Situation sketch (issue_1100 reversed - the non reversed version does not need the workaround).
 //
@@ -59,18 +63,14 @@ void block_ux_uu_workaround(Turns& turns)
     for (std::size_t turn_index = 0; turn_index < turns.size(); turn_index++)
     {
         auto const& turn = turns[turn_index];
-        if (turn.is_clustered()
-            || turn.discarded
-            || turn.is_self()
+        if (turn.is_clustered() || turn.discarded || turn.is_self()
             || ! turn.combination(operation_blocked, operation_union))
         {
             continue;
         }
 
-        auto const blocked_index = get_op_index(turn, [](auto const& op)
-            {
-                return op.operation == operation_blocked;
-            });
+        auto const blocked_index
+            = get_op_index(turn, [](auto const& op) { return op.operation == operation_blocked; });
 
         auto const& blocked_op = turn.operations[blocked_index];
         auto const next_index = blocked_op.enriched.travels_to_ip_index;
@@ -88,10 +88,10 @@ void block_ux_uu_workaround(Turns& turns)
             continue;
         }
 
-        int const same_source_index = get_op_index(next_turn, [&](auto const& op)
-            {
-                return op.seg_id.source_index == blocked_op.seg_id.source_index;
-            });
+        int const same_source_index
+            = get_op_index(next_turn,
+                           [&](auto const& op)
+                           { return op.seg_id.source_index == blocked_op.seg_id.source_index; });
 
         if (same_source_index < 0)
         {
@@ -112,9 +112,11 @@ void block_ux_uu_workaround(Turns& turns)
     }
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ADAPT_OPERATIONS_HPP

@@ -11,31 +11,41 @@
 
 #include <boost/geometry/core/access.hpp>
 
-#include <ostream>
 #include <iostream>
+#include <ostream>
 
-#include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/graph_traits.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 // For debug purposes only
-template <typename Turns, typename Clusters, typename Graph, typename Components, typename VertexMap>
-void write_graph_viz(std::ostream& out, Turns const& turns, Clusters const& clusters,
-    Graph const& g, Components const& component, VertexMap const& vertex_map,
-    bool use_absolute_position = true)
+template <typename Turns,
+          typename Clusters,
+          typename Graph,
+          typename Components,
+          typename VertexMap>
+void write_graph_viz(std::ostream& out,
+                     Turns const& turns,
+                     Clusters const& clusters,
+                     Graph const& g,
+                     Components const& component,
+                     VertexMap const& vertex_map,
+                     bool use_absolute_position = true)
 {
     out << "graph A {\n  node[shape=\"circle\"]\n";
 
     auto add_pos = [&](auto const& point)
-    {
-        out << ", pos=\"" << geometry::get<0>(point) << "," << geometry::get<1>(point) << "!\"";
-    };
+    { out << ", pos=\"" << geometry::get<0>(point) << "," << geometry::get<1>(point) << "!\""; };
 
     // List all nodes
     for (auto const& vertex_pair : vertex_map)
@@ -85,28 +95,28 @@ void write_graph_viz(std::ostream& out, Turns const& turns, Clusters const& clus
         auto it_target = vertex_map.find(target_vertex);
         if (it_source == vertex_map.end() || it_target == vertex_map.end())
         {
-            std::cerr << "Edge not found FOR GRAPH_VIZ "
-                        << source_vertex << " -- " << target_vertex
-                        << std::endl;
+            std::cerr << "Edge not found FOR GRAPH_VIZ " << source_vertex << " -- " << target_vertex
+                      << std::endl;
             continue;
         }
         auto const source_node_id = it_source->second.node_id;
         auto const target_node_id = it_target->second.node_id;
 
         out << source_node_id << " -- " << target_node_id
-                  << "[label=\""
-                    //<< source_node_id << ".." << target_node_id << " ("
-                    << component[*ei]
-                    // << ")"
-                    << "\"]"
-                  << '\n';
+            << "[label=\""
+            //<< source_node_id << ".." << target_node_id << " ("
+            << component[*ei]
+            // << ")"
+            << "\"]" << '\n';
     }
     out << "}\n";
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_DEBUG_GRAPH_HPP

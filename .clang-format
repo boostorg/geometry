@@ -1,0 +1,24 @@
+---
+BasedOnStyle: LLVM
+---
+Language: Cpp
+
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortLambdasOnASingleLine: true
+BreakBeforeBinaryOperators: All
+BreakBeforeBraces: Allman
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: 100
+CompactNamespaces: true
+IndentCaseLabels: true
+IndentWidth: 4
+PackConstructorInitializers: NextLine
+PointerAlignment: Left
+QualifierAlignment: Right
+SpaceAfterLogicalNot: true
+SpaceAfterTemplateKeyword: true

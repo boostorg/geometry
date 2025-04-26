@@ -9,23 +9,29 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TOIS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TOIS_HPP
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 template <operation_type TargetOperation, typename Turns, typename Clusters>
-void add_tois(Turns const& turns, Clusters const& clusters,
-        signed_size_type source_node_id, signed_size_type target_node_id,
-        set_of_tois& result)
+void add_tois(Turns const& turns,
+              Clusters const& clusters,
+              signed_size_type source_node_id,
+              signed_size_type target_node_id,
+              set_of_tois& result)
 {
     using is_included = is_operation_included<TargetOperation>;
 
@@ -53,8 +59,8 @@ void add_tois(Turns const& turns, Clusters const& clusters,
     }
     else if (source_node_id < 0 && target_node_id >= 0)
     {
-        const auto source_turn_indices = get_turn_indices_by_node_id(turns, clusters,
-                    source_node_id, allow_closed);
+        auto const source_turn_indices
+            = get_turn_indices_by_node_id(turns, clusters, source_node_id, allow_closed);
         for (auto source_turn_index : source_turn_indices)
         {
             get_tois_from_turns(source_turn_index, target_node_id);
@@ -62,8 +68,8 @@ void add_tois(Turns const& turns, Clusters const& clusters,
     }
     else if (source_node_id >= 0 && target_node_id < 0)
     {
-        const auto target_turn_indices = get_turn_indices_by_node_id(turns, clusters,
-                target_node_id, allow_closed);
+        auto const target_turn_indices
+            = get_turn_indices_by_node_id(turns, clusters, target_node_id, allow_closed);
         for (auto target_turn_index : target_turn_indices)
         {
             get_tois_from_turns(source_node_id, target_turn_index);
@@ -72,10 +78,10 @@ void add_tois(Turns const& turns, Clusters const& clusters,
     else
     {
         // Combine two sets together, quadratically
-        const auto source_turn_indices = get_turn_indices_by_node_id(turns, clusters,
-                source_node_id, allow_closed);
-        const auto target_turn_indices = get_turn_indices_by_node_id(turns, clusters,
-                target_node_id, allow_closed);
+        auto const source_turn_indices
+            = get_turn_indices_by_node_id(turns, clusters, source_node_id, allow_closed);
+        auto const target_turn_indices
+            = get_turn_indices_by_node_id(turns, clusters, target_node_id, allow_closed);
         for (auto source_turn_index : source_turn_indices)
         {
             for (auto target_turn_index : target_turn_indices)
@@ -91,19 +97,19 @@ void add_tois(Turns const& turns, Clusters const& clusters,
         // It is currently probably not worth to cache these cases, as these are rare cases.
         // In the bitset_grids robustness test, the clusters are small and the listings are like:
         //     quadratic: -5 -> -1 sizes 2 x 3 = 1
-        std::cout << "quadratic: "
-            << source_node_id << " -> " << target_node_id
-            << " sizes " << source_turn_indices.size() << " x " << target_turn_indices.size()
-            << " = " << result.size()
-            << std::endl;
+        std::cout << "quadratic: " << source_node_id << " -> " << target_node_id << " sizes "
+                  << source_turn_indices.size() << " x " << target_turn_indices.size() << " = "
+                  << result.size() << std::endl;
 #endif
     }
 }
 
 // Variant with one node
 template <operation_type TargetOperation, typename Turns, typename Clusters>
-set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
-        signed_size_type source_node_id, signed_size_type target_node_id)
+set_of_tois get_tois(Turns const& turns,
+                     Clusters const& clusters,
+                     signed_size_type source_node_id,
+                     signed_size_type target_node_id)
 {
     set_of_tois result;
     add_tois<TargetOperation>(turns, clusters, source_node_id, target_node_id, result);
@@ -112,8 +118,10 @@ set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
 
 // Variant with multiple target nodes
 template <operation_type TargetOperation, typename Turns, typename Clusters>
-set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
-        signed_size_type source_node_id, std::set<signed_size_type> const& target_node_ids)
+set_of_tois get_tois(Turns const& turns,
+                     Clusters const& clusters,
+                     signed_size_type source_node_id,
+                     std::set<signed_size_type> const& target_node_ids)
 {
     set_of_tois result;
     for (auto const& target : target_node_ids)
@@ -123,9 +131,11 @@ set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
     return result;
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TOIS_HPP

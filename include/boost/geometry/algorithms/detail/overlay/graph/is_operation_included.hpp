@@ -10,17 +10,22 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_OPERATION_INCLUDED_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 template <operation_type target_operation>
-struct is_operation_included {};
+struct is_operation_included
+{
+};
 
 template <>
 struct is_operation_included<operation_intersection>
@@ -42,9 +47,11 @@ struct is_operation_included<operation_union>
     }
 };
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_OPERATION_INCLUDED_HPP

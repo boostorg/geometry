@@ -11,21 +11,27 @@
 
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 
-
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 // For two operations from a cluster, having the same target, and having the same rank,
 // the outgoing side makes it unclear. This function inspects the target and uses the incoming
 // side, which should be more clear.
 template <typename Turns, typename Operation>
-bool select_toi_for_union(turn_operation_id& result, Operation const& op0, Operation const& op1, 
-        turn_operation_id const& toi0, turn_operation_id const& toi1,
-        Turns const& turns)
+bool select_toi_for_union(turn_operation_id& result,
+                          Operation const& op0,
+                          Operation const& op1,
+                          turn_operation_id const& toi0,
+                          turn_operation_id const& toi1,
+                          Turns const& turns)
 {
     if (op0.enriched.travels_to_ip_index != op1.enriched.travels_to_ip_index
         || op0.enriched.travels_to_ip_index < 0)
@@ -46,10 +52,9 @@ bool select_toi_for_union(turn_operation_id& result, Operation const& op0, Opera
     }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-    std::cout << "SELECT_BY_INCOMING " << toi0 << " vs " << toi1
-        << " " << operation_char(op0.operation) << operation_char(op1.operation)
-        << " traveling to " << op0.enriched.travels_to_ip_index
-        << std::endl;
+    std::cout << "SELECT_BY_INCOMING " << toi0 << " vs " << toi1 << " "
+              << operation_char(op0.operation) << operation_char(op1.operation) << " traveling to "
+              << op0.enriched.travels_to_ip_index << std::endl;
 #endif
 
     if (target_op0.seg_id.multi_index == target_op1.seg_id.multi_index)
@@ -88,9 +93,11 @@ bool select_toi_for_union(turn_operation_id& result, Operation const& op0, Opera
     return false;
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_TOI_BY_INCOMING_HPP

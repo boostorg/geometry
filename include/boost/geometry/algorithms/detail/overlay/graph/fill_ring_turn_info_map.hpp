@@ -9,15 +9,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FILL_RING_TURN_INFO_MAP_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FILL_RING_TURN_INFO_MAP_HPP
 
-#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 template <typename TurnInfoMap, typename Turns>
@@ -46,9 +50,11 @@ void update_ring_turn_info_map(TurnInfoMap& ring_turn_info_map, Turns const& tur
     }
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FILL_RING_TURN_INFO_MAP_HPP

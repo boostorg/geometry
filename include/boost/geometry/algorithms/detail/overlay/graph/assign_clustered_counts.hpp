@@ -1,4 +1,4 @@
- // Boost.Geometry
+// Boost.Geometry
 
 // Copyright (c) 2025 Barend Gehrels, Amsterdam, the Netherlands.
 
@@ -9,27 +9,36 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 
-#include <boost/geometry/algorithms/detail/position_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/position_code.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
-#include <set>
 #include <map>
+#include <set>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 // Indicating if the segment is incoming (to cluster) or outgoing (from cluster)
-enum class connection_type { unknown = -1, incoming = 0, outgoing = 1 };
+enum class connection_type
+{
+    unknown = -1,
+    incoming = 0,
+    outgoing = 1
+};
 
 // A turn contains four connections to a cluster:
 // For both operations one incoming and one outgoing connection.
@@ -89,44 +98,43 @@ struct is_corresponding_connection<overlay_buffer>
     }
 };
 
-template
-<
-    bool Reverse1,
-    bool Reverse2,
-    overlay_type OverlayType,
-    typename Geometry1,
-    typename Geometry2,
-    typename Turns,
-    typename Clusters,
-    typename Strategy
->
+template <bool Reverse1,
+          bool Reverse2,
+          overlay_type OverlayType,
+          typename Geometry1,
+          typename Geometry2,
+          typename Turns,
+          typename Clusters,
+          typename Strategy>
 struct clustered_count_handler
 {
     using point_type = typename Turns::value_type::point_type;
     using connection_map_type = std::map<connection_key, connection_properties<point_type>>;
-    using ct_type = typename geometry::select_most_precise
-        <
-            geometry::coordinate_type_t<point_type>,
-            double
-        >::type;
+    using ct_type = typename geometry::select_most_precise<geometry::coordinate_type_t<point_type>,
+                                                           double>::type;
 
-    clustered_count_handler(Geometry1 const& m_geometry1, Geometry2 const& m_geometry2,
-        Turns& m_turns, Clusters& clusters,
-        Strategy const& strategy)
-        : m_geometry1(m_geometry1)
-        , m_geometry2(m_geometry2)
-        , m_turns(m_turns)
-        , m_clusters(clusters)
-        , m_intersection_strategy(strategy)
-        , m_side_strategy(m_intersection_strategy.side())
-    {}
+    clustered_count_handler(Geometry1 const& m_geometry1,
+                            Geometry2 const& m_geometry2,
+                            Turns& m_turns,
+                            Clusters& clusters,
+                            Strategy const& strategy)
+        : m_geometry1(m_geometry1),
+          m_geometry2(m_geometry2),
+          m_turns(m_turns),
+          m_clusters(clusters),
+          m_intersection_strategy(strategy),
+          m_side_strategy(m_intersection_strategy.side())
+    {
+    }
 
     // Walks over a ring to get the point after the turn.
     // The turn can be located at the very end of a segment.
     // Therefore it can be the first point on the next segment.
     template <typename Operation>
-    bool get_segment_points(Operation const& op, point_type const& point_turn,
-        point_type& point_from, point_type& point_to)
+    bool get_segment_points(Operation const& op,
+                            point_type const& point_turn,
+                            point_type& point_from,
+                            point_type& point_to)
     {
         // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
         static const ct_type tolerance
@@ -138,33 +146,40 @@ struct clustered_count_handler
         int from_offset = 0;
         do
         {
-            geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-                op.seg_id, from_offset--, point_from);
-        } while (approximately_equals(point_from, point_turn, tolerance) && from_offset > -max_iterations);
+            geometry::copy_segment_point<Reverse1, Reverse2>(
+                m_geometry1, m_geometry2, op.seg_id, from_offset--, point_from);
+        } while (approximately_equals(point_from, point_turn, tolerance)
+                 && from_offset > -max_iterations);
 
         int to_offset = 1;
         do
         {
-            geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-                op.seg_id, to_offset++, point_to);
-        } while (approximately_equals(point_to, point_turn, tolerance) && to_offset < max_iterations);
+            geometry::copy_segment_point<Reverse1, Reverse2>(
+                m_geometry1, m_geometry2, op.seg_id, to_offset++, point_to);
+        } while (approximately_equals(point_to, point_turn, tolerance)
+                 && to_offset < max_iterations);
 
         return from_offset < -1 || to_offset > 2;
     }
 
-    void get_connection_map(cluster_info const& cluster, point_type const& point_turn,
-        connection_map_type& connection_map, point_type& point_origin)
+    void get_connection_map(cluster_info const& cluster,
+                            point_type const& point_turn,
+                            connection_map_type& connection_map,
+                            point_type& point_origin)
     {
         auto const get_position_code = [&](point_type const& point)
-        {
-            return detail::get_position_code(point_origin, point_turn, point, m_side_strategy);
-        };
+        { return detail::get_position_code(point_origin, point_turn, point, m_side_strategy); };
 
-        auto insert = [&connection_map](auto const& op,  connection_type conn,
-                    auto const& point, int position_code, auto const& opposite_point, bool is_shifted)
+        auto insert = [&connection_map](auto const& op,
+                                        connection_type conn,
+                                        auto const& point,
+                                        int position_code,
+                                        auto const& opposite_point,
+                                        bool is_shifted)
         {
             connection_key const key{op.seg_id, conn};
-            connection_properties<point_type> properties{position_code, point, opposite_point, is_shifted};
+            connection_properties<point_type> properties{
+                position_code, point, opposite_point, is_shifted};
             connection_map.insert({key, properties});
         };
 
@@ -187,8 +202,18 @@ struct clustered_count_handler
                 }
 
                 // Insert the four connections. Insert all operations (even if they are blocked).
-                insert(op, connection_type::incoming, point_from, get_position_code(point_from), point_to, is_shifted);
-                insert(op, connection_type::outgoing, point_to, get_position_code(point_to), point_from, is_shifted);
+                insert(op,
+                       connection_type::incoming,
+                       point_from,
+                       get_position_code(point_from),
+                       point_to,
+                       is_shifted);
+                insert(op,
+                       connection_type::outgoing,
+                       point_to,
+                       get_position_code(point_to),
+                       point_from,
+                       is_shifted);
             }
         }
     }
@@ -206,8 +231,10 @@ struct clustered_count_handler
         // Outgoing (1) goes before incoming (0).
         auto compare_by_side = [&](auto const& left, auto const& right)
         {
-            int const side_left = m_side_strategy.apply(point_turn, right.properties.point, left.properties.point);
-            int const side_right = m_side_strategy.apply(point_turn, left.properties.point, right.properties.point);
+            int const side_left
+                = m_side_strategy.apply(point_turn, right.properties.point, left.properties.point);
+            int const side_right
+                = m_side_strategy.apply(point_turn, left.properties.point, right.properties.point);
 
             if (side_right == side_left)
             {
@@ -216,25 +243,27 @@ struct clustered_count_handler
             return side_left < side_right;
         };
 
-        std::sort(item_vector.begin(), item_vector.end(),
-            [&](auto const& left, auto const& right)
-            {
-                if (left.properties.position_code == right.properties.position_code)
-                {
-                    if (left.properties.position_code == 1 || left.properties.position_code == 3)
-                    {
-                        // For collinear cases, side is be the same.
-                        return compare_by_connection(left, right);
-                    }
-                    return compare_by_side(left, right);
-                }
-                return left.properties.position_code < right.properties.position_code;
-            });
+        std::sort(item_vector.begin(),
+                  item_vector.end(),
+                  [&](auto const& left, auto const& right)
+                  {
+                      if (left.properties.position_code == right.properties.position_code)
+                      {
+                          if (left.properties.position_code == 1
+                              || left.properties.position_code == 3)
+                          {
+                              // For collinear cases, side is be the same.
+                              return compare_by_connection(left, right);
+                          }
+                          return compare_by_side(left, right);
+                      }
+                      return left.properties.position_code < right.properties.position_code;
+                  });
     }
 
     // Assign ranks, counter clockwise from the first incoming segment.
     void assign_ranks(point_type const& point_turn,
-        std::vector<connection_item<point_type>>& item_vector)
+                      std::vector<connection_item<point_type>>& item_vector)
     {
         std::size_t rank = 0;
         item_vector.front().properties.rank = 0;
@@ -258,25 +287,21 @@ struct clustered_count_handler
             // If it is collinear, it gets the same rank.
             // In other cases the side should be 1 (left) because the connections
             // are sorted counter clockwise.
-            int const side = m_side_strategy.apply(point_turn, previous.properties.point,
-                item.properties.point);
+            int const side = m_side_strategy.apply(
+                point_turn, previous.properties.point, item.properties.point);
             item.properties.rank = side == 0 ? rank : ++rank;
         }
     }
 
     auto get_zone_counts(std::vector<connection_item<point_type>> const& item_vector,
-        std::size_t rank_size)
+                         std::size_t rank_size)
     {
         std::size_t const vector_size = item_vector.size();
-        auto get_next_item = [&vector_size](std::size_t counter)
-        {
-            return (counter + 1) % vector_size;
-        };
+        auto get_next_item
+            = [&vector_size](std::size_t counter) { return (counter + 1) % vector_size; };
 
-        auto get_next_zone = [&rank_size](std::size_t counter)
-        {
-            return (counter + 1) % rank_size;
-        };
+        auto get_next_zone
+            = [&rank_size](std::size_t counter) { return (counter + 1) % rank_size; };
 
         // Each segment occurs twice, once as from, once as to.
         // As soon as it comes in, increase the zone count, until it goes out.
@@ -292,13 +317,14 @@ struct clustered_count_handler
             // Walk ahead, cyclic, to find the next item with the same seg_id.
             // The iteration is a defensive check.
             std::size_t end_rank = item.properties.rank;
-            for (std::size_t j = get_next_item(i), iteration = 0; ; j = get_next_item(j), iteration++)
+            for (std::size_t j = get_next_item(i), iteration = 0;;
+                 j = get_next_item(j), iteration++)
             {
                 if (iteration > vector_size)
                 {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
                     std::cerr << " *** ERROR: infinite loop in cluster" << std::endl;
-#endif                    
+#endif
                     return zone_counts;
                 }
                 auto const& next = item_vector[j];
@@ -323,21 +349,20 @@ struct clustered_count_handler
     }
 
     void assign_zone_counts(std::vector<connection_item<point_type>>& item_vector,
-        std::vector<std::size_t> const& zone_counts, std::size_t rank_size)
+                            std::vector<std::size_t> const& zone_counts,
+                            std::size_t rank_size)
     {
         // The main goal is to get the number of polygons in the zone_counts.
         // The zone_counts on the right side of the seg_ids.
         for (auto& item : item_vector)
         {
-            std::size_t const zone_right =
-                item.key.connection == connection_type::incoming
-                ? item.properties.rank
-                : (item.properties.rank + rank_size - 1) % rank_size;
+            std::size_t const zone_right = item.key.connection == connection_type::incoming
+                                               ? item.properties.rank
+                                               : (item.properties.rank + rank_size - 1) % rank_size;
 
-            std::size_t const zone_left =
-                item.key.connection == connection_type::incoming
-                ? (item.properties.rank + rank_size - 1) % rank_size
-                : item.properties.rank;
+            std::size_t const zone_left = item.key.connection == connection_type::incoming
+                                              ? (item.properties.rank + rank_size - 1) % rank_size
+                                              : item.properties.rank;
 
             item.properties.zone_count_left = zone_counts[zone_left];
             item.properties.zone_count_right = zone_counts[zone_right];
@@ -370,16 +395,17 @@ struct clustered_count_handler
             }
             auto& current = item_vector[i].properties;
             auto& next = item_vector[next_i].properties;
-            if (current.rank != next.rank
-                || current.zone_count_left != 1 || current.zone_count_right != 1
-                || next.zone_count_left != 1 || next.zone_count_right != 1)
+            if (current.rank != next.rank || current.zone_count_left != 1
+                || current.zone_count_right != 1 || next.zone_count_left != 1
+                || next.zone_count_right != 1)
             {
                 // The rank should be the same
                 // It should have one zone on either side
                 continue;
             }
 
-            if (current.is_shifted || next.is_shifted) {
+            if (current.is_shifted || next.is_shifted)
+            {
                 // The opposite point is shifted. Therefore a spike measurement
                 // cannot be done.
                 continue;
@@ -387,8 +413,8 @@ struct clustered_count_handler
 
             // Precise measurement, not from the turn, but over the whole intersecting segment.
             // If it is positive (on the left side), it is a spike.
-            auto const dm = get_distance_measure(current.opposite_point, current.point, next.point,
-                m_intersection_strategy);
+            auto const dm = get_distance_measure(
+                current.opposite_point, current.point, next.point, m_intersection_strategy);
             if (dm.measure <= 0)
             {
                 continue;
@@ -403,7 +429,7 @@ struct clustered_count_handler
     }
 
     void assign_turn_operations(cluster_info const& cluster,
-        connection_map_type const& connection_map)
+                                connection_map_type const& connection_map)
     {
         // Assign the items, per seg_id, back to the outgoing turn operations.
         for (std::size_t index : cluster.turn_indices)
@@ -428,11 +454,12 @@ struct clustered_count_handler
     // precision the i/u turns get unexpected counts for left/right.
     // rt_w10, rt_w11, rt_w14, rt_w15
     // The original sides are measured over the two whole intersecting segments.
-    // The sides in clusters are measured w.r.t. the turn point, which is the point of the first cluster.
-    // This can differ.
-    // It should be possible to fix it in another way.
-    void change_reversed_operations(signed_size_type const cluster_id, cluster_info const& cluster,
-            point_type const& point_turn, point_type const& point_origin)
+    // The sides in clusters are measured w.r.t. the turn point, which is the point of the first
+    // cluster. This can differ. It should be possible to fix it in another way.
+    void change_reversed_operations(signed_size_type const cluster_id,
+                                    cluster_info const& cluster,
+                                    point_type const& point_turn,
+                                    point_type const& point_origin)
     {
         std::set<std::size_t> reversed_indices;
         for (std::size_t index : cluster.turn_indices)
@@ -458,9 +485,8 @@ struct clustered_count_handler
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         std::cout << " *** REVERSED OPERATIONS in cluster: " << cluster_id
-            << " cluster size: " << cluster.turn_indices.size()
-            << " reversed: " << reversed_indices.size()
-            << std::endl;
+                  << " cluster size: " << cluster.turn_indices.size()
+                  << " reversed: " << reversed_indices.size() << std::endl;
 #endif
         for (std::size_t index : cluster.turn_indices)
         {
@@ -468,7 +494,8 @@ struct clustered_count_handler
             auto& op0 = turn.operations[0];
             auto& op1 = turn.operations[1];
 
-            bool const is_same_target = op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index;
+            bool const is_same_target
+                = op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index;
             if (is_same_target && reversed_indices.find(index) != reversed_indices.end())
             {
                 // Best choice: i/u are nearly collinear, so we can let them continue.
@@ -476,9 +503,11 @@ struct clustered_count_handler
                 op1.operation = operation_continue;
 
                 // Also adapt the left/right-counts, both should get the minimum of both.
-                op0.enriched.count_left = (std::min)(op0.enriched.count_left, op1.enriched.count_left);
+                op0.enriched.count_left
+                    = (std::min)(op0.enriched.count_left, op1.enriched.count_left);
                 op1.enriched.count_left = op0.enriched.count_left;
-                op0.enriched.count_right = (std::min)(op0.enriched.count_right, op1.enriched.count_right);
+                op0.enriched.count_right
+                    = (std::min)(op0.enriched.count_right, op1.enriched.count_right);
                 op1.enriched.count_right = op0.enriched.count_right;
             }
         }
@@ -534,16 +563,15 @@ struct clustered_count_handler
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         // List the connections
-        std::cout << "Cluster " << cluster_id << " size: " << cluster.turn_indices.size() << std::endl;
+        std::cout << "Cluster " << cluster_id << " size: " << cluster.turn_indices.size()
+                  << std::endl;
         for (auto const& item : item_vector)
         {
-            std::cout << "  " << item.key.seg_id
-                << " " << (item.key.connection == connection_type::incoming ? " in" : "out")
-                << " " << item.properties.position_code
-                << " " << item.properties.rank
-                << " " << item.properties.zone_count_left
-                << " " << item.properties.zone_count_right
-                << std::endl;
+            std::cout << "  " << item.key.seg_id << " "
+                      << (item.key.connection == connection_type::incoming ? " in" : "out") << " "
+                      << item.properties.position_code << " " << item.properties.rank << " "
+                      << item.properties.zone_count_left << " " << item.properties.zone_count_right
+                      << std::endl;
         }
 #endif
 
@@ -565,7 +593,7 @@ struct clustered_count_handler
         }
     }
 
-private:
+  private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns& m_turns;
@@ -574,9 +602,11 @@ private:
     decltype(m_intersection_strategy.side()) m_side_strategy;
 };
 
-}} // namespace detail::overlay
-#endif //DOXYGEN_NO_DETAIL
+} // namespace overlay
+} // namespace detail
+#endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CLUSTER_INFO_HPP

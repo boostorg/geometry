@@ -21,66 +21,67 @@
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
-#include <boost/geometry/algorithms/disjoint.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
 
-
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
-
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace buffer
+namespace detail
+{
+namespace buffer
 {
 
 struct buffer_overlay_visitor
 {
-public :
+  public:
     template <typename Turns>
-    void visit_turns(int , Turns const& ) {}
+    void visit_turns(int, Turns const&)
+    {
+    }
 
     template <typename Clusters, typename Turns>
-    void visit_clusters(Clusters const& , Turns const& ) {}
+    void visit_clusters(Clusters const&, Turns const&)
+    {
+    }
 
     template <typename Turns, typename Turn, typename Operation>
-    void visit_traverse(Turns const& /*turns*/, Turn const& /*turn*/, Operation const& /*op*/, const char* /*header*/)
+    void visit_traverse(Turns const& /*turns*/,
+                        Turn const& /*turn*/,
+                        Operation const& /*op*/,
+                        char const* /*header*/)
     {
     }
 
     template <typename Rings>
-    void visit_generated_rings(Rings const& )
-    {}
+    void visit_generated_rings(Rings const&)
+    {
+    }
 };
-
 
 // Should follow traversal-turn-concept (enrichment, visit structure)
 // and adds index in piece vector to find it back
 template <typename Point, typename SegmentRatio>
-struct buffer_turn_operation
-    : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
+struct buffer_turn_operation : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
 {
     signed_size_type piece_index;
     signed_size_type index_in_ring;
 
-    inline buffer_turn_operation()
-        : piece_index(-1)
-        , index_in_ring(-1)
-    {}
+    inline buffer_turn_operation() : piece_index(-1), index_in_ring(-1) {}
 };
 
 // Version of turn_info for buffer with its turn index and other helper variables
 template <typename Point, typename SegmentRatio>
 struct buffer_turn_info
-    : public detail::overlay::turn_info
-        <
-            Point,
-            SegmentRatio,
-            buffer_turn_operation<Point, SegmentRatio>
-        >
+    : public detail::overlay::
+          turn_info<Point, SegmentRatio, buffer_turn_operation<Point, SegmentRatio>>
 {
     using point_type = Point;
 
@@ -95,19 +96,15 @@ struct buffer_turn_info
     signed_size_type count_in_original; // increased by +1 for in ext.ring, -1 for int.ring
 
     inline buffer_turn_info()
-        : turn_index(0)
-        , is_linear_end_point(false)
-        , within_original(false)
-        , count_in_original(0)
-    {}
+        : turn_index(0), is_linear_end_point(false), within_original(false), count_in_original(0)
+    {
+    }
 };
 
 template <typename Strategy>
 struct piece_get_box
 {
-    explicit piece_get_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit piece_get_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Piece>
     inline void apply(Box& total, Piece const& piece) const
@@ -116,8 +113,7 @@ struct piece_get_box
 
         if (piece.m_piece_border.m_has_envelope)
         {
-            geometry::expand(total, piece.m_piece_border.m_envelope,
-                             m_strategy);
+            geometry::expand(total, piece.m_piece_border.m_envelope, m_strategy);
         }
     }
 
@@ -127,9 +123,7 @@ struct piece_get_box
 template <typename Strategy>
 struct piece_overlaps_box
 {
-    explicit piece_overlaps_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit piece_overlaps_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Piece>
     inline bool apply(Box const& box, Piece const& piece) const
@@ -150,8 +144,8 @@ struct piece_overlaps_box
             return false;
         }
 
-        return ! geometry::detail::disjoint::disjoint_box_box(box, piece.m_piece_border.m_envelope,
-                                                              m_strategy);
+        return ! geometry::detail::disjoint::disjoint_box_box(
+            box, piece.m_piece_border.m_envelope, m_strategy);
     }
 
     Strategy const& m_strategy;
@@ -160,9 +154,7 @@ struct piece_overlaps_box
 template <typename Strategy>
 struct turn_get_box
 {
-    explicit turn_get_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit turn_get_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Turn>
     inline void apply(Box& total, Turn const& turn) const
@@ -177,25 +169,23 @@ struct turn_get_box
 template <typename Strategy>
 struct turn_overlaps_box
 {
-    explicit turn_overlaps_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit turn_overlaps_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Turn>
     inline bool apply(Box const& box, Turn const& turn) const
     {
         assert_coordinate_type_equal(turn.point, box);
-        return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box,
-                                                                m_strategy);
+        return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box, m_strategy);
     }
 
     Strategy const& m_strategy;
 };
 
-}} // namespace detail::buffer
+} // namespace buffer
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_POLICIES_HPP

@@ -9,18 +9,22 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_TARGET_OPERATION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_TARGET_OPERATION_HPP
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <set>
 #include <utility>
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 // For continue/continue cases where one of the targets
@@ -56,7 +60,7 @@ std::pair<bool, bool> is_cc_target_ahead(Turns const& turns, turn_operation_id c
     auto has_target = [](auto const& turn, signed_size_type target)
     {
         return turn.operations[0].enriched.travels_to_ip_index == target
-            || turn.operations[1].enriched.travels_to_ip_index == target;
+               || turn.operations[1].enriched.travels_to_ip_index == target;
     };
 
     bool const is_target_ahead_op = has_target(turns[target_op], target_other);
@@ -71,20 +75,20 @@ std::pair<bool, bool> is_cc_target_ahead(Turns const& turns, turn_operation_id c
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
     std::cout << "Decide for turn " << toi.turn_index << " " << toi.operation_index
-        << " targets: " << target_op
-        << " / " << target_other
-        << " clusters: " << turns[target_op].cluster_id
-        << " / " << turns[target_other].cluster_id
-        << " via " << std::boolalpha << is_target_ahead_op << " / " << is_target_ahead_other
-        << std::endl;
+              << " targets: " << target_op << " / " << target_other
+              << " clusters: " << turns[target_op].cluster_id << " / "
+              << turns[target_other].cluster_id << " via " << std::boolalpha << is_target_ahead_op
+              << " / " << is_target_ahead_other << std::endl;
 #endif
 
     return std::make_pair(true, is_target_ahead_op);
 }
 
 template <typename Operation>
-bool is_better_collinear_for_union(Operation const& op, Operation const& other_op,
-        turn_operation_id const& toi, turn_operation_id const& other_toi)
+bool is_better_collinear_for_union(Operation const& op,
+                                   Operation const& other_op,
+                                   turn_operation_id const& toi,
+                                   turn_operation_id const& other_toi)
 {
     // Continue, prefer the one having no polygon on the left
     if (op.enriched.count_left > 0 && other_op.enriched.count_left == 0)
@@ -124,18 +128,19 @@ bool is_better_collinear_for_union(Operation const& op, Operation const& other_o
     // For a right turn (-1), the one with the largest distance is preferred.
     // For collinear (0), it should not matter.
 
-    return
-        op.enriched.ahead_side == 1
-        ? op.enriched.ahead_distance_of_side_change
-            <= other_op.enriched.ahead_distance_of_side_change
-        : op.enriched.ahead_distance_of_side_change
-            >= other_op.enriched.ahead_distance_of_side_change;
+    return op.enriched.ahead_side == 1 ? op.enriched.ahead_distance_of_side_change
+                                             <= other_op.enriched.ahead_distance_of_side_change
+                                       : op.enriched.ahead_distance_of_side_change
+                                             >= other_op.enriched.ahead_distance_of_side_change;
 }
 
 // The same for intersection - but it needs turns for the same target ahead check.
 template <typename Operation, typename Turns>
-bool is_better_collinear_for_intersection(Operation const& op, Operation const& other_op,
-        turn_operation_id const& toi, turn_operation_id const& other_toi, Turns const& turns)
+bool is_better_collinear_for_intersection(Operation const& op,
+                                          Operation const& other_op,
+                                          turn_operation_id const& toi,
+                                          turn_operation_id const& other_toi,
+                                          Turns const& turns)
 {
     // Continue, prefer the one having no polygon on the left
     if (op.enriched.count_right < 2 && other_op.enriched.count_right >= 2)
@@ -154,18 +159,23 @@ bool is_better_collinear_for_intersection(Operation const& op, Operation const& 
     }
 
     return op.enriched.ahead_distance_of_side_change
-        <= other_op.enriched.ahead_distance_of_side_change;
+           <= other_op.enriched.ahead_distance_of_side_change;
 }
 
 template <operation_type Operation>
-struct is_better_collinear_target {};
+struct is_better_collinear_target
+{
+};
 
 template <>
 struct is_better_collinear_target<operation_union>
 {
     template <typename Operation, typename Turns>
-    static bool apply(Operation const& op, Operation const& other_op,
-        turn_operation_id const& toi, turn_operation_id const& other_toi, Turns const&)
+    static bool apply(Operation const& op,
+                      Operation const& other_op,
+                      turn_operation_id const& toi,
+                      turn_operation_id const& other_toi,
+                      Turns const&)
     {
         return is_better_collinear_for_union(op, other_op, toi, other_toi);
     }
@@ -175,8 +185,11 @@ template <>
 struct is_better_collinear_target<operation_intersection>
 {
     template <typename Operation, typename Turns>
-    static bool apply(Operation const& op, Operation const& other_op,
-        turn_operation_id const& toi, turn_operation_id const& other_toi, Turns const& turns)
+    static bool apply(Operation const& op,
+                      Operation const& other_op,
+                      turn_operation_id const& toi,
+                      turn_operation_id const& other_toi,
+                      Turns const& turns)
     {
         return is_better_collinear_for_intersection(op, other_op, toi, other_toi, turns);
     }
@@ -203,13 +216,14 @@ bool is_target_operation(Turns const& turns, turn_operation_id const& toi)
 
     turn_operation_id const other_toi{toi.turn_index, 1 - toi.operation_index};
     auto const& other_op = turn.operations[other_toi.operation_index];
-    return is_better_collinear_target<TargetOperation>
-        ::apply(op, other_op, toi, other_toi, turns);
+    return is_better_collinear_target<TargetOperation>::apply(op, other_op, toi, other_toi, turns);
 }
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_TARGET_OPERATION_HPP

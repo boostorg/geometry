@@ -12,21 +12,25 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
+#include <boost/geometry/algorithms/detail/overlay/graph/select_toi_by_incoming.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
-#include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
-#include <boost/geometry/algorithms/detail/overlay/graph/select_toi_by_incoming.hpp>
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
 #include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-namespace boost { namespace geometry
+namespace boost
+{
+namespace geometry
 {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
+namespace detail
+{
+namespace overlay
 {
 
 template <typename Point>
@@ -37,31 +41,26 @@ struct edge_and_side
     int side{0};
 };
 
-template
-<
-    bool Reverse1,
-    bool Reverse2,
-    overlay_type OverlayType,
-    typename Geometry1,
-    typename Geometry2,
-    typename Turns,
-    typename Clusters,
-    typename Strategy
->
+template <bool Reverse1,
+          bool Reverse2,
+          overlay_type OverlayType,
+          typename Geometry1,
+          typename Geometry2,
+          typename Turns,
+          typename Clusters,
+          typename Strategy>
 struct edge_selector
 {
-private:
+  private:
     static constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
     using point_type = typename Turns::value_type::point_type;
     using edge_type = edge_and_side<point_type>;
     using edges_type = std::vector<edge_type>;
 
     // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
-    using coor_type = typename geometry::select_most_precise
-        <
-            geometry::coordinate_type_t<point_type>,
-            double
-        >::type;
+    using coor_type =
+        typename geometry::select_most_precise<geometry::coordinate_type_t<point_type>,
+                                               double>::type;
 
     // Walks over a ring to get the point after the turn.
     // The turn can be located at the very end of a segment.
@@ -75,8 +74,8 @@ private:
         point_type point;
         do
         {
-            geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-                op.seg_id, offset, point);
+            geometry::copy_segment_point<Reverse1, Reverse2>(
+                m_geometry1, m_geometry2, op.seg_id, offset, point);
             ++offset;
         } while (approximately_equals(point, turn_point, tolerance) && offset < 10);
         return point;
@@ -125,25 +124,25 @@ private:
         return true;
     }
 
-    void report(const char* caption, edges_type const& edges,
-        point_type const& p1, point_type const& p2) const
+    void report(char const* caption,
+                edges_type const& edges,
+                point_type const& p1,
+                point_type const& p2) const
     {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-        std::cout << " *** Sorted edges " << caption
-        << " from " << geometry::wkt(p1) << " to " << geometry::wkt(p2)
-        << std::endl;
+        std::cout << " *** Sorted edges " << caption << " from " << geometry::wkt(p1) << " to "
+                  << geometry::wkt(p2) << std::endl;
         for (auto const& item : edges)
         {
             auto const& op = m_turns[item.toi.turn_index].operations[item.toi.operation_index];
-            std::cout << "  -> " << item.toi
-                << " to " << op.enriched.travels_to_ip_index
-                << " side: " << item.side
-                << std::endl;
+            std::cout << "  -> " << item.toi << " to " << op.enriched.travels_to_ip_index
+                      << " side: " << item.side << std::endl;
         }
 #endif
     }
 
-    turn_operation_id select_by_side(edges_type& edges, point_type const& p1, point_type const& p2) const
+    turn_operation_id
+    select_by_side(edges_type& edges, point_type const& p1, point_type const& p2) const
     {
         // Select point and calculate side for each edge
         auto const side_strategy = m_intersection_strategy.side();
@@ -158,10 +157,10 @@ private:
         // Right = -1 will come first. Left = 1 will come last.
         // This works for both union and intersection operations, because it should always
         // take the right turn (even in uu in buffer/union).
-        std::sort(edges.begin(), edges.end(), [](auto const& a, auto const& b)
-        {
-            return std::tie(a.side, a.toi) < std::tie(b.side, b.toi);
-        });
+        std::sort(edges.begin(),
+                  edges.end(),
+                  [](auto const& a, auto const& b)
+                  { return std::tie(a.side, a.toi) < std::tie(b.side, b.toi); });
 
         report("by side", edges, p1, p2);
 
@@ -173,10 +172,10 @@ private:
         if (edges.front().side != edges.back().side)
         {
             // Remove all edges with different side than the first
-            auto it = std::find_if(edges.begin() + 1, edges.end(), [&](auto const& item)
-            {
-                return item.side != edges.front().side;
-            });
+            auto it
+                = std::find_if(edges.begin() + 1,
+                               edges.end(),
+                               [&](auto const& item) { return item.side != edges.front().side; });
             edges.erase(it, edges.end());
         }
 
@@ -184,9 +183,7 @@ private:
         {
             // Select for collinearity (it makes no sense to sort on mutual side)
             auto compare = [&](edge_type const& a, edge_type const& b) -> bool
-            {
-                return select_collinear_target_edge(a, b);
-            };
+            { return select_collinear_target_edge(a, b); };
             std::sort(edges.begin(), edges.end(), compare);
             return edges.front().toi;
         }
@@ -206,24 +203,27 @@ private:
         return edges.front().toi;
     }
 
-public:
-
-    edge_selector(Geometry1 const& m_geometry1, Geometry2 const& m_geometry2,
-        Turns const& m_turns, Clusters const& clusters,
-        Strategy const& strategy)
-        : m_geometry1(m_geometry1)
-        , m_geometry2(m_geometry2)
-        , m_turns(m_turns)
-        , m_clusters(clusters)
-        , m_intersection_strategy(strategy)
-    {}
+  public:
+    edge_selector(Geometry1 const& m_geometry1,
+                  Geometry2 const& m_geometry2,
+                  Turns const& m_turns,
+                  Clusters const& clusters,
+                  Strategy const& strategy)
+        : m_geometry1(m_geometry1),
+          m_geometry2(m_geometry2),
+          m_turns(m_turns),
+          m_clusters(clusters),
+          m_intersection_strategy(strategy)
+    {
+    }
 
     // Select one operation which is the leftmost or rightmost operation.
     // p1 is the point before the current turn.
     // p2 is the current turn.
     // So (p1, p2) together define the direction of the segment.
     turn_operation_id select_target_edge(set_of_tois const& turn_operation_ids,
-            point_type const& p1, point_type const& p2) const
+                                         point_type const& p1,
+                                         point_type const& p2) const
     {
         if (turn_operation_ids.empty())
         {
@@ -267,17 +267,14 @@ public:
             auto const& turn1 = m_turns[edges[1].toi.turn_index];
             auto const& op0 = turn0.operations[edges[0].toi.operation_index];
             auto const& op1 = turn1.operations[edges[1].toi.operation_index];
-            if (op0.operation == operation_continue
-                && op1.operation == operation_continue
+            if (op0.operation == operation_continue && op1.operation == operation_continue
                 && op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index)
             {
                 return edges.front().toi;
             }
 
-            if (target_operation == operation_union
-                && turn0.is_clustered()
-                && op0.operation == operation_union
-                && op1.operation == operation_union
+            if (target_operation == operation_union && turn0.is_clustered()
+                && op0.operation == operation_union && op1.operation == operation_union
                 && op0.enriched.rank == op1.enriched.rank)
             {
                 // Because it is clustered, and all operations come from the same cluster,
@@ -290,8 +287,8 @@ public:
                     return result;
                 }
 
-                bool const better = is_better_collinear_for_union(
-                        op0, op1, edges.front().toi, edges.back().toi);
+                bool const better
+                    = is_better_collinear_for_union(op0, op1, edges.front().toi, edges.back().toi);
                 return better ? edges.front().toi : edges.back().toi;
             }
         }
@@ -299,7 +296,7 @@ public:
         return select_by_side(edges, p1, p2);
     }
 
-private:
+  private:
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
     Turns const& m_turns;
@@ -307,9 +304,11 @@ private:
     Strategy const& m_intersection_strategy;
 };
 
-}} // namespace detail::overlay
+} // namespace overlay
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
-}} // namespace boost::geometry
+} // namespace geometry
+} // namespace boost
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_EDGE_HPP
