@@ -66,16 +66,10 @@
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 #include <boost/geometry/views/enumerate_view.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 /*
  *  Terminology
@@ -190,8 +184,7 @@ struct buffered_piece_collection
             , is_flat_start(false)
             , is_flat_end(false)
             , is_deflated(false)
-        {
-        }
+        {}
     };
 
     struct original_ring
@@ -261,8 +254,7 @@ struct buffered_piece_collection
         , m_has_deflated(false)
         , m_strategy(strategy)
         , m_distance_strategy(distance_strategy)
-    {
-    }
+    {}
 
     inline void check_linear_endpoints(buffer_turn_info_type& turn) const
     {
@@ -1094,11 +1086,9 @@ struct buffered_piece_collection
     }
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_PIECE_COLLECTION_HPP

@@ -17,16 +17,10 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 // For debug purposes only
 template <typename Turns,
@@ -112,11 +106,9 @@ void write_graph_viz(std::ostream& out,
     out << "}\n";
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_DEBUG_GRAPH_HPP

@@ -14,16 +14,10 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <typename Turns, typename Clusters>
 void assign_clustered_self_counts(Turns& turns, Clusters const& clusters)
@@ -164,11 +158,9 @@ void assign_unclustered_counts(Turns& turns)
     }
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_COUNTS_HPP

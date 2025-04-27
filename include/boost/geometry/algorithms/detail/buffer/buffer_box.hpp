@@ -15,16 +15,10 @@
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 template <typename BoxIn, typename BoxOut, typename T, std::size_t C, std::size_t D, std::size_t N>
 struct box_loop
@@ -57,11 +51,9 @@ inline void buffer_box(BoxIn const& box_in, T const& distance, BoxOut& box_out)
     box_loop<BoxIn, BoxOut, T, max_corner, 0, N>::apply(box_in, distance, box_out);
 }
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_BOX_HPP

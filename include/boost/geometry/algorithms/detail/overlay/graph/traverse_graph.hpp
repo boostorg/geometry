@@ -27,16 +27,10 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <bool Reverse1,
           bool Reverse2,
@@ -68,8 +62,7 @@ struct traverse_graph
         , m_turns(turns)
         , m_clusters(clusters)
         , m_strategy(strategy)
-    {
-    }
+    {}
 
     template <typename Ring>
     void copy_segments(Ring& ring, turn_operation_id const& toi) const
@@ -418,11 +411,9 @@ private:
     std::set<std::tuple<signed_size_type, signed_size_type, signed_size_type>> m_starts;
 };
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_GRAPH_HPP

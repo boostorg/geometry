@@ -13,16 +13,10 @@
 #include <boost/geometry/algorithms/detail/overlay/graph/assign_counts.hpp>
 #include <boost/geometry/algorithms/detail/overlay/handle_self_turns.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <bool Reverse1,
           bool Reverse2,
@@ -61,11 +55,9 @@ void assign_side_counts(Geometry1 const& geometry1,
     assign_unclustered_counts(turns);
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_SIDE_COUNTS_HPP

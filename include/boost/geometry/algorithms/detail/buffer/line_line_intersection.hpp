@@ -13,16 +13,10 @@
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/util/math.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 struct line_line_intersection
 {
@@ -115,11 +109,9 @@ struct line_line_intersection
     }
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP

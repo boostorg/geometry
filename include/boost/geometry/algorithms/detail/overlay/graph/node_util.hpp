@@ -19,16 +19,10 @@
 #include <set>
 #include <tuple>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 using set_of_tois = std::set<turn_operation_id>;
 using set_of_size_t = std::set<std::size_t>;
@@ -157,11 +151,9 @@ auto get_target_nodes(Turns const& turns,
     return result;
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_NODE_UTIL_HPP

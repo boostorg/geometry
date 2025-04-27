@@ -11,16 +11,10 @@
 
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 // For two operations from a cluster, having the same target, and having the same rank,
 // the outgoing side makes it unclear. This function inspects the target and uses the incoming
@@ -93,11 +87,9 @@ bool select_toi_for_union(turn_operation_id& result,
     return false;
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_TOI_BY_INCOMING_HPP

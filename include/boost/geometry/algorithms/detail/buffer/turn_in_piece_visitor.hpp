@@ -25,17 +25,11 @@
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 template <typename CsTag,
           typename Turns,
@@ -102,8 +96,7 @@ public:
         , m_pieces(pieces)
         , m_distance_strategy(distance_strategy)
         , m_umbrella_strategy(umbrella_strategy)
-    {
-    }
+    {}
 
     template <typename Turn, typename Piece>
     inline bool apply(Turn const& turn, Piece const& piece)
@@ -183,11 +176,9 @@ public:
     }
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_PIECE_VISITOR_HPP

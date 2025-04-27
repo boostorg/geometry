@@ -27,36 +27,29 @@
 #include <boost/geometry/strategies/buffer/services.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename Input,
           typename Output,
           typename TagIn = tag_t<Input>,
           typename TagOut = tag_t<Output>>
 struct buffer_dc : not_implemented<TagIn, TagOut>
-{
-};
+{};
 
 template <typename Input,
           typename Output,
           typename TagIn = tag_t<Input>,
           typename TagOut = tag_t<Output>>
 struct buffer_all : not_implemented<TagIn, TagOut>
-{
-};
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-namespace resolve_dynamic
-{
+namespace resolve_dynamic {
 
 template <typename Input, typename TagIn = geometry::tag_t<Input>>
 struct buffer_dc
@@ -261,7 +254,6 @@ inline void buffer(GeometryIn const& geometry_in,
                                                                 point_strategy);
 }
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_INTERFACE_HPP

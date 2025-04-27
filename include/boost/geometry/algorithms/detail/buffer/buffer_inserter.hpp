@@ -51,16 +51,10 @@
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 template <typename RangeIn, typename DistanceStrategy, typename RangeOut, typename Strategies>
 inline void simplify_input(RangeIn const& range,
@@ -373,16 +367,14 @@ struct visit_pieces_default_policy
 {
     template <typename Collection>
     static inline void apply(Collection const&, int)
-    {
-    }
+    {}
 
     template <typename Turns, typename Cluster, typename Connections>
     inline void visit_cluster_connections(signed_size_type cluster_id,
                                           Turns const& turns,
                                           Cluster const& cluster,
                                           Connections const& connections)
-    {
-    }
+    {}
 };
 
 template <typename OutputPointType,
@@ -403,18 +395,15 @@ inline void buffer_point(Point const& point,
     collection.finish_ring(geometry::strategy::buffer::result_normal);
 }
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename Tag, typename RingInput, typename RingOutput>
 struct buffer_inserter
-{
-};
+{};
 
 template <typename Point, typename RingOutput>
 struct buffer_inserter<point_tag, Point, RingOutput>
@@ -892,17 +881,14 @@ struct buffer_inserter<multi_tag, Multi, PolygonOutput>
           dispatch::buffer_inserter<typename single_tag_of<tag_t<Multi>>::type,
                                     typename boost::range_value<Multi const>::type,
                                     geometry::ring_type_t<PolygonOutput>>>
-{
-};
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail {
+namespace buffer {
 
 template <typename GeometryOutput,
           typename GeometryInput,
@@ -1038,7 +1024,6 @@ inline void buffer_inserter(GeometryInput const& geometry_input,
 }
 } // namespace detail::buffer
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_INSERTER_HPP

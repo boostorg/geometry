@@ -28,42 +28,32 @@
 
 #include <boost/geometry/strategies/buffer.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 struct buffer_overlay_visitor
 {
 public:
     template <typename Turns>
     void visit_turns(int, Turns const&)
-    {
-    }
+    {}
 
     template <typename Clusters, typename Turns>
     void visit_clusters(Clusters const&, Turns const&)
-    {
-    }
+    {}
 
     template <typename Turns, typename Turn, typename Operation>
     void visit_traverse(Turns const& /*turns*/,
                         Turn const& /*turn*/,
                         Operation const& /*op*/,
                         char const* /*header*/)
-    {
-    }
+    {}
 
     template <typename Rings>
     void visit_generated_rings(Rings const&)
-    {
-    }
+    {}
 };
 
 // Should follow traversal-turn-concept (enrichment, visit structure)
@@ -97,8 +87,7 @@ struct buffer_turn_info
 
     inline buffer_turn_info()
         : turn_index(0), is_linear_end_point(false), within_original(false), count_in_original(0)
-    {
-    }
+    {}
 };
 
 template <typename Strategy>
@@ -181,11 +170,9 @@ struct turn_overlaps_box
     Strategy const& m_strategy;
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_POLICIES_HPP

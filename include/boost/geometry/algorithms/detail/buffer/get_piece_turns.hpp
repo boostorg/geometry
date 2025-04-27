@@ -28,16 +28,10 @@
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/core/assert.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 // Implements a unique_sub_range for a buffered piece,
 // the range can return subsequent points
@@ -55,8 +49,7 @@ struct unique_sub_range_from_piece
         , m_iterator_at_i(iterator_at_i)
         , m_iterator_at_j(iterator_at_j)
         , m_point_retrieved(false)
-    {
-    }
+    {}
 
     static inline bool is_first_segment() { return false; }
     static inline bool is_last_segment() { return false; }
@@ -158,8 +151,7 @@ class piece_turn_visitor
                && detail::section::preceding<Dimension>(
                    dir, *(it_begin + 1), this_bounding_box, other_bounding_box);
              ++it_begin, index++)
-        {
-        }
+        {}
     }
 
     template <std::size_t Dimension, typename Iterator, typename Box>
@@ -304,8 +296,7 @@ public:
                        Turns& turns,
                        Strategy const& strategy)
         : m_pieces(pieces), m_rings(ring_collection), m_turns(turns), m_strategy(strategy)
-    {
-    }
+    {}
 
     template <typename Section>
     inline bool apply(Section const& section1, Section const& section2, bool first = true)
@@ -329,11 +320,9 @@ public:
     }
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_GET_PIECE_TURNS_HPP

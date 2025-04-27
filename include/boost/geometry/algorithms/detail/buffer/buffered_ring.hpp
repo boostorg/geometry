@@ -35,20 +35,13 @@
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 struct buffered_ring_collection_tag : polygonal_tag, multi_tag
-{
-};
+{};
 
 template <typename Ring>
 struct buffered_ring : public Ring
@@ -63,8 +56,7 @@ struct buffered_ring : public Ring
         , has_accepted_intersections(false)
         , has_discarded_intersections(false)
         , is_untouched_outside_original(false)
-    {
-    }
+    {}
 
     inline bool discarded() const
     {
@@ -79,22 +71,18 @@ struct buffered_ring : public Ring
 // This is a collection now special for overlay (needs vector of rings)
 template <typename Ring>
 struct buffered_ring_collection : public std::vector<Ring>
-{
-};
+{};
 
-} // namespace buffer
-} // namespace detail
+}} // namespace detail::buffer
 
 // Turn off concept checking (for now)
-namespace concepts
-{
+namespace concepts {
 
 template <typename Geometry>
 struct concept_type<Geometry, geometry::detail::buffer::buffered_ring_collection_tag>
 {
     struct dummy
-    {
-    };
+    {};
     using type = dummy;
 };
 
@@ -103,8 +91,7 @@ struct concept_type<Geometry, geometry::detail::buffer::buffered_ring_collection
 #endif // DOXYGEN_NO_DETAIL
 
 // Register the types
-namespace traits
-{
+namespace traits {
 
 template <typename Ring>
 struct tag<geometry::detail::buffer::buffered_ring<Ring>>
@@ -138,8 +125,7 @@ struct tag<geometry::detail::buffer::buffered_ring_collection<Ring>>
 
 } // namespace traits
 
-namespace core_dispatch
-{
+namespace core_dispatch {
 
 template <typename Ring>
 struct ring_type<detail::buffer::buffered_ring_collection_tag,
@@ -165,8 +151,7 @@ struct single_tag_of<detail::buffer::buffered_ring_collection_tag>
     using type = ring_tag;
 };
 
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename MultiRing, bool Reverse, typename SegmentIdentifier, typename PointOut>
 struct copy_segment_point<detail::buffer::buffered_ring_collection_tag,
@@ -183,14 +168,12 @@ struct copy_segment_point<detail::buffer::buffered_ring_collection_tag,
               Reverse,
               SegmentIdentifier,
               PointOut>>
-{
-};
+{};
 
 template <bool Reverse>
 struct copy_segments<detail::buffer::buffered_ring_collection_tag, Reverse>
     : detail::copy_segments::copy_segments_multi<detail::copy_segments::copy_segments_ring<Reverse>>
-{
-};
+{};
 
 template <typename Point, typename MultiGeometry>
 struct within<Point, MultiGeometry, point_tag, detail::buffer::buffered_ring_collection_tag>
@@ -206,21 +189,16 @@ struct within<Point, MultiGeometry, point_tag, detail::buffer::buffered_ring_col
 template <typename Geometry>
 struct is_empty<Geometry, detail::buffer::buffered_ring_collection_tag>
     : detail::is_empty::multi_is_empty<detail::is_empty::range_is_empty>
-{
-};
+{};
 
 template <typename Geometry>
 struct envelope<Geometry, detail::buffer::buffered_ring_collection_tag>
     : detail::envelope::envelope_multi_range<detail::envelope::envelope_range>
-{
-};
+{};
 
 } // namespace dispatch
 
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <>
 struct get_ring<detail::buffer::buffered_ring_collection_tag>
@@ -234,10 +212,8 @@ struct get_ring<detail::buffer::buffered_ring_collection_tag>
     }
 };
 
-} // namespace overlay
-} // namespace detail
+}} // namespace detail::overlay
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFERED_RING

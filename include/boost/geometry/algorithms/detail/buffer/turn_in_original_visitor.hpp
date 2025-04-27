@@ -24,16 +24,10 @@
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 template <typename Strategy>
 struct original_get_box
@@ -211,8 +205,7 @@ class turn_in_original_visitor
 public:
     turn_in_original_visitor(Turns& turns, Strategy const& strategy)
         : m_mutable_turns(turns), m_strategy(strategy)
-    {
-    }
+    {}
 
     template <typename Turn, typename Original>
     inline bool apply(Turn const& turn, Original const& original)
@@ -276,11 +269,9 @@ private:
     Strategy const& m_strategy;
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR

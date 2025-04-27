@@ -36,14 +36,10 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename BoxIn, typename BoxOut>
 struct buffer_dc<BoxIn, BoxOut, box_tag, box_tag>
@@ -187,13 +183,11 @@ struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_ta
 template <typename Input, typename Output, typename TagIn>
 struct buffer_all<Input, Output, TagIn, geometry_collection_tag>
     : buffer_all<Input, Output, geometry_collection_tag, geometry_collection_tag>
-{
-};
+{};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_IMPLEMENTATION_HPP

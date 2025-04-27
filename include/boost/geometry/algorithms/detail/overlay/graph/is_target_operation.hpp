@@ -16,16 +16,10 @@
 #include <set>
 #include <utility>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 // For continue/continue cases where one of the targets
 // is the same as a target of the other target.
@@ -164,8 +158,7 @@ bool is_better_collinear_for_intersection(Operation const& op,
 
 template <operation_type Operation>
 struct is_better_collinear_target
-{
-};
+{};
 
 template <>
 struct is_better_collinear_target<operation_union>
@@ -219,11 +212,9 @@ bool is_target_operation(Turns const& turns, turn_operation_id const& toi)
     return is_better_collinear_target<TargetOperation>::apply(op, other_op, toi, other_toi, turns);
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GRAPH_IS_TARGET_OPERATION_HPP

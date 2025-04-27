@@ -21,16 +21,10 @@
 #include <map>
 #include <set>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 // Indicating if the segment is incoming (to cluster) or outgoing (from cluster)
 enum class connection_type
@@ -124,8 +118,7 @@ struct clustered_count_handler
         , m_clusters(clusters)
         , m_intersection_strategy(strategy)
         , m_side_strategy(m_intersection_strategy.side())
-    {
-    }
+    {}
 
     // Walks over a ring to get the point after the turn.
     // The turn can be located at the very end of a segment.
@@ -602,11 +595,9 @@ private:
     decltype(m_intersection_strategy.side()) m_side_strategy;
 };
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CLUSTER_INFO_HPP

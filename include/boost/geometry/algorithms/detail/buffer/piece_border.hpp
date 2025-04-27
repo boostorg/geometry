@@ -32,14 +32,10 @@
 #include <boost/geometry/geometries/segment.hpp>
 #include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
+namespace detail {
 template <typename It, typename T, typename Compare>
 inline bool
 get_range_around(It begin, It end, T const& value, Compare const& compare, It& lower, It& upper)
@@ -86,10 +82,7 @@ get_range_around(It begin, It end, T const& value, Compare const& compare, It& l
 
 } // namespace detail
 
-namespace detail
-{
-namespace buffer
-{
+namespace detail { namespace buffer {
 
 //! Contains the border of the piece, consisting of 4 parts:
 //! 1: the part of the offsetted ring (referenced, not copied)
@@ -149,8 +142,7 @@ struct piece_border
         , m_is_monotonic_decreasing(false)
         , m_min_comparable_radius(0)
         , m_max_comparable_radius(0)
-    {
-    }
+    {}
 
     // Only used for debugging (SVG)
     Ring get_full_ring() const
@@ -514,11 +506,9 @@ private:
     }
 };
 
-} // namespace buffer
-} // namespace detail
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP

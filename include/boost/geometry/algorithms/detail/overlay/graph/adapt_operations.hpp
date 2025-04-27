@@ -14,16 +14,10 @@
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
-namespace boost
-{
-namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
-namespace overlay
-{
+namespace detail { namespace overlay {
 
 // Changes the operation of a UU turn, following a UX turn, to X (blocked)
 // under certain conditions, such that it is not followed
@@ -112,11 +106,9 @@ void block_ux_uu_workaround(Turns& turns)
     }
 }
 
-} // namespace overlay
-} // namespace detail
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
-} // namespace geometry
-} // namespace boost
+}} // namespace boost::geometry
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ADAPT_OPERATIONS_HPP
