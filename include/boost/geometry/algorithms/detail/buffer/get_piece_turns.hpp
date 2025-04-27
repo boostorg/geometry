@@ -61,10 +61,10 @@ struct unique_sub_range_from_piece
         BOOST_GEOMETRY_ASSERT(index < size());
         switch (index)
         {
-            case 0: return *m_iterator_at_i;
-            case 1: return *m_iterator_at_j;
-            case 2: return get_point_k();
-            default: return *m_iterator_at_i;
+            case 0 : return *m_iterator_at_i;
+            case 1 : return *m_iterator_at_j;
+            case 2 : return get_point_k();
+            default : return *m_iterator_at_i;
         }
     }
 

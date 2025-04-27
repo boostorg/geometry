@@ -112,10 +112,10 @@ struct buffer_range
 
         switch (join)
         {
-            case geometry::strategy::buffer::join_continue:
+            case geometry::strategy::buffer::join_continue :
                 // No join, we get two consecutive sides
                 break;
-            case geometry::strategy::buffer::join_concave:
+            case geometry::strategy::buffer::join_concave :
             {
                 std::vector<output_point_type> range_out;
                 range_out.push_back(prev_perp2);
@@ -130,7 +130,7 @@ struct buffer_range
                     geometry::strategy::buffer::buffered_concave, previous_input, range_out);
             }
             break;
-            case geometry::strategy::buffer::join_spike:
+            case geometry::strategy::buffer::join_spike :
             {
                 // For linestrings, only add spike at one side to avoid
                 // duplicates
@@ -146,7 +146,7 @@ struct buffer_range
                 collection.set_current_ring_concave();
             }
             break;
-            case geometry::strategy::buffer::join_convex:
+            case geometry::strategy::buffer::join_convex :
             {
                 // The corner is convex, we create a join
                 // TODO (future) - avoid a separate vector, add the piece directly

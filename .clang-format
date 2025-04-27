@@ -30,6 +30,7 @@ PointerAlignment: Left
 QualifierAlignment: Right
 SpaceAfterLogicalNot: true
 SpaceAfterTemplateKeyword: true
+SpaceBeforeCaseColon: true
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: true
