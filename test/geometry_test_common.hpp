@@ -20,6 +20,7 @@
 #define GEOMETRY_TEST_GEOMETRY_TEST_COMMON_HPP
 
 #include <boost/config.hpp>
+#include <boost/core/demangle.hpp>
 
 // Determine debug/release mode
 // (it would be convenient if Boost.Config or Boost.Test would define this)
@@ -94,6 +95,7 @@
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/strategies/strategies.hpp>
 namespace bg = boost::geometry;
 
 
@@ -210,6 +212,13 @@ inline void BoostGeometryWriteTestConfiguration()
     std::cout << "  - Including failing test cases" << std::endl;
 #endif
     std::cout << "  - Default test type: " << string_from_type<default_test_type>::name() << std::endl;
+
+    using side_strategy = typename bg::strategy::side::services::default_strategy
+        <
+            bg::cartesian_tag
+        >::type;
+    std::cout << "  - Side strategy: " << boost::core::demangle(typeid(side_strategy).name()) << std::endl;
+
     std::cout << std::endl;
 }
 

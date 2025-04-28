@@ -33,6 +33,9 @@
 #include <boost/geometry/strategy/cartesian/side_by_triangle.hpp>
 #include <boost/geometry/strategy/cartesian/area_box.hpp>
 
+#include <boost/geometry/strategies/distance/detail.hpp>
+#include <boost/geometry/strategies/distance/services.hpp>
+
 #include <boost/geometry/util/type_traits.hpp>
 
 

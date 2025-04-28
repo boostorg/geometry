@@ -34,15 +34,6 @@ struct cluster_colocator
     template <typename TurnIndices, typename Turns>
     static inline void apply(TurnIndices const& indices, Turns& turns)
     {
-        // This approach works for all but one testcase (rt_p13)
-        // The problem is fill_sbs, which uses sides and these sides might change slightly
-        // depending on the exact location of the cluster.
-        // Using the centroid is, on the average, a safer choice for sides.
-        // Alternatively fill_sbs could be revised, but that requires a lot of work
-        // and is outside current scope.
-        // Integer coordinates are always colocated already and do not need centroid calculation.
-        // Geographic/spherical coordinates might (in extremely rare cases) cross the date line
-        // and therefore the first point is taken for them as well.
         auto it = indices.begin();
         auto const& first_point = turns[*it].point;
         for (++it; it != indices.end(); ++it)
@@ -81,6 +72,10 @@ struct cluster_colocator<Point, CoordinateType, geometry::cartesian_tag, false>
 // Because clusters are intersection close together, and
 // handled as one location. Then they should also have one location.
 // It is necessary to avoid artefacts and invalidities.
+// Integer coordinates are always colocated already and do not need centroid calculation.
+// Geographic/spherical coordinates might (in extremely rare cases) cross the date line
+// and therefore the first point is taken for them as well.
+// Currently only necessary for one test case: issue_1211 (validation of sym difference)
 template <typename Clusters, typename Turns>
 inline void colocate_clusters(Clusters const& clusters, Turns& turns)
 {

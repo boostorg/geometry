@@ -41,7 +41,7 @@ BOOST_GEOMETRY_REGISTER_RING(triangle)
 namespace boost { namespace geometry {
 
 template<>
-inline double area<triangle>(const triangle& t)
+inline auto area<triangle>(const triangle& t)
 {
     /*         C
               / \

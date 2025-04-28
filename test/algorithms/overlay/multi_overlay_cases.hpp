@@ -854,6 +854,39 @@ static std::string case_149_multi[2] =
     )""""
 };
 
+static std::string case_150_multi[2] =
+{
+    // For uu turns, unclustered, no self-intersections
+    R""""(
+    MULTIPOLYGON(
+        ((2 2,2 5,5 5,5 2,2 2))
+        )
+    )"""",
+    R""""(
+    MULTIPOLYGON(
+        ((5 5,5 8,8 8,8 5,5 5)),
+        ((1 1,1 3,3 3,3 1,1 1))
+        )
+    )""""
+};
+
+static std::string case_151_multi[2] =
+{
+    // For uu turns, 4 meet at the center point
+    R""""(
+    MULTIPOLYGON(
+        ((1 2,5 5,2 1,1 2)),
+        ((9 8,5 5,8 9,9 8))
+        )
+    )"""",
+    R""""(
+    MULTIPOLYGON(
+        ((2 9,5 5,1 8,2 9)),
+        ((8 1,5 5,9 2,8 1))
+        )
+    )""""
+};
+
 
 static std::string case_recursive_boxes_1[2] =
 {
