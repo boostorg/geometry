@@ -566,10 +566,7 @@ void load(Archive & ar, boost::geometry::index::rtree<V, P, I, E, A> & rt, unsig
     typedef boost::geometry::index::rtree<V, P, I, E, A> rtree;
     typedef detail::rtree::private_view<rtree> view;
     typedef typename view::size_type size_type;
-    typedef typename view::translator_type translator_type;
-    typedef typename view::value_type value_type;
     typedef typename view::options_type options_type;
-    typedef typename view::box_type box_type;
     typedef typename view::allocators_type allocators_type;
     typedef typename view::members_holder members_holder;
 
