@@ -4,8 +4,9 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2025.
+// Modifications copyright (c) 2020-2025, Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -28,6 +29,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/point_xyz.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <boost/geometry/geometries/polyhedral_surface.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 #include <boost/geometry/geometries/segment.hpp>
 

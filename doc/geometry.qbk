@@ -29,6 +29,7 @@
 [def __0dim__  pointlike (e.g. point)]
 [def __1dim__  linear (e.g. linestring)]
 [def __2dim__  areal (e.g. polygon)]
+[def __3dim__  volumetric (e.g. polyhedral_surface)]
 [def __single__  single (e.g. point, polygon)]
 [def __multi__  multiple (e.g. multi_point, multi_polygon)]
 [def __cart__  Cartesian]

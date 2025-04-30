@@ -120,6 +120,7 @@
 [import src/examples/geometries/point_xyz.cpp]
 [import src/examples/geometries/point.cpp]
 [import src/examples/geometries/polygon.cpp]
+[import src/examples/geometries/polyhedral_surface.cpp]
 [import src/examples/geometries/ring.cpp]
 [import src/examples/geometries/segment.cpp]
 

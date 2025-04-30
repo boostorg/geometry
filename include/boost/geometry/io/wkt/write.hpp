@@ -228,6 +228,30 @@ struct wkt_poly
 
 };
 
+template <typename Polyhedral_surface, typename PrefixPolicy>
+struct wkt_polyhedral
+{
+    template <typename Char, typename Traits>
+    static inline void apply(std::basic_ostream<Char, Traits>& os,
+                             Polyhedral_surface const& polyhedral, bool force_closure)
+    {
+        using polygon = typename Polyhedral_surface::polygon_type;
+
+        os << PrefixPolicy::apply();
+
+        os << "(";
+        for (auto it = boost::begin(polyhedral); it != boost::end(polyhedral); ++it)
+        {
+            if (it != boost::begin(polyhedral))
+            {
+                os << ",";
+            }
+            wkt_poly<polygon, detail::wkt::prefix_null>::apply(os, *it, force_closure);
+        }
+        os << ")";
+    }
+};
+
 template <typename Multi, typename StreamPolicy, typename PrefixPolicy>
 struct wkt_multi
 {
@@ -393,6 +417,15 @@ struct wkt<Polygon, polygon_tag>
         <
             Polygon,
             detail::wkt::prefix_polygon
+        >
+{};
+
+template <typename Polyhedral_surface>
+struct wkt<Polyhedral_surface, polyhedral_surface_tag>
+    : detail::wkt::wkt_polyhedral
+        <
+            Polyhedral_surface,
+            detail::wkt::prefix_polyhedral_surface
         >
 {};
 
