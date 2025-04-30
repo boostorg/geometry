@@ -37,7 +37,6 @@
 #include <boost/geometry/geometries/concepts/ring_concept.hpp>
 #include <boost/geometry/geometries/concepts/segment_concept.hpp>
 #include <boost/geometry/geometries/concepts/polyhedral_surface_concept.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
 
 namespace boost { namespace geometry { namespace concepts
 {
