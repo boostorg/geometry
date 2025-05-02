@@ -20,18 +20,18 @@ int main()
     using polygon_t = bg::model::polygon<point_t>;
     using polyhedral_t = bg::model::polyhedral_surface<polygon_t>;
 
-    // intializing an empty polyhedral surface (default constructor)
+    // Intializing an empty polyhedral surface (default constructor)
     polyhedral_t polyhedral0;
 
-    // creating a polyhderal surface (cube) using standard initiallized list
-    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},\
+    // Creating a polyhedral surface (cube) using a standard initialized list
+    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},
                                 {{{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}}}};
 
-    // creating a polyhderal surface (triangular pyramid) using append
+    // Creating a polyhedral surface (triangular pyramid) using append
     // and resize
     polyhedral0.resize(4);
     bg::append(polyhedral0[0].outer(), point_t(0.0, 0.0, 0.0));

@@ -459,7 +459,7 @@ struct polygon_parser
 };
 
 template<typename PolyhedralSurface>
-struct polyhderal_surface_parser
+struct polyhedral_surface_parser
 {
     using polygon_t = typename PolyhedralSurface::polygon_type;
 
@@ -1097,7 +1097,7 @@ struct read_wkt<Geometry, polyhedral_surface_tag>
     : detail::wkt::geometry_parser
         <
             Geometry,
-            detail::wkt::polyhderal_surface_parser,
+            detail::wkt::polyhedral_surface_parser,
             detail::wkt::prefix_polyhedral_surface
         >
 {};

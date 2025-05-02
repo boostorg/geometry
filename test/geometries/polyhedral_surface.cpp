@@ -28,16 +28,16 @@ int test_main(int, char* [])
     using polyhedral_t = bg::model::polyhedral_surface<polygon_t>;
     using const_polyhedral_t = bg::model::polyhedral_surface<polygon_t> const;
 
-    // intializing an empty polyhedral surface (default constructor)
+    // Intializing an empty polyhedral surface (default constructor)
     polyhedral_t polyhedral0;
     BOOST_CHECK_EQUAL(boost::size(polyhedral0), 0);
 
-    // creating a polyhderal surface using standard initiallized list
-    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},\
+    // Creating a polyhedral surface using standard initialized list
+    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},
                                 {{{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}}}};
 
     // Modify polyhedral1 by adding a new polygon

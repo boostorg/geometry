@@ -26,8 +26,9 @@ namespace model
 {
 
 /*!
-\brief A Polyhedral Surface is a contiguous collection of polygons,
-    which share common boundary segments.
+\brief A Polyhedral Surface is a contiguous collection of polygons in 3-dimensional space,
+    which share common boundary segments. The concepts and the constructors don't check if the
+    boundary segments are common but is_valid() does.
 \ingroup geometries
 \tparam Polygon polygon type
 \tparam Container container type for polygons,
@@ -41,6 +42,8 @@ namespace model
 }
 
 */
+
+//TODO: add is_valid() check
 template
 <
     typename Polygon,
@@ -50,7 +53,7 @@ template
 >
 class polyhedral_surface : public Container<Polygon, Allocator<Polygon> >
 {
-	BOOST_CONCEPT_ASSERT( (concepts::Polygon<Polygon>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Polygon<Polygon>) );
 
 public :
     using polygon_type = Polygon;
@@ -63,7 +66,7 @@ public :
 
     /// \constructor_initialized_list{polyhedron}
     inline polyhedral_surface(std::initializer_list<Polygon> l)
-	    : polygon_container(l.begin(), l.end())
+        : polygon_container(l.begin(), l.end())
     {}
 
 };

@@ -228,14 +228,14 @@ struct wkt_poly
 
 };
 
-template <typename Polyhedral_surface, typename PrefixPolicy>
-struct wkt_polyhedral
+template <typename PolyhedralSurface, typename PrefixPolicy>
+struct wkt_polyhedral_surface
 {
     template <typename Char, typename Traits>
     static inline void apply(std::basic_ostream<Char, Traits>& os,
-                             Polyhedral_surface const& polyhedral, bool force_closure)
+                             PolyhedralSurface const& polyhedral, bool force_closure)
     {
-        using polygon = typename Polyhedral_surface::polygon_type;
+        using polygon = typename PolyhedralSurface::polygon_type;
 
         os << PrefixPolicy::apply();
 
@@ -422,7 +422,7 @@ struct wkt<Polygon, polygon_tag>
 
 template <typename Polyhedral_surface>
 struct wkt<Polyhedral_surface, polyhedral_surface_tag>
-    : detail::wkt::wkt_polyhedral
+    : detail::wkt::wkt_polyhedral_surface
         <
             Polyhedral_surface,
             detail::wkt::prefix_polyhedral_surface

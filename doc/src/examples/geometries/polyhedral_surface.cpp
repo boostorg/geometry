@@ -25,12 +25,12 @@ int main()
 
     polyhedral_t polyhedral0; /*< Initializing an empty polyhedral surface (default constructor) >*/
 
-    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},\
-                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},\
-                                {{{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}}}}; /*< Creating a polyhderal surface (cube) using standard initiallized list >*/
+    polyhedral_t polyhedral1 = {{{{0, 0, 0}, {0, 1, 0}, {1, 1, 0}, {1, 0, 0}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {0, 1, 0}, {0, 1, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{0, 0, 0}, {1, 0, 0}, {1, 0, 1}, {0, 0, 1}, {0, 0, 0}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {0, 0, 1}, {0, 1, 1}, {1, 1, 1}}},
+                                {{{1, 1, 1}, {1, 0, 1}, {1, 0, 0}, {1, 1, 0}, {1, 1, 1}}},
+                                {{{1, 1, 1}, {1, 1, 0}, {0, 1, 0}, {0, 1, 1}, {1, 1, 1}}}}; /*< Creating a polyhedral surface (cube) using standard initialized list >*/
 
 
     polyhedral0.resize(4);
@@ -45,7 +45,7 @@ int main()
     bg::append(polyhedral0[2].outer(), point_t(0.0, 0.0, 5.0));
     bg::append(polyhedral0[3].outer(), point_t(5.0, 0.0, 0.0));
     bg::append(polyhedral0[3].outer(), point_t(0.0, 5.0, 0.0));
-    bg::append(polyhedral0[3].outer(), point_t(0.0, 0.0, 5.0)); /*< Creating a polyhderal surface (triangular pyramid) using append and resize >*/
+    bg::append(polyhedral0[3].outer(), point_t(0.0, 0.0, 5.0)); /*< Creating a polyhedral surface (triangular pyramid) using append and resize >*/
 
     polyhedral_t polyhedral2;
     bg::read_wkt("POLYHEDRALSURFACE(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),\

@@ -26,7 +26,7 @@ class PolyhedralSurface
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
     using polygon_type = typename boost::range_value<Geometry>::type;
 
-	BOOST_CONCEPT_ASSERT( (concepts::Polygon<polygon_type>) );
+    BOOST_CONCEPT_ASSERT( (concepts::Polygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
 public:
@@ -48,15 +48,15 @@ template <typename Geometry>
 class ConstPolyhedralSurface
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-	using polygon_type = typename boost::range_value<Geometry>::type;
+    using polygon_type = typename boost::range_value<Geometry>::type;
 
-	BOOST_CONCEPT_ASSERT( (concepts::ConstPolygon<polygon_type>) );
+    BOOST_CONCEPT_ASSERT( (concepts::ConstPolygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
 
 public:
 
-	BOOST_CONCEPT_USAGE(ConstPolyhedralSurface)
-	{}
+    BOOST_CONCEPT_USAGE(ConstPolyhedralSurface)
+    {}
 
 #endif
 };
