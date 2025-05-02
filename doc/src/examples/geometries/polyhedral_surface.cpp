@@ -1,6 +1,8 @@
 // Boost.Geometry
 // QuickBook Example
 
+// Copyright (c) 2025 Siddharth Kumar, Roorkee, India.
+
 // Copyright (c) 2025 Oracle and/or its affiliates.
 // Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 
