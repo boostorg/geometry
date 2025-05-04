@@ -625,10 +625,7 @@ void test_all()
     TEST_BUFFER(rt_w15, join_miter, end_flat, 80.1348, 1.0);
     TEST_BUFFER(rt_w16, join_miter, end_flat, 31.6495, 1.0);
     TEST_BUFFER(rt_w17, join_miter, end_flat, 33.74264, 1.0);
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_BUFFER(rt_w18, join_miter, end_flat, 82.4779, 1.0);
-#endif
+    TEST_BUFFER(rt_w18, join_miter, end_flat, 83.4779, 1.0);
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL)
     // See comments at issue issue_1262
@@ -637,10 +634,7 @@ void test_all()
 
     TEST_BUFFER(rt_w20, join_miter, end_flat, 63.0269, 1.0);
     TEST_BUFFER(rt_w21, join_miter, end_flat, 26.3137, 1.0);
-
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    TEST_BUFFER(rt_w22, join_miter, end_flat, 86.0416, 1.0);
-#endif    
+    TEST_BUFFER(rt_w22, join_miter, end_flat, 86.1274, 1.0);
 
     TEST_BUFFER(rt_w23, join_miter, end_flat, 59.5711, 1.0);
 
@@ -672,6 +666,11 @@ void test_all()
     TEST_BUFFER_VALIDITY_FALSE_NEGATIVE(rt_w35, join_round32, end_flat, 51.63174, 1.0);
 
     TEST_BUFFER(rt_w35, join_miter, end_flat, 57.6569, 1.0);
+    TEST_BUFFER(rt_w36, join_miter, end_flat, 60.1274, 1.0);
+    TEST_BUFFER(rt_w37, join_miter, end_flat, 30.6569, 1.0);
+    TEST_BUFFER(rt_w38, join_miter, end_flat, 68.2279, 1.0);
+    TEST_BUFFER(rt_w39, join_miter, end_flat, 46.2279, 1.0);
+    TEST_BUFFER(rt_w40, join_miter, end_flat, 49.0490, 1.0);
 
     test_one<multi_polygon_type, polygon_type>("nores_mt_1", nores_mt_1, join_round32, end_flat, 13.4113, 1.0);
     test_one<multi_polygon_type, polygon_type>("nores_mt_2", nores_mt_2, join_round32, end_flat, 17.5265, 1.0);
