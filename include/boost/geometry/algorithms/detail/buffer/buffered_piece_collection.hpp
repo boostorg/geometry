@@ -466,8 +466,8 @@ struct buffered_piece_collection
         turn_in_piece_visitor
             <
                 geometry::cs_tag_t<point_type>,
-                turn_vector_type, piece_vector_type, DistanceStrategy, Strategy
-            > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
+                turn_vector_type, cluster_type, piece_vector_type, DistanceStrategy, Strategy
+            > visitor(m_turns, m_clusters, m_pieces, m_distance_strategy, m_strategy);
 
         geometry::partition
             <
