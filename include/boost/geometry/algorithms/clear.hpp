@@ -72,14 +72,14 @@ struct polygon_clear
     }
 };
 
-template <typename Polyhedral_surface>
+template <typename PolyhedralSurface>
 struct polyhedral_surface_clear
 {
-    static inline void apply(Polyhedral_surface& polyhedral_surface)
+    static inline void apply(PolyhedralSurface& polyhedral_surface)
     {
         traits::clear
             <
-                typename std::remove_reference<Polyhedral_surface>::type
+                typename std::remove_reference<PolyhedralSurface>::type
             >::apply(polyhedral_surface);
     }
 };

@@ -420,11 +420,11 @@ struct wkt<Polygon, polygon_tag>
         >
 {};
 
-template <typename Polyhedral_surface>
-struct wkt<Polyhedral_surface, polyhedral_surface_tag>
+template <typename PolyhedralSurface>
+struct wkt<PolyhedralSurface, polyhedral_surface_tag>
     : detail::wkt::wkt_polyhedral_surface
         <
-            Polyhedral_surface,
+            PolyhedralSurface,
             detail::wkt::prefix_polyhedral_surface
         >
 {};
