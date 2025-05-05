@@ -47,7 +47,7 @@ int main()
     bg::append(polyhedral0[2].outer(), point_t(0.0, 0.0, 5.0));
     bg::append(polyhedral0[3].outer(), point_t(5.0, 0.0, 0.0));
     bg::append(polyhedral0[3].outer(), point_t(0.0, 5.0, 0.0));
-    bg::append(polyhedral0[3].outer(), point_t(0.0, 0.0, 5.0)); /*< Creating a polyhedral surface (triangular pyramid) using append and resize >*/
+    bg::append(polyhedral0[3].outer(), point_t(0.0, 0.0, 5.0)); /*< Creating a polyhedral surface (triangular pyramid) using append and resize. See figure below.>*/
 
     polyhedral_t polyhedral2;
     bg::read_wkt("POLYHEDRALSURFACE(((0 0 0, 0 1 0, 1 1 0, 1 0 0, 0 0 0)),\
@@ -75,5 +75,8 @@ POLYHEDRALSURFACE(((0 0 0,5 0 0,0 5 0,0 0 0)),((0 0 0,0 5 0,0 0 5,0 0 0)),((0 0 
 POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 1 0,0 1 1,0 0 1,0 0 0)),((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((1 1 1,1 0 1,0 0 1,0 1 1,1 1 1)),((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)),((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))
 POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 1 0,0 1 1,0 0 1,0 0 0)),((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((1 1 1,1 0 1,0 0 1,0 1 1,1 1 1)),((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)),((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))
 ]
+
+[$img/geometries/triangular_pyramid.png]
+
 */
 //]
