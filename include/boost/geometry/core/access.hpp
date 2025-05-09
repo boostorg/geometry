@@ -33,10 +33,10 @@ namespace boost { namespace geometry
 {
 
 /// Index of minimum corner of the box.
-int const min_corner = 0;
+BOOST_INLINE_CONSTEXPR int min_corner = 0;
 
 /// Index of maximum corner of the box.
-int const max_corner = 1;
+BOOST_INLINE_CONSTEXPR int max_corner = 1;
 
 namespace traits
 {

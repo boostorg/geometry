@@ -106,7 +106,7 @@ struct point_in_geometry_helper<Box, box_tag>
 // This function returns
 // when it finds a point of geometry1 inside or outside geometry2
 template <typename Geometry1, typename Geometry2, typename Strategy>
-static inline int range_in_geometry(Geometry1 const& geometry1,
+inline int range_in_geometry(Geometry1 const& geometry1,
                                     Geometry2 const& geometry2,
                                     Strategy const& strategy,
                                     bool skip_first = false)

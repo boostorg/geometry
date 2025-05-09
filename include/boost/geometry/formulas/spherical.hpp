@@ -45,7 +45,7 @@ struct result_spherical
 };
 
 template <typename T>
-static inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z)
+inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z)
 {
     T const cos_lat = cos(lat);
     x = cos_lat * cos(lon);
@@ -54,7 +54,7 @@ static inline void sph_to_cart3d(T const& lon, T const& lat, T & x, T & y, T & z
 }
 
 template <typename Point3d, typename PointSph>
-static inline Point3d sph_to_cart3d(PointSph const& point_sph)
+inline Point3d sph_to_cart3d(PointSph const& point_sph)
 {
     using calc_t = coordinate_type_t<Point3d>;
 
@@ -72,14 +72,14 @@ static inline Point3d sph_to_cart3d(PointSph const& point_sph)
 }
 
 template <typename T>
-static inline void cart3d_to_sph(T const& x, T const& y, T const& z, T & lon, T & lat)
+inline void cart3d_to_sph(T const& x, T const& y, T const& z, T & lon, T & lat)
 {
     lon = atan2(y, x);
     lat = asin(z);
 }
 
 template <typename PointSph, typename Point3d>
-static inline PointSph cart3d_to_sph(Point3d const& point_3d)
+inline PointSph cart3d_to_sph(Point3d const& point_3d)
 {
     using coord_t = coordinate_type_t<PointSph>;
     using calc_t = coordinate_type_t<Point3d>;
@@ -113,7 +113,7 @@ static inline PointSph cart3d_to_sph(Point3d const& point_3d)
 // 1 left
 // 0 on
 template <typename Point3d1, typename Point3d2>
-static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
+inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
 {
     typedef typename select_coordinate_type<Point3d1, Point3d2>::type calc_t;
     calc_t c0 = 0;
@@ -124,7 +124,7 @@ static inline int sph_side_value(Point3d1 const& norm, Point3d2 const& pt)
 }
 
 template <typename CT, bool ReverseAzimuth, typename T1, typename T2>
-static inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
+inline result_spherical<CT> spherical_azimuth(T1 const& lon1,
                                                      T1 const& lat1,
                                                      T2 const& lon2,
                                                      T2 const& lat2)
