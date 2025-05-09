@@ -60,7 +60,7 @@ namespace following { namespace linear
 // follower for linear/linear geometries set operations
 
 template <typename Turn, typename Operation>
-static inline bool is_entering(Turn const& turn,
+inline bool is_entering(Turn const& turn,
                                Operation const& operation)
 {
     if ( turn.method != method_touch && turn.method != method_touch_interior )
@@ -73,7 +73,7 @@ static inline bool is_entering(Turn const& turn,
 
 
 template <typename Turn, typename Operation>
-static inline bool is_staying_inside(Turn const& turn,
+inline bool is_staying_inside(Turn const& turn,
                                      Operation const& operation,
                                      bool entered)
 {
@@ -92,7 +92,7 @@ static inline bool is_staying_inside(Turn const& turn,
 
 
 template <typename Turn, typename Operation>
-static inline bool is_leaving(Turn const& turn,
+inline bool is_leaving(Turn const& turn,
                               Operation const& operation,
                               bool entered)
 {
@@ -125,7 +125,7 @@ static inline bool is_leaving(Turn const& turn,
 
 
 template <typename Turn, typename Operation>
-static inline bool is_isolated_point(Turn const& turn,
+inline bool is_isolated_point(Turn const& turn,
                                      Operation const& operation,
                                      bool entered)
 {
