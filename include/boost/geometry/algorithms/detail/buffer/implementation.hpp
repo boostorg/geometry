@@ -36,37 +36,31 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/range.hpp>
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
 template <typename BoxIn, typename BoxOut>
 struct buffer_dc<BoxIn, BoxOut, box_tag, box_tag>
 {
     template <typename Distance>
-    static inline void apply(BoxIn const& box_in, BoxOut& box_out,
-                             Distance const& distance, Distance const& )
+    static inline void
+    apply(BoxIn const& box_in, BoxOut& box_out, Distance const& distance, Distance const&)
     {
         detail::buffer::buffer_box(box_in, distance, box_out);
     }
 };
 
-
 template <typename Input, typename Output, typename TagIn>
 struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
 {
-    template
-    <
-        typename DistanceStrategy,
-        typename SideStrategy,
-        typename JoinStrategy,
-        typename EndStrategy,
-        typename PointStrategy,
-        typename Strategies
-    >
+    template <typename DistanceStrategy,
+              typename SideStrategy,
+              typename JoinStrategy,
+              typename EndStrategy,
+              typename PointStrategy,
+              typename Strategies>
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
                              DistanceStrategy const& distance_strategy,
@@ -89,29 +83,25 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
         geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
 
         detail::buffer::buffer_inserter<polygon_type>(geometry_in,
-                    range::back_inserter(geometry_out),
-                    distance_strategy,
-                    side_strategy,
-                    join_strategy,
-                    end_strategy,
-                    point_strategy,
-                    strategies);
+                                                      range::back_inserter(geometry_out),
+                                                      distance_strategy,
+                                                      side_strategy,
+                                                      join_strategy,
+                                                      end_strategy,
+                                                      point_strategy,
+                                                      strategies);
     }
 };
-
 
 template <typename Input, typename Output>
 struct buffer_all<Input, Output, geometry_collection_tag, multi_polygon_tag>
 {
-    template
-    <
-        typename DistanceStrategy,
-        typename SideStrategy,
-        typename JoinStrategy,
-        typename EndStrategy,
-        typename PointStrategy,
-        typename Strategies
-    >
+    template <typename DistanceStrategy,
+              typename SideStrategy,
+              typename JoinStrategy,
+              typename EndStrategy,
+              typename PointStrategy,
+              typename Strategies>
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
                              DistanceStrategy const& distance_strategy,
@@ -128,39 +118,41 @@ struct buffer_all<Input, Output, geometry_collection_tag, multi_polygon_tag>
         // NOTE: This algorithm merges partial results iteratively.
         //   We could first gather all of the results and after that
         //   use some more optimal method like merge_elements().
-        detail::visit_breadth_first([&](auto const& g)
-        {
-            Output buffer_result;
-            buffer_all
-                <
-                    util::remove_cref_t<decltype(g)>, Output
-                >::apply(g, buffer_result, distance_strategy, side_strategy,
-                         join_strategy, end_strategy, point_strategy, strategies);
-
-            if (! geometry::is_empty(buffer_result))
+        detail::visit_breadth_first(
+            [&](auto const& g)
             {
-                Output union_result;
-                geometry::union_(geometry_out, buffer_result, union_result, strategies);
-                geometry_out = std::move(union_result);
-            }
+                Output buffer_result;
+                buffer_all<util::remove_cref_t<decltype(g)>, Output>::apply(g,
+                                                                            buffer_result,
+                                                                            distance_strategy,
+                                                                            side_strategy,
+                                                                            join_strategy,
+                                                                            end_strategy,
+                                                                            point_strategy,
+                                                                            strategies);
 
-            return true;
-        }, geometry_in);
+                if (! geometry::is_empty(buffer_result))
+                {
+                    Output union_result;
+                    geometry::union_(geometry_out, buffer_result, union_result, strategies);
+                    geometry_out = std::move(union_result);
+                }
+
+                return true;
+            },
+            geometry_in);
     }
 };
 
 template <typename Input, typename Output>
 struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_tag>
 {
-    template
-    <
-        typename DistanceStrategy,
-        typename SideStrategy,
-        typename JoinStrategy,
-        typename EndStrategy,
-        typename PointStrategy,
-        typename Strategies
-    >
+    template <typename DistanceStrategy,
+              typename SideStrategy,
+              typename JoinStrategy,
+              typename EndStrategy,
+              typename PointStrategy,
+              typename Strategies>
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
                              DistanceStrategy const& distance_strategy,
@@ -173,17 +165,17 @@ struct buffer_all<Input, Output, geometry_collection_tag, geometry_collection_ta
         // NOTE: We could also allow returning GC containing only polygons.
         //   We'd have to wrap them in model::multi_polygon and then
         //   iteratively emplace_back() into the GC.
-        using mpo_t = typename util::sequence_find_if
-            <
-                typename traits::geometry_types<Output>::type,
-                util::is_multi_polygon
-            >::type;
+        using mpo_t = typename util::sequence_find_if<typename traits::geometry_types<Output>::type,
+                                                      util::is_multi_polygon>::type;
         mpo_t result;
-        buffer_all
-            <
-                Input, mpo_t
-            >::apply(geometry_in, result, distance_strategy, side_strategy,
-                     join_strategy, end_strategy, point_strategy, strategies);
+        buffer_all<Input, mpo_t>::apply(geometry_in,
+                                        result,
+                                        distance_strategy,
+                                        side_strategy,
+                                        join_strategy,
+                                        end_strategy,
+                                        point_strategy,
+                                        strategies);
         range::emplace_back(geometry_out, std::move(result));
     }
 };
@@ -193,11 +185,9 @@ struct buffer_all<Input, Output, TagIn, geometry_collection_tag>
     : buffer_all<Input, Output, geometry_collection_tag, geometry_collection_tag>
 {};
 
-
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_IMPLEMENTATION_HPP

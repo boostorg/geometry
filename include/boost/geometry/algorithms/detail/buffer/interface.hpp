@@ -20,52 +20,38 @@
 
 #include <boost/geometry/algorithms/clear.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/core/visit.hpp>
 #include <boost/geometry/core/tag.hpp>
+#include <boost/geometry/core/visit.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/buffer/services.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DISPATCH
-namespace dispatch
-{
+namespace dispatch {
 
-template
-<
-    typename Input,
-    typename Output,
-    typename TagIn = tag_t<Input>,
-    typename TagOut = tag_t<Output>
->
+template <typename Input,
+          typename Output,
+          typename TagIn = tag_t<Input>,
+          typename TagOut = tag_t<Output>>
 struct buffer_dc : not_implemented<TagIn, TagOut>
 {};
 
-template
-<
-    typename Input,
-    typename Output,
-    typename TagIn = tag_t<Input>,
-    typename TagOut = tag_t<Output>
->
+template <typename Input,
+          typename Output,
+          typename TagIn = tag_t<Input>,
+          typename TagOut = tag_t<Output>>
 struct buffer_all : not_implemented<TagIn, TagOut>
 {};
 
 } // namespace dispatch
 #endif // DOXYGEN_NO_DISPATCH
 
+namespace resolve_dynamic {
 
-namespace resolve_dynamic
-{
-
-template
-<
-    typename Input,
-    typename TagIn = geometry::tag_t<Input>
->
+template <typename Input, typename TagIn = geometry::tag_t<Input>>
 struct buffer_dc
 {
     template <typename Output, typename Distance>
@@ -74,7 +60,8 @@ struct buffer_dc
                              Distance const& distance,
                              Distance const& chord_length)
     {
-        dispatch::buffer_dc<Input, Output>::apply(geometry_in, geometry_out, distance, chord_length);
+        dispatch::buffer_dc<Input, Output>::apply(
+            geometry_in, geometry_out, distance, chord_length);
     }
 };
 
@@ -87,33 +74,25 @@ struct buffer_dc<Input, dynamic_geometry_tag>
                              Distance const& distance,
                              Distance const& chord_length)
     {
-        traits::visit<Input>::apply([&](auto const& g)
-        {
-            dispatch::buffer_dc
-                <
-                    util::remove_cref_t<decltype(g)>, Output
-                >::apply(g, geometry_out, distance, chord_length);
-        }, geometry_in);
+        traits::visit<Input>::apply(
+            [&](auto const& g)
+            {
+                dispatch::buffer_dc<util::remove_cref_t<decltype(g)>, Output>::apply(
+                    g, geometry_out, distance, chord_length);
+            },
+            geometry_in);
     }
 };
 
-
-template
-<
-    typename Input,
-    typename TagIn = geometry::tag_t<Input>
->
+template <typename Input, typename TagIn = geometry::tag_t<Input>>
 struct buffer_all
 {
-    template
-    <
-        typename Output,
-        typename DistanceStrategy,
-        typename SideStrategy,
-        typename JoinStrategy,
-        typename EndStrategy,
-        typename PointStrategy
-    >
+    template <typename Output,
+              typename DistanceStrategy,
+              typename SideStrategy,
+              typename JoinStrategy,
+              typename EndStrategy,
+              typename PointStrategy>
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
                              DistanceStrategy const& distance_strategy,
@@ -122,31 +101,28 @@ struct buffer_all
                              EndStrategy const& end_strategy,
                              PointStrategy const& point_strategy)
     {
-        typename strategies::buffer::services::default_strategy
-            <
-                Input
-            >::type strategies;
+        typename strategies::buffer::services::default_strategy<Input>::type strategies;
 
-        dispatch::buffer_all
-            <
-                Input, Output
-            >::apply(geometry_in, geometry_out, distance_strategy, side_strategy,
-                     join_strategy, end_strategy, point_strategy, strategies);
+        dispatch::buffer_all<Input, Output>::apply(geometry_in,
+                                                   geometry_out,
+                                                   distance_strategy,
+                                                   side_strategy,
+                                                   join_strategy,
+                                                   end_strategy,
+                                                   point_strategy,
+                                                   strategies);
     }
 };
 
 template <typename Input>
 struct buffer_all<Input, dynamic_geometry_tag>
 {
-    template
-    <
-        typename Output,
-        typename DistanceStrategy,
-        typename SideStrategy,
-        typename JoinStrategy,
-        typename EndStrategy,
-        typename PointStrategy
-    >
+    template <typename Output,
+              typename DistanceStrategy,
+              typename SideStrategy,
+              typename JoinStrategy,
+              typename EndStrategy,
+              typename PointStrategy>
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
                              DistanceStrategy const& distance_strategy,
@@ -155,19 +131,22 @@ struct buffer_all<Input, dynamic_geometry_tag>
                              EndStrategy const& end_strategy,
                              PointStrategy const& point_strategy)
     {
-        traits::visit<Input>::apply([&](auto const& g)
-        {
-            buffer_all
-                <
-                    util::remove_cref_t<decltype(g)>
-                >::apply(g, geometry_out, distance_strategy, side_strategy,
-                         join_strategy, end_strategy, point_strategy);
-        }, geometry_in);
+        traits::visit<Input>::apply(
+            [&](auto const& g)
+            {
+                buffer_all<util::remove_cref_t<decltype(g)>>::apply(g,
+                                                                    geometry_out,
+                                                                    distance_strategy,
+                                                                    side_strategy,
+                                                                    join_strategy,
+                                                                    end_strategy,
+                                                                    point_strategy);
+            },
+            geometry_in);
     }
 };
 
 } // namespace resolve_dynamic
-
 
 /*!
 \brief \brief_calc{buffer}
@@ -179,13 +158,16 @@ struct buffer_all<Input, dynamic_geometry_tag>
 \param geometry_in \param_geometry
 \param geometry_out \param_geometry
 \param distance The distance to be used for the buffer
-\param chord_length (optional) The length of the chord's in the generated arcs around points or bends
+\param chord_length (optional) The length of the chord's in the generated arcs around points or
+bends
 
 \qbk{[include reference/algorithms/buffer.qbk]}
  */
 template <typename Input, typename Output, typename Distance>
-inline void buffer(Input const& geometry_in, Output& geometry_out,
-                   Distance const& distance, Distance const& chord_length = -1)
+inline void buffer(Input const& geometry_in,
+                   Output& geometry_out,
+                   Distance const& distance,
+                   Distance const& chord_length = -1)
 {
     concepts::check<Input const>();
     concepts::check<Output>();
@@ -207,8 +189,8 @@ inline void buffer(Input const& geometry_in, Output& geometry_out,
 \return \return_calc{buffer}
  */
 template <typename Output, typename Input, typename Distance>
-inline Output return_buffer(Input const& geometry, Distance const& distance,
-                            Distance const& chord_length = -1)
+inline Output
+return_buffer(Input const& geometry, Distance const& distance, Distance const& chord_length = -1)
 {
     concepts::check<Input const>();
     concepts::check<Output>();
@@ -243,16 +225,13 @@ inline Output return_buffer(Input const& geometry, Distance const& distance,
 \qbk{distinguish,with strategies}
 \qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
  */
-template
-<
-    typename GeometryIn,
-    typename GeometryOut,
-    typename DistanceStrategy,
-    typename SideStrategy,
-    typename JoinStrategy,
-    typename EndStrategy,
-    typename PointStrategy
->
+template <typename GeometryIn,
+          typename GeometryOut,
+          typename DistanceStrategy,
+          typename SideStrategy,
+          typename JoinStrategy,
+          typename EndStrategy,
+          typename PointStrategy>
 inline void buffer(GeometryIn const& geometry_in,
                    GeometryOut& geometry_out,
                    DistanceStrategy const& distance_strategy,
@@ -266,13 +245,14 @@ inline void buffer(GeometryIn const& geometry_in,
 
     geometry::clear(geometry_out);
 
-    resolve_dynamic::buffer_all
-        <
-            GeometryIn, GeometryOut
-        >::apply(geometry_in, geometry_out, distance_strategy, side_strategy,
-                 join_strategy, end_strategy, point_strategy);
+    resolve_dynamic::buffer_all<GeometryIn, GeometryOut>::apply(geometry_in,
+                                                                geometry_out,
+                                                                distance_strategy,
+                                                                side_strategy,
+                                                                join_strategy,
+                                                                end_strategy,
+                                                                point_strategy);
 }
-
 
 }} // namespace boost::geometry
 

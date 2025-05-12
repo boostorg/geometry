@@ -14,33 +14,25 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 
-
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
-#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/interface.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
 
-
-namespace boost { namespace geometry
-{
-
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace buffer
-{
-
+namespace detail { namespace buffer {
 
 template <typename Strategy>
 struct original_get_box
 {
-    explicit original_get_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit original_get_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Original>
     inline void apply(Box& total, Original const& original) const
@@ -55,16 +47,13 @@ struct original_get_box
 template <typename Strategy>
 struct original_overlaps_box
 {
-    explicit original_overlaps_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit original_overlaps_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Original>
     inline bool apply(Box const& box, Original const& original) const
     {
         assert_coordinate_type_equal(box, original.m_box);
-        return ! detail::disjoint::disjoint_box_box(box, original.m_box,
-                                                    m_strategy);
+        return ! detail::disjoint::disjoint_box_box(box, original.m_box, m_strategy);
     }
 
     Strategy const& m_strategy;
@@ -82,9 +71,7 @@ struct include_turn_policy
 template <typename Strategy>
 struct turn_in_original_overlaps_box
 {
-    explicit turn_in_original_overlaps_box(Strategy const& strategy)
-        : m_strategy(strategy)
-    {}
+    explicit turn_in_original_overlaps_box(Strategy const& strategy) : m_strategy(strategy) {}
 
     template <typename Box, typename Turn>
     inline bool apply(Box const& box, Turn const& turn) const
@@ -95,8 +82,7 @@ struct turn_in_original_overlaps_box
             return false;
         }
 
-        return ! geometry::detail::disjoint::disjoint_point_box(
-                    turn.point, box, m_strategy);
+        return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box, m_strategy);
     }
 
     Strategy const& m_strategy;
@@ -104,15 +90,9 @@ struct turn_in_original_overlaps_box
 
 //! Check if specified is in range of specified iterators
 //! Return value of strategy (true if we can bail out)
-template
-<
-    typename Strategy,
-    typename State,
-    typename Point,
-    typename Iterator
->
-inline bool point_in_range(Strategy& strategy, State& state,
-        Point const& point, Iterator begin, Iterator end)
+template <typename Strategy, typename State, typename Point, typename Iterator>
+inline bool
+point_in_range(Strategy& strategy, State& state, Point const& point, Iterator begin, Iterator end)
 {
     boost::ignore_unused(strategy);
 
@@ -128,18 +108,18 @@ inline bool point_in_range(Strategy& strategy, State& state,
     return true;
 }
 
-template
-<
-    typename Strategy,
-    typename State,
-    typename Point,
-    typename CoordinateType,
-    typename Iterator
->
-inline bool point_in_section(Strategy& strategy, State& state,
-        Point const& point, CoordinateType const& point_x,
-        Iterator begin, Iterator end,
-        int direction)
+template <typename Strategy,
+          typename State,
+          typename Point,
+          typename CoordinateType,
+          typename Iterator>
+inline bool point_in_section(Strategy& strategy,
+                             State& state,
+                             Point const& point,
+                             CoordinateType const& point_x,
+                             Iterator begin,
+                             Iterator end,
+                             int direction)
 {
     if (direction == 0)
     {
@@ -175,9 +155,9 @@ inline bool point_in_section(Strategy& strategy, State& state,
     return true;
 }
 
-
 template <typename Point, typename Original, typename PointInGeometryStrategy>
-inline int point_in_original(Point const& point, Original const& original,
+inline int point_in_original(Point const& point,
+                             Original const& original,
                              PointInGeometryStrategy const& strategy)
 {
     typename PointInGeometryStrategy::state_type state;
@@ -188,8 +168,7 @@ inline int point_in_original(Point const& point, Original const& original,
         // There are no sections, or it does not profit to walk over sections
         // instead of over points. Boundary of 16 is arbitrary but can influence
         // performance
-        point_in_range(strategy, state, point,
-                original.m_ring.begin(), original.m_ring.end());
+        point_in_range(strategy, state, point, original.m_ring.begin(), original.m_ring.end());
         return strategy.result(state);
     }
 
@@ -198,16 +177,18 @@ inline int point_in_original(Point const& point, Original const& original,
     // Walk through all monotonic sections of this original
     for (auto const& section : original.m_sections)
     {
-        if (! section.duplicate
-            && section.begin_index < section.end_index
+        if (! section.duplicate && section.begin_index < section.end_index
             && point_x >= geometry::get<min_corner, 0>(section.bounding_box)
             && point_x <= geometry::get<max_corner, 0>(section.bounding_box))
         {
             // x-coordinate of point overlaps with section
-            if (! point_in_section(strategy, state, point, point_x,
-                    boost::begin(original.m_ring) + section.begin_index,
-                    boost::begin(original.m_ring) + section.end_index + 1,
-                    section.directions[0]))
+            if (! point_in_section(strategy,
+                                   state,
+                                   point,
+                                   point_x,
+                                   boost::begin(original.m_ring) + section.begin_index,
+                                   boost::begin(original.m_ring) + section.end_index + 1,
+                                   section.directions[0]))
             {
                 // We're probably on the boundary
                 break;
@@ -218,14 +199,12 @@ inline int point_in_original(Point const& point, Original const& original,
     return strategy.result(state);
 }
 
-
 template <typename Turns, typename Strategy>
 class turn_in_original_visitor
 {
 public:
     turn_in_original_visitor(Turns& turns, Strategy const& strategy)
-        : m_mutable_turns(turns)
-        , m_strategy(strategy)
+        : m_mutable_turns(turns), m_strategy(strategy)
     {}
 
     template <typename Turn, typename Original>
@@ -249,8 +228,8 @@ public:
             return true;
         }
 
-        int const code = point_in_original(turn.point, original,
-                                           m_strategy.relate(turn.point, original.m_ring));
+        int const code = point_in_original(
+            turn.point, original, m_strategy.relate(turn.point, original.m_ring));
 
         if (code == -1)
         {
@@ -285,15 +264,13 @@ public:
         return true;
     }
 
-private :
+private:
     Turns& m_mutable_turns;
     Strategy const& m_strategy;
 };
 
-
-}} // namespace detail::buffer
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
-
 
 }} // namespace boost::geometry
 

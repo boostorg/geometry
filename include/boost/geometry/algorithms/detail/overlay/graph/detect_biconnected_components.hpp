@@ -12,16 +12,16 @@
 #include <map>
 #include <set>
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/graph/graph_util.hpp>
+#include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
-#include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
-#include <boost/geometry/algorithms/detail/overlay/graph/graph_util.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/graph/debug_graph.hpp>
 
-#include <boost/graph/biconnected_components.hpp>
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/biconnected_components.hpp>
 
 #if ! defined(BOOST_GEOMETRY_OVERLAY_NO_THROW)
 #include <boost/geometry/core/exception.hpp>
@@ -32,12 +32,10 @@
 #include <fstream>
 #endif
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
-{
+namespace detail { namespace overlay {
 
 struct vertex_info
 {
@@ -75,8 +73,10 @@ struct state_type
     std::size_t extra_node_id{0};
 };
 
-inline void add_edge(signed_size_type source_node_id, signed_size_type target_node_id,
-        segment_identifier const& seg_id, state_type& state)
+inline void add_edge(signed_size_type source_node_id,
+                     signed_size_type target_node_id,
+                     segment_identifier const& seg_id,
+                     state_type& state)
 {
     // Insert the source and target node (turn or cluster)
     auto it_source = state.node_to_vertex_index.find(source_node_id);
@@ -159,15 +159,15 @@ void fill_vertex_map(Turns const& turns, Clusters const& clusters, state_type& s
 
 // Assigns biconnected components to turns
 template <typename Turns, typename Clusters, typename Graph, typename Components>
-void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bool allow_closed,
-    Graph const& graph, Components const& component, state_type const& state)
+void assign_biconnected_component_ids(Turns& turns,
+                                      Clusters const& clusters,
+                                      bool allow_closed,
+                                      Graph const& graph,
+                                      Components const& component,
+                                      state_type const& state)
 {
     auto node_id_from_it = [&state](auto const& it)
-    {
-        return it->second.is_extra
-            ? it->second.original_node_id
-            : it->second.node_id;
-    };
+    { return it->second.is_extra ? it->second.original_node_id : it->second.node_id; };
 
     typename graph_traits<Graph>::edge_iterator ei, ei_end;
     for (boost::tie(ei, ei_end) = edges(graph); ei != ei_end; ++ei)
@@ -186,8 +186,8 @@ void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bo
         auto const target_node_id = node_id_from_it(it_target);
         auto const edge_seg_id = state.edge_to_seg_id.at({source(*ei, graph), target(*ei, graph)});
 
-        auto const turn_indices = get_turn_indices_by_node_id(turns, clusters, source_node_id,
-            allow_closed);
+        auto const turn_indices
+            = get_turn_indices_by_node_id(turns, clusters, source_node_id, allow_closed);
 
         // Assign the component to all the operations
         // going from the source node to the target node.
@@ -208,7 +208,8 @@ void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bo
                     op.enriched.component_id = static_cast<int>(component[*ei]);
                     if (turn.both(operation_continue))
                     {
-                        // For cc, always set both operations (only one of them is returned by get_node_id)
+                        // For cc, always set both operations (only one of them is returned by
+                        // get_node_id)
                         auto& other_op = turn.operations[1 - j];
                         other_op.enriched.component_id = op.enriched.component_id;
                     }
@@ -221,14 +222,11 @@ void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bo
 template <operation_type TargetOperation, typename Turns, typename Clusters>
 void detect_biconnected_components(Turns& turns, Clusters const& clusters)
 {
-    using graph_t = boost::adjacency_list
-        <
-            boost::vecS,
-            boost::vecS,
-            boost::undirectedS,
-            boost::no_property,
-            boost::property<edge_component, std::size_t>
-        >;
+    using graph_t = boost::adjacency_list<boost::vecS,
+                                          boost::vecS,
+                                          boost::undirectedS,
+                                          boost::no_property,
+                                          boost::property<edge_component, std::size_t>>;
 
     // Mapping to add turns to vertices, count them, and then build the graph.
     // (It is convenient if the vertex index is the same as the turn index.
@@ -256,9 +254,8 @@ void detect_biconnected_components(Turns& turns, Clusters const& clusters)
     biconnected_components(graph, component);
     fix_components(component, graph);
 
-    assign_biconnected_component_ids(turns, clusters,
-        TargetOperation == operation_intersection,
-        graph, component, state);
+    assign_biconnected_component_ids(
+        turns, clusters, TargetOperation == operation_intersection, graph, component, state);
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
     {
@@ -268,7 +265,7 @@ void detect_biconnected_components(Turns& turns, Clusters const& clusters)
 #endif
 }
 
-}} // namespace detail::overlay
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

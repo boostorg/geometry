@@ -14,20 +14,19 @@
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
-{
+namespace detail { namespace overlay {
 
 template <typename Turns, typename Clusters>
 void assign_clustered_self_counts(Turns& turns, Clusters const& clusters)
 {
     auto is_self_cluster = [&turns](auto const& cinfo)
     {
-        return std::all_of(cinfo.turn_indices.cbegin(), cinfo.turn_indices.cend(),
-            [&](auto index) { return turns[index].is_self(); });
+        return std::all_of(cinfo.turn_indices.cbegin(),
+                           cinfo.turn_indices.cend(),
+                           [&](auto index) { return turns[index].is_self(); });
     };
 
     for (auto const& cluster : clusters)
@@ -75,29 +74,34 @@ void assign_counts(Turn& turn)
     {
         for (auto& op : turn.operations)
         {
-            if (op.operation == op1.first) { assign(op.enriched, op1.second); }
-            else if (op.operation == op2.first) { assign(op.enriched, op2.second); }
+            if (op.operation == op1.first)
+            {
+                assign(op.enriched, op1.second);
+            }
+            else if (op.operation == op2.first)
+            {
+                assign(op.enriched, op2.second);
+            }
         }
     };
 
     auto assign_left_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
-    {
-        assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_left = count; });
-    };
+    { assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_left = count; }); };
 
     auto assign_right_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
-    {
-        assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_right = count; });
+    { assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_right = count; }); };
+
+    auto assign_left_incoming_for = [&turn, &assign_for](counts_per_op_t const& op1,
+                                                         counts_per_op_t op2) {
+        assign_for(
+            op1, op2, [](auto& enriched, auto count) { enriched.count_left_incoming = count; });
     };
 
-    auto assign_left_incoming_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
+    auto assign_right_incoming_for
+        = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
     {
-        assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_left_incoming = count; });
-    };
-
-    auto assign_right_incoming_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
-    {
-        assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_right_incoming = count; });
+        assign_for(
+            op1, op2, [](auto& enriched, auto count) { enriched.count_right_incoming = count; });
     };
 
     if (turn.combination(operation_intersection, operation_union))
@@ -154,7 +158,7 @@ void assign_unclustered_counts(Turns& turns)
     }
 }
 
-}} // namespace detail::overlay
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

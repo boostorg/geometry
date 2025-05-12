@@ -13,13 +13,10 @@
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/util/math.hpp>
 
-namespace boost { namespace geometry
-{
-
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace buffer
-{
+namespace detail { namespace buffer {
 
 struct line_line_intersection
 {
@@ -33,9 +30,13 @@ struct line_line_intersection
     }
 
     template <typename Point>
-    static bool
-    apply(Point const& pi, Point const& pj, Point const& qi, Point const& qj,
-          Point const& vertex, bool equidistant, Point& ip)
+    static bool apply(Point const& pi,
+                      Point const& pj,
+                      Point const& qi,
+                      Point const& qj,
+                      Point const& vertex,
+                      bool equidistant,
+                      Point& ip)
     {
         // Calculates ip (below) by either intersecting p (pi, pj)
         // with q (qi, qj) or by taking a point between pj and qi (b) and
@@ -70,8 +71,8 @@ struct line_line_intersection
         auto const q = detail::make::make_infinite_line<ct>(qi, qj);
 
         using line = decltype(p);
-        using arithmetic::determinant;
         using arithmetic::assign_intersection_point;
+        using arithmetic::determinant;
 
         // The denominator is the determinant of (a,b) values of lines p q
         // | pa pa |
@@ -85,16 +86,15 @@ struct line_line_intersection
             auto const r = detail::make::make_infinite_line<ct>(vertex, between);
             auto const denominator_pr = determinant<line, &line::a, &line::b>(p, r);
 
-            if (math::equals(denominator_pq, zero)
-                && math::equals(denominator_pr, zero))
+            if (math::equals(denominator_pq, zero) && math::equals(denominator_pr, zero))
             {
                 // Degenerate case (for example when length results in <inf>)
                 return false;
             }
 
             ip = geometry::math::abs(denominator_pq) > geometry::math::abs(denominator_pr)
-                 ? assign_intersection_point<Point>(p, q, denominator_pq)
-                 : assign_intersection_point<Point>(p, r, denominator_pr);
+                     ? assign_intersection_point<Point>(p, q, denominator_pq)
+                     : assign_intersection_point<Point>(p, r, denominator_pr);
         }
         else
         {
@@ -109,12 +109,9 @@ struct line_line_intersection
     }
 };
 
-
-}} // namespace detail::buffer
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
 
-
 }} // namespace boost::geometry
-
 
 #endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP

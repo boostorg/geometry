@@ -19,33 +19,28 @@
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
-#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
-#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
+#include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
+#include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/geometries/box.hpp>
 
-
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
 
-namespace detail { namespace buffer
-{
+namespace detail { namespace buffer {
 
-template
-<
-    typename CsTag,
-    typename Turns,
-    typename Pieces,
-    typename DistanceStrategy,
-    typename UmbrellaStrategy
+template <typename CsTag,
+          typename Turns,
+          typename Pieces,
+          typename DistanceStrategy,
+          typename UmbrellaStrategy
 
->
+          >
 class turn_in_piece_visitor
 {
-    Turns& m_turns; // because partition is currently operating on const input only
+    Turns& m_turns;         // because partition is currently operating on const input only
     Pieces const& m_pieces; // to check for piece-type
     DistanceStrategy const& m_distance_strategy; // to check if point is on original or one_sided
     UmbrellaStrategy const& m_umbrella_strategy;
@@ -81,22 +76,20 @@ class turn_in_piece_visitor
     inline bool is_one_sided(NumericType const& left, NumericType const& right) const
     {
         static NumericType const zero = 0;
-        return geometry::math::equals(left, zero)
-            || geometry::math::equals(right, zero);
+        return geometry::math::equals(left, zero) || geometry::math::equals(right, zero);
     }
 
     template <typename Point>
     inline bool has_zero_distance_at(Point const& point) const
     {
-        return is_one_sided(m_distance_strategy.apply(point, point,
-                strategy::buffer::buffer_side_left),
-            m_distance_strategy.apply(point, point,
-                strategy::buffer::buffer_side_right));
+        return is_one_sided(
+            m_distance_strategy.apply(point, point, strategy::buffer::buffer_side_left),
+            m_distance_strategy.apply(point, point, strategy::buffer::buffer_side_right));
     }
 
 public:
-
-    inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces,
+    inline turn_in_piece_visitor(Turns& turns,
+                                 Pieces const& pieces,
                                  DistanceStrategy const& distance_strategy,
                                  UmbrellaStrategy const& umbrella_strategy)
         : m_turns(turns)
@@ -148,8 +141,8 @@ public:
             // Optimization for a buffer around points: if distance from center
             // is not between min/max radius, it is either inside or outside,
             // and more expensive checks are not necessary.
-            auto const d = geometry::comparable_distance(piece.m_center, turn.point,
-                                                         m_umbrella_strategy);
+            auto const d
+                = geometry::comparable_distance(piece.m_center, turn.point, m_umbrella_strategy);
 
             if (d < border.m_min_comparable_radius)
             {
@@ -168,8 +161,7 @@ public:
         bool const one_sided = has_zero_distance_at(turn.point);
 
         typename Border::state_type state;
-        if (! border.point_on_piece(turn.point, one_sided,
-                                    turn.is_linear_end_point, state))
+        if (! border.point_on_piece(turn.point, one_sided, turn.is_linear_end_point, state))
         {
             return true;
         }
@@ -184,10 +176,8 @@ public:
     }
 };
 
-
-}} // namespace detail::buffer
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
-
 
 }} // namespace boost::geometry
 

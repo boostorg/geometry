@@ -9,22 +9,20 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_NODE_UTIL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_NODE_UTIL_HPP
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_target_operation.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
 #include <set>
 #include <tuple>
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
-{
+namespace detail { namespace overlay {
 
 using set_of_tois = std::set<turn_operation_id>;
 using set_of_size_t = std::set<std::size_t>;
@@ -38,13 +36,15 @@ struct edge_info
     bool operator<(edge_info const& other) const
     {
         return std::tie(source_node_id, target_node_id, seg_id)
-             < std::tie(other.source_node_id, other.target_node_id, other.seg_id);
+               < std::tie(other.source_node_id, other.target_node_id, other.seg_id);
     }
 };
 
 template <typename Turns, typename Clusters>
-set_of_size_t get_turn_indices_by_cluster_id(Turns const& turns, Clusters const& clusters,
-        signed_size_type cluster_id, bool allow_closed)
+set_of_size_t get_turn_indices_by_cluster_id(Turns const& turns,
+                                             Clusters const& clusters,
+                                             signed_size_type cluster_id,
+                                             bool allow_closed)
 {
     set_of_size_t result;
     auto it = clusters.find(cluster_id);
@@ -76,8 +76,10 @@ signed_size_type get_node_id(Turns const& turns, std::size_t turn_index)
 }
 
 template <typename Turns, typename Clusters>
-set_of_size_t get_turn_indices_by_node_id(Turns const& turns, Clusters const& clusters,
-        signed_size_type node_id, bool allow_closed)
+set_of_size_t get_turn_indices_by_node_id(Turns const& turns,
+                                          Clusters const& clusters,
+                                          signed_size_type node_id,
+                                          bool allow_closed)
 {
     if (node_id < 0)
     {
@@ -101,17 +103,16 @@ set_of_size_t get_turn_indices_by_node_id(Turns const& turns, Clusters const& cl
 
 template <operation_type TargetOperation, typename Turns>
 void get_target_operations(Turns const& turns,
-                      typename Turns::value_type const& turn,
-                      std::size_t turn_index,
-                      signed_size_type source_node_id,
-                      std::set<edge_info>& edges)
+                           typename Turns::value_type const& turn,
+                           std::size_t turn_index,
+                           signed_size_type source_node_id,
+                           std::set<edge_info>& edges)
 {
     using is_included = is_operation_included<TargetOperation>;
     for (int j = 0; j < 2; j++)
     {
         auto const& op = turn.operations[j];
-        if (is_included::apply(op)
-            && is_target_operation<TargetOperation>(turns, {turn_index, j}))
+        if (is_included::apply(op) && is_target_operation<TargetOperation>(turns, {turn_index, j}))
         {
             auto const& target_node_id = get_node_id(turns, op.enriched.travels_to_ip_index);
             edges.insert({source_node_id, target_node_id, op.seg_id});
@@ -119,10 +120,10 @@ void get_target_operations(Turns const& turns,
     }
 }
 
-
 // Get the target nodes of a specific component_id only.
 template <operation_type TargetOperation, typename Turns, typename Clusters, typename Set>
-auto get_target_nodes(Turns const& turns, Clusters const& clusters,
+auto get_target_nodes(Turns const& turns,
+                      Clusters const& clusters,
                       Set const& turn_indices,
                       signed_size_type component_id)
 {
@@ -140,8 +141,7 @@ auto get_target_nodes(Turns const& turns, Clusters const& clusters,
         for (int j = 0; j < 2; j++)
         {
             auto const& op = turn.operations[j];
-            if (op.enriched.component_id == component_id
-                && is_included::apply(op)
+            if (op.enriched.component_id == component_id && is_included::apply(op)
                 && is_target_operation<TargetOperation>(turns, {turn_index, j}))
             {
                 result.insert(get_node_id(turns, op.enriched.travels_to_ip_index));
@@ -151,7 +151,7 @@ auto get_target_nodes(Turns const& turns, Clusters const& clusters,
     return result;
 }
 
-}} // namespace detail::overlay
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

@@ -14,7 +14,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_PIECE_BORDER_HPP
 
-
 #include <array>
 
 #include <boost/core/addressof.hpp>
@@ -25,23 +24,21 @@
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/comparable_distance.hpp>
-#include <boost/geometry/algorithms/equals.hpp>
-#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
+#include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
 
-
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail
-{
+namespace detail {
 template <typename It, typename T, typename Compare>
-inline bool get_range_around(It begin, It end, T const& value, Compare const& compare, It& lower, It& upper)
+inline bool
+get_range_around(It begin, It end, T const& value, Compare const& compare, It& lower, It& upper)
 {
     lower = end;
     upper = end;
@@ -83,11 +80,9 @@ inline bool get_range_around(It begin, It end, T const& value, Compare const& co
     return true;
 }
 
-}
+} // namespace detail
 
-
-namespace detail { namespace buffer
-{
+namespace detail { namespace buffer {
 
 //! Contains the border of the piece, consisting of 4 parts:
 //! 1: the part of the offsetted ring (referenced, not copied)
@@ -105,7 +100,8 @@ struct piece_border
 {
     using coordinate_type = geometry::coordinate_type_t<Point>;
     using radius_type = typename default_comparable_distance_result<Point>::type;
-    using state_type = typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type;
+    using state_type =
+        typename geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>::state_type;
 
     bool m_reversed;
 
@@ -146,8 +142,7 @@ struct piece_border
         , m_is_monotonic_decreasing(false)
         , m_min_comparable_radius(0)
         , m_max_comparable_radius(0)
-    {
-    }
+    {}
 
     // Only used for debugging (SVG)
     Ring get_full_ring() const
@@ -157,12 +152,9 @@ struct piece_border
         {
             return result;
         }
-        std::copy(m_ring->begin() + m_begin,
-                  m_ring->begin() + m_end,
-                  std::back_inserter(result));
-        std::copy(m_originals.begin(),
-                  m_originals.begin() + m_original_size,
-                  std::back_inserter(result));
+        std::copy(m_ring->begin() + m_begin, m_ring->begin() + m_end, std::back_inserter(result));
+        std::copy(
+            m_originals.begin(), m_originals.begin() + m_original_size, std::back_inserter(result));
         // Add the closing point
         result.push_back(*(m_ring->begin() + m_begin));
 
@@ -170,8 +162,8 @@ struct piece_border
     }
 
     template <typename Strategy>
-    void get_properties_of_border(bool is_point_buffer, Point const& center,
-                                  Strategy const& strategy)
+    void
+    get_properties_of_border(bool is_point_buffer, Point const& center, Strategy const& strategy)
     {
         m_has_envelope = calculate_envelope(m_envelope, strategy);
         if (m_has_envelope)
@@ -222,15 +214,16 @@ struct piece_border
             return false;
         }
         expand_envelope(envelope, m_ring->begin() + m_begin, m_ring->begin() + m_end, strategy);
-        expand_envelope(envelope, m_originals.begin(), m_originals.begin() + m_original_size, strategy);
+        expand_envelope(
+            envelope, m_originals.begin(), m_originals.begin() + m_original_size, strategy);
         return true;
     }
-
 
     // Whatever the return value, the state should be checked.
     template <typename TurnPoint, typename State>
     bool point_on_piece(TurnPoint const& point,
-                        bool one_sided, bool is_linear_end_point,
+                        bool one_sided,
+                        bool is_linear_end_point,
                         State& state) const
     {
         if (ring_or_original_empty())
@@ -250,43 +243,40 @@ struct piece_border
 
         // For onesided buffers, or turns colocated with linear end points,
         // the place on the ring is changed to offsetted (because of colocation)
-        geometry::strategy::buffer::place_on_ring_type const por_original
-            = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_original,
-                                    one_sided, is_linear_end_point);
+        geometry::strategy::buffer::place_on_ring_type const por_original = adapted_place_on_ring(
+            geometry::strategy::buffer::place_on_ring_original, one_sided, is_linear_end_point);
         geometry::strategy::buffer::place_on_ring_type const por_from_offsetted
             = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_from_offsetted,
-                                    one_sided, is_linear_end_point);
+                                    one_sided,
+                                    is_linear_end_point);
         geometry::strategy::buffer::place_on_ring_type const por_to_offsetted
             = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_to_offsetted,
-                                    one_sided, is_linear_end_point);
+                                    one_sided,
+                                    is_linear_end_point);
 
         bool continue_processing = true;
         if (m_original_size == 1)
         {
             // One point. Walk from last offsetted to point, and from point to first offsetted
-            continue_processing = step(point, offsetted_back, m_originals[0],
-                                       tir, por_from_offsetted, state)
-                               && step(point, m_originals[0], offsetted_front,
-                                       tir, por_to_offsetted, state);
+            continue_processing
+                = step(point, offsetted_back, m_originals[0], tir, por_from_offsetted, state)
+                  && step(point, m_originals[0], offsetted_front, tir, por_to_offsetted, state);
         }
         else if (m_original_size == 2)
         {
             // Two original points. Walk from last offsetted point to first original point,
             // then along original, then from second oginal to first offsetted point
-            continue_processing = step(point, offsetted_back, m_originals[0],
-                                       tir, por_from_offsetted, state)
-                               && step(point, m_originals[0], m_originals[1],
-                                       tir, por_original, state)
-                               && step(point, m_originals[1], offsetted_front,
-                                       tir, por_to_offsetted, state);
+            continue_processing
+                = step(point, offsetted_back, m_originals[0], tir, por_from_offsetted, state)
+                  && step(point, m_originals[0], m_originals[1], tir, por_original, state)
+                  && step(point, m_originals[1], offsetted_front, tir, por_to_offsetted, state);
         }
 
         if (continue_processing)
         {
             // Check the offsetted ring (in rounded joins, these might be
             // several segments)
-            walk_offsetted(point, m_ring->begin() + m_begin, m_ring->begin() + m_end,
-                           tir, state);
+            walk_offsetted(point, m_ring->begin() + m_begin, m_ring->begin() + m_end, tir, state);
         }
 
         return true;
@@ -298,25 +288,22 @@ struct piece_border
         return m_ring == NULL || m_begin >= m_end || m_original_size == 0;
     }
 
-private :
-
+private:
     static geometry::strategy::buffer::place_on_ring_type
-        adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_type target,
-                              bool one_sided, bool is_linear_end_point)
+    adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_type target,
+                          bool one_sided,
+                          bool is_linear_end_point)
     {
         return one_sided || is_linear_end_point
-               ? geometry::strategy::buffer::place_on_ring_offsetted
-               : target;
+                   ? geometry::strategy::buffer::place_on_ring_offsetted
+                   : target;
     }
 
-    template
-    <
-        typename TurnPoint, typename Iterator,
-        typename TiRStrategy,
-        typename State
-    >
-    bool walk_offsetted(TurnPoint const& point, Iterator begin, Iterator end,
-                        TiRStrategy const & strategy,
+    template <typename TurnPoint, typename Iterator, typename TiRStrategy, typename State>
+    bool walk_offsetted(TurnPoint const& point,
+                        Iterator begin,
+                        Iterator end,
+                        TiRStrategy const& strategy,
                         State& state) const
     {
         Iterator it = begin;
@@ -338,10 +325,14 @@ private :
             }
         }
 
-        for (Iterator previous = it++ ; it != beyond ; ++previous, ++it )
+        for (Iterator previous = it++; it != beyond; ++previous, ++it)
         {
-            if (! step(point, *previous, *it, strategy,
-                       geometry::strategy::buffer::place_on_ring_offsetted, state))
+            if (! step(point,
+                       *previous,
+                       *it,
+                       strategy,
+                       geometry::strategy::buffer::place_on_ring_offsetted,
+                       state))
             {
                 return false;
             }
@@ -350,9 +341,12 @@ private :
     }
 
     template <typename TurnPoint, typename TiRStrategy, typename State>
-    bool step(TurnPoint const& point, Point const& p1, Point const& p2,
+    bool step(TurnPoint const& point,
+              Point const& p1,
+              Point const& p2,
               TiRStrategy const& strategy,
-              geometry::strategy::buffer::place_on_ring_type place_on_ring, State& state) const
+              geometry::strategy::buffer::place_on_ring_type place_on_ring,
+              State& state) const
     {
         return strategy.apply(point, p1, p2, place_on_ring, m_is_convex, state);
     }
@@ -403,16 +397,25 @@ private :
 
         // Verify the offsetted range (from the second point on), the original,
         // and loop through the first two points of the offsetted range
-        bool const result = is_convex(previous, current, m_ring->begin() + m_begin + 2, m_ring->begin() + m_end, strategy)
-            && is_convex(previous, current, m_originals.begin(), m_originals.begin() + m_original_size, strategy)
-            && is_convex(previous, current, offsetted_front, strategy)
-            && is_convex(previous, current, offsetted_second, strategy);
+        bool const result = is_convex(previous,
+                                      current,
+                                      m_ring->begin() + m_begin + 2,
+                                      m_ring->begin() + m_end,
+                                      strategy)
+                            && is_convex(previous,
+                                         current,
+                                         m_originals.begin(),
+                                         m_originals.begin() + m_original_size,
+                                         strategy)
+                            && is_convex(previous, current, offsetted_front, strategy)
+                            && is_convex(previous, current, offsetted_second, strategy);
 
         return result;
     }
 
     template <typename It, typename Strategy>
-    bool is_convex(Point& previous, Point& current, It begin, It end, Strategy const& strategy) const
+    bool
+    is_convex(Point& previous, Point& current, It begin, It end, Strategy const& strategy) const
     {
         for (It it = begin; it != end; ++it)
         {
@@ -425,7 +428,8 @@ private :
     }
 
     template <typename Strategy>
-    bool is_convex(Point& previous, Point& current, Point const& next, Strategy const& strategy) const
+    bool
+    is_convex(Point& previous, Point& current, Point const& next, Strategy const& strategy) const
     {
         int const side = strategy.side().apply(previous, current, next);
         if (side == 1)
@@ -500,12 +504,10 @@ private :
             first = false;
         }
     }
-
 };
 
-}} // namespace detail::buffer
+}}     // namespace detail::buffer
 #endif // DOXYGEN_NO_DETAIL
-
 
 }} // namespace boost::geometry
 

@@ -9,14 +9,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_GRAPH_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_GRAPH_HPP
 
-#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
-#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
-#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/get_tois.hpp>
+#include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/select_edge.hpp>
+#include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
+#include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/closure.hpp>
 
@@ -27,24 +27,19 @@
 #include <boost/geometry/io/wkt/wkt.hpp>
 #endif
 
-namespace boost { namespace geometry
-{
+namespace boost { namespace geometry {
 
 #ifndef DOXYGEN_NO_DETAIL
-namespace detail { namespace overlay
-{
+namespace detail { namespace overlay {
 
-template
-<
-    bool Reverse1,
-    bool Reverse2,
-    overlay_type OverlayType,
-    typename Geometry1,
-    typename Geometry2,
-    typename Turns,
-    typename Clusters,
-    typename Strategy
->
+template <bool Reverse1,
+          bool Reverse2,
+          overlay_type OverlayType,
+          typename Geometry1,
+          typename Geometry2,
+          typename Turns,
+          typename Clusters,
+          typename Strategy>
 struct traverse_graph
 {
     static constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
@@ -56,17 +51,18 @@ struct traverse_graph
     using point_type = typename turn_type::point_type;
     using toi_set = std::set<turn_operation_id>;
 
-    inline traverse_graph(Geometry1 const& geometry1, Geometry2 const& geometry2,
-            Turns& turns, Clusters const& clusters,
-            Strategy const& strategy)
+    inline traverse_graph(Geometry1 const& geometry1,
+                          Geometry2 const& geometry2,
+                          Turns& turns,
+                          Clusters const& clusters,
+                          Strategy const& strategy)
         : m_edge_selector(geometry1, geometry2, turns, clusters, strategy)
         , m_geometry1(geometry1)
         , m_geometry2(geometry2)
         , m_turns(turns)
         , m_clusters(clusters)
         , m_strategy(strategy)
-    {
-    }
+    {}
 
     template <typename Ring>
     void copy_segments(Ring& ring, turn_operation_id const& toi) const
@@ -75,17 +71,14 @@ struct traverse_graph
         auto const to_vertex_index = op.enriched.travels_to_vertex_index;
         if (op.seg_id.source_index == 0)
         {
-            geometry::copy_segments<Reverse1>(m_geometry1,
-                    op.seg_id, to_vertex_index,
-                    m_strategy, ring);
+            geometry::copy_segments<Reverse1>(
+                m_geometry1, op.seg_id, to_vertex_index, m_strategy, ring);
         }
         else
         {
-            geometry::copy_segments<Reverse2>(m_geometry2,
-                    op.seg_id, to_vertex_index,
-                    m_strategy, ring);
+            geometry::copy_segments<Reverse2>(
+                m_geometry2, op.seg_id, to_vertex_index, m_strategy, ring);
         }
-
     }
 
     template <typename Ring>
@@ -102,7 +95,6 @@ struct traverse_graph
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         std::cout << "At : " << toi << std::endl;
 #endif
-
 
         if (op.seg_id.segment_index == to_vertex_index && ! is_round_trip)
         {
@@ -176,31 +168,30 @@ struct traverse_graph
 
     template <typename Ring>
     bool continue_traverse(Ring& ring,
-            signed_size_type component_id,
-            signed_size_type start_node_id,
-            signed_size_type current_node_id)
+                           signed_size_type component_id,
+                           signed_size_type start_node_id,
+                           signed_size_type current_node_id)
     {
-        auto const current_turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
-                current_node_id, allow_closed);
+        auto const current_turn_indices
+            = get_turn_indices_by_node_id(m_turns, m_clusters, current_node_id, allow_closed);
 
         // Any valid node should always deliver at least one turn
         BOOST_ASSERT(! current_turn_indices.empty());
 
-        auto const next_target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
-                current_turn_indices, component_id);
+        auto const next_target_nodes = get_target_nodes<target_operation>(
+            m_turns, m_clusters, current_turn_indices, component_id);
 
         if (next_target_nodes.empty())
         {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "Stuck, start: " << start_node_id
-                << " stuck: " << current_node_id
-                << " (no targets) " << std::endl;
+            std::cout << "Stuck, start: " << start_node_id << " stuck: " << current_node_id
+                      << " (no targets) " << std::endl;
 #endif
             return false;
         }
 
-        auto const tois = get_tois<target_operation>(m_turns, m_clusters,
-                current_node_id, next_target_nodes);
+        auto const tois
+            = get_tois<target_operation>(m_turns, m_clusters, current_node_id, next_target_nodes);
 
         if (tois.empty())
         {
@@ -221,9 +212,8 @@ struct traverse_graph
         if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
         {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "ALREADY visited, turn " << toi
-                << " in {" << current_node_id
-                << " -> size " << next_target_nodes.size() << "}" << std::endl;
+            std::cout << "ALREADY visited, turn " << toi << " in {" << current_node_id
+                      << " -> size " << next_target_nodes.size() << "}" << std::endl;
 #endif
             return false;
         }
@@ -234,8 +224,8 @@ struct traverse_graph
         use_vertices(ring, toi);
 
         auto const& selected_op = m_turns[toi.turn_index].operations[toi.operation_index];
-        auto const next_target_node_id = get_node_id(m_turns,
-            selected_op.enriched.travels_to_ip_index);
+        auto const next_target_node_id
+            = get_node_id(m_turns, selected_op.enriched.travels_to_ip_index);
         if (next_target_node_id == start_node_id)
         {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
@@ -248,10 +238,11 @@ struct traverse_graph
     }
 
     template <typename Rings>
-    void start_traverse(Rings& rings, point_type const& start_point,
-            signed_size_type component_id,
-            signed_size_type start_node_id,
-            signed_size_type target_node_id)
+    void start_traverse(Rings& rings,
+                        point_type const& start_point,
+                        signed_size_type component_id,
+                        signed_size_type start_node_id,
+                        signed_size_type target_node_id)
     {
         // Select the first toi which is not yet visited and has the requested component.
         // If all tois are visited, not having the same component, it is not possible to continue,
@@ -276,27 +267,23 @@ struct traverse_graph
             return turn_operation_id{0, -1};
         };
 
-        auto const toi = select_first_toi(get_tois<target_operation>(m_turns, m_clusters,
-                start_node_id, target_node_id));
+        auto const toi = select_first_toi(
+            get_tois<target_operation>(m_turns, m_clusters, start_node_id, target_node_id));
         if (toi.operation_index < 0)
         {
             return;
         }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-        std::cout << "\n" << "-> Start traversing component " << component_id
-            << " at: " << toi
-            << " to " << target_node_id << std::endl;
+        std::cout << "\n"
+                  << "-> Start traversing component " << component_id << " at: " << toi << " to "
+                  << target_node_id << std::endl;
 #endif
-
 
         using ring_type = typename boost::range_value<Rings>::type;
 
         constexpr std::size_t min_size
-                = core_detail::closure::minimum_ring_size
-                        <
-                            geometry::closure<ring_type>::value
-                        >::value;
+            = core_detail::closure::minimum_ring_size<geometry::closure<ring_type>::value>::value;
 
         ring_type ring;
         detail::overlay::append_no_collinear(ring, start_point, m_strategy);
@@ -310,8 +297,8 @@ struct traverse_graph
         // Traverse the graph. If the target is at the start, it is a round trip,
         // and it is finished immediately.
         // The continuation could fail (no target nodes, or no target edges).
-        bool const is_finished = is_round_trip
-            || continue_traverse(ring, component_id, start_node_id, target_node_id);
+        bool const is_finished
+            = is_round_trip || continue_traverse(ring, component_id, start_node_id, target_node_id);
 
         if (! is_finished)
         {
@@ -324,9 +311,9 @@ struct traverse_graph
 
         if (geometry::num_points(ring) >= min_size)
         {
-        #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
             std::cout << "Add ring: " << geometry::wkt(ring) << std::endl;
-        #endif
+#endif
             rings.push_back(std::move(ring));
         }
         m_finished_tois.insert(m_visited_tois.begin(), m_visited_tois.end());
@@ -350,8 +337,8 @@ struct traverse_graph
             return;
         }
         auto const source_node_id = get_node_id(m_turns, turn_index);
-        auto const turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
-                source_node_id, allow_closed);
+        auto const turn_indices
+            = get_turn_indices_by_node_id(m_turns, m_clusters, source_node_id, allow_closed);
 
         for (int j = 0; j < 2; j++)
         {
@@ -369,8 +356,8 @@ struct traverse_graph
             }
 
             auto const component_id = op.enriched.component_id;
-            auto const target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
-                    turn_indices, component_id);
+            auto const target_nodes = get_target_nodes<target_operation>(
+                m_turns, m_clusters, turn_indices, component_id);
 
             for (auto const target_node_id : target_nodes)
             {
@@ -382,10 +369,11 @@ struct traverse_graph
                 }
                 m_starts.insert(start);
 
-    #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-                std::cout << "\n" << "Traversing component " << component_id
-                    << " from " << source_node_id << " to " << target_node_id << std::endl;
-    #endif
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
+                std::cout << "\n"
+                          << "Traversing component " << component_id << " from " << source_node_id
+                          << " to " << target_node_id << std::endl;
+#endif
                 start_traverse(rings, turn.point, component_id, source_node_id, target_node_id);
             }
         }
@@ -403,14 +391,8 @@ struct traverse_graph
     }
 
 private:
-
-    edge_selector
-        <
-            Reverse1, Reverse2, OverlayType,
-            Geometry1, Geometry2,
-            Turns, Clusters,
-            Strategy
-        > m_edge_selector;
+    edge_selector<Reverse1, Reverse2, OverlayType, Geometry1, Geometry2, Turns, Clusters, Strategy>
+        m_edge_selector;
 
     Geometry1 const& m_geometry1;
     Geometry2 const& m_geometry2;
@@ -429,7 +411,7 @@ private:
     std::set<std::tuple<signed_size_type, signed_size_type, signed_size_type>> m_starts;
 };
 
-}} // namespace detail::overlay
+}}     // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL
 
 }} // namespace boost::geometry

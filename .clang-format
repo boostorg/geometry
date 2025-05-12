@@ -1,0 +1,51 @@
+---
+BasedOnStyle: LLVM
+---
+Language: Cpp
+
+# Possible alternative:
+# AlignAfterOpenBracket: DontAlign
+# ContinuationIndentWidth: 8
+
+AccessModifierOffset: -4
+AlwaysBreakAfterReturnType: None
+AlwaysBreakTemplateDeclarations: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortLambdasOnASingleLine: true
+BreakBeforeBinaryOperators: All
+BreakConstructorInitializers: BeforeComma
+BreakBeforeTernaryOperators: true
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: 100
+CompactNamespaces: true
+EmptyLineBeforeAccessModifier: Always
+IndentCaseLabels: true
+IndentWidth: 4
+IndentAccessModifiers: false
+PackConstructorInitializers: NextLine
+PointerAlignment: Left
+QualifierAlignment: Right
+SpaceAfterLogicalNot: true
+SpaceAfterTemplateKeyword: true
+SpaceBeforeCaseColon: true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+  IndentBraces: false
