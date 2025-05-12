@@ -5,8 +5,9 @@
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 // Copyright (c) 2024 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2020-2021.
-// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2020-2025.
+// Modifications copyright (c) 2020-2025 Oracle and/or its affiliates.
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
@@ -95,6 +96,16 @@ struct point_type<ring_tag, Ring>
     using type = typename boost::range_value<Ring>::type;
 };
 
+// Specialization for PolyhedralSurface: the point-type is the point-type of its polygon type
+template <typename PolyhedralSurface>
+struct point_type<polyhedral_surface_tag, PolyhedralSurface>
+{
+    using type = typename point_type
+        <
+            polygon_tag,
+            typename boost::range_value<PolyhedralSurface>::type
+        >::type;
+};
 
 // Specialization for polygon: the point-type is the point-type of its rings
 template <typename Polygon>

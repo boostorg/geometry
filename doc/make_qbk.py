@@ -6,9 +6,10 @@
 #  Copyright (c) 2009-2012 Mateusz Loskot (mateusz@loskot.net), London, UK
 #  Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland
 #
-#  Copyright (c) 2018-2021, Oracle and/or its affiliates.
+#  Copyright (c) 2018-2025, Oracle and/or its affiliates.
 #  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 #  Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+#
 #  Use, modification and distribution is subject to the Boost Software License,
 #  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 #  http://www.boost.org/LICENSE_1_0.txt)
@@ -141,7 +142,7 @@ iterators = ["circular_iterator", "closing_iterator"
     , "ever_circling_iterator"]
 
 models = ["point", "linestring", "box"
-    , "polygon", "segment", "ring"
+    , "polygon", "segment", "ring", "polyhedral_surface"
     , "multi_linestring", "multi_point", "multi_polygon", "referring_segment"]
 
 srs = ["spheroid"]

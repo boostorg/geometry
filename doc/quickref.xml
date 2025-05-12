@@ -25,7 +25,7 @@
 -->
 
 <informaltable frame="all">
- 
+
 <!-- ###### CONCEPTS ########################################################################### -->
 <tgroup cols="3">
  <colspec colname="a"/>
@@ -62,6 +62,12 @@
      <member><link linkend="geometry.reference.concepts.concept_ring">Ring</link></member>
      <member><link linkend="geometry.reference.concepts.concept_polygon">Polygon</link></member>
      <member><link linkend="geometry.reference.concepts.concept_multi_polygon">MultiPolygon</link></member>
+    </simplelist>
+   </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">3-dimensional</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.concepts.concept_polyhedral_surface">PolyhedralSurface</link></member>
     </simplelist>
    </entry>
   </row>
@@ -109,6 +115,12 @@
      <member><link linkend="geometry.reference.models.model_multi_polygon">multi_polygon</link></member>
     </simplelist>
    </entry>
+   <entry valign="top">
+    <bridgehead renderas="sect3">3-dimensional</bridgehead>
+    <simplelist type="vert" columns="1">
+     <member><link linkend="geometry.reference.models.model_polyhedral_surface">polyhedral_surface</link></member>
+    </simplelist>
+   </entry>
   </row>
   <row>
    <entry valign="top">
@@ -144,10 +156,10 @@
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d">BOOST_GEOMETRY_REGISTER_POINT_3D</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_const">BOOST_GEOMETRY_REGISTER_POINT_3D_CONST</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_point_3d_get_set">BOOST_GEOMETRY_REGISTER_POINT_3D_GET_SET</link></member>
-     
+
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point">BOOST_GEOMETRY_REGISTER_MULTI_POINT</link></member>
      <member><link linkend="geometry.reference.adapted.register.boost_geometry_register_multi_point_templated">BOOST_GEOMETRY_REGISTER_MULTI_POINT_TEMPLATED</link></member>
-     
+
     </simplelist>
    </entry>
    <entry valign="top">
@@ -207,7 +219,7 @@
    <entry valign="top">
     <bridgehead renderas="sect3">Access Functions</bridgehead>
     <simplelist type="vert" columns="1">
-     <!-- This section is not ordered alfabetically 
+     <!-- This section is not ordered alfabetically
           to have get/set first and then the rings -->
      <member><link linkend="geometry.reference.access.get">get</link></member>
      <member><link linkend="geometry.reference.access.set">set</link></member>
@@ -349,7 +361,7 @@
     </simplelist>
     <bridgehead renderas="sect3">Area</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.area">area</link></member>    
+     <member><link linkend="geometry.reference.algorithms.area">area</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Assign</bridgehead>
     <simplelist type="vert" columns="1">
@@ -366,7 +378,7 @@
     </simplelist>
     <bridgehead renderas="sect3">Azimuth</bridgehead>
     <simplelist type="vert" columns="1">
-     <member><link linkend="geometry.reference.algorithms.azimuth">azimuth</link></member>    
+     <member><link linkend="geometry.reference.algorithms.azimuth">azimuth</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Buffer</bridgehead>
     <simplelist type="vert" columns="1">
@@ -466,7 +478,7 @@
     <bridgehead renderas="sect3">Similarity</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.discrete_frechet_distance">discrete_frechet_distance</link></member>
-     <member><link linkend="geometry.reference.algorithms.discrete_hausdorff_distance">discrete_hausdorff_distance</link></member>     
+     <member><link linkend="geometry.reference.algorithms.discrete_hausdorff_distance">discrete_hausdorff_distance</link></member>
     </simplelist>
     <bridgehead renderas="sect3">Simplify</bridgehead>
     <simplelist type="vert" columns="1">
@@ -483,7 +495,7 @@
     <bridgehead renderas="sect3">Unique</bridgehead>
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.algorithms.unique">unique</link></member>
-    </simplelist>    
+    </simplelist>
    </entry>
   </row>
  </tbody>
@@ -737,7 +749,7 @@
   </row>
  </tbody>
 </tgroup>
-    
+
 <!-- ###### SPATIAL INDEXES ######################################################################### -->
 <tgroup cols="3">
  <colspec colname="a"/>
@@ -770,7 +782,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree__">rtree()</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_par_cr_ind_cr_val_cr_all_cr">rtree(parameters_type const &amp;, indexable_getter const &amp;, value_equal const &amp;, allocator_type const &amp;)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_iterator__iterator_">rtree(Iterator, Iterator)</link></member>        
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_iterator__iterator_">rtree(Iterator, Iterator)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_range_const___">rtree(Range const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_ite_ite_par_cr_ind_cr_val_cr_all_cr_pac_cr">rtree(Iterator, Iterator, parameters_type const &amp;, indexable_getter const &amp;, value_equal const &amp;, allocator_type const &amp;, PackAlloc const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.rtree_ran_cr_par_cr_ind_cr_val_cr_all_cr_pac_cr">rtree(Range const &amp;, parameters_type const &amp;, indexable_getter const &amp;, value_equal const &amp;, allocator_type const &amp;, PackAlloc const &amp;)</link></member>
@@ -790,7 +802,7 @@
     <simplelist type="vert" columns="1">
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.operator__rtree_const___">operator=(const rtree &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.operator__rtree____">operator=(rtree &amp;&amp;)</link></member>
-     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.swap_rtree___">swap(rtree &amp;)</link></member>   
+     <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.swap_rtree___">swap(rtree &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_value_type_const___">insert(value_type const &amp;)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_iterator__iterator_">insert(Iterator, Iterator)</link></member>
      <member><link linkend="geometry.reference.spatial_indexes.boost__geometry__index__rtree.insert_convertibleorrange_const___">insert(ConvertibleOrRange const &amp;)</link></member>

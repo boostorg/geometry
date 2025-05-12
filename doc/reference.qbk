@@ -23,7 +23,7 @@
 
 [section:access Access Functions]
 
-[/ This section is not ordered alfabetically 
+[/ This section is not ordered alfabetically
    to have get/set first and then the rings]
 
 [section:get get]
@@ -240,12 +240,13 @@
 
 [section:arithmetic Arithmetic]
 [include generated/arithmetic.qbk]
-[endsect] 
+[endsect]
 
 [section:concepts Concepts]
 [include concept/point.qbk]
 [include concept/linestring.qbk]
 [include concept/polygon.qbk]
+[include concept/polyhedral_surface.qbk]
 [include concept/multi_point.qbk]
 [include concept/multi_linestring.qbk]
 [include concept/multi_polygon.qbk]
@@ -257,7 +258,7 @@
 [section:constants Constants]
 [include reference/core/min_corner.qbk]
 [include reference/core/max_corner.qbk]
-[endsect] 
+[endsect]
 
 [section:cs Coordinate Systems]
 [include generated/cartesian.qbk]
@@ -286,16 +287,16 @@
 [include generated/de9im_mask.qbk]
 [include generated/de9im_matrix.qbk]
 [include generated/de9im_static_mask.qbk]
-[endsect] 
+[endsect]
 
 [section:enumerations Enumerations]
 [include generated/enum.qbk]
-[endsect] 
+[endsect]
 
 [section:exceptions Exceptions]
 [include generated/exception.qbk]
 [include generated/centroid_exception.qbk]
-[endsect] 
+[endsect]
 
 
 [section:io IO (input/output)]
@@ -310,14 +311,14 @@
 [include generated/svg.qbk]
 [include generated/svg_mapper.qbk]
 [endsect]
-[endsect] 
+[endsect]
 
 
 [section:iterators Iterators]
 [include generated/closing_iterator.qbk]
 [include generated/circular_iterator.qbk]
 [include generated/ever_circling_iterator.qbk]
-[endsect] 
+[endsect]
 
 
 [section:models Models]
@@ -327,6 +328,7 @@
 [include generated/point_xyz.qbk]
 [include generated/linestring.qbk]
 [include generated/polygon.qbk]
+[include generated/polyhedral_surface.qbk]
 [include generated/multi_point.qbk]
 [include generated/multi_linestring.qbk]
 [include generated/multi_polygon.qbk]
@@ -411,7 +413,7 @@
 [include generated/within_winding.qbk]
 [include generated/within_franklin.qbk]
 [include generated/within_crossings_multiply.qbk]
-[endsect] 
+[endsect]
 
 
 [section:views Views]
@@ -420,7 +422,7 @@
 [include generated/closeable_view.qbk]
 [include generated/reversible_view.qbk]
 [include generated/identity_view.qbk]
-[endsect] 
+[endsect]
 
 
 [endsect] [/reference]
