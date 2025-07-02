@@ -10,7 +10,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_DEBUG_TURN_INFO_HPP
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
-#include <boost/geometry/algorithms/detail/overlay/visit_info.hpp>
 
 
 namespace boost { namespace geometry
@@ -48,18 +47,6 @@ inline char operation_char(detail::overlay::operation_type const& operation)
         default : return '?';
     }
 }
-
-inline char visited_char(detail::overlay::visit_info const& v)
-{
-    if (v.rejected()) return 'R';
-    if (v.started()) return 's';
-    if (v.visited()) return 'v';
-    if (v.none()) return '-';
-    if (v.finished()) return 'f';
-    return '?';
-}
-
-
 
 }} // namespace boost::geometry
 

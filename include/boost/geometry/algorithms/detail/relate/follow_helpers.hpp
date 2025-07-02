@@ -358,7 +358,7 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
 }
 
 template <typename IntersectionPoint, typename OperationInfo, typename BoundaryChecker>
-static inline bool is_ip_on_boundary(IntersectionPoint const& ip,
+inline bool is_ip_on_boundary(IntersectionPoint const& ip,
                                      OperationInfo const& operation_info,
                                      BoundaryChecker const& boundary_checker)
 {

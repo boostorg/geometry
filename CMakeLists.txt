@@ -26,6 +26,7 @@ target_link_libraries(boost_geometry
     Boost::core
     Boost::crc
     Boost::function_types
+    Boost::graph
     Boost::iterator
     Boost::lexical_cast
     Boost::math
@@ -103,6 +104,7 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
           algorithm
           any
           crc
+          graph
           lexical_cast
           math
           multiprecision
@@ -131,4 +133,3 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   add_subdirectory(index/test EXCLUDE_FROM_ALL)
 
 endif()
-

@@ -164,7 +164,7 @@ private :
 
             bool is_good = true;
             std::string fill = "fill:rgb(0,255,0);";
-            if (! it->is_turn_traversable)
+            if (! it->is_traversable)
             {
                 fill = "fill:rgb(255,0,0);";
                 is_good = false;
@@ -205,7 +205,7 @@ private :
                     << ":" << bg::operation_char(it->operations[0].operation)
                     << "/" << bg::operation_char(it->operations[1].operation);
                 out << " "
-                    << (it->is_turn_traversable ? "" : "w")
+                    << (it->is_traversable ? "" : "w")
                     ;
 
                 offsets[it->point] += 10;

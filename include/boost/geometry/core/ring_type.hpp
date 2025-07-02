@@ -24,7 +24,6 @@
 #include <type_traits>
 
 #include <boost/range/value_type.hpp>
-
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -62,7 +61,6 @@ struct ring_mutable_type
         Geometry);
 };
 
-
 } // namespace traits
 
 
@@ -88,6 +86,20 @@ struct ring_return_type<ring_tag, Ring>
     typedef Ring& type;
 };
 
+template <typename PolyhedralSurface>
+struct ring_return_type<polyhedral_surface_tag, PolyhedralSurface>
+{
+    using type = typename ring_return_type
+        <
+            polygon_tag,
+            std::conditional_t
+                <
+                    std::is_const<PolyhedralSurface>::value,
+                    typename boost::range_value<PolyhedralSurface>::type const,
+                    typename boost::range_value<PolyhedralSurface>::type
+                >
+        >::type;
+};
 
 template <typename Polygon>
 struct ring_return_type<polygon_tag, Polygon>
@@ -153,6 +165,14 @@ struct ring_type<ring_tag, Ring>
     typedef Ring type;
 };
 
+template <typename PolyhedralSurface>
+struct ring_type<polyhedral_surface_tag, PolyhedralSurface>
+{
+    using type = std::remove_reference_t
+        <
+            typename ring_return_type<polyhedral_surface_tag, PolyhedralSurface>::type
+        >;
+};
 
 template <typename Polygon>
 struct ring_type<polygon_tag, Polygon>

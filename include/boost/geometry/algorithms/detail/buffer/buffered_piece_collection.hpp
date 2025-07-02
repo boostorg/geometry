@@ -37,9 +37,12 @@
 
 #include <boost/geometry/geometries/ring.hpp>
 
+#include <boost/geometry/algorithms/detail/overlay/graph/assign_side_counts.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_ring.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_properties_ahead.hpp>
+#include <boost/geometry/algorithms/detail/overlay/handle_colocations.hpp>
 #include <boost/geometry/algorithms/detail/buffer/get_piece_turns.hpp>
 #include <boost/geometry/algorithms/detail/buffer/piece_border.hpp>
 #include <boost/geometry/algorithms/detail/buffer/turn_in_piece_visitor.hpp>
@@ -308,7 +311,7 @@ struct buffered_piece_collection
         // be three turns (which cannot be checked here - TODO: add to traverse)
         for (auto& turn : m_turns)
         {
-            if (! turn.is_turn_traversable)
+            if (! turn.is_traversable)
             {
                 continue;
             }
@@ -348,18 +351,18 @@ struct buffered_piece_collection
 
         for (auto& turn : m_turns)
         {
-            if (turn.is_turn_traversable)
+            if (turn.is_traversable)
             {
                 if (deflate && turn.count_in_original <= 0)
                 {
                     // For deflate/negative buffers:
                     // it is not in the original, so don't use it
-                    turn.is_turn_traversable = false;
+                    turn.is_traversable = false;
                 }
                 else if (! deflate && turn.count_in_original > 0)
                 {
                     // For inflate: it is in original, so don't use it
-                    turn.is_turn_traversable = false;
+                    turn.is_traversable = false;
                 }
             }
         }
@@ -439,6 +442,21 @@ struct buffered_piece_collection
                          detail::section::overlaps_section_box<Strategy>(m_strategy));
         }
 
+        // This fixes the fact that sometimes wrong ix or xi turns are generated.
+        // See comments in get_turn_info (block_q).
+        // The ix turns are not relevant for buffer anyway, it is fine to remove them,
+        // as long as they are removed before calculating turn indices.
+        // It will also enhance performance a bit (no need to calculate point in original,
+        // point in piece). Therefore we remove ii and xx as well.
+        m_turns.erase(std::remove_if(m_turns.begin(), m_turns.end(),
+            [](auto const& turn)
+            {
+                bool const is_ix = turn.combination(overlay::operation_intersection, overlay::operation_blocked);
+                bool const is_ii = turn.both(overlay::operation_intersection);
+                return is_ix || is_ii || turn.blocked();
+            }),
+            m_turns.end());
+
         update_turn_administration();
     }
 
@@ -448,8 +466,8 @@ struct buffered_piece_collection
         turn_in_piece_visitor
             <
                 geometry::cs_tag_t<point_type>,
-                turn_vector_type, piece_vector_type, DistanceStrategy, Strategy
-            > visitor(m_turns, m_pieces, m_distance_strategy, m_strategy);
+                turn_vector_type, cluster_type, piece_vector_type, DistanceStrategy, Strategy
+            > visitor(m_turns, m_clusters, m_pieces, m_distance_strategy, m_strategy);
 
         geometry::partition
             <
@@ -869,29 +887,27 @@ struct buffered_piece_collection
 
     inline void handle_colocations()
     {
-        if (! detail::overlay::handle_colocations
-                <
-                    false, false, overlay_buffer,
-                    ring_collection_t, ring_collection_t
-                >(m_turns, m_clusters))
-        {
-            return;
-        }
+        detail::overlay::handle_colocations(m_turns, m_clusters);
+    }
 
-        detail::overlay::gather_cluster_properties
-            <
-                false, false, overlay_buffer
-            >(m_clusters, m_turns, detail::overlay::operation_union,
-            offsetted_rings, offsetted_rings, m_strategy);
+    template <typename Visitor>
+    inline void assign_side_counts(Visitor& visitor)
+    {
+        // Assign count_left, count_right and open_count
+        detail::overlay::assign_side_counts
+            <false, false, overlay_buffer>
+                (offsetted_rings, offsetted_rings,
+                    m_turns, m_clusters,
+                    m_strategy, visitor);
 
+        // Mark closed clusters as not traversable
         for (auto const& cluster : m_clusters)
         {
-            if (cluster.second.open_count == 0 && cluster.second.spike_count == 0)
+            if (cluster.second.open_count == 0)
             {
-                // If the cluster is completely closed, mark it as not traversable.
                 for (auto const& index : cluster.second.turn_indices)
                 {
-                    m_turns[index].is_turn_traversable = false;
+                    m_turns[index].is_traversable = false;
                 }
             }
         }
@@ -904,7 +920,7 @@ struct buffered_piece_collection
             bool is_traversable = false;
             for (auto const& index : cluster.second.turn_indices)
             {
-                if (m_turns[index].is_turn_traversable)
+                if (m_turns[index].is_traversable)
                 {
                     // If there is one turn traversable in the cluster,
                     // then all turns should be traversable.
@@ -916,7 +932,7 @@ struct buffered_piece_collection
             {
                 for (auto const& index : cluster.second.turn_indices)
                 {
-                    m_turns[index].is_turn_traversable = true;
+                    m_turns[index].is_traversable = true;
                 }
             }
         }
@@ -924,9 +940,13 @@ struct buffered_piece_collection
 
     inline void enrich()
     {
-        enrich_intersection_points<false, false, overlay_buffer>(m_turns,
-            m_clusters, offsetted_rings, offsetted_rings,
-            m_strategy);
+        detail::overlay::enrich_discard_turns<overlay_buffer>(
+            m_turns, m_clusters, offsetted_rings, offsetted_rings, m_strategy);
+        detail::overlay::enrich_turns<false, false, overlay_buffer>(
+            m_turns, offsetted_rings, offsetted_rings, m_strategy);
+
+        detail::overlay::get_properties_ahead<false, false>(m_turns, m_clusters, offsetted_rings,
+            offsetted_rings, m_strategy);
     }
 
     // Discards all rings which do have not-OK intersection points only.
@@ -935,7 +955,7 @@ struct buffered_piece_collection
     {
         for (auto const& turn : m_turns)
         {
-            if (turn.is_turn_traversable)
+            if (turn.is_traversable)
             {
                 offsetted_rings[turn.operations[0].seg_id.multi_index].has_accepted_intersections = true;
                 offsetted_rings[turn.operations[1].seg_id.multi_index].has_accepted_intersections = true;
@@ -1013,28 +1033,27 @@ struct buffered_piece_collection
         }
     }
 
-    inline void block_turns()
+    inline void discard_non_traversable_turns()
     {
         for (auto& turn : m_turns)
         {
-            if (! turn.is_turn_traversable)
+            if (! turn.is_traversable)
             {
-                // Discard this turn (don't set it to blocked to avoid colocated
-                // clusters being discarded afterwards
+                // Discard the non traversable turn
                 turn.discarded = true;
             }
         }
     }
 
-    inline void traverse()
+    template <typename PieceVisitor>
+    inline void traverse(PieceVisitor const& piece_visitor)
     {
         using traverser = detail::overlay::traverse
             <
                 false, false,
                 buffered_ring_collection<buffered_ring<Ring> >,
                 buffered_ring_collection<buffered_ring<Ring > >,
-                overlay_buffer,
-                backtrack_for_buffer
+                overlay_buffer
             >;
         std::map<ring_identifier, overlay::ring_turn_info> turn_info_per_ring;
 

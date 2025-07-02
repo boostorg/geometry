@@ -50,7 +50,7 @@ template
     typename RingCollection,
     typename Strategy
 >
-static inline bool within_selected_input(Item const& item2,
+inline bool within_selected_input(Item const& item2,
         InnerGeometry const& inner_geometry,
         ring_identifier const& outer_id,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
@@ -86,7 +86,7 @@ template
     typename RingCollection,
     typename Strategy
 >
-static inline bool within_selected_input(Item const& item2,
+inline bool within_selected_input(Item const& item2,
         ring_identifier const& inner_id, ring_identifier const& outer_id,
         Geometry1 const& geometry1, Geometry2 const& geometry2,
         RingCollection const& collection,

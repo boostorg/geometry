@@ -38,6 +38,7 @@ template
 <
     typename CsTag,
     typename Turns,
+    typename Clusters,
     typename Pieces,
     typename DistanceStrategy,
     typename UmbrellaStrategy
@@ -46,6 +47,7 @@ template
 class turn_in_piece_visitor
 {
     Turns& m_turns; // because partition is currently operating on const input only
+    Clusters const& m_clusters;
     Pieces const& m_pieces; // to check for piece-type
     DistanceStrategy const& m_distance_strategy; // to check if point is on original or one_sided
     UmbrellaStrategy const& m_umbrella_strategy;
@@ -77,6 +79,39 @@ class turn_in_piece_visitor
         return false;
     }
 
+    // Returns true if the turn is part of a cluster, and one of the other turns in the same
+    // cluster is involved in the same piece as the operations in the turn.
+    template <typename Turn, typename Piece>
+    inline bool skip_by_same_cluster(Turn const& turn, Piece const& piece) const
+    {
+        auto it = m_clusters.find(turn.cluster_id);
+        if (it == m_clusters.end())
+        {
+            return false;
+        }
+
+        for (auto const& index : it->second.turn_indices)
+        {
+            if (index == static_cast<signed_size_type>(turn.turn_index))
+            {
+                continue;
+            }
+            auto const& other_turn = m_turns[index];
+            auto const& seg_id0 = other_turn.operations[0].seg_id;
+            auto const& seg_id1 = other_turn.operations[1].seg_id;
+
+            if (seg_id0.piece_index == piece.index
+                || seg_id1.piece_index == piece.index)
+            {
+                // One of the other turns in the same cluster is an intersection
+                // with the same piece.
+                // Therefore, the turn under inspection cannot be within that piece.
+                return true;
+            }
+        }
+        return false;
+    }
+
     template <typename NumericType>
     inline bool is_one_sided(NumericType const& left, NumericType const& right) const
     {
@@ -96,10 +131,11 @@ class turn_in_piece_visitor
 
 public:
 
-    inline turn_in_piece_visitor(Turns& turns, Pieces const& pieces,
+    inline turn_in_piece_visitor(Turns& turns, Clusters const& clusters, Pieces const& pieces,
                                  DistanceStrategy const& distance_strategy,
                                  UmbrellaStrategy const& umbrella_strategy)
         : m_turns(turns)
+        , m_clusters(clusters)
         , m_pieces(pieces)
         , m_distance_strategy(distance_strategy)
         , m_umbrella_strategy(umbrella_strategy)
@@ -108,7 +144,7 @@ public:
     template <typename Turn, typename Piece>
     inline bool apply(Turn const& turn, Piece const& piece)
     {
-        if (! turn.is_turn_traversable)
+        if (! turn.is_traversable)
         {
             // Already handled
             return true;
@@ -140,7 +176,12 @@ public:
 
         if (piece.type == geometry::strategy::buffer::buffered_empty_side)
         {
-            return false;
+            return true;
+        }
+
+        if (skip_by_same_cluster(turn, piece))
+        {
+            return true;
         }
 
         if (piece.type == geometry::strategy::buffer::buffered_point)
@@ -154,7 +195,7 @@ public:
             if (d < border.m_min_comparable_radius)
             {
                 Turn& mutable_turn = m_turns[turn.turn_index];
-                mutable_turn.is_turn_traversable = false;
+                mutable_turn.is_traversable = false;
                 return true;
             }
             if (d > border.m_max_comparable_radius)
@@ -177,7 +218,7 @@ public:
         if (state.is_inside() && ! state.is_on_boundary())
         {
             Turn& mutable_turn = m_turns[turn.turn_index];
-            mutable_turn.is_turn_traversable = false;
+            mutable_turn.is_traversable = false;
         }
 
         return true;

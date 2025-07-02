@@ -24,6 +24,7 @@ foreach(item IN ITEMS
     point_xy
     point_xyz
     polygon
+    polyhedral_surface
     ring
     segment
     infinite_line

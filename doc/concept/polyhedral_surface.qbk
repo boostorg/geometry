@@ -1,0 +1,47 @@
+[/============================================================================
+  Boost.Geometry (aka GGL, Generic Geometry Library)
+
+  Copyright (c) 2025 Oracle and/or its affiliates.
+  Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
+
+  Use, modification and distribution is subject to the Boost Software License,
+  Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+  http://www.boost.org/LICENSE_1_0.txt)
+
+=============================================================================/]
+
+[section:concept_polyhedral_surface PolyhedralSurface Concept]
+
+[heading Description]
+[concept PolyhedralSurface..polyhedral surface]
+
+['A PolyhedralSurface is a contiguous collection of polygons, which share common boundary segments] (__ogc_sf__).
+
+[heading Concept Definition]
+
+The PolyhedralSurface Concept is defined as following:
+
+* There must be a specialization of the metafunction `traits::tag`, defining `polyhedral_surface_tag` as type
+* It must behave like a Boost.Range Random Access Range
+* The type defined by the metafunction `range_value<...>::type` must fulfill
+    the [link geometry.reference.concepts.concept_polygon Polygon Concept]
+
+[heading Rules]
+
+Besides the Concepts, which are checks on compile-time, there are
+rules that valid PolyhedralSurfaces must fulfill. See the
+[link geometry.reference.concepts.concept_polygon Polygon Concept] for more information
+on the rules a polygon (and also a polyhedral surface) must fulfill.
+
+Additionally:
+
+* It is a contiguous collection of polygons, which share common boundary segments.
+* For any two polygons that share a common boundary, the “top” of the polygon shall be consistent.
+    This means that when two LinearRings from these two Polygons traverse the common boundary segment,
+    they do so in opposite directions.
+
+[heading Available Models]
+* [link geometry.reference.models.model_polyhedral_surface model::polyhedral_surface]
+
+
+[endsect]

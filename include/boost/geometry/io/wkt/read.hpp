@@ -458,6 +458,35 @@ struct polygon_parser
     }
 };
 
+template<typename PolyhedralSurface>
+struct polyhedral_surface_parser
+{
+    using polygon_t = typename PolyhedralSurface::polygon_type;
+
+    template <typename TokenizerIterator>
+    static inline void apply(TokenizerIterator& it,
+                             TokenizerIterator const& end,
+                             std::string const& wkt,
+                             PolyhedralSurface& polyhedral)
+    {
+        handle_open_parenthesis(it, end, wkt);
+
+        // Parse polygons
+        while (it != end && *it != ")")
+        {
+            traits::resize<PolyhedralSurface>::apply(polyhedral, boost::size(polyhedral) + 1);
+            polygon_parser<polygon_t>::apply(it, end, wkt, *(boost::end(polyhedral) - 1));
+            if (it != end && *it == ",")
+            {
+                // Skip "," after multi-element is parsed
+                ++it;
+            }
+        }
+
+        handle_close_parenthesis(it, end, wkt);
+    }
+};
+
 
 template <typename TokenizerIterator>
 inline bool one_of(TokenizerIterator const& it,
@@ -1063,6 +1092,15 @@ struct read_wkt<Geometry, polygon_tag>
         >
 {};
 
+template <typename Geometry>
+struct read_wkt<Geometry, polyhedral_surface_tag>
+    : detail::wkt::geometry_parser
+        <
+            Geometry,
+            detail::wkt::polyhedral_surface_parser,
+            detail::wkt::prefix_polyhedral_surface
+        >
+{};
 
 template <typename MultiGeometry>
 struct read_wkt<MultiGeometry, multi_point_tag>

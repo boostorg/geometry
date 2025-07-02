@@ -29,6 +29,8 @@ endforeach()
 foreach(item IN ITEMS
     buffer_point_geo
     buffer_polygon_geo
+    buffer_linestring
+    buffer_linestring_geo
     buffer_multi_linestring_geo
     buffer_multi_polygon_geo
     buffer_geo_spheroid
@@ -41,8 +43,6 @@ endforeach()
 # Besides that, the buffer_countries test requires the WKT files.
 foreach(item IN ITEMS
     buffer_countries
-    buffer_linestring
-    buffer_linestring_geo
   )
   boost_geometry_add_unit_test("algorithms" ${item} "not_run")
   target_compile_definitions(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
