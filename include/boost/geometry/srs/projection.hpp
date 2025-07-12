@@ -157,11 +157,8 @@ struct project_range
     template <typename R1, typename R2, typename Proj>
     static inline bool apply(R1 const& r1, R2 & r2, Proj const& proj)
     {
-        return geometry::detail::conversion::range_to_range
-            <
-                R1, R2,
-                geometry::point_order<R1>::value != geometry::point_order<R2>::value
-            >::apply(r1, r2, convert_policy<Proj>(proj)).result();
+        return geometry::detail::conversion::range_to_range::apply(r1, r2,
+            convert_policy<Proj>(proj)).result();
     }
 };
 
