@@ -25,7 +25,6 @@ test-suite boost-geometry-algorithms
     [ run centroid_multi.cpp           : : : : algorithms_centroid_multi ]
     [ run comparable_distance.cpp      : : : : algorithms_comparable_distance ]
     [ run convert.cpp                  : : : : algorithms_convert ]
-    [ run convert_multi.cpp            : : : : algorithms_convert_multi ]
     [ run correct.cpp                  : : : : algorithms_correct ]
     [ run correct_multi.cpp            : : : : algorithms_correct_multi ]
     [ run correct_closure.cpp          : : : : algorithms_correct_closure ]

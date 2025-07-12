@@ -34,7 +34,6 @@ foreach(item IN ITEMS
     centroid_multi
     comparable_distance
     convert
-    convert_multi
     correct
     correct_multi
     correct_closure
