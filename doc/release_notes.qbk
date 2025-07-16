@@ -20,29 +20,6 @@
 [section:release_notes Release Notes]
 
 [/=================]
-[heading Boost 1.89]
-[/=================]
-
-[*Major improvements]
-
-* [@https://github.com/boostorg/geometry/pull/1369 1369] Rewrite of traversal
-* [@https://github.com/boostorg/geometry/pull/1402 1402] Add geometry polyhedral surface
-
-[*Improvements]
-
-* [@https://github.com/boostorg/geometry/pull/1404 1404] Performance improvents in buffer
-* [@https://github.com/boostorg/geometry/pull/1405 1405] Avoid static variables and functions in header files
-
-[*Solved issues]
-
-* [@https://github.com/boostorg/geometry/issues/1221 1221] Difference with rectilinear multipolygon with integer coordinates produces invalid polygon with disconnected interior
-* [@https://github.com/boostorg/geometry/issues/1295 1295] Wrong result in intersection (result polygon is equal to the biggest of the input polygons)
-* [@https://github.com/boostorg/geometry/issues/1349 1349] Difference of polygons giving wrong result
-* [@https://github.com/boostorg/geometry/issues/1382 1382] Buffer operation creates self-intersection
-* Various fixes of errors and warnings
-
-
-[/=================]
 [heading Boost 1.88]
 [/=================]
 
