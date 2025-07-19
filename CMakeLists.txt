@@ -133,3 +133,9 @@ if(BUILD_TESTING AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/test/CMakeLists.txt")
   add_subdirectory(index/test EXCLUDE_FROM_ALL)
 
 endif()
+
+if(BUILD_DOCUMENTATION)
+  add_subdirectory(doc/src/examples)
+  add_subdirectory(doc/src/docutils/tools/support_status)
+endif()
+
