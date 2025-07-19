@@ -1,8 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2021, Oracle and/or its affiliates.
+// Copyright (c) 2014-2025, Oracle and/or its affiliates.
 
+// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -12,6 +13,8 @@
 #ifndef BOOST_TEST_MODULE
 #define BOOST_TEST_MODULE test_is_valid
 #endif
+
+//#define BOOST_GEOMETRY_ALLOW_INCONSISTENT_ORIENTATION
 
 #include <limits>
 #include <iostream>
@@ -35,6 +38,7 @@
 #include <boost/geometry/algorithms/reverse.hpp>
 
 #include <boost/geometry/geometries/geometry_collection.hpp>
+#include <boost/geometry/geometries/polyhedral_surface.hpp>
 
 template <typename Geometry>
 void geometry_to_svg(Geometry const& geometry, const std::string& case_id)
@@ -1546,4 +1550,344 @@ BOOST_AUTO_TEST_CASE( test_is_valid_geometry_collection )
     test::apply("gc02", gc, false);
     gc = {valid_linestring, invalid_polygon};
     test::apply("gc03", gc, false);
+}
+
+
+BOOST_AUTO_TEST_CASE(test_is_valid_polyhedral_surface)
+{
+    using point_type = bg::model::point<double, 3, bg::cs::cartesian>;
+    using polygon_type = bg::model::polygon<point_type>;
+    using polyhedral_surface_type = bg::model::polyhedral_surface<polygon_type>;
+
+    // Valid polyhedral surface
+    bg::validity_failure_type failure;
+    polyhedral_surface_type valid_surface;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((1 1 1,0 1 1,0 0 1,1 0 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)),((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))",
+        valid_surface);
+    BOOST_CHECK(bg::is_valid(valid_surface, failure));
+
+    // Invalid polyhedral surface with a small distortion
+    polyhedral_surface_type valid_surface_distortion;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 1e-20,0 1 0,1 1 0,1 0 0,1e-20 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 1e-20 0,1 0 1,0 0 1,0 0 0)),((1 1 1,0 1 1,0 1e-20 1,1 0 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 1e-18,1 1 1)),((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))",
+        valid_surface_distortion);
+    BOOST_CHECK(!bg::is_valid(valid_surface_distortion, failure));
+    BOOST_CHECK(failure == bg::failure_non_coplanar_points_on_face);
+
+    // Valid polyhedral surface different order
+    polyhedral_surface_type valid_surface_out;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,1 1 0,0 1 0,0 0 0)),((0 0 0,0 1 0,0 1 1,0 0 1,0 0 0)),\
+                           ((0 0 0,0 0 1,1 0 1,1 0 0,0 0 0)),((1 1 1,1 0 1,0 0 1,0 1 1,1 1 1)),\
+                           ((1 1 1,1 1 0,1 0 0,1 0 1,1 1 1)),((1 1 1,0 1 1,0 1 0,1 1 0,1 1 1)))",
+        valid_surface_out);
+    BOOST_CHECK(bg::is_valid(valid_surface_out, failure));
+
+    // A valid polyhedral surface which is open and has non-convex faces
+    polyhedral_surface_type valid_surface_non_convex;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((1 1 1,0 1 1,0 0 1,1 0 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 0,1 .5 .5,1 1 1)))",
+        valid_surface_non_convex);
+    BOOST_CHECK(bg::is_valid(valid_surface_non_convex, failure));
+
+    // A valid polyhedral surface which is open and has holes on the faces
+    polyhedral_surface_type valid_surface_holes;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0),(0.2 0.2 0,0.2 0.5 0,0.5 0.5 0,0.5 0.2 0,0.2 0.2 0)),\
+                           ((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),\
+                           ((1 1 1,0 1 1,0 0 1,1 0 1,1 1 1)),((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)),\
+                           ((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))",
+        valid_surface_holes);
+    BOOST_CHECK(bg::is_valid(valid_surface_holes, failure));
+
+    /* NOT SUPPORTED YET
+    polyhedral_surface_type valid_surface_holes2;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0),(0.25 0.25 0,0.75 0.25 0,0.75 0.75 0,0.25 0.75 0,0.25 0.25 0)),\
+                           ((0.25 0.25 0,0.75 0.25 0,0.75 0.25 0.75,0.25 0.25 0.75,0.25 0.25 0)),\
+                           ((0.75 0.75 0,0.75 0.25 0,0.75 0.25 0.75,0.75 0.75 0.75,0.75 0.75 0)),\
+                           ((0.25 0.75 0,0.75 0.75 0,0.75 0.75 0.75,0.25 0.75 0.75,0.25 0.75 0)),\
+                           ((0.25 0.75 0,0.25 0.25 0,0.25 0.25 0.75,0.25 0.75 0.75,0.25 0.75 0)),\
+                           ((0.25 0.25 0.75,0.75 0.25 0.75,0.75 0.75 0.75,0.25 0.75 0.75,0.25 0.25 0.75)),\
+                           ((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),\
+                           ((1 1 1,0 1 1,0 0 1,1 0 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)))",
+        valid_surface_holes2);
+    BOOST_CHECK(bg::is_valid(valid_surface_holes2, failure));
+*/
+    // Invalid polyhedral surface: repeated points on face (polygon)
+    polyhedral_surface_type invalid_surface_repeated_points;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)))",
+        invalid_surface_repeated_points);
+    //Repeated points are allowed by default, so we have to use a user defined policy
+    bg::failure_type_policy<false> visitor;
+    BOOST_CHECK(!bg::is_valid(invalid_surface_repeated_points, visitor, bg::default_strategy()));
+    BOOST_CHECK(visitor.failure() == bg::failure_duplicate_points);
+
+    // Invalid polyhedral surface: non planar face (polygon)
+    polyhedral_surface_type invalid_surface_non_planar_face;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 1,0 0 0)),((1 0 0,1 1 0,0 1 0,1 0 0)))",
+        invalid_surface_non_planar_face);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_non_planar_face, failure));
+    BOOST_CHECK(failure == bg::failure_non_coplanar_points_on_face);
+
+    // Invalid polyhedral surface: colinear points on face (polygon)
+    polyhedral_surface_type invalid_surface_collinear_points;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((1 0 0,1 1 0,0 1 0,1 0 0)),((0 0 0,1 0 0,2 0 0,0 0 0)))",
+        invalid_surface_collinear_points);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_collinear_points, failure));
+    BOOST_CHECK(failure == bg::failure_collinear_points_on_face);
+
+    // Invalid polyhedral surface: few points on face (polygon)
+    polyhedral_surface_type invalid_surface_few_points;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((1 0 0,1 1 0,0 1 0,1 0 0)),((0 0 0,1 0 0,0 0 0)))",
+        invalid_surface_few_points);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_few_points, failure));
+    BOOST_CHECK(failure == bg::failure_few_points_on_face);
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0)),((1 0 0,1 1 0,0 1 0,1 0 0)))",
+        invalid_surface_few_points);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_few_points, failure));
+    BOOST_CHECK(failure == bg::failure_few_points_on_face);
+
+    // Invalid polyhedral surface; incosistent orientation
+    polyhedral_surface_type invalid_surface_inconsistent_orientation;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((1 1 1,1 0 1,0 0 1,0 1 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 0,1 1 1)),((1 1 1,1 1 0,0 1 0,0 1 1,1 1 1)))",
+                           invalid_surface_inconsistent_orientation);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_inconsistent_orientation, failure));
+    BOOST_CHECK(failure == bg::failure_inconsistent_orientation);
+
+    // Invalid polyhedral surface: invalid intersection;
+    // the boundary of a face intersects the interior of another face
+    polyhedral_surface_type invalid_surface_invalid_intersection_boundary_interior;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 0 1,0 0 0)),((0 1 0,0.5 -0.5 0.5,1 1 0,0 1 0)))",
+        invalid_surface_invalid_intersection_boundary_interior);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_boundary_interior, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection;
+    // the boundary of a face intersects the boundary of another face
+    polyhedral_surface_type invalid_surface_invalid_intersection_boundary_boundary;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((0 1 0,0 -1 1,1 -1 1,1 1 0,0 1 0)))",
+        invalid_surface_invalid_intersection_boundary_boundary);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_boundary_boundary, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection;
+    polyhedral_surface_type invalid_surface_invalid_intersection_in_common_vertex;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((0 1 0,1 0 1,1 1 0,0 1 0)))",
+        invalid_surface_invalid_intersection_in_common_vertex);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_in_common_vertex, failure));
+    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+
+    polyhedral_surface_type invalid_surface_invalid_intersection_partial_edge;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,1 0 1,0 0 1,0 0 0)),((0 1 0,0.5 0 1,1 0 1,1 1 0,0 1 0)))",
+        invalid_surface_invalid_intersection_partial_edge);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_partial_edge, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: disconnected polygon patches
+    polyhedral_surface_type invalid_surface_disconnected_polygons;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((1 1 0,2 1 0,2 2 0,1 2 0,1 1 0)))",
+        invalid_surface_disconnected_polygons);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_disconnected_polygons, failure));
+    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+
+    // Valid polyhedral surface: coplanar polygons
+    polyhedral_surface_type valid_surface_coplanar_polygons;
+    bg::read_wkt(
+         "POLYHEDRALSURFACE(((0 0 0,1 0 0,2 1 0,1 1 0,0 2 0,0 0 0)),((1 1 0,2 1 0,2 2 0,1 2 0,1 1 0)))",
+        valid_surface_coplanar_polygons);
+    BOOST_CHECK(bg::is_valid(valid_surface_coplanar_polygons, failure));
+
+    // Invalid polyhedral surface
+    // https://github.com/boostorg/geometry/issues/1406
+    polyhedral_surface_type invalid_surface_intersection;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,2 1 0,1 1 0,0.8 0.8 0,0 2 0,0 0 0)),((1 1 0,2 1 0,2 2 0,1 2 0,1 1 0)),((0.8 0.8 0,1 1.5 0,0 2 0,0.8 0.8 0)))",
+        invalid_surface_intersection);
+    //BOOST_CHECK(!bg::is_valid(invalid_surface_intersection, failure));
+    //BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: disconnected polygon patches
+    polyhedral_surface_type invalid_surface_disconnected_polygons2;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0 0 0,0 0 1,1 0 0,0 0 0)),\
+                  ((1 1 0,2 1 0,2 2 0,1 2 0,1 1 0)),((1 1 0,1 0 2,2 0 2,2 1 0,1 1 0)))",
+        invalid_surface_disconnected_polygons2);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_disconnected_polygons2, failure));
+    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+
+    // Invalid polyhedral surface: invalid intersection (intersection vertex with edge of another polygon)
+    // Issue https://github.com/boostorg/geometry/issues/1406
+    polyhedral_surface_type invalid_surface_invalid_intersection_vertex_edge;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0.5 0.5 0,2 1 0,2 2 0,1 2 0,0.5 0.5 0)))",
+        invalid_surface_invalid_intersection_vertex_edge);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_vertex_edge, failure));
+    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+
+    // Invalid polyhedral surface: invalid intersection (intersection vertex with vertex of another polygon)
+    // Issue 1406
+    polyhedral_surface_type invalid_surface_invalid_intersection_vertex_vertex;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((1 0 0,2 1 0,2 2 0,1 2 0,1 0 0)))",
+        invalid_surface_invalid_intersection_vertex_vertex);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_vertex_vertex, failure));
+    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+
+    // Invalid polyhedral surface: invalid intersection (intersection vertex with edge of another polygon)
+    polyhedral_surface_type invalid_surface_invalid_intersection_vertex_edge2;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           ((0 0 0,1 0 0,0.5 0 1,0 0 0)),((1 1 1,0 1 1,0 0 1,1 0 1,1 1 1)),\
+                           ((1 1 1,1 0 1,1 0 0,1 1 0,1 .5 .5,1 1 1)))",
+        invalid_surface_invalid_intersection_vertex_edge2);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_vertex_edge2, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection
+    polyhedral_surface_type invalid_surface_invalid_intersection_parallel_edges;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0 1 0,0.5 0.5 0,1 0 0,2 1 0,2 2 0,1 2 0,0 1 0)))",
+        invalid_surface_invalid_intersection_parallel_edges);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_parallel_edges, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection (overlapping faces)
+    polyhedral_surface_type invalid_surface_invalid_intersection_operlapping_faces;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0.5 0,0.5 1 0,0 0 0)),((0 1 0,1 0 0,2 1 0,2 2 0,1 2 0,0 1 0)))",
+        invalid_surface_invalid_intersection_operlapping_faces);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_operlapping_faces, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection (overlapping faces with common vertex)
+    polyhedral_surface_type invalid_surface_invalid_intersection_operlapping_faces2;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0.5 1 0,0 0 0)),((0 1 0,1 0 0,2 1 0,2 2 0,1 2 0,0 1 0)))",
+        invalid_surface_invalid_intersection_operlapping_faces2);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_operlapping_faces2, failure));
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
+
+    // Invalid polyhedral surface: invalid intersection of face
+    polyhedral_surface_type invalid_surface_invalid_face;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0 1 0,1 0 0,2 2 0,2 1 0,1 2 0,0 1 0)))",
+        invalid_surface_invalid_face);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_face, failure));
+    BOOST_CHECK(failure == bg::failure_self_intersections);
+
+    // Invalid polyhedral surface: non-manifold edge, i.e. an edge belongs to more than two polygons
+    // This will return an iconsistent orientation failure since if more than two polygons share an
+    // edge, there is a pair of polygons that share the edge in the same direction
+    polyhedral_surface_type invalid_surface_non_manifold_edge;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0 1 0,1 0 0,2 1 0,2 2 0,1 2 0,0 1 0)),\
+                           ((0 1 0,1 0 0,1 1 1,0 1 0)))",
+        invalid_surface_non_manifold_edge);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_non_manifold_edge, failure));
+    BOOST_CHECK(failure == bg::failure_inconsistent_orientation);
+
+    polyhedral_surface_type invalid_surface_empty_ring;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE(((0 0 0,0 1 0,1 1 0,1 0 0,0 0 0)),((0 0 0,0 0 1,0 1 1,0 1 0,0 0 0)),\
+                           (()))",
+        invalid_surface_empty_ring);
+    BOOST_CHECK(!bg::is_valid(invalid_surface_empty_ring, failure));
+    BOOST_CHECK(failure == bg::failure_few_points_on_face);
+
+    // Create a polyhedral surface with 50 triangles forming a "fan" around the origin in the XY plane
+    polyhedral_surface_type large_surface_tin;
+    std::ostringstream wkt;
+    wkt << "POLYHEDRALSURFACE(";
+    double radius = 10.0;
+    double z = 0.0;
+    int n = 50;
+    for (int i = 0; i < n; ++i)
+    {
+        double angle1 = 2.0 * M_PI * i / n;
+        double angle2 = 2.0 * M_PI * (i + 1) / n;
+        double x1 = radius * std::cos(angle1);
+        double y1 = radius * std::sin(angle1);
+        double x2 = radius * std::cos(angle2);
+        double y2 = radius * std::sin(angle2);
+        wkt << "((" << 0 << " " << 0 << " " << z << ","
+            << x1 << " " << y1 << " " << z << ","
+            << x2 << " " << y2 << " " << z << ","
+            << 0 << " " << 0 << " " << z << "))";
+        if (i != n - 1)
+            wkt << ",";
+    }
+    wkt << ")";
+    bg::read_wkt(wkt.str(), large_surface_tin);
+    BOOST_CHECK(bg::is_valid(large_surface_tin, failure));
+
+    // Large polyhedral surface: Triangulated ball (sphere approximation)
+    polyhedral_surface_type large_surface_ball;
+    bg::read_wkt(
+        "POLYHEDRALSURFACE("
+        "((0.587785 0.000000 -0.809017, 0.000000 0.000000 -1.000000, 0.181636 0.559017 -0.809017, 0.587785 0.000000 -0.809017)),"
+        "((0.181636 0.559017 0.809017, 0.000000 0.000000 1.000000, 0.587785 -0.000000 0.809017, 0.181636 0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, 0.587785 -0.000000 0.809017, 0.000000 0.000000 1.000000, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, 0.000000 0.000000 1.000000, -0.475528 -0.345492 0.809017, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 -0.809017, 0.000000 0.000000 -1.000000, 0.587785 0.000000 -0.809017, 0.181636 -0.559017 -0.809017)),"
+        "((0.181636 -0.559017 -0.809017, -0.475528 -0.345492 -0.809017, 0.000000 0.000000 -1.000000, 0.181636 -0.559017 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, 0.181636 0.559017 -0.809017, 0.000000 0.000000 -1.000000, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, 0.000000 0.000000 -1.000000, -0.475528 -0.345492 -0.809017, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 0.809017, 0.000000 0.000000 1.000000, 0.181636 0.559017 0.809017, -0.475528 0.345492 0.809017)),"
+        "((-0.475528 0.345492 0.809017, -0.475528 -0.345492 0.809017, 0.000000 0.000000 1.000000, -0.475528 0.345492 0.809017)),"
+        "((0.293893 -0.904508 -0.309017, 0.951057 0.000000 0.309017, 0.293893 -0.904508 0.309017, 0.293893 -0.904508 -0.309017)),"
+        "((0.293893 -0.904508 -0.309017, 0.951057 0.000000 -0.309017, 0.951057 0.000000 0.309017, 0.293893 -0.904508 -0.309017)),"
+        "((0.293893 0.904508 0.309017, 0.951057 0.000000 0.309017, 0.951057 0.000000 -0.309017, 0.293893 0.904508 0.309017)),"
+        "((0.293893 0.904508 0.309017, 0.951057 0.000000 -0.309017, 0.293893 0.904508 -0.309017, 0.293893 0.904508 0.309017)),"
+        "((-0.769421 -0.559017 0.309017, 0.293893 -0.904508 -0.309017, 0.293893 -0.904508 0.309017, -0.769421 -0.559017 0.309017)),"
+        "((-0.769421 -0.559017 0.309017, -0.769421 -0.559017 -0.309017, 0.293893 -0.904508 -0.309017, -0.769421 -0.559017 0.309017)),"
+        "((0.587785 0.000000 -0.809017, 0.293893 0.904508 -0.309017, 0.951057 0.000000 -0.309017, 0.587785 0.000000 -0.809017)),"
+        "((0.587785 0.000000 -0.809017, 0.181636 0.559017 -0.809017, 0.293893 0.904508 -0.309017, 0.587785 0.000000 -0.809017)),"
+        "((-0.769421 0.559017 -0.309017, 0.293893 0.904508 0.309017, 0.293893 0.904508 -0.309017, -0.769421 0.559017 -0.309017)),"
+        "((-0.769421 0.559017 -0.309017, -0.769421 0.559017 0.309017, 0.293893 0.904508 0.309017, -0.769421 0.559017 -0.309017)),"
+        "((-0.769421 0.559017 -0.309017, -0.769421 -0.559017 -0.309017, -0.769421 -0.559017 0.309017, -0.769421 0.559017 -0.309017)),"
+        "((-0.769421 0.559017 -0.309017, -0.769421 -0.559017 0.309017, -0.769421 0.559017 0.309017, -0.769421 0.559017 -0.309017)),"
+        "((0.181636 0.559017 0.809017, 0.951057 0.000000 0.309017, 0.293893 0.904508 0.309017, 0.181636 0.559017 0.809017)),"
+        "((0.181636 0.559017 0.809017, 0.587785 -0.000000 0.809017, 0.951057 0.000000 0.309017, 0.181636 0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, 0.293893 -0.904508 0.309017, 0.951057 0.000000 0.309017, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, 0.951057 0.000000 0.309017, 0.587785 -0.000000 0.809017, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, -0.769421 -0.559017 0.309017, 0.293893 -0.904508 0.309017, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 0.809017, -0.475528 -0.345492 0.809017, -0.769421 -0.559017 0.309017, 0.181636 -0.559017 0.809017)),"
+        "((0.181636 -0.559017 -0.809017, 0.951057 0.000000 -0.309017, 0.293893 -0.904508 -0.309017, 0.181636 -0.559017 -0.809017)),"
+        "((0.181636 -0.559017 -0.809017, 0.587785 0.000000 -0.809017, 0.951057 0.000000 -0.309017, 0.181636 -0.559017 -0.809017)),"
+        "((0.181636 -0.559017 -0.809017, 0.293893 -0.904508 -0.309017, -0.769421 -0.559017 -0.309017, 0.181636 -0.559017 -0.809017)),"
+        "((0.181636 -0.559017 -0.809017, -0.769421 -0.559017 -0.309017, -0.475528 -0.345492 -0.809017, 0.181636 -0.559017 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, 0.293893 0.904508 -0.309017, 0.181636 0.559017 -0.809017, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, -0.769421 0.559017 -0.309017, 0.293893 0.904508 -0.309017, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, -0.769421 -0.559017 -0.309017, -0.769421 0.559017 -0.309017, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 -0.809017, -0.475528 -0.345492 -0.809017, -0.769421 -0.559017 -0.309017, -0.475528 0.345492 -0.809017)),"
+        "((-0.475528 0.345492 0.809017, 0.293893 0.904508 0.309017, -0.769421 0.559017 0.309017, -0.475528 0.345492 0.809017)),"
+        "((-0.475528 0.345492 0.809017, 0.181636 0.559017 0.809017, 0.293893 0.904508 0.309017, -0.475528 0.345492 0.809017)),"
+        "((-0.475528 0.345492 0.809017, -0.769421 0.559017 0.309017, -0.769421 -0.559017 0.309017, -0.475528 0.345492 0.809017)),"
+        "((-0.475528 0.345492 0.809017, -0.769421 -0.559017 0.309017, -0.475528 -0.345492 0.809017, -0.475528 0.345492 0.809017))"
+        ")",
+        large_surface_ball);
+    BOOST_CHECK(bg::is_valid(large_surface_ball, failure));
 }

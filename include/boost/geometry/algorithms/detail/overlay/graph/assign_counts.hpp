@@ -80,22 +80,22 @@ void assign_counts(Turn& turn)
         }
     };
 
-    auto assign_left_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
+    auto assign_left_for = [&assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
     {
         assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_left = count; });
     };
 
-    auto assign_right_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
+    auto assign_right_for = [&assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
     {
         assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_right = count; });
     };
 
-    auto assign_left_incoming_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
+    auto assign_left_incoming_for = [&assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
     {
         assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_left_incoming = count; });
     };
 
-    auto assign_right_incoming_for = [&turn, &assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
+    auto assign_right_incoming_for = [&assign_for](counts_per_op_t const& op1, counts_per_op_t op2)
     {
         assign_for(op1, op2, [](auto& enriched, auto count) { enriched.count_right_incoming = count; });
     };

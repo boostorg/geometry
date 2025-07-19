@@ -44,7 +44,6 @@ namespace model
 
 */
 
-//TODO: add is_valid() check
 template
 <
     typename Polygon,

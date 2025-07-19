@@ -25,6 +25,7 @@ The PolyhedralSurface Concept is defined as following:
 * It must behave like a Boost.Range Random Access Range
 * The type defined by the metafunction `range_value<...>::type` must fulfill
     the [link geometry.reference.concepts.concept_polygon Polygon Concept]
+* It must be 3-dimensional and cartesian
 
 [heading Rules]
 

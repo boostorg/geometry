@@ -35,6 +35,7 @@ test-suite boost-geometry-geometries
     [ run point_xyz.cpp            : : : : geometries_point_xyz ]
     [ run polygon.cpp              : : : : geometries_polygon ]
     [ run polyhedral_surface.cpp   : : : : geometries_polyhedral_surface ]
+    [ compile-fail polyhedral_surface_fail.cpp   : : geometries_polyhedral_surface_fail ]
     [ run ring.cpp                 : : : : geometries_ring ]
     [ run segment.cpp              : : : : geometries_segment ]
     [ run infinite_line.cpp        : : : : geometries_infinite_line ]

@@ -26,7 +26,8 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
-
+#include <boost/geometry/strategies/relate3/services.hpp>
+#include <boost/geometry/strategies/relate3/cartesian.hpp>
 
 namespace boost { namespace geometry
 {
@@ -77,13 +78,15 @@ struct is_valid<default_strategy, false>
                              default_strategy)
     {
         // NOTE: Currently the strategy is only used for Areal geometries
-        typedef typename strategies::relate::services::default_strategy
+        // Select strategy_type based on Geometry's dimension
+        using strategy_type = typename std::conditional_t
             <
-                Geometry, Geometry
-            >::type strategy_type;
+                geometry::dimension<Geometry>::value == 3,
+                typename strategies::relate3::services::default_strategy<Geometry, Geometry>,
+                typename strategies::relate::services::default_strategy<Geometry, Geometry>
+            >::type;
 
-        return dispatch::is_valid<Geometry>::apply(geometry, visitor,
-                                                   strategy_type());
+        return dispatch::is_valid<Geometry>::apply(geometry, visitor, strategy_type());
     }
 };
 

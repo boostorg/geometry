@@ -162,7 +162,7 @@ template <typename Turns, typename Clusters, typename Graph, typename Components
 void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bool allow_closed,
     Graph const& graph, Components const& component, state_type const& state)
 {
-    auto node_id_from_it = [&state](auto const& it)
+    auto node_id_from_it = [](auto const& it)
     {
         return it->second.is_extra
             ? it->second.original_node_id
