@@ -320,8 +320,7 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_DISSOLVE(dissolve_mail_2017_09_24_c, 0.5, 2, 0, 8);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_d, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_e, 0.001801138128, 5, 0, 69);
-    TEST_DISSOLVE_WITH(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69,
-                       settings_for_sensitive_cases);
+    TEST_DISSOLVE(dissolve_mail_2017_09_24_f, 0.000361308800, 5, 0, 69);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_g, 0.5, 1, 0, 4);
     TEST_DISSOLVE(dissolve_mail_2017_09_24_h, 0.5, 1, 0, 4);
 
@@ -342,10 +341,8 @@ void test_all(ut_settings const& settings_for_sensitive_cases)
     TEST_MULTI(ggl_list_20110307_javier_01_a, 6400.0, 2, 0, 11);
 
     TEST_DISSOLVE(ggl_list_20110307_javier_01_b, 3993600.0, 1, 2, 16);
-    TEST_DISSOLVE_WITH(dissolve_ticket17, 0.00920834633689, 1, 1, 228,
-                       settings_for_sensitive_cases);
-    TEST_DISSOLVE_WITH(dissolve_reallife, 91756.916526794434, 1, 0, 25,
-                       settings_for_sensitive_cases);
+    TEST_DISSOLVE(dissolve_ticket17, 0.00920834633689, 1, 1, 228);
+    TEST_DISSOLVE(dissolve_reallife, 91756.916526794434, 1, 0, 25);
 
 #if defined(BOOST_GEOMETRY_TEST_FAILURES)
     TEST_DISSOLVE(gitter_2013_04_a, 3043.9181, 3, 0, 21);
