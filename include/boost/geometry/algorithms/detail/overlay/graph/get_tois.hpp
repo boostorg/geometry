@@ -111,9 +111,9 @@ set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
 }
 
 // Variant with multiple target nodes
-template <operation_type TargetOperation, typename Turns, typename Clusters>
+template <operation_type TargetOperation, typename Turns, typename Clusters, typename TargetNodeIds>
 set_of_tois get_tois(Turns const& turns, Clusters const& clusters,
-        signed_size_type source_node_id, std::set<signed_size_type> const& target_node_ids)
+        signed_size_type source_node_id, TargetNodeIds const& target_node_ids)
 {
     set_of_tois result;
     for (auto const& target : target_node_ids)

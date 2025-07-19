@@ -16,7 +16,9 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
 
+#include <algorithm>
 #include <set>
+#include <vector>
 #include <tuple>
 
 namespace boost { namespace geometry
@@ -121,6 +123,7 @@ void get_target_operations(Turns const& turns,
 
 
 // Get the target nodes of a specific component_id only.
+// Target nodes are sorted on preference index.
 template <operation_type TargetOperation, typename Turns, typename Clusters, typename Set>
 auto get_target_nodes(Turns const& turns, Clusters const& clusters,
                       Set const& turn_indices,
@@ -128,7 +131,7 @@ auto get_target_nodes(Turns const& turns, Clusters const& clusters,
 {
     using is_included = is_operation_included<TargetOperation>;
 
-    std::set<signed_size_type> result;
+    std::vector<std::pair<signed_size_type, std::size_t>> selected;
     for (auto turn_index : turn_indices)
     {
         auto const& turn = turns[turn_index];
@@ -144,9 +147,18 @@ auto get_target_nodes(Turns const& turns, Clusters const& clusters,
                 && is_included::apply(op)
                 && is_target_operation<TargetOperation>(turns, {turn_index, j}))
             {
-                result.insert(get_node_id(turns, op.enriched.travels_to_ip_index));
+                selected.push_back({get_node_id(turns, op.enriched.travels_to_ip_index), op.preference_index});
             }
         }
+    }
+
+    std::sort(selected.begin(), selected.end(),
+              [](auto const& a, auto const& b) { return a.second < b.second; });
+
+    std::vector<signed_size_type> result;
+    for (auto const& item : selected)
+    {
+       result.push_back(item.first);
     }
     return result;
 }
