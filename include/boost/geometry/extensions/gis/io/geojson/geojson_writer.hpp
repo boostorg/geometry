@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_EXTENSIONS_GIS_IO_GEOJSON_WRITER_HPP
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/constexpr.hpp>
