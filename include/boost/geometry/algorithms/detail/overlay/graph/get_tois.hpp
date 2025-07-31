@@ -40,7 +40,7 @@ void add_tois(Turns const& turns, Clusters const& clusters,
                 turn_operation_id const toi{source_index, i};
                 if (is_target_operation<TargetOperation>(turns, toi))
                 {
-                    result.insert(std::move(toi));
+                    result.insert(toi);
                 }
             }
         }
