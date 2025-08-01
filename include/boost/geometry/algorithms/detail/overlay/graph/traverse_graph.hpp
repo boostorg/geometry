@@ -178,73 +178,89 @@ struct traverse_graph
     bool continue_traverse(Ring& ring,
             signed_size_type component_id,
             signed_size_type start_node_id,
-            signed_size_type current_node_id)
+            signed_size_type target_node_id)
     {
-        auto const current_turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
-                current_node_id, allow_closed);
+        signed_size_type current_node_id = target_node_id;
 
-        // Any valid node should always deliver at least one turn
-        BOOST_ASSERT(! current_turn_indices.empty());
+        std::size_t iteration_count = 0;
 
-        auto const next_target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
-                current_turn_indices, component_id);
-
-        if (next_target_nodes.empty())
+        // Keep traversing until it finds the start (successful finish), or it is stuck,
+        // or it find an already visited node during traversal.
+        // The iteration count is a defensive check to prevent endless loops and not iterate
+        // more than times there are turns (this should not happen).
+        while (iteration_count < m_turns.size())
         {
+            auto const current_turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
+                    current_node_id, allow_closed);
+
+            // Any valid node should always deliver at least one turn
+            BOOST_ASSERT(! current_turn_indices.empty());
+
+            auto const next_target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
+                    current_turn_indices, component_id);
+
+            if (next_target_nodes.empty())
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "Stuck, start: " << start_node_id
-                << " stuck: " << current_node_id
-                << " (no targets) " << std::endl;
+                std::cout << "Stuck, start: " << start_node_id
+                    << " stuck: " << current_node_id
+                    << " (no targets) " << std::endl;
 #endif
-            return false;
-        }
+                return false;
+            }
 
-        auto const tois = get_tois<target_operation>(m_turns, m_clusters,
-                current_node_id, next_target_nodes);
+            auto const tois = get_tois<target_operation>(m_turns, m_clusters,
+                    current_node_id, next_target_nodes);
 
-        if (tois.empty())
-        {
-            return false;
-        }
+            if (tois.empty())
+            {
+                return false;
+            }
 
-        auto const& turn_point = m_turns[*current_turn_indices.begin()].point;
+            auto const& turn_point = m_turns[*current_turn_indices.begin()].point;
 
-        auto toi = *tois.begin();
+            auto toi = *tois.begin();
 
-        if (tois.size() > 1)
-        {
-            // Select the best target edge, using the last point of the ring and the turn point
-            // for side calculations (if any).
-            toi = m_edge_selector.select_target_edge(tois, ring.back(), turn_point);
-        }
+            if (tois.size() > 1)
+            {
+                // Select the best target edge, using the last point of the ring and the turn point
+                // for side calculations (if any).
+                toi = m_edge_selector.select_target_edge(tois, ring.back(), turn_point);
+            }
 
-        if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
-        {
+            if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "ALREADY visited, turn " << toi
-                << " in {" << current_node_id
-                << " -> size " << next_target_nodes.size() << "}" << std::endl;
+                std::cout << "ALREADY visited, turn " << toi
+                    << " in {" << current_node_id
+                    << " -> size " << next_target_nodes.size() << "}" << std::endl;
 #endif
-            return false;
-        }
+                return false;
+            }
 
-        detail::overlay::append_no_collinear(ring, turn_point, m_strategy);
+            detail::overlay::append_no_collinear(ring, turn_point, m_strategy);
 
-        set_visited(toi);
-        use_vertices(ring, toi);
+            set_visited(toi);
+            use_vertices(ring, toi);
 
-        auto const& selected_op = m_turns[toi.turn_index].operations[toi.operation_index];
-        auto const next_target_node_id = get_node_id(m_turns,
-            selected_op.enriched.travels_to_ip_index);
-        if (next_target_node_id == start_node_id)
-        {
+            auto const& selected_op = m_turns[toi.turn_index].operations[toi.operation_index];
+            auto const next_target_node_id = get_node_id(m_turns,
+                selected_op.enriched.travels_to_ip_index);
+            if (next_target_node_id == start_node_id)
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "Finished at: " << next_target_node_id << std::endl;
+                std::cout << "Finished at: " << next_target_node_id << std::endl;
 #endif
-            return true;
-        }
+                return true;
+            }
 
-        return continue_traverse(ring, component_id, start_node_id, next_target_node_id);
+            current_node_id = next_target_node_id;
+            ++iteration_count;
+        }
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
+        std::cout << "Cancelled at: " << iteration_count << std::endl;
+#endif
+        return false;
     }
 
     template <typename Rings>
