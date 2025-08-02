@@ -178,73 +178,89 @@ struct traverse_graph
     bool continue_traverse(Ring& ring,
             signed_size_type component_id,
             signed_size_type start_node_id,
-            signed_size_type current_node_id)
+            signed_size_type target_node_id)
     {
-        auto const current_turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
+        signed_size_type current_node_id = target_node_id;
+
+        std::size_t iteration_count = 0;
+
+        // Keep traversing until it finds the start (successful finish), or it is stuck,
+        // or it find an already visited node during traversal.
+        // The iteration count is a defensive check to prevent endless loops and not iterate
+        // more than times there are turns (this should not happen).
+        while (iteration_count < m_turns.size())
+        {
+            auto const current_turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
                 current_node_id, allow_closed);
 
-        // Any valid node should always deliver at least one turn
-        BOOST_ASSERT(! current_turn_indices.empty());
+            // Any valid node should always deliver at least one turn
+            BOOST_ASSERT(! current_turn_indices.empty());
 
-        auto const next_target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
-                current_turn_indices, component_id);
+            auto const next_target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
+                    current_turn_indices, component_id);
 
-        if (next_target_nodes.empty())
-        {
+            if (next_target_nodes.empty())
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "Stuck, start: " << start_node_id
-                << " stuck: " << current_node_id
-                << " (no targets) " << std::endl;
+                std::cout << "Stuck, start: " << start_node_id
+                    << " stuck: " << current_node_id
+                    << " (no targets) " << std::endl;
 #endif
-            return false;
-        }
+                return false;
+            }
 
-        auto const tois = get_tois<target_operation>(m_turns, m_clusters,
+            auto const tois = get_tois<target_operation>(m_turns, m_clusters,
                 current_node_id, next_target_nodes);
 
-        if (tois.empty())
-        {
-            return false;
-        }
+            if (tois.empty())
+            {
+                return false;
+            }
 
-        auto const& turn_point = m_turns[*current_turn_indices.begin()].point;
+            auto const& turn_point = m_turns[*current_turn_indices.begin()].point;
 
-        auto toi = *tois.begin();
+            auto toi = *tois.begin();
 
-        if (tois.size() > 1)
-        {
-            // Select the best target edge, using the last point of the ring and the turn point
-            // for side calculations (if any).
-            toi = m_edge_selector.select_target_edge(tois, ring.back(), turn_point);
-        }
+            if (tois.size() > 1)
+            {
+                // Select the best target edge, using the last point of the ring and the turn point
+                // for side calculations (if any).
+                toi = m_edge_selector.select_target_edge(tois, ring.back(), turn_point);
+            }
 
-        if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
-        {
+            if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "ALREADY visited, turn " << toi
-                << " in {" << current_node_id
-                << " -> size " << next_target_nodes.size() << "}" << std::endl;
+                std::cout << "ALREADY visited, turn " << toi
+                    << " in {" << current_node_id
+                    << " -> size " << next_target_nodes.size() << "}" << std::endl;
 #endif
-            return false;
-        }
+                return false;
+            }
 
-        detail::overlay::append_no_collinear(ring, turn_point, m_strategy);
+            detail::overlay::append_no_collinear(ring, turn_point, m_strategy);
 
-        set_visited(toi);
-        use_vertices(ring, toi);
+            set_visited(toi);
+            use_vertices(ring, toi);
 
-        auto const& selected_op = m_turns[toi.turn_index].operations[toi.operation_index];
-        auto const next_target_node_id = get_node_id(m_turns,
-            selected_op.enriched.travels_to_ip_index);
-        if (next_target_node_id == start_node_id)
-        {
+            auto const& selected_op = m_turns[toi.turn_index].operations[toi.operation_index];
+            auto const next_target_node_id = get_node_id(m_turns,
+                selected_op.enriched.travels_to_ip_index);
+            if (next_target_node_id == start_node_id)
+            {
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
-            std::cout << "Finished at: " << next_target_node_id << std::endl;
+                std::cout << "Finished at: " << next_target_node_id << std::endl;
 #endif
-            return true;
-        }
+                return true;
+            }
 
-        return continue_traverse(ring, component_id, start_node_id, next_target_node_id);
+            current_node_id = next_target_node_id;
+            ++iteration_count;
+        }
+#if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
+        std::cout << "Cancelled at: " << iteration_count << std::endl;
+#endif
+        return false;
     }
 
     template <typename Rings>
@@ -256,7 +272,7 @@ struct traverse_graph
         // Select the first toi which is not yet visited and has the requested component.
         // If all tois are visited, not having the same component, it is not possible to continue,
         // and it returns an invalid toi.
-        auto select_first_toi = [&](auto const& tois)
+        auto select_first_toi_other = [&](auto const& tois)
         {
             for (auto const& toi : tois)
             {
@@ -274,6 +290,40 @@ struct traverse_graph
                 return toi;
             }
             return turn_operation_id{0, -1};
+        };
+
+        auto select_first_toi_of_two_in_union = [&](auto const& tois)
+        {
+            const auto& toi0 = *tois.begin();
+            const auto& toi1 = *(++tois.begin());
+
+            if (m_finished_tois.count(toi0) == 0
+                && m_finished_tois.count(toi1) == 0)
+            {
+                auto const& turn0 = m_turns[toi0.turn_index];
+                auto const& turn1 = m_turns[toi1.turn_index];
+                auto const& op0 = turn0.operations[toi0.operation_index];
+                auto const& op1 = turn1.operations[toi1.operation_index];
+
+                if (op0.preference_index != op1.preference_index) 
+                {
+                    return op0.preference_index < op1.preference_index
+                        ? toi0
+                        : toi1;
+                }
+            }
+            return select_first_toi_other(tois);
+        };
+
+        auto select_first_toi = [&](auto const& tois)
+        {
+            if (tois.size() == 2
+                && target_operation == operation_union)
+            {
+                return select_first_toi_of_two_in_union(tois);
+            }
+
+            return select_first_toi_other(tois);
         };
 
         auto const toi = select_first_toi(get_tois<target_operation>(m_turns, m_clusters,
@@ -349,25 +399,44 @@ struct traverse_graph
         {
             return;
         }
+
+        // Iterate through the turns operations which are sorted by preference.
+        std::vector<turn_operation_id> start_operations;
+        for (int j = 0; j < 2; j++)
+        {
+            auto const& op = turn.operations[j];
+            turn_operation_id const toi{turn_index, j};
+            if (op.enriched.startable 
+                && m_finished_tois.count(toi) == 0
+                && is_target_operation<target_operation>(m_turns, toi)
+                && is_included::apply(op))
+            {
+                start_operations.push_back(toi);
+            }
+        }
+
+        if (start_operations.empty())
+        {
+            return;
+        }
+
+        std::sort(start_operations.begin(), start_operations.end(),
+                [&](auto const& a, auto const& b)
+                { 
+                    auto const& op_a = m_turns[a.turn_index].operations[a.operation_index];
+                    auto const& op_b = m_turns[b.turn_index].operations[b.operation_index];
+                    // Sort by preference index, then by operation index
+                    return std::tie(op_a.preference_index, a.operation_index)
+                        < std::tie(op_b.preference_index, b.operation_index);
+                });
+
         auto const source_node_id = get_node_id(m_turns, turn_index);
         auto const turn_indices = get_turn_indices_by_node_id(m_turns, m_clusters,
                 source_node_id, allow_closed);
 
-        for (int j = 0; j < 2; j++)
+        for (const auto& toi : start_operations)                
         {
-            auto const& op = turn.operations[j];
-            if (! op.enriched.startable || ! is_included::apply(op))
-            {
-                continue;
-            }
-
-            turn_operation_id const toi{turn_index, j};
-            if (m_finished_tois.count(toi) > 0
-                || ! is_target_operation<target_operation>(m_turns, toi))
-            {
-                continue;
-            }
-
+            auto const& op = turn.operations[toi.operation_index];
             auto const component_id = op.enriched.component_id;
             auto const target_nodes = get_target_nodes<target_operation>(m_turns, m_clusters,
                     turn_indices, component_id);
