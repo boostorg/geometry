@@ -16,10 +16,9 @@
 
 #include <cstddef>
 #include <functional>
+#include <tuple>
 #include <type_traits>
 #include <vector>
-
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 #include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
@@ -222,7 +221,7 @@ public:
                                     <
                                         ps_strategy_type
                                     >::apply(ps_strategy);
-        boost::ignore_unused(ps_strategy, ps_cstrategy);
+        std::ignore = ps_cstrategy;
 
         for (unsigned int i = 0; i < 4; ++i)
         {
@@ -234,7 +233,7 @@ public:
                                     <
                                         pb_strategy_type
                                     >::apply(pb_strategy);
-        boost::ignore_unused(pb_strategy, pb_cstrategy);
+        std::ignore = pb_cstrategy;
 
         cd[4] = pb_cstrategy.apply(p[0], box);
         cd[5] = pb_cstrategy.apply(p[1], box);

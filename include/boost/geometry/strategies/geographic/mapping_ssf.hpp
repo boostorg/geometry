@@ -15,8 +15,6 @@
 #define BOOST_GEOMETRY_STRATEGIES_GEOGRAPHIC_MAPPING_SSF_HPP
 
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/radius.hpp>
 

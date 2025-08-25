@@ -34,11 +34,11 @@ public:
 
     BOOST_CONCEPT_USAGE(PolyhedralSurface)
     {
-        Geometry* ps = 0;
+        Geometry* ps = nullptr;
         traits::clear<Geometry>::apply(*ps);
         traits::resize<Geometry>::apply(*ps, 0);
         // The concept should support the second version of push_back, using &&
-        polygon_type* poly = 0;
+        polygon_type* poly = nullptr;
         traits::push_back<Geometry>::apply(*ps, std::move(*poly));
     }
 #endif

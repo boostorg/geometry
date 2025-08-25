@@ -45,10 +45,10 @@ public :
 
     BOOST_CONCEPT_USAGE(MultiLinestring)
     {
-        Geometry* mls = 0;
+        Geometry* mls = nullptr;
         traits::clear<Geometry>::apply(*mls);
         traits::resize<Geometry>::apply(*mls, 0);
-        linestring_type* ls = 0;
+        linestring_type* ls = nullptr;
         traits::push_back<Geometry>::apply(*mls, std::move(*ls));
     }
 #endif

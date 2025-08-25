@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_BUFFER_DISTANCE_ASYMMETRIC_HPP
 #define BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_BUFFER_DISTANCE_ASYMMETRIC_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -86,7 +86,8 @@ public :
     inline NumericType max_distance(JoinStrategy const& join_strategy,
             EndStrategy const& end_strategy) const
     {
-        boost::ignore_unused(join_strategy, end_strategy);
+        std::ignore = join_strategy;
+        std::ignore = end_strategy;
 
         NumericType const left = geometry::math::abs(m_left);
         NumericType const right = geometry::math::abs(m_right);

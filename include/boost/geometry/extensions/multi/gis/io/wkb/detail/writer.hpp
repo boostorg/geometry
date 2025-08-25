@@ -15,16 +15,15 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <limits>
 
 #include <boost/concept_check.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkb/detail/writer.hpp>
 
@@ -35,8 +34,6 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/detail/endian.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/detail/ogc.hpp>
-
-#include <iostream>
 
 namespace boost { namespace geometry
 {
@@ -53,20 +50,19 @@ namespace detail { namespace wkb
                           byte_order_type::enum_t byte_order)
         {
             // write endian type
-            value_writer<uint8_t>::write(byte_order, iter, byte_order);
+            value_writer<std::uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<MultiPoint>::get();
-            value_writer<uint32_t>::write(type, iter, byte_order);
+            std::uint32_t type = geometry_type<MultiPoint>::get();
+            value_writer<std::uint32_t>::write(type, iter, byte_order);
 
             // write num points
-            uint32_t num_points = boost::size(multipoint);
-            value_writer<uint32_t>::write(num_points, iter, byte_order);
+            std::uint32_t num_points = boost::size(multipoint);
+            value_writer<std::uint32_t>::write(num_points, iter, byte_order);
 
-            typedef typename point_type<MultiPoint>::type point_type;
+            using point_type = typename point_type<MultiPoint>::type;
 
-            for(typename boost::range_iterator<MultiPoint const>::type
-                    point_iter = boost::begin(multipoint);
+            for(auto point_iter = boost::begin(multipoint);
                 point_iter != boost::end(multipoint);
                 ++point_iter)
             {
@@ -86,20 +82,19 @@ namespace detail { namespace wkb
                           byte_order_type::enum_t byte_order)
         {
             // write endian type
-            value_writer<uint8_t>::write(byte_order, iter, byte_order);
+            value_writer<std::uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<MultiLinestring>::get();
-            value_writer<uint32_t>::write(type, iter, byte_order);
+            std::uint32_t type = geometry_type<MultiLinestring>::get();
+            value_writer<std::uint32_t>::write(type, iter, byte_order);
 
             // write num linestrings
-            uint32_t num_linestrings = boost::size(multilinestring);
-            value_writer<uint32_t>::write(num_linestrings, iter, byte_order);
+            std::uint32_t num_linestrings = boost::size(multilinestring);
+            value_writer<std::uint32_t>::write(num_linestrings, iter, byte_order);
 
-            typedef typename boost::range_value<MultiLinestring>::type linestring_type;
+            using linestring_type = typename boost::range_value<MultiLinestring>::type;
 
-            for(typename boost::range_iterator<MultiLinestring const>::type
-                    linestring_iter = boost::begin(multilinestring);
+            for(auto linestring_iter = boost::begin(multilinestring);
                 linestring_iter != boost::end(multilinestring);
                 ++linestring_iter)
             {
@@ -119,20 +114,19 @@ namespace detail { namespace wkb
                           byte_order_type::enum_t byte_order)
         {
             // write endian type
-            value_writer<uint8_t>::write(byte_order, iter, byte_order);
+            value_writer<std::uint8_t>::write(byte_order, iter, byte_order);
 
             // write geometry type
-            uint32_t type = geometry_type<MultiPolygon>::get();
-            value_writer<uint32_t>::write(type, iter, byte_order);
+            std::uint32_t type = geometry_type<MultiPolygon>::get();
+            value_writer<std::uint32_t>::write(type, iter, byte_order);
 
             // write num polygons
-            uint32_t num_polygons = boost::size(multipolygon);
-            value_writer<uint32_t>::write(num_polygons, iter, byte_order);
+            std::uint32_t num_polygons = boost::size(multipolygon);
+            value_writer<std::uint32_t>::write(num_polygons, iter, byte_order);
 
-            typedef typename boost::range_value<MultiPolygon>::type polygon_type;
+            using polygon_type = typename boost::range_value<MultiPolygon>::type;
 
-            for(typename boost::range_iterator<MultiPolygon const>::type
-                    polygon_iter = boost::begin(multipolygon);
+            for(auto polygon_iter = boost::begin(multipolygon);
                 polygon_iter != boost::end(multipolygon);
                 ++polygon_iter)
             {

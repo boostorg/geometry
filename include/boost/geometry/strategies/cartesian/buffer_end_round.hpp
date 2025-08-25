@@ -14,8 +14,6 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_BUFFER_END_ROUND_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/arithmetic/arithmetic.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -110,15 +108,13 @@ public :
     //! Fills output_range with a round end
     template <typename Point, typename DistanceStrategy, typename RangeOut>
     inline void apply(Point const& penultimate_point,
-                Point const& perp_left_point,
+                Point const&,
                 Point const& ultimate_point,
                 Point const& perp_right_point,
                 buffer_side_selector side,
                 DistanceStrategy const& distance,
                 RangeOut& range_out) const
     {
-        boost::ignore_unused(perp_left_point);
-
         using promoted_type = typename geometry::select_most_precise
         <
             coordinate_type_t<Point>,

@@ -25,7 +25,6 @@
 #include <vector>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -76,19 +75,19 @@ private :
                 >::type rtype;
 
             // 3) must define meta-function "comparable_type"
-            typedef typename strategy::distance::services::comparable_type
+            using ctype = typename strategy::distance::services::comparable_type
                 <
                     Strategy
-                >::type ctype;
+                >::type;
 
             // 4) must define meta-function "tag"
-            typedef typename strategy::distance::services::tag
+            using tag = typename strategy::distance::services::tag
                 <
                     Strategy
-                >::type tag;
+                >::type;
 
-            static const bool is_correct_strategy_tag =
-                std::is_same<tag, strategy_tag_distance_point_point>::value
+            constexpr bool is_correct_strategy_tag =
+                   std::is_same<tag, strategy_tag_distance_point_point>::value
                 || std::is_same<tag, strategy_tag_distance_point_box>::value
                 || std::is_same<tag, strategy_tag_distance_box_box>::value;
 
@@ -98,26 +97,31 @@ private :
                  Strategy, tag);
 
             // 5) must implement apply with arguments
-            Strategy* str = 0;
-            ptype1 *p1 = 0;
-            ptype2 *p2 = 0;
-            rtype r = str->apply(*p1, *p2);
+            Strategy* str = nullptr;
+            ptype1 *p1 = nullptr;
+            ptype2 *p2 = nullptr;
+            static_assert(std::is_convertible<rtype, decltype(str->apply(*p1, *p2))>::value,
+                          "rtype must be initialisable from strategy.apply(ptype1&, ptype2&)");
 
             // 6) must define (meta)struct "get_comparable" with apply
-            ctype c = strategy::distance::services::get_comparable
-                <
-                    Strategy
-                >::apply(*str);
+            static_assert(std::is_convertible
+                    <
+                        ctype,
+                        decltype(strategy::distance::services::get_comparable<Strategy>::apply(*str))
+                    >::value,
+                "comparable_distance<Strategy>::type must be initialisable from get_comparable<Strategy>::apply(Strategy&)");
 
             // 7) must define (meta)struct "result_from_distance" with apply
-            r = strategy::distance::services::result_from_distance
-                <
-                    Strategy,
-                    ptype1, ptype2
-                >::apply(*str, 1.0);
-
-            boost::ignore_unused<tag>();
-            boost::ignore_unused(str, c, r);
+            static_assert(std::is_convertible
+                    <
+                        rtype,
+                        decltype(
+                            strategy::distance::services::result_from_distance
+                                <
+                                    Strategy, ptype1, ptype2
+                                >::apply(*str, 1.0))
+                    >::value,
+                "rtype must be initialisable from result_from_distance.apply(Strategy&, double)");
         }
     };
 
@@ -171,32 +175,33 @@ private :
                 Strategy, tag);
 
             // 3) must define meta-function "return_type"
-            typedef typename services::return_type
+            using rtype = typename services::return_type
                 <
                     Strategy, ptype, sptype
-                >::type rtype;
+                >::type;
 
             // 4) must define meta-function "comparable_type"
-            typedef typename services::comparable_type<Strategy>::type ctype;
+            using ctype = typename services::comparable_type<Strategy>::type;
 
             // 5) must implement apply with arguments
-            Strategy *str = 0;
-            ptype *p = 0;
-            sptype *sp1 = 0;
-            sptype *sp2 = 0;
+            Strategy *str = nullptr;
+            ptype *p = nullptr;
+            sptype *sp = nullptr;
 
-            rtype r = str->apply(*p, *sp1, *sp2);
+            static_assert(std::is_convertible<rtype, decltype(str->apply(*p, *sp, *sp))>::value,
+                          "return_type<Strategy, arg1_t, arg2_t>::type must be initialisable from strategy.apply(arg1_t&, arg2_t&, arg2_t&)");
 
             // 6) must define (meta-)struct "get_comparable" with apply
-            ctype cstrategy = services::get_comparable<Strategy>::apply(*str);
+            static_assert(std::is_convertible<ctype, decltype(services::get_comparable<Strategy>::apply(*str))>::value,
+                          "comparable_type<Strategy>::type must be initialisable from get_comparable<Strategy>::apply(Strategy&)");
 
             // 7) must define (meta-)struct "result_from_distance" with apply
-            r = services::result_from_distance
-                <
-                    Strategy, ptype, sptype
-                >::apply(*str, rtype(1.0));
-
-            boost::ignore_unused(str, r, cstrategy);
+            static_assert(std::is_convertible
+                    <
+                        rtype,
+                        decltype(services::result_from_distance<Strategy, ptype, sptype>::apply(*str, rtype(1.0)))
+                    >::value,
+                "return_type<Strategy, arg1_t, arg2_t>::type must be initialisable from result_from_distance<Strategy, arg1_t, arg2_t>::apply(Strategy&, rtype&)");
         }
     };
 

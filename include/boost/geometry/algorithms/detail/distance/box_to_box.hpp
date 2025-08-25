@@ -11,7 +11,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_BOX_TO_BOX_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_BOX_TO_BOX_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -39,7 +39,7 @@ struct distance
 {
     static inline auto apply(Box1 const& box1, Box2 const& box2, Strategies const& strategies)
     {
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
         return strategies.distance(box1, box2).apply(box1, box2);
     }
 };

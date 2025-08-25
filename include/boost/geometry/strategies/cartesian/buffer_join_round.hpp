@@ -26,6 +26,8 @@
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
 #include <iostream>
 #include <boost/geometry/io/wkt/wkt.hpp>
+#else
+#include <tuple>
 #endif
 
 
@@ -138,9 +140,10 @@ public :
         geometry::equal_to<Point> equals;
         if (equals(perp1, perp2))
         {
-            boost::ignore_unused(ip);
 #ifdef BOOST_GEOMETRY_DEBUG_BUFFER_WARN
             std::cout << "Corner for equal points " << geometry::wkt(ip) << " " << geometry::wkt(perp1) << std::endl;
+#else
+            std::ignore = ip;
 #endif
             return false;
         }

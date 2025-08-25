@@ -17,8 +17,6 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
@@ -40,7 +38,7 @@ namespace pack_utils {
 template <std::size_t Dimension>
 struct biggest_edge
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive");
     template <typename Box>
     static inline void apply(Box const& box, coordinate_type_t<Box> & length, std::size_t & dim_index)
     {
@@ -442,8 +440,6 @@ private:
     inline static
     subtree_elements_counts calculate_subtree_elements_counts(size_type elements_count, parameters_type const& parameters, size_type & leafs_level)
     {
-        boost::ignore_unused(parameters);
-
         subtree_elements_counts res(1, 1);
         leafs_level = 0;
 

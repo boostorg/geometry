@@ -21,7 +21,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_COVERED_BY_IMPLEMENTATION_HPP
 
 #include <cstddef>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 #include <boost/geometry/algorithms/detail/within/implementation.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>

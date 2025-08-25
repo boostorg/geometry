@@ -23,8 +23,6 @@
 #include <cstddef>
 #include <type_traits>
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -95,7 +93,7 @@ template
 >
 class point
 {
-    BOOST_STATIC_ASSERT(DimensionCount > 0);
+    static_assert(DimensionCount > 0, "DimensionCount must be positive");
 
     // The following enum is used to fully instantiate the
     // CoordinateSystem class and check the correctness of the units
@@ -197,7 +195,7 @@ public:
         BOOST_GEOMETRY_ASSERT(m_created == 1);
         BOOST_GEOMETRY_ASSERT(m_values_initialized[K] == 1);
 #endif
-        BOOST_STATIC_ASSERT(K < DimensionCount);
+        static_assert(K < DimensionCount, "K must be < DimensionCount");
         return m_values[K];
     }
 
@@ -211,7 +209,7 @@ public:
         BOOST_GEOMETRY_ASSERT(m_created == 1);
         m_values_initialized[K] = 1;
 #endif
-        BOOST_STATIC_ASSERT(K < DimensionCount);
+        static_assert(K < DimensionCount, "K must be < DimensionCount");
         m_values[K] = value;
     }
 

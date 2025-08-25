@@ -19,7 +19,6 @@
 #include <vector>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 
@@ -52,13 +51,12 @@ public:
      * \brief Creates a rtree with maximum elements per node
      *        and minimum (box is ignored).
      */
-    rtree(Box const& box, unsigned int const& maximum, unsigned int const& minimum)
+    rtree(Box const&, unsigned int const& maximum, unsigned int const& minimum)
         : m_count(0)
         , m_min_elems_per_node(minimum)
         , m_max_elems_per_node(maximum)
         , m_root(new rtree_node<Box, Value>(node_pointer(), 1))
     {
-        boost::ignore_unused(box);
     }
 
     /**

@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/static_assert.hpp>
@@ -48,7 +47,7 @@ class RotationMatrix
     {
         static void apply()
         {
-            G* g = 0;
+            G* g = nullptr;
             geometry::set<I, J>(*g, geometry::get<I, J>(*g));
             dimension_checker_row<G, I, J+1, N>::apply();
         }
@@ -107,9 +106,9 @@ class ConstRotationMatrix
     {
         static void apply()
         {
-            const G* g = 0;
-            ctype coord(geometry::get<I, J>(*g));
-            boost::ignore_unused(coord);
+            const G* g = nullptr;
+            static_assert(std::is_constructible<ctype, decltype(geometry::get<I, J>(*g))>::value,
+                          "coordinate_type<Geometry>::type must be constructible from get<I, J>(const G&)");
             dimension_checker_row<G, I, J+1, N>::apply();
         }
     };

@@ -26,7 +26,6 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/config.hpp>
-#include <boost/noncopyable.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -264,7 +263,7 @@ template
     bool SameScale = true,
     typename SvgCoordinateType = double
 >
-class svg_mapper : boost::noncopyable
+class svg_mapper
 {
     typedef model::point<SvgCoordinateType, 2, cs::cartesian> svg_point_type;
 
@@ -384,6 +383,9 @@ public :
         assign_inverse(m_bounding_box);
         write_header(width_height);
     }
+
+    svg_mapper(const svg_mapper&) = delete;
+    svg_mapper& operator=(const svg_mapper&) = delete;
 
     /*!
     \brief Destructor, called automatically. Closes the SVG by streaming <\/svg>

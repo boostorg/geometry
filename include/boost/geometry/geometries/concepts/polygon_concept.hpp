@@ -21,7 +21,6 @@
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/concepts.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -46,12 +45,12 @@ template <typename PolygonType>
 class Polygon
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
-    typedef typename std::remove_const<PolygonType>::type polygon_type;
+    using polygon_type = typename std::remove_const<PolygonType>::type;
 
-    typedef typename traits::ring_const_type<polygon_type>::type ring_const_type;
-    typedef typename traits::ring_mutable_type<polygon_type>::type ring_mutable_type;
-    typedef typename traits::interior_const_type<polygon_type>::type interior_const_type;
-    typedef typename traits::interior_mutable_type<polygon_type>::type interior_mutable_type;
+    using ring_const_type = typename traits::ring_const_type<polygon_type>::type;
+    using ring_mutable_type = typename traits::ring_mutable_type<polygon_type>::type;
+    using interior_const_type = typename traits::interior_const_type<polygon_type>::type;
+    using interior_mutable_type = typename traits::interior_mutable_type<polygon_type>::type;
 
     using point_type = point_type_t<PolygonType>;
     using ring_type = ring_type_t<PolygonType>;
@@ -65,16 +64,32 @@ class Polygon
     {
         static inline void apply()
         {
-            polygon_type* poly = 0;
-            polygon_type const* cpoly = poly;
-
-            ring_mutable_type e = traits::exterior_ring<PolygonType>::get(*poly);
-            interior_mutable_type i = traits::interior_rings<PolygonType>::get(*poly);
-            ring_const_type ce = traits::exterior_ring<PolygonType>::get(*cpoly);
-            interior_const_type ci = traits::interior_rings<PolygonType>::get(*cpoly);
-
-            boost::ignore_unused(poly, cpoly);
-            boost::ignore_unused(e, i, ce, ci);
+            polygon_type* poly = nullptr;
+            polygon_type const* cpoly = nullptr;
+            static_assert(std::is_convertible
+                    <
+                        ring_mutable_type,
+                        decltype(traits::exterior_ring<PolygonType>::get(*poly))
+                    >::value,
+                    "traits::exterior_ring<PolygonType>::get(polygon_type&) must be convertible to ring_mutable_type");
+            static_assert(std::is_convertible
+                    <
+                        interior_mutable_type,
+                        decltype(traits::interior_rings<PolygonType>::get(*poly))
+                    >::value,
+                    "traits::interior_rings<PolygonType>::get(polygon_type&) must be convertible to interior_mutable_type");
+            static_assert(std::is_convertible
+                    <
+                        ring_const_type,
+                        decltype(traits::exterior_ring<PolygonType>::get(*cpoly))
+                    >::value,
+                    "traits::exterior_ring<PolygonType>::get(const polygon_type&) must be convertible to ring_const_type");
+            static_assert(std::is_convertible
+                    <
+                        interior_const_type,
+                        decltype(traits::interior_rings<PolygonType>::get(*cpoly))
+                    >::value,
+                    "traits::interior_rings<PolygonType>::get(const polygon_type&) must be convertible to interior_const_type");
         }
     };
 
@@ -97,10 +112,10 @@ class ConstPolygon
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 
-    typedef typename std::remove_const<PolygonType>::type const_polygon_type;
+    using const_polygon_type = typename std::remove_const<PolygonType>::type;
 
-    typedef typename traits::ring_const_type<const_polygon_type>::type ring_const_type;
-    typedef typename traits::interior_const_type<const_polygon_type>::type interior_const_type;
+    using ring_const_type = typename traits::ring_const_type<const_polygon_type>::type;
+    using interior_const_type = typename traits::interior_const_type<const_polygon_type>::type;
 
     using point_type = point_type_t<const_polygon_type>;
     using ring_type = ring_type_t<const_polygon_type>;
@@ -114,12 +129,19 @@ class ConstPolygon
     {
         static inline void apply()
         {
-            const_polygon_type const* cpoly = 0;
-
-            ring_const_type ce = traits::exterior_ring<const_polygon_type>::get(*cpoly);
-            interior_const_type ci = traits::interior_rings<const_polygon_type>::get(*cpoly);
-
-            boost::ignore_unused(ce, ci, cpoly);
+            const_polygon_type const* cpoly = nullptr;
+            static_assert(std::is_convertible
+                    <
+                        ring_const_type,
+                        decltype(traits::exterior_ring<PolygonType>::get(*cpoly))
+                    >::value,
+                    "traits::exterior_ring<PolygonType>::get(const polygon_type&) must be convertible to ring_const_type");
+            static_assert(std::is_convertible
+                    <
+                        interior_const_type,
+                        decltype(traits::interior_rings<PolygonType>::get(*cpoly))
+                    >::value,
+                    "traits::interior_rings<PolygonType>::get(const polygon_type&) must be convertible to interior_const_type");
         }
     };
 

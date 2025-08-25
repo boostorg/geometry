@@ -11,8 +11,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_AREAL_AREAL_HPP
 
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/detail/intersection/interface.hpp>
 
 
@@ -80,14 +78,11 @@ struct intersection_areal_areal_<TupledOut, tupled_output_tag>
                 TupledOut
             >::type;
 
-        boost::ignore_unused
-            <
-                geometry::detail::expect_output
-                    <
-                        Areal1, Areal2, single_out,
-                        point_tag, linestring_tag, polygon_tag
-                    >
-            >();
+        (void)sizeof(geometry::detail::expect_output
+                <
+                    Areal1, Areal2, single_out,
+                    point_tag, linestring_tag, polygon_tag
+                >);
 
         using areal = geometry::detail::output_geometry_access
             <

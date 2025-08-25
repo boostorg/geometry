@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/static_assert.hpp>
@@ -46,7 +45,7 @@ class RotationQuaternion
     {
         static void apply()
         {
-            G* g = 0;
+            G* g = nullptr;
             geometry::set<I>(*g, geometry::get<I>(*g));
             dimension_checker<G, I+1, N>::apply();
         }
@@ -92,9 +91,9 @@ class ConstRotationQuaternion
     {
         static void apply()
         {
-            const G* g = 0;
-            ctype coord(geometry::get<I>(*g));
-            boost::ignore_unused(coord);
+            const G* g = nullptr;
+            static_assert(std::is_constructible<ctype, decltype(geometry::get<I>(*g))>::value,
+                          "coordinate_type<Geometry>::type must be constructible from get<I>(const G&)")
             dimension_checker<G, I+1, N>::apply();
         }
     };

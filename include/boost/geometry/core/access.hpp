@@ -270,7 +270,7 @@ struct signature_getset_index_dimension {};
 template <std::size_t Dimension, typename Geometry>
 constexpr inline coordinate_type_t<Geometry> get(Geometry const& geometry
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-        , detail::signature_getset_dimension* = 0
+        , detail::signature_getset_dimension* = nullptr
 #endif
         )
 {
@@ -299,7 +299,7 @@ template <std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , coordinate_type_t<Geometry> const& value
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-        , detail::signature_getset_dimension* = 0
+        , detail::signature_getset_dimension* = nullptr
 #endif
         )
 {
@@ -329,7 +329,7 @@ inline void set(Geometry& geometry
 template <std::size_t Index, std::size_t Dimension, typename Geometry>
 constexpr inline coordinate_type_t<Geometry> get(Geometry const& geometry
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-        , detail::signature_getset_index_dimension* = 0
+        , detail::signature_getset_index_dimension* = nullptr
 #endif
         )
 {
@@ -360,7 +360,7 @@ template <std::size_t Index, std::size_t Dimension, typename Geometry>
 inline void set(Geometry& geometry
         , coordinate_type_t<Geometry> const& value
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-        , detail::signature_getset_index_dimension* = 0
+        , detail::signature_getset_index_dimension* = nullptr
 #endif
         )
 {

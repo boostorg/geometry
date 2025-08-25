@@ -26,7 +26,7 @@ namespace dispatch {
 template <typename NSphere, size_t Dimension>
 struct content_nsphere
 {
-    BOOST_STATIC_ASSERT(2 < Dimension);
+    static_assert(2 < Dimension, "Dimension must be greater than 2");
 
     typedef typename detail::default_content_result<NSphere>::type result_type;
 

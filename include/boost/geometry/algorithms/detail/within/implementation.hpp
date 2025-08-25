@@ -22,8 +22,6 @@
 #include <cstddef>
 #include <deque>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/within/interface.hpp>

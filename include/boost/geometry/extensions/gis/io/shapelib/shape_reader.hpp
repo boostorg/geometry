@@ -13,7 +13,6 @@
 #include "shapefil.h"
 
 
-#include <boost/noncopyable.hpp>
 #include <boost/type_traits/promote.hpp>
 
 #include <boost/geometry/extensions/gis/io/shapelib/shp_read_object.hpp>
@@ -29,7 +28,7 @@ namespace detail
 
 
 template<typename Geometry>
-class shape_reader : public boost::noncopyable
+class shape_reader
 {
 public :
     shape_reader(std::string const& name)
@@ -54,7 +53,8 @@ public :
 
     inline int count() const { return m_count; }
 
-
+    shape_reader(const shape_reader&) = delete;
+    shape_reader& operator=(const shape_reader&) = delete;
 
 
 private :

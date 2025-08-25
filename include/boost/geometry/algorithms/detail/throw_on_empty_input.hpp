@@ -23,7 +23,6 @@
 
 #include <boost/throw_exception.hpp>
 
-
 // BSG 2012-02-06: we use this currently only for distance.
 // For other scalar results area,length,perimeter it is commented on purpose.
 // Reason is that for distance there is no other choice. distance of two
@@ -35,7 +34,7 @@
 // scalar results, except distance.
 
 #if defined(BOOST_GEOMETRY_EMPTY_INPUT_NO_THROW)
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 #endif
 
 namespace boost { namespace geometry
@@ -54,7 +53,7 @@ inline void throw_on_empty_input(Geometry const& geometry)
         BOOST_THROW_EXCEPTION(empty_input_exception());
     }
 #else
-    boost::ignore_unused(geometry);
+    std::ignore = geometry;
 #endif
 }
 

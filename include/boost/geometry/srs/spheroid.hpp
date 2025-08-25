@@ -22,8 +22,6 @@
 
 #include <cstddef>
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -86,7 +84,7 @@ public:
         BOOST_GEOMETRY_ASSERT(m_created == 1);
 #endif
 
-        BOOST_STATIC_ASSERT(I < 3);
+        static_assert(I < 3, "Index must be < 3");
 
         return I < 2 ? m_a : m_b;
     }
@@ -98,7 +96,7 @@ public:
         BOOST_GEOMETRY_ASSERT(m_created == 1);
 #endif
 
-        BOOST_STATIC_ASSERT(I < 3);
+        static_assert(I < 3, "Index must be < 3");
 
         (I < 2 ? m_a : m_b) = radius;
     }

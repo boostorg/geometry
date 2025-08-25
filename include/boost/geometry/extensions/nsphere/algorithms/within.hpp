@@ -19,7 +19,7 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_WITHIN_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_WITHIN_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/algorithms/distance.hpp>
 #include <boost/geometry/algorithms/make.hpp>
@@ -73,8 +73,6 @@ inline bool box_in_circle(B const& b, C const& c, S const& strategy)
 template<typename R, typename C, typename S>
 inline bool range_in_circle(R const& range, C const& c, S const& s)
 {
-    ::boost::ignore_unused(s);
-
     for (typename boost::range_iterator<R const>::type it = boost::begin(range);
          it != boost::end(range); ++it)
     {
@@ -85,6 +83,7 @@ inline bool range_in_circle(R const& range, C const& c, S const& s)
         {
             return false;
         }
+        std::ignore = s;
     }
 
     return true;

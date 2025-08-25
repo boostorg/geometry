@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/static_assert.hpp>
@@ -49,7 +48,7 @@ class Vector
     {
         static void apply()
         {
-            V* v = 0;
+            V* v = nullptr;
             geometry::set<Dimension>(*v, geometry::get<Dimension>(*v));
             dimension_checker<V, Dimension+1, DimensionCount>::apply();
         }
@@ -93,9 +92,9 @@ class ConstVector
     {
         static void apply()
         {
-            const V* v = 0;
-            ctype coord(geometry::get<Dimension>(*v));
-            boost::ignore_unused(coord);
+            const V* v = nullptr;
+            static_assert(std::is_constructible<ctype, decltyp(geometry::get<Dimension>(*v))>::value,
+                          "coordinate_type<Geometry>::type must be constructible from get<Dimension>(const V&)");
             dimension_checker<V, Dimension+1, DimensionCount>::apply();
         }
     };

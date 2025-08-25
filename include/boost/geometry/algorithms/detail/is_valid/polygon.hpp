@@ -22,9 +22,9 @@
 #include <deque>
 #include <iterator>
 #include <set>
+#include <tuple>
 #include <vector>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
@@ -265,7 +265,7 @@ protected:
                                         VisitPolicy& visitor,
                                         Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         // collect the interior ring indices that have turns with the
         // exterior ring
@@ -394,7 +394,7 @@ protected:
                                  VisitPolicy& visitor,
                                  Strategy const& )
         {
-            boost::ignore_unused(visitor);
+            std::ignore = visitor;
 
             typedef typename std::iterator_traits
                 <

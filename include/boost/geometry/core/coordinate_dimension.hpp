@@ -22,6 +22,7 @@
 
 #include <cstddef>
 
+
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
@@ -108,7 +109,7 @@ inline constexpr std::size_t dimension_v = dimension<Geometry>::value;
 template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension()
 {
-    BOOST_STATIC_ASSERT(( dimension<Geometry>::value == Dimensions ));
+    static_assert( dimension<Geometry>::value == Dimensions, "dimension<Geometry>::value and Dimensions must match" );
 }
 
 /*!
@@ -118,13 +119,13 @@ constexpr inline void assert_dimension()
 template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension_less_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<Geometry>::value <= Dimensions ));
+    static_assert( dimension<Geometry>::value <= Dimensions, "dimension<Geometry>::value must be less than or equal to Dimensions" );
 }
 
 template <typename Geometry, std::size_t Dimensions>
 constexpr inline void assert_dimension_greater_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<Geometry>::value >= Dimensions ));
+    static_assert( dimension<Geometry>::value >= Dimensions, "dimension<Geometry>::value must be greater than or equal to Dimensions" );
 }
 
 /*!
@@ -134,7 +135,7 @@ constexpr inline void assert_dimension_greater_equal()
 template <typename G1, typename G2>
 constexpr inline void assert_dimension_equal()
 {
-    BOOST_STATIC_ASSERT(( dimension<G1>::value == dimension<G2>::value ));
+    static_assert( dimension<G1>::value == dimension<G2>::value, "dimension<G1>::value and dimension<G2>::value must match" );
 }
 
 }} // namespace boost::geometry

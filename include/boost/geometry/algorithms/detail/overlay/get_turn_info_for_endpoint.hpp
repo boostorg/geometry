@@ -14,7 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_FOR_ENDPOINT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_FOR_ENDPOINT_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
@@ -197,7 +197,7 @@ public:
     template <std::size_t I>
     ip_info const& get() const
     {
-        BOOST_STATIC_ASSERT(I < 2);
+        static_assert(I < 2, "I must not be greater than 1");
         return ips[I];
     }
 
@@ -233,7 +233,7 @@ struct get_turn_info_for_endpoint
 {
     using operations_pair = std::pair<operation_type, operation_type>;
 
-    BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
+    static_assert(EnableFirst || EnableLast, "One of EnableFirst or EnableLast must be set");
 
     template<typename UniqueSubRange1,
              typename UniqueSubRange2,
@@ -395,11 +395,11 @@ struct get_turn_info_for_endpoint
     static inline bool handle_internal(UniqueRange1 const& range1,
                                        UniqueRange2 const& range2,
                                        bool first1, bool last1, bool first2, bool last2,
-                                       bool ip_i2, bool ip_j2, TurnInfo const& tp_model,
+                                       bool ip_i2, bool ip_j2, TurnInfo const&,
                                        IntersectionInfo const& inters, unsigned int ip_index,
                                        operation_type & op1, operation_type & op2)
     {
-        boost::ignore_unused(ip_index, tp_model);
+        std::ignore = ip_index;
 
         auto const strategy = inters.strategy();
 

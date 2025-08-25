@@ -25,8 +25,7 @@
 #include <cmath>
 #include <limits>
 #include <type_traits>
-
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
@@ -180,7 +179,7 @@ struct equals<Type, true>
     template <typename Policy>
     static inline bool apply(Type const& a, Type const& b, Policy const& policy)
     {
-        boost::ignore_unused(policy);
+        std::ignore = policy;
 
         if (a == b)
         {

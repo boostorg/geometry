@@ -11,11 +11,10 @@
 
 
 #include <algorithm>
+#include <cstdint>
 #include <vector>
 
-#include <boost/cstdint.hpp>
 #include <boost/endian/conversion.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <boost/geometry/algorithms/detail/calculate_point_order.hpp>
@@ -87,12 +86,12 @@ inline void read_little(IStream & is, T & v)
 
 inline void double_endianness_check()
 {
-    BOOST_STATIC_ASSERT(sizeof(double) == 8);
-    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+    static_assert(sizeof(double) == 8, "sizeof(double) must be 8");
+    static_assert(CHAR_BIT == 8, "CHAR_BIT must be 8");
 
     double d = 0;
     unsigned char* c = reinterpret_cast<unsigned char*>(&d);
-    boost::int64_t* i = reinterpret_cast<boost::int64_t*>(&d);
+    std::int64_t* i = reinterpret_cast<std::int64_t*>(&d);
 
     c[0] = 0xd0;
     c[1] = 0x61;
@@ -117,20 +116,20 @@ inline void double_endianness_check()
 template <typename IStream>
 inline void read_little(IStream & is, double & v)
 {
-    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+    static_assert(sizeof(double) * CHAR_BIT == 64, "double must be 64 bit");
 
     is.read(reinterpret_cast<char*>(&v), sizeof(double));
-    boost::int64_t * proxy = reinterpret_cast<boost::int64_t *>(&v);
+    std::int64_t * proxy = reinterpret_cast<std::int64_t *>(&v);
     boost::endian::little_to_native_inplace(*proxy);
 }
 
 template <typename IStream>
-inline boost::int32_t reset_and_read_header(IStream & is)
+inline std::int32_t reset_and_read_header(IStream & is)
 {
     is.clear();
     is.seekg(0);
 
-    boost::int32_t code = 0;
+    std::int32_t code = 0;
     read_big(is, code);
 
     if (code != 9994)
@@ -139,9 +138,9 @@ inline boost::int32_t reset_and_read_header(IStream & is)
     }
 
     // 5 unused, length, version
-    is.seekg(7 * sizeof(boost::int32_t), IStream::cur);
+    is.seekg(7 * sizeof(std::int32_t), IStream::cur);
 
-    boost::int32_t type = 0;
+    std::int32_t type = 0;
     read_little(is, type);
 
     // TODO: support filtering
@@ -174,9 +173,9 @@ inline bool read_record_header(IStream & is)
     //read_big(is, number);
     //read_big(is, length);
 
-    is.seekg(sizeof(boost::int32_t), IStream::cur);
+    is.seekg(sizeof(std::int32_t), IStream::cur);
     // only to set flags
-    boost::int32_t foo;
+    std::int32_t foo;
     read_native(is, foo);
 
     return is.good();
@@ -247,16 +246,16 @@ struct read_and_set_z<Point, false>
 template <typename IStream, typename Range>
 inline void read_and_set_back_z(IStream & is, Range & rng)
 {
-    typedef typename boost::range_value<Range>::type pt_type;
-    pt_type & pt = range::back(rng);
+    using pt_type = typename boost::range_value<Range>::type;
+    auto& pt = range::back(rng);
     read_and_set_z<pt_type>::apply(is, pt);
 }
 
 template <typename IStream, typename Range>
 inline void read_and_set_z_at(IStream & is, Range & rng, std::size_t index)
 {
-    typedef typename boost::range_value<Range>::type pt_type;
-    pt_type & pt = range::at(rng, index);
+    using pt_type = typename boost::range_value<Range>::type;
+    auto& pt = range::at(rng, index);
     read_and_set_z<pt_type>::apply(is, pt);
 }
 
@@ -313,7 +312,7 @@ inline void read_and_set_point(IStream & is, Point & pt)
 template <typename IStream, typename Range>
 inline void read_and_push_back_point(IStream & is, Range & rng)
 {
-    typedef typename boost::range_value<Range>::type pt_type;
+    using pt_type = typename boost::range_value<Range>::type;
 
     pt_type pt;
     read_and_set_point(is, pt);
@@ -324,9 +323,7 @@ inline void read_and_push_back_point(IStream & is, Range & rng)
 template <typename IStream, typename Range>
 inline void read_and_set_point_at(IStream & is, Range & rng, std::size_t index)
 {
-    typedef typename boost::range_value<Range>::type pt_type;
-
-    pt_type & pt = range::at(rng, index);
+    auto& pt = range::at(rng, index);
     read_and_set_point(is, pt);
 }
 
@@ -342,11 +339,11 @@ inline void read_and_set_points(IStream & is, Range & rng, std::size_t num_point
 
 template <typename IStream>
 inline void read_parts(IStream & is,
-                       std::vector<boost::int32_t> & parts,
-                       boost::int32_t num_parts)
+                       std::vector<std::int32_t> & parts,
+                       std::int32_t num_parts)
 {
     parts.resize(num_parts);
-    for (boost::int32_t i = 0 ; i < num_parts ; ++i)
+    for (std::int32_t i = 0 ; i < num_parts ; ++i)
     {
         read_little(is, parts[i]);
     }
@@ -355,10 +352,10 @@ inline void read_parts(IStream & is,
 struct read_point_policy
 {
     template <typename IStream, typename Points, typename Strategy>
-    static inline void apply(IStream & is, Points & points, boost::int32_t type,
+    static inline void apply(IStream & is, Points & points, std::int32_t type,
                              Strategy const&)
     {
-        boost::int32_t t;
+        std::int32_t t;
         read_little(is, t);
         if (t != type)
         {
@@ -387,12 +384,10 @@ struct read_point_policy
 struct read_multipoint_policy
 {
     template <typename IStream, typename Points, typename Strategy>
-    static inline void apply(IStream & is, Points & points, boost::int32_t type,
+    static inline void apply(IStream & is, Points & points, std::int32_t type,
                              Strategy const&)
     {
-        typedef typename boost::range_value<Points>::type pt_type;
-
-        boost::int32_t t;
+        std::int32_t t;
         read_little(is, t);
         if (t != type)
         {
@@ -401,7 +396,7 @@ struct read_multipoint_policy
 
         is.seekg(4 * sizeof(double), IStream::cur); // box
 
-        boost::int32_t num_points;
+        std::int32_t num_points;
         read_little(is, num_points);
 
         if (num_points < 0)
@@ -437,17 +432,16 @@ struct read_multipoint_policy
 struct read_polyline_policy
 {
     template <typename IStream, typename Linestrings, typename Strategy>
-    static inline void apply(IStream &is, Linestrings & linestrings, boost::int32_t type,
+    static inline void apply(IStream &is, Linestrings & linestrings, std::int32_t type,
                              Strategy const&)
     {
-        typedef typename boost::range_value<Linestrings>::type ls_type;
-        typedef typename boost::range_value<ls_type>::type pt_type;
+        using ls_type = typename boost::range_value<Linestrings>::type;
 
-        boost::int32_t t;
+        std::int32_t t;
         //double min_x, min_y, max_x, max_y;
-        boost::int32_t num_parts;
-        boost::int32_t num_points;
-        std::vector<boost::int32_t> parts;
+        std::int32_t num_parts;
+        std::int32_t num_points;
+        std::vector<std::int32_t> parts;
 
         read_little(is, t);
         if (t != type)
@@ -471,10 +465,10 @@ struct read_polyline_policy
 
         read_parts(is, parts, num_parts);
 
-        for (boost::int32_t i = 0; i < num_parts; ++i)
+        for (std::int32_t i = 0; i < num_parts; ++i)
         {
-            boost::int32_t f = parts[i];
-            boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
+            std::int32_t f = parts[i];
+            std::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
 
             if (f >= num_points || l > num_points || f > l)
             {
@@ -482,7 +476,7 @@ struct read_polyline_policy
             }
 
             range::push_back(linestrings, ls_type());
-            ls_type & ls = range::back(linestrings);
+            auto& ls = range::back(linestrings);
 
             std::size_t ls_size = l - f;
             range::resize(ls, ls_size);
@@ -512,26 +506,25 @@ struct read_polyline_policy
 struct read_polygon_policy
 {
     template <typename IStream, typename Polygons, typename Strategy>
-    static inline void apply(IStream &is, Polygons & polygons, boost::int32_t type,
+    static inline void apply(IStream &is, Polygons & polygons, std::int32_t type,
                              Strategy const& strategy)
     {
-        typedef typename boost::range_value<Polygons>::type poly_type;
-        typedef typename geometry::point_type<poly_type>::type pt_type;
-        typedef typename geometry::ring_type<poly_type>::type ring_type;
+        using poly_type = typename boost::range_value<Polygons>::type;
+        using ring_type = typename geometry::ring_type<poly_type>::type;
 
-        static const bool is_ccw = geometry::point_order<poly_type>::value == geometry::counterclockwise;
-        static const bool is_open = geometry::closure<poly_type>::value == geometry::open;
+        constexpr bool is_ccw = geometry::point_order<poly_type>::value == geometry::counterclockwise;
+        constexpr bool is_open = geometry::closure<poly_type>::value == geometry::open;
 
         typename Strategy::point_order_strategy_type
             order_strategy = strategy.get_point_order_strategy();
         typename Strategy::template point_in_geometry_strategy<ring_type, ring_type>::type
             within_strategy = strategy.template get_point_in_geometry_strategy<ring_type, ring_type>();
 
-        boost::int32_t t;
+        std::int32_t t;
         //double min_x, min_y, max_x, max_y;
-        boost::int32_t num_parts;
-        boost::int32_t num_points;
-        std::vector<boost::int32_t> parts;
+        std::int32_t num_parts;
+        std::int32_t num_points;
+        std::vector<std::int32_t> parts;
 
         read_little(is, t);
         if (t != type)
@@ -558,10 +551,10 @@ struct read_polygon_policy
         std::vector<ring_type> outer_rings;
         std::vector<ring_type> inner_rings;
 
-        for (boost::int32_t i = 0; i < num_parts; ++i)
+        for (std::int32_t i = 0; i < num_parts; ++i)
         {
-            boost::int32_t f = parts[i];
-            boost::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
+            std::int32_t f = parts[i];
+            std::int32_t l = (i + 1) < num_parts ? parts[i + 1] : num_points;
 
             if (f >= num_points || l > num_points || f > l)
             {
@@ -608,9 +601,8 @@ struct read_polygon_policy
             // if ring is ccw reverse leaving the first point untouched
             if (is_ccw)
             {
-                typename boost::range_iterator<ring_type>::type
-                    b = boost::begin(ring),
-                    e = boost::end(ring);
+                auto b = boost::begin(ring);
+                auto e = boost::end(ring);
                 std::reverse(++b, is_open ? e : (--e));
             }
 
@@ -704,8 +696,7 @@ struct read_polygon_policy
         // NOTE: The worst case complexity is O(N^2) and best O(N)
         //       R-tree or partition could be used (~O(NlogN))
         //       but in most cases this version should be faster.
-        typedef typename boost::range_iterator<InnerRing const>::type iter_type;
-        for (iter_type it = boost::begin(inner_ring); it != boost::end(inner_ring); ++it)
+        for (auto it = boost::begin(inner_ring); it != boost::end(inner_ring); ++it)
         {
             if (detail::within::within_point_geometry(*it, outer_ring, within_strategy))
             {
@@ -718,7 +709,7 @@ struct read_polygon_policy
 };
 
 template <typename Policy, typename IStream, typename Range, typename Strategy>
-inline void add_records(IStream & is, Range & rng, boost::int32_t type,
+inline void add_records(IStream & is, Range & rng, std::int32_t type,
                         Strategy const& strategy)
 {
     while (read_record_header(is))
@@ -728,10 +719,10 @@ inline void add_records(IStream & is, Range & rng, boost::int32_t type,
 }
 
 template <typename Policy, typename IStream, typename Range, typename Strategy>
-inline void add_records_as_new_element(IStream & is, Range & rng, boost::int32_t type,
+inline void add_records_as_new_element(IStream & is, Range & rng, std::int32_t type,
                                        Strategy const& strategy)
 {
-    typedef typename boost::range_value<Range>::type val_type;
+    using val_type = typename boost::range_value<Range>::type;
 
     if (! read_record_header(is))
     {
@@ -739,7 +730,7 @@ inline void add_records_as_new_element(IStream & is, Range & rng, boost::int32_t
     }
 
     range::push_back(rng, val_type());
-    val_type & elem = range::back(rng);
+    auto& elem = range::back(rng);
 
     do
     {
@@ -749,15 +740,15 @@ inline void add_records_as_new_element(IStream & is, Range & rng, boost::int32_t
 }
 
 template <typename Policy, typename IStream, typename Range, typename Strategy>
-inline void add_records_as_new_elements(IStream & is, Range & rng, boost::int32_t type,
+inline void add_records_as_new_elements(IStream & is, Range & rng, std::int32_t type,
                                         Strategy const& strategy)
 {
-    typedef typename boost::range_value<Range>::type val_type;
+    using val_type = typename boost::range_value<Range>::type;
 
     while (read_record_header(is))
     {
         range::push_back(rng, val_type());
-        val_type & elem = range::back(rng);
+        auto& elem = range::back(rng);
 
         Policy::apply(is, elem, type, strategy);
     }
@@ -785,7 +776,7 @@ struct read_shapefile<Geometry, point_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::point
             || type == shp::shape_type::point_m
@@ -810,7 +801,7 @@ struct read_shapefile<Geometry, multi_point_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::point
             || type == shp::shape_type::point_m
@@ -835,7 +826,7 @@ struct read_shapefile<Geometry, linestring_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::polyline
             || type == shp::shape_type::polyline_m
@@ -854,7 +845,7 @@ struct read_shapefile<Geometry, multi_linestring_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::polyline
             || type == shp::shape_type::polyline_m
@@ -873,7 +864,7 @@ struct read_shapefile<Geometry, polygon_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::polygon
             || type == shp::shape_type::polygon_m
@@ -892,7 +883,7 @@ struct read_shapefile<Geometry, multi_polygon_tag>
     {
         namespace shp = detail::shapefile;
 
-        boost::int32_t const type = shp::reset_and_read_header(is);
+        std::int32_t const type = shp::reset_and_read_header(is);
 
         if (type == shp::shape_type::polygon
             || type == shp::shape_type::polygon_m
@@ -912,7 +903,7 @@ template <typename IStream, typename RangeOfGeometries, typename Strategy>
 inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries,
                            Strategy const& strategy)
 {
-    typedef typename boost::range_value<RangeOfGeometries>::type geometry_type;
+    using geometry_type = typename boost::range_value<RangeOfGeometries>::type;
 
     geometry::concepts::check<geometry_type>();
 
@@ -925,11 +916,11 @@ inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries,
 template <typename IStream, typename RangeOfGeometries>
 inline void read_shapefile(IStream &is, RangeOfGeometries & range_of_geometries)
 {
-    typedef typename boost::range_value<RangeOfGeometries>::type geometry_type;
-    typedef typename strategies::io::services::default_strategy
+    using geometry_type = typename boost::range_value<RangeOfGeometries>::type;
+    using strategy_type = typename strategies::io::services::default_strategy
         <
             geometry_type
-        >::type strategy_type;
+        >::type;
 
     geometry::concepts::check<geometry_type>();
 

@@ -14,10 +14,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_RING_HPP
 
 #include <deque>
+#include <tuple>
 
 #include <boost/range/size.hpp>
-
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/cs.hpp>
@@ -65,7 +64,7 @@ struct is_topologically_closed
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Ring const&, VisitPolicy& visitor, Strategy const&)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         return visitor.template apply<no_failure>();
     }
@@ -77,7 +76,7 @@ struct is_topologically_closed<Ring, closed>
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Ring const& ring, VisitPolicy& visitor, Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         using geometry::detail::equals::equals_point_point;
         if (equals_point_point(range::front(ring), range::back(ring), strategy))
@@ -100,7 +99,7 @@ struct is_properly_oriented
     static inline bool apply(Ring const& ring, VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         // Check area
         auto const area = detail::area::ring_area::apply(ring, strategy);

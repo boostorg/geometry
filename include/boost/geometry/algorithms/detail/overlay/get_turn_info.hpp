@@ -15,7 +15,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -61,20 +60,20 @@ namespace detail { namespace overlay
 
 struct policy_verify_nothing
 {
-    static bool const use_side_verification = false;
-    static bool const use_start_turn = false;
-    static bool const use_handle_as_touch = false;
-    static bool const use_handle_as_equal = false;
-    static bool const use_handle_imperfect_touch = false;
+    static bool constexpr use_side_verification = false;
+    static bool constexpr use_start_turn = false;
+    static bool constexpr use_handle_as_touch = false;
+    static bool constexpr use_handle_as_equal = false;
+    static bool constexpr use_handle_imperfect_touch = false;
 };
 
 struct policy_verify_all
 {
-    static bool const use_side_verification = true;
-    static bool const use_start_turn = true;
-    static bool const use_handle_as_touch = true;
-    static bool const use_handle_as_equal = true;
-    static bool const use_handle_imperfect_touch = true;
+    static bool constexpr use_side_verification = true;
+    static bool constexpr use_start_turn = true;
+    static bool constexpr use_handle_as_touch = true;
+    static bool constexpr use_handle_as_equal = true;
+    static bool constexpr use_handle_imperfect_touch = true;
 };
 
 using verify_policy_aa = policy_verify_all;
@@ -441,9 +440,9 @@ struct touch_interior : public base_turn_handler
         // 2) Important is: if q_k goes to LEFT, RIGHT, COLLINEAR
         //    and, if LEFT/COLL, if it is lying LEFT or RIGHT w.r.t. q_i
 
-        BOOST_STATIC_ASSERT(Index <= 1);
-        static unsigned int const index_p = Index;
-        static unsigned int const index_q = 1 - Index;
+        static_assert(Index <= 1, "Index must not be greater than 1");
+        constexpr unsigned int index_p = Index;
+        constexpr unsigned int index_q = 1 - Index;
 
         bool const has_pk = ! range_p.is_last_segment();
         bool const has_qk = ! range_q.is_last_segment();
@@ -1206,7 +1205,7 @@ private :
     static inline bool set_tp(int side_rk_r, TurnInfo& tp,
                               IntersectionInfo const& intersection_info)
     {
-        BOOST_STATIC_ASSERT(Index <= 1);
+        static_assert(Index <= 1, "Index must not be greater than 1");
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)

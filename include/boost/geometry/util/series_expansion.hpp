@@ -30,7 +30,8 @@
 #ifndef BOOST_GEOMETRY_UTIL_SERIES_EXPANSION_HPP
 #define BOOST_GEOMETRY_UTIL_SERIES_EXPANSION_HPP
 
-#include <boost/array.hpp>
+#include <array>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/util/math.hpp>
 
@@ -156,7 +157,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     template <typename Coeffs, typename CT>
     inline void evaluate_coeffs_A3(Coeffs &c, CT const& n)
     {
-        switch (int(Coeffs::static_size))
+        switch (int(c.size()))
         {
         case 0:
             break;
@@ -228,7 +229,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
-        switch (int(Coeffs::static_size) - 1)
+        switch (int(c.size()) - 1)
         {
         case 0:
             break;
@@ -328,7 +329,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
-        switch (int(Coeffs::static_size) - 1)
+        switch (int(c.size()) - 1)
         {
         case 0:
             break;
@@ -428,7 +429,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     {
         CT const eps2 = math::sqr(eps);
         CT d = eps;
-        switch (int(Coeffs::static_size) - 1)
+        switch (int(c.size()) - 1)
         {
         case 0:
             break;
@@ -525,7 +526,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     */
     template <size_t SeriesOrder, typename Coeffs, typename CT>
     inline void evaluate_coeffs_C3x(Coeffs &c, CT const& n) {
-        BOOST_GEOMETRY_ASSERT((Coeffs::static_size == (SeriesOrder * (SeriesOrder - 1)) / 2));
+        BOOST_GEOMETRY_ASSERT((c.size() == (SeriesOrder * (SeriesOrder - 1)) / 2));
 
         CT const n2 = math::sqr(n);
         switch (SeriesOrder)
@@ -648,10 +649,10 @@ namespace boost { namespace geometry { namespace series_expansion {
         size_t offset = 0;
 
         // i is the index of C3[i].
-        for (size_t i = 1; i < Coeffs1::static_size; ++i)
+        for (size_t i = 1; i < coeffs1.size(); ++i)
         {
             // Order of polynomial in eps.
-            size_t m = Coeffs1::static_size - i;
+            size_t m = coeffs1.size() - i;
             mult *= eps;
 
             coeffs1[i] = mult * math::horner_evaluate(eps, coeffs2.begin() + offset,
@@ -672,7 +673,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     template <typename CT, typename Coeffs>
     inline CT sin_cos_series(CT const& sinx, CT const& cosx, Coeffs const& coeffs)
     {
-        size_t n = Coeffs::static_size - 1;
+        size_t n = coeffs.size() - 1;
         size_t index = 0;
 
         // Point to one beyond last element.
@@ -699,7 +700,7 @@ namespace boost { namespace geometry { namespace series_expansion {
      These structs allow the caller to only know the series order.
     */
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_C1 : boost::array<CT, SeriesOrder + 1>
+    struct coeffs_C1 : std::array<CT, SeriesOrder + 1>
     {
         coeffs_C1(CT const& epsilon)
         {
@@ -708,7 +709,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     };
 
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_C1p : boost::array<CT, SeriesOrder + 1>
+    struct coeffs_C1p : std::array<CT, SeriesOrder + 1>
     {
         coeffs_C1p(CT const& epsilon)
         {
@@ -717,7 +718,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     };
 
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_C2 : boost::array<CT, SeriesOrder + 1>
+    struct coeffs_C2 : std::array<CT, SeriesOrder + 1>
     {
         coeffs_C2(CT const& epsilon)
         {
@@ -726,7 +727,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     };
 
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_C3x : boost::array<CT, (SeriesOrder * (SeriesOrder - 1)) / 2>
+    struct coeffs_C3x : std::array<CT, (SeriesOrder * (SeriesOrder - 1)) / 2>
     {
         coeffs_C3x(CT const& n)
         {
@@ -735,7 +736,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     };
 
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_C3 : boost::array<CT, SeriesOrder>
+    struct coeffs_C3 : std::array<CT, SeriesOrder>
     {
         coeffs_C3(CT const& n, CT const& epsilon)
         {
@@ -746,7 +747,7 @@ namespace boost { namespace geometry { namespace series_expansion {
     };
 
     template <size_t SeriesOrder, typename CT>
-    struct coeffs_A3 : boost::array<CT, SeriesOrder>
+    struct coeffs_A3 : std::array<CT, SeriesOrder>
     {
         coeffs_A3(CT const& n)
         {

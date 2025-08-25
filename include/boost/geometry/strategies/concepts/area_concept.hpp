@@ -19,9 +19,9 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CONCEPTS_AREA_CONCEPT_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_AREA_CONCEPT_HPP
 
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 
@@ -40,26 +40,25 @@ class AreaStrategy
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 
     // 1) must define state template,
-    typedef typename Strategy::template state<Geometry> state_type;
+    using state_type = typename Strategy::template state<Geometry>;
 
     // 2) must define result_type template,
-    typedef typename Strategy::template result_type<Geometry>::type return_type;
+    using return_type = typename Strategy::template result_type<Geometry>::type;
 
     struct check_methods
     {
         static void apply()
         {
-            Strategy const* str = 0;
-            state_type *st = 0;
+            Strategy const* str = nullptr;
+            state_type *st = nullptr;
 
             // 3) must implement a method apply with the following signature
-            geometry::point_type_t<Geometry> const* sp = 0;
+            geometry::point_type_t<Geometry> const* sp = nullptr;
             str->apply(*sp, *sp, *st);
 
-            // 4) must implement a static method result with the following signature
-            return_type r = str->result(*st);
-
-            boost::ignore_unused(r, str);
+            // 4) must implement a method result with the following signature
+            static_assert(std::is_convertible<return_type, decltype(str->result(*st))>::value,
+                          "Strategy::result(state_type&) must be convertible to result_type<Geometry>::type");
         }
     };
 

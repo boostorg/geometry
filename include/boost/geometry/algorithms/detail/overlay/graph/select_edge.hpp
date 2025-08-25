@@ -9,7 +9,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_EDGE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_EDGE_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
+
 #include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -257,8 +258,6 @@ public:
             return true;
         };
 
-        boost::ignore_unused(assert_one_cluster);
-
         // It often happens there are just two collinear edges.
         // If they travel to the same target, take either.
         if (edges.size() == 2)
@@ -283,6 +282,7 @@ public:
                 // Because it is clustered, and all operations come from the same cluster,
                 // the rank can be used, which is more efficient.
                 BOOST_GEOMETRY_ASSERT(assert_one_cluster());
+                std::ignore = assert_one_cluster;
 
                 turn_operation_id result;
                 if (select_toi_for_union(result, op0, op1, edges[0].toi, edges[1].toi, m_turns))

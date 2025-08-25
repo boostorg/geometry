@@ -12,7 +12,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
@@ -29,6 +28,10 @@
 
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/range.hpp>
+
+#ifndef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
+#include <tuple>
+#endif
 
 namespace boost { namespace geometry
 {
@@ -63,12 +66,13 @@ public:
     template <typename Point>
     bool is_endpoint_boundary(Point const& pt) const
     {
-        boost::ignore_unused(pt);
 #ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
         // may give false positives for INT
         BOOST_GEOMETRY_ASSERT(
             detail::equals::equals_point_point(pt, range::front(m_geometry), m_strategy)
          || detail::equals::equals_point_point(pt, range::back(m_geometry), m_strategy));
+#else
+        std::ignore = pt;
 #endif
         return m_has_boundary;
     }

@@ -23,8 +23,8 @@
 
 
 #include <cstddef>
+#include <tuple>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -168,7 +168,7 @@ struct centroid_range_state
                              Strategy const& strategy,
                              State& state)
     {
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
 
         detail::closed_view<Ring const> const view(ring);
         auto it = boost::begin(view);
@@ -296,7 +296,7 @@ struct centroid_multi_point_state
                              Strategy const& strategy,
                              State& state)
     {
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
         strategy.apply(static_cast<Point const&>(transformer.apply(point)),
                        state);
     }

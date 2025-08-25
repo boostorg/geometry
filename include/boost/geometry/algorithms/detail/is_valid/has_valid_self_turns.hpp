@@ -11,9 +11,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_VALID_SELF_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_VALID_SELF_TURNS_HPP
 
+#include <tuple>
 #include <vector>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/empty.hpp>
 
 #include <boost/geometry/algorithms/detail/is_valid/is_acceptable_turn.hpp>
@@ -60,7 +60,7 @@ public:
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         detail::overlay::stateless_predicate_based_interrupt_policy
             <

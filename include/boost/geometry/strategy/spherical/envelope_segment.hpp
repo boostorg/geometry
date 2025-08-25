@@ -13,9 +13,8 @@
 
 
 #include <cstddef>
+#include <tuple>
 #include <utility>
-
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/detail/envelope/transform_units.hpp>
 
@@ -158,7 +157,8 @@ private:
     {
         // coordinates are assumed to be in radians
         BOOST_GEOMETRY_ASSERT(lon1 <= lon2);
-        boost::ignore_unused(lon1, lon2);
+        std::ignore = lon1;
+        std::ignore = lon2;
 
         CalculationType lat1_rad = math::as_radian<Units>(lat1);
         CalculationType lat2_rad = math::as_radian<Units>(lat2);

@@ -77,7 +77,6 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_QSC_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_QSC_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>

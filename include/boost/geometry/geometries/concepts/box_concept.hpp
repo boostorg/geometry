@@ -18,7 +18,6 @@
 #include <cstddef>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -46,7 +45,7 @@ class Box
     {
         static void apply()
         {
-            Geometry* b = 0;
+            Geometry* b = nullptr;
             geometry::set<Index, Dimension>(*b, geometry::get<Index, Dimension>(*b));
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }
@@ -92,9 +91,12 @@ class ConstBox
     {
         static void apply()
         {
-            const Geometry* b = 0;
-            coordinate_type coord(geometry::get<Index, Dimension>(*b));
-            boost::ignore_unused(coord);
+            const Geometry* b = nullptr;
+            static_assert(std::is_constructible
+                <
+                    coordinate_type,
+                    decltype(geometry::get<Index, Dimension>(*b))
+                >::value, "coordinate_type must be constructible from get<Index, Dimension>(*b)");
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }
     };

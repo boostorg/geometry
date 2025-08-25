@@ -20,7 +20,6 @@
 #define BOOST_GEOMETRY_VIEWS_REVERSIBLE_VIEW_HPP
 
 
-#include <boost/version.hpp>
 #include <boost/range/adaptor/reversed.hpp>
 
 #include <boost/geometry/core/closure.hpp>

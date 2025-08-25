@@ -20,8 +20,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_POINT_IN_BOX_BY_SIDE_HPP
 
 #include <array>
-
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -80,7 +79,7 @@ template <typename Decide, typename Point, typename Box, typename Strategy>
 inline bool point_in_box_by_side(Point const& point, Box const& box,
                                  Strategy const& strategy)
 {
-    boost::ignore_unused(strategy);
+    std::ignore = strategy;
 
     // Create (counterclockwise) array of points, the fifth one closes it
     // Every point should be on the LEFT side (=1), or ON the border (=0),

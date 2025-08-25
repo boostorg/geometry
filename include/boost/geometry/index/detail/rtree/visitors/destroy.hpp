@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DELETE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DELETE_HPP
 
+#include <tuple>
+
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 #include <boost/geometry/index/detail/rtree/node/weak_visitor.hpp>
@@ -63,7 +65,7 @@ public:
 
     inline void operator()(leaf & l)
     {
-        boost::ignore_unused(l);
+        std::ignore = l;
         BOOST_GEOMETRY_INDEX_ASSERT(&l == &rtree::get<leaf>(*m_current_node), "invalid pointers");
 
         rtree::destroy_node<allocators_type, leaf>::apply(m_allocators, m_current_node);

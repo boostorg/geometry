@@ -12,8 +12,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_BOX_HPP
 
 #include <cstddef>
-
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -61,7 +60,7 @@ struct has_valid_corners<Box, 0>
     template <typename VisitPolicy>
     static inline bool apply(Box const&, VisitPolicy& visitor)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         return visitor.template apply<no_failure>();
     }

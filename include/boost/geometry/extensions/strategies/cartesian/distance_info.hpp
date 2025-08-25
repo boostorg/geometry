@@ -16,7 +16,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGY_CARTESIAN_DISTANCE_INFO_HPP
 #define BOOST_GEOMETRY_STRATEGY_CARTESIAN_DISTANCE_INFO_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <type_traits>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -108,9 +108,7 @@ public :
     inline typename calculation_type<Point1, Point2>::type
     apply_point_point(Point1 const& p1, Point2 const& p2) const
     {
-        Strategy point_point_strategy;
-        boost::ignore_unused(point_point_strategy);
-        return point_point_strategy.apply(p1, p2);
+        return Strategy().apply(p1, p2);
     }
 
     template <typename Point, typename PointOfSegment, typename Result>
@@ -151,8 +149,8 @@ public :
 
         result.on_segment = c1 >= zero && c1 <= c2;
 
-        Strategy point_point_strategy;
-        boost::ignore_unused(point_point_strategy);
+        static_assert(std::is_default_constructible<Strategy>::value,
+                      "Strategy must be default constructible");
 
         if (geometry::math::equals(c2, zero))
         {

@@ -40,7 +40,7 @@ enum field { interior = 0, boundary = 1, exterior = 2 };
 // TODO: IF THE RESULT IS UPDATED WITH THE MAX POSSIBLE VALUE FOR SOME PAIR OF GEOEMTRIES
 // THE VALUE ALREADY STORED MUSN'T BE CHECKED
 // update() calls chould be replaced with set() in those cases
-// but for safety reasons (STATIC_ASSERT) we should check if parameter D is valid and set() doesn't do that
+// but for safety reasons (static_assert) we should check if parameter D is valid and set() doesn't do that
 // so some additional function could be added, e.g. set_dim()
 
 
@@ -80,7 +80,7 @@ public:
     inline char get() const
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "index must be smaller than static_size");
         return m_array[index];
     }
 
@@ -92,13 +92,13 @@ public:
     inline void set()
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "index must be smaller than static_size");
         m_array[index] = V;
     }
 
     inline char operator[](std::size_t index) const
     {
-        BOOST_GEOMETRY_ASSERT(index < static_size);
+        static_assert(index < static_size, "index must be smaller than static_size");
         return m_array[index];
     }
 
@@ -162,7 +162,7 @@ public:
     template <field F1, field F2, char D>
     inline bool may_update() const
     {
-        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+        static_assert('0' <= D && D <= '9', "D must be a digit");
         char const c = m_matrix.template get<F1, F2>();
         return D > c || c > '9';
     }
@@ -170,7 +170,7 @@ public:
     template <field F1, field F2, char V>
     inline void update()
     {
-        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        static_assert(('0' <= V && V <= '9') || V == 'T', "V must be a digit or 'T'");
         char const c = m_matrix.template get<F1, F2>();
         // If c == T and V == T it will be set anyway but that's fine
         if (V > c || c > '9')
@@ -182,7 +182,7 @@ public:
     template <field F1, field F2, char V>
     inline void set()
     {
-        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        static_assert(('0' <= V && V <= '9') || V == 'T', "V must be a digit or 'T'");
         m_matrix.template set<F1, F2, V>();
     }
 
@@ -249,7 +249,7 @@ public:
     inline char get() const
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "index must be smaller than static_size");
         return m_array[index];
     }
 
@@ -357,7 +357,7 @@ struct may_update_dispatch
     template <field F1, field F2, char D, typename Matrix>
     static inline bool apply(Mask const& mask, Matrix const& matrix)
     {
-        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+        static_assert('0' <= D && D <= '9', "D must be a digit");
 
         char const m = mask.template get<F1, F2>();
 
@@ -626,7 +626,7 @@ template <char C, char ...Cs>
 struct static_check_characters<std::integer_sequence<char, C, Cs...>>
     : static_check_characters<std::integer_sequence<char, Cs...>>
 {
-    typedef std::integer_sequence<char, C, Cs...> type;
+    using type = std::integer_sequence<char, C, Cs...>;
     static const bool is_valid = (C >= '0' && C <= '9')
                                || C == 'T' || C == 'F' || C == '*';
     BOOST_GEOMETRY_STATIC_ASSERT((is_valid),
@@ -647,14 +647,14 @@ struct static_mask
     static const std::size_t static_height = Height;
     static const std::size_t static_size = Width * Height;
 
-    BOOST_STATIC_ASSERT(
-        std::size_t(util::sequence_size<Seq>::value) == static_size);
+    static_assert(std::size_t(util::sequence_size<Seq>::value) == static_size,
+                  "util::sequence_size<Seq>::value must equal static_size");
 
     template <detail::relate::field F1, detail::relate::field F2>
     struct static_get
     {
-        BOOST_STATIC_ASSERT(std::size_t(F1) < static_height);
-        BOOST_STATIC_ASSERT(std::size_t(F2) < static_width);
+        static_assert(std::size_t(F1) < static_height, "F1 out of bound");
+        static_assert(std::size_t(F2) < static_width, "F2 out of bound");
 
         static const char value
             = util::sequence_element<F1 * static_width + F2, Seq>::value;
@@ -1190,7 +1190,7 @@ template <typename Geometry>
 struct result_dimension
 {
     static const std::size_t dim = geometry::dimension<Geometry>::value;
-    BOOST_STATIC_ASSERT(dim >= 0);
+    static_assert(dim >= 0, "dim must not be negative");
     static const char value = (dim <= 9) ? ('0' + dim) : 'T';
 };
 

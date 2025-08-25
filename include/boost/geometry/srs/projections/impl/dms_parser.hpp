@@ -44,8 +44,6 @@
 #include <string>
 #include <ostream>
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/config.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/srs/projections/str_cast.hpp>
@@ -104,7 +102,7 @@ struct dms_parser
     // For now: make it (compile-time) case sensitive
     static const int diff = 'a' - 'A';
 #ifndef __GNUC__
-    BOOST_STATIC_ASSERT((diff > 0)); // make sure we've the right assumption. GCC does not accept this here.
+    static_assert(diff > 0, "diff must be > 0"); // make sure we've the right assumption. GCC does not accept this here.
 #endif
     static const char n_alter = N <= 'Z' ? N + diff : N - diff;
     static const char e_alter = E <= 'Z' ? E + diff : E - diff;

@@ -17,8 +17,6 @@
 
 #include <algorithm>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/expand.hpp>
 
 #include <boost/geometry/index/detail/algorithms/content.hpp>
@@ -57,8 +55,6 @@ public:
                                parameters_type const& parameters,
                                size_t node_relative_level)
     {
-        ::boost::ignore_unused(parameters);
-
         children_type & children = rtree::elements(n);
 
         // children are leafs

@@ -13,6 +13,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_INVALID_COORDINATE_HPP
 
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
@@ -47,7 +48,7 @@ struct point_has_invalid_coordinate
     template <typename Point, typename VisitPolicy>
     static inline bool apply(Point const& point, VisitPolicy& visitor)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         return
             geometry::has_non_finite_coordinate(point)
@@ -83,7 +84,7 @@ struct range_has_invalid_coordinate
     template <typename Geometry, typename VisitPolicy>
     static inline bool apply(Geometry const& geometry, VisitPolicy& visitor)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         auto const points_end = geometry::points_end(geometry);
         bool const has_valid_coordinates = std::none_of

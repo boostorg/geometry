@@ -11,10 +11,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SWEEP_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SWEEP_HPP
 
+#include <tuple>
+
 #include <boost/geometry/util/condition.hpp>
-
-#include <boost/core/ignore_unused.hpp>
-
 
 namespace boost { namespace geometry
 {
@@ -65,7 +64,7 @@ inline void sweep(Range const& range, PriorityQueue& queue,
         }
     }
 
-    boost::ignore_unused(interrupt_policy);
+    std::ignore = interrupt_policy; //Ignore unused warnings when only static members are accessed.
 }
 
 

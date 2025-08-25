@@ -80,12 +80,12 @@ private:
 
             BOOST_GEOMETRY_ASSERT( n > 0 );
             // n above is unused outside BOOST_GEOMETRY_ASSERT,
-            // hence the call to boost::ignore_unused below
+            // hence the use of std::ignore below
             //
             // however, t_v (initialized by the call to rt.query(...))
             // is used below, which is why we cannot put the call to
             // rt.query(...) inside BOOST_GEOMETRY_ASSERT
-            boost::ignore_unused(n);
+            std::ignore = n;
 
             Distance dist = dispatch::distance
                 <

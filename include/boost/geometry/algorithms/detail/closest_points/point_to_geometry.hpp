@@ -11,9 +11,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_CLOSEST_POINTS_POINT_TO_GEOMETRY_HPP
 
 #include <iterator>
+#include <tuple>
 #include <type_traits>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -72,7 +72,7 @@ struct point_to_segment
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
 
         auto closest_point = strategies.closest_points(point, segment)
             .apply(point, p[0], p[1]);

@@ -112,12 +112,12 @@ struct box_box
     template <typename Box1, typename Box2, typename Strategy>
     static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& /*strategy*/)
     {
-        BOOST_STATIC_ASSERT((std::is_same
-                                <
-                                    geometry::coordinate_system_t<Box1>,
-                                    geometry::coordinate_system_t<Box2>
-                                >::value
-                           ));
+        static_assert(std::is_same
+                        <
+                            geometry::coordinate_system_t<Box1>,
+                            geometry::coordinate_system_t<Box2>
+                        >::value,
+                      "Box1 and Box2 must have the same coordinate system");
         assert_dimension_equal<Box1, Box2>();
 
         bool touches = false;

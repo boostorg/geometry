@@ -12,7 +12,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_POINTLIKE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_POINTLIKE_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/empty.hpp>
 
 #include <boost/geometry/core/tags.hpp>
@@ -40,7 +39,6 @@ struct is_valid<Point, point_tag>
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Point const& point, VisitPolicy& visitor, Strategy const&)
     {
-        boost::ignore_unused(visitor);
         return ! detail::is_valid::has_invalid_coordinate
             <
                 Point
@@ -62,8 +60,6 @@ struct is_valid<MultiPoint, multi_point_tag, AllowEmptyMultiGeometries>
                              VisitPolicy& visitor,
                              Strategy const&)
     {
-        boost::ignore_unused(multipoint, visitor);
-
         if BOOST_GEOMETRY_CONSTEXPR (! AllowEmptyMultiGeometries)
         {
             if (boost::empty(multipoint))

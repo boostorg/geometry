@@ -48,10 +48,10 @@ public :
 
     BOOST_CONCEPT_USAGE(Linestring)
     {
-        Geometry* ls = 0;
+        Geometry* ls = nullptr;
         traits::clear<Geometry>::apply(*ls);
         traits::resize<Geometry>::apply(*ls, 0);
-        point_type* point = 0;
+        point_type* point = nullptr;
         traits::push_back<Geometry>::apply(*ls, *point);
     }
 #endif

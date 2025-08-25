@@ -12,8 +12,6 @@
 
 #include <type_traits>
 
-#include <boost/static_assert.hpp>
-
 namespace boost { namespace geometry { namespace detail
 {
 

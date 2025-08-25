@@ -18,8 +18,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <set>
+#include <tuple>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/empty.hpp>
 #include <boost/range/end.hpp>
@@ -838,7 +838,7 @@ struct buffered_piece_collection
     inline void add_endcap(EndcapStrategy const& strategy, Range const& range,
             point_type const& end_point)
     {
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
 
         if (range.empty())
         {

@@ -18,7 +18,7 @@ namespace boost { namespace geometry { namespace index { namespace detail {
 template <typename NSphere, size_t Dimension>
 struct comparable_margin_nsphere
 {
-    BOOST_STATIC_ASSERT(1 < Dimension);
+    static_assert(1 < Dimension, "Dimension must be greater than 1");
     //BOOST_STATIC_ASSERT(Dimension <= dimension<NSphere>::value);
 
     static inline typename default_margin_result<NSphere>::type apply(NSphere const& s)

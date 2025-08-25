@@ -20,8 +20,6 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EXPAND_SEGMENT_HPP
 
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/dispatch/expand.hpp>
 
 #include <boost/geometry/core/tags.hpp>

@@ -59,7 +59,7 @@ public:
     template <std::size_t K>
     inline CoordinateType const& get() const
     {
-        BOOST_STATIC_ASSERT(K < DimensionCount);
+        static_assert(K < DimensionCount, "K out of bound");
         return m_values[K];
     }
 
@@ -69,7 +69,7 @@ public:
     template <std::size_t K>
     inline void set(CoordinateType const& value)
     {
-        BOOST_STATIC_ASSERT(K < DimensionCount);
+        static_assert(K < DimensionCount, "K out of bound");
         m_values[K] = value;
     }
 
