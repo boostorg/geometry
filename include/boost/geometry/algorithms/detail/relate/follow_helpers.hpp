@@ -16,8 +16,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_FOLLOW_HELPERS_HPP
 
 #include <vector>
+#include <type_traits>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
@@ -31,8 +31,6 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/type_traits.hpp>
-
-#include <type_traits>
 
 namespace boost { namespace geometry
 {

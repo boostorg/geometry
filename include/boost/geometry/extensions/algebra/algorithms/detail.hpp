@@ -23,8 +23,6 @@
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
-#include <boost/static_assert.hpp>
-
 namespace boost { namespace geometry
 {
 
@@ -45,7 +43,7 @@ inline void cross(S1 const& s1, S2 const& s2, D & d)
 template <typename S1, typename S2, std::size_t IS1, std::size_t IS2, std::size_t N>
 struct dot_impl
 {
-    BOOST_STATIC_ASSERT(0 < N);
+    static_assert(0 < N, "N must be positive");
 
     typedef typename geometry::select_most_precise<
         typename geometry::coordinate_type<S1>::type,
@@ -88,7 +86,7 @@ dot(S1 const& s1, S2 const& s2)
 template <typename S, typename T, std::size_t IS, std::size_t I, std::size_t N>
 struct mul_impl
 {
-    BOOST_STATIC_ASSERT(0 < N);
+    static_assert(0 < N, "N must be positive");
 
     static inline void apply(S & s, T const& v)
     {
@@ -114,7 +112,7 @@ inline static void mul(S & s, T const& v)
 template <typename V, std::size_t I, std::size_t N>
 struct neg_impl
 {
-    BOOST_STATIC_ASSERT(0 < N);
+    static_assert(0 < N, "N must be positive");
 
     static inline void apply(V & v)
     {
@@ -152,7 +150,7 @@ inline static void normalize(S & s)
 template <typename M, typename V, typename VD, std::size_t I, std::size_t N>
 struct matrix_mul_row_impl
 {
-    BOOST_STATIC_ASSERT(0 < N);
+    static_assert(0 < N, "N must be positive");
 
     static const std::size_t dimension = geometry::dimension<M>::value;
 

@@ -19,10 +19,10 @@
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_WITHIN_CONCEPT_HPP
 
 
+#include <tuple>
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/function_types/result_type.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
@@ -151,15 +151,16 @@ class WithinStrategyPolygonal
 
 
             // CHECK: calling method apply and result
-            strategy_type const* str = 0;
-            state_type* st = 0;
-            point_type const* p = 0;
-            segment_point_type const* sp = 0;
+            strategy_type const* str = nullptr;
+            state_type* st = nullptr;
+            point_type const* p = nullptr;
+            segment_point_type const* sp = nullptr;
 
-            bool b = str->apply(*p, *sp, *sp, *st);
-            int r = str->result(*st);
-
-            boost::ignore_unused(r, b, str);
+            static_assert(std::is_convertible<bool, decltype(str->apply(*p, *sp, *sp, *st))>::value,
+                          "strategy.apply(const point_type&, const segment_point_type&, const segment_point_type&, state_type&) must be convertible to bool");
+            static_assert(std::is_convertible<int, decltype(str->result(*st))>::value,
+                          "strategy.result(state_type&) must be convertible to int");
+            std::ignore = str;
         }
     };
 
@@ -223,13 +224,12 @@ class WithinStrategyPointBox
 
 
             // CHECK: calling method apply
-            strategy_type const* str = 0;
-            point_type const* p = 0;
-            box_type const* bx = 0;
-
-            bool b = str->apply(*p, *bx);
-
-            boost::ignore_unused(b, str);
+            strategy_type const* str = nullptr;
+            point_type const* p = nullptr;
+            box_type const* bx = nullptr;
+            static_assert(std::is_convertible<bool, decltype(str->apply(*p, *bx))>::value,
+                          "strategy.apply(const point_type&, const box_type&) must be convertible to bool");
+            std::ignore = str;
         }
     };
 
@@ -292,13 +292,13 @@ class WithinStrategyBoxBox
 
 
             // CHECK: calling method apply
-            strategy_type const* str = 0;
-            box_type1 const* b1 = 0;
-            box_type2 const* b2 = 0;
+            strategy_type const* str = nullptr;
+            box_type1 const* b1 = nullptr;
+            box_type2 const* b2 = nullptr;
 
-            bool b = str->apply(*b1, *b2);
-
-            boost::ignore_unused(b, str);
+            static_assert(std::is_convertible<bool, decltype(str->apply(*b1, *b2))>::value,
+                          "strategy.apply(const box_type1&, const box_type2&) must be convertible to bool");
+            std::ignore = str;
         }
     };
 
@@ -374,7 +374,7 @@ inline void check()
             tag_cast_t<tag_t<Geometry2>, areal_tag>,
             Strategy
         > c;
-    boost::ignore_unused(c);
+    std::ignore = c;
 }
 
 

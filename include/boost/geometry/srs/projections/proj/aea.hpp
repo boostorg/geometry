@@ -47,7 +47,6 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_AEA_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_AEA_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/math/special_functions/hypot.hpp>
 

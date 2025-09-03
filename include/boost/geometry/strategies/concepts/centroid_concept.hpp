@@ -15,9 +15,9 @@
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_CENTROID_CONCEPT_HPP
 
 
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 namespace boost { namespace geometry { namespace concepts
 {
@@ -33,32 +33,26 @@ class CentroidStrategy
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 
     // 1) must define state_type,
-    typedef typename Strategy::state_type state_type;
+    using state_type = typename Strategy::state_type;
 
     // 2) must define point_type,
-    typedef typename Strategy::point_type point_type;
+    using point_type = typename Strategy::point_type;
 
     // 3) must define point_type, of polygon (segments)
-    typedef typename Strategy::segment_point_type spoint_type;
+    using spoint_type = typename Strategy::segment_point_type;
 
     struct check_methods
     {
         static void apply()
         {
-            Strategy *str = 0;
-            state_type *st = 0;
-
             // 4) must implement a static method apply,
             // getting two segment-points
-            spoint_type const* sp = 0;
-            str->apply(*sp, *sp, *st);
+            Strategy::apply(spoint_type{}, spoint_type{}, state_type{});
 
             // 5) must implement a static method result
             //  getting the centroid
-            point_type *c = 0;
-            bool r = str->result(*st, *c);
-
-            boost::ignore_unused(str, r);
+            static_assert(std::is_constructible<bool, decltype(Strategy::apply(state_type{}, point_type{}))>::value,
+                          "Strategy::apply(state_type, point_type) must return bool.");
         }
     };
 

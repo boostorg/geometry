@@ -19,9 +19,8 @@
 
 
 #include <cstddef>
-
-#include <boost/core/addressof.hpp>
-#include <boost/core/ref.hpp>
+#include <functional>
+#include <memory>
 
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
@@ -54,7 +53,7 @@ template
 struct translating_transformer
 {
     using point_type = geometry::point_type_t<Geometry>;
-    using result_type = boost::reference_wrapper<point_type const>;
+    using result_type = std::reference_wrapper<point_type const>;
 
     explicit translating_transformer(Geometry const&) {}
     explicit translating_transformer(point_type const&) {}
@@ -82,12 +81,12 @@ struct translating_transformer<Geometry, areal_tag, cartesian_tag>
             pt_it = geometry::points_begin(geom);
         if ( pt_it != geometry::points_end(geom) )
         {
-            m_origin = boost::addressof(*pt_it);
+            m_origin = std::addressof(*pt_it);
         }
     }
 
     explicit translating_transformer(point_type const& origin)
-        : m_origin(boost::addressof(origin))
+        : m_origin(std::addressof(origin))
     {}
 
     result_type apply(point_type const& pt) const

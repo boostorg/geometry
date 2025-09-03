@@ -19,9 +19,9 @@
 #include <array>
 #include <cstddef>
 #include <map>
+#include <tuple>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -229,7 +229,9 @@ class get_turns_in_sections
         // It checks if it is areal (box, ring, (multi)polygon)
         signed_size_type const n = static_cast<signed_size_type>(section.range_count);
 
-        boost::ignore_unused(n, index1, index2);
+        std::ignore = n;
+        std::ignore = index1;
+        std::ignore = index2;
 
         return util::is_areal<Geometry>::value
                && index1 == 0
@@ -249,8 +251,6 @@ public :
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        boost::ignore_unused(interrupt_policy);
-
         static bool const areal1 = util::is_areal<Geometry1>::value;
         static bool const areal2 = util::is_areal<Geometry2>::value;
 
@@ -381,6 +381,7 @@ public :
                         {
                             return false;
                         }
+                        std::ignore = interrupt_policy;
                     }
                 }
             }
@@ -680,8 +681,6 @@ private:
             Turns& turns,
             InterruptPolicy& interrupt_policy)
     {
-        boost::ignore_unused(interrupt_policy);
-
         // Depending on code some relations can be left out
 
         using turn_info = typename boost::range_value<Turns>::type;
@@ -717,6 +716,7 @@ private:
         {
             interrupt_policy.apply(turns);
         }
+        std::ignore = interrupt_policy;
 
     }
 

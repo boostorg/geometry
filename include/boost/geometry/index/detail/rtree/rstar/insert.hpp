@@ -16,9 +16,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_RSTAR_INSERT_HPP
 
+#include <tuple>
 #include <type_traits>
-
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/centroid.hpp>
 #include <boost/geometry/algorithms/detail/comparable_distance/interface.hpp>
@@ -176,8 +175,6 @@ public:
             BOOST_RETHROW                                                                                 // RETHROW
         }
         BOOST_CATCH_END
-
-        ::boost::ignore_unused(parameters);
     }
 
 private:
@@ -580,7 +577,7 @@ public:
 
     inline void operator()(internal_node & n)
     {
-        boost::ignore_unused(n);
+        std::ignore = n;
         BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<internal_node>(*m_root), "current node should be the root");
 
         // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one
@@ -607,7 +604,7 @@ public:
 
     inline void operator()(leaf & n)
     {
-        boost::ignore_unused(n);
+        std::ignore = n;
         BOOST_GEOMETRY_INDEX_ASSERT(&n == &rtree::get<leaf>(*m_root), "current node should be the root");
 
         // Distinguish between situation when reinserts are required and use adequate visitor, otherwise use default one

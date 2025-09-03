@@ -275,7 +275,7 @@ struct stateful_range_appender<Geometry, open>
     using point_type = geometry::point_type_t<Geometry>;
     using size_type = typename boost::range_size<util::remove_cptrref_t<Geometry>>::type;
 
-    BOOST_STATIC_ASSERT((util::is_ring<Geometry>::value));
+    static_assert(util::is_ring<Geometry>::value, "Geometry must be ring");
 
     inline stateful_range_appender()
         : pt_index(0)

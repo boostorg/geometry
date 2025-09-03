@@ -21,7 +21,6 @@
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>

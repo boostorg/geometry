@@ -247,7 +247,7 @@ struct less_other_multi_index
 template <std::size_t OpId, typename LessOp, typename Strategy>
 struct less
 {
-    BOOST_STATIC_ASSERT(OpId < 2);
+    static_assert(OpId < 2, "OpId musst be 0 or 1");
 
     template <typename Turn>
     static inline bool use_fraction(Turn const& left, Turn const& right)

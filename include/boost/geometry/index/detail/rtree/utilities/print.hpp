@@ -37,7 +37,7 @@ namespace dispatch {
 template <typename Point, size_t Dimension>
 struct print_point
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive");
 
     static inline void apply(std::ostream & os, Point const& p)
     {
@@ -59,7 +59,7 @@ struct print_point<Point, 1>
 template <typename Box, size_t Corner, size_t Dimension>
 struct print_corner
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive");
 
     static inline void apply(std::ostream & os, Box const& b)
     {

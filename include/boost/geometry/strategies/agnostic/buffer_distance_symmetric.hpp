@@ -10,7 +10,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_AGNOSTIC_BUFFER_DISTANCE_SYMMETRIC_HPP
 
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
 
 #include <boost/geometry/strategies/buffer.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -82,9 +82,10 @@ public :
     //! Returns the max distance distance up to the buffer will reach
     template <typename JoinStrategy, typename EndStrategy>
     inline NumericType max_distance(JoinStrategy const& join_strategy,
-            EndStrategy const& end_strategy) const
+                                    EndStrategy const& end_strategy) const
     {
-        boost::ignore_unused(join_strategy, end_strategy);
+        std::ignore = join_strategy;
+        std::ignore = end_strategy;
 
         NumericType const dist = geometry::math::abs(m_distance);
         return (std::max)(join_strategy.max_distance(dist),

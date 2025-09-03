@@ -50,8 +50,8 @@ public:
     template <std::size_t I, std::size_t J>
     inline T const& get() const
     {
-        BOOST_STATIC_ASSERT(I < Dimension);
-        BOOST_STATIC_ASSERT(J < Dimension);
+        static_assert(I < Dimension, "I out of bound");
+        static_assert(J < Dimension, "J out of bound");
         return m_values[I * Dimension + J];
     }
 
@@ -62,8 +62,8 @@ public:
     template <std::size_t I, std::size_t J>
     inline void set(T const& value)
     {
-        BOOST_STATIC_ASSERT(I < Dimension);
-        BOOST_STATIC_ASSERT(J < Dimension);
+        static_assert(I < Dimension, "I out of bound");
+        static_assert(J < Dimension, "J out of bound");
         m_values[I * Dimension + J] = value;
     }
 

@@ -11,8 +11,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_SEGMENT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_SEGMENT_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -47,8 +45,6 @@ struct is_valid<Segment, segment_tag>
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Segment const& segment, VisitPolicy& visitor, Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
-
         point_type_t<Segment> p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);

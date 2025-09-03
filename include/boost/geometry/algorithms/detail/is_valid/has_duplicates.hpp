@@ -11,7 +11,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_DUPLICATES_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
+
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -40,7 +41,7 @@ struct has_duplicates
     static inline bool apply(Range const& range, VisitPolicy& visitor,
                              Strategy const& )
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         detail::closed_view<Range const> const view(range);
 

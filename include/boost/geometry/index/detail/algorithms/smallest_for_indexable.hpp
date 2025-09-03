@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SMALLEST_FOR_INDEXABLE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_SMALLEST_FOR_INDEXABLE_HPP
 
+#include <cstddef>
+
 #include <boost/geometry/core/static_assert.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
@@ -24,7 +26,7 @@ template <
     typename Indexable,
     typename IndexableTag,
     typename AlgoTag,
-    size_t DimensionIndex>
+    std::size_t DimensionIndex>
 struct smallest_for_indexable_dimension
 {
     BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
@@ -37,7 +39,7 @@ template <
     typename Indexable,
     typename IndexableTag,
     typename AlgoTag,
-    size_t N>
+    std::size_t N>
 struct smallest_for_indexable
 {
     typedef typename smallest_for_indexable_dimension<

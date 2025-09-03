@@ -22,15 +22,13 @@
 #ifndef BOOST_GEOMETRY_DETAIL_ENDIAN_HPP
 #define BOOST_GEOMETRY_DETAIL_ENDIAN_HPP
 
-#include <cassert>
 #include <climits>
+#include <cstdint>
 #include <cstring>
 #include <cstddef>
 #include <type_traits>
 
 #include <boost/config.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/predef/other/endian.h>
 
 #if CHAR_BIT != 8
@@ -147,7 +145,8 @@ struct unrolled_byte_loops<T, 1, true>
     template <typename Iterator>
     static void store_forward(Iterator& bytes, T value)
     {
-        BOOST_STATIC_ASSERT((std::is_signed<typename Iterator::value_type>::value));
+        static_assert(std::is_signed<typename Iterator::value_type>::value,
+                      "Iterator value_type must be signed");
 
         *bytes = static_cast<typename Iterator::value_type>(value);
     }
@@ -155,7 +154,8 @@ struct unrolled_byte_loops<T, 1, true>
     template <typename Iterator>
     static void store_backward(Iterator& bytes, T value)
     {
-        BOOST_STATIC_ASSERT((std::is_signed<typename Iterator::value_type>::value));
+        static_assert(std::is_signed<typename Iterator::value_type>::value,
+                      "Iterator value_type must be signed");
 
         *(bytes - 1) = static_cast<typename Iterator::value_type>(value);
     }
@@ -243,7 +243,7 @@ struct endian_value<double, 8> : public endian_value_base<double>
     template <typename E, typename Iterator>
     void load(Iterator bytes)
     {
-        endian_value<boost::uint64_t, 8> raw;
+        endian_value<std::uint64_t, 8> raw;
         raw.load<E>(bytes);
 
         double& target_value = base::value;
@@ -253,14 +253,14 @@ struct endian_value<double, 8> : public endian_value_base<double>
     template <typename E, typename Iterator>
     void store(Iterator bytes)
     {
-        boost::uint64_t raw;
+        std::uint64_t raw;
         double const& source_value = base::value;
-        std::memcpy(&raw, &source_value, sizeof(boost::uint64_t));
+        std::memcpy(&raw, &source_value, sizeof(std::uint64_t));
 
         store_dispatch
             <
-            boost::uint64_t,
-            sizeof(boost::uint64_t)
+                std::uint64_t,
+                sizeof(std::uint64_t)
             >(bytes, raw, typename base::endian_type(), E());
     }
 };

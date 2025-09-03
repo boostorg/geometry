@@ -47,10 +47,10 @@ public :
 
     BOOST_CONCEPT_USAGE(Ring)
     {
-        Geometry* ring = 0;
+        Geometry* ring = nullptr;
         traits::clear<Geometry>::apply(*ring);
         traits::resize<Geometry>::apply(*ring, 0);
-        point_type* point = 0;
+        point_type* point = nullptr;
         traits::push_back<Geometry>::apply(*ring, *point);
     }
 #endif

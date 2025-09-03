@@ -18,8 +18,9 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_GEOMETRIES_CONCEPTS_NSPHERE_CONCEPT_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_GEOMETRIES_CONCEPTS_NSPHERE_CONCEPT_HPP
 
+#include <type_traits>
+
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/access.hpp>
@@ -37,8 +38,8 @@ namespace boost { namespace geometry { namespace concepts {
 template <typename Geometry>
 class ConstNsphere
 {
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename radius_type<Geometry>::type radius_type;
+    using point_type = typename point_type<Geometry>::type;
+    using radius_type = typename radius_type<Geometry>::type;
 
 
     template <size_t Dimension, size_t DimensionCount>
@@ -46,10 +47,10 @@ class ConstNsphere
     {
         static void apply()
         {
-            typedef typename coordinate_type<Geometry>::type coordinate_type;
-            const Geometry* s = 0;
-            coordinate_type coord(geometry::get<Dimension>(*s));
-            boost::ignore_unused(coord);
+            using coordinate_type = typename coordinate_type<Geometry>::type;
+            const Geometry* s = nullptr;
+            static_assert(std::is_convertible<coordinate_type, decltype(geometry::get<Dimension>(*s))>::value,
+                          "coordinate_type must be initialisable from get<Dimension>(const Geometry&)");
             dimension_checker<Dimension + 1, DimensionCount>::apply();
         }
     };
@@ -64,14 +65,14 @@ public :
 
     BOOST_CONCEPT_USAGE(ConstNsphere)
     {
-        static const size_t n = dimension<Geometry>::value;
+        constexpr size_t n = dimension<Geometry>::value;
         dimension_checker<0, n>::apply();
         dimension_checker<0, n>::apply();
 
         // Check radius access
-        Geometry const* s = 0;
-        radius_type coord(geometry::get_radius<0>(*s));
-        boost::ignore_unused(coord);
+        Geometry const* s = nullptr;
+        static_assert(std::is_convertible<radius_type, decltype(geometry::get_radius<0>(*s))>::value,
+                      "radius_type must be initialisable from get_radius<0>(const Geometry&)");
     }
 };
 
@@ -85,8 +86,8 @@ class Nsphere
 {
     BOOST_CONCEPT_ASSERT( (concepts::ConstNsphere<Geometry>) );
 
-    typedef typename point_type<Geometry>::type point_type;
-    typedef typename radius_type<Geometry>::type radius_type;
+    using point_type = typename point_type<Geometry>::type;
+    using radius_type = typename radius_type<Geometry>::type;
 
 
     template <size_t Dimension, size_t DimensionCount>
@@ -94,7 +95,7 @@ class Nsphere
     {
         static void apply()
         {
-            Geometry* s;
+            Geometry* s = nullptr;
             geometry::set<Dimension>(*s, geometry::get<Dimension>(*s));
             dimension_checker<Dimension + 1, DimensionCount>::apply();
         }
@@ -115,7 +116,7 @@ public :
         dimension_checker<0, n>::apply();
 
         // Check radius access
-        Geometry* s = 0;
+        Geometry* s = nullptr;
         set_radius<0>(*s, get_radius<0>(*s));
     }
 };

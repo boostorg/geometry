@@ -47,8 +47,6 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_AITOFF_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_AITOFF_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/factory_entry.hpp>

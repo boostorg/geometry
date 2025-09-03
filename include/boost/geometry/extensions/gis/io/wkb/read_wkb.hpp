@@ -13,10 +13,9 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_READ_WKB_HPP
 #define BOOST_GEOMETRY_IO_WKB_READ_WKB_HPP
 
+#include <cstdint>
 #include <iterator>
 #include <type_traits>
-
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/detail/parser.hpp>
@@ -74,12 +73,13 @@ template <typename Iterator, typename Geometry>
 inline bool read_wkb(Iterator begin, Iterator end, Geometry& geometry)
 {
     // Stream of bytes can only be parsed using random access iterator.
-    BOOST_STATIC_ASSERT((
+    static_assert(
         std::is_convertible
-        <
-            typename std::iterator_traits<Iterator>::iterator_category,
-            const std::random_access_iterator_tag&
-        >::value));
+            <
+                typename std::iterator_traits<Iterator>::iterator_category,
+                const std::random_access_iterator_tag&
+            >::value,
+        "Iterator must be random access");
 
     detail::wkb::byte_order_type::enum_t byte_order;
     if (detail::wkb::byte_order_parser::parse(begin, end, byte_order))
@@ -97,8 +97,9 @@ inline bool read_wkb(Iterator begin, Iterator end, Geometry& geometry)
 template <typename ByteType, typename Geometry>
 inline bool read_wkb(ByteType const* bytes, std::size_t length, Geometry& geometry)
 {
-    BOOST_STATIC_ASSERT((std::is_integral<ByteType>::value));
-    BOOST_STATIC_ASSERT((sizeof(boost::uint8_t) == sizeof(ByteType)));
+    static_assert(std::is_integral<ByteType>::value, "ByteType must be integral");
+    static_assert(sizeof(std::uint8_t) == sizeof(ByteType),
+                  "Size of ByteType must match size of std::uint8_t");
 
     ByteType const* begin = bytes;
     ByteType const* const end = bytes + length;

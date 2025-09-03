@@ -16,8 +16,6 @@
 #include <iterator>
 #include <type_traits>
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/extensions/gis/io/wkb/detail/writer.hpp>
 
@@ -73,12 +71,14 @@ template <typename G, typename OutputIterator>
 inline bool write_wkb(const G& geometry, OutputIterator iter)
 {
     // The WKB is written to an OutputIterator.
-    BOOST_STATIC_ASSERT((
+    static_assert(
         std::is_convertible
-        <
-        typename std::iterator_traits<OutputIterator>::iterator_category,
-        const std::output_iterator_tag&
-        >::value));
+            <
+                typename std::iterator_traits<OutputIterator>::iterator_category,
+                const std::output_iterator_tag&
+            >::value,
+            "OutputIterator must be output iterator"
+        );
 
 // Will write in the native byte order
 #ifdef BOOST_BIG_ENDIAN

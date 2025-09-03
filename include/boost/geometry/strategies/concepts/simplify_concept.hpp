@@ -19,11 +19,11 @@
 #define BOOST_GEOMETRY_STRATEGIES_CONCEPTS_SIMPLIFY_CONCEPT_HPP
 
 #include <iterator>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/strategies/concepts/distance_concept.hpp>
@@ -54,26 +54,30 @@ private :
         static void apply(ApplyMethod)
         {
             namespace ft = boost::function_types;
-            typedef typename ft::parameter_types
+            using parameter_types = typename ft::parameter_types
                 <
                     ApplyMethod
-                >::type parameter_types;
+                >::type;
 
-            typedef std::conditional_t
+            using base_index = std::conditional_t
                 <
                     ft::is_member_function_pointer<ApplyMethod>::value,
                     std::integral_constant<int, 1>,
                     std::integral_constant<int, 0>
-                > base_index;
+                >;
+            static_assert(sizeof(parameter_types) > 0,
+                          "boost::function_types::parameter_types<ApplyMethod> must be instantiable.");
+            static_assert(sizeof(base_index) > 0,
+                          "boost::function_types::is_member_function<Apply>::value must be instantiable.");
 
             BOOST_CONCEPT_ASSERT
                 (
                     (concepts::PointSegmentDistanceStrategy<ds_type, Point, Point>)
                 );
 
-            Strategy *str = 0;
-            std::vector<Point> const* v1 = 0;
-            std::vector<Point> * v2 = 0;
+            Strategy *str = nullptr;
+            std::vector<Point> const* v1 = nullptr;
+            std::vector<Point> * v2 = nullptr;
 
             // 2) must implement method apply with arguments
             //    - Range
@@ -81,8 +85,7 @@ private :
             //    - floating point value
             str->apply(*v1, std::back_inserter(*v2), 1.0);
 
-            boost::ignore_unused<parameter_types, base_index>();
-            boost::ignore_unused(str);
+            std::ignore = str;
         }
     };
 

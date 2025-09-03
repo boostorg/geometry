@@ -36,8 +36,8 @@ template
 >
 struct less_seg_fraction_other_op
 {
-    BOOST_STATIC_ASSERT(OpId < 2);
-    static const std::size_t other_op_id = (OpId + 1) % 2;
+    static_assert(OpId < 2, "OpId must be 0 or 1");
+    static constexpr std::size_t other_op_id = (OpId + 1) % 2;
 
     template <typename Op>
     static inline int order_op(Op const& op)

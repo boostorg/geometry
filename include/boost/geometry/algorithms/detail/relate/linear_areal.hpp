@@ -14,7 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
+
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
@@ -261,8 +262,8 @@ inline bool calculate_from_inside(Geometry1 const& geometry1,
                                   Turn const& turn,
                                   Strategy const& strategy)
 {
-    static const std::size_t op_id = OpId;
-    static const std::size_t other_op_id = (OpId + 1) % 2;
+    constexpr std::size_t op_id = OpId;
+    constexpr std::size_t other_op_id = (OpId + 1) % 2;
 
     if (turn.operations[op_id].position == overlay::position_front)
     {
@@ -321,8 +322,9 @@ template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
 struct linear_areal
 {
     // check Linear / Areal
-    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 1
-                     && topological_dimension<Geometry2>::value == 2);
+    static_assert(   topological_dimension<Geometry1>::value == 1
+                  && topological_dimension<Geometry2>::value == 2,
+                  "Geometry1 must be linear, Geometry2 must be areal");
 
     static const bool interruption_enabled = true;
 
@@ -1189,9 +1191,6 @@ struct linear_areal
                    OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker)
         {
-            boost::ignore_unused(first, last);
-            //BOOST_GEOMETRY_ASSERT( first != last );
-
             // For MultiPolygon many x/u operations may be generated as a first IP
             // if for all turns x/u was generated and any of the Polygons doesn't contain the LineString
             // then we know that the LineString is outside
@@ -1243,6 +1242,8 @@ struct linear_areal
                 m_interior_detected = false;
 
                 BOOST_GEOMETRY_ASSERT(first != last);
+                std::ignore = first;
+                std::ignore = last;
                 BOOST_GEOMETRY_ASSERT(m_previous_turn_ptr);
 
                 segment_identifier const& prev_seg_id = m_previous_turn_ptr->operations[op_id].seg_id;

@@ -64,7 +64,7 @@ public:
     template <std::size_t K>
     inline T const& get() const
     {
-        BOOST_STATIC_ASSERT(K < 4);
+        static_assert(K < 4, "K must be smaller than 4");
         return m_values[K];
     }
 
@@ -74,7 +74,7 @@ public:
     template <std::size_t K>
     inline void set(T const& value)
     {
-        BOOST_STATIC_ASSERT(K < 4);
+        static_assert(K < 4, "K must be smaller than 4");
         m_values[K] = value;
     }
 

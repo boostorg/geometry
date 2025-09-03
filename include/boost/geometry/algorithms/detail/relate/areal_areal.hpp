@@ -204,9 +204,10 @@ private:
 template <typename Geometry1, typename Geometry2>
 struct areal_areal
 {
-    // check Linear / Areal
-    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 2
-                     && topological_dimension<Geometry2>::value == 2);
+    // check Areal / Areal
+    static_assert(   topological_dimension<Geometry1>::value == 2
+                  && topological_dimension<Geometry2>::value == 2,
+                  "Geometry1 and Geometry2 must be areal");
 
     static const bool interruption_enabled = true;
 

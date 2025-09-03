@@ -13,14 +13,12 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 #define BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 
+#include <cstdint>
 #include <iomanip>
 #include <iterator>
 #include <sstream>
 #include <string>
 #include <type_traits>
-
-#include <boost/cstdint.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 
@@ -34,9 +32,11 @@ template <typename OutputIterator>
 bool hex2wkb(std::string const& hex, OutputIterator bytes)
 {
     // Bytes can be only written to output iterator.
-    BOOST_STATIC_ASSERT((std::is_convertible<
-        typename std::iterator_traits<OutputIterator>::iterator_category,
-        const std::output_iterator_tag&>::value));
+    static_assert(std::is_convertible<
+            typename std::iterator_traits<OutputIterator>::iterator_category,
+            const std::output_iterator_tag&
+        >::value,
+        "OutputIterator must be std output iterator");
 
     std::string::size_type const byte_size = 2;
     if (0 != hex.size() % byte_size)
@@ -54,7 +54,7 @@ bool hex2wkb(std::string const& hex, OutputIterator bytes)
         {
             return false;
         }
-        *bytes = static_cast<boost::uint8_t>(byte);
+        *bytes = static_cast<std::uint8_t>(byte);
         ++bytes;
     }
 
@@ -65,9 +65,11 @@ template <typename Iterator>
 bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
 {
     // Stream of bytes can only be passed using random access iterator.
-    BOOST_STATIC_ASSERT((std::is_convertible<
-        typename std::iterator_traits<Iterator>::iterator_category,
-        const std::random_access_iterator_tag&>::value));
+    static_assert(std::is_convertible<
+            typename std::iterator_traits<Iterator>::iterator_category,
+            const std::random_access_iterator_tag&
+        >::value,
+        "Iterator must be random access");
 
     const char hexalpha[] = "0123456789ABCDEF";
     char hexbyte[3] = { 0 };
@@ -76,7 +78,7 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
     Iterator it = begin;
     while (it != end)
     {
-        boost::uint8_t byte = static_cast<boost::uint8_t>(*it);
+        auto byte = static_cast<std::uint8_t>(*it);
         hexbyte[0] = hexalpha[(byte >> 4) & 0xf];
         hexbyte[1] = hexalpha[byte & 0xf];
         hexbyte[2] = '\0';

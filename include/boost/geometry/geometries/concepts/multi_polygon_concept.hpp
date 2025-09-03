@@ -45,11 +45,11 @@ public :
 
     BOOST_CONCEPT_USAGE(MultiPolygon)
     {
-        Geometry* mp = 0;
+        Geometry* mp = nullptr;
         traits::clear<Geometry>::apply(*mp);
         traits::resize<Geometry>::apply(*mp, 0);
         // The concept should support the second version of push_back, using &&
-        polygon_type* poly = 0;
+        polygon_type* poly = nullptr;
         traits::push_back<Geometry>::apply(*mp, std::move(*poly));
     }
 #endif

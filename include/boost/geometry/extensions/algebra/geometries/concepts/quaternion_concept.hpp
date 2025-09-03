@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -43,7 +42,7 @@ class Quaternion
     {
         static void apply()
         {
-            G* g = 0;
+            G* g = nullptr;
             geometry::set<I>(*g, geometry::get<I>(*g));
             dimension_checker<G, I+1, N>::apply();
         }
@@ -77,17 +76,14 @@ class ConstQuaternion
 {
 #ifndef DOXYGEN_NO_CONCEPT_MEMBERS
 
-    //typedef typename coordinate_type<Geometry>::type ctype;
-    //typedef typename coordinate_system<Geometry>::type csystem;
-
     template <typename G, std::size_t I, std::size_t N>
     struct dimension_checker
     {
         static void apply()
         {
-            const G* g = 0;
-            typename coordinate_type<Geometry>::type coord(geometry::get<I>(*g));
-            boost::ignore_unused(coord);
+            const G* g = nullptr;
+            static_assert(std::is_constructible<typename coordinate_type<Geometry>::type, decltype(geometry::get<I>(*g))>::value,
+                          "coordinate_type<Geometry>::type must be constructible from get<I>(const G&)");
             dimension_checker<G, I+1, N>::apply();
         }
     };

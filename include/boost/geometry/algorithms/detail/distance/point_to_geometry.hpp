@@ -22,9 +22,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISTANCE_POINT_TO_GEOMETRY_HPP
 
 #include <iterator>
+#include <tuple>
 #include <type_traits>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -71,7 +71,7 @@ struct point_to_point
     static inline
     auto apply(P1 const& p1, P2 const& p2, Strategies const& strategies)
     {
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
         return strategies.distance(p1, p2).apply(p1, p2);
     }
 };
@@ -84,7 +84,7 @@ struct point_to_point<P1, P2, Strategy, false>
     static inline
     auto apply(P1 const& p1, P2 const& p2, Strategy const& strategy)
     {
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
         return strategy.apply(p1, p2);
     }
 };
@@ -104,7 +104,7 @@ struct point_to_segment
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
         return strategies.distance(point, segment).apply(point, p[0], p[1]);
     }
 };
@@ -121,7 +121,7 @@ struct point_to_segment<Point, Segment, Strategy, false>
         geometry::detail::assign_point_from_index<0>(segment, p[0]);
         geometry::detail::assign_point_from_index<1>(segment, p[1]);
 
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
         return strategy.apply(point, p[0], p[1]);
     }
 };
@@ -137,7 +137,7 @@ struct point_to_box
     static inline auto apply(Point const& point, Box const& box,
                              Strategies const& strategies)
     {
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
         return strategies.distance(point, box).apply(point, box);
     }
 };
@@ -150,7 +150,7 @@ struct point_to_box<Point, Box, Strategy, false>
     static inline auto apply(Point const& point, Box const& box,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(strategy);
+        std::ignore = strategy;
         return strategy.apply(point, box);
     }
 };

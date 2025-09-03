@@ -20,7 +20,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_AREA_HPP
 
-#include <boost/core/ignore_unused.hpp>
+#include <tuple>
+
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -91,7 +92,7 @@ struct ring_area
         assert_dimension<Ring, 2>();
 
         // Ignore warning (because using static method sometimes) on strategy
-        boost::ignore_unused(strategies);
+        std::ignore = strategies;
 
         // An open ring has at least three points,
         // A closed ring has at least four points,

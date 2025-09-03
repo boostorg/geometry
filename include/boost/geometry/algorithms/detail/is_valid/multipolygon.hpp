@@ -14,9 +14,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 
 #include <deque>
+#include <tuple>
 #include <vector>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -90,7 +90,7 @@ private:
                                         VisitPolicy& visitor,
                                         Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         // collect all polygons that have crossing turns
         std::set<signed_size_type> multi_indices;

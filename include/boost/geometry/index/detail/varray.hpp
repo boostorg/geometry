@@ -14,14 +14,15 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 
+#include <limits>
+#include <tuple>
+
 // TODO - REMOVE/CHANGE
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
 
 #include <boost/concept_check.hpp>
 #include <boost/config.hpp>
-#include <boost/core/ignore_unused.hpp>
-#include <boost/integer.hpp>
 
 // TODO - use std::reverse_iterator and std::iterator_traits
 // instead Boost.Iterator to remove dependency?
@@ -72,8 +73,9 @@ struct checker
     static inline void check_capacity(Varray const& v, size_type s)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(s <= v.capacity(), "size too big");
-
-        ::boost::ignore_unused(v, s);
+        
+        std::ignore = v;
+        std::ignore = s;
     }
 
     static inline void throw_out_of_bounds(Varray const& v, size_type i)
@@ -81,35 +83,38 @@ struct checker
         if ( v.size() <= i )
             throw_out_of_range("index out of bounds");
 
-        ::boost::ignore_unused(v, i);
+        std::ignore = v;
+        std::ignore = i;
     }
 
     static inline void check_index(Varray const& v, size_type i)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(i < v.size(), "index out of bounds");
 
-        ::boost::ignore_unused(v, i);
+        std::ignore = v;
+        std::ignore = i;
     }
 
     static inline void check_not_empty(Varray const& v)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(!v.empty(), "the container is empty");
 
-        ::boost::ignore_unused(v);
+        std::ignore = v;
     }
 
     static inline void check_iterator_end_neq(Varray const& v, const_iterator position)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(v.begin() <= position && position < v.end(), "iterator out of bounds");
 
-        ::boost::ignore_unused(v, position);
+        std::ignore = v;
     }
 
     static inline void check_iterator_end_eq(Varray const& v, const_iterator position)
     {
         BOOST_GEOMETRY_INDEX_ASSERT(v.begin() <= position && position <= v.end(), "iterator out of bounds");
 
-        ::boost::ignore_unused(v, position);
+        std::ignore = v; 
+        std::ignore = position;
     }
 };
 
@@ -154,7 +159,7 @@ class varray
 
     BOOST_GEOMETRY_STATIC_ASSERT(
         ( std::is_unsigned<typename vt::size_type>::value &&
-          sizeof(typename boost::uint_value_t<Capacity>::least) <= sizeof(typename vt::size_type) ),
+          Capacity <= std::numeric_limits<typename vt::size_type>::max() ),
         "Size type is too small for specified capacity.",
         typename vt::size_type, std::integral_constant<std::size_t, Capacity>
     );

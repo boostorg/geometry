@@ -16,6 +16,10 @@
 #include <sstream>
 #include <fstream>
 
+#if ! defined(TEST_WITH_SVG_FILE)
+#include <tuple>
+#endif
+
 template <typename Ring>
 void fill(Ring& ring, std::vector<typename boost::geometry::point_type<Ring>::type> const& v)
 {
@@ -128,13 +132,15 @@ void create_svg(std::ostream& stream, Geometry1 const& a, Geometry2 const& b, Ge
 
 void write_svg(std::ostringstream& svg, std::string const& filename)
 {
-    boost::ignore_unused(svg, filename);
 #if defined(TEST_WITH_SVG_FILE)
     std::ofstream tmp("/tmp/" + filename);
     if (tmp.good())
     {
         tmp << svg.str();
     }
+#else
+    std::ignore = svg;
+    std::ignore = filename;
 #endif
 
 }

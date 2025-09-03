@@ -15,8 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
 #include <algorithm>
+#include <tuple>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/core/assert.hpp>
@@ -585,9 +585,6 @@ struct linear_linear
                    BoundaryChecker const& boundary_checker,
                    OtherBoundaryChecker const& /*other_boundary_checker*/)
         {
-            boost::ignore_unused(first, last);
-            //BOOST_GEOMETRY_ASSERT( first != last );
-
             // here, the possible exit is the real one
             // we know that we entered and now we exit
             if ( /*m_exit_watcher.get_exit_operation() == overlay::operation_union // THIS CHECK IS REDUNDANT
@@ -597,6 +594,8 @@ struct linear_linear
                 update<interior, exterior, '1', transpose_result>(res);
 
                 BOOST_GEOMETRY_ASSERT(first != last);
+                std::ignore = first;
+                std::ignore = last;
 
                 const TurnInfo * turn_ptr = NULL;
                 if ( m_degenerated_turn_ptr )

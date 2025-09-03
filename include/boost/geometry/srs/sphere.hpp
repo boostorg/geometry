@@ -22,8 +22,6 @@
 
 #include <cstddef>
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/core/radius.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -55,7 +53,7 @@ public:
     template <std::size_t I>
     RadiusType get_radius() const
     {
-        BOOST_STATIC_ASSERT(I < 3);
+        static_assert(I < 3, "Index must be < 3");
 
         return m_r;
     }
@@ -63,7 +61,7 @@ public:
     template <std::size_t I>
     void set_radius(RadiusType const& radius)
     {
-        BOOST_STATIC_ASSERT(I < 3);
+        static_assert(I < 3, "Index must be < 3");
 
         m_r = radius;
     }

@@ -19,9 +19,9 @@
 #endif // BOOST_GEOMETRY_DEBUG_ENRICH
 
 #include <cstddef>
+#include <tuple>
 #include <vector>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
@@ -68,7 +68,8 @@ inline void display(MetaTurn const& meta_turn, const char* reason = "")
         << " " << reason
         << std::endl;
 #else
-boost::ignore_unused(meta_turn, reason);
+    std::ignore = meta_turn;
+    std::ignore = reason;
 #endif
 }
 

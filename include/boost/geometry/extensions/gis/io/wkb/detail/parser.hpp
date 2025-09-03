@@ -14,8 +14,8 @@
 #define BOOST_GEOMETRY_IO_WKB_DETAIL_PARSER_HPP
 
 #include <algorithm>
-#include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <limits>
 #include <type_traits>
@@ -23,11 +23,8 @@
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/concept_check.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -62,24 +59,26 @@ namespace detail { namespace wkb
 template <typename T>
 struct value_parser
 {
-    typedef T value_type;
+    using value_type = T;
 
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, T& value, byte_order_type::enum_t order)
     {
         // Very basic pre-conditions check on stream of bytes passed in
-        BOOST_STATIC_ASSERT((
-            std::is_integral<typename std::iterator_traits<Iterator>::value_type>::value
-        ));
-        BOOST_STATIC_ASSERT((sizeof(boost::uint8_t) ==
-            sizeof(typename std::iterator_traits<Iterator>::value_type)
-        ));
+        static_assert(
+            std::is_integral<typename std::iterator_traits<Iterator>::value_type>::value,
+            "Iterator value_type must be integral"
+        );
+        static_assert(sizeof(std::uint8_t) ==
+            sizeof(typename std::iterator_traits<Iterator>::value_type),
+            "sizeof Iterator value type must be sizeof(std::uint8_t)"
+        );
 
-        typedef typename std::iterator_traits<Iterator>::difference_type diff_type;
+        using diff_type = typename std::iterator_traits<Iterator>::difference_type;
         diff_type const required_size = sizeof(T);
         if (it != end && std::distance(it, end) >= required_size)
         {
-            typedef endian::endian_value<T> parsed_value_type;
+            using parsed_value_type = endian::endian_value<T>;
             parsed_value_type parsed_value;
 
             // Decide on direcion of endianness translation, detault to native
@@ -110,8 +109,8 @@ struct byte_order_parser
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, byte_order_type::enum_t& order)
     {
-        boost::uint8_t value;
-        if (value_parser<boost::uint8_t>::parse(it, end, value, byte_order_type::unknown))
+        std::uint8_t value;
+        if (value_parser<std::uint8_t>::parse(it, end, value, byte_order_type::unknown))
         {
             if (byte_order_type::unknown > value)
             {
@@ -132,8 +131,8 @@ struct geometry_type_parser
     static bool parse(Iterator& it, Iterator end,
                 byte_order_type::enum_t order)
     {
-        boost::uint32_t value;
-        if (value_parser<boost::uint32_t>::parse(it, end, value, order))
+        std::uint32_t value;
+        if (value_parser<std::uint32_t>::parse(it, end, value, order))
         {
             return geometry_type<Geometry>::check(value);
         }
@@ -148,9 +147,9 @@ struct parsing_assigner
 {
     template <typename Iterator>
     static void run(Iterator& it, Iterator end, P& point,
-                byte_order_type::enum_t order)
+                    byte_order_type::enum_t order)
     {
-        typedef typename coordinate_type<P>::type coordinate_type;
+        using coordinate_type = typename coordinate_type<P>::type;
 
         // coordinate type in WKB is always double
         double value(0);
@@ -187,7 +186,7 @@ struct point_parser
 {
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, P& point,
-                byte_order_type::enum_t order)
+                      byte_order_type::enum_t order)
     {
         if (geometry_type_parser<P>::parse(it, end, order))
         {
@@ -206,18 +205,18 @@ struct point_container_parser
 {
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, C& container,
-                byte_order_type::enum_t order)
+                      byte_order_type::enum_t order)
     {
-        typedef typename point_type<C>::type point_type;
+        using point_type = typename point_type<C>::type;
 
-        boost::uint32_t num_points(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_points, order))
+        std::uint32_t num_points(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_points, order))
         {
             return false;
         }
 
-        typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        if(num_points > (std::numeric_limits<boost::uint32_t>::max)() )
+        using size_type = typename std::iterator_traits<Iterator>::difference_type;
+        if(num_points > (std::numeric_limits<std::uint32_t>::max)() )
         {
             throw boost::geometry::read_wkb_exception();
         }
@@ -285,20 +284,20 @@ struct polygon_parser
             return false;
         }
 
-        boost::uint32_t num_rings(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_rings, order))
+        std::uint32_t num_rings(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_rings, order))
         {
             return false;
         }
 
-        typedef typename boost::geometry::ring_return_type<Polygon>::type ring_type;
+        using ring_type = typename boost::geometry::ring_return_type<Polygon>::type;
 
         std::size_t rings_parsed = 0;
         while (rings_parsed < num_rings && it != end)
         {
             if (0 == rings_parsed)
             {
-                ring_type ring0 = exterior_ring(polygon);
+                auto ring0 = exterior_ring(polygon);
                 if (!point_container_parser<ring_type>::parse(it, end, ring0, order))
                 {
                     return false;
@@ -307,7 +306,7 @@ struct polygon_parser
             else
             {
                 boost::geometry::range::resize(interior_rings(polygon), rings_parsed);
-                ring_type ringN = boost::geometry::range::back(interior_rings(polygon));
+                auto ringN = boost::geometry::range::back(interior_rings(polygon));
 
                 if (!point_container_parser<ring_type>::parse(it, end, ringN, order))
                 {

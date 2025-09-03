@@ -12,8 +12,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_SPIKES_HPP
 
 #include <algorithm>
+#include <tuple>
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/rbegin.hpp>
@@ -71,7 +71,7 @@ struct has_spikes
                                         Strategy const& strategy,
                                         bool is_linear)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
         auto cur = boost::begin(view);
         auto prev = find_different_from_first(boost::rbegin(view),
@@ -94,9 +94,9 @@ struct has_spikes
     static inline bool apply(Range const& range, VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        boost::ignore_unused(visitor);
+        std::ignore = visitor;
 
-        bool const is_linestring = util::is_linestring<Range>::value;
+        constexpr bool is_linestring = util::is_linestring<Range>::value;
 
         detail::closed_view<Range const> const view(range);
 

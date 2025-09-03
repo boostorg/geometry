@@ -18,8 +18,6 @@
 
 #include <type_traits>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/index/detail/algorithms/bounds.hpp>
@@ -178,8 +176,6 @@ struct find_greatest_normalized_separation
 
         seed1 = highest_low_index;
         seed2 = lowest_high_index;
-
-        ::boost::ignore_unused(parameters);
     }
 };
 
@@ -233,15 +229,13 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, poi
 
         if ( lowest_index == highest_index )
             seed2 = (lowest_index + 1) % elements_count; // % is just in case since if this is true lowest_index is 0
-
-        ::boost::ignore_unused(parameters);
     }
 };
 
 template <typename Elements, typename Parameters, typename Translator, size_t Dimension>
 struct pick_seeds_impl
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive");
 
     using element_type = typename Elements::value_type;
     using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;

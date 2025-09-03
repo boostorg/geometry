@@ -19,8 +19,6 @@
 #ifndef BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_COVERED_BY_HPP
 #define BOOST_GEOMETRY_EXTENSIONS_NSPHERE_ALGORITHMS_COVERED_BY_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/algorithms/covered_by.hpp>
 
 #include <boost/geometry/extensions/nsphere/strategies/relate/cartesian.hpp>

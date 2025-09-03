@@ -47,7 +47,7 @@ template <typename S, std::size_t D>
 struct radius_access<nsphere_tag, S, D, false>
     : detail::radius_access<nsphere_tag, S, D>
 {
-    BOOST_STATIC_ASSERT((D == 0));
+    static_assert(D == 0, "D must be zero");
 };
 
 } // namespace core_dispatch

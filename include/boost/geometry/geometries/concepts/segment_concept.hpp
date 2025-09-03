@@ -20,7 +20,6 @@
 
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -46,7 +45,7 @@ class Segment
     {
         static void apply()
         {
-            Geometry* s = 0;
+            Geometry* s = nullptr;
             geometry::set<Index, Dimension>(*s, geometry::get<Index, Dimension>(*s));
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }
@@ -91,9 +90,9 @@ class ConstSegment
     {
         static void apply()
         {
-            const Geometry* s = 0;
-            coordinate_type coord(geometry::get<Index, Dimension>(*s));
-            boost::ignore_unused(coord);
+            const Geometry* s = nullptr;
+            static_assert(std::is_constructible<coordinate_type, decltype(geometry::get<Index, Dimension>(s))>::value,
+                          "Return type of get<Index, Dimension>(const Geometry) must be convertible to coordinate_type.");
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }
     };

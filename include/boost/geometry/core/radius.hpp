@@ -238,7 +238,7 @@ struct radius_access<srs_sphere_tag, Geometry, Dimension, false>
     : detail::radius_access<srs_sphere_tag, Geometry, Dimension>
 {
     //BOOST_STATIC_ASSERT(Dimension == 0);
-    BOOST_STATIC_ASSERT(Dimension < 3);
+    static_assert(Dimension < 3, "Dimension must be smaller than 3");
 };
 
 template <typename Geometry>
@@ -252,7 +252,7 @@ struct radius_access<srs_spheroid_tag, Geometry, Dimension, false>
     : detail::radius_access<srs_spheroid_tag, Geometry, Dimension>
 {
     //BOOST_STATIC_ASSERT(Dimension == 0 || Dimension == 2);
-    BOOST_STATIC_ASSERT(Dimension < 3);
+    static_assert(Dimension < 3, "Dimension must be smaller than 3");
 };
 
 } // namespace core_dispatch

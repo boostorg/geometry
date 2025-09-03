@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP
 #define BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP
 
-#include <boost/cstdint.hpp>
+#include <cstddef>
 
 namespace boost { namespace geometry
 {

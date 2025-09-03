@@ -26,7 +26,6 @@
 #include <vector>
 
 #include <boost/concept/requires.hpp>
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -393,11 +392,9 @@ struct sectionalize_part
         using box_type = typename section_type::box_type;
         using point_type = geometry::point_type_t<box_type>;
 
-        BOOST_STATIC_ASSERT
-            (
-                section_type::dimension_count
-                 == util::sequence_size<DimensionVector>::value
-            );
+        static_assert(
+            section_type::dimension_count == util::sequence_size<DimensionVector>::value,
+            "section_type::dimension_count must equal util::sequence_size<DimensionVector>::value");
 
         std::size_t const count = std::distance(begin, end);
         if (count == 0)

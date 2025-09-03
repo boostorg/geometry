@@ -40,8 +40,6 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_ECK3_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_ECK3_HPP
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
 #include <boost/geometry/srs/projections/impl/base_dynamic.hpp>
 #include <boost/geometry/srs/projections/impl/projects.hpp>

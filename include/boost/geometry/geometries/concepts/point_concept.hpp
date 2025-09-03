@@ -21,9 +21,9 @@
 #define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_POINT_CONCEPT_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/concept_check.hpp>
-#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
@@ -43,19 +43,15 @@ class Point
     using ctype = coordinate_type_t<Geometry>;
     using csystem = coordinate_system_t<Geometry>;
 
-    // The following enum is used to fully instantiate the coordinate
-    // system class; this is needed in order to check the units passed
-    // to it for non-Cartesian coordinate systems.
-    enum { cs_check = sizeof(csystem) };
-
-    enum { ccount = dimension<Geometry>::value };
+    static_assert(sizeof(csystem) > 0, "coordinate_system_t<Geometry> can not be instantiated");
+    static_assert(dimension<Geometry>::value > 0, "dimension<Geometry>::value must be positive");
 
     template <typename P, std::size_t Dimension, std::size_t DimensionCount>
     struct dimension_checker
     {
         static void apply()
         {
-            P* p = 0;
+            P* p = nullptr;
             geometry::set<Dimension>(*p, geometry::get<Dimension>(*p));
             dimension_checker<P, Dimension+1, DimensionCount>::apply();
         }
@@ -73,7 +69,7 @@ public:
     /// BCCL macro to apply the Point concept
     BOOST_CONCEPT_USAGE(Point)
     {
-        dimension_checker<Geometry, 0, ccount>::apply();
+        dimension_checker<Geometry, 0, dimension<Geometry>::value>::apply();
     }
 #endif
 };
@@ -96,21 +92,21 @@ class ConstPoint
     using ctype = coordinate_type_t<Geometry>;
     using csystem = coordinate_system_t<Geometry>;
 
-    // The following enum is used to fully instantiate the coordinate
-    // system class; this is needed in order to check the units passed
-    // to it for non-Cartesian coordinate systems.
-    enum { cs_check = sizeof(csystem) };
-
-    enum { ccount = dimension<Geometry>::value };
+    static_assert(sizeof(csystem) > 0, "coordinate_system_t<Geometry> can not be instantiated");
+    static_assert(dimension<Geometry>::value > 0, "dimension<Geometry>::value must be positive");
 
     template <typename P, std::size_t Dimension, std::size_t DimensionCount>
     struct dimension_checker
     {
         static void apply()
         {
-            const P* p = 0;
-            ctype coord(geometry::get<Dimension>(*p));
-            boost::ignore_unused(p, coord);
+            const P* p = nullptr;
+            static_assert(std::is_constructible
+                    <
+                        ctype,
+                        decltype(geometry::get<Dimension>(*p))
+                    >::value,
+                "get<Dimension>(Geometry) must be assignable to coordinate_type_t<Geometry>");
             dimension_checker<P, Dimension+1, DimensionCount>::apply();
         }
     };
@@ -127,7 +123,7 @@ public:
     /// BCCL macro to apply the ConstPoint concept
     BOOST_CONCEPT_USAGE(ConstPoint)
     {
-        dimension_checker<Geometry, 0, ccount>::apply();
+        dimension_checker<Geometry, 0, dimension<Geometry>::value>::apply();
     }
 #endif
 };

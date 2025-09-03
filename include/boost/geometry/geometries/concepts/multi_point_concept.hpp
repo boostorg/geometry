@@ -47,10 +47,10 @@ public :
 
     BOOST_CONCEPT_USAGE(MultiPoint)
     {
-        Geometry* mp = 0;
+        Geometry* mp = nullptr;
         traits::clear<Geometry>::apply(*mp);
         traits::resize<Geometry>::apply(*mp, 0);
-        point_type* point = 0;
+        point_type* point = nullptr;
         traits::push_back<Geometry>::apply(*mp, *point);
     }
 #endif

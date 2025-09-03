@@ -45,8 +45,6 @@
 
 #include <sstream>
 
-#include <boost/core/ignore_unused.hpp>
-
 #include <boost/geometry/core/assert.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
