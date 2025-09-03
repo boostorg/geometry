@@ -11,11 +11,15 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_POLYHEDRAL_SURFACE_CONCEPT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_POLYHEDRAL_SURFACE_CONCEPT_HPP
 
+#include <type_traits>
+
 #include <boost/concept_check.hpp>
 #include <boost/range/concepts.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/polygon_concept.hpp>
 
 namespace boost { namespace geometry { namespace concepts
@@ -29,6 +33,9 @@ class PolyhedralSurface
 
     BOOST_CONCEPT_ASSERT( (concepts::Polygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
+    BOOST_STATIC_ASSERT( (geometry::dimension<Geometry>::value == 3) );
+    BOOST_STATIC_ASSERT( (std::is_same<typename geometry::cs_tag_t<Geometry>,
+        geometry::cartesian_tag>::value) );
 
 public:
 
@@ -53,6 +60,9 @@ class ConstPolyhedralSurface
 
     BOOST_CONCEPT_ASSERT( (concepts::ConstPolygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
+    BOOST_STATIC_ASSERT( (geometry::dimension<Geometry>::value == 3) );
+    BOOST_STATIC_ASSERT( (std::is_same<typename geometry::cs_tag_t<Geometry>,
+        geometry::cartesian_tag>::value) );
 
 public:
 
