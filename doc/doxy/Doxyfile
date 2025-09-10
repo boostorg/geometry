@@ -88,7 +88,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
                          param_macro_coorsystem="Coordinate system (e.g. cs::cartesian)" \
                          param_macro_member{1}="Member containing \1 coordinate" \
                          param_macro_getset{2}="Method to \1 the \2 coordinate" \
-                         param_range_point="A range containg points fulfilling range and point concepts" \
+                         param_range_point="A range containing points fulfilling range and point concepts" \
                          param_x="First coordinate (usually x-coordinate)" \
                          param_y="Second coordinate (usually y-coordinate)" \
                          param_z="Third coordinate (usually z-coordinate)" \
