@@ -15,7 +15,7 @@ The 5 strategies give the user control to the generated buffer
 
 * convex corners can be rounded or sharp
 * line-ends can be rounded or flat
-* distance can be symmetric or assymetric, and positive or negative
+* distance can be symmetric or asymmetric, and positive or negative
 * around points the shape can be circular or square
 * the sides can be controlled (currently there is only one option provided)
 
