@@ -811,7 +811,7 @@ struct union_<DynamicGeometry1, DynamicGeometry2, dynamic_geometry_tag, dynamic_
 
 
 /*!
-\brief Combines two geometries which each other
+\brief Combines two geometries with each other
 \ingroup union
 \details \details_calc2{union, spatial set theoretic union}.
 \tparam Geometry1 \tparam_geometry
@@ -849,7 +849,7 @@ inline void union_(Geometry1 const& geometry1,
 
 
 /*!
-\brief Combines two geometries which each other
+\brief Combines two geometries with each other
 \ingroup union
 \details \details_calc2{union, spatial set theoretic union}.
 \tparam Geometry1 \tparam_geometry
