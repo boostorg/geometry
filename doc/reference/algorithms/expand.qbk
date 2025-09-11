@@ -24,7 +24,7 @@
 [[__box__ / __other__][__nyiversion__]]
 ]
 
-[note To use expand with another geometry type then specified, use expand(make_envelope<box_type>(geometry)]
+[note To use expand with another geometry type then specified, use expand(make_envelope<box_type>(geometry))]
 
 [heading Complexity]
 Linear
