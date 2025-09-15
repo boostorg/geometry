@@ -132,7 +132,7 @@ private:
 
         // is this assumption ok? if min_content_diff == 0 there is no overlap increase?
 
-        if ( min_content_diff < -std::numeric_limits<double>::epsilon() || std::numeric_limits<double>::epsilon() < min_content_diff )
+        if ( min_content_diff < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < min_content_diff )
         {
             size_t first_n_children_count = children_count;
             if ( 0 < overlap_cost_threshold && overlap_cost_threshold < children.size() )
