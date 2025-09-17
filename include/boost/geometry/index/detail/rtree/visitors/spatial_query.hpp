@@ -158,7 +158,7 @@ public:
 
     const_reference dereference() const
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(m_values, "not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(m_values, "not dereferenceable");
         return *m_current;
     }
 
