@@ -32,7 +32,7 @@ namespace strategy { namespace within
 {
 
 /*!
-\brief Within detection using cross counting,
+\brief Within detection using cross counting
 \ingroup strategies
 \tparam CalculationType \tparam_calculation
 \see http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
