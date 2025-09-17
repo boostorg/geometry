@@ -71,12 +71,12 @@ inline R difference(T const& from, T const& to)
 
 // IMPORTANT!
 // Still probably the best way would be providing specialized algorithms for each Indexable-Bounds pair!
-// Probably on pick_seeds algorithm level - For Bounds=Sphere seeds would be choosen differently
+// Probably on pick_seeds algorithm level - For Bounds=Sphere seeds would be chosen differently
 
 // TODO: awulkiew
 // there are loops inside find_greatest_normalized_separation::apply()
 // iteration is done for each DimensionIndex.
-// Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be choosen.
+// Separations and seeds for all DimensionIndex(es) could be calculated at once, stored, then the greatest would be chosen.
 
 // The following struct/method was adapted for the preliminary version of the R-tree. Then it was called:
 // void find_normalized_separations(std::vector<Box> const& boxes, T& separation, unsigned int& first, unsigned int& second) const
