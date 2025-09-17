@@ -202,7 +202,7 @@ private:
 
     typedef std::vector< std::pair<size_type, node_pointer> > underflow_nodes;
 
-    void traverse_apply_visitor(internal_node &n, internal_size_type choosen_node_index)
+    void traverse_apply_visitor(internal_node &n, internal_size_type chosen_node_index)
     {
         // save previous traverse inputs and set new ones
         internal_node_pointer parent_bckup = m_parent;
@@ -210,11 +210,11 @@ private:
         size_type current_level_bckup = m_current_level;
 
         m_parent = &n;
-        m_current_child_index = choosen_node_index;
+        m_current_child_index = chosen_node_index;
         ++m_current_level;
 
         // next traversing step
-        rtree::apply_visitor(*this, *rtree::elements(n)[choosen_node_index].second);                    // MAY THROW (V, E: alloc, copy, N: alloc)
+        rtree::apply_visitor(*this, *rtree::elements(n)[chosen_node_index].second);                    // MAY THROW (V, E: alloc, copy, N: alloc)
 
         // restore previous traverse inputs
         m_parent = parent_bckup;
