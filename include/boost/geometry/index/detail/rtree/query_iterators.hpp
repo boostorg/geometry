@@ -34,14 +34,14 @@ struct end_query_iterator
 
     reference operator*() const
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferenceable");
         pointer p(0);
         return *p;
     }
 
     const value_type * operator->() const
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(false, "iterator not dereferenceable");
         const value_type * p = 0;
         return p;
     }
