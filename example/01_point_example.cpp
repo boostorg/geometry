@@ -129,7 +129,7 @@ int main()
     assign_values(d3a, 1, 2, 3);
     assign_values(d3b, 4, 5, 6);
     d3 = distance(d3a, d3b);
-
+    std::cout << wkt(d3a) << std::endl;
 
 
     // Other examples show other types of points, geometries and more algorithms
