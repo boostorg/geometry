@@ -88,7 +88,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
                          param_macro_coorsystem="Coordinate system (e.g. cs::cartesian)" \
                          param_macro_member{1}="Member containing \1 coordinate" \
                          param_macro_getset{2}="Method to \1 the \2 coordinate" \
-                         param_range_point="A range containg points fulfilling range and point concepts" \
+                         param_range_point="A range containing points fulfilling range and point concepts" \
                          param_x="First coordinate (usually x-coordinate)" \
                          param_y="Second coordinate (usually y-coordinate)" \
                          param_z="Third coordinate (usually z-coordinate)" \
@@ -103,7 +103,7 @@ ALIASES                = qbk{1}="\xmlonly <qbk>\1</qbk> \endxmlonly" \
                          details_calc2{1}="The free function \1 calculates the \1 of two geometries" \
                          details_free_function{3}="The free function [^\1] calculates the \2 \3 two geometries" \
                          details_check12{2}="The free function \1 checks if the first geometry \2 the second geometry" \
-                         details_macro{2}="The macro \1 registers a \2 such that it is recognized by Boost.Geometry and that Boost.Geometry functionality can used with the specified type." \
+                         details_macro{2}="The macro \1 registers a \2 such that it is recognized by Boost.Geometry and that Boost.Geometry functionality can be used with the specified type." \
                          details_macro_const="The const version registers only read access to the fields, the point type is therefore read-only." \
                          details_macro_getset="The get/set version registers get and set methods separately and can be used for classes with protected member variables and get/set methods to change coordinates." \
                          details_macro_templated{2}="The type must have one template parameter, which should be a \2 type, and should not be specified. Boost.Geometry takes care of inserting the template parameter. Hence all types of this templated \1 are registered, regardless of their point type." \

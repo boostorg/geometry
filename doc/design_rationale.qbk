@@ -188,7 +188,7 @@ Like the free get function, the library also contains a dimension meta-function.
 
 Below is explained why the extra declaration is useful. Now we have agnosticism in the number of
 dimensions. Our more generic distance function now accepts points of three or more dimensions.
-The compile-time assertion will prevent point a having two dimension and point b having
+The compile-time assertion will prevent point a having two dimensions and point b having
 three dimensions.
 
 [heading Coordinate Type]
@@ -422,7 +422,7 @@ The same applies for the meta-function dimension and for the upcoming meta-funct
 Until here we assumed a Cartesian system. But we know that the Earth is not flat.
 Calculating a distance between two GPS-points with the system above would result in nonsense.
 So we again extend our design. We define for each point type a coordinate system type
-using the traits system again. Then we make the calculation dependant on that coordinate system.
+using the traits system again. Then we make the calculation dependent on that coordinate system.
 
 Coordinate system is similar to coordinate type, a meta-function, calling a dispatch function
 to have it for any geometry-type, forwarding to its point specialization, and finally calling
@@ -575,7 +575,7 @@ that contains the squared value and is convertible to a double value. This, howe
 be done for `pythagoras`. The spherical distance functions do not take the square root so for them
 it is not necessary to avoid the expensive square root call; they can just return their distance.
 
-So the distance result struct is dependant on strategy, therefore made a member type of
+So the distance result struct is dependent on strategy, therefore made a member type of
 the strategy. The result struct looks like this:
 
     template<typename T = double>

@@ -20,7 +20,7 @@ library headers in their programs in order to be able to access definitions
 and algorithms provided by the __boost_geometry__ library. No linking against 
 any binaries is required. 
 
-__boost_geometry__ is only dependant on headers-only __boost__ libraries.
+__boost_geometry__ is only dependent on headers-only __boost__ libraries.
 It does not introduce indirect dependencies on any binary libraries.
 
 In order to be able to use __boost_geometry__, the only thing users need to do 
@@ -43,7 +43,7 @@ testing software, to configure, build and execute unit tests and example
 programs. The build configuration is provided as a collection of `Jamfile` 
 files.
 
-For gcc, flag [^-Wno-long-long] can be used to surpress some warnings 
+For gcc, flag [^-Wno-long-long] can be used to suppress some warnings 
 originating from Boost.
 
 [heading Includes]
@@ -58,7 +58,7 @@ recommended to include this file.
 
 Alternatively, it is possible to include __boost_geometry__ header files 
 separately. However, this may be inconvenient as header files might be renamed 
-or moved occasionaly in future.
+or moved occasionally in future.
 
 Another often used header is `geometries.hpp`:
 
@@ -86,7 +86,7 @@ to include.
 
 Users who have their own geometries and want to use algorithms from 
 __boost_geometry__ might include the files containing registration 
-macro's, like:
+macros, like:
 
     #include <boost/geometry/geometries/register/point.hpp>
 
@@ -101,7 +101,7 @@ performance:
   significantly faster code than use of the C++ standard library provided by __msvc__.
 * Turn on compiler optimizations, compile in release mode.
 
-[heading Problems with Intellisense]
+[heading Problems with IntelliSense]
 
 Both versions of __msvc__, 2005 and 2008 (including Express Editions) can hang 
 trying to resolve symbols and give [@http://en.wikipedia.org/wiki/IntelliSense 

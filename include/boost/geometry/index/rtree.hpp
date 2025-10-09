@@ -826,7 +826,7 @@ public:
     \warning
     This operation only guarantees that there will be no memory leaks.
     After an exception is thrown the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed. Other operations are allowed however
+    elements must not be inserted or removed. Other operations are allowed, however,
     some of them may return invalid data.
     */
     inline void insert(value_type const& value)
@@ -850,7 +850,7 @@ public:
     \warning
     This operation only guarantees that there will be no memory leaks.
     After an exception is thrown the R-tree may be left in an inconsistent state,
-    elements must not be inserted or removed. Other operations are allowed however
+    elements must not be inserted or removed. Other operations are allowed, however,
     some of them may return invalid data.
     */
     template <typename Iterator>

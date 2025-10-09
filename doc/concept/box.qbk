@@ -18,7 +18,7 @@
 A box is a geometry with (usually) two or three dimensions, having its axis aligned to the coordinate system. 
 
 The box is not one of the basic types in Boost.Geometry (point, linestring, polygon) but it is a ['helper type]. 
-The main reasons for the box existance are its usefulness for indexing (a spatial index, or splitting a geometry 
+The main reasons for the box existence are its usefulness for indexing (a spatial index, or splitting a geometry 
 into monotonic sections) and it is the output of the [link geometry.reference.algorithms.envelope envelope] algorithm.
 
 Therefore, a box is axis aligned (the envelope is also called aabb, axis aligned bounding box).

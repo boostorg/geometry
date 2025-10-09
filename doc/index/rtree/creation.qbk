@@ -139,7 +139,7 @@ The following code creates an __rtree__ using quadratic balancing algorithm.
  typedef std::pair<Box, int> __value__;
  index::rtree< __value__, index::quadratic<16> > rt;
 
-To insert or remove a `__value__' by method call one may use the following
+To insert or remove a `__value__` by method call one may use the following
 code.
 
  __value__ v = std::make_pair(__box__(...), 0);
@@ -148,7 +148,7 @@ code.
 
  rt.remove(v);
 
-To insert or remove a `__value__' by function call one may use the following
+To insert or remove a `__value__` by function call one may use the following
 code.
 
  __value__ v = std::make_pair(__box__(...), 0);

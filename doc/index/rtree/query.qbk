@@ -10,7 +10,7 @@
 
 [section Queries]
 
-Queries returns `__value__`s which meets some predicates. Currently supported are three types of predicates:
+Queries return `__value__`s which meet some predicates. Currently supported are three types of predicates:
 
 * spatial predicates - spatial conditions that must be met by stored Value and some Geometry,
 * distance predicates - distance conditions that must be met by stored Value and some Geometry,
@@ -25,7 +25,7 @@ For example queries may be used to retrieve Values:
 [h4 Performing a query]
 
 There are various ways to perform a query. They are presented below.
-All of them returns `__value__`s intersecting some region defined as a `__box__`.
+All of them return `__value__`s intersecting some region defined as a `__box__`.
 
 Member function call
 
@@ -59,7 +59,7 @@ Query iterators returned by free functions
 
 [h4 Spatial queries]
 
-Queries using spatial predicates returns `__value__`s which are related somehow to some Geometry - box, polygon, etc.
+Queries using spatial predicates return `__value__`s which are related somehow to some Geometry - box, polygon, etc.
 Names of spatial predicates correspond to names of __boost_geometry__ algorithms (boolean operations).
 Examples of some basic queries may be found in the tables below. The query region and result `Value`s are orange.
 
@@ -101,7 +101,7 @@ All spatial predicates may be negated, e.g.:
 
 [h4 Nearest neighbours queries]
 
-Nearest neighbours queries returns `__value__`s which are closest to some Geometry.
+Nearest neighbours queries return `__value__`s which are closest to some Geometry.
 The examples of k-NN queries are presented below. 5 `__value__`s nearest to the Geometry are orange.
 
 [table

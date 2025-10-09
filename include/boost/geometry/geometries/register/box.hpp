@@ -152,7 +152,7 @@ namespace boost { namespace geometry { namespace traits {  \
 \details \details_macro{BOOST_GEOMETRY_REGISTER_BOX_2D_4VALUES, box}
 \param Box \param_macro_type{Box}
 \param Point Point type reported as point_type by box. Must be two dimensional.
-    Note that these box tyeps do not contain points, but they must have a
+    Note that these box types do not contain points, but they must have a
     related point_type
 \param Left Left side (must be public member or method)
 \param Bottom Bottom side (must be public member or method)

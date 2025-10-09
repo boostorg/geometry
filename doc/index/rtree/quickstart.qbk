@@ -10,7 +10,7 @@
 
 [section:rtree_quickstart Quick Start]
 
-This Quick Start section shows simple way to creating a typical R-tree and perform
+This Quick Start section shows a simple way to create a typical R-tree and perform
 spatial query.
 
 The code below assumes that following files are included and namespaces used.
@@ -32,7 +32,7 @@ passed as template parameters. Maximum number of elements in nodes is set to 16.
 
 Typically `Value`s will be generated in a loop from e.g. `Polygon`s stored in some other container.
 In this case `Box` objects will probably be created with `geometry::envelope()` function.
-But to keep it simple lets just generate some boxes manually and insert them into the R-tree by
+But to keep it simple let's just generate some boxes manually and insert them into the R-tree by
 using `insert()` method.
 
 [rtree_quickstart_insert]

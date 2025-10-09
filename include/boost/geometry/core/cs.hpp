@@ -139,7 +139,7 @@ struct spherical
 \brief Spherical equatorial coordinate system, in degree or in radian
 \details This one resembles the geographic coordinate system, and has latitude
     up from zero at the equator, to 90 at the pole
-    (opposite to the spherical(polar) coordinate system).
+    (opposite to the spherical (polar) coordinate system).
     Used in astronomy and in GIS (but there is also the geographic)
 
 \see http://en.wikipedia.org/wiki/Spherical_coordinates

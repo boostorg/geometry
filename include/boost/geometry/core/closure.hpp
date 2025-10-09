@@ -55,7 +55,7 @@ enum closure_selector
     closed = 1,
     /// (Not yet implemented): algorithms first figure out if ring must be
     /// closed on the fly
-    closure_undertermined = -1
+    closure_undetermined = -1
 };
 
 namespace traits
