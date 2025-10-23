@@ -24,7 +24,6 @@ target_link_libraries(boost_geometry
     Boost::concept_check
     Boost::config
     Boost::core
-    Boost::crc
     Boost::function_types
     Boost::graph
     Boost::iterator
