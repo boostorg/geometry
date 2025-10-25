@@ -33,7 +33,6 @@ target_link_libraries(boost_geometry
     Boost::mpl
     Boost::multiprecision
     Boost::numeric_conversion
-    Boost::program_options
     Boost::qvm
     Boost::range
     Boost::rational
