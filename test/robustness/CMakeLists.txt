@@ -15,6 +15,12 @@ function(boost_geometry_add_robustness_test item)
     PRIVATE
       Boost::geometry)
 
+  # Link to additional libraries required for testing.
+  target_link_libraries(${robustness_test_name}
+    PRIVATE
+      Boost::crc
+      Boost::program_options)
+
   # Include the main Geometry test folder and the current folder,
   # and the robustness test folder
   target_include_directories(${robustness_test_name}

@@ -31,6 +31,12 @@ function(boost_geometry_add_unit_test prefix item)
     PRIVATE
       Boost::included_unit_test_framework)
 
+  # At least one unit test uses the crc library (but the Geometry library does not).
+  target_link_libraries(${unit_test_name}
+    PRIVATE
+      Boost::crc
+      Boost::program_options)
+
   # Include the main Geometry test folder and the current folder
   target_include_directories(${unit_test_name}
     PRIVATE
