@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_VARRAY_HPP
 
+#include <type_traits>
+
 // TODO - REMOVE/CHANGE
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/detail/workaround.hpp>
@@ -28,9 +30,6 @@
 // or boost/detail/iterator.hpp ?
 #include <boost/iterator/reverse_iterator.hpp>
 #include <boost/iterator/iterator_concepts.hpp>
-
-#include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/aligned_storage.hpp>
 
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -159,9 +158,9 @@ class varray
         typename vt::size_type, std::integral_constant<std::size_t, Capacity>
     );
 
-    typedef boost::aligned_storage<
+    typedef std::aligned_storage<
         sizeof(Value[Capacity]),
-        boost::alignment_of<Value[Capacity]>::value
+        std::alignment_of<Value[Capacity]>::value
     > aligned_storage_type;
 
     template <typename V, std::size_t C>
@@ -1031,7 +1030,7 @@ public:
             ++m_size; // update end
             sv::move_backward(position, this->end() - 2, this->end() - 1);          // may throw
 
-            aligned_storage<sizeof(value_type), alignment_of<value_type>::value> temp_storage;
+            std::aligned_storage<sizeof(value_type), std::alignment_of<value_type>::value> temp_storage;
             value_type* val_p = static_cast<value_type*>(temp_storage.address());
             sv::construct(dti(), val_p, std::forward<Args>(args)...);               // may throw
             sv::scoped_destructor<value_type> d(val_p);
@@ -1536,9 +1535,9 @@ private:
         namespace sv = varray_detail;
         for (; first_sm != last_sm ; ++first_sm, ++first_la)
         {
-            boost::aligned_storage<
+            std::aligned_storage<
                 sizeof(value_type),
-                boost::alignment_of<value_type>::value
+                std::alignment_of<value_type>::value
             > temp_storage;
             value_type* temp_ptr = reinterpret_cast<value_type*>(temp_storage.address());
 
@@ -1729,12 +1728,12 @@ private:
 
     pointer ptr()
     {
-        return pointer(static_cast<Value*>(m_storage.address()));
+        return pointer(static_cast<void*>(&m_storage));
     }
 
     const_pointer ptr() const
     {
-        return const_pointer(static_cast<const Value*>(m_storage.address()));
+        return const_pointer(static_cast<const void*>(&m_storage));
     }
 
     size_type m_size;
