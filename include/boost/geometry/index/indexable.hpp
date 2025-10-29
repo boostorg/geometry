@@ -27,7 +27,7 @@ namespace boost { namespace geometry { namespace index { namespace detail
 {
 
 template <typename From, typename To>
-struct is_referencable
+struct is_referenceable
     : std::is_same
         <
             typename util::remove_cref<From>::type,
@@ -126,7 +126,7 @@ struct indexable<std::pair<Indexable, Second>, false>
     inline result_type operator()(std::pair<I, S> const& v) const
     {
         BOOST_GEOMETRY_STATIC_ASSERT(
-            (is_referencable<I, result_type>::value),
+            (is_referenceable<I, result_type>::value),
             "Unexpected type.",
             std::pair<I, S>);
         return v.first;
@@ -186,7 +186,7 @@ struct indexable_boost_tuple
     inline result_type operator()(boost::tuple<I, U1, U2, U3, U4, U5, U6, U7, U8, U9> const& v) const
     {
         BOOST_GEOMETRY_STATIC_ASSERT(
-            (is_referencable<I, result_type>::value),
+            (is_referenceable<I, result_type>::value),
             "Unexpected type.",
             boost::tuple<I, U1, U2, U3, U4, U5, U6, U7, U8, U9>);
         return boost::get<0>(v);
@@ -202,7 +202,7 @@ struct indexable_boost_tuple
     inline result_type operator()(boost::tuples::cons<I, T> const& v) const
     {
         BOOST_GEOMETRY_STATIC_ASSERT(
-            (is_referencable<I, result_type>::value),
+            (is_referenceable<I, result_type>::value),
             "Unexpected type.",
             boost::tuples::cons<I, T>);
         return boost::get<0>(v);
@@ -297,7 +297,7 @@ struct indexable<std::tuple<Indexable, Args...>, false>
     inline result_type operator()(std::tuple<I, A...> const& v) const
     {
         BOOST_GEOMETRY_STATIC_ASSERT(
-            (is_referencable<I, result_type>::value),
+            (is_referenceable<I, result_type>::value),
             "Unexpected type.",
             std::tuple<I, A...>);
         return std::get<0>(v);
@@ -347,7 +347,7 @@ struct indexable
 
     /*!
     \brief Return indexable extracted from the value. Overload for types
-           compatible with Value but different yet holding referencable
+           compatible with Value but different yet holding referenceable
            Indexable, e.g. tuple containing a reference.
 
     \param v The value.

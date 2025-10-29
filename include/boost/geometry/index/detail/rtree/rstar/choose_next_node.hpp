@@ -101,7 +101,7 @@ private:
 
         content_type min_content_diff = (std::numeric_limits<content_type>::max)();
         content_type min_content = (std::numeric_limits<content_type>::max)();
-        size_t choosen_index = 0;
+        size_t chosen_index = 0;
 
         // create container of children sorted by content enlargement needed to include the new value
         typename rtree::container_from_elements_type<children_type, child_contents>::type
@@ -126,13 +126,13 @@ private:
             {
                 min_content_diff = content_diff;
                 min_content = content;
-                choosen_index = i;
+                chosen_index = i;
             }
         }
 
         // is this assumption ok? if min_content_diff == 0 there is no overlap increase?
 
-        if ( min_content_diff < -std::numeric_limits<double>::epsilon() || std::numeric_limits<double>::epsilon() < min_content_diff )
+        if ( min_content_diff < -std::numeric_limits<content_type>::epsilon() || std::numeric_limits<content_type>::epsilon() < min_content_diff )
         {
             size_t first_n_children_count = children_count;
             if ( 0 < overlap_cost_threshold && overlap_cost_threshold < children.size() )
@@ -144,14 +144,14 @@ private:
             }
 
             // calculate minimum or nearly minimum overlap cost
-            choosen_index = choose_by_minimum_overlap_cost_first_n(children, indexable,
+            chosen_index = choose_by_minimum_overlap_cost_first_n(children, indexable,
                                                                    first_n_children_count,
                                                                    children_count,
                                                                    children_contents,
                                                                    strategy);
         }
 
-        return choosen_index;
+        return chosen_index;
     }
 
     static inline bool content_diff_less(child_contents const& p1, child_contents const& p2)
@@ -172,7 +172,7 @@ private:
         BOOST_GEOMETRY_INDEX_ASSERT(children_contents.size() == children_count, "unexpected number of elements");
 
         // choose index with smallest overlap change value, or content change or smallest content
-        size_t choosen_index = 0;
+        size_t chosen_index = 0;
         content_type smallest_overlap_diff = (std::numeric_limits<content_type>::max)();
         content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
         content_type smallest_content = (std::numeric_limits<content_type>::max)();
@@ -216,11 +216,11 @@ private:
                 smallest_overlap_diff = overlap_diff;
                 smallest_content_diff = content_diff;
                 smallest_content = content;
-                choosen_index = i;
+                chosen_index = i;
             }
         }
 
-        return choosen_index;
+        return chosen_index;
     }
 
     template <typename Indexable, typename Strategy>
@@ -231,7 +231,7 @@ private:
         size_t children_count = children.size();
 
         // choose index with smallest content change or smallest content
-        size_t choosen_index = 0;
+        size_t chosen_index = 0;
         content_type smallest_content_diff = (std::numeric_limits<content_type>::max)();
         content_type smallest_content = (std::numeric_limits<content_type>::max)();
 
@@ -254,11 +254,11 @@ private:
             {
                 smallest_content_diff = content_diff;
                 smallest_content = content;
-                choosen_index = i;
+                chosen_index = i;
             }
         }
 
-        return choosen_index;
+        return chosen_index;
     }
 };
 

@@ -73,7 +73,7 @@ namespace model
 \brief Basic point class, having coordinates defined in a neutral way
 \details Defines a neutral point class, fulfilling the Point Concept.
     Library users can use this point class, or use their own point classes.
-    This point class is used in most of the samples and tests of Boost.Geometry
+    This point class is used in most of the samples and tests of Boost.Geometry.
     This point class is used occasionally within the library, where a temporary
     point class is necessary.
 \ingroup geometries

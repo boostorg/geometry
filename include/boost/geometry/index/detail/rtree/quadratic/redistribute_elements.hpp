@@ -220,7 +220,7 @@ struct redistribute_elements<MembersHolder, quadratic_tag>
                     }
                 }
 
-                // move element to the choosen group
+                // move element to the chosen group
                 element_type const& elem = *el_it;
                 indexable_type const& indexable = rtree::element_indexable(elem, translator);
 

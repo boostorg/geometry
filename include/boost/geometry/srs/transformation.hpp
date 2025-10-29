@@ -140,12 +140,8 @@ struct transform_geometry_range_base
         // Out - either Geometry or std::vector
         // So the order and closure of In and Geometry shoudl be compared
         // std::vector's order is assumed to be the same as of Geometry
-        geometry::detail::conversion::range_to_range
-            <
-                In,
-                Out,
-                geometry::point_order<In>::value != geometry::point_order<Out>::value
-            >::apply(in, out, convert_strategy(enable_angles));
+        geometry::detail::conversion::range_to_range::apply(in, out,
+            convert_strategy(enable_angles));
     }
 };
 

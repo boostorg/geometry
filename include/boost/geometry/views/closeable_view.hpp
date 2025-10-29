@@ -93,7 +93,7 @@ struct closed_view<Range, open>
     The closeable_view might be used by library users, but its main purpose is
     internally.
 \tparam Range Original range
-\tparam Close Specifies if it the range is closed, if so, nothing will happen.
+\tparam Close Specifies if the range is closed, if so, nothing will happen.
     If it is open, it will iterate the first point after the last point.
 \ingroup views
 */

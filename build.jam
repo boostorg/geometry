@@ -20,6 +20,7 @@ constant boost_dependencies :
     /boost/endian//boost_endian
     /boost/function_types//boost_function_types
     /boost/fusion//boost_fusion
+    /boost/graph//boost_graph
     /boost/integer//boost_integer
     /boost/iterator//boost_iterator
     /boost/lexical_cast//boost_lexical_cast

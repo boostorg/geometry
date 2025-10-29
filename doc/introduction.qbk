@@ -38,7 +38,7 @@ The library follows existing conventions:
 * conventions from boost
 * conventions from the std library
 * conventions and names from one of the __ogc__ standards on geometry and, more
-    specificly, from the __ogc_sf__
+    specifically, from the __ogc_sf__
 
 The library was first released with Boost 1.47.0 and from that point on it is 
 officially part of the Boost C++ Libraries.

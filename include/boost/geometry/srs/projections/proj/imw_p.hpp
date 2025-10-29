@@ -183,7 +183,7 @@ namespace projections
                     point_xy<T> t;
                     T yc = 0.0;
                     int i = 0;
-                    const int n_max_iter = 1000; /* Arbitrarily choosen number... */
+                    const int n_max_iter = 1000; /* Arbitrarily chosen number... */
 
                     lp_lat = this->m_proj_parm.phi_2;
                     lp_lon = xy_x / cos(lp_lat);

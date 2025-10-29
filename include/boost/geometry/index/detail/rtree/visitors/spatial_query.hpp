@@ -158,7 +158,7 @@ public:
 
     const_reference dereference() const
     {
-        BOOST_GEOMETRY_INDEX_ASSERT(m_values, "not dereferencable");
+        BOOST_GEOMETRY_INDEX_ASSERT(m_values, "not dereferenceable");
         return *m_current;
     }
 
@@ -208,7 +208,7 @@ private:
         namespace id = index::detail;
         for (;;)
         {
-            // if leaf is choosen, move to the next value in leaf
+            // if leaf is chosen, move to the next value in leaf
             if ( m_values )
             {
                 if ( m_current != m_values->end() )
@@ -228,7 +228,7 @@ private:
                     m_values = 0;
                 }
             }
-            // if leaf isn't choosen, move to the next leaf
+            // if leaf isn't chosen, move to the next leaf
             else
             {
                 // return if there is no more nodes to traverse

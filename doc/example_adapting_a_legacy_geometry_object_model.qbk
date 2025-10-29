@@ -4,7 +4,7 @@ One of the primary benefits of __boost_geometry__, and the reason for its fairly
 
 By defining the relationship between the __boost_geometry__ concepts and an existing, legacy object model, the legacy objects can be used in place of __boost_geometry__'s own geometry classes.
 
-__boost_geometry__ will then happliy read and write directly from and to the legacy object, treating it as a native __boost_geometry__ object.
+__boost_geometry__ will then happily read and write directly from and to the legacy object, treating it as a native __boost_geometry__ object.
 
 This means that one can adapt algorithms and methods from __boost_geometry__ to any existing legacy geometry object model at a very small runtime cost, which is simply not possible with most geometry libraries, where one has to make an intermediate object specific to the geometry library one is using.
 
@@ -12,7 +12,7 @@ The following example will demonstrate the adaption process of a legacy geometry
 
 [h2 Adapting a shared geometry legacy object model]
 
-[h3 Example code: object hierarcy]
+[h3 Example code: object hierarchy]
     
     class QPoint 
     {
@@ -42,7 +42,7 @@ The following example will demonstrate the adaption process of a legacy geometry
             std::vector<QRing*> interiors;
     };
 
-The legacy object hierarcy is based on topology (e.g. two QRings might share one QLineString) instead of points directly (i.e. each object does not point directly to it's QPoints), and it also uses pointers for access.
+The legacy object hierarchy is based on topology (e.g. two QRings might share one QLineString) instead of points directly (i.e. each object does not point directly to its QPoints), and it also uses pointers for access.
 
 This is the other common way to approach geometries, to enable e.g. shared boundaries between surfaces. __boost_geometry__'s approach use simple features, and does not have shared geometries.
 
@@ -77,7 +77,7 @@ The [link adaption_of_qring_source_code adaption of the QRing] is mostly equal t
 
 However, the QRing expose pointers-to-QLineStrings, and not QPoints directly, which is [link geometry.reference.concepts.concept_ring required in the Ring concept], so it is not enough to trivially make the std::vector into a __boost_range__. We need to create a Boost.Iterator that expose QPoints, and because we are dealing with a legacy object model, we are not allowed to change the class definition.
 
-The [link adaption_of_qring_iterator_source_code custom iterator that does this] uses Boost.Iterator Facade, and is not very different from the [@http://www.boost.org/doc/libs/1_53_0/libs/iterator/doc/iterator_facade.html example provided in Boost.Iterator's own documentation](link), except that our __boost_range__ need to be random access.
+The [link adaption_of_qring_iterator_source_code custom iterator that does this] uses Boost.Iterator Facade, and is not very different from the [@http://www.boost.org/doc/libs/1_53_0/libs/iterator/doc/iterator_facade.html example provided in Boost.Iterator's own documentation] (link), except that our __boost_range__ need to be random access.
 
 Now, with the custom iterator made, we can [link adaption_of_qring_range_source_code define the __boost_range__] that traverses through QPoints.
 

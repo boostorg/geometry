@@ -63,7 +63,7 @@
 [include reference/geometries/adapted/boost_range/strided.qbk]
 [/ include reference/geometries/adapted/boost_range/uniqued.qbk]
 [endsect]
-[section:register Macro's for adaption]
+[section:register Macros for adaption]
 [include generated/register.qbk]
 [endsect]
 [endsect]
