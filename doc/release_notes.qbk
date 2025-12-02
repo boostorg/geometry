@@ -20,6 +20,25 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.90]
+[/=================]
+
+[*Major improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1409 1409] Implement is_valid algorithm for polyhedral surfaces
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1413 1413] Add supported combinations for convert
+* [@https://github.com/boostorg/geometry/pull/1417 1417] Improved documentation
+* [@https://github.com/boostorg/geometry/pull/1423 1423] Avoid stack overflow in traverse
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1006 1006] bg::projections::detail::epsg_to_parameters causes excessive compile times
+* Various fixes of errors and warnings
+
+[/=================]
 [heading Boost 1.89]
 [/=================]
 
