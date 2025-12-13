@@ -18,6 +18,17 @@ The 5 strategies give the user control to the generated buffer
 * distance can be symmetric or asymmetric, and positive or negative
 * around points the shape can be circular or square
 * the sides can be controlled (currently there is only one option provided)
+[NOTE]
+The buffer algorithm expects polygons to be counter-clockwise. 
+If your polygon is clockwise, you may need to reverse the vertex order:
+
+[source,c++]
+----
+boost::geometry::reverse(poly);
+----
+
+For more details, see the Polygon Concept:
+[link geometry.reference.concepts.concept_polygon.html Polygon Concept].
 
 By specifying a negative distance for the distance_strategy, for the (multi) polygon case, the polygon will be smaller (also known as deflate). The distance cannot be 0.
 
