@@ -409,6 +409,12 @@ void test_areal()
 //        "Polygon((0 0,0 4,4 4,4 0,0 0))",
 //        "Polygon((2 -2,2 -1,2 6,2 -2))",
 //        5, 22, 1.1901714);
+
+    #ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    test_one<Polygon, Polygon>("case_1439", case_1439, 0.0); // existing failing test
+    TEST_INTERSECTION(non_overlapping_polygon_case, 0, 0, 0.0);
+    #endif
+
 }
 
 template <typename Polygon, typename Box>
