@@ -368,6 +368,13 @@ void test_all()
 
     // TEST_DIFFERENCE_B(issue_893_multi, 97213916.0, 1, 1); // needs is_traverse
 
+    
+    #ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+    // Issue 1439
+// Regression test: intersection of non-overlapping polygons should be empty.
+   TEST_INTERSECTION(case_1439, 0, 0, 0.0);
+   #endif
+
 
     TEST_UNION(case_134_multi, 66.0, 1, 2);
     TEST_UNION(case_76_multi, 8.0, 5, 0);
