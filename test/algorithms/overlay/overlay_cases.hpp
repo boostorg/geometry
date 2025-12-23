@@ -1653,8 +1653,7 @@ static std::string mysql_23023665_13[2] =
     "POLYGON((0 7,-5 6,11 -13,0 7))"
 };
 
-// Issue 1439: non-overlapping polygons reported as full intersection
-static std::string case_1439[2] =
+static std::string issue_1439[2] =
 {
     "POLYGON((-2.47089026 -86.03059246,"
     "-1.161944873 146.3030596,"
