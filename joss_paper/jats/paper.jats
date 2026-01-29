@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v1.2 20190208//EN"
+                  "JATS-publishing1.dtd">
+<article xmlns:mml="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink" dtd-version="1.2" article-type="other">
+<front>
+<journal-meta>
+<journal-id></journal-id>
+<journal-title-group>
+<journal-title>Journal of Open Source Software</journal-title>
+<abbrev-journal-title>JOSS</abbrev-journal-title>
+</journal-title-group>
+<issn publication-format="electronic">2475-9066</issn>
+<publisher>
+<publisher-name>Open Journals</publisher-name>
+</publisher>
+</journal-meta>
+<article-meta>
+<article-id pub-id-type="publisher-id">0</article-id>
+<article-id pub-id-type="doi">N/A</article-id>
+<title-group>
+<article-title>Boost.Geometry: A Generic C++ Geometry
+Library</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author">
+<name>
+<surname>Gehrels</surname>
+<given-names>Barend</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Lalande</surname>
+<given-names>Bruno</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Łoskot</surname>
+<given-names>Mateusz</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Wulkiewicz</surname>
+<given-names>Adam</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Karavelas</surname>
+<given-names>Menelaos</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-0780-666X</contrib-id>
+<name>
+<surname>Fisikopoulos</surname>
+<given-names>Vissarion</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+<aff id="aff-1">
+<institution-wrap>
+<institution>Boost C++ Libraries</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-2">
+<institution-wrap>
+<institution>National Technical University of Athens</institution>
+</institution-wrap>
+</aff>
+</contrib-group>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2025-12-04">
+<day>4</day>
+<month>12</month>
+<year>2025</year>
+</pub-date>
+<volume>¿VOL?</volume>
+<issue>¿ISSUE?</issue>
+<fpage>¿PAGE?</fpage>
+<permissions>
+<copyright-statement>Authors of papers retain copyright and release the
+work under a Creative Commons Attribution 4.0 International License (CC
+BY 4.0)</copyright-statement>
+<copyright-year>1970</copyright-year>
+<copyright-holder>The article authors</copyright-holder>
+<license license-type="open-access" xlink:href="https://creativecommons.org/licenses/by/4.0/">
+<license-p>Authors of papers retain copyright and release the work under
+a Creative Commons Attribution 4.0 International License (CC BY
+4.0)</license-p>
+</license>
+</permissions>
+<kwd-group kwd-group-type="author">
+<kwd>C++</kwd>
+<kwd>computational geometry</kwd>
+<kwd>GIS</kwd>
+<kwd>geodesy</kwd>
+<kwd>spatial indexing</kwd>
+<kwd>robotics</kwd>
+<kwd>generic programming</kwd>
+</kwd-group>
+</article-meta>
+</front>
+<body>
+<sec id="summary">
+  <title>Summary</title>
+  <p>Computational geometry underpins numerous scientific and
+  engineering domains, including GIS, robotics, computer graphics, and
+  CAD. Foundational algorithms such as convex hulls, intersection tests,
+  and point-in-polygon queries are covered in standard texts
+  (<xref alt="Berg et al., 2008" rid="ref-deBergU003A2008" ref-type="bibr">Berg
+  et al., 2008</xref>), but robust and efficient implementations are
+  crucial for real-world applications where numerical robustness and
+  performance matter.</p>
+  <p><bold>Boost.Geometry</bold> is an open-source C++ library providing
+  generic, extensible, and standards-aligned geometric computation. It
+  defines geometry <italic>concepts</italic> and implements algorithms
+  in a dimension- and coordinate-system–agnostic manner. Since its
+  inclusion in Boost (2011), it has become a widely used component in
+  C++ scientific and industrial software. For example, MySQL uses
+  Boost.Geometry as the geometry engine for spatial operations
+  (<xref alt="Zhao, 2014" rid="ref-MySQLGISU003A2014" ref-type="bibr">Zhao,
+  2014</xref>).</p>
+</sec>
+<sec id="statement-of-need">
+  <title>Statement of Need</title>
+  <p>Boost.Geometry fulfills the need for a general-purpose,
+  high-performance geometry engine in C++ with:</p>
+  <list list-type="bullet">
+    <list-item>
+      <p>A generic programming architecture via concepts, type traits,
+      and template metaprogramming</p>
+    </list-item>
+    <list-item>
+      <p>Support for Cartesian, spherical, and geographic coordinate
+      systems</p>
+    </list-item>
+    <list-item>
+      <p>Strategy-based dispatch enabling coordinate-system-specific
+      algorithms</p>
+    </list-item>
+    <list-item>
+      <p>OGC-compliant geometry types and spatial predicates
+      (<xref alt="Herring, 2011" rid="ref-OGCU003A2011" ref-type="bibr">Herring,
+      2011</xref>)</p>
+    </list-item>
+    <list-item>
+      <p>Header-only distribution, simplifying deployment and
+      integration</p>
+    </list-item>
+  </list>
+  <p>A similar library is GEOS
+  (<xref alt="GEOS contributors, 2025" rid="ref-GEOSU003A2025" ref-type="bibr">GEOS
+  contributors, 2025</xref>), a C++ port of the Java Topology Suite
+  (JTS) that implements the OGC Simple Features standard for GIS
+  applications and serves as the core geometry engine for major
+  geospatial tools like PostGIS
+  (<xref alt="PostGIS Contributors, 2025" rid="ref-PostGISU003A2025" ref-type="bibr">PostGIS
+  Contributors, 2025</xref>).</p>
+  <p>CGAL
+  (<xref alt="Fabri et al., 2000" rid="ref-FabriU003A2000" ref-type="bibr">Fabri
+  et al., 2000</xref>) is a comprehensive C++ library covering a broader
+  range of geometric algorithms (triangulations, Voronoi diagrams, mesh
+  generation, geometry processing) with a strong emphasis on robustness
+  via exact geometric predicates.</p>
+  <p>Coordinate transformations and CRS handling are commonly performed
+  using PROJ
+  (<xref alt="PROJ Contributors, 2024" rid="ref-PROJU003A2024" ref-type="bibr">PROJ
+  Contributors, 2024</xref>), which users integrate alongside geometry
+  libraries for projections and datum transformations. For spatial
+  indexing, specialized libraries such as libspatialindex
+  (<xref alt="L. Contributors, 2024" rid="ref-libspatialindexU003A2024" ref-type="bibr">L.
+  Contributors, 2024</xref>) are frequently used; Boost.Geometry
+  provides a header-only R-tree as a lightweight alternative.</p>
+  <p>GeographicLib
+  (<xref alt="Karney &amp; Contributors, 2013" rid="ref-GeographicLibU003A2013" ref-type="bibr">Karney
+  &amp; Contributors, 2013</xref>) and Karney’s work on geodesics
+  (<xref alt="Karney, 2013" rid="ref-KarneyU003A2013" ref-type="bibr">Karney,
+  2013</xref>) provide state-of-the-art algorithms for ellipsoidal
+  geodesic problems.</p>
+</sec>
+<sec id="design-and-features">
+  <title>Design and Features</title>
+  <p>Boost.Geometry provides:</p>
+  <list list-type="bullet">
+    <list-item>
+      <p><bold>Geometry models:</bold> points, boxes, rings, polygons,
+      multi-geometries</p>
+    </list-item>
+    <list-item>
+      <p><bold>Algorithms:</bold> area, distance, length, centroid,
+      convex hull, within, intersects, union, intersection, simplify,
+      buffer, transformations and projections</p>
+    </list-item>
+    <list-item>
+      <p><bold>Spatial indexing:</bold> R-tree implementation supporting
+      spatial and nearest-neighbor queries</p>
+    </list-item>
+  </list>
+  <p>Boost.Geometry is a generic, header-only C++ library built around
+  stateless free functions plus template-based dispatch via concepts,
+  traits, and geometry tags, so users can adapt their own geometry types
+  to the Boost.Geometry interfaces (e.g., via registration macros)
+  without changing their data structures.</p>
+  <p>Algorithms are structured as coordinate-system-agnostic core logic
+  combined with coordinate-system-specific strategies selected from the
+  input geometry’s declared coordinate-system tag (e.g., Cartesian
+  vs. spherical vs. geographic). In this model, spherical computations
+  treat Earth as a sphere (great-circle style calculations), while
+  geographic computations use an ellipsoidal Earth model with more
+  accurate geodetic calculations. Boost.Geometry provides a range of
+  geographic strategies that trade accuracy for speed: fast, efficient
+  formulas for common use cases, and more accurate series-expansion
+  methods based on Karney’s geodesic algorithms
+  (<xref alt="Fisikopoulos, 2019" rid="ref-isprs-archives-XLII-4-W14-45-2019" ref-type="bibr">Fisikopoulos,
+  2019</xref>;
+  <xref alt="Karney, 2013" rid="ref-KarneyU003A2013" ref-type="bibr">Karney,
+  2013</xref>). Numerical robustness can cause failures in standard GIS
+  algorithms
+  (<xref alt="Bartels &amp; Fisikopoulos, 2021" rid="ref-isprs-archives-XLVI-4-W2-2021-1-2021" ref-type="bibr">Bartels
+  &amp; Fisikopoulos, 2021</xref>;
+  <xref alt="Kettner et al., 2004" rid="ref-kettner2004classroom" ref-type="bibr">Kettner
+  et al., 2004</xref>); Boost.Geometry mitigates these problems using
+  filtered predicates that perform fast approximate tests and fall back
+  to slower, exact evaluations when needed to ensure correct topology
+  and predicate results.</p>
+  <p>The source code is distributed under the Boost Software License.
+  Detailed documentation and reference material are available on the
+  Boost website
+  (<xref alt="Gehrels et al., 2024" rid="ref-BoostGeomDocs" ref-type="bibr">Gehrels
+  et al., 2024</xref>). A set of resources ranging from contributors
+  guidelines and documentation generation to talks and videos about
+  Boost Geometry is available in
+  <ext-link ext-link-type="uri" xlink:href="https://github.com/boostorg/geometry/wiki">a
+  wiki page</ext-link>. The repository’s <monospace>test/</monospace>
+  and <monospace>example/</monospace> directories contain unit and
+  regression tests and usage examples demonstrating API usage and
+  performance tests. Continuous integration on the Boost project
+  provides broad platform and compiler coverage; Boost.Geometry also
+  runs project-specific CI on GitHub Actions and CircleCI.</p>
+</sec>
+</body>
+<back>
+<ref-list>
+  <title></title>
+  <ref id="ref-deBergU003A2008">
+    <element-citation publication-type="book">
+      <person-group person-group-type="author">
+        <name><surname>Berg</surname><given-names>Mark de</given-names></name>
+        <name><surname>Cheong</surname><given-names>Otfried</given-names></name>
+        <name><surname>Kreveld</surname><given-names>Marc van</given-names></name>
+        <name><surname>Overmars</surname><given-names>Mark</given-names></name>
+      </person-group>
+      <source>Computational geometry: Algorithms and applications</source>
+      <publisher-name>Springer</publisher-name>
+      <year iso-8601-date="2008">2008</year>
+      <edition>3rd</edition>
+    </element-citation>
+  </ref>
+  <ref id="ref-BoostGeomDocs">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Gehrels</surname><given-names>Barend</given-names></name>
+        <name><surname>Lalande</surname><given-names>Bruno</given-names></name>
+        <name><surname>Łoskot</surname><given-names>Mateusz</given-names></name>
+        <name><surname>Wulkiewicz</surname><given-names>Adam</given-names></name>
+        <name><surname>others</surname></name>
+      </person-group>
+      <article-title>Boost.geometry documentation</article-title>
+      <year iso-8601-date="2024">2024</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-27">2026</year><month>01</month><day>27</day></date-in-citation>
+      <uri>https://www.boost.org/libs/geometry/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-OGCU003A2011">
+    <element-citation publication-type="report">
+      <person-group person-group-type="author">
+        <name><surname>Herring</surname><given-names>John</given-names></name>
+      </person-group>
+      <article-title>OpenGIS implementation standard for geographic information – simple feature access – part 1: Common architecture</article-title>
+      <publisher-name>Open Geospatial Consortium</publisher-name>
+      <year iso-8601-date="2011">2011</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
+      <uri>https://www.ogc.org/standards/sfa</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-FabriU003A2000">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Fabri</surname><given-names>Andreas</given-names></name>
+        <name><surname>Giezeman</surname><given-names>Gert-Jan</given-names></name>
+        <name><surname>Kettner</surname><given-names>Lutz</given-names></name>
+        <name><surname>Schirra</surname><given-names>Stefan</given-names></name>
+        <name><surname>Sch&quot;onherr</surname><given-names>Sven</given-names></name>
+      </person-group>
+      <article-title>On the design of CGAL, a computational geometry algorithms library</article-title>
+      <source>Software: Practice and Experience</source>
+      <year iso-8601-date="2000">2000</year>
+      <volume>30</volume>
+      <issue>11</issue>
+      <fpage>1167</fpage>
+      <lpage>1202</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-GEOSU003A2025">
+    <element-citation>
+      <person-group person-group-type="author">
+        <string-name>GEOS contributors</string-name>
+      </person-group>
+      <article-title>GEOS computational geometry library</article-title>
+      <publisher-name>Open Source Geospatial Foundation</publisher-name>
+      <year iso-8601-date="2025">2025</year>
+      <uri>https://libgeos.org/</uri>
+      <pub-id pub-id-type="doi">10.5281/zenodo.11396894</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-KarneyU003A2013">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Karney</surname><given-names>Charles F. F.</given-names></name>
+      </person-group>
+      <article-title>Algorithms for geodesics</article-title>
+      <source>Journal of Geodesy</source>
+      <publisher-name>Springer</publisher-name>
+      <year iso-8601-date="2013">2013</year>
+      <volume>87</volume>
+      <issue>1</issue>
+      <pub-id pub-id-type="doi">10.1007/s00190-012-0578-z</pub-id>
+      <fpage>43</fpage>
+      <lpage>55</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-MySQLGISU003A2014">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Zhao</surname><given-names>Jun</given-names></name>
+      </person-group>
+      <article-title>MySQL 5.7 GIS enhancements</article-title>
+      <year iso-8601-date="2014">2014</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-27">2026</year><month>01</month><day>27</day></date-in-citation>
+      <uri>https://blogs.oracle.com/mysql/post/mysql-57-gis-enhancements</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-PROJU003A2024">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Contributors</surname><given-names>PROJ</given-names></name>
+      </person-group>
+      <article-title>PROJ - cartographic projections and coordinate transformations library</article-title>
+      <year iso-8601-date="2024">2024</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
+      <uri>https://proj.org/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-PostGISU003A2025">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Contributors</surname><given-names>PostGIS</given-names></name>
+      </person-group>
+      <article-title>PostGIS - spatial and geographic objects for PostgreSQL</article-title>
+      <year iso-8601-date="2025">2025</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
+      <uri>https://postgis.net/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-GeographicLibU003A2013">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Karney</surname><given-names>Charles F. F.</given-names></name>
+        <name><surname>Contributors</surname><given-names>GeographicLib</given-names></name>
+      </person-group>
+      <article-title>GeographicLib</article-title>
+      <year iso-8601-date="2013">2013</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
+      <uri>https://geographiclib.sourceforge.io/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-libspatialindexU003A2024">
+    <element-citation>
+      <person-group person-group-type="author">
+        <name><surname>Contributors</surname><given-names>Libspatialindex</given-names></name>
+      </person-group>
+      <article-title>Libspatialindex - r-tree spatial index library</article-title>
+      <year iso-8601-date="2024">2024</year>
+      <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
+      <uri>https://libspatialindex.org/</uri>
+    </element-citation>
+  </ref>
+  <ref id="ref-isprs-archives-XLII-4-W14-45-2019">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Fisikopoulos</surname><given-names>V.</given-names></name>
+      </person-group>
+      <article-title>Geodesic algorithms: An experimental study</article-title>
+      <source>The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences</source>
+      <year iso-8601-date="2019">2019</year>
+      <volume>XLII-4/W14</volume>
+      <uri>https://isprs-archives.copernicus.org/articles/XLII-4-W14/45/2019/</uri>
+      <pub-id pub-id-type="doi">10.5194/isprs-archives-XLII-4-W14-45-2019</pub-id>
+      <fpage>45</fpage>
+      <lpage>47</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-isprs-archives-XLVI-4-W2-2021-1-2021">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Bartels</surname><given-names>T.</given-names></name>
+        <name><surname>Fisikopoulos</surname><given-names>V.</given-names></name>
+      </person-group>
+      <article-title>FAST ROBUST ARITHMETICS FOR GEOMETRIC ALGORITHMS AND APPLICATIONS TO GIS</article-title>
+      <source>The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences</source>
+      <year iso-8601-date="2021">2021</year>
+      <volume>XLVI-4/W2-2021</volume>
+      <uri>https://isprs-archives.copernicus.org/articles/XLVI-4-W2-2021/1/2021/</uri>
+      <pub-id pub-id-type="doi">10.5194/isprs-archives-XLVI-4-W2-2021-1-2021</pub-id>
+      <fpage>1</fpage>
+      <lpage>8</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-kettner2004classroom">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Kettner</surname><given-names>Lutz</given-names></name>
+        <name><surname>Mehlhorn</surname><given-names>Kurt</given-names></name>
+        <name><surname>Pion</surname><given-names>Sylvain</given-names></name>
+        <name><surname>Schirra</surname><given-names>Stefan</given-names></name>
+        <name><surname>Yap</surname><given-names>Chee</given-names></name>
+      </person-group>
+      <article-title>Classroom examples of robustness problems in geometric computations</article-title>
+      <source>Algorithms–ESA 2004: 12th annual european symposium, bergen, norway, september 14-17, 2004. Proceedings 12</source>
+      <publisher-name>Springer</publisher-name>
+      <year iso-8601-date="2004">2004</year>
+      <fpage>702</fpage>
+      <lpage>713</lpage>
+    </element-citation>
+  </ref>
+</ref-list>
+</back>
+</article>
