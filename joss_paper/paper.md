@@ -45,7 +45,7 @@ bibliography: paper.bib
 
 Computational geometry underpins numerous scientific and engineering domains, including GIS, robotics, computer graphics, and CAD. Foundational algorithms such as convex hulls, intersection tests, and point-in-polygon queries are covered in standard texts [@deBerg:2008], but robust and efficient implementations are crucial for real-world applications where numerical robustness and performance matter.
 
-**Boost.Geometry** is an open-source C++ library providing generic, extensible, and standards-aligned geometric computation. It defines geometry *concepts* and implements algorithms in a dimension- and coordinate-system–agnostic manner. Since its inclusion in Boost (2011), it has become a widely used component in C++ scientific and industrial software. For example, MySQL uses Boost.Geometry as the geometry engine for spatial operations [@MySQLGIS:2014].
+**Boost.Geometry** is an open-source C++ library providing generic, extensible, and standards-aligned geometric computation. It defines geometry *concepts* and implements algorithms in a dimension- and coordinate-system-agnostic manner. Since its inclusion in Boost (2011), it has become a widely used component in C++ scientific and industrial software. For example, MySQL uses Boost.Geometry as the geometry engine for spatial operations [@MySQLGIS:2014].
 
 
 # Statement of Need
