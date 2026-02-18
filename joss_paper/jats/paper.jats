@@ -23,9 +23,32 @@ Library</article-title>
 </title-group>
 <contrib-group>
 <contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-0084-7100</contrib-id>
+<name>
+<surname>Bartels</surname>
+<given-names>Tinko Sebastian</given-names>
+</name>
+<xref ref-type="aff" rid="aff-3"/>
+</contrib>
+<contrib contrib-type="author">
+<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-0780-666X</contrib-id>
+<name>
+<surname>Fisikopoulos</surname>
+<given-names>Vissarion</given-names>
+</name>
+<xref ref-type="aff" rid="aff-2"/>
+</contrib>
+<contrib contrib-type="author">
 <name>
 <surname>Gehrels</surname>
 <given-names>Barend</given-names>
+</name>
+<xref ref-type="aff" rid="aff-1"/>
+</contrib>
+<contrib contrib-type="author">
+<name>
+<surname>Karavelas</surname>
+<given-names>Menelaos</given-names>
 </name>
 <xref ref-type="aff" rid="aff-1"/>
 </contrib>
@@ -50,21 +73,6 @@ Library</article-title>
 </name>
 <xref ref-type="aff" rid="aff-1"/>
 </contrib>
-<contrib contrib-type="author">
-<name>
-<surname>Karavelas</surname>
-<given-names>Menelaos</given-names>
-</name>
-<xref ref-type="aff" rid="aff-1"/>
-</contrib>
-<contrib contrib-type="author">
-<contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-0780-666X</contrib-id>
-<name>
-<surname>Fisikopoulos</surname>
-<given-names>Vissarion</given-names>
-</name>
-<xref ref-type="aff" rid="aff-2"/>
-</contrib>
 <aff id="aff-1">
 <institution-wrap>
 <institution>Boost C++ Libraries</institution>
@@ -72,14 +80,20 @@ Library</article-title>
 </aff>
 <aff id="aff-2">
 <institution-wrap>
-<institution>National Technical University of Athens</institution>
+<institution>National Technical University of Athens,
+Greece</institution>
+</institution-wrap>
+</aff>
+<aff id="aff-3">
+<institution-wrap>
+<institution>The Chinese University of Hong Kong, Shenzhen</institution>
 </institution-wrap>
 </aff>
 </contrib-group>
-<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2025-12-04">
-<day>4</day>
-<month>12</month>
-<year>2025</year>
+<pub-date date-type="pub" publication-format="electronic" iso-8601-date="2026-02-18">
+<day>18</day>
+<month>2</month>
+<year>2026</year>
 </pub-date>
 <volume>¿VOL?</volume>
 <issue>¿ISSUE?</issue>
@@ -111,20 +125,22 @@ a Creative Commons Attribution 4.0 International License (CC BY
 <sec id="summary">
   <title>Summary</title>
   <p>Computational geometry underpins numerous scientific and
-  engineering domains, including GIS, robotics, computer graphics, and
-  CAD. Foundational algorithms such as convex hulls, intersection tests,
-  and point-in-polygon queries are covered in standard texts
+  engineering domains, including GIS, robotics, computer graphics, CAD,
+  and astronomy. Foundational algorithms such as convex hulls,
+  intersection tests, and point-in-polygon queries are covered in
+  standard texts
   (<xref alt="Berg et al., 2008" rid="ref-deBergU003A2008" ref-type="bibr">Berg
-  et al., 2008</xref>), but robust and efficient implementations are
-  crucial for real-world applications where numerical robustness and
+  et al., 2008</xref>); however, robust and efficient implementations
+  are crucial for real-world applications where numerical robustness and
   performance matter.</p>
-  <p><bold>Boost.Geometry</bold> is an open-source C++ library providing
-  generic, extensible, and standards-aligned geometric computation. It
-  defines geometry <italic>concepts</italic> and implements algorithms
-  in a dimension- and coordinate-system–agnostic manner. Since its
-  inclusion in Boost (2011), it has become a widely used component in
-  C++ scientific and industrial software. For example, MySQL uses
-  Boost.Geometry as the geometry engine for spatial operations
+  <p><bold>Boost.Geometry</bold><xref ref-type="fn" rid="fn1">1</xref>
+  is an open-source C++ library providing generic, extensible, and
+  standards-compliant geometric computation. It defines geometry
+  <italic>concepts</italic> and implements algorithms in a dimension-
+  and coordinate-system-agnostic manner. Since its inclusion in Boost
+  (2011), it has become a widely used component in C++ scientific and
+  industrial software. For example, MySQL uses Boost.Geometry as the
+  geometry engine for spatial operations
   (<xref alt="Zhao, 2014" rid="ref-MySQLGISU003A2014" ref-type="bibr">Zhao,
   2014</xref>).</p>
 </sec>
@@ -138,12 +154,13 @@ a Creative Commons Attribution 4.0 International License (CC BY
       and template metaprogramming</p>
     </list-item>
     <list-item>
-      <p>Support for Cartesian, spherical, and geographic coordinate
-      systems</p>
-    </list-item>
-    <list-item>
       <p>Strategy-based dispatch enabling coordinate-system-specific
       algorithms</p>
+    </list-item>
+    <list-item>
+      <p>Support for Cartesian, spherical, and geographic coordinate
+      systems, including CRS transformations, projections, and spatial
+      indexing</p>
     </list-item>
     <list-item>
       <p>OGC-compliant geometry types and spatial predicates
@@ -153,6 +170,9 @@ a Creative Commons Attribution 4.0 International License (CC BY
     <list-item>
       <p>Header-only distribution, simplifying deployment and
       integration</p>
+    </list-item>
+    <list-item>
+      <p>Support for adapting user-defined geometry types</p>
     </list-item>
   </list>
   <p>A similar library is GEOS
@@ -168,7 +188,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   et al., 2000</xref>) is a comprehensive C++ library covering a broader
   range of geometric algorithms (triangulations, Voronoi diagrams, mesh
   generation, geometry processing) with a strong emphasis on robustness
-  via exact geometric predicates.</p>
+  via exact geometric predicates and constructions.</p>
   <p>Coordinate transformations and CRS handling are commonly performed
   using PROJ
   (<xref alt="PROJ Contributors, 2024" rid="ref-PROJU003A2024" ref-type="bibr">PROJ
@@ -176,8 +196,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   libraries for projections and datum transformations. For spatial
   indexing, specialized libraries such as libspatialindex
   (<xref alt="L. Contributors, 2024" rid="ref-libspatialindexU003A2024" ref-type="bibr">L.
-  Contributors, 2024</xref>) are frequently used; Boost.Geometry
-  provides a header-only R-tree as a lightweight alternative.</p>
+  Contributors, 2024</xref>) are frequently used.</p>
   <p>GeographicLib
   (<xref alt="Karney &amp; Contributors, 2013" rid="ref-GeographicLibU003A2013" ref-type="bibr">Karney
   &amp; Contributors, 2013</xref>) and Karney’s work on geodesics
@@ -203,8 +222,8 @@ a Creative Commons Attribution 4.0 International License (CC BY
       spatial and nearest-neighbor queries</p>
     </list-item>
   </list>
-  <p>Boost.Geometry is a generic, header-only C++ library built around
-  stateless free functions plus template-based dispatch via concepts,
+  <p>Boost.Geometry is a generic, header-only C++14 library built around
+  stateless free functions with template-based dispatch via concepts,
   traits, and geometry tags, so users can adapt their own geometry types
   to the Boost.Geometry interfaces (e.g., via registration macros)
   without changing their data structures.</p>
@@ -212,38 +231,44 @@ a Creative Commons Attribution 4.0 International License (CC BY
   combined with coordinate-system-specific strategies selected from the
   input geometry’s declared coordinate-system tag (e.g., Cartesian
   vs. spherical vs. geographic). In this model, spherical computations
-  treat Earth as a sphere (great-circle style calculations), while
-  geographic computations use an ellipsoidal Earth model with more
-  accurate geodetic calculations. Boost.Geometry provides a range of
-  geographic strategies that trade accuracy for speed: fast, efficient
-  formulas for common use cases, and more accurate series-expansion
-  methods based on Karney’s geodesic algorithms
+  treat Earth as a sphere (great-circle calculations), while geographic
+  computations use an ellipsoidal Earth model for more accurate geodetic
+  results. Notably, algorithms such as buffer operate directly in the
+  geographic or spherical domain without requiring a prior projection to
+  a planar coordinate system, preserving geodetic accuracy
+  throughout.</p>
+  <p>Boost.Geometry provides a range of geographic strategies that trade
+  accuracy for speed: fast, efficient formulas for common use cases, and
+  more accurate series-expansion methods based on Karney’s geodesic
+  algorithms
   (<xref alt="Fisikopoulos, 2019" rid="ref-isprs-archives-XLII-4-W14-45-2019" ref-type="bibr">Fisikopoulos,
   2019</xref>;
   <xref alt="Karney, 2013" rid="ref-KarneyU003A2013" ref-type="bibr">Karney,
-  2013</xref>). Numerical robustness can cause failures in standard GIS
-  algorithms
+  2013</xref>).</p>
+  <p>Numerical robustness can cause failures in standard GIS algorithms
   (<xref alt="Bartels &amp; Fisikopoulos, 2021" rid="ref-isprs-archives-XLVI-4-W2-2021-1-2021" ref-type="bibr">Bartels
   &amp; Fisikopoulos, 2021</xref>;
   <xref alt="Kettner et al., 2004" rid="ref-kettner2004classroom" ref-type="bibr">Kettner
   et al., 2004</xref>); Boost.Geometry mitigates these problems using
-  filtered predicates that perform fast approximate tests and fall back
-  to slower, exact evaluations when needed to ensure correct topology
-  and predicate results.</p>
+  filtered predicates
+  (<xref alt="Devillers &amp; Pion, 2003" rid="ref-devillersU003Ainria-00344517" ref-type="bibr">Devillers
+  &amp; Pion, 2003</xref>) that perform fast approximate tests and fall
+  back to slower, exact evaluations when needed to ensure correct
+  topology and predicate results.</p>
   <p>The source code is distributed under the Boost Software License.
   Detailed documentation and reference material are available on the
   Boost website
   (<xref alt="Gehrels et al., 2024" rid="ref-BoostGeomDocs" ref-type="bibr">Gehrels
-  et al., 2024</xref>). A set of resources ranging from contributors
+  et al., 2024</xref>). A set of resources ranging from contributor
   guidelines and documentation generation to talks and videos about
-  Boost Geometry is available in
-  <ext-link ext-link-type="uri" xlink:href="https://github.com/boostorg/geometry/wiki">a
-  wiki page</ext-link>. The repository’s <monospace>test/</monospace>
-  and <monospace>example/</monospace> directories contain unit and
-  regression tests and usage examples demonstrating API usage and
-  performance tests. Continuous integration on the Boost project
-  provides broad platform and compiler coverage; Boost.Geometry also
-  runs project-specific CI on GitHub Actions and CircleCI.</p>
+  Boost.Geometry is available on the
+  <ext-link ext-link-type="uri" xlink:href="https://github.com/boostorg/geometry/wiki">project
+  wiki</ext-link>. The repository’s <monospace>test/</monospace> and
+  <monospace>example/</monospace> directories contain unit and
+  regression tests alongside usage examples demonstrating API usage and
+  performance. Continuous integration on the Boost project provides
+  broad platform and compiler coverage; Boost.Geometry also runs
+  project-specific CI on GitHub Actions and CircleCI.</p>
 </sec>
 </body>
 <back>
@@ -304,6 +329,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <year iso-8601-date="2000">2000</year>
       <volume>30</volume>
       <issue>11</issue>
+      <pub-id pub-id-type="doi">10.1002/1097-024X(200009)30:11&lt;1167::AID-SPE337&gt;3.0.CO;2-B</pub-id>
       <fpage>1167</fpage>
       <lpage>1202</lpage>
     </element-citation>
@@ -413,7 +439,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
         <name><surname>Bartels</surname><given-names>T.</given-names></name>
         <name><surname>Fisikopoulos</surname><given-names>V.</given-names></name>
       </person-group>
-      <article-title>FAST ROBUST ARITHMETICS FOR GEOMETRIC ALGORITHMS AND APPLICATIONS TO GIS</article-title>
+      <article-title>Fast robust arithmetics for geometric algorithms and applications to GIS</article-title>
       <source>The International Archives of the Photogrammetry, Remote Sensing and Spatial Information Sciences</source>
       <year iso-8601-date="2021">2021</year>
       <volume>XLVI-4/W2-2021</volume>
@@ -436,10 +462,32 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <source>Algorithms–ESA 2004: 12th annual european symposium, bergen, norway, september 14-17, 2004. Proceedings 12</source>
       <publisher-name>Springer</publisher-name>
       <year iso-8601-date="2004">2004</year>
+      <pub-id pub-id-type="doi">10.1016/J.COMGEO.2007.06.003</pub-id>
       <fpage>702</fpage>
       <lpage>713</lpage>
     </element-citation>
   </ref>
+  <ref id="ref-devillersU003Ainria-00344517">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Devillers</surname><given-names>Olivier</given-names></name>
+        <name><surname>Pion</surname><given-names>Sylvain</given-names></name>
+      </person-group>
+      <article-title>Efficient Exact Geometric Predicates for Delaunay Triangulations</article-title>
+      <source>Proceedings of the 5th Workshop on Algorithm Engineering and Experiments</source>
+      <publisher-loc>Baltimore, Maryland, United States</publisher-loc>
+      <year iso-8601-date="2003-01">2003</year><month>01</month>
+      <uri>https://inria.hal.science/inria-00344517</uri>
+      <fpage>37</fpage>
+      <lpage>44</lpage>
+    </element-citation>
+  </ref>
 </ref-list>
+<fn-group>
+  <fn id="fn1">
+    <label>1</label><p>Authors are listed in alphabetical order by
+    surname.</p>
+  </fn>
+</fn-group>
 </back>
 </article>
