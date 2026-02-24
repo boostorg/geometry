@@ -225,7 +225,7 @@ struct traverse_graph
             {
                 // Select the best target edge, using the last point of the ring and the turn point
                 // for side calculations (if any).
-                toi = m_edge_selector.select_target_edge(tois, ring.back(), turn_point);
+                toi = m_edge_selector.select_target_edge(tois, *(boost::end(ring) - 1), turn_point);
             }
 
             if (m_visited_tois.count(toi) > 0 || m_finished_tois.count(toi) > 0)
