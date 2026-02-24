@@ -76,7 +76,7 @@ Boost.Geometry provides:
 - **Algorithms:** area, distance, length, centroid, convex hull, within, intersects, union, intersection, simplify, buffer, transformations and projections
 - **Spatial indexing:** R-tree implementation supporting spatial and nearest-neighbor queries
 
-Boost.Geometry is a generic, header-only C++14 library built around stateless free functions with template-based dispatch via concepts, traits, and geometry tags, so users can adapt their own geometry types to the Boost.Geometry interfaces (e.g., via registration macros) without changing their data structures.
+Boost.Geometry is a generic, header-only C++14 library built around stateless free functions with template-based dispatch via concepts, traits, and geometry tags, so users can adapt their own geometry types to the Boost.Geometry interfaces (e.g., via registration macros) without changing their data structures and with no runtime overhead.
 
 Algorithms are structured as coordinate-system-agnostic core logic combined with coordinate-system-specific strategies selected from the input geometry's declared coordinate-system tag (e.g., Cartesian vs. spherical vs. geographic). In this model, spherical computations treat Earth as a sphere (great-circle calculations), while geographic computations use an ellipsoidal Earth model for more accurate geodetic results. Notably, algorithms such as buffer operate directly in the geographic or spherical domain without requiring a prior projection to a planar coordinate system, preserving geodetic accuracy throughout.
 
