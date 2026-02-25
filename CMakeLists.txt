@@ -36,7 +36,6 @@ target_link_libraries(boost_geometry
     Boost::qvm
     Boost::range
     Boost::rational
-    Boost::static_assert
     Boost::throw_exception
     Boost::tokenizer
     Boost::tuple
