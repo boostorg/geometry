@@ -259,9 +259,9 @@ jobs:
           - b2_toolset: msvc-14.3
             b2_cxxstd: 14,17,2a
             os: windows-2022
-          #- b2_toolset: msvc-14.4 # b2 cannot find command for this MSVC toolset
-          #  b2_cxxstd: 14,17,2a
-          #  os: windows-2025
+          - b2_toolset: msvc-14.4
+            b2_cxxstd: 14,17,2a
+            os: windows-2022
 
     steps:
       - name: Set up environment

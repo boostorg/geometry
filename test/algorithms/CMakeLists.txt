@@ -33,6 +33,7 @@ foreach(item IN ITEMS
     centroid
     centroid_multi
     comparable_distance
+    comparable_distance_variant
     convert
     correct
     correct_multi
