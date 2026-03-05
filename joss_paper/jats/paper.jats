@@ -133,21 +133,18 @@ a Creative Commons Attribution 4.0 International License (CC BY
   et al., 2008</xref>); however, robust and efficient implementations
   are crucial for real-world applications where numerical robustness and
   performance matter.</p>
-  <p><bold>Boost.Geometry</bold><xref ref-type="fn" rid="fn1">1</xref>
+  <p><monospace>Boost.Geometry</monospace><xref ref-type="fn" rid="fn1">1</xref>
   is an open-source C++ library providing generic, extensible, and
   standards-compliant geometric computation. It defines geometry
   <italic>concepts</italic> and implements algorithms in a dimension-
   and coordinate-system-agnostic manner. Since its inclusion in Boost
   (2011), it has become a widely used component in C++ scientific and
-  industrial software. For example, MySQL uses Boost.Geometry as the
-  geometry engine for spatial operations
-  (<xref alt="Zhao, 2014" rid="ref-MySQLGISU003A2014" ref-type="bibr">Zhao,
-  2014</xref>).</p>
+  industrial software.</p>
 </sec>
 <sec id="statement-of-need">
-  <title>Statement of Need</title>
-  <p>Boost.Geometry fulfills the need for a general-purpose,
-  high-performance geometry engine in C++ with:</p>
+  <title>Statement of need</title>
+  <p><monospace>Boost.Geometry</monospace> fulfills the need for a
+  general-purpose, high-performance geometry engine in C++ with:</p>
   <list list-type="bullet">
     <list-item>
       <p>A generic programming architecture via concepts, type traits,
@@ -175,6 +172,9 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <p>Support for adapting user-defined geometry types</p>
     </list-item>
   </list>
+</sec>
+<sec id="state-of-the-field">
+  <title>State of the field</title>
   <p>A similar library is GEOS
   (<xref alt="GEOS contributors, 2025" rid="ref-GEOSU003A2025" ref-type="bibr">GEOS
   contributors, 2025</xref>), a C++ port of the Java Topology Suite
@@ -204,9 +204,9 @@ a Creative Commons Attribution 4.0 International License (CC BY
   2013</xref>) provide state-of-the-art algorithms for ellipsoidal
   geodesic problems.</p>
 </sec>
-<sec id="design-and-features">
-  <title>Design and Features</title>
-  <p>Boost.Geometry provides:</p>
+<sec id="software-design">
+  <title>Software design</title>
+  <p><monospace>Boost.Geometry</monospace> provides:</p>
   <list list-type="bullet">
     <list-item>
       <p><bold>Geometry models:</bold> points, boxes, rings, polygons,
@@ -222,53 +222,117 @@ a Creative Commons Attribution 4.0 International License (CC BY
       spatial and nearest-neighbor queries</p>
     </list-item>
   </list>
-  <p>Boost.Geometry is a generic, header-only C++14 library built around
-  stateless free functions with template-based dispatch via concepts,
-  traits, and geometry tags, so users can adapt their own geometry types
-  to the Boost.Geometry interfaces (e.g., via registration macros)
-  without changing their data structures.</p>
+  <p><monospace>Boost.Geometry</monospace> is a generic, header-only
+  C++14 library built around stateless free functions with
+  template-based dispatch via concepts, traits, and geometry tags, so
+  users can adapt their own geometry types to the
+  <monospace>Boost.Geometry</monospace> interfaces (e.g., via
+  registration macros) without changing their data structures and with
+  no runtime overhead.</p>
   <p>Algorithms are structured as coordinate-system-agnostic core logic
   combined with coordinate-system-specific strategies selected from the
   input geometry’s declared coordinate-system tag (e.g., Cartesian
-  vs. spherical vs. geographic). In this model, spherical computations
-  treat Earth as a sphere (great-circle calculations), while geographic
-  computations use an ellipsoidal Earth model for more accurate geodetic
-  results. Notably, algorithms such as buffer operate directly in the
-  geographic or spherical domain without requiring a prior projection to
-  a planar coordinate system, preserving geodetic accuracy
+  vs. spherical vs. geographic). In the spherical model, computations
+  follow great-circle arcs; in the geographic model, an ellipsoidal
+  Earth model is used for more accurate geodetic results. Notably,
+  algorithms such as <monospace>buffer</monospace> operate directly in
+  the geographic or spherical domain without requiring a prior
+  projection to a planar coordinate system, preserving geodetic accuracy
   throughout.</p>
-  <p>Boost.Geometry provides a range of geographic strategies that trade
-  accuracy for speed: fast, efficient formulas for common use cases, and
-  more accurate series-expansion methods based on Karney’s geodesic
-  algorithms
+  <p><monospace>Boost.Geometry</monospace> provides a range of
+  geographic strategies that trade accuracy for speed: fast, efficient
+  closed-form formulas for common use cases, and more accurate
+  series-expansion methods based on Karney’s geodesic algorithms
   (<xref alt="Fisikopoulos, 2019" rid="ref-isprs-archives-XLII-4-W14-45-2019" ref-type="bibr">Fisikopoulos,
   2019</xref>;
   <xref alt="Karney, 2013" rid="ref-KarneyU003A2013" ref-type="bibr">Karney,
   2013</xref>).</p>
-  <p>Numerical robustness can cause failures in standard GIS algorithms
+  <p>Numerical robustness can cause silent failures in standard GIS
+  algorithms
   (<xref alt="Bartels &amp; Fisikopoulos, 2021" rid="ref-isprs-archives-XLVI-4-W2-2021-1-2021" ref-type="bibr">Bartels
   &amp; Fisikopoulos, 2021</xref>;
   <xref alt="Kettner et al., 2004" rid="ref-kettner2004classroom" ref-type="bibr">Kettner
-  et al., 2004</xref>); Boost.Geometry mitigates these problems using
-  filtered predicates
+  et al., 2004</xref>). <monospace>Boost.Geometry</monospace> mitigates
+  these problems using filtered predicates
   (<xref alt="Devillers &amp; Pion, 2003" rid="ref-devillersU003Ainria-00344517" ref-type="bibr">Devillers
   &amp; Pion, 2003</xref>) that perform fast approximate tests and fall
-  back to slower, exact evaluations when needed to ensure correct
-  topology and predicate results.</p>
+  back to exact evaluations when needed, ensuring correct topology and
+  predicate results.</p>
   <p>The source code is distributed under the Boost Software License.
   Detailed documentation and reference material are available on the
   Boost website
   (<xref alt="Gehrels et al., 2024" rid="ref-BoostGeomDocs" ref-type="bibr">Gehrels
-  et al., 2024</xref>). A set of resources ranging from contributor
-  guidelines and documentation generation to talks and videos about
-  Boost.Geometry is available on the
+  et al., 2024</xref>). Contributor guidelines, documentation tooling,
+  talks, and videos are collected on the
   <ext-link ext-link-type="uri" xlink:href="https://github.com/boostorg/geometry/wiki">project
   wiki</ext-link>. The repository’s <monospace>test/</monospace> and
-  <monospace>example/</monospace> directories contain unit and
-  regression tests alongside usage examples demonstrating API usage and
-  performance. Continuous integration on the Boost project provides
-  broad platform and compiler coverage; Boost.Geometry also runs
+  <monospace>example/</monospace> directories contain an extensive suite
+  of unit and regression tests alongside usage examples. Continuous
+  integration on the Boost project provides broad platform and compiler
+  coverage; <monospace>Boost.Geometry</monospace> also runs
   project-specific CI on GitHub Actions and CircleCI.</p>
+</sec>
+<sec id="research-impact-statement">
+  <title>Research impact statement</title>
+  <p><monospace>Boost.Geometry</monospace> has demonstrated significant
+  adoption across scientific and industrial domains since its inclusion
+  in Boost (2011).</p>
+  <p>MySQL uses <monospace>Boost.Geometry</monospace> as the geometry
+  engine for spatial SQL operations
+  (<xref alt="Zhao, 2014" rid="ref-MySQLGISU003A2014" ref-type="bibr">Zhao,
+  2014</xref>), exposing it to millions of database deployments
+  worldwide.</p>
+  <p>In spatial data management research, Hecatoncheir
+  (<xref alt="Georgiadis et al., 2025" rid="ref-GeorgiadisU003A2025" ref-type="bibr">Georgiadis
+  et al., 2025</xref>), a distributed in-memory spatial data management
+  library, uses <monospace>Boost.Geometry</monospace> for geometry
+  comparisons and reports orders-of-magnitude speedups over Apache
+  Sedona, showing that <monospace>Boost.Geometry</monospace> can serve
+  as the geometry engine in high-performance distributed systems.</p>
+  <p>In scientific computing, the lifex finite-element library
+  (<xref alt="Bucelli, 2025" rid="ref-BucelliU003A2024" ref-type="bibr">Bucelli,
+  2025</xref>), uses <monospace>Boost.Geometry</monospace>’s R-tree
+  implementation for efficient nearest-neighbor searches in
+  computational physics simulations, demonstrating applicability in
+  numerical scientific computing beyond GIS.</p>
+  <p>The library has also been used in terrain analysis in real-time
+  strategy video games
+  (<xref alt="Richoux, 2022" rid="ref-RichouxU003A2022" ref-type="bibr">Richoux,
+  2022</xref>) for simplifying obstacle contours and pruning Voronoi
+  diagrams, utilizing the simplify and R-tree implementations
+  respectively.</p>
+  <p>In crowd simulation research, Vermeulen et al.
+  (<xref alt="2017" rid="ref-VermeulenU003A2017" ref-type="bibr">2017</xref>)
+  use and evaluate <monospace>Boost.Geometry</monospace>’s R-tree for
+  k-nearest-neighbour searching.</p>
+  <p>In robotics, Ashtekar &amp; Dutta
+  (<xref alt="2023" rid="ref-AshtekarU003A2023" ref-type="bibr">2023</xref>)
+  used <monospace>Boost.Geometry</monospace> for geometrical
+  computations in a push-recovery controller for a bipedal robot
+  balancing on offset planes.</p>
+  <p>In naval and polar engineering, Metrikin
+  (<xref alt="2014" rid="ref-MetrikinU003A2014" ref-type="bibr">2014</xref>)
+  integrated <monospace>Boost.Geometry</monospace> into a simulation
+  framework for stationkeeping of a vessel in floating sea ice,
+  leveraging its polygon geometry operations such as intersection and
+  difference. A related study by Yang et al.
+  (<xref alt="2021" rid="ref-YangU003A2021" ref-type="bibr">2021</xref>)
+  used <monospace>Boost.Geometry</monospace> in a numerical model to
+  investigate the effect of ice floe shape on ship resistance under
+  low-concentration broken ice condition.</p>
+</sec>
+<sec id="acknowledgements">
+  <title>Acknowledgements</title>
+  <p>We acknowledge contributions from the many developers who have
+  submitted new features, bug reports, fixes, and feature requests to
+  <monospace>Boost.Geometry</monospace> over the years, and support from
+  the Boost C++ Libraries community.</p>
+</sec>
+<sec id="ai-usage-disclosure">
+  <title>AI usage disclosure</title>
+  <p>No generative AI tools were used in the development of this
+  software, the writing of this manuscript, or the preparation of
+  supporting materials.</p>
 </sec>
 </body>
 <back>
@@ -343,7 +407,6 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <publisher-name>Open Source Geospatial Foundation</publisher-name>
       <year iso-8601-date="2025">2025</year>
       <uri>https://libgeos.org/</uri>
-      <pub-id pub-id-type="doi">10.5281/zenodo.11396894</pub-id>
     </element-citation>
   </ref>
   <ref id="ref-KarneyU003A2013">
@@ -370,7 +433,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <article-title>MySQL 5.7 GIS enhancements</article-title>
       <year iso-8601-date="2014">2014</year>
       <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-27">2026</year><month>01</month><day>27</day></date-in-citation>
-      <uri>https://blogs.oracle.com/mysql/post/mysql-57-gis-enhancements</uri>
+      <uri>https://dev.mysql.com/blog-archive/making-use-of-boost-geometry-in-mysql-gis/</uri>
     </element-citation>
   </ref>
   <ref id="ref-PROJU003A2024">
@@ -412,7 +475,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <person-group person-group-type="author">
         <name><surname>Contributors</surname><given-names>Libspatialindex</given-names></name>
       </person-group>
-      <article-title>Libspatialindex - r-tree spatial index library</article-title>
+      <article-title>Libspatialindex - R-tree spatial index library</article-title>
       <year iso-8601-date="2024">2024</year>
       <date-in-citation content-type="access-date"><year iso-8601-date="2026-01-28">2026</year><month>01</month><day>28</day></date-in-citation>
       <uri>https://libspatialindex.org/</uri>
@@ -465,6 +528,119 @@ a Creative Commons Attribution 4.0 International License (CC BY
       <pub-id pub-id-type="doi">10.1016/J.COMGEO.2007.06.003</pub-id>
       <fpage>702</fpage>
       <lpage>713</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-GeorgiadisU003A2025">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Georgiadis</surname><given-names>Thanasis</given-names></name>
+        <name><surname>Michalopoulos</surname><given-names>Achilleas</given-names></name>
+        <name><surname>Dimitropoulos</surname><given-names>Dimitris</given-names></name>
+        <name><surname>Tsitsigkos</surname><given-names>Dimitris</given-names></name>
+        <name><surname>Mamoulis</surname><given-names>Nikos</given-names></name>
+      </person-group>
+      <article-title>Hecatoncheir: Scaling up and out spatial data management</article-title>
+      <source>Proceedings of the 33rd ACM international conference on advances in geographic information systems (SIGSPATIAL ’25)</source>
+      <publisher-name>ACM</publisher-name>
+      <year iso-8601-date="2025">2025</year>
+      <pub-id pub-id-type="doi">10.1145/3748636.3762796</pub-id>
+      <fpage>844</fpage>
+      <lpage>847</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-BucelliU003A2024">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Bucelli</surname><given-names>Michele</given-names></name>
+      </person-group>
+      <article-title>The lifex library version 2.0</article-title>
+      <source>ACM Trans. Math. Softw.</source>
+      <publisher-name>Association for Computing Machinery</publisher-name>
+      <publisher-loc>New York, NY, USA</publisher-loc>
+      <year iso-8601-date="2025-12">2025</year><month>12</month>
+      <volume>51</volume>
+      <issue>4</issue>
+      <issn>0098-3500</issn>
+      <uri>https://doi.org/10.1145/3748817</uri>
+      <pub-id pub-id-type="doi">10.1145/3748817</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-RichouxU003A2022">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Richoux</surname><given-names>Florian</given-names></name>
+      </person-group>
+      <article-title>Terrain analysis in StarCraft 1 and 2 as combinatorial optimization</article-title>
+      <source>2022 IEEE congress on evolutionary computation (CEC)</source>
+      <publisher-name>IEEE</publisher-name>
+      <year iso-8601-date="2022">2022</year>
+      <pub-id pub-id-type="doi">10.1109/CEC55065.2022.9870230</pub-id>
+    </element-citation>
+  </ref>
+  <ref id="ref-AshtekarU003A2023">
+    <element-citation publication-type="paper-conference">
+      <person-group person-group-type="author">
+        <name><surname>Ashtekar</surname><given-names>Vyankatesh</given-names></name>
+        <name><surname>Dutta</surname><given-names>Ashish</given-names></name>
+      </person-group>
+      <article-title>Push recovery control of a bipedal robot standing on two offset planes in double leg stance</article-title>
+      <source>Proceedings of the 2023 6th international conference on advances in robotics (AIR ’23)</source>
+      <publisher-name>ACM</publisher-name>
+      <year iso-8601-date="2023">2023</year>
+      <pub-id pub-id-type="doi">10.1145/3610419.3610469</pub-id>
+      <fpage>1</fpage>
+      <lpage>8</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-VermeulenU003A2017">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Vermeulen</surname><given-names>Jordi L.</given-names></name>
+        <name><surname>Hillebrand</surname><given-names>Arne</given-names></name>
+        <name><surname>Geraerts</surname><given-names>Roland</given-names></name>
+      </person-group>
+      <article-title>A comparative study of k-nearest neighbour techniques in crowd simulation</article-title>
+      <source>Computer Animation and Virtual Worlds</source>
+      <year iso-8601-date="2017">2017</year>
+      <volume>28</volume>
+      <issue>3–4</issue>
+      <pub-id pub-id-type="doi">10.1002/cav.1775</pub-id>
+      <fpage>e1775</fpage>
+      <lpage></lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-MetrikinU003A2014">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Metrikin</surname><given-names>Ivan</given-names></name>
+      </person-group>
+      <article-title>A software framework for simulating stationkeeping of a vessel in discontinuous ice</article-title>
+      <source>Modeling, Identification and Control</source>
+      <year iso-8601-date="2014">2014</year>
+      <volume>35</volume>
+      <issue>4</issue>
+      <pub-id pub-id-type="doi">10.4173/MIC.2014.4.2</pub-id>
+      <fpage>211</fpage>
+      <lpage>248</lpage>
+    </element-citation>
+  </ref>
+  <ref id="ref-YangU003A2021">
+    <element-citation publication-type="article-journal">
+      <person-group person-group-type="author">
+        <name><surname>Yang</surname><given-names>Biye</given-names></name>
+        <name><surname>Sun</surname><given-names>Zhe</given-names></name>
+        <name><surname>Zhang</surname><given-names>Guiyong</given-names></name>
+        <name><surname>Wang</surname><given-names>Qingkai</given-names></name>
+        <name><surname>Zong</surname><given-names>Zhi</given-names></name>
+        <name><surname>Li</surname><given-names>Zhijun</given-names></name>
+      </person-group>
+      <article-title>Numerical estimation of ship resistance in broken ice and investigation on the effect of floe geometry</article-title>
+      <source>Marine Structures</source>
+      <year iso-8601-date="2021">2021</year>
+      <volume>75</volume>
+      <pub-id pub-id-type="doi">10.1016/j.marstruc.2020.102867</pub-id>
+      <fpage>102867</fpage>
+      <lpage></lpage>
     </element-citation>
   </ref>
   <ref id="ref-devillersU003Ainria-00344517">
