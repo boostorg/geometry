@@ -87,7 +87,7 @@ namespace detail { namespace rtree {
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct variant_internal_node<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
-    typedef throwing_varray<
+    typedef throwing_static_vector<
         rtree::ptr_pair<Box, typename Allocators::node_pointer>,
         Parameters::max_elements + 1
     > elements_type;
@@ -119,7 +119,7 @@ private:
 template <typename Value, typename Parameters, typename Box, typename Allocators>
 struct variant_leaf<Value, Parameters, Box, Allocators, node_throwing_static_tag>
 {
-    typedef throwing_varray<Value, Parameters::max_elements + 1> elements_type;
+    typedef throwing_static_vector<Value, Parameters::max_elements + 1> elements_type;
 
     template <typename Alloc>
     inline variant_leaf(Alloc const&) { throwing_nodes_stats::get_leafs_counter_ref()++; }

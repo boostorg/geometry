@@ -20,6 +20,8 @@
 #include <type_traits>
 #endif
 
+#include <boost/container/static_vector.hpp>
+
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -153,10 +155,10 @@ protected:
     typedef typename MembersHolder::node_pointer node_pointer;
 
 public:
-    typedef index::detail::varray<
+    using nodes_container_type = boost::container::static_vector<
         typename rtree::elements_type<internal_node>::type::value_type,
         1
-    > nodes_container_type;
+    >;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,
