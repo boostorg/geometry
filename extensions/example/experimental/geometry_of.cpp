@@ -10,12 +10,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include <type_traits>
 
 
 #include <boost/proto/core.hpp>
 #include <boost/proto/transform.hpp>
-#include <boost/type_traits/add_reference.hpp>
 
 #include <boost/mpl/assert.hpp>
 
@@ -40,7 +39,7 @@ struct append_point : proto::callable
 
     template<typename This, typename Geometry, typename T1, typename T2>
     struct result<This(Geometry, T1, T2)>
-        : boost::add_reference<Geometry>
+        : std::add_reference<Geometry>
     {};
 
     template<typename Geometry, typename T1, typename T2>
