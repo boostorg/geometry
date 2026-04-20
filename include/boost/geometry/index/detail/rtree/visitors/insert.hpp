@@ -89,7 +89,7 @@ public:
 
             // areas difference
             content_type content = index::detail::content(box_exp);
-            content_type content_diff = content - index::detail::content(ch_i.first);
+            content_type content_diff = index::detail::content_diff(box_exp, ch_i.first);
 
             // update the result
             if ( content_diff < smallest_content_diff ||

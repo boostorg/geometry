@@ -112,6 +112,19 @@ typename default_content_result<Indexable>::type content(Indexable const& b)
             >::apply(b);
 }
 
+// Returns the content increase when expanding 'original' to 'expanded'.
+// Precondition: 'original' is covered by 'expanded'. Under this precondition
+// the result is mathematically non-negative, so clamping to 0 is valid and
+// guards against floating-point contraction artifacts (e.g. GCC FMA fusion
+// across function boundaries) that can make the difference negative or
+// spuriously non-zero for equal boxes. See GitHub issue #1452.
+template <typename Box>
+typename default_content_result<Box>::type content_diff(Box const& expanded, Box const& original)
+{
+    using content_type = typename default_content_result<Box>::type;
+    return (std::max)(content_type(0), content(expanded) - content(original));
+}
+
 #if defined(BOOST_GCC)
 #pragma GCC pop_options
 #endif

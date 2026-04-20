@@ -16,6 +16,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_LINEAR_REDISTRIBUTE_ELEMENTS_HPP
 
+#include <algorithm>
 #include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
@@ -432,8 +433,10 @@ struct redistribute_elements<MembersHolder, linear_tag>
                         content_type enlarged_content1 = index::detail::content(enlarged_box1);
                         content_type enlarged_content2 = index::detail::content(enlarged_box2);
 
-                        content_type content_increase1 = enlarged_content1 - content1;
-                        content_type content_increase2 = enlarged_content2 - content2;
+                        content_type const content_increase1
+                            = (std::max)(content_type(0), enlarged_content1 - content1);
+                        content_type const content_increase2
+                            = (std::max)(content_type(0), enlarged_content2 - content2);
 
                         // choose group which box content have to be enlarged least or has smaller content or has fewer elements
                         if ( content_increase1 < content_increase2 ||
