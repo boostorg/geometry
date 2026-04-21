@@ -17,6 +17,7 @@
 
 #include <iterator>
 
+#include <boost/geometry/index/detail/assert.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/iterator.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace iterators {

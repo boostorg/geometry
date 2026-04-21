@@ -16,8 +16,9 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
 
+#include <vector>
+
 #include <boost/container/allocator_traits.hpp>
-#include <boost/container/vector.hpp>
 #include <boost/core/pointer_traits.hpp>
 #include <boost/core/invoke_swap.hpp>
 
@@ -46,7 +47,7 @@ struct weak_internal_node
             typename Allocators::internal_node_allocator_type
         >::template rebind_alloc<element_type> allocator_type;
 
-    typedef boost::container::vector<element_type, allocator_type> elements_type;
+    using elements_type = std::vector<element_type, allocator_type>;
 
     template <typename Al>
     inline weak_internal_node(Al const& al)
@@ -65,7 +66,7 @@ struct weak_leaf
             typename Allocators::leaf_allocator_type
         >::template rebind_alloc<Value> allocator_type;
 
-    typedef boost::container::vector<Value, allocator_type> elements_type;
+    using elements_type = std::vector<Value, allocator_type>;
 
     template <typename Al>
     inline weak_leaf(Al const& al)

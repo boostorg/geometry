@@ -15,9 +15,11 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_ELEMENTS_HPP
 
-#include <boost/container/vector.hpp>
+#include <vector>
+
+#include <boost/container/static_vector.hpp>
+
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
-#include <boost/geometry/index/detail/varray.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
 #include <boost/geometry/index/detail/translator.hpp>
 
@@ -99,13 +101,13 @@ elements(Node const& n)
 template <typename Elements, typename NewValue>
 struct container_from_elements_type
 {
-    typedef boost::container::vector<NewValue> type;
+    using type = std::vector<NewValue>;
 };
 
 template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<detail::varray<OldValue, N>, NewValue>
+struct container_from_elements_type<boost::container::static_vector<OldValue, N>, NewValue>
 {
-    typedef detail::varray<NewValue, N> type;
+    using type = boost::container::static_vector<NewValue, N>;
 };
 
 }} // namespace detail::rtree
