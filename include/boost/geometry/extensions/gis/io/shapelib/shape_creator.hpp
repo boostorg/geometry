@@ -12,7 +12,6 @@
 #include <fstream>
 #include "shapefil.h"
 
-#include <boost/noncopyable.hpp>
 #include <boost/type_traits/promote.hpp>
 
 #include <boost/geometry/io/wkt/wkt.hpp>
@@ -69,7 +68,7 @@ template
             typename geometry::tag<Geometry>::type
         >::value
 >
-class shape_creator : public boost::noncopyable
+class shape_creator
 {
 public :
     shape_creator(std::string const& name)
@@ -90,9 +89,12 @@ public :
         if (m_dbf) ::DBFClose(m_dbf);
     }
 
+    shape_creator(shape_creator const&) = delete;
+    shape_creator& operator=(shape_creator const&) = delete;
+
     // Returns: index in shapefile
     inline int AddShape(Geometry const& geometry)
-    {
+    {:
         // Note: we MIGHT design a small wrapper class which destroys in destructor
         ::SHPObject* obj = SHPCreateObject(geometry);
         int result = SHPWriteObject(m_shp, -1, obj );
