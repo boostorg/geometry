@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_SERIALIZATION_HPP
 
+#include <memory>
+
 #include <boost/type_traits/alignment_of.hpp>
 #include <boost/type_traits/aligned_storage.hpp>
 
@@ -89,7 +91,7 @@ template <typename T, typename Archive> inline
 void serialization_save(T const& t, const char * name, Archive & ar)
 {
     namespace bs = boost::serialization;
-    bs::save_construct_data_adl(ar, boost::addressof(t), bs::version<T>::value);  // save_construct_data
+    bs::save_construct_data_adl(ar, std::addressof(t), bs::version<T>::value);  // save_construct_data
     ar << boost::serialization::make_nvp(name, t);                                // serialize
     //ar << t;                                                                      // serialize
 }

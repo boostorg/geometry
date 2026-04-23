@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <memory>
+
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
@@ -497,7 +499,7 @@ struct linear_areal
                     }
                 }
 
-                prev_seg_id_ptr = boost::addressof(it->operations[1].seg_id);
+                prev_seg_id_ptr = std::addressof(it->operations[1].seg_id);
 
                 // find the next ring first iterator and check if the analysis should be performed
                 has_boundary_intersection has_boundary_inters;
@@ -971,7 +973,7 @@ struct linear_areal
                             // don't update now
                             // we might enter a boundary of some other ring on the same IP
                             m_interior_detected = true;
-                            m_first_interior_other_id_ptr = boost::addressof(other_id);
+                            m_first_interior_other_id_ptr = std::addressof(other_id);
                         }
                     }
                 }
@@ -1172,7 +1174,7 @@ struct linear_areal
             }
 
             // store ref to previously analysed (valid) turn
-            m_previous_turn_ptr = boost::addressof(*it);
+            m_previous_turn_ptr = std::addressof(*it);
             // and previously analysed (valid) operation
             m_previous_operation = op;
         }
@@ -1441,7 +1443,7 @@ struct linear_areal
                 if ( op == overlay::operation_union )
                 {
                     is_union_detected = true;
-                    m_previous_turn_ptr = boost::addressof(*it);
+                    m_previous_turn_ptr = std::addressof(*it);
                 }
 
                 return true;

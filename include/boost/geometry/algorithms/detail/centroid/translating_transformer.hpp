@@ -19,8 +19,8 @@
 
 
 #include <cstddef>
+#include <memory>
 
-#include <boost/core/addressof.hpp>
 #include <boost/core/ref.hpp>
 
 #include <boost/geometry/core/cs.hpp>
@@ -82,12 +82,12 @@ struct translating_transformer<Geometry, areal_tag, cartesian_tag>
             pt_it = geometry::points_begin(geom);
         if ( pt_it != geometry::points_end(geom) )
         {
-            m_origin = boost::addressof(*pt_it);
+            m_origin = std::addressof(*pt_it);
         }
     }
 
     explicit translating_transformer(point_type const& origin)
-        : m_origin(boost::addressof(origin))
+        : m_origin(std::addressof(origin))
     {}
 
     result_type apply(point_type const& pt) const
