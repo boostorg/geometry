@@ -7,9 +7,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <rtree/test_rtree.hpp>
+#include <memory>
 
-#include <boost/core/addressof.hpp>
+#include <rtree/test_rtree.hpp>
 
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -98,16 +98,16 @@ void test_pair_geom_ptr()
 
     polygon_t poly;
 
-    Value val(box, boost::addressof(poly));
+    Value val(box, std::addressof(poly));
 
     bgi::rtree<Value, Params> rt;
     rt.insert(val);
-    rt.insert(std::make_pair(box, boost::addressof(poly)));
+    rt.insert(std::make_pair(box, std::addressof(poly)));
 
     BOOST_CHECK_EQUAL(rt.size(), 2u);
 
     BOOST_CHECK_EQUAL(rt.remove(val), 1u);
-    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, boost::addressof(poly))), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, std::addressof(poly))), 1u);
 
     BOOST_CHECK_EQUAL(rt.size(), 0u);
 }

@@ -19,11 +19,11 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_FOR_EACH_RANGE_HPP
 
 
+#include <memory>
 #include <type_traits>
 #include <utility>
 
 #include <boost/concept/requires.hpp>
-#include <boost/core/addressof.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
@@ -52,7 +52,7 @@ struct fe_range_point
     template <typename Functor>
     static inline bool apply(Point& point, Functor&& f)
     {
-        Point* ptr = boost::addressof(point);
+        Point* ptr = std::addressof(point);
         return f(std::pair<Point*, Point*>(ptr, ptr + 1));
     }
 };

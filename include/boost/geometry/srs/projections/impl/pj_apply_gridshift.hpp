@@ -41,6 +41,8 @@
 #define BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_APPLY_GRIDSHIFT_HPP
 
 
+#include <memory>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/radian_access.hpp>
 
@@ -247,7 +249,7 @@ inline pj_gi * find_grid(T const& lam,
             // skip vertical grids
             if (first->format != pj_gi::gtx)
             {
-                gip = boost::addressof(*first);
+                gip = std::addressof(*first);
                 break;
             }
         }
@@ -284,7 +286,7 @@ inline pj_gi * find_grid(T const& lam,
             // skip vertical grids
             if (gi.format != pj_gi::gtx)
             {
-                gip = boost::addressof(gi);
+                gip = std::addressof(gi);
                 break;
             }
         }

@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 
+#include <memory>
+
 #include <boost/geometry/core/topological_dimension.hpp>
 
 #include <boost/geometry/util/condition.hpp>
@@ -519,7 +521,7 @@ struct areal_areal
             }
 
             // store ref to previously analysed (valid) turn
-            m_previous_turn_ptr = boost::addressof(*it);
+            m_previous_turn_ptr = std::addressof(*it);
             // and previously analysed (valid) operation
             m_previous_operation = op;
         }

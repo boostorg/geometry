@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
 #include <algorithm>
+#include <memory>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
@@ -566,7 +567,7 @@ struct linear_linear
             }
 
             // store ref to previously analysed (valid) turn
-            m_previous_turn_ptr = boost::addressof(*it);
+            m_previous_turn_ptr = std::addressof(*it);
             // and previously analysed (valid) operation
             m_previous_operation = op;
         }
@@ -672,7 +673,7 @@ struct linear_linear
                     // operation 'c' should be last for the same IP so we know that the next point won't be the same
                     update<interior, exterior, '1', transpose_result>(res);
 
-                    m_degenerated_turn_ptr = boost::addressof(turn);
+                    m_degenerated_turn_ptr = std::addressof(turn);
                 }
             }
             else if ( turn.operations[op_id].position == overlay::position_back )
@@ -737,7 +738,7 @@ struct linear_linear
                         }
                     }
 
-                    m_degenerated_turn_ptr = boost::addressof(turn);
+                    m_degenerated_turn_ptr = std::addressof(turn);
                 }
             }
 

@@ -41,6 +41,7 @@
 
 
 #include <iterator>
+#include <memory>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -113,7 +114,7 @@ struct pj_param_find_static
     typedef const type* result_type;
     static result_type get(StaticParams const& params)
     {
-        return boost::addressof(boost::get<I>(params));
+        return std::addressof(boost::get<I>(params));
     }
 };
 

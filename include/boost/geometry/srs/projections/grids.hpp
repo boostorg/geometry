@@ -12,6 +12,8 @@
 #define BOOST_GEOMETRY_SRS_PROJECTIONS_GRIDS_HPP
 
 
+#include <memory>
+
 #include <boost/geometry/srs/projections/impl/pj_gridinfo.hpp>
 
 #include <fstream>
@@ -89,7 +91,7 @@ class projection_grids
 {
 public:
     projection_grids(GridsStorage & storage)
-        : m_storage_ptr(boost::addressof(storage))
+        : m_storage_ptr(std::addressof(storage))
     {}
 
     typedef GridsStorage grids_storage_type;

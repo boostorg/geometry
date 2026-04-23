@@ -95,7 +95,7 @@ public:
 
     const value_type * operator->() const
     {
-        return boost::addressof(m_impl.dereference());
+        return std::addressof(m_impl.dereference());
     }
 
     spatial_query_iterator & operator++()
@@ -161,7 +161,7 @@ public:
 
     const value_type * operator->() const
     {
-        return boost::addressof(m_impl.dereference());
+        return std::addressof(m_impl.dereference());
     }
 
     distance_query_iterator & operator++()
@@ -247,7 +247,7 @@ public:
     virtual void increment() { ++m_iterator; }
     virtual bool equals(base_t const& r) const
     {
-        const query_iterator_wrapper * p = dynamic_cast<const query_iterator_wrapper *>(boost::addressof(r));
+        const query_iterator_wrapper * p = dynamic_cast<const query_iterator_wrapper *>(std::addressof(r));
         BOOST_GEOMETRY_INDEX_ASSERT(p, "iterators can't be compared");
         return m_iterator == p->m_iterator;
     }
@@ -289,7 +289,7 @@ public:
 
     query_iterator & operator=(query_iterator const& o)
     {
-        if ( this != boost::addressof(o) )
+        if ( this != std::addressof(o) )
         {
             m_ptr.reset(o.m_ptr.get() ? o.m_ptr->clone() : 0);
         }
@@ -305,7 +305,7 @@ public:
 
     const value_type * operator->() const
     {
-        return boost::addressof(m_ptr->dereference());
+        return std::addressof(m_ptr->dereference());
     }
 
     query_iterator & operator++()

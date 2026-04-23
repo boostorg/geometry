@@ -10,7 +10,7 @@
 #ifndef BOOST_GEOMETRY_VIEWS_GEOMETRY_COLLECTION_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_GEOMETRY_COLLECTION_VIEW_HPP
 
-#include <boost/core/addressof.hpp>
+#include <memory>
 
 #include <boost/geometry/core/geometry_types.hpp>
 #include <boost/geometry/core/tag.hpp>
@@ -36,8 +36,8 @@ public:
         : m_geometry(geometry)
     {}
 
-    const_iterator begin() const { return boost::addressof(m_geometry); }
-    const_iterator end() const { return boost::addressof(m_geometry) + 1; }
+    const_iterator begin() const { return std::addressof(m_geometry); }
+    const_iterator end() const { return std::addressof(m_geometry) + 1; }
 
 private:
     Geometry const& m_geometry;

@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ITERATOR_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_ITERATOR_HPP
 
+#include <memory>
+
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 #include <boost/geometry/index/detail/rtree/node/variant_visitor.hpp>
@@ -56,7 +58,7 @@ public:
 
     inline void operator()(leaf const& n)
     {
-        m_values = ::boost::addressof(rtree::elements(n));
+        m_values = std::addressof(rtree::elements(n));
         m_current = rtree::elements(n).begin();
     }
 

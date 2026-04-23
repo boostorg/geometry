@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_SRS_TRANSFORMATION_HPP
 
 
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -50,7 +51,7 @@ inline bool same_object(T1 const& , T2 const& )
 template <typename T>
 inline bool same_object(T const& o1, T const& o2)
 {
-    return boost::addressof(o1) == boost::addressof(o2);
+    return std::addressof(o1) == std::addressof(o2);
 }
 
 template
@@ -402,7 +403,7 @@ struct transform<Point, CT, point_tag>
         transform_geometry_wrapper<PointOut, CT> wrapper(in, out, input_angles);
 
         typedef typename transform_geometry_wrapper<PointOut, CT>::type point_type;
-        point_type * ptr = boost::addressof(wrapper.get());
+        point_type * ptr = std::addressof(wrapper.get());
 
         std::pair<point_type *, point_type *> range = std::make_pair(ptr, ptr + 1);
 

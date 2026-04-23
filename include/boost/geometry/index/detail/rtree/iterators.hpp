@@ -16,6 +16,7 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_ITERATORS_HPP
 
 #include <iterator>
+#include <memory>
 
 #include <boost/geometry/index/detail/rtree/visitors/iterator.hpp>
 
@@ -90,7 +91,7 @@ public:
 
     const value_type * operator->() const
     {
-        return boost::addressof(m_visitor.dereference());
+        return std::addressof(m_visitor.dereference());
     }
 
     iterator & operator++()
