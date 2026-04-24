@@ -15,7 +15,6 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/endian/conversion.hpp>
-#include <boost/static_assert.hpp>
 #include <boost/throw_exception.hpp>
 
 #include <boost/geometry/algorithms/detail/calculate_point_order.hpp>
@@ -87,8 +86,8 @@ inline void read_little(IStream & is, T & v)
 
 inline void double_endianness_check()
 {
-    BOOST_STATIC_ASSERT(sizeof(double) == 8);
-    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+    static_assert(sizeof(double) == 8, "double must be 8 bytes wide.");
+    static_assert(sizeof(double) * CHAR_BIT == 64, "double must be 64 bits wide.");
 
     double d = 0;
     unsigned char* c = reinterpret_cast<unsigned char*>(&d);
@@ -117,7 +116,7 @@ inline void double_endianness_check()
 template <typename IStream>
 inline void read_little(IStream & is, double & v)
 {
-    BOOST_STATIC_ASSERT(sizeof(double) * CHAR_BIT == 64);
+    static_assert(sizeof(double) * CHAR_BIT == 64, "double must be 64 bits wide.");
 
     is.read(reinterpret_cast<char*>(&v), sizeof(double));
     boost::int64_t * proxy = reinterpret_cast<boost::int64_t *>(&v);
