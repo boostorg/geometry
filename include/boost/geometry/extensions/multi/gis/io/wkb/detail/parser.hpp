@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_MULTI_IO_WKB_DETAIL_PARSER_HPP
 
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <limits>
 
@@ -44,8 +45,8 @@ struct multipoint_parser
             return false;
         }
 
-        boost::uint32_t num_points(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_points, order))
+        std::uint32_t num_points(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_points, order))
         {
             return false;
         }
@@ -58,8 +59,8 @@ struct multipoint_parser
         typedef typename point_type<MultiPoint>::type point_type;
 
         size_type const container_byte_size = dimension<point_type>::value * num_points * sizeof(double)
-                                            + num_points * sizeof(boost::uint8_t)
-                                            + num_points * sizeof(boost::uint32_t);
+                                            + num_points * sizeof(std::uint8_t)
+                                            + num_points * sizeof(std::uint32_t);
 
         size_type const stream_byte_size = std::distance(it,end);
 
@@ -72,7 +73,7 @@ struct multipoint_parser
         std::back_insert_iterator<MultiPoint> output(std::back_inserter(multipoint));
 
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        if(num_points > (std::numeric_limits<boost::uint32_t>::max)() )
+        if(num_points > (std::numeric_limits<std::uint32_t>::max)() )
         {
             throw boost::geometry::read_wkb_exception();
         }
@@ -116,8 +117,8 @@ struct multilinestring_parser
             return false;
         }
 
-        boost::uint32_t num_linestrings(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_linestrings, order))
+        std::uint32_t num_linestrings(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_linestrings, order))
         {
             return false;
         }
@@ -125,7 +126,7 @@ struct multilinestring_parser
         std::back_insert_iterator<MultiLinestring> output(std::back_inserter(multilinestring));
 
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        if(num_linestrings > (std::numeric_limits<boost::uint32_t>::max)() )
+        if(num_linestrings > (std::numeric_limits<std::uint32_t>::max)() )
         {
             throw boost::geometry::read_wkb_exception();
         }
@@ -173,8 +174,8 @@ struct multipolygon_parser
             return false;
         }
 
-        boost::uint32_t num_polygons(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_polygons, order))
+        std::uint32_t num_polygons(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_polygons, order))
         {
             return false;
         }
@@ -197,8 +198,8 @@ struct multipolygon_parser
                 return false;
             }
 
-            boost::uint32_t num_rings(0);
-            if (!value_parser<boost::uint32_t>::parse(it, end, num_rings, polygon_byte_order))
+            std::uint32_t num_rings(0);
+            if (!value_parser<std::uint32_t>::parse(it, end, num_rings, polygon_byte_order))
             {
                 return false;
             }
