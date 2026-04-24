@@ -24,7 +24,6 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/extensions/gis/io/wkb/detail/writer.hpp>
 

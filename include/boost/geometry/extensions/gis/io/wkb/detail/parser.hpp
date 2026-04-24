@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <limits>
 #include <type_traits>
@@ -23,8 +24,6 @@
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/concept_check.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/static_assert.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -67,13 +66,14 @@ struct value_parser
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, T& value, byte_order_type::enum_t order)
     {
-        // Very basic pre-conditions check on stream of bytes passed in
-        BOOST_STATIC_ASSERT((
-            std::is_integral<typename std::iterator_traits<Iterator>::value_type>::value
-        ));
-        BOOST_STATIC_ASSERT((sizeof(boost::uint8_t) ==
-            sizeof(typename std::iterator_traits<Iterator>::value_type)
-        ));
+        static_assert(
+            std::is_integral<typename std::iterator_traits<Iterator>::value_type>::value,
+            "Input range value_type must be integral."
+        );
+        static_assert(sizeof(std::uint8_t) ==
+            sizeof(typename std::iterator_traits<Iterator>::value_type),
+            "Input range value_type must have same width as std::uint8_t."
+        );
 
         typedef typename std::iterator_traits<Iterator>::difference_type diff_type;
         diff_type const required_size = sizeof(T);
@@ -110,8 +110,8 @@ struct byte_order_parser
     template <typename Iterator>
     static bool parse(Iterator& it, Iterator end, byte_order_type::enum_t& order)
     {
-        boost::uint8_t value;
-        if (value_parser<boost::uint8_t>::parse(it, end, value, byte_order_type::unknown))
+        std::uint8_t value;
+        if (value_parser<std::uint8_t>::parse(it, end, value, byte_order_type::unknown))
         {
             if (byte_order_type::unknown > value)
             {

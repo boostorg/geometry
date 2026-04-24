@@ -49,8 +49,8 @@ public:
     template <std::size_t I, std::size_t J>
     inline T const& get() const
     {
-        BOOST_STATIC_ASSERT(I < Rows);
-        BOOST_STATIC_ASSERT(J < Cols);
+        static_assert(I < Rows, "Row index out of bounds.");
+        static_assert(J < Cols, "Col index out of bounds.");
         return m_values[I + Rows * J];
     }
 
@@ -61,8 +61,8 @@ public:
     template <std::size_t I, std::size_t J>
     inline void set(T const& value)
     {
-        BOOST_STATIC_ASSERT(I < Rows);
-        BOOST_STATIC_ASSERT(J < Cols);
+        static_assert(I < Rows, "Row index out of bounds.");
+        static_assert(J < Cols, "Col index out of bounds.");
         m_values[I + Rows * J] = value;
     }
 
