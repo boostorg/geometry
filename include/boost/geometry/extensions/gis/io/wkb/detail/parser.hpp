@@ -132,8 +132,8 @@ struct geometry_type_parser
     static bool parse(Iterator& it, Iterator end,
                 byte_order_type::enum_t order)
     {
-        boost::uint32_t value;
-        if (value_parser<boost::uint32_t>::parse(it, end, value, order))
+        std::uint32_t value;
+        if (value_parser<std::uint32_t>::parse(it, end, value, order))
         {
             return geometry_type<Geometry>::check(value);
         }
@@ -210,14 +210,14 @@ struct point_container_parser
     {
         typedef typename point_type<C>::type point_type;
 
-        boost::uint32_t num_points(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_points, order))
+        std::uint32_t num_points(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_points, order))
         {
             return false;
         }
 
         typedef typename std::iterator_traits<Iterator>::difference_type size_type;
-        if(num_points > (std::numeric_limits<boost::uint32_t>::max)() )
+        if(num_points > (std::numeric_limits<std::uint32_t>::max)() )
         {
             throw boost::geometry::read_wkb_exception();
         }
@@ -285,8 +285,8 @@ struct polygon_parser
             return false;
         }
 
-        boost::uint32_t num_rings(0);
-        if (!value_parser<boost::uint32_t>::parse(it, end, num_rings, order))
+        std::uint32_t num_rings(0);
+        if (!value_parser<std::uint32_t>::parse(it, end, num_rings, order))
         {
             return false;
         }

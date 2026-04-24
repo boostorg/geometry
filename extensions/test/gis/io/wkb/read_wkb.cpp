@@ -7,6 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <cstdint>
 #include <iterator>
 #include <string>
 #include <vector>
@@ -14,7 +15,6 @@
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/floating_point_comparison.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
@@ -37,7 +37,7 @@ namespace bg = boost::geometry;
 
 namespace { // anonymous
 
-typedef std::vector<boost::uint8_t> byte_vector;
+typedef std::vector<std::uint8_t> byte_vector;
 
 template <typename Geometry>
 void test_geometry_wrong_wkb(std::string const& wkbhex, std::string const& wkt)

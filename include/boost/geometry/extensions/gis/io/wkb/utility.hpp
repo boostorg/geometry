@@ -13,13 +13,12 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 #define BOOST_GEOMETRY_IO_WKB_UTILITY_HPP
 
+#include <cstdint>
 #include <iomanip>
 #include <iterator>
 #include <sstream>
 #include <string>
 #include <type_traits>
-
-#include <boost/cstdint.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 
@@ -53,7 +52,7 @@ bool hex2wkb(std::string const& hex, OutputIterator bytes)
         {
             return false;
         }
-        *bytes = static_cast<boost::uint8_t>(byte);
+        *bytes = static_cast<std::uint8_t>(byte);
         ++bytes;
     }
 
@@ -75,7 +74,7 @@ bool wkb2hex(Iterator begin, Iterator end, std::string& hex)
     Iterator it = begin;
     while (it != end)
     {
-        boost::uint8_t byte = static_cast<boost::uint8_t>(*it);
+        std::uint8_t byte = static_cast<std::uint8_t>(*it);
         hexbyte[0] = hexalpha[(byte >> 4) & 0xf];
         hexbyte[1] = hexalpha[byte & 0xf];
         hexbyte[2] = '\0';
