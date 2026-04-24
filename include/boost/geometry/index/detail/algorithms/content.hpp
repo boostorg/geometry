@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 
+#include <algorithm>
+
 #include <boost/config.hpp>
 
 #include <boost/geometry/core/access.hpp>
@@ -56,7 +58,7 @@ template <typename Box,
           std::size_t CurrentDimension = dimension<Box>::value>
 struct content_box
 {
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+    static_assert(0 < CurrentDimension, "Specialisation for positive index.");
 
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {

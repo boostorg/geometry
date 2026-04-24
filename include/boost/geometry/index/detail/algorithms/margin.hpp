@@ -115,7 +115,7 @@ template <typename Box,
           std::size_t CurrentDimension = dimension<Box>::value>
 struct simple_margin_for_each_dimension
 {
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+    static_assert(0 < CurrentDimension, "Specialisation for positive index.");
 
     static inline typename default_margin_result<Box>::type apply(Box const& b)
     {

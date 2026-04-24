@@ -323,8 +323,9 @@ template <typename Geometry1, typename Geometry2, bool TransposeResult = false>
 struct linear_areal
 {
     // check Linear / Areal
-    BOOST_STATIC_ASSERT(topological_dimension<Geometry1>::value == 1
-                     && topological_dimension<Geometry2>::value == 2);
+    static_assert(topological_dimension<Geometry1>::value == 1
+        && topological_dimension<Geometry2>::value == 2,
+        "Specialisation for linear/areal combination.");
 
     static const bool interruption_enabled = true;
 
