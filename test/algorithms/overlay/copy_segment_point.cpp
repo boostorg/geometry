@@ -7,6 +7,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <array>
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
@@ -99,7 +101,7 @@ void test_box(std::string const& case_id, std::string const& wkt)
 
     test_geometry<box_type>(case_id, wkt, [](box_type const& box)
     {
-        boost::array<point_type, 4> ring;
+        std::array<point_type, 4> ring;
         bg::detail::assign_box_corners_oriented<false>(box, ring);
         return ring;
     });
