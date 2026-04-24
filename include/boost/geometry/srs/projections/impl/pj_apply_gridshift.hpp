@@ -41,6 +41,7 @@
 #define BOOST_GEOMETRY_SRS_PROJECTIONS_IMPL_PJ_APPLY_GRIDSHIFT_HPP
 
 
+#include <cstdint>
 #include <memory>
 
 #include <boost/geometry/core/assert.hpp>
@@ -67,7 +68,7 @@ inline void nad_intr(CalcT in_lon, CalcT in_lat,
 {
 	pj_ctable::lp_t frct;
 	pj_ctable::ilp_t indx;
-	boost::int32_t in;
+	std::int32_t in;
 
 	indx.lam = int_floor(in_lon /= ct.del.lam);
 	indx.phi = int_floor(in_lat /= ct.del.phi);
@@ -101,7 +102,7 @@ inline void nad_intr(CalcT in_lon, CalcT in_lat,
 		} else
 			return;
 	}
-	boost::int32_t index = indx.phi * ct.lim.lam + indx.lam;
+	std::int32_t index = indx.phi * ct.lim.lam + indx.lam;
 	pj_ctable::flp_t const& f00 = ct.cvs[index++];
 	pj_ctable::flp_t const& f10 = ct.cvs[index];
 	index += ct.lim.lam;
