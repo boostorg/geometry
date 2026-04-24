@@ -441,7 +441,7 @@ struct touch_interior : public base_turn_handler
         // 2) Important is: if q_k goes to LEFT, RIGHT, COLLINEAR
         //    and, if LEFT/COLL, if it is lying LEFT or RIGHT w.r.t. q_i
 
-        BOOST_STATIC_ASSERT(Index <= 1);
+        static_assert(Index <= 1, "Index out of bounds.");
         static unsigned int const index_p = Index;
         static unsigned int const index_q = 1 - Index;
 
@@ -1206,7 +1206,7 @@ private :
     static inline bool set_tp(int side_rk_r, TurnInfo& tp,
                               IntersectionInfo const& intersection_info)
     {
-        BOOST_STATIC_ASSERT(Index <= 1);
+        static_assert(Index <= 1, "Index out of bounds.");
 
         operation_type blocked = operation_blocked;
         switch(side_rk_r)

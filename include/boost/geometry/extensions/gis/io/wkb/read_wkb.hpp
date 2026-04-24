@@ -97,7 +97,7 @@ template <typename ByteType, typename Geometry>
 inline bool read_wkb(ByteType const* bytes, std::size_t length, Geometry& geometry)
 {
     static_assert(std::is_integral<ByteType>::value, "Byte type must be integral");
-    static_assert(sizeof(std::uint8_t) == sizeof(ByteType), "Byte type must have same with as uint8_t");
+    static_assert(sizeof(std::uint8_t) == sizeof(ByteType), "Byte type must have same width as uint8_t");
 
     ByteType const* begin = bytes;
     ByteType const* const end = bytes + length;
