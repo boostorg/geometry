@@ -12,8 +12,6 @@
 #include <fstream>
 #include "shapefil.h"
 
-#include <boost/type_traits/promote.hpp>
-
 #include <boost/geometry/io/wkt/wkt.hpp>
 
 #include <boost/geometry/extensions/gis/io/shapelib/shp_create_object.hpp>
@@ -70,6 +68,13 @@ template
 >
 class shape_creator
 {
+    template <typename T>
+    using promote_t = typename std::conditional
+        <
+            std::is_floating_point<T>::value,
+            double,
+            std::conditional<std::is_integral<T>::value, int, std::string>::type
+        >::type;
 public :
     shape_creator(std::string const& name)
     {
@@ -106,20 +111,14 @@ public :
     inline void AddField(std::string const& name, int width = 16, int decimals = 0)
     {
         ::DBFAddField(m_dbf, name.c_str(),
-            detail::DBFFieldType
-                <
-                    typename boost::promote<T>::type
-                >::value,
+            detail::DBFFieldType<promote_t<T>>::value,
             width, decimals);
     }
 
     template <typename T>
     inline void WriteField(int row_index, int field_index, T const& value)
     {
-        detail::DBFWriteAttribute
-            <
-                typename boost::promote<T>::type
-            >::apply(m_dbf, row_index, field_index, value);
+        detail::DBFWriteAttribute<promote_t<T>>::apply(m_dbf, row_index, field_index, value);
     }
 
     inline void SetSrid(int srid)
