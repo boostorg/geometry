@@ -11,6 +11,7 @@
 // Custom polygon example
 
 #include <iostream>
+#include <type_traits>
 
 #include <boost/assert.hpp>
 
@@ -74,7 +75,7 @@ struct custom_iterator : public boost::iterator_facade
                                 boost::random_access_traversal_tag,
                                 typename boost::mpl::if_
                                     <
-                                        boost::is_const<MyPolygon>,
+                                        std::is_const<MyPolygon>,
                                         my_point const,
                                         my_point
                                     >::type&
@@ -101,7 +102,7 @@ struct custom_iterator : public boost::iterator_facade
 
     typedef typename boost::mpl::if_
         <
-            boost::is_const<MyPolygon>,
+            std::is_const<MyPolygon>,
             my_point const,
             my_point
         >::type my_point_type;

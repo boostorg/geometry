@@ -17,6 +17,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#include <type_traits>
+
 #include <geometry_test_common.hpp>
 
 #if defined(_MSC_VER)
@@ -266,10 +268,10 @@ void test_integer(bool check_types)
 
     if (check_types)
     {
-        BOOST_CHECK((boost::is_same<distance_type, double>::type::value));
+        BOOST_CHECK((std::is_same<distance_type, double>::type::value));
         // comparable_distance results in now double too, obviously because
         // comp.distance point-segment can be fraction, even for integer input
-        BOOST_CHECK((boost::is_same<cdistance_type, double>::type::value));
+        BOOST_CHECK((std::is_same<cdistance_type, double>::type::value));
     }
 }
 

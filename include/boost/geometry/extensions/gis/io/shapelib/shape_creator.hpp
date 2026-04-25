@@ -10,6 +10,8 @@
 #define BOOST_GEOMETRY_EXT_GIS_IO_SHAPELIB_SHAPE_CREATOR_HPP
 
 #include <fstream>
+#include <type_traits>
+
 #include "shapefil.h"
 
 #include <boost/geometry/io/wkt/wkt.hpp>

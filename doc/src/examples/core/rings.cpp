@@ -15,6 +15,7 @@ Also shows the related ring_type and interior_type.
 */
 
 #include <iostream>
+#include <type_traits>
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -59,7 +60,7 @@ int main()
 
     std::cout
         << std::boolalpha
-        << boost::is_same<ring_type, int_ring_type>::value
+        << std::is_same<ring_type, int_ring_type>::value
         << std::endl;
 
     return 0;
