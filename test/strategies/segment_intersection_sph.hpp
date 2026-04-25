@@ -14,6 +14,8 @@
 #define BOOST_GEOMETRY_TEST_STRATEGIES_SEGMENT_INTERSECTION_SPH_HPP
 
 
+#include <type_traits>
+
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/equals.hpp>
@@ -97,7 +99,7 @@ void test_strategy_one(S1 const& s1, S2 const& s2,
     // probably due to differences in FP trigonometric function implementations
 
     int eps_scale = 1;
-    bool is_geographic = boost::is_same<typename bg::cs_tag<S1>::type, bg::geographic_tag>::value;
+    bool is_geographic = std::is_same<typename bg::cs_tag<S1>::type, bg::geographic_tag>::value;
     if (is_geographic)
     {
         eps_scale = 100000;

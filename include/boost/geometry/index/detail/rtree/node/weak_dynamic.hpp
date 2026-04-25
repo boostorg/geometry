@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_WEAK_DYNAMIC_HPP
 
+#include <memory>
+
 #include <boost/container/allocator_traits.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/core/pointer_traits.hpp>
@@ -281,7 +283,7 @@ struct destroy_weak_node
         typedef typename Al::pointer P;
 
         P p(&static_cast<Node&>(rtree::get<Node>(*n)));
-        Al::destroy(alloc_node, boost::addressof(*p));
+        Al::destroy(alloc_node, std::addressof(*p));
         Al::deallocate(alloc_node, p, 1);
     }
 };

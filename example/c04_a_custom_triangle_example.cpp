@@ -10,9 +10,8 @@
 //
 // Custom Triangle Example
 
+#include <array>
 #include <iostream>
-
-#include <boost/array.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/centroid.hpp>
@@ -22,7 +21,7 @@
 #include <boost/geometry/io/dsv/write.hpp>
 
 
-struct triangle : public boost::array<boost::geometry::model::d2::point_xy<double>, 4>
+struct triangle : public std::array<boost::geometry::model::d2::point_xy<double>, 4>
 {
     inline void close()
     {

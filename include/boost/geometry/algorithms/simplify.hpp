@@ -24,10 +24,10 @@
 #ifdef BOOST_GEOMETRY_DEBUG_DOUGLAS_PEUCKER
 #include <iostream>
 #endif
+#include <memory>
 #include <set>
 #include <vector>
 
-#include <boost/core/addressof.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
@@ -90,7 +90,7 @@ struct douglas_peucker_point
     bool included;
 
     inline douglas_peucker_point(Point const& ap)
-        : p(boost::addressof(ap))
+        : p(std::addressof(ap))
         , included(false)
     {}
 };

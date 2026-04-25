@@ -40,7 +40,7 @@ namespace pack_utils {
 template <std::size_t Dimension>
 struct biggest_edge
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive.");
     template <typename Box>
     static inline void apply(Box const& box, coordinate_type_t<Box> & length, std::size_t & dim_index)
     {

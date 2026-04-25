@@ -7,9 +7,10 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <rtree/test_rtree.hpp>
+#include <memory>
+#include <type_traits>
 
-#include <boost/core/addressof.hpp>
+#include <rtree/test_rtree.hpp>
 
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -27,16 +28,16 @@ void check_convertible_to_value(Rtree const& rt, Convertible const& conv)
 {
     static const bool
         is_conv_to_indexable
-            = boost::is_convertible<Convertible, typename Rtree::indexable_type>::value;
+            = std::is_convertible<Convertible, typename Rtree::indexable_type>::value;
     static const bool
         is_conv_to_value
-            = boost::is_convertible<Convertible, typename Rtree::value_type>::value;
+            = std::is_convertible<Convertible, typename Rtree::value_type>::value;
     static const bool
         is_same_as_indexable
-            = boost::is_same<Convertible, typename Rtree::indexable_type>::value;
+            = std::is_same<Convertible, typename Rtree::indexable_type>::value;
     static const bool
         is_same_as_value
-            = boost::is_same<Convertible, typename Rtree::value_type>::value;
+            = std::is_same<Convertible, typename Rtree::value_type>::value;
 
     BOOST_CHECK_EQUAL(is_same_as_indexable, false);
     BOOST_CHECK_EQUAL(is_same_as_value, false);
@@ -52,7 +53,7 @@ void test_pair()
 {
     typedef std::pair<Box, std::size_t> Value;
 
-    typename boost::remove_const<Box>::type box;
+    typename std::remove_const<Box>::type box;
     bg::assign_zero(box);
 
     Value val(box, 0);
@@ -93,21 +94,21 @@ void test_pair_geom_ptr()
 
     typedef std::pair<Box, polygon_t*> Value;
 
-    typename boost::remove_const<Box>::type box;
+    typename std::remove_const<Box>::type box;
     bg::assign_zero(box);
 
     polygon_t poly;
 
-    Value val(box, boost::addressof(poly));
+    Value val(box, std::addressof(poly));
 
     bgi::rtree<Value, Params> rt;
     rt.insert(val);
-    rt.insert(std::make_pair(box, boost::addressof(poly)));
+    rt.insert(std::make_pair(box, std::addressof(poly)));
 
     BOOST_CHECK_EQUAL(rt.size(), 2u);
 
     BOOST_CHECK_EQUAL(rt.remove(val), 1u);
-    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, boost::addressof(poly))), 1u);
+    BOOST_CHECK_EQUAL(rt.remove(std::make_pair(box, std::addressof(poly))), 1u);
 
     BOOST_CHECK_EQUAL(rt.size(), 0u);
 }

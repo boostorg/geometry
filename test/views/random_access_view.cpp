@@ -85,9 +85,12 @@ void test_all(Make make)
 
     using non_gc_types = bg::util::type_sequence<point_t, linestring_t, polygon_t>;
     using view_types = typename bg::traits::geometry_types<view_t>::type;
-    BOOST_STATIC_ASSERT((std::is_same<non_gc_types, view_types>::value));
-    BOOST_STATIC_ASSERT(bg::detail::is_random_access_range<view_t>::value);
-    BOOST_STATIC_ASSERT(! bg::detail::is_geometry_collection_recursive<view_t>::value);
+    static_assert(std::is_same<non_gc_types, view_types>::value,
+        "Unexpected type sequence returned.");
+    static_assert(bg::detail::is_random_access_range<view_t>::value,
+        "Must satisfy random access range concept.");
+    static_assert(! bg::detail::is_geometry_collection_recursive<view_t>::value,
+        "Must not be nested geometry collection.");
     
     size_t s = boost::size(gc);
     for (size_t i = 0 ; i < s ; ++i)
@@ -104,15 +107,23 @@ void test_all(Make make)
 
 int test_main(int, char* [])
 {
-    BOOST_STATIC_ASSERT(bg::detail::is_random_access_range<gc_t>::value);
-    BOOST_STATIC_ASSERT(! bg::detail::is_random_access_range<nra_gc_t>::value);
-    BOOST_STATIC_ASSERT(bg::detail::is_random_access_range<rec_gc_t>::value);
-    BOOST_STATIC_ASSERT(! bg::detail::is_random_access_range<rec_nra_gc_t>::value);
+    static_assert(bg::detail::is_random_access_range<gc_t>::value,
+        "Default geometry collection must satisfy random access range concept.");
+    static_assert(! bg::detail::is_random_access_range<nra_gc_t>::value,
+        "List-based geometry collection must not satisfy random access range concept.");
+    static_assert(bg::detail::is_random_access_range<rec_gc_t>::value,
+        "Default geometry collection must satisfy random access range concept.");
+    static_assert(! bg::detail::is_random_access_range<rec_nra_gc_t>::value,
+        "List-based geometry collection must not satisfy random access range concept.");
 
-    BOOST_STATIC_ASSERT(! bg::detail::is_geometry_collection_recursive<gc_t>::value);
-    BOOST_STATIC_ASSERT(! bg::detail::is_geometry_collection_recursive<nra_gc_t>::value);
-    BOOST_STATIC_ASSERT(bg::detail::is_geometry_collection_recursive<rec_gc_t>::value);
-    BOOST_STATIC_ASSERT(bg::detail::is_geometry_collection_recursive<rec_nra_gc_t>::value);
+    static_assert(! bg::detail::is_geometry_collection_recursive<gc_t>::value,
+        "Flat GC must not satisfy recursive GC predicate.");
+    static_assert(! bg::detail::is_geometry_collection_recursive<nra_gc_t>::value,
+        "Flat GC must not satisfy recursive GC predicate.");
+    static_assert(bg::detail::is_geometry_collection_recursive<rec_gc_t>::value,
+        "Recursive GC must satisfy recursive GC predicate.");
+    static_assert(bg::detail::is_geometry_collection_recursive<rec_nra_gc_t>::value,
+        "Recursive GC must satisfy recursive GC predicate.");
 
     test_all<gc_t>(make_gc<gc_t>);
     test_all<nra_gc_t>(make_gc<nra_gc_t>);

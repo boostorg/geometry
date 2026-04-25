@@ -36,7 +36,7 @@ template
 >
 struct less_seg_fraction_other_op
 {
-    BOOST_STATIC_ASSERT(OpId < 2);
+    static_assert(OpId < 2, "Only 0 and 1 are valid OpIds.");
     static const std::size_t other_op_id = (OpId + 1) % 2;
 
     template <typename Op>

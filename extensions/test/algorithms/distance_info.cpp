@@ -11,6 +11,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <string>
+#include <type_traits>
 
 #include <geometry_test_common.hpp>
 
@@ -61,8 +62,8 @@ void test_distance_info(Geometry1 const& geometry1, Geometry2 const& geometry2,
 
     // Check reversed version too.
     std::string reversed_expected_pp = expected_pp;
-    if (boost::is_same<typename bg::tag<Geometry1>::type, bg::point_tag>::value
-        && boost::is_same<typename bg::tag<Geometry2>::type, bg::point_tag>::value
+    if (std::is_same<typename bg::tag<Geometry1>::type, bg::point_tag>::value
+        && std::is_same<typename bg::tag<Geometry2>::type, bg::point_tag>::value
         )
     {
         // For point-point, we cannot check projected-point again, it is also the other one.

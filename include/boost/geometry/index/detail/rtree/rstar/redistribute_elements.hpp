@@ -17,8 +17,6 @@
 
 #include <boost/core/ignore_unused.hpp>
 
-#include <boost/geometry/core/static_assert.hpp>
-
 #include <boost/geometry/index/detail/algorithms/intersection_content.hpp>
 #include <boost/geometry/index/detail/algorithms/margin.hpp>
 #include <boost/geometry/index/detail/algorithms/nth_element.hpp>
@@ -275,7 +273,7 @@ struct choose_split_axis_and_index_for_axis<Box, AxisIndex, point_tag>
 template <typename Box, size_t Dimension>
 struct choose_split_axis_and_index
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive.");
 
     typedef typename index::detail::default_margin_result<Box>::type margin_type;
     typedef typename index::detail::default_content_result<Box>::type content_type;
@@ -360,8 +358,8 @@ struct choose_split_axis_and_index<Box, 1>
 template <size_t Corner, size_t Dimension, size_t I = 0>
 struct nth_element
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
-    BOOST_STATIC_ASSERT(I < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive.");
+    static_assert(I < Dimension, "Index out of bounds.");
 
     template <typename Elements, typename Parameters, typename Translator>
     static inline void apply(Elements & elements, Parameters const& parameters,

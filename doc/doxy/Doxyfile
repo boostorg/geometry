@@ -328,7 +328,6 @@ INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = BOOST_CONCEPT_REQUIRES(x) \
                          BOOST_CONCEPT_ASSERT(x) \
-                         BOOST_STATIC_ASSERT(x) \
                          DOXYGEN_SHOULD_SKIP_THIS \
                          DOXYGEN_NO_DISPATCH \
                          DOXYGEN_NO_IMPL \

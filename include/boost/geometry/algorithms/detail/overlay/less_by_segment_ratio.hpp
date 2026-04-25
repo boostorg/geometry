@@ -17,10 +17,10 @@
 #include <cstddef>
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <set>
 #include <vector>
 
-#include <boost/core/addressof.hpp>
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
@@ -58,7 +58,7 @@ struct indexed_turn_operation
         : turn_index(ti)
         , operation_index(oi)
         , other_seg_id(&oid)
-        , subject(boost::addressof(sub))
+        , subject(std::addressof(sub))
         , discarded(dc)
     {}
 

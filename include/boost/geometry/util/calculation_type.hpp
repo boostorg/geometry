@@ -17,8 +17,6 @@
 #define BOOST_GEOMETRY_UTIL_CALCULATION_TYPE_HPP
 
 
-#include <boost/static_assert.hpp>
-
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
 
@@ -53,18 +51,18 @@ template
 >
 struct calculation_type
 {
-    BOOST_STATIC_ASSERT((
+    static_assert(
         std::is_fundamental
             <
                 DefaultFloatingPointCalculationType
-            >::value
-        ));
-    BOOST_STATIC_ASSERT((
+            >::value,
+        "DefaultFloatingPointCalculationType must be fundamental.");
+    static_assert(
         std::is_fundamental
             <
                 DefaultIntegralCalculationType
-            >::value
-        ));
+            >::value,
+        "DefaultIntegralCalculationType must be fundamental.");
 
 
     typedef std::conditional_t

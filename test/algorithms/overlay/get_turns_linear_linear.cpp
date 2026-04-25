@@ -17,6 +17,8 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <type_traits>
+
 #include "test_get_turns.hpp"
 #include <boost/geometry/geometries/geometries.hpp>
 
@@ -262,7 +264,7 @@ void test_all()
                           "LINESTRING(-5 -4,3 0,7 -4,2 -1)",
                           expected("tii++")("mxu==")("miu==")("mui=+"));
 
-    if ( BOOST_GEOMETRY_CONDITION((boost::is_same<T, double>::value)) )
+    if ( BOOST_GEOMETRY_CONDITION((std::is_same<T, double>::value)) )
     {
         // BUG - the operations are correct but IP coordinates are wrong
         // ok now also the 3rd turn is wrong
