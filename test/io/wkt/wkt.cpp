@@ -205,7 +205,7 @@ void test_wrong_wkt_read_write(std::string const& wkt, std::string const& start)
     // For ttmath we skip bad lexical casts
     typedef typename bg::coordinate_type<G>::type ct;
 
-    if (boost::is_same<ct, ttmath_big>::type::value
+    if (std::is_same<ct, ttmath_big>::type::value
         && boost::starts_with(start, "bad lexical cast"))
     {
         check = false;

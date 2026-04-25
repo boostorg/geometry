@@ -18,6 +18,7 @@
 
 #include <limits>
 #include <iostream>
+#include <type_traits>
 
 #include <boost/test/included/unit_test.hpp>
 
@@ -1294,7 +1295,7 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 template <typename CoordinateType, typename Geometry>
 inline void check_one(Geometry const& geometry)
 {
-    bool const is_fp = boost::is_floating_point<CoordinateType>::value;
+    bool const is_fp = std::is_floating_point<CoordinateType>::value;
 
     bg::validity_failure_type failure;
     bool validity = bg::is_valid(geometry, failure);

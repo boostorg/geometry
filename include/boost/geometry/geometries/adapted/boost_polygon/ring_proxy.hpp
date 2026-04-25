@@ -18,6 +18,8 @@
 // boost::polygon::polygon_with_holes_data -> boost::geometry::polygon
 //   pair{begin_points, end_points} -> ring_proxy
 
+#include <type_traits>
+
 #include <boost/polygon/polygon.hpp>
 #include <boost/range/const_iterator.hpp>
 #include <boost/range/mutable_iterator.hpp>
@@ -80,15 +82,15 @@ class ring_proxy
 public :
     typedef typename boost::polygon::polygon_traits
         <
-            typename boost::remove_const<Polygon>::type
+            typename std::remove_const<Polygon>::type
         >::iterator_type iterator_type;
 
     typedef typename boost::polygon::polygon_with_holes_traits
         <
-            typename boost::remove_const<Polygon>::type
+            typename std::remove_const<Polygon>::type
         >::iterator_holes_type hole_iterator_type;
 
-    static const bool is_mutable = !boost::is_const<Polygon>::type::value;
+    static const bool is_mutable = !std::is_const<Polygon>::value;
 
     inline ring_proxy(Polygon& p)
         : m_polygon_pointer(&p)

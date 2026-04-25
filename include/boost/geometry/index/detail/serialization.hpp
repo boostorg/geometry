@@ -16,9 +16,6 @@
 
 #include <memory>
 
-#include <boost/type_traits/alignment_of.hpp>
-#include <boost/type_traits/aligned_storage.hpp>
-
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/version.hpp>
@@ -67,10 +64,10 @@ public:
     }
     T * address()
     {
-        return static_cast<T*>(m_storage.address());
+        return reinterpret_cast<T*>(&m_storage);
     }
 private:
-    boost::aligned_storage<sizeof(T), boost::alignment_of<T>::value> m_storage;
+    alignas(T) unsigned char m_storage[sizeof(T)];
 };
 
 // TODO - save and load item_version? see: collections_load_imp and collections_save_imp

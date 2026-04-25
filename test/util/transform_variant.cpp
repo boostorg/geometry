@@ -13,13 +13,14 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 
+#include <type_traits>
+
 #include <boost/test/included/test_exec_monitor.hpp>
 #include <boost/geometry/util/transform_variant.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/equal.hpp>
 #include <boost/mpl/placeholders.hpp>
 #include <boost/mpl/vector.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/variant/variant.hpp>
 
 using boost::mpl::placeholders::_;
@@ -42,7 +43,7 @@ int test_main(int, char* [])
     // Transform Variant to Variant
     typedef boost::geometry::transform_variant<
         boost::variant<int, float, long>,
-        boost::add_pointer<_>
+        std::add_pointer<_>
     >::type transformed1;
 
     check<boost::mpl::vector<int*, float*, long*> >(transformed1());
@@ -50,7 +51,7 @@ int test_main(int, char* [])
     // Transform Sequence to Variant (without inserter)
     typedef boost::geometry::transform_variant<
         boost::mpl::vector<int, float, long>,
-        boost::add_pointer<_>
+        std::add_pointer<_>
     >::type transformed2;
 
     check<boost::mpl::vector<int*, float*, long*> >(transformed2());
@@ -58,7 +59,7 @@ int test_main(int, char* [])
     // Transform Sequence to Variant (with inserter)
     typedef boost::geometry::transform_variant<
         boost::mpl::vector<int, float, long>,
-        boost::add_pointer<_>,
+        std::add_pointer<_>,
         boost::mpl::back_inserter<boost::mpl::vector0<> >
     >::type transformed3;
 
