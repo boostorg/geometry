@@ -73,28 +73,35 @@ public:
 
         CT const c0 = CT(0);
         CT const c1 = CT(1);
+        CT const c2 = CT(2);
         CT const pi = math::pi<CT>();
         CT const f = formula::flattening<CT>(spheroid);
 
         CT const dlon = lon2 - lon1;
+        CT const dlat = lat2 - lat1;
         CT const sin_dlon = sin(dlon);
         CT const cos_dlon = cos(dlon);
+        CT const hav_dlon = math::hav(dlon);
         CT const sin_lat1 = sin(lat1);
         CT const cos_lat1 = cos(lat1);
         CT const sin_lat2 = sin(lat2);
         CT const cos_lat2 = cos(lat2);
+        CT const hav_dlat = math::hav(dlat);
 
-        // H,G,T = infinity if cos_d = 1 or cos_d = -1
+        // using the haversine formula instead of the cosine law for better accuracy around short distances
+        // H,G,T = infinity if hav_d = 0 or hav_d = 1
         // lat1 == +-90 && lat2 == +-90
         // lat1 == lat2 && lon1 == lon2
-        CT cos_d = sin_lat1*sin_lat2 + cos_lat1*cos_lat2*cos_dlon;
-        // on some platforms cos_d may be outside valid range
-        if (cos_d < -c1)
-            cos_d = -c1;
-        else if (cos_d > c1)
-            cos_d = c1;
+        CT hav_d = hav_dlat + cos_lat1*cos_lat2*hav_dlon;
+        // on some platforms hav_d may be outside valid range
+        if (hav_d < c0)
+            hav_d = c0;
+        else if (hav_d > c1)
+            hav_d = c1;
 
-        CT const d = acos(cos_d); // [0, pi]
+        CT const sin_d_half = sqrt(hav_d);
+        CT const d_half = asin(sin_d_half);
+        CT const d = c2 * d_half; // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
 
         if BOOST_GEOMETRY_CONSTEXPR (EnableDistance)
@@ -103,8 +110,8 @@ public:
             CT const L = math::sqr(sin_lat1+sin_lat2);
             CT const three_sin_d = CT(3) * sin_d;
 
-            CT const one_minus_cos_d = c1 - cos_d;
-            CT const one_plus_cos_d = c1 + cos_d;
+            CT const one_minus_cos_d = c2 * hav_d;
+            CT const one_plus_cos_d = c2 - one_minus_cos_d;
             // cos_d = 1 means that the points are very close
             // cos_d = -1 means that the points are antipodal
 
@@ -141,7 +148,7 @@ public:
                 // correctly and consistently across all formulas.
 
                 // points very close
-                if (cos_d >= c0)
+                if (hav_d <= CT(0.5))
                 {
                     result.azimuth = c0;
                     result.reverse_azimuth = c0;
@@ -164,7 +171,8 @@ public:
             }
             else
             {
-                CT const c2 = CT(2);
+                CT const M = cos_lat1 * sin_lat2;
+                CT const N = sin_lat1 * cos_lat2;
 
                 CT A = c0;
                 CT U = c0;
@@ -177,9 +185,7 @@ public:
                 }
                 else
                 {
-                    CT const tan_lat2 = sin_lat2/cos_lat2;
-                    CT const M = cos_lat1*tan_lat2-sin_lat1*cos_dlon;
-                    A = atan2(sin_dlon, M);
+                    A = atan2(sin_dlon*cos_lat2, M - N*cos_dlon);
                     CT const sin_2A = sin(c2*A);
                     U = (f/ c2)*math::sqr(cos_lat1)*sin_2A;
                 }
@@ -195,9 +201,7 @@ public:
                 }
                 else
                 {
-                    CT const tan_lat1 = sin_lat1/cos_lat1;
-                    CT const N = cos_lat2*tan_lat1-sin_lat2*cos_dlon;
-                    B = atan2(sin_dlon, N);
+                    B = atan2(sin_dlon*cos_lat1, N - M*cos_dlon);
                     CT const sin_2B = sin(c2*B);
                     V = (f/ c2)*math::sqr(cos_lat2)*sin_2B;
                 }
