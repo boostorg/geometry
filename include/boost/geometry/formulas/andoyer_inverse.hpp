@@ -95,9 +95,13 @@ public:
         CT hav_d = hav_dlat + cos_lat1*cos_lat2*hav_dlon;
         // on some platforms hav_d may be outside valid range
         if (hav_d < c0)
+        {
             hav_d = c0;
+        }
         else if (hav_d > c1)
+        {
             hav_d = c1;
+        }
 
         CT const sin_d_half = math::sqrt(hav_d);
         CT const d_half = asin(sin_d_half);
