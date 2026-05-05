@@ -15,6 +15,10 @@
 This Quick Start section shows some of the features of __boost_geometry__
 in the form of annotated, relatively simple, code snippets.
 
+For longer standalone tutorial-style programs, see the repository's `example/` directory;
+for smaller reference-oriented snippets used throughout the manual,
+see `doc/src/examples/`.
+
 The code below assumes that `boost/geometry.hpp` is included, and that `namespace 
 boost::geometry` is used. __boost_geometry__ is header only, so including 
 headerfiles is enough. There is no linking with any library necessary.
