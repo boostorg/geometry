@@ -92,7 +92,7 @@ public:
         // H,G,T = infinity if hav_d = 0 or hav_d = 1
         // lat1 == +-90 && lat2 == +-90
         // lat1 == lat2 && lon1 == lon2
-        CT hav_d = hav_dlat + cos_lat1*cos_lat2*hav_dlon;
+        CT hav_d = hav_dlat + (cos_lat1 * cos_lat2 * hav_dlon);
         // on some platforms hav_d may be outside valid range
         if (hav_d < c0)
         {
@@ -189,7 +189,7 @@ public:
                 }
                 else
                 {
-                    A = atan2(sin_dlon*cos_lat2, M - N*cos_dlon);
+                    A = atan2(sin_dlon * cos_lat2, M - (N * cos_dlon));
                     CT const sin_2A = sin(c2*A);
                     U = (f/ c2)*math::sqr(cos_lat1)*sin_2A;
                 }
@@ -205,7 +205,7 @@ public:
                 }
                 else
                 {
-                    B = atan2(sin_dlon*cos_lat1, N - M*cos_dlon);
+                    B = atan2(sin_dlon * cos_lat1, N - (M * cos_dlon));
                     CT const sin_2B = sin(c2*B);
                     V = (f/ c2)*math::sqr(cos_lat2)*sin_2B;
                 }
