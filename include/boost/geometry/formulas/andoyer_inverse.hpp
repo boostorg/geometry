@@ -99,7 +99,7 @@ public:
         else if (hav_d > c1)
             hav_d = c1;
 
-        CT const sin_d_half = sqrt(hav_d);
+        CT const sin_d_half = math::sqrt(hav_d);
         CT const d_half = asin(sin_d_half);
         CT const d = c2 * d_half; // [0, pi]
         CT const sin_d = sin(d);  // [-1, 1]
