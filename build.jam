@@ -34,7 +34,6 @@ constant boost_dependencies :
     /boost/range//boost_range
     /boost/rational//boost_rational
     /boost/serialization//boost_serialization
-    /boost/static_assert//boost_static_assert
     /boost/thread//boost_thread
     /boost/throw_exception//boost_throw_exception
     /boost/tokenizer//boost_tokenizer
