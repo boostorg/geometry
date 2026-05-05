@@ -138,17 +138,24 @@ a Creative Commons Attribution 4.0 International License (CC BY
   standards-compliant geometric computation. It defines geometry
   <italic>concepts</italic> and implements algorithms in a dimension-
   and coordinate-system-agnostic manner. Since its inclusion in Boost
-  (2011), it has become a widely used component in C++ scientific and
-  industrial software.</p>
+  (2011), it has been used in a range of C++ scientific and industrial
+  software.</p>
 </sec>
 <sec id="statement-of-need">
   <title>Statement of need</title>
-  <p><monospace>Boost.Geometry</monospace> fulfills the need for a
-  general-purpose, high-performance geometry engine in C++ with:</p>
+  <p>C++ developers working in GIS, robotics, computer graphics, CAD,
+  simulation, and scientific computing frequently require geometry
+  algorithms that are both correct and efficient across multiple
+  coordinate systems. Existing solutions either target a single
+  coordinate system, lack extensibility for user-defined types, or
+  impose runtime overhead through dynamic dispatching.
+  <monospace>Boost.Geometry</monospace> addresses these needs by
+  providing:</p>
   <list list-type="bullet">
     <list-item>
       <p>A generic programming architecture via concepts, type traits,
-      and template metaprogramming</p>
+      and template metaprogramming, enabling zero-overhead
+      abstraction</p>
     </list-item>
     <list-item>
       <p>Strategy-based dispatch enabling coordinate-system-specific
@@ -166,10 +173,12 @@ a Creative Commons Attribution 4.0 International License (CC BY
     </list-item>
     <list-item>
       <p>Header-only distribution, simplifying deployment and
-      integration</p>
+      integration into existing codebases without additional build
+      dependencies</p>
     </list-item>
     <list-item>
-      <p>Support for adapting user-defined geometry types</p>
+      <p>Seamless adaptation of user-defined geometry types without
+      modifying existing data structures</p>
     </list-item>
   </list>
 </sec>
@@ -182,27 +191,55 @@ a Creative Commons Attribution 4.0 International License (CC BY
   applications and serves as the core geometry engine for major
   geospatial tools like PostGIS
   (<xref alt="PostGIS Contributors, 2025" rid="ref-PostGISU003A2025" ref-type="bibr">PostGIS
-  Contributors, 2025</xref>).</p>
+  Contributors, 2025</xref>). GEOS is widely used in GIS, but it is
+  centered on its own runtime geometry model and API. By contrast,
+  <monospace>Boost.Geometry</monospace> is designed as a generic C++
+  library: users can work with adapted user-defined types, write against
+  stateless free functions, and integrate geometry algorithms into
+  existing C++ code without introducing a separate object hierarchy.</p>
   <p>CGAL
   (<xref alt="Fabri et al., 2000" rid="ref-FabriU003A2000" ref-type="bibr">Fabri
   et al., 2000</xref>) is a comprehensive C++ library covering a broader
-  range of geometric algorithms (triangulations, Voronoi diagrams, mesh
-  generation, geometry processing) with a strong emphasis on robustness
-  via exact geometric predicates and constructions.</p>
+  range of geometric algorithms, including triangulations, Voronoi
+  diagrams, mesh generation, and geometry processing, with a strong
+  emphasis on robustness via exact geometric predicates and
+  constructions. Compared with CGAL,
+  <monospace>Boost.Geometry</monospace> is more narrowly focused on the
+  geometry operations and predicates commonly needed in GIS, geospatial
+  software, and related scientific applications. Its added value lies in
+  combining this focus with support for Cartesian, spherical, and
+  geographic coordinate systems, as well as spatial indexing, within a
+  single generic programming framework.</p>
   <p>Coordinate transformations and CRS handling are commonly performed
   using PROJ
   (<xref alt="PROJ Contributors, 2024" rid="ref-PROJU003A2024" ref-type="bibr">PROJ
-  Contributors, 2024</xref>), which users integrate alongside geometry
-  libraries for projections and datum transformations. For spatial
-  indexing, specialized libraries such as libspatialindex
+  Contributors, 2024</xref>), which users often combine with geometry
+  libraries for projections and datum transformations. Similarly,
+  specialized libraries such as libspatialindex
   (<xref alt="L. Contributors, 2024" rid="ref-libspatialindexU003A2024" ref-type="bibr">L.
-  Contributors, 2024</xref>) are frequently used.</p>
+  Contributors, 2024</xref>) are frequently used for spatial indexing.
+  <monospace>Boost.Geometry</monospace> does not aim to replace such
+  specialized tools in full; rather, it provides commonly needed
+  projections, coordinate-system-aware algorithms, and an R-tree
+  implementation for spatial and nearest-neighbor queries within the
+  same header-only library, which can simplify integration in some
+  workflows.</p>
   <p>GeographicLib
   (<xref alt="Karney &amp; Contributors, 2013" rid="ref-GeographicLibU003A2013" ref-type="bibr">Karney
   &amp; Contributors, 2013</xref>) and Karney’s work on geodesics
   (<xref alt="Karney, 2013" rid="ref-KarneyU003A2013" ref-type="bibr">Karney,
   2013</xref>) provide state-of-the-art algorithms for ellipsoidal
-  geodesic problems.</p>
+  geodesic problems. <monospace>Boost.Geometry</monospace> builds on
+  these geodetic methods and incorporates them into a broader geometry
+  library, allowing users to apply geographic calculations as part of
+  higher-level operations such as distance, area, and buffering. This
+  integration is useful in applications that need geodetic accuracy
+  without first projecting data into a planar coordinate system.</p>
+  <p>In summary, these libraries each excel in their respective domains,
+  but <monospace>Boost.Geometry</monospace> occupies a distinct position
+  by combining generic C++ type adaptation, coordinate-system-aware
+  geometric algorithms, geodetic support, and integrated spatial
+  indexing in a single header-only library.</p>
 </sec>
 <sec id="software-design">
   <title>Software design</title>
@@ -265,9 +302,13 @@ a Creative Commons Attribution 4.0 International License (CC BY
   et al., 2024</xref>). Contributor guidelines, documentation tooling,
   talks, and videos are collected on the
   <ext-link ext-link-type="uri" xlink:href="https://github.com/boostorg/geometry/wiki">project
-  wiki</ext-link>. The repository’s <monospace>test/</monospace> and
-  <monospace>example/</monospace> directories contain an extensive suite
-  of unit and regression tests alongside usage examples. Continuous
+  wiki</ext-link>. The repository’s <monospace>test/</monospace>
+  directory contain an extensive suite of unit and regression tests. The
+  repository also provides examples in multiple forms: standalone
+  tutorial-style programs in <monospace>example/</monospace>,
+  documentation-integrated snippets in
+  <monospace>doc/src/examples/</monospace>, and spatial-index-specific
+  material in <monospace>index/example/</monospace>. Continuous
   integration on the Boost project provides broad platform and compiler
   coverage; <monospace>Boost.Geometry</monospace> also runs
   project-specific CI on GitHub Actions and CircleCI.</p>
@@ -276,19 +317,21 @@ a Creative Commons Attribution 4.0 International License (CC BY
   <title>Research impact statement</title>
   <p><monospace>Boost.Geometry</monospace> has demonstrated significant
   adoption across scientific and industrial domains since its inclusion
-  in Boost (2011).</p>
+  in Boost (2011). The examples below are indicative rather than
+  exhaustive, and highlight the diversity of settings in which the
+  library has been used.</p>
   <p>MySQL uses <monospace>Boost.Geometry</monospace> as the geometry
   engine for spatial SQL operations
   (<xref alt="Zhao, 2014" rid="ref-MySQLGISU003A2014" ref-type="bibr">Zhao,
-  2014</xref>), exposing it to millions of database deployments
-  worldwide.</p>
+  2014</xref>), demonstrating use in production database systems.</p>
   <p>In spatial data management research, Hecatoncheir
   (<xref alt="Georgiadis et al., 2025" rid="ref-GeorgiadisU003A2025" ref-type="bibr">Georgiadis
   et al., 2025</xref>), a distributed in-memory spatial data management
   library, uses <monospace>Boost.Geometry</monospace> for geometry
-  comparisons and reports orders-of-magnitude speedups over Apache
-  Sedona, showing that <monospace>Boost.Geometry</monospace> can serve
-  as the geometry engine in high-performance distributed systems.</p>
+  comparisons. The system reports orders-of-magnitude speedups over
+  Apache Sedona, illustrating the use of
+  <monospace>Boost.Geometry</monospace> within a high-performance
+  distributed setting.</p>
   <p>In scientific computing, the lifex finite-element library
   (<xref alt="Bucelli, 2025" rid="ref-BucelliU003A2024" ref-type="bibr">Bucelli,
   2025</xref>), uses <monospace>Boost.Geometry</monospace>’s R-tree
@@ -303,7 +346,7 @@ a Creative Commons Attribution 4.0 International License (CC BY
   respectively.</p>
   <p>In crowd simulation research, Vermeulen et al.
   (<xref alt="2017" rid="ref-VermeulenU003A2017" ref-type="bibr">2017</xref>)
-  use and evaluate <monospace>Boost.Geometry</monospace>’s R-tree for
+  used and evaluated <monospace>Boost.Geometry</monospace>’s R-tree for
   k-nearest-neighbour searching.</p>
   <p>In robotics, Ashtekar &amp; Dutta
   (<xref alt="2023" rid="ref-AshtekarU003A2023" ref-type="bibr">2023</xref>)
@@ -331,8 +374,11 @@ a Creative Commons Attribution 4.0 International License (CC BY
 <sec id="ai-usage-disclosure">
   <title>AI usage disclosure</title>
   <p>No generative AI tools were used in the development of this
-  software, the writing of this manuscript, or the preparation of
-  supporting materials.</p>
+  software or supporting materials. Generative AI was used in a limited
+  role to suggest wording improvements during proofreading of this
+  manuscript. All AI-suggested edits were reviewed and confirmed by the
+  authors. The AI tool used for this assistance was GitHub Copilot with
+  GPT-5.4.</p>
 </sec>
 </body>
 <back>
