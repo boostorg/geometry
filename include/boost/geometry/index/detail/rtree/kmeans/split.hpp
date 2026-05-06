@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_KMEANS_SPLIT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_KMEANS_SPLIT_HPP
 
+#include <boost/container/static_vector.hpp>
+
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/visitors/insert.hpp>
 
@@ -79,11 +81,11 @@ protected:
     typedef typename MembersHolder::leaf leaf;
 
 public:
-    typedef index::detail::varray
+    using nodes_container_type = boost::container::static_vector
         <
             typename rtree::elements_type<internal_node>::type::value_type,
             1
-        > nodes_container_type;
+        >;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,

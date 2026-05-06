@@ -17,13 +17,9 @@
 
 #include <type_traits>
 
-#include <boost/container/vector.hpp>
-
 #include <boost/geometry/core/static_assert.hpp>
 
 #include <boost/geometry/algorithms/expand.hpp>
-
-#include <boost/geometry/index/detail/varray.hpp>
 
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>

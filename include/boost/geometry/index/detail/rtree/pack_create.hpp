@@ -17,6 +17,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 
+#include <vector>
+
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/centroid.hpp>
@@ -205,7 +207,7 @@ public:
             template rebind_alloc<entry_type> temp_entry_allocator_type;
 
         temp_entry_allocator_type temp_entry_allocator(temp_allocator);
-        boost::container::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
+        std::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
 
         values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);

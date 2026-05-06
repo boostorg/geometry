@@ -7,8 +7,6 @@
 
 foreach(item IN ITEMS
     minmax_heap
-    varray_old
-    varray
   )
   boost_geometry_add_unit_test("index" ${item})
 endforeach()

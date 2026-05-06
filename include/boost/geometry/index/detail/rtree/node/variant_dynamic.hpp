@@ -17,8 +17,9 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP
 
 #include <utility>
+#include <vector>
+
 #include <boost/container/allocator_traits.hpp>
-#include <boost/container/vector.hpp>
 #include <boost/core/invoke_swap.hpp>
 #include <boost/core/pointer_traits.hpp>
 #include <boost/variant/static_visitor.hpp>
@@ -44,7 +45,7 @@ struct variant_internal_node
             typename Allocators::node_allocator_type
         >::template rebind_alloc<element_type> allocator_type;
 
-    typedef boost::container::vector<element_type, allocator_type> elements_type;
+    using elements_type = std::vector<element_type, allocator_type>;
 
     template <typename Al>
     inline variant_internal_node(Al const& al)
@@ -62,7 +63,7 @@ struct variant_leaf
             typename Allocators::node_allocator_type
         >::template rebind_alloc<Value> allocator_type;
 
-    typedef boost::container::vector<Value, allocator_type> elements_type;
+    using elements_type = std::vector<Value, allocator_type>;
 
     template <typename Al>
     inline variant_leaf(Al const& al)
