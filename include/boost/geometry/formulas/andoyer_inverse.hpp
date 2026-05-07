@@ -114,6 +114,8 @@ public:
             CT const L = math::sqr(sin_lat1+sin_lat2);
             CT const three_sin_d = CT(3) * sin_d;
 
+            // follows from definition of haversine and trigonometric power reduction formula:
+            // hav(d) = sin^2(d/2) = (1 - cos(d))/2
             CT const one_minus_cos_d = c2 * hav_d;
             CT const one_plus_cos_d = c2 - one_minus_cos_d;
             // cos_d = 1 means that the points are very close
