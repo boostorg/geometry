@@ -12,6 +12,7 @@
 test-suite boost-geometry-formulas
     :
     [ run inverse.cpp                        : : : : formulas_inverse ]
+    [ run inverse_short_distance.cpp         : : : : formulas_inverse_short_distance ]
     [ run inverse_karney.cpp                 : : : : formulas_inverse_karney ]
     [ run direct.cpp                         : : : : formulas_direct ]
     [ run direct_accuracy.cpp                : : : : formulas_direct_accuracy ]
