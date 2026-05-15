@@ -40,7 +40,9 @@ bibliography: paper.bib
 
 Computational geometry underpins numerous scientific and engineering domains, including GIS, robotics, computer graphics, CAD, and astronomy. Foundational algorithms such as convex hulls, intersection tests, and point-in-polygon queries are covered in standard texts [@deBerg:2008]; however, robust and efficient implementations are crucial for real-world applications where numerical robustness and performance matter.
 
-`Boost.Geometry`[^*] is an open-source C++ library providing generic, extensible, and standards-compliant geometric computation. It defines geometry *concepts* and implements algorithms in a dimension- and coordinate-system-agnostic manner. Since its inclusion in Boost (2011), it has been used in a range of C++ scientific and industrial software.
+`Boost.Geometry`[^*] is an open-source C++ library providing generic, extensible, and standards-compliant geometric computation. It defines geometry *concepts* and implements algorithms in a dimension- and coordinate-system-agnostic manner. Since its inclusion in Boost C++ libraries (2011), a widely used peer-reviewed open-source collection of portable C++ components, it has been used in a range of C++ scientific and industrial software.
+
+`Boost.Geometry` builds on several Boost libraries, among others: `Boost.Range` as the foundational abstraction for generic sequence iteration, `Boost.Core` for low-level utilities, `Boost.Config` for compiler and platform portability, `Boost.Math` as the numerical backbone for geometric and geodetic algorithms, and `Boost.MPL` for compile-time type manipulation in tag dispatching.
 
 [^*]: Authors are listed in alphabetical order by surname.
 
