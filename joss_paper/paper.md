@@ -86,7 +86,7 @@ Algorithms are structured as coordinate-system-agnostic core logic combined with
 
 Numerical robustness can cause silent failures in standard GIS algorithms [@kettner2004classroom; @isprs-archives-XLVI-4-W2-2021-1-2021]. `Boost.Geometry` mitigates these problems using filtered predicates [@devillers:inria-00344517] that perform fast approximate tests and fall back to exact evaluations when needed, ensuring correct topology and predicate results.
 
-The source code is distributed under the Boost Software License. Detailed documentation and reference material are available on the Boost website [@BoostGeomDocs]. Contributor guidelines, documentation tooling, talks, and videos are collected on the [project wiki](https://github.com/boostorg/geometry/wiki). The repository's `test/` directory contain an extensive suite of unit and regression tests.
+The source code is distributed under the Boost Software License. Detailed documentation and reference material are available on the Boost website [@BoostGeomDocs]. Contributor guidelines, documentation tooling, talks, and videos are collected on the [project wiki](https://github.com/boostorg/geometry/wiki). The repository's `test/` directory contains an extensive suite of unit and regression tests.
 The repository also provides examples in multiple forms: standalone tutorial-style programs in `example/`, documentation-integrated snippets in `doc/src/examples/`, and spatial-index-specific material in `index/example/`.
 Continuous integration on the Boost project provides broad platform and compiler coverage; `Boost.Geometry` also runs project-specific CI on GitHub Actions and CircleCI.
 
@@ -99,7 +99,7 @@ MySQL uses `Boost.Geometry` as the geometry engine for spatial SQL operations [@
 
 In spatial data management research, Hecatoncheir [@Georgiadis:2025], a distributed in-memory spatial data management library, uses `Boost.Geometry` for geometry comparisons. The system reports orders-of-magnitude speedups over Apache Sedona, illustrating the use of `Boost.Geometry` within a high-performance distributed setting.
 
-In scientific computing, the lifex finite-element library [@Bucelli:2024], uses `Boost.Geometry`'s R-tree implementation for efficient nearest-neighbor searches in computational physics simulations, demonstrating applicability in numerical scientific computing beyond GIS.
+In scientific computing, the lifex finite-element library [@Bucelli:2024] uses `Boost.Geometry`'s R-tree implementation for efficient nearest-neighbor searches in computational physics simulations, demonstrating applicability in numerical scientific computing beyond GIS.
 
 The library has also been used in terrain analysis in real-time strategy video games [@Richoux:2022] for simplifying obstacle contours and pruning Voronoi diagrams, utilizing the simplify and R-tree implementations respectively.
 
@@ -120,6 +120,3 @@ No generative AI tools were used in the development of this software or supporti
 Generative AI was used in a limited role to suggest wording improvements during proofreading of this manuscript. All AI-suggested edits were reviewed and confirmed by the authors. The AI tool used for this assistance was GitHub Copilot with GPT-5.4.
 
 # References
-
-
-
