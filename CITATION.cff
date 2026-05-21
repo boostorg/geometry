@@ -1,0 +1,52 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Bartels
+  given-names: Tinko Sebastian
+  orcid: "https://orcid.org/0000-0002-0084-7100"
+- family-names: Fisikopoulos
+  given-names: Vissarion
+  orcid: "https://orcid.org/0000-0002-0780-666X"
+- family-names: Gehrels
+  given-names: Barend
+- family-names: Karavelas
+  given-names: Menelaos
+- family-names: Lalande
+  given-names: Bruno
+- family-names: Łoskot
+  given-names: Mateusz
+- family-names: Wulkiewicz
+  given-names: Adam
+doi: 10.5281/zenodo.20281747
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Bartels
+    given-names: Tinko Sebastian
+    orcid: "https://orcid.org/0000-0002-0084-7100"
+  - family-names: Fisikopoulos
+    given-names: Vissarion
+    orcid: "https://orcid.org/0000-0002-0780-666X"
+  - family-names: Gehrels
+    given-names: Barend
+  - family-names: Karavelas
+    given-names: Menelaos
+  - family-names: Lalande
+    given-names: Bruno
+  - family-names: Łoskot
+    given-names: Mateusz
+  - family-names: Wulkiewicz
+    given-names: Adam
+  date-published: 2026-05-19
+  doi: 10.21105/joss.10328
+  issn: 2475-9066
+  issue: 121
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 10328
+  title: "Boost.Geometry: A Generic C++ Geometry Library"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.10328"
+  volume: 11
+title: "Boost.Geometry: A Generic C++ Geometry Library"
