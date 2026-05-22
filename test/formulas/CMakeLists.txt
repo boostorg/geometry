@@ -6,6 +6,7 @@
 
 foreach(item IN ITEMS
     inverse
+    inverse_short_distance
     direct_accuracy
     direct_meridian
     intersection
