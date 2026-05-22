@@ -223,7 +223,8 @@ protected:
     }
 
 public:
-    static inline void apply(CoordinateType& longitude, bool exact = true)
+    static inline void apply(CoordinateType& longitude, bool exact = true,
+                             bool allow_antimeridian_crossing = false)
     {
         // normalize longitude
         CoordinateType const epsilon = std::numeric_limits<float>::epsilon();
@@ -234,7 +235,7 @@ public:
         {
             longitude = constants::half_period();
         }
-        else if (longitude > constants::half_period())
+        else if ( ! allow_antimeridian_crossing && longitude > constants::half_period())
         {
             longitude = normalize_up(longitude);
             if (exact || is_integer ? math::equals(longitude, -constants::half_period())
@@ -252,7 +253,8 @@ public:
     static inline void apply(CoordinateType& longitude,
                              CoordinateType& latitude,
                              bool normalize_poles = true,
-                             bool exact = true)
+                             bool exact = true,
+                             bool allow_antimeridian_crossing = false)
     {
         latitude_convert_if_polar<Units, IsEquatorial>::apply(latitude);
 
@@ -281,7 +283,7 @@ public:
 #endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
         // normalize longitude
-        apply(longitude, exact);
+        apply(longitude, exact, allow_antimeridian_crossing);
 
         // finally normalize poles
         if (normalize_poles)
@@ -302,7 +304,8 @@ public:
 #endif // BOOST_GEOMETRY_NORMALIZE_LATITUDE
 
         BOOST_GEOMETRY_ASSERT(! math::larger_or_equals(constants::min_longitude(), longitude));
-        BOOST_GEOMETRY_ASSERT(! math::larger(longitude, constants::max_longitude()));
+        BOOST_GEOMETRY_ASSERT(! math::larger(longitude, constants::max_longitude())
+                              || allow_antimeridian_crossing);
     }
 };
 
