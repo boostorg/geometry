@@ -20,7 +20,6 @@
 #include <utility>
 #include <vector>
 
-#include <boost/core/addressof.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/range/size.hpp>
@@ -82,13 +81,13 @@ public:
 
     // for begin
     polygon_rings_iterator(Polygon& polygon)
-        : m_polygon(boost::addressof(polygon))
+        : m_polygon(std::addressof(polygon))
         , m_index(0)
     {}
 
     // for end
     polygon_rings_iterator(Polygon& polygon, bool)
-        : m_polygon(boost::addressof(polygon))
+        : m_polygon(std::addressof(polygon))
         , m_index(static_cast<size_type>(num_rings(polygon)))
     {}
 

@@ -16,6 +16,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_VARIANT_DYNAMIC_HPP
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -235,7 +236,7 @@ struct destroy_variant_node
     {
         typedef boost::container::allocator_traits<AllocNode> Al;
 
-        Al::destroy(alloc_node, boost::addressof(*n));
+        Al::destroy(alloc_node, std::addressof(*n));
         Al::deallocate(alloc_node, n, 1);
     }
 };

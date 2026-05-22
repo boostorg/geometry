@@ -17,12 +17,11 @@
 
 //#include <boost/geometry/geometry.hpp>
 
+#include <array>
 #include <string>
 #include <sstream>
 
 #include "test_distance.hpp"
-
-#include <boost/array.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
@@ -42,7 +41,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 namespace boost { namespace geometry { namespace traits
 {
 template <typename Point, std::size_t PointCount>
-struct tag< boost::array<Point, PointCount> >
+struct tag< std::array<Point, PointCount> >
 {
     typedef linestring_tag type;
 };
@@ -197,7 +196,7 @@ void test_distance_array_as_linestring()
     typedef typename bg::default_distance_result<P>::type return_type;
 
     // Normal array does not have
-    boost::array<P, 2> points;
+    std::array<P, 2> points;
     bg::set<0>(points[0], 1);
     bg::set<1>(points[0], 1);
     bg::set<0>(points[1], 3);
@@ -367,8 +366,8 @@ void test_all()
     // Should (currently) give compiler assertion
     // test_geometry<bg::model::polygon<P>, bg::model::polygon<P> >(donut, donut, 0.5 * sqrt(2.0));
 
-    // DOES NOT COMPILE - cannot do read_wkt (because boost::array is not variably sized)
-    // test_geometry<P, boost::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
+    // DOES NOT COMPILE - cannot do read_wkt (because std::array is not variably sized)
+    // test_geometry<P, std::array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 
     test_geometry<P, test::wrapped_boost_array<P, 2> >("POINT(3 1)", "LINESTRING(1 1,4 4)", sqrt(2.0));
 

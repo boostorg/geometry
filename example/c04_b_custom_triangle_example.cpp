@@ -10,9 +10,9 @@
 //
 // Custom triangle template Example
 
+#include <array>
 #include <iostream>
 
-#include <boost/array.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
@@ -26,7 +26,7 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 
 
 template <typename P>
-struct triangle : public boost::array<P, 3>
+struct triangle : public std::array<P, 3>
 {
 };
 

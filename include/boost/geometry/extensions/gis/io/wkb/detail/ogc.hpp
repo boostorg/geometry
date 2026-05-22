@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP
 #define BOOST_GEOMETRY_IO_WKB_DETAIL_OGC_HPP
 
-#include <boost/cstdint.hpp>
+#include <cstdint>
 
 namespace boost { namespace geometry
 {
@@ -113,12 +113,12 @@ template
 >
 struct geometry_type_impl
 {
-    static bool check(boost::uint32_t value)
+    static bool check(std::uint32_t value)
     {
         return value == get();
     }
 
-    static boost::uint32_t get()
+    static std::uint32_t get()
     {
         return OgcType;
     }
@@ -131,12 +131,12 @@ template
 >
 struct geometry_type_impl<Geometry, OgcType, 3>
 {
-    static bool check(boost::uint32_t value)
+    static bool check(std::uint32_t value)
     {
         return value == get();
     }
 
-    static boost::uint32_t get()
+    static std::uint32_t get()
     {
         return 1000 + OgcType;
     }

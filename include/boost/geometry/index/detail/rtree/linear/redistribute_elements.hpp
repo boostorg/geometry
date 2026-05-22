@@ -242,7 +242,7 @@ struct find_greatest_normalized_separation<Elements, Parameters, Translator, poi
 template <typename Elements, typename Parameters, typename Translator, size_t Dimension>
 struct pick_seeds_impl
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive.");
 
     using element_type = typename Elements::value_type;
     using indexable_type = typename rtree::element_indexable_type<element_type, Translator>::type;

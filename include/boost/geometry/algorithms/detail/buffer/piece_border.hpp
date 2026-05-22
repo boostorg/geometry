@@ -16,8 +16,8 @@
 
 
 #include <array>
+#include <memory>
 
-#include <boost/core/addressof.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/core/assert.hpp>
@@ -202,7 +202,7 @@ struct piece_border
         BOOST_GEOMETRY_ASSERT(begin < boost::size(ring));
         BOOST_GEOMETRY_ASSERT(end <= boost::size(ring));
 
-        m_ring = boost::addressof(ring);
+        m_ring = std::addressof(ring);
         m_begin = begin;
         m_end = end;
     }

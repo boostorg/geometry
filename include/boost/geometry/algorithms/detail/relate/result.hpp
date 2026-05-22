@@ -80,7 +80,7 @@ public:
     inline char get() const
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "Invalid index pair (out of bounds).");
         return m_array[index];
     }
 
@@ -92,7 +92,7 @@ public:
     inline void set()
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "Invalid index pair (out of bounds).");
         m_array[index] = V;
     }
 
@@ -162,7 +162,7 @@ public:
     template <field F1, field F2, char D>
     inline bool may_update() const
     {
-        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+        static_assert('0' <= D && D <= '9', "D must be digit.");
         char const c = m_matrix.template get<F1, F2>();
         return D > c || c > '9';
     }
@@ -170,7 +170,7 @@ public:
     template <field F1, field F2, char V>
     inline void update()
     {
-        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        static_assert(('0' <= V && V <= '9') || V == 'T', "D must be digit or T");
         char const c = m_matrix.template get<F1, F2>();
         // If c == T and V == T it will be set anyway but that's fine
         if (V > c || c > '9')
@@ -182,7 +182,7 @@ public:
     template <field F1, field F2, char V>
     inline void set()
     {
-        BOOST_STATIC_ASSERT(('0' <= V && V <= '9') || V == 'T');
+        static_assert(('0' <= V && V <= '9') || V == 'T', "V must be digit or T");
         m_matrix.template set<F1, F2, V>();
     }
 
@@ -249,7 +249,7 @@ public:
     inline char get() const
     {
         static const std::size_t index = F1 * Width + F2;
-        BOOST_STATIC_ASSERT(index < static_size);
+        static_assert(index < static_size, "Index pair invalid (out of bounds).");
         return m_array[index];
     }
 
@@ -357,7 +357,7 @@ struct may_update_dispatch
     template <field F1, field F2, char D, typename Matrix>
     static inline bool apply(Mask const& mask, Matrix const& matrix)
     {
-        BOOST_STATIC_ASSERT('0' <= D && D <= '9');
+        static_assert('0' <= D && D <= '9', "D must be digit.");
 
         char const m = mask.template get<F1, F2>();
 
@@ -647,14 +647,14 @@ struct static_mask
     static const std::size_t static_height = Height;
     static const std::size_t static_size = Width * Height;
 
-    BOOST_STATIC_ASSERT(
-        std::size_t(util::sequence_size<Seq>::value) == static_size);
+    static_assert(std::size_t(util::sequence_size<Seq>::value) == static_size,
+        "Sequence must match matrix size.");
 
     template <detail::relate::field F1, detail::relate::field F2>
     struct static_get
     {
-        BOOST_STATIC_ASSERT(std::size_t(F1) < static_height);
-        BOOST_STATIC_ASSERT(std::size_t(F2) < static_width);
+        static_assert(std::size_t(F1) < static_height, "Index F1 out of bounds.");
+        static_assert(std::size_t(F2) < static_width, "Index F2 out of bounds.");
 
         static const char value
             = util::sequence_element<F1 * static_width + F2, Seq>::value;
@@ -1190,7 +1190,7 @@ template <typename Geometry>
 struct result_dimension
 {
     static const std::size_t dim = geometry::dimension<Geometry>::value;
-    BOOST_STATIC_ASSERT(dim >= 0);
+    static_assert(dim >= 0, "dim must be non-negative.");
     static const char value = (dim <= 9) ? ('0' + dim) : 'T';
 };
 

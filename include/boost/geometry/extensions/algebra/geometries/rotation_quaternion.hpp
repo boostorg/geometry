@@ -64,7 +64,7 @@ public:
     template <std::size_t K>
     inline T const& get() const
     {
-        BOOST_STATIC_ASSERT(K < 4);
+        static_assert(K < 4, "Index K out of bounds.");
         return m_values[K];
     }
 
@@ -74,7 +74,7 @@ public:
     template <std::size_t K>
     inline void set(T const& value)
     {
-        BOOST_STATIC_ASSERT(K < 4);
+        static_assert(K < 4, "Index K out of bounds.");
         m_values[K] = value;
     }
 

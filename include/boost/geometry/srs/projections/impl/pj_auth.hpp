@@ -41,6 +41,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <cstddef>
 
 #include <boost/geometry/core/assert.hpp>
 

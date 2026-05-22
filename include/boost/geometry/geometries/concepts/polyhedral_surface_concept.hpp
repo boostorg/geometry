@@ -33,9 +33,11 @@ class PolyhedralSurface
 
     BOOST_CONCEPT_ASSERT( (concepts::Polygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
-    BOOST_STATIC_ASSERT( (geometry::dimension<Geometry>::value == 3) );
-    BOOST_STATIC_ASSERT( (std::is_same<typename geometry::cs_tag_t<Geometry>,
-        geometry::cartesian_tag>::value) );
+    static_assert(geometry::dimension<Geometry>::value == 3,
+        "PolyhedralSurface must be 3-dimensional");
+    static_assert(
+        std::is_same<typename geometry::cs_tag_t<Geometry>, geometry::cartesian_tag>::value,
+        "PolyhedralSurface must be cartesian.");
 
 public:
 
@@ -60,9 +62,11 @@ class ConstPolyhedralSurface
 
     BOOST_CONCEPT_ASSERT( (concepts::ConstPolygon<polygon_type>) );
     BOOST_CONCEPT_ASSERT( (boost::RandomAccessRangeConcept<Geometry>) );
-    BOOST_STATIC_ASSERT( (geometry::dimension<Geometry>::value == 3) );
-    BOOST_STATIC_ASSERT( (std::is_same<typename geometry::cs_tag_t<Geometry>,
-        geometry::cartesian_tag>::value) );
+    static_assert(geometry::dimension<Geometry>::value == 3,
+        "PolyhedralSurface must be 3-dimensional");
+    static_assert(
+        std::is_same<typename geometry::cs_tag_t<Geometry>, geometry::cartesian_tag>::value,
+        "PolyhedralSurface must be cartesian.");
 
 public:
 

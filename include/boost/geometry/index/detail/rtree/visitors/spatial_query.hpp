@@ -149,7 +149,7 @@ public:
     {}
 
     spatial_query_incremental(MembersHolder const& members, Predicates const& p)
-        : m_translator(::boost::addressof(members.translator()))
+        : m_translator(std::addressof(members.translator()))
         , m_strategy(index::detail::get_strategy(members.parameters()))
         , m_pred(p)
         , m_values(nullptr)
@@ -198,7 +198,7 @@ private:
         else
         {
             leaf& n = rtree::get<leaf>(*ptr);
-            m_values = ::boost::addressof(rtree::elements(n));
+            m_values = std::addressof(rtree::elements(n));
             m_current = rtree::elements(n).begin();
         }
     }

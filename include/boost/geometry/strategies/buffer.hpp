@@ -9,7 +9,7 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_BUFFER_HPP
 #define BOOST_GEOMETRY_STRATEGIES_BUFFER_HPP
 
-#include <cstdint>
+#include <cstddef>
 
 namespace boost { namespace geometry
 {

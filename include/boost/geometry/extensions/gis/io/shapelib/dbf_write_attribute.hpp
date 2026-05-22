@@ -63,21 +63,6 @@ template <> struct DBFWriteAttribute<std::string>
     }
 };
 
-// Derive char* variants from std::string,
-// implicitly casting to a temporary std::string
-// (note that boost::remove_const does not remove const from "const char*")
-template <int N>
-struct DBFWriteAttribute<char[N]> : DBFWriteAttribute<std::string> {};
-
-template <int N>
-struct DBFWriteAttribute<const char[N]> : DBFWriteAttribute<std::string> {};
-
-template <>
-struct DBFWriteAttribute<const char*> : DBFWriteAttribute<std::string> {};
-
-template <>
-struct DBFWriteAttribute<char*> : DBFWriteAttribute<std::string> {};
-
 }
 
 
