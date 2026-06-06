@@ -75,7 +75,8 @@ template <typename T>
 inline void cart3d_to_sph(T const& x, T const& y, T const& z, T & lon, T & lat)
 {
     lon = atan2(y, x);
-    lat = asin(z);
+    // Account for machine epsilon overshoot of unit-vector z after rotation
+    lat = asin(math::detail::bounded(z, T(-1), T(1)));
 }
 
 template <typename PointSph, typename Point3d>
