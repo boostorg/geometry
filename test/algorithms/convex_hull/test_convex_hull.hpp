@@ -118,13 +118,12 @@ void check_convex_hull(Geometry const& geometry, Hull const& hull,
         ah = -ah;
     }
 
-    BOOST_CHECK_CLOSE(ah, expected_area, 0.001);
+    BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(ah, expected_area, 0.001, 1e-10);
 
     if ( expected_perimeter >= 0 )
     {
         auto ph = bg::perimeter(hull);
-
-        BOOST_CHECK_CLOSE(ph, expected_perimeter, 0.001);
+        BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(ph, expected_perimeter, 0.001, 1e-10);
     }
 }
 

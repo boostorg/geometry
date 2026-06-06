@@ -112,7 +112,8 @@ public:
         CT const H = cos2_theta_m - sin2_d_theta_m;
         CT const L = sin2_d_theta_m + H * sin2_d_lambda_m;
         CT const cos_d = c1 - c2 * L;
-        CT const d = acos(cos_d);
+        // Account for floating point precision drift
+        CT const d = acos(math::detail::bounded(cos_d, -c1, c1));
         CT const sin_d = sin(d);
 
         CT const one_minus_L = c1 - L;

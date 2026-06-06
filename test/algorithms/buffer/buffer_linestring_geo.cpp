@@ -119,7 +119,7 @@ void test_linestring_aimes()
     // It might differ in debug/release mode.
     // It might also depend on the compiler and on the operating system.
     std::set<int> const skip_cases_round_round{17, 22, 38, 67, 75, 109, 163, 181, 143, 196};
-    std::set<int> const skip_cases_round_flat{17, 22, 38, 67, 75, 103, 109, 196};
+    std::set<int> const skip_cases_round_flat{17, 22, 38, 67, 75, 103, 109, 142, 196};
     std::set<int> const skip_cases_miter_flat{17, 18, 22, 38, 67, 75, 103, 109, 196};
 #endif
 

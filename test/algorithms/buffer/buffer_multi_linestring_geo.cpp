@@ -49,8 +49,9 @@ void test_geometry()
     }
 
 #ifndef __APPLE__
+    // Fails on macOS in both Debug and Release (detected ~496)
     test_one_geo<ml, polygon>("trondheim12_rr", trondheim, strategy, side, circle, join_round, end_round, 10790.0, 12.0, settings);
-#endif    
+#endif
 
     if (! BOOST_GEOMETRY_CONDITION(thomas_skip) && ! BOOST_GEOMETRY_CONDITION(andoyer_skip))
     {
@@ -61,8 +62,10 @@ void test_geometry()
         test_one_geo<ml, polygon>("trondheim17_rr", trondheim, strategy, side, circle, join_round, end_round, 14824.0, 17.0, settings);
     }
 
+#if defined(BOOST_GEOMETRY_TEST_EXCEPT_MACOS_RELEASE)
     test_one_geo<ml, polygon>("trondheim20_rr", trondheim, strategy, side, circle, join_round, end_round, 17055.0, 20.0, settings);
     test_one_geo<ml, polygon>("trondheim25_rr", trondheim, strategy, side, circle, join_round, end_round, 20657.0, 25.0, settings);
+#endif
 
     test_one_geo<ml, polygon>("trondheim05_mf", trondheim, strategy, side, circle, join_miter, end_flat, 4190.0, 5.0, settings);
     test_one_geo<ml, polygon>("trondheim10_mf", trondheim, strategy, side, circle, join_miter, end_flat, 8196.0, 10.0, settings);

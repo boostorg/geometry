@@ -34,7 +34,8 @@ public :
         m_xyz0 = formula::sph_to_cart3d<point3d_t>(p0);
         m_xyz1 = formula::sph_to_cart3d<point3d_t>(p1);
         CalculationType const dot01 = geometry::dot_product(m_xyz0, m_xyz1);
-        angle01 = acos(dot01);
+        // Account for machine epsilon overshoot of dot product at near-antipodal points
+        angle01 = acos(math::detail::bounded(dot01, CalculationType(-1), CalculationType(1)));
     }
 
     template <typename Point>

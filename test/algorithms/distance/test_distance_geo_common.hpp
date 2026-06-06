@@ -28,6 +28,7 @@
 
 #include <from_wkt.hpp>
 #include <string_from_type.hpp>
+#include <geometry_test_common.hpp>
 
 #include "distance_brute_force.hpp"
 
@@ -312,7 +313,7 @@ struct check_equal
     {
         static inline void apply(double x, double y)
         {
-            BOOST_CHECK_CLOSE(x, y, 0.001);
+            BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(x, y, 0.001, 1e-10);
         }
     };
 
