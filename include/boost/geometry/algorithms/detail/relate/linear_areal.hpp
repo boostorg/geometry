@@ -99,7 +99,7 @@ public:
         std::size_t const count = boost::size(linestring);
 
         // invalid input
-        if ( count < 2 )
+        if ( count < 1 )
         {
             // ignore
             // TODO: throw an exception?

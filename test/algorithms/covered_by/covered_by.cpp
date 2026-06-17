@@ -146,18 +146,25 @@ void test_all()
     {
         // on corner
         test_geometry<ls<P>, poly<P>>("LINESTRING(0 0,0 0)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(0 0)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
         // on edge
         test_geometry<ls<P>, poly<P>>("LINESTRING(1 2,1 2)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(1 2)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
         // inside
         test_geometry<ls<P>, poly<P>>("LINESTRING(1 1,1 1)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(1 1)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", true);
         // outside
         test_geometry<ls<P>, poly<P>>("LINESTRING(1 3,1 3)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", false);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(1 3)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", false);
         // inside hole
         test_geometry<ls<P>, poly<P>>("LINESTRING(2 2,2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", false);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", false);
         // on corner of hole
         test_geometry<ls<P>, poly<P>>("LINESTRING(3 3,3 3)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", true);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(3 3)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", true);
         // on edge of hole
         test_geometry<ls<P>, poly<P>>("LINESTRING(2 1,2 1)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", true);
+        test_geometry<ls<P>, poly<P>>("LINESTRING(2 1)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", true);
     }
 }
 

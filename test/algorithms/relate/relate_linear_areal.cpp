@@ -282,18 +282,25 @@ void test_linestring_polygon()
     {
         // on corner
         test_geometry<ls, poly>("LINESTRING(0 0,0 0)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "F1FFFF212");
+        test_geometry<ls, poly>("LINESTRING(0 0)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "F1FFFF212");
         // on edge
         test_geometry<ls, poly>("LINESTRING(1 2,1 2)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "F1FFFF212");
+        test_geometry<ls, poly>("LINESTRING(1 2)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "F1FFFF212");
         // inside
         test_geometry<ls, poly>("LINESTRING(1 1,1 1)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "1FFFFF212");
+        test_geometry<ls, poly>("LINESTRING(1 1)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "1FFFFF212");
         // outside
         test_geometry<ls, poly>("LINESTRING(1 3,1 3)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "FF1FFF212");
+        test_geometry<ls, poly>("LINESTRING(1 3)", "POLYGON((0 0, 0 2, 2 2, 2 0, 0 0))", "FF1FFF212");
         // inside hole
         test_geometry<ls, poly>("LINESTRING(2 2,2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "FF1FFF212");
+        test_geometry<ls, poly>("LINESTRING(2 2)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "FF1FFF212");
         // on corner of hole
         test_geometry<ls, poly>("LINESTRING(3 3,3 3)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "F1FFFF212");
+        test_geometry<ls, poly>("LINESTRING(3 3)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "F1FFFF212");
         // on edge of hole
         test_geometry<ls, poly>("LINESTRING(2 1,2 1)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "F1FFFF212");
+        test_geometry<ls, poly>("LINESTRING(2 1)", "POLYGON((0 0, 0 4, 4 4, 4 0, 0 0),(1 1, 1 3, 3 3, 3 1, 1 1))", "F1FFFF212");
     }
 }
 
