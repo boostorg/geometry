@@ -65,26 +65,26 @@ public:
         , m_result(res)
         , m_strategy(strategy)
         , m_boundary_checker(boundary_checker)
-        , m_interrupt_flags(0)
+        , m_interrupt_flags(0x00)
     {
         if ( ! may_update<interior, interior, '1', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 1;
+            m_interrupt_flags |= 0x01;
         }
 
         if ( ! may_update<interior, exterior, '1', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 2;
+            m_interrupt_flags |= 0x02;
         }
 
         if ( ! may_update<boundary, interior, '0', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 4;
+            m_interrupt_flags |= 0x04;
         }
 
         if ( ! may_update<boundary, exterior, '0', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 8;
+            m_interrupt_flags |= 0x08;
         }
 
         if ( ! may_update<interior, boundary, '1', TransposeResult>(m_result) )
@@ -119,7 +119,7 @@ public:
         if ( pig > 0 )
         {
             update<interior, interior, '1', TransposeResult>(m_result);
-            m_interrupt_flags |= 1;
+            m_interrupt_flags |= 0x01;
         }
         else if ( pig == 0 )
         {
@@ -132,7 +132,7 @@ public:
         else
         {
             update<interior, exterior, '1', TransposeResult>(m_result);
-            m_interrupt_flags |= 2;
+            m_interrupt_flags |= 0x02;
         }
 
         // check if there is a boundary
@@ -143,12 +143,12 @@ public:
             if ( pig > 0 )
             {
                 update<boundary, interior, '0', TransposeResult>(m_result);
-                m_interrupt_flags |= 4;
+                m_interrupt_flags |= 0x04;
             }
             else
             {
                 update<boundary, exterior, '0', TransposeResult>(m_result);
-                m_interrupt_flags |= 8;
+                m_interrupt_flags |= 0x08;
             }
         }
 
