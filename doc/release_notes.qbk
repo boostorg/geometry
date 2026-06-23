@@ -20,6 +20,23 @@
 [section:release_notes Release Notes]
 
 [/=================]
+[heading Boost 1.92]
+[/=================]
+
+[*Improvements]
+
+* [@https://github.com/boostorg/geometry/pull/1458 1458] Drop varray implementation in favor of Boost.Container static_vector
+* [@https://github.com/boostorg/geometry/pull/1459 1459] Refactor/reduce misc boost dependencies
+* [@https://github.com/boostorg/geometry/pull/1461 1461] Improve short-distance accuracy of Andoyer inverse
+
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1399 1399] unit test index_rtree_exceptions_rst fails
+* [@https://github.com/boostorg/geometry/issues/1452 1452] performance regression on GCC
+* [@https://github.com/boostorg/geometry/issues/714 714] missing citation guidelines
+* Various fixes of errors and warnings
+
+[/=================]
 [heading Boost 1.90]
 [/=================]
 
