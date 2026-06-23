@@ -23,7 +23,6 @@
 
 #include <boost/geometry/util/is_implemented.hpp>
 
-#include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/bool.hpp>
 

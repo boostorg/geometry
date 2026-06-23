@@ -9,6 +9,8 @@
 #ifndef BOOST_GEOMETRY_VIEWS_ENUMERATE_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_ENUMERATE_VIEW_HPP
 
+#include <algorithm>
+
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/range/begin.hpp>

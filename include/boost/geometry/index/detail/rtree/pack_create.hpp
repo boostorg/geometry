@@ -17,6 +17,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 
+#include <vector>
+
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/algorithms/centroid.hpp>
@@ -40,7 +42,7 @@ namespace pack_utils {
 template <std::size_t Dimension>
 struct biggest_edge
 {
-    BOOST_STATIC_ASSERT(0 < Dimension);
+    static_assert(0 < Dimension, "Dimension must be positive.");
     template <typename Box>
     static inline void apply(Box const& box, coordinate_type_t<Box> & length, std::size_t & dim_index)
     {
@@ -205,7 +207,7 @@ public:
             template rebind_alloc<entry_type> temp_entry_allocator_type;
 
         temp_entry_allocator_type temp_entry_allocator(temp_allocator);
-        boost::container::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
+        std::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
 
         values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);

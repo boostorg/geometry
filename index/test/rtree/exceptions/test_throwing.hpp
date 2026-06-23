@@ -75,20 +75,20 @@ struct value< std::pair<bg::model::point<T, 2, C>, throwing_value> >
 };
 } // namespace generate
 
-#include <boost/geometry/index/detail/varray.hpp>
+#include <boost/container/static_vector.hpp>
 
-struct throwing_varray_exception : public std::exception
+struct throwing_static_vector_exception : public std::exception
 {
     const char * what() const noexcept { return "static vector exception."; }
 };
 
-struct throwing_varray_settings
+struct throwing_static_vector_settings
 {
     static void throw_if_required()
     {
         // throw if counter meets max count
         if ( get_max_calls_ref() <= get_calls_counter_ref() )
-            throw throwing_varray_exception();
+            throw throwing_static_vector_exception();
         else
             ++get_calls_counter_ref();
     }
@@ -101,10 +101,10 @@ struct throwing_varray_settings
 };
 
 template <typename Element, size_t Capacity>
-class throwing_varray
-    : public boost::geometry::index::detail::varray<Element, Capacity>
+class throwing_static_vector
+    : public boost::container::static_vector<Element, Capacity>
 {
-    typedef boost::geometry::index::detail::varray<Element, Capacity> container;
+    using container = boost::container::static_vector<Element, Capacity>;
 
 public:
     typedef typename container::value_type value_type;
@@ -116,34 +116,34 @@ public:
     typedef typename container::reference reference;
     typedef typename container::const_reference const_reference;
 
-    inline throwing_varray() {}
+    inline throwing_static_vector() {}
 
     template <typename It>
-    inline throwing_varray(It first, It last)
+    inline throwing_static_vector(It first, It last)
         : container(first, last)
     {}
 
-    inline throwing_varray(size_type s)
+    inline throwing_static_vector(size_type s)
     {
-        throwing_varray_settings::throw_if_required();
+        throwing_static_vector_settings::throw_if_required();
         container::resize(s);
     }
 
     inline void resize(size_type s)
     {
-        throwing_varray_settings::throw_if_required();
+        throwing_static_vector_settings::throw_if_required();
         container::resize(s);
     }
 
     inline void reserve(size_type s)
     {
-        throwing_varray_settings::throw_if_required();
+        throwing_static_vector_settings::throw_if_required();
         container::reserve(s);
     }
 
     void push_back(Element const& v)
     {
-        throwing_varray_settings::throw_if_required();
+        throwing_static_vector_settings::throw_if_required();
         container::push_back(v);
     }
 };
@@ -155,9 +155,9 @@ namespace boost { namespace geometry { namespace index {
 namespace detail { namespace rtree {
 
 template <typename OldValue, size_t N, typename NewValue>
-struct container_from_elements_type<throwing_varray<OldValue, N>, NewValue>
+struct container_from_elements_type<throwing_static_vector<OldValue, N>, NewValue>
 {
-    typedef throwing_varray<NewValue, N> type;
+    typedef throwing_static_vector<NewValue, N> type;
 };
 
 }} // namespace detail::rtree

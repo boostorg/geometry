@@ -16,6 +16,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_VISITORS_DISTANCE_QUERY_HPP
 
+#include <memory>
 #include <queue>
 
 #include <boost/geometry/index/detail/distance_predicates.hpp>
@@ -260,7 +261,7 @@ private:
                         && calculate_value_distance::apply(predicate(), m_tr(v), m_strategy, value_distance))
                     {
                         // store value
-                        store_value(value_distance, boost::addressof(v));
+                        store_value(value_distance, std::addressof(v));
                     }
                 }
             }
@@ -397,7 +398,7 @@ public:
     {}
 
     inline distance_query_incremental(MembersHolder const& members, Predicates const& pred)
-        : m_tr(::boost::addressof(members.translator()))
+        : m_tr(std::addressof(members.translator()))
         , m_strategy(index::detail::get_strategy(members.parameters()))
         , m_pred(pred)
         , m_neighbors_count(0)
@@ -529,7 +530,7 @@ private:
                     && ! ignore_branch_or_value(value_distance))
                 {
                     // add current value into the queue
-                    m_neighbors.push(std::make_pair(value_distance, boost::addressof(v)));
+                    m_neighbors.push(std::make_pair(value_distance, std::addressof(v)));
 
                     // remove unneeded value
                     if (m_neighbors_count + m_neighbors.size() > max_count())

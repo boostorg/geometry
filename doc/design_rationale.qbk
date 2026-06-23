@@ -151,7 +151,8 @@ The distance function is calling that `pythagoras` structure, specifying the num
     template <typename P1, typename P2>
     double distance(P1 const& a, P2 const& b)
     {
-        BOOST_STATIC_ASSERT(( dimension<P1>::value == dimension<P2>::value ));
+        static_assert(dimension<P1>::value == dimension<P2>::value,
+            "Distance can only be computed for points of same dimension.");
 
         return sqrt(pythagoras<P1, P2, dimension<P1>::value>::apply(a, b));
     }

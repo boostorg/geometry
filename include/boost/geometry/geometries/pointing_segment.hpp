@@ -12,10 +12,10 @@
 #define BOOST_GEOMETRY_GEOMETRIES_POINTING_SEGMENT_HPP
 
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 
 #include <boost/concept/assert.hpp>
-#include <boost/core/addressof.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -61,8 +61,8 @@ public:
     {}
 
     inline pointing_segment(point_type const& p1, point_type const& p2)
-        : first(boost::addressof(p1))
-        , second(boost::addressof(p2))
+        : first(std::addressof(p1))
+        , second(std::addressof(p2))
     {}
 };
 

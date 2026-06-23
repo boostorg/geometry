@@ -20,6 +20,8 @@
 #include <type_traits>
 #endif
 
+#include <boost/container/static_vector.hpp>
+
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -89,7 +91,7 @@ public:
 
             // areas difference
             content_type content = index::detail::content(box_exp);
-            content_type content_diff = content - index::detail::content(ch_i.first);
+            content_type content_diff = index::detail::content_diff(box_exp, ch_i.first);
 
             // update the result
             if ( content_diff < smallest_content_diff ||
@@ -153,10 +155,10 @@ protected:
     typedef typename MembersHolder::node_pointer node_pointer;
 
 public:
-    typedef index::detail::varray<
+    using nodes_container_type = boost::container::static_vector<
         typename rtree::elements_type<internal_node>::type::value_type,
         1
-    > nodes_container_type;
+    >;
 
     template <typename Node>
     static inline void apply(nodes_container_type & additional_nodes,

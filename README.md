@@ -7,6 +7,7 @@ Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.co
 [![Wiki](https://img.shields.io/badge/-wiki-4480cc.png)](https://github.com/boostorg/geometry/wiki)
 [![Mailing List](https://img.shields.io/badge/-mailing%20list-4eb899.png)](http://lists.boost.org/geometry/)
 [![Chat](https://badges.gitter.im/boostorg/geometry.png)](https://gitter.im/boostorg/geometry?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![DOI](https://img.shields.io/badge/DOI-10.21105%2Fjoss.10328-4480cc.png)](https://doi.org/10.21105/joss.10328)
 
 ### Test results
 
@@ -17,8 +18,8 @@ Boost.Geometry, part of collection of the [Boost C++ Libraries](http://github.co
 
 ### Directories
 
-* **doc** - QuickBook documentation sources
-* **example** - Boost.Geometry examples
+* **doc** - QuickBook documentation sources, containing embedded examples located in `doc/src/examples/`
+* **example** - Boost.Geometry standalone examples
 * **_extensions_** - examples and tests for the extensions - _develop branch_
 * **include** - the sourcecode of Boost.Geometry
 * **index** - examples and tests for the Spatial Index

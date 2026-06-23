@@ -122,35 +122,59 @@ public:
         >::type sorted_elements_type;
 
         sorted_elements_type sorted_elements;
-        // If constructor is used instead of resize() MS implementation leaks here
-        sorted_elements.reserve(elements_count);                                                         // MAY THROW, STRONG (V, E: alloc, copy)
 
-        for ( typename elements_type::const_iterator it = elements.begin() ;
-              it != elements.end() ; ++it )
+        BOOST_TRY
         {
-            point_type element_center;
-            geometry::centroid(rtree::element_indexable(*it, translator), element_center,
-                               strategy);
-            sorted_elements.push_back(std::make_pair(
-                comparable_distance_pp::call(node_center, element_center, strategy),
-                *it));                                                                                  // MAY THROW (V, E: copy)
+            // If constructor is used instead of resize() MS implementation leaks here
+            sorted_elements.reserve(elements_count);                                                     // MAY THROW, STRONG (alloc)
+
+            for ( typename elements_type::const_iterator it = elements.begin() ;
+                  it != elements.end() ; ++it )
+            {
+                point_type element_center;
+                geometry::centroid(rtree::element_indexable(*it, translator), element_center,
+                                   strategy);
+                sorted_elements.push_back(std::make_pair(
+                    comparable_distance_pp::call(node_center, element_center, strategy),
+                    *it));                                                                              // MAY THROW (V, E: copy)
+            }
+
+            // sort elements by distances from center
+            std::partial_sort(
+                sorted_elements.begin(),
+                sorted_elements.begin() + reinserted_elements_count,
+                sorted_elements.end(),
+                distances_dsc<comparable_distance_type, element_type>);                                            // MAY THROW, BASIC (V, E: copy)
+
+            // copy elements which will be reinserted
+            result_elements.clear();
+            result_elements.reserve(reinserted_elements_count);                                         // MAY THROW, STRONG (V, E: alloc, copy)
+            for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() ;
+                  it != sorted_elements.begin() + reinserted_elements_count ; ++it )
+            {
+                result_elements.push_back(it->second);                                                  // MAY THROW (V, E: copy)
+            }
         }
-
-        // sort elements by distances from center
-        std::partial_sort(
-            sorted_elements.begin(),
-            sorted_elements.begin() + reinserted_elements_count,
-            sorted_elements.end(),
-            distances_dsc<comparable_distance_type, element_type>);                                                // MAY THROW, BASIC (V, E: copy)
-
-        // copy elements which will be reinserted
-        result_elements.clear();
-        result_elements.reserve(reinserted_elements_count);                                             // MAY THROW, STRONG (V, E: alloc, copy)
-        for ( typename sorted_elements_type::const_iterator it = sorted_elements.begin() ;
-              it != sorted_elements.begin() + reinserted_elements_count ; ++it )
+        BOOST_CATCH(...)
         {
-            result_elements.push_back(it->second);                                                      // MAY THROW (V, E: copy)
+            // NOTE: This code is here to prevent leaving the node in overflow state
+            //  (with more than max elements) after an exception is thrown during the
+            //  preparation of elements for reinsertion (#1399). At this point the node
+            //  has not been modified yet and still contains exactly max+1 elements
+            //  (one push_back triggered the overflow handling).
+            //  Remove the overflow element to restore the node invariant, matching
+            //  the behavior of the split exception handler.
+            result_elements.clear();
+
+            if (elements.size() > parameters.get_max_elements())
+            {
+                destroy_element<MembersHolder>::apply(elements.back(), allocators);
+                elements.pop_back();
+            }
+
+            BOOST_RETHROW
         }
+        BOOST_CATCH_END
 
         BOOST_TRY
         {

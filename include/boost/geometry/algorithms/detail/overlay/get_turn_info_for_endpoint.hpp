@@ -197,7 +197,7 @@ public:
     template <std::size_t I>
     ip_info const& get() const
     {
-        BOOST_STATIC_ASSERT(I < 2);
+        static_assert(I < 2, "Index I out of bounds.");
         return ips[I];
     }
 
@@ -233,7 +233,7 @@ struct get_turn_info_for_endpoint
 {
     using operations_pair = std::pair<operation_type, operation_type>;
 
-    BOOST_STATIC_ASSERT(EnableFirst || EnableLast);
+    static_assert(EnableFirst || EnableLast, "EnableFirst or EnableLast must be true.");
 
     template<typename UniqueSubRange1,
              typename UniqueSubRange2,

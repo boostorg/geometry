@@ -55,76 +55,94 @@ void test_all()
     bg::detail::visit([](auto g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<decltype(g)>::value);
+        static_assert(! std::is_const<decltype(g)>::value,
+            "Copy of mutable must be visited as mutable.");
     }, dg);
     bg::detail::visit([](auto const g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<decltype(g)>::value);
+        static_assert(std::is_const<decltype(g)>::value,
+            "Const copy of mutable must be visited as const.");
     }, dg);
     bg::detail::visit([](auto & g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Reference of mutable must be visited as mutable.");
     }, dg);
     bg::detail::visit([](auto const& g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Const reference of mutable must be visited as const.");
     }, dg);
 
     DynamicGeometry const cdg = point_t(3, 4);
     bg::detail::visit([](auto g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<decltype(g)>::value);
+        static_assert(! std::is_const<decltype(g)>::value,
+            "Copy of const must be visited as mutable.");
     }, cdg);
     bg::detail::visit([](auto const g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<decltype(g)>::value);
+        static_assert(std::is_const<decltype(g)>::value,
+            "Const copy of const must be visited as const.");
     }, cdg);
     bg::detail::visit([](auto & g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Reference of const must be visited as const.");
     }, cdg);
     bg::detail::visit([](auto const& g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Const reference of const must be visited as const.");
     }, cdg);
 
 
     bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Forward must remain mutable.");
+        static_assert(! std::is_rvalue_reference<decltype(g)>::value,
+            "Forward must collapse to lvalue reference.");
     }, dg);
     bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Forward of const must remain const.");
+        static_assert(! std::is_rvalue_reference<decltype(g)>::value,
+            "Forward must collapse to lvalue reference.");
     }, cdg);
     bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Moved from must remain mutable.");
+        static_assert(std::is_rvalue_reference<decltype(g)>::value,
+            "Moved from must dynamic geometry must be visited as rvalue reference.");
     }, std::move(dg));
     bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Moved from must remain const.");
+        static_assert(std::is_rvalue_reference<decltype(g)>::value,
+            "Moved from const dynamic geometry must be visited as rvalue reference.");
     }, std::move(cdg));
     bg::detail::visit([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Forwarded temporary dynamic geometry must be mutable.");
+        static_assert(std::is_rvalue_reference<decltype(g)>::value,
+            "Forwarded temporary dynamic geometry must be visited as rvalue reference.");
     }, DynamicGeometry{ point_t(1, 2) });
 
 
@@ -132,40 +150,56 @@ void test_all()
     {
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g1)>>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g2)>>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g1)>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g2)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g1)>>::value,
+            "Forward must remain mutable.");
+        static_assert(std::is_const<std::remove_reference_t<decltype(g2)>>::value,
+            "Forward must remain const.");
+        static_assert(! std::is_rvalue_reference<decltype(g1)>::value,
+            "Forward must collapse to lvalue reference.");
+        static_assert(! std::is_rvalue_reference<decltype(g2)>::value,
+            "Forward must collapse to lvalue reference.");
     }, dg, cdg);
 
     bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g1)>>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g2)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g1)>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g2)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g1)>>::value,
+            "Moved from must remain mutable.");
+        static_assert(std::is_const<std::remove_reference_t<decltype(g2)>>::value,
+            "Moved from must remain const.");
+        static_assert(std::is_rvalue_reference<decltype(g1)>::value,
+            "Moved from must be visited as rvalue reference.");
+        static_assert(std::is_rvalue_reference<decltype(g2)>::value,
+            "Moved from must be visited as rvalue reference");
     }, std::move(dg), std::move(cdg));
 
     bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
-        BOOST_STATIC_ASSERT(!std::is_const<std::remove_reference_t<decltype(g2)>>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g1)>>::value);
-        BOOST_STATIC_ASSERT(!std::is_rvalue_reference<decltype(g2)>::value);
-        BOOST_STATIC_ASSERT(!std::is_rvalue_reference<decltype(g1)>::value);
+        static_assert(!std::is_const<std::remove_reference_t<decltype(g2)>>::value,
+            "Forward must remain mutable.");
+        static_assert(std::is_const<std::remove_reference_t<decltype(g1)>>::value,
+            "Forward must remain const.");
+        static_assert(!std::is_rvalue_reference<decltype(g2)>::value,
+            "Forward must collapse to lvalue reference.");
+        static_assert(!std::is_rvalue_reference<decltype(g1)>::value,
+            "Forward must collapse to lvalue reference.");
     }, cdg, dg);
 
     bg::detail::visit([](auto && g1, auto && g2)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g2)>::value);
         BOOST_CHECK(bg::util::is_point<decltype(g1)>::value);
-        BOOST_STATIC_ASSERT(!std::is_const<std::remove_reference_t<decltype(g2)>>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g1)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g2)>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g1)>::value);
+        static_assert(!std::is_const<std::remove_reference_t<decltype(g2)>>::value,
+            "Moved from must remain mutable.");
+        static_assert(std::is_const<std::remove_reference_t<decltype(g1)>>::value,
+            "Moved from must remain const.");
+        static_assert(std::is_rvalue_reference<decltype(g2)>::value,
+            "Moved from must be visited as rvalue reference.");
+        static_assert(std::is_rvalue_reference<decltype(g1)>::value,
+            "Moved from must be visited as rvalue reference.");
     }, std::move(cdg), std::move(dg));
 
 
@@ -175,32 +209,40 @@ void test_all()
     bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Forward must remain mutable.");
+        static_assert(! std::is_rvalue_reference<decltype(g)>::value,
+            "Forward must collapse to lvalue reference.");
         return true;
     }, gc);
 
     bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(! std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Forward must remain const.");
+        static_assert(! std::is_rvalue_reference<decltype(g)>::value,
+            "Forward must collapse to lvalue reference.");
         return true;
     }, cgc);
 
     bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(! std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(! std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Moved from must remain mutable.");
+        static_assert(std::is_rvalue_reference<decltype(g)>::value,
+            "Moved from must be visited as rvalue reference.");
         return true;
     }, std::move(gc));
 
     bg::detail::visit_breadth_first([](auto && g)
     {
         BOOST_CHECK(bg::util::is_point<decltype(g)>::value);
-        BOOST_STATIC_ASSERT(std::is_const<std::remove_reference_t<decltype(g)>>::value);
-        BOOST_STATIC_ASSERT(std::is_rvalue_reference<decltype(g)>::value);
+        static_assert(std::is_const<std::remove_reference_t<decltype(g)>>::value,
+            "Moved from must remain const.");
+        static_assert(std::is_rvalue_reference<decltype(g)>::value,
+            "Moved from must be visited as rvalue reference.");
         return true;
     }, std::move(cgc));
 }

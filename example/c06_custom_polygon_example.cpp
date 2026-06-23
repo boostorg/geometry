@@ -9,6 +9,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 // Custom Polygon Example
+#include <array>
 #include <iostream>
 
 #include <boost/geometry/geometry.hpp>
@@ -38,7 +39,7 @@ struct my_polygon
     // required for a polygon: an outer ring...
     my_ring boundary;
     // ... and a Boost.Range compatible inner ring collection
-    boost::array<my_ring, 2> holes;
+    std::array<my_ring, 2> holes;
 
     // just for the sample
     std::string name;
@@ -54,7 +55,7 @@ BOOST_GEOMETRY_REGISTER_RING(my_ring)
 
 
 // There is currently no registration macro for polygons
-// and besides that a boost::array<T,N> in a macro would
+// and besides that a std::array<T,N> in a macro would
 // be very specific, so we show it "by hand":
 namespace boost { namespace geometry { namespace traits
 {
@@ -65,12 +66,12 @@ template<> struct ring_mutable_type<my_polygon> { typedef my_ring& type; };
 
 template<> struct interior_const_type<my_polygon>
 {
-    typedef boost::array<my_ring, 2> const& type;
+    typedef std::array<my_ring, 2> const& type;
 };
 
 template<> struct interior_mutable_type<my_polygon>
 {
-    typedef boost::array<my_ring, 2>& type;
+    typedef std::array<my_ring, 2>& type;
 };
 
 template<> struct exterior_ring<my_polygon>
@@ -88,7 +89,7 @@ template<> struct exterior_ring<my_polygon>
 
 template<> struct interior_rings<my_polygon>
 {
-    typedef boost::array<my_ring, 2> holes_type;
+    typedef std::array<my_ring, 2> holes_type;
 
     static holes_type& get(my_polygon& p)
     {

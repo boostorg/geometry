@@ -14,12 +14,11 @@
 
 #include <cstddef>
 
+#include <memory>
 #include <set>
 #include <stack>
 #include <utility>
 #include <vector>
-
-#include <boost/core/addressof.hpp>
 
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/core/assert.hpp>
@@ -185,7 +184,7 @@ public:
     inline vertex_handle add_vertex(TurnPoint const& turn_point)
     {
         std::pair<vertex_handle, bool> res
-            = m_vertices.insert(vertex(boost::addressof(turn_point),
+            = m_vertices.insert(vertex(std::addressof(turn_point),
                                        m_num_rings + m_num_turns)
                                 );
 

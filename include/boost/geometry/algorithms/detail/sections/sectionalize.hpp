@@ -393,10 +393,10 @@ struct sectionalize_part
         using box_type = typename section_type::box_type;
         using point_type = geometry::point_type_t<box_type>;
 
-        BOOST_STATIC_ASSERT
+        static_assert
             (
-                section_type::dimension_count
-                 == util::sequence_size<DimensionVector>::value
+                section_type::dimension_count == util::sequence_size<DimensionVector>::value,
+                "Dimension mismatch."
             );
 
         std::size_t const count = std::distance(begin, end);

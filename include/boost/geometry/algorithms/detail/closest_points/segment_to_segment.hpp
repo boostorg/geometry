@@ -12,8 +12,7 @@
 
 #include <algorithm>
 #include <iterator>
-
-#include <boost/core/addressof.hpp>
+#include <memory>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/detail/closest_points/utilities.hpp>
@@ -97,7 +96,7 @@ public:
         d[2] = cds.apply(p[0], cp2);
         d[3] = cds.apply(p[1], cp3);
 
-        std::size_t imin = std::distance(boost::addressof(d[0]), std::min_element(d, d + 4));
+        std::size_t imin = std::distance(std::addressof(d[0]), std::min_element(d, d + 4));
 
         switch (imin)
         {

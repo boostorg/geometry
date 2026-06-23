@@ -16,6 +16,10 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_CONTENT_HPP
 
+#include <algorithm>
+
+#include <boost/config.hpp>
+
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -25,6 +29,18 @@
 #include <boost/geometry/util/select_most_precise.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
+
+#if defined(BOOST_GCC)
+// The following pragmas set fp-contract=off for GCC, to prevent surprising and
+// subtle numerical behaviour changes as a result of cross-statement/function
+// FMA contractions which can result in e.g. content(b1) - content(b2) != 0 
+// (or < 0) for content(b1) == content(b2) (or >=), due to the fp-contract=fast
+// default from at least GCC 4.4 to present GCC 15.2. This avoids Github issue
+// #1452. Safe to remove after numerically robust handling of degenerate cases
+// is ensured at all index::detail::content(box) call sites.
+#pragma GCC push_options
+#pragma GCC optimize ("fp-contract=off")
+#endif
 
 template <typename Indexable>
 struct default_content_result
@@ -42,7 +58,7 @@ template <typename Box,
           std::size_t CurrentDimension = dimension<Box>::value>
 struct content_box
 {
-    BOOST_STATIC_ASSERT(0 < CurrentDimension);
+    static_assert(0 < CurrentDimension, "Specialization for positive index.");
 
     static inline typename detail::default_content_result<Box>::type apply(Box const& b)
     {
@@ -97,6 +113,23 @@ typename default_content_result<Indexable>::type content(Indexable const& b)
                 tag_t<Indexable>
             >::apply(b);
 }
+
+// Returns the content increase when expanding 'original' to 'expanded'.
+// Precondition: 'original' is covered by 'expanded'. Under this precondition
+// the result is mathematically non-negative, so clamping to 0 is valid and
+// guards against floating-point contraction artifacts (e.g. GCC FMA fusion
+// across function boundaries) that can make the difference negative or
+// spuriously non-zero for equal boxes. See GitHub issue #1452.
+template <typename Box>
+typename default_content_result<Box>::type content_diff(Box const& expanded, Box const& original)
+{
+    using content_type = typename default_content_result<Box>::type;
+    return (std::max)(content_type(0), content(expanded) - content(original));
+}
+
+#if defined(BOOST_GCC)
+#pragma GCC pop_options
+#endif
 
 }}}} // namespace boost::geometry::index::detail
 
