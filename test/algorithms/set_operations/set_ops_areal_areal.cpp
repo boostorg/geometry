@@ -298,10 +298,7 @@ int test_main(int, char* [])
 
     TEST_CASE(case_bitset_1);
     TEST_CASE(case_bitset_2);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES)
-    // Needs a fix in assign_parents
     TEST_CASE(case_bitset_3);
-#endif
 
     TEST_CASE(case_recursive_boxes_89);
     TEST_CASE(case_recursive_boxes_90);
