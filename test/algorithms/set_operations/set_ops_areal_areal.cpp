@@ -155,6 +155,16 @@ void test_detail(std::string const& name, std::string const& wkt1, std::string c
 
     BOOST_CHECK_MESSAGE(bgeo::math::abs(balance) < eps,
         "Case: " << name << " wrong union or intersection " << balance);
+
+    // The relate-based predicates do not depend on the overlay ring traversal
+    // If two geometries intersect but do not merely touch, their interiors overlap
+    // and the intersection cannot be empty. This catches cases such as issue 1471.
+    BOOST_CHECK_MESSAGE(
+        ! (bgeo::intersects(geometry1, geometry2)
+           && ! bgeo::touches(geometry1, geometry2)
+           && result_intersection.empty()),
+        "Case: " << name << " geometries intersect (not touching) but the intersection is empty");
+
     if (settings.test_difference)
     {
         BOOST_CHECK_MESSAGE(bgeo::math::abs(balance_d1) < eps,
@@ -317,6 +327,8 @@ int test_main(int, char* [])
     // Fails in union or intersection, and in difference. Also the union is invalid.
     TEST_CASE_WITH(issue_1354, 0, 1, ut_settings().ignore_validity_union().ignore_diff());
 #endif
+
+    TEST_CASE(issue_1471);
 
     return 0;
 }
