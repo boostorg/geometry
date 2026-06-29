@@ -193,6 +193,31 @@ inline T1 const& bg_if_mp(T1 const& value_mp, T2 const& value)
 #define BG_IF_TEST_FAILURES false
 #endif
 
+//! Defined on every build except macOS + Release (where a known set of
+//! precision-sensitive tests fail due to Apple's optimised math).
+#if !(defined(__APPLE__) && defined(BOOST_GEOMETRY_COMPILER_MODE_RELEASE)) \
+    || defined(BOOST_GEOMETRY_TEST_FAILURES)
+#define BOOST_GEOMETRY_TEST_EXCEPT_MACOS_RELEASE
+#endif
+
+//! Relative-tolerance check that degrades to absolute tolerance when
+//! either side falls below `abs_tol`. BOOST_CHECK_CLOSE is ill-defined
+//! when one operand is zero (the relative-error formula divides by zero),
+//! and machine epsilon residue can make geometry computations
+//! return exact 0 vs ~1e-17 for what should be the same value.
+//!
+//! When either side is below abs_tol, both must be; this avoids forming
+//! a difference expression (which trips Boost.MP expression templates
+//! when operand types differ).
+#define BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(actual, expected, percent_tol, abs_tol) \
+    do { \
+        if (bg::math::abs(actual) < (abs_tol) || bg::math::abs(expected) < (abs_tol)) \
+            BOOST_CHECK(bg::math::abs(actual) < (abs_tol) \
+                     && bg::math::abs(expected) < (abs_tol)); \
+        else \
+            BOOST_CHECK_CLOSE((actual), (expected), (percent_tol)); \
+    } while (0)
+
 inline void BoostGeometryWriteTestConfiguration()
 {
     std::cout << std::endl << "Test configuration:" << std::endl;

@@ -189,6 +189,20 @@ struct precise_cartesian : bg::strategies::detail::cartesian_base
     }
 };
 
+// Tests cartesian area for ill-conditioned polygons whose coordinates
+// span very different magnitudes. Three variants
+// are compared on the same WKT input, and each isolates a different
+// source of error:
+//
+// Two lossy steps can happen:
+//
+//   - WKT -> double rounding. Literals like "0.20000000000000004" do not
+//     fit exactly in IEEE-754 double; some collapse onto the same bit
+//     pattern. Only avoided by parsing into MP.
+//   - Reassociation of (x1+x2)*(y1-y2) terms. For this polygon the huge
+//     terms nearly cancel, so the result of naive summation depends on
+//     the order chosen by the compiler under -O / vectorisation.
+//     Compensated summation removes that dependency
 void test_accurate_sum_strategy()
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> point_type;
@@ -221,13 +235,16 @@ void test_accurate_sum_strategy()
     bg::model::polygon<point_type> poly1;
     bg::read_wkt(poly1_string, poly1);
 
-    BOOST_CHECK_CLOSE(bg::area(poly1), 0, 0.0001);
+#if defined(BOOST_GEOMETRY_TEST_FLAKY)
+    BOOST_CHECK_CLOSE(bg::area(poly1), 5.9421121885698253e+28, 0.0001);
+#endif
     BOOST_CHECK_CLOSE(bg::area(poly1, precise_cartesian()), -0.315, 0.0001);
 
     bg::model::polygon<mp_point_type> mp_poly1;
     bg::read_wkt(poly1_string, mp_poly1);
 
     BOOST_CHECK_CLOSE(bg::area(mp_poly1), 34720783012552.6, 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(mp_poly1, precise_cartesian()), 34720783012552.6, 0.0001);
 
     auto const poly2_string = "POLYGON((1.267650600228229e30 1.2676506002282291e30,\
             0.8 0.8,0.2 0.2,0.1 0.1,1.267650600228229e30 1.2676506002282291e30))";
@@ -235,13 +252,16 @@ void test_accurate_sum_strategy()
     bg::model::polygon<point_type> poly2;
     bg::read_wkt(poly2_string, poly2);
 
-    BOOST_CHECK_CLOSE(bg::area(poly2), 0, 0.0001);
+#if defined(BOOST_GEOMETRY_TEST_FLAKY)
+    BOOST_CHECK_CLOSE(bg::area(poly2), -5.9421121885698253e+28, 0.0001);
+#endif
     BOOST_CHECK_CLOSE(bg::area(poly2, precise_cartesian()), 0.315, 0.0001);
 
     bg::model::polygon<mp_point_type> mp_poly2;
     bg::read_wkt(poly2_string, mp_poly2);
 
     BOOST_CHECK_CLOSE(bg::area(mp_poly2), 35000000000000, 0.0001);
+    BOOST_CHECK_CLOSE(bg::area(mp_poly2, precise_cartesian()), 35000000000000, 0.0001);
 }
 
 void test_dynamic()

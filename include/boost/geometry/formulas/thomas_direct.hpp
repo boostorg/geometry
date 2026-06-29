@@ -100,8 +100,9 @@ public:
         CT const sin_a12 = sin(azi12_alt);
         CT const cos_a12 = cos(azi12_alt);
 
-        CT const M = cos_theta1 * sin_a12; // cos_theta0
-        CT const theta0 = acos(M);
+        CT const M = cos_theta1 * sin_a12;
+        // Account for floating point precision drift
+        CT const theta0 = acos(math::detail::bounded(M, -c1, c1));
         CT const sin_theta0 = sin(theta0);
 
         CT const N = cos_theta1 * cos_a12;

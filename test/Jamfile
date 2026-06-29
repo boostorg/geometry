@@ -14,11 +14,18 @@
 
 import os ;
 import testing ;
+import-search /boost/config/checks ;
+import config : requires ;
 
 project boost-geometry-test
     :
     requirements
         <library>/boost/geometry//boost_geometry
+        <cxxstd>14
+        [ requires
+            cxx14_constexpr
+            cxx14_return_type_deduction
+        ]
         <include>.
         <toolset>msvc:<asynch-exceptions>on
         <toolset>msvc:<cxxflags>/bigobj
@@ -55,4 +62,3 @@ build-project util ;
 build-project views ;
 
 }
-

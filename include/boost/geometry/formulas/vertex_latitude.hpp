@@ -38,7 +38,9 @@ public:
     static inline CT apply(T1 const& lat1,
                            T2 const& alp1)
     {
-        return std::acos( math::abs(cos(lat1) * sin(alp1)) );
+        // Account for floating point precision drift
+        CT const value = math::abs(cos(lat1) * sin(alp1));
+        return std::acos(math::detail::bounded(value, CT(0), CT(1)));
     }
 };
 

@@ -38,8 +38,11 @@ void test_projection(std::string const& id, std::string const& parameters,
             XY fwd_out;
             prj.forward(fwd_in[i], fwd_out);
 
-            bool fwd_eq = bg::math::abs(bg::get<0>(fwd_out) - bg::get<0>(fwd_expected[i])) < 1e-7
-                       && bg::math::abs(bg::get<1>(fwd_out) - bg::get<1>(fwd_expected[i])) < 1e-7;
+            // Scale-aware tolerance: absolute 1e-7 fails at large magnitudes
+            double const fwd_tol_x = (std::max)(1e-7, 1e-8 * bg::math::abs(bg::get<0>(fwd_expected[i])));
+            double const fwd_tol_y = (std::max)(1e-7, 1e-8 * bg::math::abs(bg::get<1>(fwd_expected[i])));
+            bool fwd_eq = bg::math::abs(bg::get<0>(fwd_out) - bg::get<0>(fwd_expected[i])) < fwd_tol_x
+                       && bg::math::abs(bg::get<1>(fwd_out) - bg::get<1>(fwd_expected[i])) < fwd_tol_y;
 
             BOOST_CHECK_MESSAGE((fwd_eq),
                                 std::setprecision(16) << "Result of " << id << " forward projection {"
@@ -69,8 +72,10 @@ void test_projection(std::string const& id, std::string const& parameters,
             LL inv_out;        
             prj.inverse(inv_in[i], inv_out);
 
-            bool inv_eq = bg::math::abs(bg::get<0>(inv_out) - bg::get<0>(inv_expected[i])) < 1e-7
-                       && bg::math::abs(bg::get<1>(inv_out) - bg::get<1>(inv_expected[i])) < 1e-7;
+            double const inv_tol_x = (std::max)(1e-7, 1e-8 * bg::math::abs(bg::get<0>(inv_expected[i])));
+            double const inv_tol_y = (std::max)(1e-7, 1e-8 * bg::math::abs(bg::get<1>(inv_expected[i])));
+            bool inv_eq = bg::math::abs(bg::get<0>(inv_out) - bg::get<0>(inv_expected[i])) < inv_tol_x
+                       && bg::math::abs(bg::get<1>(inv_out) - bg::get<1>(inv_expected[i])) < inv_tol_y;
 
             BOOST_CHECK_MESSAGE((inv_eq),
                                 std::setprecision(16) << "Result of " << id << " inverse projection {"

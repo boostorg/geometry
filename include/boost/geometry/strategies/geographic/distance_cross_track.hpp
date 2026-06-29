@@ -583,7 +583,7 @@ protected:
         }
 
         if ( (meridian_not_crossing_pole || meridian_crossing_pole )
-            && std::abs(lat1) > std::abs(lat2))
+            && math::abs(lat1) > math::abs(lat2))
         {
 #ifdef BOOST_GEOMETRY_DEBUG_GEOGRAPHIC_CROSS_TRACK
             std::cout << "Meridian segment not crossing pole" << std::endl;

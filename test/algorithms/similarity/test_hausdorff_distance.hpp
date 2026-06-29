@@ -46,7 +46,8 @@ void test_hausdorff_distance(Geometry1 const& geometry1, Geometry2 const& geomet
     std::cout << out.str();
 #endif
 
-    BOOST_CHECK_CLOSE(h_distance, result_type(expected_hausdorff_distance), 0.01);
+    BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(h_distance,
+        result_type(expected_hausdorff_distance), 0.01, result_type(1e-8));
 }
 
 
@@ -95,7 +96,8 @@ void test_hausdorff_distance(Geometry1 const& geometry1, Geometry2 const& geomet
     std::cout << out.str();
 #endif
 
-    BOOST_CHECK_CLOSE(h_distance, result_type(expected_hausdorff_distance), 0.01);
+    BOOST_GEOMETRY_CHECK_CLOSE_OR_SMALL(h_distance,
+        result_type(expected_hausdorff_distance), 0.01, result_type(1e-8));
 }
 
 

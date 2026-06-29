@@ -249,7 +249,6 @@ inline void assign_parents(Geometry1 const& geometry1,
             RingMap& ring_map,
             Strategy const& strategy)
 {
-    static bool const is_difference = OverlayType == overlay_difference;
     static bool const is_buffer = OverlayType == overlay_buffer;
     static bool const is_dissolve = OverlayType == overlay_dissolve;
     static bool const check_for_orientation = is_buffer || is_dissolve;
@@ -316,7 +315,7 @@ inline void assign_parents(Geometry1 const& geometry1,
                 return;
             }
 
-            if (count_positive == 1 && ! is_difference && ! is_dissolve)
+            if (count_positive == 1 && OverlayType == overlay_union)
             {
                 // Optimization for one outer ring
                 // -> assign this as parent to all others (all interior rings)
