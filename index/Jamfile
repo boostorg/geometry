@@ -8,10 +8,18 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+import-search /boost/config/checks ;
+import config : requires ;
+
 project boost-geometry-index
     :
     requirements
         <library>/boost/geometry//boost_geometry
+        <cxxstd>14
+        [ requires
+            cxx14_constexpr
+            cxx14_return_type_deduction
+        ]
         <toolset>msvc:<asynch-exceptions>on
     ;
 

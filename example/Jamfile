@@ -10,10 +10,18 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 
+import-search /boost/config/checks ;
+import config : requires ;
+
 project boost-geometry-example
     : requirements
         <library>/boost/geometry//boost_geometry
         <library>/boost/foreach//boost_foreach
+        <cxxstd>14
+        [ requires
+            cxx14_constexpr
+            cxx14_return_type_deduction
+        ]
     ;
 
 exe 01_point_example : 01_point_example.cpp ;

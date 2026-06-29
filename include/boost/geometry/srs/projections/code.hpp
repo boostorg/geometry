@@ -11,6 +11,7 @@
 #define BOOST_GEOMETRY_PROJECTIONS_CODE_HPP
 
 
+#include <array>
 #include <cmath>
 
 #include <boost/geometry/srs/projections/dpar.hpp>
