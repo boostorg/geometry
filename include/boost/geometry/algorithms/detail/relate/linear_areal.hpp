@@ -65,26 +65,31 @@ public:
         , m_result(res)
         , m_strategy(strategy)
         , m_boundary_checker(boundary_checker)
-        , m_interrupt_flags(0)
+        , m_interrupt_flags(0x00)
     {
         if ( ! may_update<interior, interior, '1', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 1;
+            m_interrupt_flags |= 0x01;
         }
 
         if ( ! may_update<interior, exterior, '1', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 2;
+            m_interrupt_flags |= 0x02;
         }
 
         if ( ! may_update<boundary, interior, '0', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 4;
+            m_interrupt_flags |= 0x04;
         }
 
         if ( ! may_update<boundary, exterior, '0', TransposeResult>(m_result) )
         {
-            m_interrupt_flags |= 8;
+            m_interrupt_flags |= 0x08;
+        }
+
+        if ( ! may_update<interior, boundary, '1', TransposeResult>(m_result) )
+        {
+            m_interrupt_flags |= 0x10;
         }
     }
 
@@ -94,7 +99,7 @@ public:
         std::size_t const count = boost::size(linestring);
 
         // invalid input
-        if ( count < 2 )
+        if ( count < 1 )
         {
             // ignore
             // TODO: throw an exception?
@@ -102,7 +107,7 @@ public:
         }
 
         // if those flags are set nothing will change
-        if ( m_interrupt_flags == 0xF )
+        if ( m_interrupt_flags == 0x1F )
         {
             return false;
         }
@@ -110,17 +115,24 @@ public:
         int const pig = detail::within::point_in_geometry(range::front(linestring),
                                                           m_geometry2,
                                                           m_strategy);
-        //BOOST_GEOMETRY_ASSERT_MSG(pig != 0, "There should be no IPs");
 
         if ( pig > 0 )
         {
             update<interior, interior, '1', TransposeResult>(m_result);
-            m_interrupt_flags |= 1;
+            m_interrupt_flags |= 0x01;
+        }
+        else if ( pig == 0 )
+        {
+            // no turns but still point on boundary can actually happen when the
+            // linestring is degenerate. so handle this case explicitly here.
+            // for consistency let's still report dimension 1 instead of 0
+            update<interior, boundary, '1', TransposeResult>(m_result);
+            m_interrupt_flags |= 0x10;
         }
         else
         {
             update<interior, exterior, '1', TransposeResult>(m_result);
-            m_interrupt_flags |= 2;
+            m_interrupt_flags |= 0x02;
         }
 
         // check if there is a boundary
@@ -131,16 +143,16 @@ public:
             if ( pig > 0 )
             {
                 update<boundary, interior, '0', TransposeResult>(m_result);
-                m_interrupt_flags |= 4;
+                m_interrupt_flags |= 0x04;
             }
             else
             {
                 update<boundary, exterior, '0', TransposeResult>(m_result);
-                m_interrupt_flags |= 8;
+                m_interrupt_flags |= 0x08;
             }
         }
 
-        return m_interrupt_flags != 0xF
+        return m_interrupt_flags != 0x1F
             && ! m_result.interrupt;
     }
 
