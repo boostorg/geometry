@@ -342,8 +342,10 @@ struct overlay
 
         // Select all rings which are NOT touched by any intersection point
         std::map<ring_identifier, properties> selected_ring_properties;
+        // When the overlay produced no turns, allow a point on the boundary to
+        // count as within the other geometry (see issue 1471).
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties, strategy);
+                selected_ring_properties, strategy, turns.empty());
 
         // Add rings created during traversal
         {
