@@ -202,70 +202,6 @@ inline void enrich_assign(Operations& operations, Turns& turns)
 #endif
 }
 
-template <typename Operations, typename Turns>
-inline void enrich_adapt(Operations& operations, Turns& turns)
-{
-    // Operations is a vector of indexed_turn_operation<>
-    // If it is empty, or contains one or two items, it makes no sense
-    if (operations.size() < 3)
-    {
-        return;
-    }
-
-    bool next_phase = false;
-    std::size_t previous_index = operations.size() - 1;
-
-    for (auto const& item : util::enumerate(operations))
-    {
-        auto const& index = item.index;
-        auto const& indexed = item.value;
-        auto& turn = turns[indexed.turn_index];
-        auto& op = turn.operations[indexed.operation_index];
-
-        std::size_t const next_index = (index + 1) % operations.size();
-        auto const& next_turn = turns[operations[next_index].turn_index];
-        auto const& next_op = next_turn.operations[operations[next_index].operation_index];
-
-        if (op.seg_id.segment_index == next_op.seg_id.segment_index)
-        {
-            auto const& prev_turn = turns[operations[previous_index].turn_index];
-            auto const& prev_op = prev_turn.operations[operations[previous_index].operation_index];
-            if (op.seg_id.segment_index == prev_op.seg_id.segment_index)
-            {
-                op.enriched.startable = false;
-                next_phase = true;
-            }
-        }
-        previous_index = index;
-    }
-
-    if (! next_phase)
-    {
-        return;
-    }
-
-    // Discard turns which are both non-startable
-    next_phase = false;
-    for (auto& turn : turns)
-    {
-        if (! turn.operations[0].enriched.startable
-            && ! turn.operations[1].enriched.startable)
-        {
-            turn.discarded = true;
-            next_phase = true;
-        }
-    }
-
-    if (! next_phase)
-    {
-        return;
-    }
-
-    // Remove discarded turns from operations to avoid having them as next turn
-    discarded_indexed_turn<Turns> const predicate(turns);
-    operations.erase(std::remove_if(std::begin(operations),
-        std::end(operations), predicate), std::end(operations));
-}
 
 struct enriched_map_default_include_policy
 {
@@ -420,11 +356,6 @@ inline void enrich_turns(Turns& turns,
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     std::cout << "ENRICH-assign Ring " << pair.first << std::endl;
 #endif
-        if BOOST_GEOMETRY_CONSTEXPR (OverlayType == overlay_dissolve)
-        {
-            enrich_adapt(pair.second, turns);
-        }
-
         enrich_assign(pair.second, turns);
     }
 
