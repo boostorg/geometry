@@ -246,7 +246,7 @@ struct box_check_equals
             && (bg::get<0, 1>(box) < 0
                 ? equals(bg::get<0, 1>(box), lat_min)
                 : equals_with_eps(bg::get<0, 1>(box), lat_min))
-            && equals_with_eps(bg::get<1, 0>(box), lon_max)
+            && equals(bg::get<1, 0>(box), lon_max)
             && (bg::get<1, 1>(box) > 0
                 ? equals(bg::get<1, 1>(box), lat_max)
                 : equals_with_eps(bg::get<1, 1>(box), lat_max));

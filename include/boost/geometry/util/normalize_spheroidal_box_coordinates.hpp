@@ -48,8 +48,13 @@ public:
                              CoordinateType& latitude2,
                              bool band)
     {
+        bool const allow_antimeridian_crossing =
+               longitude1 >= constants::min_longitude()
+            && longitude1 <= constants::max_longitude()
+            && longitude2 > constants::max_longitude()
+            && longitude2 - constants::period() < longitude1;
         normalize::apply(longitude1, latitude1, false);
-        normalize::apply(longitude2, latitude2, false);
+        normalize::apply(longitude2, latitude2, false, true, allow_antimeridian_crossing);
 
         latitude_convert_if_polar<Units, IsEquatorial>::apply(latitude1);
         latitude_convert_if_polar<Units, IsEquatorial>::apply(latitude2);
