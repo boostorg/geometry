@@ -34,6 +34,7 @@
 * [@https://github.com/boostorg/geometry/issues/1399 1399] unit test index_rtree_exceptions_rst fails
 * [@https://github.com/boostorg/geometry/issues/1452 1452] performance regression on GCC
 * [@https://github.com/boostorg/geometry/issues/714 714] missing citation guidelines
+* [@https://github.com/boostorg/geometry/issues/1471 1471] Two almost idential rectangles has no interesection
 * Various fixes of errors and warnings
 
 [/=================]
