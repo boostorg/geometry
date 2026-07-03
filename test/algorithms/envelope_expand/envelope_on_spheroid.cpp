@@ -2518,7 +2518,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((0 10,0 45,50 10,0 10))"),
                   0, 10, 50, 45);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that contains both the north and south poles in its interior
     tester::apply("r01cw-r",
                   from_wkt<G>("POLYGON((0 10,50 10,0 45,0 10))"),
@@ -2549,7 +2549,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   -180, -90, 180, -10);
     //                  -180, -19.42540014068282, 180, 90);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that has the north pole as vertex and contains the south pole
     tester::apply("r04cw",
                   from_wkt<G>("POLYGON((0 0,-50 90,-50 0,0 0))"),
@@ -2584,7 +2584,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((0 0,-50 0,-50 90,0 0))"),
                   -50, 0, 0, 90);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that goes through the south pole and contains the north pole
     tester::apply("r09cw",
                   from_wkt<G>("POLYGON((0 0,0 -90,50 0,0 0))"),
@@ -2624,7 +2624,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((100 45,0 45,-100 45,-100 90,100 45))"),
                   -100, 45, 100, 90);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that represents the complement of a spherical cap
     // near the north pole
     tester::apply("r13cw-r",
@@ -2638,7 +2638,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-100 45,0 45,100 45,100 -90,-100 45))"),
                   -100, -90, 100, 57.26759279038765);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that represents a spherical cap that touches the south pole
     tester::apply("r14cw-r",
                   from_wkt<G>("POLYGON((100 45,0 45,-100 45,-100 -90,100 45))"),
@@ -2661,7 +2661,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-50 -80,-50 -40,-30 -40,-30 -80,-50 -80))"),
                   -50, -80.14892388341609, -30, -40);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that lies in the lower hemisphere and contains both poles
     tester::apply("r16-r",
                   from_wkt<G>("POLYGON((-50 -80,-30 -80,-30 -40,-50 -40,-50 -80))"),
@@ -2678,7 +2678,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((50 0,100 0,100 -90,50 0))"),
                   50, -90, 100, 0);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that goes through the south pole and contains the north pole
     tester::apply("r18cw",
                   from_wkt<G>("POLYGON((50 0,50 -90,460 0,50 0))"),
@@ -2690,7 +2690,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((50 0,460 0,100 -90,50 0))"),
                   50, -90, 100, 0);
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that goes through the south pole and contains the north pole
     tester::apply("r19cw",
                   from_wkt<G>("POLYGON((50 0,50 -90,-260 0,50 0))"),
@@ -2707,7 +2707,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((10 0,10 90,20 0,20 -90,10 0))"),
                   10, -90, 20, 90); // SUCCEEDS FOR WRONG REASON
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that goes through both poles
     tester::apply("r20cw-r",
                   from_wkt<G>("POLYGON((10 0,10 -90,20 0,20 90,10 0))"),
@@ -2720,7 +2720,7 @@ BOOST_AUTO_TEST_CASE( envelope_cw_ring )
                   from_wkt<G>("POLYGON((-10 0,-10 90,170 0,170 -90,-10 0))"),
                   -10, -90, 170, 90); // SUCCEEDS FOR WRONG REASON
 
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     // ring that goes through both poles and its boundary forms
     // a great circle
     tester::apply("r21cw-r",
