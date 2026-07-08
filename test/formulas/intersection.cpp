@@ -185,6 +185,20 @@ void test_bugs()
         check_one("issue 612", lon, -0.087266500535674751);
         check_one("issue 612", lat, 1.5892499139622920e-07);
     }
+
+    // https://github.com/boostorg/geometry/issues/1482
+    {
+        double const d2r = bg::math::d2r<double>();
+        double lon, lat;
+        bg::formula::sjoberg_intersection<double, bg::formula::andoyer_inverse, 4>
+            ::apply(3.268218994140625 * d2r, 0.01789649948477745 * d2r,
+                    3.3428595066070557 * d2r, -0.4950112998485565 * d2r,
+                    4.0 * d2r, 0.0 * d2r,
+                    3.0 * d2r, 0.0 * d2r,
+                    lon, lat, bg::srs::spheroid<double>());
+        check_one("issue 1482", lon, 0.057086634437951006005);
+        check_one("issue 1482", lat, 0.0);
+    }
 }
 
 void test_special_cases()
