@@ -129,8 +129,7 @@ namespace projections
     /*!
         \brief van der Grinten II projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Miscellaneous
@@ -152,8 +151,7 @@ namespace projections
     /*!
         \brief van der Grinten III projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Miscellaneous

@@ -130,8 +130,7 @@ namespace projections
     /*!
         \brief Urmaev Flat-Polar Sinusoidal projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -154,8 +153,7 @@ namespace projections
     /*!
         \brief Wagner I (Kavraisky VI) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical

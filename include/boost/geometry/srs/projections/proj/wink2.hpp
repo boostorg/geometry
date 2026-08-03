@@ -121,8 +121,7 @@ namespace projections
     /*!
         \brief Winkel II projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical

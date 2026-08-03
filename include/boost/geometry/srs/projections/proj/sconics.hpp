@@ -278,8 +278,7 @@ namespace projections
     /*!
         \brief Tissot projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -303,8 +302,7 @@ namespace projections
     /*!
         \brief Murdoch I projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -328,8 +326,7 @@ namespace projections
     /*!
         \brief Murdoch II projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -353,8 +350,7 @@ namespace projections
     /*!
         \brief Murdoch III projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -378,8 +374,7 @@ namespace projections
     /*!
         \brief Euler projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -403,8 +398,7 @@ namespace projections
     /*!
         \brief Perspective Conic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -428,8 +422,7 @@ namespace projections
     /*!
         \brief Vitkovsky I projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic

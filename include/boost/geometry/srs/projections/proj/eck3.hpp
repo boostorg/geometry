@@ -160,8 +160,7 @@ namespace projections
     /*!
         \brief Eckert III projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -182,8 +181,7 @@ namespace projections
     /*!
         \brief Putnins P1 projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -204,8 +202,7 @@ namespace projections
     /*!
         \brief Wagner VI projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -226,8 +223,7 @@ namespace projections
     /*!
         \brief Kavraisky VII projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical

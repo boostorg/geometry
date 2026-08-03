@@ -227,8 +227,7 @@ namespace projections
     /*!
         \brief General Sinusoidal Series projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -252,8 +251,7 @@ namespace projections
     /*!
         \brief Sinusoidal (Sanson-Flamsteed) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -275,8 +273,7 @@ namespace projections
     /*!
         \brief Sinusoidal (Sanson-Flamsteed) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -298,8 +295,7 @@ namespace projections
     /*!
         \brief Eckert VI projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -320,8 +316,7 @@ namespace projections
     /*!
         \brief McBryde-Thomas Flat-Polar Sinusoidal projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical

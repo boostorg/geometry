@@ -215,8 +215,7 @@ namespace projections
     /*!
         \brief Lambert Conformal Conic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic

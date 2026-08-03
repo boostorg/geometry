@@ -192,8 +192,7 @@ namespace projections
     /*!
         \brief Bonne (Werner lat_1=90) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -217,8 +216,7 @@ namespace projections
     /*!
         \brief Bonne (Werner lat_1=90) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
