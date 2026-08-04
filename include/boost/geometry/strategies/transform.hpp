@@ -38,10 +38,14 @@ namespace strategy { namespace transform { namespace services
     - per coordinate system (or groups of them)
     - per dimension
     - per point type
-    \tparam CoordinateSystemTag 1,2 coordinate system tags
-    \tparam CoordinateSystem 1,2 coordinate system
-    \tparam D 1, 2 dimension
-    \tparam Point 1, 2 point type
+    \tparam CoordinateSystemTag1 coordinate system tag of the source
+    \tparam CoordinateSystemTag2 coordinate system tag of the target
+    \tparam CoordinateSystem1 coordinate system of the source
+    \tparam CoordinateSystem2 coordinate system of the target
+    \tparam Dimension1 dimension of the source
+    \tparam Dimension2 dimension of the target
+    \tparam Point1 point type of the source
+    \tparam Point2 point type of the target
  */
 template
 <

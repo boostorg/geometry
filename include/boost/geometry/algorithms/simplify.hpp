@@ -79,7 +79,7 @@ namespace detail { namespace simplify
 \brief Small wrapper around a point, with an extra member "included"
 \details
     It has a const-reference to the original point (so no copy here)
-\tparam the enclosed point type
+\tparam Point the enclosed point type
 */
 template <typename Point>
 struct douglas_peucker_point

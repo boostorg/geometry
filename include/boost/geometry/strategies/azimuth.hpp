@@ -24,7 +24,6 @@ namespace strategy { namespace azimuth { namespace services
 \brief Traits class binding a default azimuth strategy to a coordinate system
 \ingroup util
 \tparam CSTag tag of coordinate system
-\tparam CalculationType \tparam_calculation
 */
 template <typename CSTag>
 struct default_strategy
