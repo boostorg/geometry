@@ -556,6 +556,7 @@ namespace projections
     /*!
         \brief General Oblique Transformation projection
         \ingroup projections
+        \tparam StaticParameters static parameter type
         \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics

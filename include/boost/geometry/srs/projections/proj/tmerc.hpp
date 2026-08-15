@@ -645,6 +645,16 @@ namespace projections
         \par Example
         \image html ex_tmerc.gif
     */
+    template <typename T, typename Parameters>
+    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid_exact<T, Parameters>
+    {
+        template <typename Params>
+        inline tmerc_ellipsoid(Params const&, Parameters const& par)
+        {
+            detail::tmerc::setup_exact(par, this->m_proj_parm);
+        }
+    };
+
     //approximate tmerc algorithm
     /*
     template <typename T, typename Parameters>
@@ -657,15 +667,6 @@ namespace projections
         }
     };
     */
-    template <typename T, typename Parameters>
-    struct tmerc_ellipsoid : public detail::tmerc::base_tmerc_ellipsoid_exact<T, Parameters>
-    {
-        template <typename Params>
-        inline tmerc_ellipsoid(Params const&, Parameters const& par)
-        {
-            detail::tmerc::setup_exact(par, this->m_proj_parm);
-        }
-    };
 
     /*!
         \brief Transverse Mercator projection
