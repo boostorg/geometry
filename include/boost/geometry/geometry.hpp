@@ -20,6 +20,8 @@
 #ifndef BOOST_GEOMETRY_GEOMETRY_HPP
 #define BOOST_GEOMETRY_GEOMETRY_HPP
 
+// IWYU pragma: begin_exports
+
 #include <boost/config.hpp>
 
 #if defined(BOOST_NO_CXX14_CONSTEXPR)
@@ -133,5 +135,7 @@
 
 #include <boost/geometry/algorithms/is_convex.hpp>
 #include <boost/geometry/algorithms/point_on_surface.hpp>
+
+// IWYU pragma: end_exports
 
 #endif // BOOST_GEOMETRY_GEOMETRY_HPP
