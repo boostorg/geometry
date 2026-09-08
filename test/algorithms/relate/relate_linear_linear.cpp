@@ -403,6 +403,14 @@ void test_multi_linestring_multi_linestring()
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
                             "1F1F00102");
+
+    // An exterior tail must be handled before moving to the common component.
+    test_geometry<mls, mls>("MULTILINESTRING((60 0,60 15),(20 60,20 75))",
+                            "MULTILINESTRING((40 0,60 0),(20 60,20 75))",
+                            "1F1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((20 60,20 75),(60 0,60 15))",
+                            "MULTILINESTRING((40 0,60 0),(20 60,20 75))",
+                            "1F1F00102");
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             //"MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
@@ -436,11 +444,60 @@ void test_multi_linestring_multi_linestring()
 }
 
 template <typename P>
+void test_degenerated_member_finalization()
+{
+    using ls = bg::model::linestring<P>;
+    using mls = bg::model::multi_linestring<ls>;
+
+    // A point-sized contact at the back covers the endpoint even if an earlier
+    // front contact left a pending degenerate tail in the same member.
+    char const* const wkts1[] = {
+        "MULTILINESTRING((0 0,1 0),(0 0,1 1))",
+        "MULTILINESTRING((1 0,0 0),(1 1,0 0))",
+        "MULTILINESTRING((0 0,1 1),(0 0,1 0))",
+        "MULTILINESTRING((1 1,0 0),(1 0,0 0))"
+    };
+    char const* const wkts2[] = {
+        "MULTILINESTRING((0 0,0 0),(1 0,1 0),(1 2,1 1))",
+        "MULTILINESTRING((1 1,1 2),(1 0,1 0),(0 0,0 0))"
+    };
+    for (auto const& wkt1 : wkts1)
+    {
+        for (auto const& wkt2 : wkts2)
+        {
+            mls geometry1, geometry2;
+            bg::read_wkt(wkt1, geometry1);
+            bg::read_wkt(wkt2, geometry2);
+            check_geometry(geometry1, geometry2, wkt1, wkt2, "0F100F102");
+            BOOST_CHECK_MESSAGE(bg::relate(geometry1, geometry2,
+                                          bg::de9im::mask("*****F***")),
+                "relate: " << wkt1 << " and " << wkt2
+                << " -> Expected no boundary/exterior intersection");
+        }
+    }
+
+    // A middle contact can leave the same pending tail as a front contact.
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,2 0),(0 0,2 1))",
+                            "MULTILINESTRING((1 0,1 0),(2 0,2 0),(2 2,2 1))",
+                            "0F100F102");
+
+    // Front-only and middle-only point contacts must still finalize an exterior
+    // tail before advancing to the next member.
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,2 0),(0 0,2 1))",
+                            "MULTILINESTRING((0 0,0 0),(2 2,2 1))",
+                            "0F1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((0 0,2 0),(0 0,2 1))",
+                            "MULTILINESTRING((1 0,1 0),(2 2,2 1))",
+                            "0F1F00102");
+}
+
+template <typename P>
 void test_all()
 {
     test_linestring_linestring<P>();
     test_linestring_multi_linestring<P>();
     test_multi_linestring_multi_linestring<P>();
+    test_degenerated_member_finalization<P>();
 }
 
 int test_main( int , char* [] )
