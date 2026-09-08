@@ -277,6 +277,9 @@ inline void test_la()
         "((160 30,200 0,200 30,180 45,160 30)))",
         "MULTIPOINT()", "MULTILINESTRING((180 30,180 60))");
 
+    test_one<MLs, MPo, Tup>("MULTILINESTRING((6 4,6 8))",
+        "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 4,2 2)),"
+        "((3 3,6 4,3 5,3 3)))", "MULTIPOINT()", "MULTILINESTRING((6 4,6 8))");
     for (auto const& area : {
         "MULTIPOLYGON(((80 90,60 75,80 60,80 90)),"
         "((60 75,40 90,0 60,40 30,60 45,60 75),(60 75,40 60,40 75,60 75)))",
@@ -293,15 +296,16 @@ inline void test_la()
         "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 6,6 2,2 2)),"
         "((4 4,6 4,4 6,4 4)))", "MULTIPOINT()", "MULTILINESTRING((4 4,4 8))");
 
+    test_one<Ls, Po, Tup>("LINESTRING(4 2,6 2)",
+        "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "MULTIPOINT(4 2)");
+    test_one<Ls, Po, Tup>("LINESTRING(6 2,4 2)",
+        "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "MULTIPOINT(4 2)");
+
     test_one<MLs, MPo, Tup>(
         "MULTILINESTRING((180 60,160 75,140 75,120 75))",
         "MULTIPOLYGON(((160 75,120 75,140 60,160 60,160 75)),"
         "((140 75,140 90,120 90,140 75)))",
         "MULTIPOINT()", "MULTILINESTRING((160 75,120 75))");
-
-    test_one<MLs, MPo, Tup>("MULTILINESTRING((6 4,6 8))",
-        "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 4,2 2)),"
-        "((3 3,6 4,3 5,3 3)))", "MULTIPOINT()", "MULTILINESTRING((6 4,6 8))");
     test_one<Ls, Po, Tup>("LINESTRING(0 1,2 1)",
         "POLYGON((1 1,2 2,0 2,1 1))", "MULTIPOINT(1 1)");
     test_one<Ls, Po, Tup>("LINESTRING(1 1,2 0)",
