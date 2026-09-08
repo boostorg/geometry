@@ -41,6 +41,14 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
+    test_one<Polygon, MultiPolygon, MultiPolygon>("parallel_graph_arcs",
+        "MULTIPOLYGON(((140 60,160 60,140 75,140 60)),"
+        "((140 60,140 45,160 45,140 60)),((160 60,160 45,180 45,160 60)))",
+        "MULTIPOLYGON(((160 75,160 60,180 60,160 75)),"
+        "((160 75,180 75,160 90,160 75)),((160 45,160 60,140 60,160 45)),"
+        "((160 45,180 30,180 45,160 45)),((140 60,120 75,120 60,140 60)))",
+        3, -1, 450, 5, -1, 750, 4, -1, 1200);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
             case_multi_simplex[0], case_multi_simplex[1],
             5, 21, 5.58, 4, 17, 2.58);
