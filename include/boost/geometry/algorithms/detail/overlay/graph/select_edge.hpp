@@ -182,13 +182,16 @@ private:
 
         if (edges.front().side == 0)
         {
-            // Select for collinearity (it makes no sense to sort on mutual side)
-            auto compare = [&](edge_type const& a, edge_type const& b) -> bool
+            // This pairwise preference is not a strict weak ordering.
+            auto selected = edges.begin();
+            for (auto it = selected + 1; it != edges.end(); ++it)
             {
-                return select_collinear_target_edge(a, b);
-            };
-            std::sort(edges.begin(), edges.end(), compare);
-            return edges.front().toi;
+                if (select_collinear_target_edge(*it, *selected))
+                {
+                    selected = it;
+                }
+            }
+            return selected->toi;
         }
 
         // Phase 2, sort by mutual side, of the edges having the front edge's side.
