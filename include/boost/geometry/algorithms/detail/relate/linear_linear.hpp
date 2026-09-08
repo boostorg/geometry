@@ -186,7 +186,7 @@ struct linear_linear
             std::sort(turns.begin(), turns.end(), less_t());
 
             turns_analyser<turn_type, 0> analyser;
-            analyse_each_turn(result, analyser,
+            analyse_each_turn<0>(result, analyser,
                               turns.begin(), turns.end(),
                               geometry1, geometry2,
                               boundary_checker1, boundary_checker2);
@@ -206,7 +206,7 @@ struct linear_linear
             std::sort(turns.begin(), turns.end(), less_t());
 
             turns_analyser<turn_type, 1> analyser;
-            analyse_each_turn(result, analyser,
+            analyse_each_turn<1>(result, analyser,
                               turns.begin(), turns.end(),
                               geometry2, geometry1,
                               boundary_checker2, boundary_checker1);
@@ -755,7 +755,7 @@ struct linear_linear
         bool m_collinear_spike_exit;
     };
 
-    template <typename Result,
+    template <std::size_t OpId, typename Result,
               typename TurnIt,
               typename Analyser,
               typename Geometry,
@@ -773,8 +773,19 @@ struct linear_linear
         if ( first == last )
             return;
 
+        TurnIt range_first = first;
         for ( TurnIt it = first ; it != last ; ++it )
         {
+            if (!same_single(range_first->operations[OpId].seg_id)(it->operations[OpId].seg_id))
+            {
+                // Finish the previous linestring before its state can affect the next one.
+                analyser.apply(res, range_first, it,
+                               geometry, other_geometry,
+                               boundary_checker, other_boundary_checker);
+                if ( BOOST_GEOMETRY_CONDITION( res.interrupt ) )
+                    return;
+                range_first = it;
+            }
             analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker, other_boundary_checker);
@@ -783,7 +794,7 @@ struct linear_linear
                 return;
         }
 
-        analyser.apply(res, first, last,
+        analyser.apply(res, range_first, last,
                        geometry, other_geometry,
                        boundary_checker, other_boundary_checker);
     }

@@ -403,6 +403,14 @@ void test_multi_linestring_multi_linestring()
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
                             "1F1F00102");
+
+    // An exterior tail must be handled before moving to the common component.
+    test_geometry<mls, mls>("MULTILINESTRING((60 0,60 15),(20 60,20 75))",
+                            "MULTILINESTRING((40 0,60 0),(20 60,20 75))",
+                            "1F1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((20 60,20 75),(60 0,60 15))",
+                            "MULTILINESTRING((40 0,60 0),(20 60,20 75))",
+                            "1F1F00102");
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             //"MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(2 0,2 0),(3 0,3 0,3 0),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0),(1 10,1 10,1 0,1 0,1 -10),(0 0,0 0,0 10,0 10),(30 0,30 0,31 0,31 0))",
