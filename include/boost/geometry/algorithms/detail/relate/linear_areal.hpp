@@ -1137,7 +1137,10 @@ struct linear_areal
                               /*&& ( op == overlay::operation_blocked
                                 || op == overlay::operation_union )*/ // if we're here it's u or x
                             {
-                                m_first_from_unknown = true;
+                                // Only the first intersection can leave the initial location unknown.
+                                m_first_from_unknown = first_point;
+                                if (!first_point)
+                                    update<interior, exterior, '1', TransposeResult>(res);
                             }
                             else
                             {
@@ -1338,8 +1341,19 @@ struct linear_areal
             return;
         }
 
+        TurnIt range_first = first;
         for ( TurnIt it = first ; it != last ; ++it )
         {
+            if (!same_single(range_first->operations[0].seg_id)(it->operations[0].seg_id))
+            {
+                analyser.apply(res, range_first, it, geometry, other_geometry, boundary_checker);
+                if (BOOST_GEOMETRY_CONDITION(res.interrupt))
+                {
+                    return;
+                }
+                range_first = it;
+            }
+
             analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker,
@@ -1351,7 +1365,7 @@ struct linear_areal
             }
         }
 
-        analyser.apply(res, first, last,
+        analyser.apply(res, range_first, last,
                        geometry, other_geometry,
                        boundary_checker);
     }

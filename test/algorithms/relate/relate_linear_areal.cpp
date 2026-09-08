@@ -492,6 +492,23 @@ void test_multi_linestring_multi_polygon()
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
                               "F11FFF2F2");
 
+    // Repeated turns at the last point must not reclassify the first point.
+    using ccw_mpoly = bg::model::multi_polygon<bg::model::polygon<P, false>>;
+    test_geometry<mls, ccw_mpoly>("MULTILINESTRING((0 120,0 135,20 135))",
+        "MULTIPOLYGON(((20 135,20 120,40 120,20 135)),((20 135,20 150,0 150,20 135)),((20 120,0 120,20 105,20 120)))",
+        "FF1F0F212");
+
+    // Finalize an exterior tail even when the next member follows a boundary.
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 -2),(0 0,2 0))",
+        "MULTIPOLYGON(((0 0,0 2,2 0,0 0)))", "F11F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,2 0),(0 0,0 -2))",
+        "MULTIPOLYGON(((0 0,0 2,2 0,0 0)))", "F11F00212");
+
+    // Distinct intersections may have the same rounded integral coordinates.
+    test_geometry<mls, mpoly>("MULTILINESTRING((2 2,-2 -1,0 0),(2 2,1 1))",
+        "MULTIPOLYGON(((0 0,0 6,6 6,6 0,0 0),(0 0,4 1,4 4,1 4,0 0)))",
+        "101F00212");
+
     // disjoint
     test_geometry<mls, mpoly>("MULTILINESTRING((20 20,30 30),(30 30,40 40))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",

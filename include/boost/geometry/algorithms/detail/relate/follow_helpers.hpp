@@ -346,11 +346,20 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
         return false;
     }
 
-    // TODO: will this work if between segments there will be some number of degenerated ones?
-
-    if ( prev_seg_id.segment_index != curr_seg_id.segment_index
-      && ( ! curr_turn.operations[OpId].fraction.is_zero()
-        || prev_seg_id.segment_index + 1 != curr_seg_id.segment_index ) )
+    // Integral intersection coordinates may coincide after rounding even when
+    // the turns lie at different locations along a segment.
+    if (prev_seg_id.segment_index == curr_seg_id.segment_index)
+    {
+        if (!(prev_turn.operations[OpId].fraction == curr_turn.operations[OpId].fraction))
+        {
+            return false;
+        }
+    }
+    // Adjacent segments can describe the same turn at their shared endpoint.
+    // TODO: handle intervening degenerate segments.
+    else if (!prev_turn.operations[OpId].fraction.is_one()
+          || !curr_turn.operations[OpId].fraction.is_zero()
+          || prev_seg_id.segment_index + 1 != curr_seg_id.segment_index)
     {
         return false;
     }
