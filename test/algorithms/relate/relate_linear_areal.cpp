@@ -179,6 +179,12 @@ void test_linestring_polygon()
     {
         typedef bg::model::polygon<P, false> ccwpoly;
 
+        // The hole and exterior ring meet at the last point, approached from outside.
+        test_geometry<ls, ccwpoly>("LINESTRING(6 2,4 2)",
+            "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "FF1F00212");
+        test_geometry<ls, ccwpoly>("LINESTRING(4 2,6 2)",
+            "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "FF1F00212");
+
         // IE IB0 II
         test_geometry<ls, ccwpoly>("LINESTRING(11 1,10 5,5 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1010F0212");
         // IE IB1 II
@@ -554,6 +560,19 @@ void test_multi_linestring_multi_polygon()
 template <typename P>
 void test_all()
 {
+    using ls = bg::model::linestring<P>;
+    using mls = bg::model::multi_linestring<ls>;
+    using mpoly = bg::model::multi_polygon<bg::model::polygon<P>>;
+    std::string const touching =
+        "MULTIPOLYGON(((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)),"
+        "((0 0,1 -1,0 -2,-1 -1,0 0)))";
+    test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)", touching, "1010F0212");
+    test_geometry<ls, mpoly>("LINESTRING(-1 0,0 0,0 -1)", touching, "1010F0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 -1,0 0,-1 0))", touching, "1010F0212");
+    test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)",
+        "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)),"
+        "((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)))", "1010F0212");
+
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
     test_multi_linestring_polygon<P>();
