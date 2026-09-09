@@ -15,6 +15,7 @@
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
@@ -315,29 +316,43 @@ struct topology_check_areal
     static const char interior = '2';
     static const char boundary = '1';
 
-    static bool has_interior() { return true; }
-    static bool has_boundary() { return true; }
+    template <typename Geometry>
+    explicit topology_check_areal(Geometry const& geometry)
+        : m_has_interior(!geometry::is_empty(geometry))
+    {}
+
+    bool has_interior() const { return m_has_interior; }
+    bool has_boundary() const { return m_has_interior; }
+
+private:
+    bool m_has_interior;
 };
 
 template <typename Ring, typename Strategy>
 struct topology_check<Ring, Strategy, ring_tag>
     : topology_check_areal
 {
-    topology_check(Ring const&, Strategy const&) {}
+    topology_check(Ring const& geometry, Strategy const&)
+        : topology_check_areal(geometry)
+    {}
 };
 
 template <typename Polygon, typename Strategy>
 struct topology_check<Polygon, Strategy, polygon_tag>
     : topology_check_areal
 {
-    topology_check(Polygon const&, Strategy const&) {}
+    topology_check(Polygon const& geometry, Strategy const&)
+        : topology_check_areal(geometry)
+    {}
 };
 
 template <typename MultiPolygon, typename Strategy>
 struct topology_check<MultiPolygon, Strategy, multi_polygon_tag>
     : topology_check_areal
 {
-    topology_check(MultiPolygon const&, Strategy const&) {}
+    topology_check(MultiPolygon const& geometry, Strategy const&)
+        : topology_check_areal(geometry)
+    {}
 
     template <typename Point>
     static bool check_boundary_point(Point const& ) { return true; }

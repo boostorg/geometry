@@ -238,6 +238,21 @@ void test_multipoint_multipolygon()
 template <typename P>
 void test_all()
 {
+    using ring = bg::model::ring<P>;
+    using poly = bg::model::polygon<P>;
+    using mpoly = bg::model::multi_polygon<poly>;
+    using mpt = bg::model::multi_point<P>;
+    test_geometry<P, ring>("POINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<P, poly>("POINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<P, mpoly>("POINT(0 0)", "MULTIPOLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, ring>("MULTIPOINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, poly>("MULTIPOINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0)", "MULTIPOLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY", "MULTIPOLYGON EMPTY", "FFFFFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY", "MULTIPOLYGON((()))", "FFFFFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY",
+        "MULTIPOLYGON((()),((0 0,0 2,2 2,2 0,0 0)))", "FFFFFF212");
+
     test_point_point<P>();
     test_point_multipoint<P>();
     test_multipoint_multipoint<P>();
