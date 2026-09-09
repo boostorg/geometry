@@ -14,7 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <algorithm>
+#include <map>
 #include <memory>
+#include <utility>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
@@ -783,9 +786,10 @@ struct linear_areal
                   typename Strategy>
         void apply(Result & res, TurnIt it,
                    Geometry const& geometry,
-                   OtherGeometry const& other_geometry,
+                   OtherGeometry const& /*other_geometry*/,
                    BoundaryChecker const& boundary_checker,
-                   Strategy const& strategy)
+                   Strategy const& strategy,
+                   bool initially_inside)
         {
             overlay::operation_type op = it->operations[op_id].operation;
 
@@ -1019,10 +1023,7 @@ struct linear_areal
                     {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
                         bool const from_inside =
-                            first_point && calculate_from_inside<op_id>(geometry,
-                                                                        other_geometry,
-                                                                        *it,
-                                                                        strategy);
+                            first_point && initially_inside;
 
                         if ( from_inside )
                             update<interior, interior, '1', TransposeResult>(res);
@@ -1117,10 +1118,7 @@ struct linear_areal
                         // the first checked Polygon may be the one which LS is outside for.
                         bool const first_point = first_in_range || m_first_from_unknown;
                         bool const first_from_inside =
-                            first_point && calculate_from_inside<op_id>(geometry,
-                                                                        other_geometry,
-                                                                        *it,
-                                                                        strategy);
+                            first_point && initially_inside;
                         if ( first_from_inside )
                         {
                             update<interior, interior, '1', TransposeResult>(res);
@@ -1341,23 +1339,54 @@ struct linear_areal
             return;
         }
 
-        TurnIt range_first = first;
+        TurnIt range_first = last;
+        bool initially_inside = false;
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            if (!same_single(range_first->operations[0].seg_id)(it->operations[0].seg_id))
+            if (range_first == last
+                || !same_single(range_first->operations[0].seg_id)(it->operations[0].seg_id))
             {
-                analyser.apply(res, range_first, it, geometry, other_geometry, boundary_checker);
-                if (BOOST_GEOMETRY_CONDITION(res.interrupt))
+                if (range_first != last)
                 {
-                    return;
+                    analyser.apply(res, range_first, it, geometry, other_geometry, boundary_checker);
+                    if (BOOST_GEOMETRY_CONDITION(res.interrupt))
+                    {
+                        return;
+                    }
                 }
                 range_first = it;
+                std::map<signed_size_type, bool> polygons;
+                std::map<std::pair<signed_size_type, signed_size_type>, bool> rings;
+                // At a ring touch, arrival inside the polygon must satisfy every
+                // incident ring, not just the ring of the first processed turn.
+                for (TurnIt jt = it; jt != last && turn_on_the_same_ip<0>(*it, *jt, strategy); ++jt)
+                {
+                    auto const& id = jt->operations[1].seg_id;
+                    bool const inside = calculate_from_inside<0>(geometry, other_geometry, *jt, strategy);
+                    auto entry = rings.emplace(std::make_pair(id.multi_index, id.ring_index), inside);
+                    if (!entry.second)
+                    {
+                        entry.first->second = entry.first->second || inside;
+                    }
+                }
+                for (auto const& ring : rings)
+                {
+                    auto entry = polygons.emplace(ring.first.first, ring.second);
+                    if (!entry.second)
+                    {
+                        entry.first->second = entry.first->second && ring.second;
+                    }
+                }
+                // The incoming line is inside the multi-polygon if any of its
+                // polygons contains it, regardless of which turn is first.
+                initially_inside = std::any_of(polygons.begin(), polygons.end(),
+                    [](auto const& polygon) { return polygon.second; });
             }
-
             analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker,
-                           strategy);
+                           strategy,
+                           initially_inside);
 
             if ( BOOST_GEOMETRY_CONDITION( res.interrupt ) )
             {
