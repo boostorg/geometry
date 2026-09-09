@@ -1492,6 +1492,15 @@ struct linear_areal
         {
             overlay::operation_type op = it->operations[1].operation;
 
+            // A point-only contact cannot end an overlap with another line segment.
+            auto const& linear_op = it->operations[0];
+            if (op == overlay::operation_union
+                && linear_op.operation != overlay::operation_continue
+                && !linear_op.is_collinear)
+            {
+                return true;
+            }
+
             if ( it != last )
             {
                 if ( op != overlay::operation_union

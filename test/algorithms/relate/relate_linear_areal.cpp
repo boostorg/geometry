@@ -574,6 +574,13 @@ void test_all()
         "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)),"
         "((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)))", "1010F0212");
 
+    std::string const area = "MULTIPOLYGON(((0 30,20 15,20 0,0 0,0 30)))";
+    test_geometry<mls, mpoly>(
+        "MULTILINESTRING((0 15,20 15,20 0,0 0,0 30),(20 15,0 30))",
+        area, "11FF0F2F2");
+    test_geometry<mls, mpoly>(
+        "MULTILINESTRING((0 15,20 15,20 0,0 0,0 30))",
+        area, "11FF0F212");
 
     std::string const triangle = "MULTIPOLYGON(((0 0,0 15,20 15,0 0)))";
     test_geometry<mls, mpoly>("MULTILINESTRING((20 0,20 15,20 30),(20 15,0 30))",
