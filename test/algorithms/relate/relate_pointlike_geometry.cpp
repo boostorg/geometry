@@ -28,6 +28,8 @@ void test_point_multipoint()
 {
     typedef bg::model::multi_point<P> mpt;
 
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT EMPTY", "FF0FFFFF2");
+
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
     test_geometry<P, mpt>("POINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 0)", "0FFFFF0F2");
@@ -37,6 +39,9 @@ template <typename P>
 void test_multipoint_multipoint()
 {
     typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<mpt, mpt>("MULTIPOINT EMPTY", "MULTIPOINT EMPTY", "FFFFFFFF2");
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT EMPTY", "FF0FFFFF2");
 
     test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
     test_geometry<mpt, mpt>("MULTIPOINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
