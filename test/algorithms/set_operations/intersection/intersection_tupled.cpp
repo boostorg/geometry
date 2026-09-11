@@ -302,6 +302,12 @@ inline void test_la()
     test_one<MLs, MPo, Tup>("MULTILINESTRING((6 4,6 8))",
         "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 4,2 2)),"
         "((3 3,6 4,3 5,3 3)))", "MULTIPOINT()", "MULTILINESTRING((6 4,6 8))");
+    test_one<Ls, Po, Tup>("LINESTRING(0 1,2 1)",
+        "POLYGON((1 1,2 2,0 2,1 1))", "MULTIPOINT(1 1)");
+    test_one<Ls, Po, Tup>("LINESTRING(1 1,2 0)",
+        "POLYGON((1 1,2 2,0 2,1 1))", "MULTIPOINT(1 1)");
+    test_one<Ls, Po, Tup>("LINESTRING(2 0,1 1)",
+        "POLYGON((1 1,2 2,0 2,1 1))", "MULTIPOINT(1 1)");
 
     test_one<Ls, R, Tup>(
         "LINESTRING(0 2, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9, 4 5, 3 3, 2 5, 2 9, 0 5)",
