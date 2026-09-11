@@ -45,6 +45,11 @@ void test_areal()
 {
     using ct = typename bg::coordinate_type<Ring>::type;
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("clustered_distinct_round_trips",
+        "MULTIPOLYGON(((40 30,20 30,20 15,40 0,40 15,60 15,40 30)),((20 15,0 0,20 0,20 15)))",
+        "MULTIPOLYGON(((60 45,20 45,20 15,40 0,60 15,60 45),(40 30,40 15,20 15,40 30)))",
+        2, 0, 11, 1650);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
