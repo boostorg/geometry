@@ -17,6 +17,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 
 #include <cstddef>
+#include <set>
 #include <type_traits>
 
 #include <boost/range/begin.hpp>
@@ -90,10 +91,10 @@ inline bool is_leaving(Turn const& turn, Operation const& op,
     if (op.operation == operation_union)
     {
         return entered
-            || turn.method == method_crosses
             || (first
-                && op.position != position_front
-                && last_covered_by(turn, op, linestring, polygon, strategy))
+                && (turn.method == method_crosses
+                    || (op.position != position_front
+                        && last_covered_by(turn, op, linestring, polygon, strategy))))
             ;
     }
     return false;
@@ -113,15 +114,15 @@ inline bool is_staying_inside(Turn const& turn, Operation const& op,
                 LineString const& linestring, Polygon const& polygon,
                 Strategy const& strategy)
 {
-    if (turn.method == method_crosses)
+    if (turn.method == method_crosses && !first)
     {
-        // The normal case, this is completely covered with entering/leaving
-        // so stay out of this time consuming "covered_by"
-        return false;
+        // Entering another polygon need not end an already covered interval.
+        return entered && is_entering(turn, op);
     }
 
     if (is_entering(turn, op))
     {
+        // A first entry may coincide with an exit from another polygon.
         return entered || (first && last_covered_by(turn, op, linestring, polygon, strategy));
     }
 
@@ -433,14 +434,29 @@ public :
         // Iterate through all intersection points (they are ordered along the line)
         bool entered = false;
         bool first = true;
+        unsigned boundary_count = 0;
+        std::set<signed_size_type> entered_polygons;
         for (auto const& turn : turns)
         {
             auto const& op = turn.operations[0];
+            // Touching another ring does not leave the boundary currently followed.
+            if (op.operation == operation_continue)
+            {
+                if (first || !op.is_collinear)
+                {
+                    ++boundary_count;
+                }
+            }
+            else if (boundary_count > 0 && op.is_collinear)
+            {
+                --boundary_count;
+            }
 
             if (following::was_entered(turn, op, first, linestring, polygon, strategy))
             {
                 debug_traverse(turn, op, "-> Was entered");
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
             }
 
             if (following::is_staying_inside(turn, op, entered, first, linestring, polygon, strategy))
@@ -448,12 +464,14 @@ public :
                 debug_traverse(turn, op, "-> Staying inside");
 
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
             }
             else if (following::is_entering(turn, op))
             {
                 debug_traverse(turn, op, "-> Entering");
 
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
                 action::enter(current_piece, linestring, current_segment_id,
                     op.seg_id.segment_index, turn.point, op,
                     strategy,
@@ -461,13 +479,18 @@ public :
             }
             else if (following::is_leaving(turn, op, entered, first, linestring, polygon, strategy))
             {
-                debug_traverse(turn, op, "-> Leaving");
+                // Coincident turns may enter another polygon before this one is left.
+                entered_polygons.erase(turn.operations[1].seg_id.multi_index);
+                if (boundary_count == 0 && entered_polygons.empty())
+                {
+                    debug_traverse(turn, op, "-> Leaving");
 
-                entered = false;
-                action::leave(current_piece, linestring, current_segment_id,
-                    op.seg_id.segment_index, turn.point, op,
-                    strategy,
-                    linear::get(out));
+                    entered = false;
+                    action::leave(current_piece, linestring, current_segment_id,
+                        op.seg_id.segment_index, turn.point, op,
+                        strategy,
+                        linear::get(out));
+                }
             }
             else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
                   && following::is_touching(turn, op, entered))

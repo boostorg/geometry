@@ -10,8 +10,10 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/difference.hpp>
 #include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
+#include <boost/geometry/algorithms/length.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/cartesian/intersection.hpp>
@@ -35,6 +37,40 @@ typedef bg::model::multi_linestring<Ls> MLs;
 typedef bg::model::multi_polygon<Po> MPo;
 
 #include <tuple>
+#include <cstdint>
+
+template <typename Coordinate, bool Clockwise, bool Closed>
+void test_coincident_exits()
+{
+    using point = bg::model::d2::point_xy<Coordinate>;
+    using line = bg::model::linestring<point>;
+    using lines = bg::model::multi_linestring<line>;
+    using polygon = bg::model::polygon<point, Clockwise, Closed>;
+    using polygons = bg::model::multi_polygon<polygon>;
+    using points = bg::model::multi_point<point>;
+
+    for (bool reverse_line : {false, true})
+    for (bool reverse_polygons : {false, true})
+    {
+        lines a;
+        polygons b;
+        bg::read_wkt("MULTILINESTRING((160 105,160 135))", a);
+        bg::read_wkt("MULTIPOLYGON(((180 135,160 120,200 120,180 135)),"
+            "((120 120,160 90,180 105,140 135,120 120)))", b);
+        bg::correct(b);
+        if (reverse_line) std::reverse(a.front().begin(), a.front().end());
+        if (reverse_polygons) std::reverse(b.begin(), b.end());
+
+        lines intersection, difference;
+        std::tuple<points, lines, polygons> tuple;
+        bg::intersection(a, b, intersection);
+        bg::intersection(a, b, tuple);
+        bg::difference(a, b, difference);
+        BOOST_CHECK_EQUAL(bg::length(intersection), 15);
+        BOOST_CHECK_EQUAL(bg::length(std::get<1>(tuple)), 15);
+        BOOST_CHECK_EQUAL(bg::length(difference), 15);
+    }
+}
 
 template <typename G>
 inline void check(std::string const& wkt1,
@@ -236,6 +272,37 @@ inline void test_ll()
 template <typename Tup>
 inline void test_la()
 {
+    test_one<MLs, MPo, Tup>("MULTILINESTRING((180 30,180 60))",
+        "MULTIPOLYGON(((160 60,160 45,200 45,200 60,160 60)),"
+        "((160 30,200 0,200 30,180 45,160 30)))",
+        "MULTIPOINT()", "MULTILINESTRING((180 30,180 60))");
+
+    for (auto const& area : {
+        "MULTIPOLYGON(((80 90,60 75,80 60,80 90)),"
+        "((60 75,40 90,0 60,40 30,60 45,60 75),(60 75,40 60,40 75,60 75)))",
+        "MULTIPOLYGON(((60 75,40 90,0 60,40 30,60 45,60 75),"
+        "(60 75,40 60,40 75,60 75)),((80 90,60 75,80 60,80 90)))"})
+    {
+        test_one<MLs, MPo, Tup>("MULTILINESTRING((80 60,60 75,60 90))", area,
+            "MULTIPOINT()", "MULTILINESTRING((80 60,60 75))");
+        test_one<MLs, MPo, Tup>("MULTILINESTRING((60 90,60 75,80 60))", area,
+            "MULTIPOINT()", "MULTILINESTRING((60 75,80 60))");
+    }
+
+    test_one<MLs, MPo, Tup>("MULTILINESTRING((4 4,4 8))",
+        "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 6,6 2,2 2)),"
+        "((4 4,6 4,4 6,4 4)))", "MULTIPOINT()", "MULTILINESTRING((4 4,4 8))");
+
+    test_one<MLs, MPo, Tup>(
+        "MULTILINESTRING((180 60,160 75,140 75,120 75))",
+        "MULTIPOLYGON(((160 75,120 75,140 60,160 60,160 75)),"
+        "((140 75,140 90,120 90,140 75)))",
+        "MULTIPOINT()", "MULTILINESTRING((160 75,120 75))");
+
+    test_one<MLs, MPo, Tup>("MULTILINESTRING((6 4,6 8))",
+        "MULTIPOLYGON(((0 0,8 0,8 8,0 8,0 0),(2 2,2 6,6 4,2 2)),"
+        "((3 3,6 4,3 5,3 3)))", "MULTIPOINT()", "MULTILINESTRING((6 4,6 8))");
+
     test_one<Ls, R, Tup>(
         "LINESTRING(0 2, -4 1, 0 0, 5 0, 9 1, 5 2, 9 3, 5 5, 4 9, 4 5, 3 3, 2 5, 2 9, 0 5)",
         "POLYGON((0 0, 0 5, 5 5, 5 0, 0 0))",
@@ -351,6 +418,11 @@ inline void test_tuple()
 
 int test_main(int, char* [])
 {
+    test_coincident_exits<std::int_least64_t, true, true>();
+    test_coincident_exits<std::int_least64_t, false, false>();
+    test_coincident_exits<double, true, true>();
+    test_coincident_exits<double, false, false>();
+
     test_pair<std::pair<MPt, MLs> >();
     test_tuple<boost::tuple<MPt, MLs, MPo> >();
     test_tuple<std::tuple<MPt, MLs, MPo> >();
