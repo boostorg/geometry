@@ -18,6 +18,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include "test_get_turns.hpp"
+#include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
 
@@ -27,6 +28,24 @@ void test_all()
     typedef bg::model::point<T, 2, bg::cs::cartesian> pt;
     typedef bg::model::linestring<pt> ls;
     typedef bg::model::polygon<pt> poly;
+
+    // Different polygons' outer rings must not be treated as the same ring.
+    using turn = bg::detail::overlay::turn_info<pt>;
+    turn shell_exit, hole_entry, other_entry;
+    shell_exit.operations[0].operation = bg::detail::overlay::operation_union;
+    hole_entry.operations[0].operation = bg::detail::overlay::operation_intersection;
+    other_entry.operations[0].operation = bg::detail::overlay::operation_intersection;
+    shell_exit.operations[1].seg_id = bg::segment_identifier(1, 3, -1, 0);
+    hole_entry.operations[1].seg_id = bg::segment_identifier(1, 3, 0, 0);
+    other_entry.operations[1].seg_id = bg::segment_identifier(1, 2, -1, 0);
+    bg::detail::relate::turns::less_op_linear_areal_single<0> less;
+    BOOST_CHECK(less(hole_entry, shell_exit));
+    BOOST_CHECK(less(other_entry, shell_exit));
+    BOOST_CHECK(!less(shell_exit, other_entry));
+    BOOST_CHECK(!less(hole_entry, other_entry) && !less(other_entry, hole_entry));
+    other_entry.operations[1].seg_id.multi_index = 3;
+    BOOST_CHECK(less(shell_exit, other_entry));
+    BOOST_CHECK(!less(other_entry, shell_exit));
 
     test_geometry<ls, poly>("LINESTRING(15 5,24 5,20 2,19 0,13 -4,1 0,10 0,13 3,15 7,16 10,10 10,8 10,4 6,2 8,1 10)",
                             "POLYGON((0 0,5 5,0 10,20 10,20 2,19 0,0 0)(10 3,15 3,15 7,10 7,10 3))",
