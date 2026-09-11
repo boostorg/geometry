@@ -14,7 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 
+#include <map>
 #include <memory>
+#include <set>
+#include <utility>
 
 #include <boost/geometry/core/topological_dimension.hpp>
 
@@ -427,13 +430,10 @@ struct areal_areal
     public:
         turns_analyser()
             : m_previous_turn_ptr(0)
-            , m_previous_operation(overlay::operation_none)
-            , m_enter_detected(false)
-            , m_exit_detected(false)
         {}
 
         template <typename Result, typename TurnIt, typename EqPPStrategy>
-        void apply(Result & result, TurnIt it, EqPPStrategy const& strategy)
+        void apply(Result & result, TurnIt it, TurnIt last, EqPPStrategy const& strategy)
         {
             //BOOST_GEOMETRY_ASSERT( it != last );
 
@@ -451,99 +451,60 @@ struct areal_areal
             //segment_identifier const& other_id = it->operations[other_op_id].seg_id;
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
-
-            if ( m_previous_turn_ptr )
+            if (m_previous_turn_ptr && (first_in_range
+                || !turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, strategy)))
             {
-                if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
+                apply(result);
+            }
+            if (first_in_range)
+            {
+                m_boundary_rings.clear();
+                // Rings are cyclic: the last turn of each other ring determines
+                // whether its boundary is already followed at the first turn.
+                for (TurnIt jt = it; jt != last
+                     && same_ring(seg_id)(jt->operations[op_id].seg_id); ++jt)
                 {
-                    // real exit point - may be multiple
-                    if ( first_in_range
-                      || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, strategy) )
-                    {
-                        update_exit(result);
-                        m_exit_detected = false;
-                    }
-                    // fake exit point, reset state
-                    else if ( op != overlay::operation_union )
-                    {
-                        m_exit_detected = false;
-                    }
-                }
-                /*else*/
-                if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
-                {
-                    // real entry point
-                    if ( first_in_range
-                      || ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, strategy) )
-                    {
-                        update_enter(result);
-                        m_enter_detected = false;
-                    }
-                    // fake entry point, reset state
-                    else if ( op != overlay::operation_intersection )
-                    {
-                        m_enter_detected = false;
-                    }
+                    update_boundary(*jt);
                 }
             }
+            update_boundary(*it);
 
-            if ( op == overlay::operation_union )
-            {
-                // already set in interrupt policy
-                //update<boundary, boundary, '0', transpose_result>(m_result);
-
-                // ignore u/u
-                //if ( it->operations[other_op_id].operation != overlay::operation_union )
-                {
-                    m_exit_detected = true;
-                }
-            }
-            else if ( op == overlay::operation_intersection )
-            {
-                // ignore i/i
-                if ( it->operations[other_op_id].operation != overlay::operation_intersection )
-                {
-                    // this was set in the interrupt policy but it was wrong
-                    // also here it's wrong since it may be a fake entry point
-                    //update<interior, interior, '2', transpose_result>(result);
-
-                    // already set in interrupt policy
-                    //update<boundary, boundary, '0', transpose_result>(result);
-                    m_enter_detected = true;
-                }
-            }
-            else if ( op == overlay::operation_blocked )
-            {
-                // already set in interrupt policy
-            }
-            else // if ( op == overlay::operation_continue )
-            {
-                // already set in interrupt policy
-            }
+            auto const& other_id = it->operations[other_op_id].seg_id;
+            m_pending_operations[std::make_pair(other_id.multi_index, other_id.ring_index)]
+                = op;
 
             // store ref to previously analysed (valid) turn
             m_previous_turn_ptr = std::addressof(*it);
-            // and previously analysed (valid) operation
-            m_previous_operation = op;
         }
 
         // it == last
         template <typename Result>
         void apply(Result & result)
         {
-            //BOOST_GEOMETRY_ASSERT( first != last );
-
-            if ( m_exit_detected /*m_previous_operation == overlay::operation_union*/ )
+            // Classify the interval after all colocated turns. Leaving the shell
+            // or entering any hole puts it outside that polygon, but an entry
+            // into another polygon can still keep it inside the multigeometry.
+            bool inside = false, outside = false;
+            for (auto it = m_pending_operations.begin(); it != m_pending_operations.end();)
             {
-                update_exit(result);
-                m_exit_detected = false;
+                auto const multi_index = it->first.first;
+                bool enters = false, exits = false;
+                do
+                {
+                    enters = enters || it->second == overlay::operation_intersection;
+                    exits = exits || it->second == overlay::operation_union;
+                    ++it;
+                }
+                while (it != m_pending_operations.end() && it->first.first == multi_index);
+                inside = inside || (enters && !exits);
+                outside = outside || exits;
             }
-
-            if ( m_enter_detected /*m_previous_operation == overlay::operation_intersection*/ )
+            if (m_boundary_rings.empty())
             {
-                update_enter(result);
-                m_enter_detected = false;
+                if (inside) update_enter(result);
+                else if (outside) update_exit(result);
             }
+            m_pending_operations.clear();
         }
 
         template <typename Result>
@@ -562,11 +523,25 @@ struct areal_areal
         }
 
     private:
+        void update_boundary(TurnInfo const& turn)
+        {
+            auto const op = turn.operations[op_id].operation;
+            auto const& id = turn.operations[other_op_id].seg_id;
+            if (op == overlay::operation_continue || op == overlay::operation_blocked)
+            {
+                m_boundary_rings.emplace(id.multi_index, id.ring_index);
+            }
+            else if (op == overlay::operation_intersection || op == overlay::operation_union)
+            {
+                m_boundary_rings.erase(std::make_pair(id.multi_index, id.ring_index));
+            }
+        }
+
+        std::set<std::pair<signed_size_type, signed_size_type>> m_boundary_rings;
         segment_watcher<same_ring> m_seg_watcher;
         TurnInfo * m_previous_turn_ptr;
-        overlay::operation_type m_previous_operation;
-        bool m_enter_detected;
-        bool m_exit_detected;
+        std::map<std::pair<signed_size_type, signed_size_type>, overlay::operation_type>
+            m_pending_operations;
     };
 
     // call analyser.apply() for each turn in range
@@ -588,7 +563,7 @@ struct areal_areal
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            analyser.apply(res, it, strategy);
+            analyser.apply(res, it, last, strategy);
 
             if ( BOOST_GEOMETRY_CONDITION(res.interrupt) )
                 return;
@@ -775,6 +750,7 @@ struct areal_areal
             //analyser.per_turn(*first);
 
             TurnIt prev = first;
+            TurnIt ring_first = first;
             for ( ++first ; first != last ; ++first, ++prev )
             {
                 // same multi
@@ -791,7 +767,8 @@ struct areal_areal
                     else
                     {
                         //analyser.end_ring(*prev);
-                        analyser.turns(prev, first);
+                        analyser.turns(ring_first, first);
+                        ring_first = first;
 
                         //if ( prev->operations[OpId].seg_id.ring_index + 1
                         //   < first->operations[OpId].seg_id.ring_index)
@@ -809,7 +786,8 @@ struct areal_areal
                 else
                 {
                     //analyser.end_ring(*prev);
-                    analyser.turns(prev, first);
+                    analyser.turns(ring_first, first);
+                    ring_first = first;
                     for_following_rings(analyser, *prev);
                     for_preceding_rings(analyser, *first);
                     //analyser.per_turn(*first);
@@ -822,7 +800,7 @@ struct areal_areal
             }
 
             //analyser.end_ring(*prev);
-            analyser.turns(prev, first); // first == last
+            analyser.turns(ring_first, first); // first == last
             for_following_rings(analyser, *prev);
         }
 
