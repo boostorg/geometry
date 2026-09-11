@@ -80,7 +80,8 @@ public:
 
         inline bool is_inside() const
         {
-            return count < 0 || count_on_origin > 0;
+            // Internal helper edges are covered even when winding stopped at the first edge.
+            return count < 0 || count_on_origin > 0 || count_on_edge > 0;
         }
 
         inline bool is_on_boundary() const
