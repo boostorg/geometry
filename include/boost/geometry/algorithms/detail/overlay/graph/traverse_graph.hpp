@@ -165,8 +165,10 @@ struct traverse_graph
             for (int j = 0; j < 2; j++)
             {
                 auto const& other_op = other_turn.operations[j];
-                if (other_op.enriched.travels_to_ip_index == op.enriched.travels_to_ip_index
-                    && other_op.seg_id == op.seg_id)
+                if (other_op.seg_id == op.seg_id
+                    && other_op.enriched.travels_to_ip_index >= 0
+                    && get_node_id(m_turns, other_op.enriched.travels_to_ip_index)
+                        == get_node_id(m_turns, op.enriched.travels_to_ip_index))
                 {
                     m_visited_tois.insert({turn_index, j});
                 }
@@ -276,7 +278,7 @@ struct traverse_graph
         {
             for (auto const& toi : tois)
             {
-                if (m_finished_tois.count(toi) > 0)
+                if (m_finished_tois.count(toi) > 0 || m_started_tois.count(toi) > 0)
                 {
                     // Visited in the meantime
                     continue;
@@ -298,6 +300,7 @@ struct traverse_graph
         {
             return;
         }
+        m_started_tois.insert(toi);
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         std::cout << "\n" << "-> Start traversing component " << component_id
@@ -390,14 +393,6 @@ struct traverse_graph
 
             for (auto const target_node_id : target_nodes)
             {
-                auto const start = std::make_tuple(source_node_id, target_node_id, component_id);
-                if (m_starts.count(start) > 0)
-                {
-                    // Don't repeat earlier or finished trials. This speeds up some cases by 1.5x
-                    continue;
-                }
-                m_starts.insert(start);
-
     #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
                 std::cout << "\n" << "Traversing component " << component_id
                     << " from " << source_node_id << " to " << target_node_id << std::endl;
@@ -441,8 +436,8 @@ private:
     // Visited turn operations after a ring is added
     toi_set m_finished_tois;
 
-    // Keep track of started combinations (either finished, or stuck)
-    std::set<std::tuple<signed_size_type, signed_size_type, signed_size_type>> m_starts;
+    // Distinct ring paths may connect the same two nodes in one component.
+    toi_set m_started_tois;
 };
 
 }} // namespace detail::overlay
