@@ -252,6 +252,20 @@ void test_all()
     test_geometry<mpt, mpoly>("MULTIPOINT EMPTY", "MULTIPOLYGON((()))", "FFFFFFFF2");
     test_geometry<mpt, mpoly>("MULTIPOINT EMPTY",
         "MULTIPOLYGON((()),((0 0,0 2,2 2,2 0,0 0)))", "FFFFFF212");
+    // Empty members have no envelope to index; retain the other members' indices.
+    for (auto const& area : {
+        "MULTIPOLYGON((()),((0 0,0 2,2 2,2 0,0 0)),(()))",
+        "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),(()))"})
+    {
+        test_geometry<mpt, mpoly>("MULTIPOINT(1 1,0 1,3 1)", area, "000FFF212");
+        test_geometry<mpt, mpoly>("MULTIPOINT(1 1,0 1,3 1)", area, "00*******");
+    }
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1)", "MULTIPOLYGON((()))", "FF0FFFFF2");
+    using mls = bg::model::multi_linestring<bg::model::linestring<P>>;
+    test_geometry<mpt, mls>("MULTIPOINT(1 0,0 0,3 0)",
+        "MULTILINESTRING((),(0 0,2 0),())", "000FFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(1 0,0 0,3 0)",
+        "MULTILINESTRING((),(0 0,2 0),())", "00*******");
 
     test_point_point<P>();
     test_point_multipoint<P>();

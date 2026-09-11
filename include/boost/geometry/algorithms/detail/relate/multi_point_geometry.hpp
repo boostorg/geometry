@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -523,12 +524,19 @@ struct multi_point_multi_geometry
         using box_pair_type = std::pair<model::box<point_type_t<MultiGeometry>>, std::size_t>;
 
         std::size_t count2 = boost::size(multi_geometry);
-        std::vector<box_pair_type> boxes(count2);
+        std::vector<box_pair_type> boxes;
+        boxes.reserve(count2);
         for (std::size_t i = 0 ; i < count2 ; ++i)
         {
-            geometry::envelope(range::at(multi_geometry, i), boxes[i].first, strategy);
-            geometry::detail::expand_by_epsilon(boxes[i].first);
-            boxes[i].second = i;
+            auto const& single_geometry = range::at(multi_geometry, i);
+            if (geometry::is_empty(single_geometry))
+            {
+                continue;
+            }
+            boxes.emplace_back();
+            geometry::envelope(single_geometry, boxes.back().first, strategy);
+            geometry::detail::expand_by_epsilon(boxes.back().first);
+            boxes.back().second = i;
         }
 
         typedef detail::relate::topology_check<MultiGeometry, Strategy> tc_t;
