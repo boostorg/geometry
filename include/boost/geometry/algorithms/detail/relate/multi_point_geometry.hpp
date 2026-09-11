@@ -361,13 +361,10 @@ class multi_point_multi_geometry_ii_ib
 
                 int in_val = detail::within::point_in_geometry(point, single, m_strategy);
 
-                if (in_val > 0) // within
+                if (in_val >= 0)
                 {
-                    update<interior, interior, '0', Transpose>(m_result);
-                }
-                else if (in_val == 0)
-                {
-                    if (m_tc.check_boundary_point(point))
+                    if ((in_val == 0 || util::is_linear<MultiGeometry>::value)
+                        && m_tc.check_boundary_point(point))
                     {
                         update<interior, boundary, '0', Transpose>(m_result);
                     }
@@ -482,14 +479,10 @@ struct multi_point_multi_geometry_ii_ib_ie
 
                 int in_val = detail::within::point_in_geometry(point, single, strategy);
 
-                if (in_val > 0) // within
+                if (in_val >= 0)
                 {
-                    update<interior, interior, '0', Transpose>(result);
-                    found_ii_or_ib = true;
-                }
-                else if (in_val == 0) // on boundary of single
-                {
-                    if (tc.check_boundary_point(point))
+                    if ((in_val == 0 || util::is_linear<MultiGeometry>::value)
+                        && tc.check_boundary_point(point))
                     {
                         update<interior, boundary, '0', Transpose>(result);
                     }

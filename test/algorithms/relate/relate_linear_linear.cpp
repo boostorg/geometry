@@ -12,6 +12,9 @@
 
 #include "test_relate.hpp"
 
+#include <boost/geometry/algorithms/crosses.hpp>
+#include <boost/geometry/algorithms/touches.hpp>
+
 
 template <typename P>
 void test_linestring_linestring()
@@ -230,8 +233,8 @@ void test_linestring_linestring()
         BOOST_CHECK_THROW(bg::relate(ls1, ls2, bg::de9im::mask("A")), bg::invalid_input_exception);
     }
 
-    // spike - boundary and interior on the same point
-    test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "0010F0102");
+    // A boundary endpoint is revisited inside the same linestring.
+    test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "F010F0102");
 
     // 22.01.2015
     test_geometry<ls, ls>("LINESTRING(5 5,10 10)", "LINESTRING(6 6,3 3)", "1010F0102");
@@ -327,15 +330,15 @@ void test_linestring_multi_linestring()
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 6 0))",   //   |--------------|
-                           "1FF00F102");                                // |------------------|
+                           "1FFF0F102");                                // |------------------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 2 0))",   //   |--------------|
-                           "10F00F102");                                // |-------|
+                           "10FF0F102");                                // |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 6 0))",    //   |--------------|
-                           "10F00F102");                                //            |-------|
+                           "10FF0F102");                                //            |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 2 2))",    //   |--------------|
@@ -400,6 +403,17 @@ void test_multi_linestring_multi_linestring()
     using ls = bg::model::linestring<P>;
     using mls = bg::model::multi_linestring<ls>;
 
+    // The endpoint is revisited in the interior of the same linestring.
+    test_geometry<ls, ls>("LINESTRING(40 30,20 45)",
+        "LINESTRING(0 30,20 45,20 60,0 60,20 45)", "FF1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((40 30,20 45))",
+        "MULTILINESTRING((0 30,20 45,20 60,0 60,20 45))", "FF1F00102");
+    // A segment crossing can also lie on a global boundary endpoint.
+    test_geometry<mls, mls>("MULTILINESTRING((-20 15,20 15))",
+        "MULTILINESTRING((0 0,0 30),(0 15,20 30))", "F01FF0102");
+    test_geometry<ls, ls>("LINESTRING(-20 15,20 15)",
+        "LINESTRING(0 0,0 30,20 30,0 15)", "F01FF0102");
+
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",
                             "1F1F00102");
@@ -441,6 +455,59 @@ void test_multi_linestring_multi_linestring()
                                 "MULTILINESTRING((-2.333333333333333 -8.6666666666666661,-4.3253012048192767 -8.168674698795181,-4.1194968553459113 -7.6100628930817606,-2.8823529411764706 -7.7647058823529411,-2.882352941176471 -7.7647058823529411,-2.263157894736842 -8.6315789473684212,-2.333333333333333 -8.6666666666666661))",
                                 "*********");
     }
+}
+
+template <typename Linestring, typename MultiLinestring>
+void test_mixed_coordinates(std::string const& wkt1, std::string const& wkt2)
+{
+    Linestring ls;
+    MultiLinestring mls;
+    bg::read_wkt(wkt1, ls);
+    bg::read_wkt(wkt2, mls);
+    check_geometry(ls, mls, wkt1, wkt2, "0F1FF0102");
+
+    BOOST_CHECK(bg::crosses(ls, mls));
+    BOOST_CHECK(bg::crosses(mls, ls));
+    BOOST_CHECK(!bg::touches(ls, mls));
+    BOOST_CHECK(!bg::touches(mls, ls));
+    BOOST_CHECK(bg::relate(ls, mls, bg::de9im::static_mask<'0'>()));
+    BOOST_CHECK(bg::relate(mls, ls, bg::de9im::static_mask<'0'>()));
+    BOOST_CHECK(!bg::relate(ls, mls, bg::de9im::mask("F********")));
+    BOOST_CHECK(!bg::relate(mls, ls, bg::de9im::mask("F********")));
+    // Ignoring II must still classify the other cells in the analyser.
+    BOOST_CHECK(bg::relate(ls, mls, bg::de9im::mask("*F1FF0102")));
+    BOOST_CHECK(bg::relate(mls, ls, bg::de9im::mask("*F1FF0102")));
+}
+
+void test_mixed_coordinates()
+{
+    using int_ls = bg::model::linestring<bg::model::d2::point_xy<int>>;
+    using double_ls = bg::model::linestring<bg::model::d2::point_xy<double>>;
+    using double_point_ls = bg::model::linestring<bg::model::point<double, 2, bg::cs::cartesian>>;
+    using int_mls = bg::model::multi_linestring<int_ls>;
+    using double_mls = bg::model::multi_linestring<double_ls>;
+
+    // The fractional intersection is an interior point, even though truncating
+    // it to the multi-linestring's coordinate type would produce an endpoint.
+    test_mixed_coordinates<double_ls, int_mls>("LINESTRING(-1 0.5,1 0.5)",
+        "MULTILINESTRING((0 0,0 2))");
+    test_mixed_coordinates<double_point_ls, int_mls>("LINESTRING(-1 -0.5,1 -0.5)",
+        "MULTILINESTRING((0 0,0 -2))");
+    test_mixed_coordinates<int_ls, double_mls>("LINESTRING(-1 0,1 0)",
+        "MULTILINESTRING((0.5 -1,0.5 1))");
+
+    // A genuine global boundary still counts when it lies inside a segment.
+    std::string const wkt1 = "LINESTRING(-1 1,1 1)";
+    std::string const wkt2 = "MULTILINESTRING((0 0,0 2),(0 1,2 2))";
+    double_ls horizontal;
+    int_mls vertical;
+    bg::read_wkt(wkt1, horizontal);
+    bg::read_wkt(wkt2, vertical);
+    check_geometry(horizontal, vertical, wkt1, wkt2, "F01FF0102");
+    BOOST_CHECK(!bg::crosses(horizontal, vertical));
+    BOOST_CHECK(!bg::crosses(vertical, horizontal));
+    BOOST_CHECK(bg::touches(horizontal, vertical));
+    BOOST_CHECK(bg::touches(vertical, horizontal));
 }
 
 template <typename P>
@@ -502,6 +569,8 @@ void test_all()
 
 int test_main( int , char* [] )
 {
+    test_mixed_coordinates();
+
     test_all<bg::model::d2::point_xy<int> >();
     test_all<bg::model::d2::point_xy<double> >();
 

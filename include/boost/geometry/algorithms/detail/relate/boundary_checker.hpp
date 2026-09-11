@@ -12,7 +12,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
@@ -54,23 +53,16 @@ public:
         : m_has_boundary(
             boost::size(g) >= 2
             && ! detail::equals::equals_point_point(range::front(g), range::back(g), s))
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
         , m_geometry(g)
-#endif
         , m_strategy(s)
     {}
 
     template <typename Point>
     bool is_endpoint_boundary(Point const& pt) const
     {
-        boost::ignore_unused(pt);
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
-        // may give false positives for INT
-        BOOST_GEOMETRY_ASSERT(
-            detail::equals::equals_point_point(pt, range::front(m_geometry), m_strategy)
-         || detail::equals::equals_point_point(pt, range::back(m_geometry), m_strategy));
-#endif
-        return m_has_boundary;
+        return m_has_boundary
+            && (detail::equals::equals_point_point(pt, range::front(m_geometry), m_strategy)
+             || detail::equals::equals_point_point(pt, range::back(m_geometry), m_strategy));
     }
 
     Strategy const& strategy() const
@@ -80,9 +72,7 @@ public:
 
 private:
     bool m_has_boundary;
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
     Geometry const& m_geometry;
-#endif
     Strategy const& m_strategy;
 };
 
@@ -163,7 +153,7 @@ public:
     template <typename Point>
     bool is_endpoint_boundary(Point const& pt) const
     {
-        using less_type = geometry::less<mutable_point_type, -1, Strategy>;
+        using less_type = geometry::less<void, -1, Strategy>;
 
         auto const multi_count = boost::size(m_geometry);
 
@@ -184,11 +174,11 @@ public:
             m_is_filled = true;
         }
 
-        mutable_point_type mpt;
-        geometry::convert(pt, mpt);
+        // Compare the query directly: converting it to the stored coordinate
+        // type could turn an interior point into an endpoint (e.g. double to int).
         auto const equal_range = std::equal_range(m_boundary_points.begin(),
                                                   m_boundary_points.end(),
-                                                  mpt,
+                                                  pt,
                                                   less_type());
 
         std::size_t const equal_points_count = boost::size(equal_range);
