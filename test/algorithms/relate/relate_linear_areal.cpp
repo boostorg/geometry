@@ -551,10 +551,10 @@ void test_multi_linestring_multi_polygon()
                               "11F00F212");
     test_geometry<mls, mpoly>("MULTILINESTRING((5 5,0 0,5 -5),(0 0,9 1))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
-                              "101000212");
+                              "1F1000212");
     test_geometry<mls, mpoly>("MULTILINESTRING((5 -5,0 0,5 5),(0 0,5 -1))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
-                              "101000212");
+                              "1F1000212");
 }
 
 template <typename P>
@@ -562,7 +562,8 @@ void test_all()
 {
     using ls = bg::model::linestring<P>;
     using mls = bg::model::multi_linestring<ls>;
-    using mpoly = bg::model::multi_polygon<bg::model::polygon<P>>;
+    using poly = bg::model::polygon<P>;
+    using mpoly = bg::model::multi_polygon<poly>;
     std::string const touching =
         "MULTIPOLYGON(((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)),"
         "((0 0,1 -1,0 -2,-1 -1,0 0)))";
@@ -572,6 +573,21 @@ void test_all()
     test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)",
         "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)),"
         "((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)))", "1010F0212");
+
+
+    std::string const triangle = "MULTIPOLYGON(((0 0,0 15,20 15,0 0)))";
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 0,20 15,20 30),(20 15,0 30))",
+        triangle, "FF1F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 15,0 30),(20 30,20 0))",
+        triangle, "FF1F00212");
+    test_geometry<ls, mpoly>("LINESTRING(20 0,20 30,40 30,20 15)",
+        triangle, "FF1F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 0,20 30),(20 15,0 30),(20 15,40 15))",
+        triangle, "F01FF0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,4 4),(1 1,3 1))",
+        "MULTIPOLYGON(((0 2,0 4,4 4,4 0,2 0,0 2)))", "1F1000212");
+    test_geometry<ls, poly>("LINESTRING(0 0,1 1)",
+        "POLYGON((0 1,2 1,2 -1,0 1))", "101F00212");
 
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();

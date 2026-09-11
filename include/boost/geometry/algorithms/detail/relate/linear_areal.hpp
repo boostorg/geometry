@@ -390,7 +390,8 @@ struct linear_areal
         using turn_type = typename turn_info_type<Geometry1, Geometry2, Strategy>::type;
         std::vector<turn_type> turns;
 
-        interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
+        interrupt_policy_linear_areal<Geometry2, BoundaryChecker1, Result>
+            interrupt_policy(geometry1, geometry2, boundary_checker1, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
@@ -701,16 +702,32 @@ struct linear_areal
     }
 
 
+    template <typename Turn, typename BoundaryChecker>
+    static bool is_boundary_turn(Turn const& turn,
+                                 Geometry1 const& linear, Geometry2 const& areal,
+                                 BoundaryChecker const& checker)
+    {
+        return checker.is_endpoint_boundary(turn.point)
+            // An integer crossing may have been rounded onto an unrelated endpoint.
+            && (turn.method != overlay::method_crosses
+                || (is_ip_on_segment(turn.point, turn.operations[0], linear, checker.strategy())
+                    && is_ip_on_segment(turn.point, turn.operations[1], areal, checker.strategy())));
+    }
+
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
-    template <typename Areal, typename Result>
+    template <typename Areal, typename BoundaryChecker, typename Result>
     class interrupt_policy_linear_areal
     {
     public:
         static bool const enabled = true;
 
-        interrupt_policy_linear_areal(Areal const& areal, Result & result)
+        interrupt_policy_linear_areal(Geometry1 const& linear, Areal const& areal,
+                                     BoundaryChecker const& boundary_checker,
+                                     Result & result)
             : m_result(result), m_areal(areal)
+            , m_linear(linear)
+            , m_boundary_checker(boundary_checker)
             , is_boundary_found(false)
         {}
 
@@ -739,7 +756,8 @@ struct linear_areal
                 }
                 else if ( ( it->operations[0].operation == overlay::operation_union
                          || it->operations[0].operation == overlay::operation_blocked )
-                       && it->operations[0].position == overlay::position_middle )
+                       && it->operations[0].position == overlay::position_middle
+                       && !is_boundary_turn(*it, m_linear, m_areal, m_boundary_checker) )
                 {
 // TODO: here we could also check the boundaries and set BB at this point
                     update<interior, boundary, '0', TransposeResult>(m_result);
@@ -752,6 +770,8 @@ struct linear_areal
     private:
         Result & m_result;
         Areal const& m_areal;
+        Geometry1 const& m_linear;
+        BoundaryChecker const& m_boundary_checker;
 
     public:
         bool is_boundary_found;
@@ -786,7 +806,7 @@ struct linear_areal
                   typename Strategy>
         void apply(Result & res, TurnIt it,
                    Geometry const& geometry,
-                   OtherGeometry const& /*other_geometry*/,
+                   OtherGeometry const& other_geometry,
                    BoundaryChecker const& boundary_checker,
                    Strategy const& strategy,
                    bool initially_inside)
@@ -1004,8 +1024,7 @@ struct linear_areal
                     update<interior, boundary, '1', TransposeResult>(res);
                 }
 
-                bool const this_b = is_ip_on_boundary(it->point, it->operations[op_id],
-                                                      boundary_checker);
+                bool const this_b = is_boundary_turn(*it, geometry, other_geometry, boundary_checker);
                 // going inside on boundary point
                 if ( this_b )
                 {
@@ -1015,35 +1034,35 @@ struct linear_areal
                 else
                 {
                     update<interior, boundary, '0', TransposeResult>(res);
+                }
 
-                    // if we didn't enter in the past, we were outside
-                    if ( no_enters_detected
-                      && ! fake_enter_detected
-                      && it->operations[op_id].position != overlay::position_front )
-                    {
+                // if we didn't enter in the past, we were outside
+                if ( no_enters_detected
+                  && ! fake_enter_detected
+                  && it->operations[op_id].position != overlay::position_front )
+                {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool const from_inside =
-                            first_point && initially_inside;
+                    bool const from_inside =
+                        first_point && initially_inside;
 
-                        if ( from_inside )
-                            update<interior, interior, '1', TransposeResult>(res);
-                        else
-                            update<interior, exterior, '1', TransposeResult>(res);
+                    if ( from_inside )
+                        update<interior, interior, '1', TransposeResult>(res);
+                    else
+                        update<interior, exterior, '1', TransposeResult>(res);
 
-                        // if it's the first IP then the first point is outside
-                        if ( first_point )
+                    // if it's the first IP then the first point is outside
+                    if ( first_point )
+                    {
+                        bool const front_b = boundary_checker.is_endpoint_boundary(
+                                                range::front(sub_range(geometry, seg_id)));
+
+                        // if there is a boundary on the first point
+                        if ( front_b )
                         {
-                            bool const front_b = boundary_checker.is_endpoint_boundary(
-                                                    range::front(sub_range(geometry, seg_id)));
-
-                            // if there is a boundary on the first point
-                            if ( front_b )
-                            {
-                                if ( from_inside )
-                                    update<boundary, interior, '0', TransposeResult>(res);
-                                else
-                                    update<boundary, exterior, '0', TransposeResult>(res);
-                            }
+                            if ( from_inside )
+                                update<boundary, interior, '0', TransposeResult>(res);
+                            else
+                                update<boundary, exterior, '0', TransposeResult>(res);
                         }
                     }
                 }
@@ -1096,8 +1115,7 @@ struct linear_areal
                 // we're outside or inside and this is the first turn
                 else
                 {
-                    bool const this_b = is_ip_on_boundary(it->point, it->operations[op_id],
-                                                          boundary_checker);
+                    bool const this_b = is_boundary_turn(*it, geometry, other_geometry, boundary_checker);
                     // if current IP is on boundary of the geometry
                     if ( this_b )
                     {
@@ -1147,7 +1165,7 @@ struct linear_areal
                         }
 
                         // first IP on the last segment point - this means that the first point is outside or inside
-                        if ( first_point && ( !this_b || op_blocked ) )
+                        if ( first_point )
                         {
                             bool const front_b = boundary_checker.is_endpoint_boundary(
                                                     range::front(sub_range(geometry, seg_id)));

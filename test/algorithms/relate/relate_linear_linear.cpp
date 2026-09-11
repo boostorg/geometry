@@ -230,8 +230,8 @@ void test_linestring_linestring()
         BOOST_CHECK_THROW(bg::relate(ls1, ls2, bg::de9im::mask("A")), bg::invalid_input_exception);
     }
 
-    // spike - boundary and interior on the same point
-    test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "0010F0102");
+    // A boundary endpoint is revisited inside the same linestring.
+    test_geometry<ls, ls>("LINESTRING(3 7, 8 8, 2 6)", "LINESTRING(5 7, 10 7, 0 7)", "F010F0102");
 
     // 22.01.2015
     test_geometry<ls, ls>("LINESTRING(5 5,10 10)", "LINESTRING(6 6,3 3)", "1010F0102");
@@ -327,15 +327,15 @@ void test_linestring_multi_linestring()
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 6 0))",   //   |--------------|
-                           "1FF00F102");                                // |------------------|
+                           "1FFF0F102");                                // |------------------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 2 0))",   //   |--------------|
-                           "10F00F102");                                // |-------|
+                           "10FF0F102");                                // |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 6 0))",    //   |--------------|
-                           "10F00F102");                                //            |-------|
+                           "10FF0F102");                                //            |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 2 2))",    //   |--------------|
@@ -399,6 +399,17 @@ void test_multi_linestring_multi_linestring()
     using coord_t = typename bg::coordinate_type<P>::type;
     using ls = bg::model::linestring<P>;
     using mls = bg::model::multi_linestring<ls>;
+
+    // The endpoint is revisited in the interior of the same linestring.
+    test_geometry<ls, ls>("LINESTRING(40 30,20 45)",
+        "LINESTRING(0 30,20 45,20 60,0 60,20 45)", "FF1F00102");
+    test_geometry<mls, mls>("MULTILINESTRING((40 30,20 45))",
+        "MULTILINESTRING((0 30,20 45,20 60,0 60,20 45))", "FF1F00102");
+    // A segment crossing can also lie on a global boundary endpoint.
+    test_geometry<mls, mls>("MULTILINESTRING((-20 15,20 15))",
+        "MULTILINESTRING((0 0,0 30),(0 15,20 30))", "F01FF0102");
+    test_geometry<ls, ls>("LINESTRING(-20 15,20 15)",
+        "LINESTRING(0 0,0 30,20 30,0 15)", "F01FF0102");
 
     test_geometry<mls, mls>("MULTILINESTRING((0 0,0 0,18 0,18 0,19 0,19 0,19 0,30 0,30 0))",
                             "MULTILINESTRING((0 10,5 0,20 0,20 0,30 0))",

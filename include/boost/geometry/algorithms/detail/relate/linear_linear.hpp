@@ -147,7 +147,8 @@ struct linear_linear
             >::template turn_info_type<Strategy>::type;
         std::vector<turn_type> turns;
 
-        interrupt_policy_linear_linear<Result> interrupt_policy(result);
+        interrupt_policy_linear_linear<Result, BoundaryChecker1, BoundaryChecker2>
+            interrupt_policy(result, geometry1, geometry2, boundary_checker1, boundary_checker2);
 
         turns::get_turns
             <
@@ -213,14 +214,22 @@ struct linear_linear
         }
     }
 
-    template <typename Result>
+    template <typename Result, typename BoundaryChecker1, typename BoundaryChecker2>
     class interrupt_policy_linear_linear
     {
     public:
         static bool const enabled = true;
 
-        explicit interrupt_policy_linear_linear(Result & result)
+        interrupt_policy_linear_linear(Result & result,
+                                       Geometry1 const& geometry1,
+                                       Geometry2 const& geometry2,
+                                       BoundaryChecker1 const& boundary_checker1,
+                                       BoundaryChecker2 const& boundary_checker2)
             : m_result(result)
+            , m_geometry1(geometry1)
+            , m_geometry2(geometry2)
+            , m_boundary_checker1(boundary_checker1)
+            , m_boundary_checker2(boundary_checker2)
         {}
 
 // TODO: since we update result for some operations here, we may not do it in the analyser!
@@ -240,7 +249,14 @@ struct linear_linear
                          || it->operations[1].operation == overlay::operation_union
                          || it->operations[1].operation == overlay::operation_blocked )
                        && it->operations[0].position == overlay::position_middle
-                       && it->operations[1].position == overlay::position_middle )
+                       && it->operations[1].position == overlay::position_middle
+                       && ((!m_boundary_checker1.is_endpoint_boundary(it->point)
+                            && !m_boundary_checker2.is_endpoint_boundary(it->point))
+                           || (it->method == overlay::method_crosses
+                               && (!is_ip_on_segment(it->point, it->operations[0], m_geometry1,
+                                                     m_boundary_checker1.strategy())
+                                   || !is_ip_on_segment(it->point, it->operations[1], m_geometry2,
+                                                       m_boundary_checker2.strategy())))) )
                 {
 // TODO: here we could also check the boundaries and set IB,BI,BB at this point
                     update<interior, interior, '0'>(m_result);
@@ -252,6 +268,10 @@ struct linear_linear
 
     private:
         Result & m_result;
+        Geometry1 const& m_geometry1;
+        Geometry2 const& m_geometry2;
+        BoundaryChecker1 const& m_boundary_checker1;
+        BoundaryChecker2 const& m_boundary_checker2;
     };
 
     // This analyser should be used like Input or SinglePass Iterator
@@ -375,16 +395,14 @@ struct linear_linear
                 update<interior, interior, '1', transpose_result>(res);
 
                 bool const this_b = it->operations[op_id].position == overlay::position_front // ignore spikes!
-                                 && is_ip_on_boundary(it->point, it->operations[op_id],
-                                                      boundary_checker);
+                                 && boundary_checker.is_endpoint_boundary(it->point);
 
                 // going inside on boundary point
                 // may be front only
                 if ( this_b )
                 {
                     // may be front and back
-                    bool const other_b = is_ip_on_boundary(it->point, it->operations[other_op_id],
-                                                           other_boundary_checker);
+                    bool const other_b = other_boundary_checker.is_endpoint_boundary(it->point);
 
                     // it's also the boundary of the other geometry
                     if ( other_b )
@@ -460,9 +478,7 @@ struct linear_linear
                         if (boundary_checker.is_endpoint_boundary(it->point))
                         {
                             // may be front and back
-                            bool const other_b = is_ip_on_boundary(it->point,
-                                                                   it->operations[other_op_id],
-                                                                   other_boundary_checker);
+                            bool const other_b = other_boundary_checker.is_endpoint_boundary(it->point);
                             // it's also the boundary of the other geometry
                             if ( other_b )
                             {
@@ -487,8 +503,14 @@ struct linear_linear
                         update<interior, exterior, '1', transpose_result>(res);
                     }
 
-                    // boundaries don't overlap - just an optimization
-                    if ( it->method == overlay::method_crosses )
+                    // Do not mistake an integer-rounded crossing for an endpoint.
+                    if ( it->method == overlay::method_crosses
+                      && ((!boundary_checker.is_endpoint_boundary(it->point)
+                           && !other_boundary_checker.is_endpoint_boundary(it->point))
+                          || !is_ip_on_segment(it->point, it->operations[op_id], geometry,
+                                               boundary_checker.strategy())
+                          || !is_ip_on_segment(it->point, it->operations[other_op_id], other_geometry,
+                                               other_boundary_checker.strategy())) )
                     {
                         // the L1 is going from one side of the L2 to the other through the point
                         update<interior, interior, '0', transpose_result>(res);
@@ -509,13 +531,9 @@ struct linear_linear
                     // method other than crosses, check more conditions
                     else
                     {
-                        bool const this_b = is_ip_on_boundary(it->point,
-                                                              it->operations[op_id],
-                                                              boundary_checker);
-
-                        bool const other_b = is_ip_on_boundary(it->point,
-                                                               it->operations[other_op_id],
-                                                               other_boundary_checker);
+                        // A member's interior point may be a global boundary endpoint.
+                        bool const this_b = boundary_checker.is_endpoint_boundary(it->point);
+                        bool const other_b = other_boundary_checker.is_endpoint_boundary(it->point);
 
                         // if current IP is on boundary of the geometry
                         if ( this_b )
@@ -546,7 +564,6 @@ struct linear_linear
 
                         // first IP on the last segment point - this means that the first point is outside
                         if ( first_in_range
-                          && ( !this_b || op_blocked )
                           && was_outside
                           && it->operations[op_id].position != overlay::position_front
                           && ! m_collinear_spike_exit

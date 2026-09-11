@@ -144,6 +144,17 @@ void test_multipoint_multilinestring()
     typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
+
+    // An interior point of one member is a boundary endpoint of another.
+    std::string const branched = "MULTILINESTRING((0 0,20 15,20 0),(20 15,20 30))";
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)", branched, "F0FFFF102");
+    test_geometry<P, mls>("POINT(20 15)", branched, "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)", branched, "F0*******");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)",
+        "MULTILINESTRING((20 15,20 30),(0 0,20 15,20 0))", "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)",
+        "MULTILINESTRING((0 0,20 15,20 0),(20 15,20 30),(20 15,40 15))",
+        "0FFFFF102");
     
     test_geometry<mpt, mls>("MULTIPOINT(0 0)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "F0FFFF102");
     test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "00FFFF102");
