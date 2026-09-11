@@ -174,7 +174,7 @@ public:
 
         bool const vertical = s1x == s2x;
 
-        if (in_horizontal_range || (vertical && is_in_vertical_range(point, s1, s2)))
+        if (vertical ? is_in_vertical_range(point, s1, s2) : in_horizontal_range)
         {
             if (side == 0)
             {

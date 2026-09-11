@@ -372,6 +372,24 @@ void test_diamond_point_on_piece_c()
     test_point<Point>("POINT(4.5 3.5)", false, false, true, false, border, mapper, "cyan");
 }
 
+template <typename Point>
+void test_segment_range()
+{
+    using strategy = bg::strategy::buffer::turn_in_ring_winding
+        <typename bg::coordinate_type<Point>::type>;
+    for (int direction : {-1, 1})
+    {
+        Point const s1(0, direction), s2(0, 3 * direction);
+        for (int y = 0; y <= 4; ++y)
+        {
+            typename strategy::state_type state;
+            strategy::apply(Point(0, y * direction), s1, s2,
+                bg::strategy::buffer::place_on_ring_original, false, state);
+            BOOST_CHECK_EQUAL(state.count_on_origin, y >= 1 && y <= 3 ? 1 : 0);
+        }
+    }
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -385,6 +403,8 @@ int test_main(int, char* [])
 
     test_diamond_point_on_piece_a<point_type>();
     test_diamond_point_on_piece_c<point_type>();
+
+    test_segment_range<point_type>();
 
     return 0;
 }
