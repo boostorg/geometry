@@ -188,7 +188,6 @@ struct less_op_areal_areal
     {
         static const std::size_t other_op_id = (OpId + 1) % 2;
         static op_to_int<0, 1, 2, 3, 4, 0> op_to_int_uixc;
-        static op_to_int<0, 2, 1, 3, 4, 0> op_to_int_iuxc;
 
         segment_identifier const& left_other_seg_id = left.operations[other_op_id].seg_id;
         segment_identifier const& right_other_seg_id = right.operations[other_op_id].seg_id;
@@ -205,27 +204,12 @@ struct less_op_areal_areal
             }
             else
             {
-                if ( left_other_seg_id.ring_index == -1 )
-                {
-                    if ( left_operation.operation == overlay::operation_union )
-                        return false;
-                    else if ( left_operation.operation == overlay::operation_intersection )
-                        return true;
-                }
-                else if ( right_other_seg_id.ring_index == -1 )
-                {
-                    if ( right_operation.operation == overlay::operation_union )
-                        return true;
-                    else if ( right_operation.operation == overlay::operation_intersection )
-                        return false;
-                }
-
-                return op_to_int_iuxc(left_operation) < op_to_int_iuxc(right_operation);
+                return left_other_seg_id.ring_index < right_other_seg_id.ring_index;
             }
         }
         else
         {
-            return op_to_int_uixc(left_operation) < op_to_int_uixc(right_operation);
+            return left_other_seg_id.multi_index < right_other_seg_id.multi_index;
         }
     }
 };
