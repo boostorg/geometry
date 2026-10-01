@@ -388,6 +388,12 @@ void test_all()
 template <typename Polygon, typename MultiPolygon>
 void test_specific_areal()
 {
+    test_one<Polygon, MultiPolygon, MultiPolygon>("hole_vertices_on_clip_boundary",
+        "MULTIPOLYGON(((3 3,1 3,0 2,0 1,1 1,2 0,4 0,4 2,3 3),"
+        "(3 2,3 1,2 2,3 2),(2 2,2 1,1 1,2 2)))",
+        "MULTIPOLYGON(((2 2,1 2,1 1,0 1,0 0,2 0,2 1,3 1,2 2)))",
+        1, -1, 7, 2, -1, 2, 2, -1, 9);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("issue_1490",
         "MULTIPOLYGON(((0 0,20 0,20 20,0 20,0 0),(5 15,14 14,9 6,5 15)))",
         "MULTIPOLYGON(((5 15,5 5,15 5,15 15,5 15)))",
