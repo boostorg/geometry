@@ -21,6 +21,7 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 
+#include <boost/geometry/core/tag_cast.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
@@ -29,6 +30,8 @@
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
+
+#include <boost/geometry/views/detail/boundary_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -225,6 +228,41 @@ struct decide<overlay_intersection>
     }
 };
 
+template <typename Geometry1, typename Geometry2,
+          typename Tag1 = geometry::tag_t<Geometry1>,
+          typename Tag2 = typename tag_cast<geometry::tag_t<Geometry2>, polygonal_tag>::type>
+struct ring_within_geometry
+{
+    template <typename Strategy>
+    static inline bool apply(Geometry1 const&, Geometry2 const&, Strategy const&)
+    {
+        return false;
+    }
+};
+
+template <typename Ring, typename Geometry>
+struct ring_within_geometry<Ring, Geometry, ring_tag, polygonal_tag>
+{
+    template <typename Strategy>
+    static inline bool apply(Ring const& ring, Geometry const& geometry,
+                             Strategy const& strategy)
+    {
+        // A hole's orientation is opposite to its ring type's point order.
+        // Classify its boundary as a line, not as a standalone areal geometry.
+        return geometry::within(detail::boundary_view<Ring const>(ring), geometry, strategy);
+    }
+};
+
+template <typename Point, typename Ring, typename Geometry, typename Strategy>
+inline int ring_in_geometry(Point const& point, Ring const& ring,
+                            Geometry const& geometry, Strategy const& strategy)
+{
+    int const code = range_in_geometry(point, ring, geometry, strategy);
+    // All vertices may touch the boundary while the intervening edges lie inside.
+    return code == 0 && ring_within_geometry<Ring, Geometry>::apply(ring, geometry, strategy)
+         ? 1 : code;
+}
+
 template
 <
     overlay_type OverlayType,
@@ -270,14 +308,14 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         {
             // within
             case 0 :
-                code = range_in_geometry(pair.second.point,
-                                         get_ring<geometry::tag_t<Geometry1>>::apply(id, geometry1),
-                                         geometry2, strategy);
+                code = ring_in_geometry(pair.second.point,
+                                        get_ring<geometry::tag_t<Geometry1>>::apply(id, geometry1),
+                                        geometry2, strategy);
                 break;
             case 1 :
-                code = range_in_geometry(pair.second.point,
-                                         get_ring<geometry::tag_t<Geometry2>>::apply(id, geometry2),
-                                         geometry1, strategy);
+                code = ring_in_geometry(pair.second.point,
+                                        get_ring<geometry::tag_t<Geometry2>>::apply(id, geometry2),
+                                        geometry1, strategy);
                 break;
         }
 
