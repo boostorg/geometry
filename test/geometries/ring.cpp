@@ -27,10 +27,19 @@
 #include <boost/geometry/geometries/adapted/boost_tuple.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
 
-#include <test_common/test_point.hpp>
+#include <boost/geometry/geometries/register/ring.hpp>
+#include <deque>
+#include <vector>
 
 BOOST_GEOMETRY_REGISTER_C_ARRAY_CS(cs::cartesian)
 BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
+
+struct custom_ring_cc : std::vector<bg::model::d2::point_xy<double>> {};
+BOOST_GEOMETRY_REGISTER_RING_CC(custom_ring_cc, false, false)
+
+template <typename P>
+struct custom_ring_templated_cc : std::deque<P> {};
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED_CC(custom_ring_templated_cc, false, true)
 
 #include <initializer_list>
 
@@ -144,6 +153,16 @@ void test_cs()
 }
 
 
+void test_registration_cc()
+{
+    using point_t = bg::model::d2::point_xy<double>;
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_cc>::value, bg::counterclockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_cc>::value, bg::open);
+
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_templated_cc<point_t>>::value, bg::counterclockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_templated_cc<point_t>>::value, bg::closed);
+}
+
 int test_main(int, char* [])
 {
     test_cs<bg::cs::cartesian>();
@@ -152,6 +171,7 @@ int test_main(int, char* [])
     test_cs<bg::cs::geographic<bg::degree> >();
 
     test_custom<bg::model::d2::point_xy<double> >();
+    test_registration_cc();
 
     return 0;
 }

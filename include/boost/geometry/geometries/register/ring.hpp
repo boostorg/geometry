@@ -15,7 +15,8 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_REGISTER_RING_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_REGISTER_RING_HPP
 
-
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -54,6 +55,38 @@ namespace boost { namespace geometry { namespace traits {  \
 #define BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(Ring) \
 namespace boost { namespace geometry { namespace traits {  \
     template<typename P> struct tag< Ring<P> > { using type = ring_tag; }; \
+}}}
+
+
+/*!
+\brief \brief_macro{ring with clockwise and closed options}
+\ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_RING_CC, ring}
+\param Ring \param_macro_type{ring}
+\param Clockwise \param_macro_boolean{clockwise}
+\param Closed \param_macro_boolean{closed}
+*/
+#define BOOST_GEOMETRY_REGISTER_RING_CC(Ring, Clockwise, Closed) \
+namespace boost { namespace geometry { namespace traits {  \
+    template<> struct tag<Ring> { using type = ring_tag; }; \
+    template<> struct point_order<Ring> { static const order_selector value = (Clockwise) ? clockwise : counterclockwise; }; \
+    template<> struct closure<Ring> { static const closure_selector value = (Closed) ? closed : open; }; \
+}}}
+
+
+/*!
+\brief \brief_macro{templated ring with clockwise and closed options}
+\ingroup register
+\details \details_macro{BOOST_GEOMETRY_REGISTER_RING_TEMPLATED_CC, templated ring}
+\param Ring \param_macro_type{ring (without template parameters)}
+\param Clockwise \param_macro_boolean{clockwise}
+\param Closed \param_macro_boolean{closed}
+*/
+#define BOOST_GEOMETRY_REGISTER_RING_TEMPLATED_CC(Ring, Clockwise, Closed) \
+namespace boost { namespace geometry { namespace traits {  \
+    template<typename P> struct tag< Ring<P> > { using type = ring_tag; }; \
+    template<typename P> struct point_order< Ring<P> > { static const order_selector value = (Clockwise) ? clockwise : counterclockwise; }; \
+    template<typename P> struct closure< Ring<P> > { static const closure_selector value = (Closed) ? closed : open; }; \
 }}}
 
 
