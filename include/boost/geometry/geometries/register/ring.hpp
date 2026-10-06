@@ -93,28 +93,4 @@ namespace boost { namespace geometry { namespace traits {  \
             BOOST_GEOMETRY_DETAIL_SPECIALIZE_RING_TEMPLATED_1)(__VA_ARGS__))
 
 
-/*!
-\brief \brief_macro{ring with clockwise and closed options}
-\ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_RING_CC, ring}
-\param Ring \param_macro_type{ring}
-\param Clockwise Boolean value indicating clockwise (true) or counterclockwise (false) orientation
-\param Closed Boolean value indicating closed (true) or open (false) ring
-*/
-#define BOOST_GEOMETRY_REGISTER_RING_CC(Ring, Clockwise, Closed) \
-    BOOST_GEOMETRY_REGISTER_RING(Ring, Clockwise, Closed)
-
-
-/*!
-\brief \brief_macro{templated ring with clockwise and closed options}
-\ingroup register
-\details \details_macro{BOOST_GEOMETRY_REGISTER_RING_TEMPLATED_CC, templated ring}
-\param Ring \param_macro_type{ring (without template parameters)}
-\param Clockwise Boolean value indicating clockwise (true) or counterclockwise (false) orientation
-\param Closed Boolean value indicating closed (true) or open (false) ring
-*/
-#define BOOST_GEOMETRY_REGISTER_RING_TEMPLATED_CC(Ring, Clockwise, Closed) \
-    BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(Ring, Clockwise, Closed)
-
-
 #endif // BOOST_GEOMETRY_GEOMETRIES_REGISTER_RING_HPP
