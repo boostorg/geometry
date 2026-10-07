@@ -25,15 +25,19 @@
 \defgroup centroid centroid: calculate centroid (center of gravity) of a geometry
 \defgroup clear clear: clear geometries
 \defgroup closest_points closest points: compute closest points between two geometries
+\defgroup collect_vectors collect vectors
 \defgroup compare compare: define compare functors for points
 \defgroup concepts geometry concepts: defines and checks concepts for geometries
+\defgroup const_concepts constant geometry concepts
 \defgroup convert convert: convert geometries from one type to another
 \defgroup convex_hull convex hull: calculate the convex hull of a geometry
 \defgroup core core: meta-functions for geometry types
 \defgroup correct correct: correct geometries
+\defgroup correct_closure correct closure
 \defgroup covered_by covered_by: detect if a geometry is inside or on the border of another geometry, a.o. point-in-polygon (border included)
 \defgroup crosses crosses: detect if two geometries crosses each other
 \defgroup cs coordinate systems
+\defgroup de9im DE-9IM
 \defgroup densify densify: add points to geometry, keeping shape
 \defgroup difference difference: difference of two geometries
 \defgroup discrete_frechet_distance discrete_frechet_distance : calculate discrete frechet distance between two geometries
@@ -59,10 +63,12 @@
 \defgroup length length: calculate length of a linear geometry
 \defgroup line_interpolate line_interpolate: interpolates points on a linestring
 \defgroup make make: construct geometries
+\defgroup mutable_range mutable ranges
 \defgroup num_geometries number of geometries: calculate the number of geometries in a multi-geometry
 \defgroup num_interior_rings number of interior rings: calculate the number of interior rings
 \defgroup num_points number of points: calculate number of points of a geometry
 \defgroup num_segments number of segments: calculate number of segments of a geometry
+\defgroup overlay overlay implementation
 \defgroup overlaps overlaps: detect overlap between two geometries
 \defgroup perimeter perimeter: calculate perimeter of a geometry
 \defgroup projection projection: Projection struct's, classes
@@ -71,12 +77,16 @@
 \defgroup register register: Macros for registration
 \defgroup relate relate: check spatial relation between two geometries
 \defgroup relation relation: calculate spatial relation between two geometries
+\defgroup remove_spikes remove spikes
 \defgroup reverse reverse: reverse a geometry
+\defgroup sectionalize sectionalize geometries
 \defgroup selected selection: check if a geometry is "selected" by a point
+\defgroup segment_intersection segment intersection strategies
 \defgroup set set: set geometries
 \defgroup simplify simplify: remove points from a geometry, keeping shape (simplification or generalization)
 \defgroup srs srs: Spatial Reference System definition
 \defgroup strategies strategies: strategies
+\defgroup strategy_concepts strategy concepts
 \defgroup svg svg: Stream SVG (Scalable Vector Graphics)
 \defgroup sym_difference sym_difference: sym_difference of two geometries
 \defgroup touches touches: detect if a geometry self-touches or if two geometries touch
@@ -84,6 +94,9 @@
 \defgroup transform transform: apply transformations on geometries
 \defgroup union union: calculate new geometry containing geometries A or B
 \defgroup unique unique: make a geometry unique w.r.t. points,
+\defgroup util strategy utilities
+\defgroup utility utility meta-functions and functions
+\defgroup views geometry views
 \defgroup within within: detect if a geometry is inside another geometry, a.o. point-in-polygon
 \defgroup wkt wkt: parse and stream WKT (Well-Known Text)
 */
