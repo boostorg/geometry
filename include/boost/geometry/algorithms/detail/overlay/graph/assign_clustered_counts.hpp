@@ -530,7 +530,10 @@ struct clustered_count_handler
         }
 
         assign_turn_operations(cluster, connection_map);
-        change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        if (OverlayType == overlay_buffer)
+        {
+            change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         // List the connections

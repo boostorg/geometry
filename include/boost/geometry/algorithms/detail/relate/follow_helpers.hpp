@@ -32,6 +32,7 @@
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/util/type_traits.hpp>
+#include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
 #include <type_traits>
 
@@ -356,6 +357,21 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
     }
 
     return detail::equals::equals_point_point(prev_turn.point, curr_turn.point, strategy);
+}
+
+template <typename IntersectionPoint, typename OperationInfo, typename Geometry, typename Strategy>
+inline bool is_ip_on_segment(IntersectionPoint const& ip, OperationInfo const& operation,
+                             Geometry const& geometry, Strategy const& strategy)
+{
+    auto const& line = sub_range(geometry, operation.seg_id);
+    using range_type = typename std::remove_reference<decltype(line)>::type;
+    detail::closed_clockwise_view
+        <range_type, closure<range_type>::value, geometry::point_order<Geometry>::value> view(line);
+    auto const point_in_segment = strategy.relate(ip, line);
+    typename decltype(point_in_segment)::state_type state;
+    auto const index = operation.seg_id.segment_index;
+    point_in_segment.apply(ip, range::at(view, index), range::at(view, index + 1), state);
+    return point_in_segment.result(state) == 0;
 }
 
 template <typename IntersectionPoint, typename OperationInfo, typename BoundaryChecker>

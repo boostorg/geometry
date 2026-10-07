@@ -25,6 +25,10 @@ static std::string const multipoint_b = "MULTIPOINT((5 56),(98 67),(20 7),(58 60
 // Grid, U-form, generates error for square point at 0.54 (top cells to control rescale)
 static std::string const grid_a = "MULTIPOINT(5 0,6 0,7 0,  5 1,7 1,  0 13,8 13)";
 
+// Multiple collinear outgoing edges caused an invalid comparison in traversal's sort.
+static std::string const grid_collinear
+    = "MULTIPOINT((20 15),(16 15),(12 15),(8 15),(4 15),(0 15),(0 9),(0 6),(0 3),(0 0))";
+
 static std::string const mysql_report_2015_02_25_1 = "MULTIPOINT(-9 19,9 -6,-4 4,16 -14,-3 16,14 9)";
 static std::string const mysql_report_2015_02_25_2 = "MULTIPOINT(-2 11,-15 3,6 4,-14 0,20 -7,-17 -1)";
 
@@ -76,6 +80,10 @@ void test_all()
         test_with_custom_strategies<multi_point_type, polygon>("grid_a54",
                 grid_a, join, end_flat,
                 distance_strategy(0.54), side_strategy, point_strategy, 7.819);
+
+        test_with_custom_strategies<multi_point_type, polygon>("grid_collinear",
+                grid_collinear, join, end_flat,
+                distance_strategy(12), side_strategy, point_strategy, 1416.0);
     }
 
     test_with_custom_strategies<multi_point_type, polygon>("mysql_report_2015_02_25_1_800",

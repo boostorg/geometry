@@ -103,6 +103,8 @@ struct point_multipoint
                              Result & result,
                              Strategy const& strategy)
     {
+        update<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
+
         if ( boost::empty(multi_point) )
         {
             // TODO: throw on empty input?
@@ -126,8 +128,6 @@ struct point_multipoint
             update<interior, exterior, '0', Transpose>(result);
             update<exterior, interior, '0', Transpose>(result);
         }
-
-        update<exterior, exterior, result_dimension<Point>::value, Transpose>(result);
     }
 };
 
@@ -155,6 +155,12 @@ struct multipoint_multipoint
                              Result & result,
                              Strategy const& /*strategy*/)
     {
+        update<exterior, exterior, result_dimension<MultiPoint1>::value>(result);
+        if (result.interrupt)
+        {
+            return;
+        }
+
         {
             // TODO: throw on empty input?
             bool empty1 = boost::empty(multi_point1);
@@ -184,8 +190,6 @@ struct multipoint_multipoint
         {
             search_both<true, Strategy>(multi_point2, multi_point1, result);
         }
-
-        update<exterior, exterior, result_dimension<MultiPoint1>::value>(result);
     }
 
     template <bool Transpose, typename Strategy, typename MPt1, typename MPt2, typename Result>

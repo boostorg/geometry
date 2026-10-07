@@ -7,6 +7,7 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -41,6 +42,14 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
+    test_one<Polygon, MultiPolygon, MultiPolygon>("parallel_graph_arcs",
+        "MULTIPOLYGON(((140 60,160 60,140 75,140 60)),"
+        "((140 60,140 45,160 45,140 60)),((160 60,160 45,180 45,160 60)))",
+        "MULTIPOLYGON(((160 75,160 60,180 60,160 75)),"
+        "((160 75,180 75,160 90,160 75)),((160 45,160 60,140 60,160 45)),"
+        "((160 45,180 30,180 45,160 45)),((140 60,120 75,120 60,140 60)))",
+        3, -1, 450, 5, -1, 750, 4, -1, 1200);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
             case_multi_simplex[0], case_multi_simplex[1],
             5, 21, 5.58, 4, 17, 2.58);
@@ -379,6 +388,23 @@ void test_all()
 template <typename Polygon, typename MultiPolygon>
 void test_specific_areal()
 {
+    test_one<Polygon, MultiPolygon, MultiPolygon>("hole_vertices_on_clip_boundary",
+        "MULTIPOLYGON(((3 3,1 3,0 2,0 1,1 1,2 0,4 0,4 2,3 3),"
+        "(3 2,3 1,2 2,3 2),(2 2,2 1,1 1,2 2)))",
+        "MULTIPOLYGON(((2 2,1 2,1 1,0 1,0 0,2 0,2 1,3 1,2 2)))",
+        1, -1, 7, 2, -1, 2, 2, -1, 9);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("issue_1490",
+        "MULTIPOLYGON(((0 0,20 0,20 20,0 20,0 0),(5 15,14 14,9 6,5 15)))",
+        "MULTIPOLYGON(((5 15,5 5,15 5,15 15,5 15)))",
+        1, -1, 300, 1, -1, 38.5, 2, -1, 338.5);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("issue_1490_grid",
+        "MULTIPOLYGON(((60 75,20 75,20 60,0 60,0 0,80 0,80 60,60 60,60 75),"
+        "(60 45,40 30,40 45,60 45)))",
+        "MULTIPOLYGON(((40 60,20 45,20 15,60 15,60 45,40 60)))",
+        1, -1, 3900, 1, -1, 150, 2, -1, 4050);
+
     {
         // Spikes in a-b and b-a, causing invalidity
         ut_settings settings;
@@ -465,6 +491,7 @@ int test_main(int, char* [])
     test_all<bg::model::d2::point_xy<default_test_type> >();
 
     test_specific<bg::model::d2::point_xy<int>, false, false>();
+    test_specific<bg::model::d2::point_xy<std::int_least64_t>, true, true>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
     test_all<bg::model::d2::point_xy<float> >();

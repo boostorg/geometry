@@ -14,7 +14,10 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <algorithm>
+#include <map>
 #include <memory>
+#include <utility>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
@@ -387,7 +390,8 @@ struct linear_areal
         using turn_type = typename turn_info_type<Geometry1, Geometry2, Strategy>::type;
         std::vector<turn_type> turns;
 
-        interrupt_policy_linear_areal<Geometry2, Result> interrupt_policy(geometry2, result);
+        interrupt_policy_linear_areal<Geometry2, BoundaryChecker1, Result>
+            interrupt_policy(geometry1, geometry2, boundary_checker1, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
@@ -698,16 +702,32 @@ struct linear_areal
     }
 
 
+    template <typename Turn, typename BoundaryChecker>
+    static bool is_boundary_turn(Turn const& turn,
+                                 Geometry1 const& linear, Geometry2 const& areal,
+                                 BoundaryChecker const& checker)
+    {
+        return checker.is_endpoint_boundary(turn.point)
+            // An integer crossing may have been rounded onto an unrelated endpoint.
+            && (turn.method != overlay::method_crosses
+                || (is_ip_on_segment(turn.point, turn.operations[0], linear, checker.strategy())
+                    && is_ip_on_segment(turn.point, turn.operations[1], areal, checker.strategy())));
+    }
+
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
-    template <typename Areal, typename Result>
+    template <typename Areal, typename BoundaryChecker, typename Result>
     class interrupt_policy_linear_areal
     {
     public:
         static bool const enabled = true;
 
-        interrupt_policy_linear_areal(Areal const& areal, Result & result)
+        interrupt_policy_linear_areal(Geometry1 const& linear, Areal const& areal,
+                                     BoundaryChecker const& boundary_checker,
+                                     Result & result)
             : m_result(result), m_areal(areal)
+            , m_linear(linear)
+            , m_boundary_checker(boundary_checker)
             , is_boundary_found(false)
         {}
 
@@ -736,7 +756,8 @@ struct linear_areal
                 }
                 else if ( ( it->operations[0].operation == overlay::operation_union
                          || it->operations[0].operation == overlay::operation_blocked )
-                       && it->operations[0].position == overlay::position_middle )
+                       && it->operations[0].position == overlay::position_middle
+                       && !is_boundary_turn(*it, m_linear, m_areal, m_boundary_checker) )
                 {
 // TODO: here we could also check the boundaries and set BB at this point
                     update<interior, boundary, '0', TransposeResult>(m_result);
@@ -749,6 +770,8 @@ struct linear_areal
     private:
         Result & m_result;
         Areal const& m_areal;
+        Geometry1 const& m_linear;
+        BoundaryChecker const& m_boundary_checker;
 
     public:
         bool is_boundary_found;
@@ -785,7 +808,8 @@ struct linear_areal
                    Geometry const& geometry,
                    OtherGeometry const& other_geometry,
                    BoundaryChecker const& boundary_checker,
-                   Strategy const& strategy)
+                   Strategy const& strategy,
+                   bool initially_inside)
         {
             overlay::operation_type op = it->operations[op_id].operation;
 
@@ -1000,8 +1024,7 @@ struct linear_areal
                     update<interior, boundary, '1', TransposeResult>(res);
                 }
 
-                bool const this_b = is_ip_on_boundary(it->point, it->operations[op_id],
-                                                      boundary_checker);
+                bool const this_b = is_boundary_turn(*it, geometry, other_geometry, boundary_checker);
                 // going inside on boundary point
                 if ( this_b )
                 {
@@ -1011,38 +1034,35 @@ struct linear_areal
                 else
                 {
                     update<interior, boundary, '0', TransposeResult>(res);
+                }
 
-                    // if we didn't enter in the past, we were outside
-                    if ( no_enters_detected
-                      && ! fake_enter_detected
-                      && it->operations[op_id].position != overlay::position_front )
-                    {
+                // if we didn't enter in the past, we were outside
+                if ( no_enters_detected
+                  && ! fake_enter_detected
+                  && it->operations[op_id].position != overlay::position_front )
+                {
 // TODO: calculate_from_inside() is only needed if the current Linestring is not closed
-                        bool const from_inside =
-                            first_point && calculate_from_inside<op_id>(geometry,
-                                                                        other_geometry,
-                                                                        *it,
-                                                                        strategy);
+                    bool const from_inside =
+                        first_point && initially_inside;
 
-                        if ( from_inside )
-                            update<interior, interior, '1', TransposeResult>(res);
-                        else
-                            update<interior, exterior, '1', TransposeResult>(res);
+                    if ( from_inside )
+                        update<interior, interior, '1', TransposeResult>(res);
+                    else
+                        update<interior, exterior, '1', TransposeResult>(res);
 
-                        // if it's the first IP then the first point is outside
-                        if ( first_point )
+                    // if it's the first IP then the first point is outside
+                    if ( first_point )
+                    {
+                        bool const front_b = boundary_checker.is_endpoint_boundary(
+                                                range::front(sub_range(geometry, seg_id)));
+
+                        // if there is a boundary on the first point
+                        if ( front_b )
                         {
-                            bool const front_b = boundary_checker.is_endpoint_boundary(
-                                                    range::front(sub_range(geometry, seg_id)));
-
-                            // if there is a boundary on the first point
-                            if ( front_b )
-                            {
-                                if ( from_inside )
-                                    update<boundary, interior, '0', TransposeResult>(res);
-                                else
-                                    update<boundary, exterior, '0', TransposeResult>(res);
-                            }
+                            if ( from_inside )
+                                update<boundary, interior, '0', TransposeResult>(res);
+                            else
+                                update<boundary, exterior, '0', TransposeResult>(res);
                         }
                     }
                 }
@@ -1095,8 +1115,7 @@ struct linear_areal
                 // we're outside or inside and this is the first turn
                 else
                 {
-                    bool const this_b = is_ip_on_boundary(it->point, it->operations[op_id],
-                                                          boundary_checker);
+                    bool const this_b = is_boundary_turn(*it, geometry, other_geometry, boundary_checker);
                     // if current IP is on boundary of the geometry
                     if ( this_b )
                     {
@@ -1117,10 +1136,7 @@ struct linear_areal
                         // the first checked Polygon may be the one which LS is outside for.
                         bool const first_point = first_in_range || m_first_from_unknown;
                         bool const first_from_inside =
-                            first_point && calculate_from_inside<op_id>(geometry,
-                                                                        other_geometry,
-                                                                        *it,
-                                                                        strategy);
+                            first_point && initially_inside;
                         if ( first_from_inside )
                         {
                             update<interior, interior, '1', TransposeResult>(res);
@@ -1137,7 +1153,10 @@ struct linear_areal
                               /*&& ( op == overlay::operation_blocked
                                 || op == overlay::operation_union )*/ // if we're here it's u or x
                             {
-                                m_first_from_unknown = true;
+                                // Only the first intersection can leave the initial location unknown.
+                                m_first_from_unknown = first_point;
+                                if (!first_point)
+                                    update<interior, exterior, '1', TransposeResult>(res);
                             }
                             else
                             {
@@ -1146,7 +1165,7 @@ struct linear_areal
                         }
 
                         // first IP on the last segment point - this means that the first point is outside or inside
-                        if ( first_point && ( !this_b || op_blocked ) )
+                        if ( first_point )
                         {
                             bool const front_b = boundary_checker.is_endpoint_boundary(
                                                     range::front(sub_range(geometry, seg_id)));
@@ -1338,12 +1357,54 @@ struct linear_areal
             return;
         }
 
+        TurnIt range_first = last;
+        bool initially_inside = false;
         for ( TurnIt it = first ; it != last ; ++it )
         {
+            if (range_first == last
+                || !same_single(range_first->operations[0].seg_id)(it->operations[0].seg_id))
+            {
+                if (range_first != last)
+                {
+                    analyser.apply(res, range_first, it, geometry, other_geometry, boundary_checker);
+                    if (BOOST_GEOMETRY_CONDITION(res.interrupt))
+                    {
+                        return;
+                    }
+                }
+                range_first = it;
+                std::map<signed_size_type, bool> polygons;
+                std::map<std::pair<signed_size_type, signed_size_type>, bool> rings;
+                // At a ring touch, arrival inside the polygon must satisfy every
+                // incident ring, not just the ring of the first processed turn.
+                for (TurnIt jt = it; jt != last && turn_on_the_same_ip<0>(*it, *jt, strategy); ++jt)
+                {
+                    auto const& id = jt->operations[1].seg_id;
+                    bool const inside = calculate_from_inside<0>(geometry, other_geometry, *jt, strategy);
+                    auto entry = rings.emplace(std::make_pair(id.multi_index, id.ring_index), inside);
+                    if (!entry.second)
+                    {
+                        entry.first->second = entry.first->second || inside;
+                    }
+                }
+                for (auto const& ring : rings)
+                {
+                    auto entry = polygons.emplace(ring.first.first, ring.second);
+                    if (!entry.second)
+                    {
+                        entry.first->second = entry.first->second && ring.second;
+                    }
+                }
+                // The incoming line is inside the multi-polygon if any of its
+                // polygons contains it, regardless of which turn is first.
+                initially_inside = std::any_of(polygons.begin(), polygons.end(),
+                    [](auto const& polygon) { return polygon.second; });
+            }
             analyser.apply(res, it,
                            geometry, other_geometry,
                            boundary_checker,
-                           strategy);
+                           strategy,
+                           initially_inside);
 
             if ( BOOST_GEOMETRY_CONDITION( res.interrupt ) )
             {
@@ -1351,7 +1412,7 @@ struct linear_areal
             }
         }
 
-        analyser.apply(res, first, last,
+        analyser.apply(res, range_first, last,
                        geometry, other_geometry,
                        boundary_checker);
     }
@@ -1430,6 +1491,15 @@ struct linear_areal
                    Strategy const& strategy)
         {
             overlay::operation_type op = it->operations[1].operation;
+
+            // A point-only contact cannot end an overlap with another line segment.
+            auto const& linear_op = it->operations[0];
+            if (op == overlay::operation_union
+                && linear_op.operation != overlay::operation_continue
+                && !linear_op.is_collinear)
+            {
+                return true;
+            }
 
             if ( it != last )
             {

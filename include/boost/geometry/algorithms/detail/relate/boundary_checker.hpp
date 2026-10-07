@@ -12,7 +12,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_BOUNDARY_CHECKER_HPP
 
-#include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
@@ -54,23 +53,16 @@ public:
         : m_has_boundary(
             boost::size(g) >= 2
             && ! detail::equals::equals_point_point(range::front(g), range::back(g), s))
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
         , m_geometry(g)
-#endif
         , m_strategy(s)
     {}
 
     template <typename Point>
     bool is_endpoint_boundary(Point const& pt) const
     {
-        boost::ignore_unused(pt);
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
-        // may give false positives for INT
-        BOOST_GEOMETRY_ASSERT(
-            detail::equals::equals_point_point(pt, range::front(m_geometry), m_strategy)
-         || detail::equals::equals_point_point(pt, range::back(m_geometry), m_strategy));
-#endif
-        return m_has_boundary;
+        return m_has_boundary
+            && (detail::equals::equals_point_point(pt, range::front(m_geometry), m_strategy)
+             || detail::equals::equals_point_point(pt, range::back(m_geometry), m_strategy));
     }
 
     Strategy const& strategy() const
@@ -80,9 +72,7 @@ public:
 
 private:
     bool m_has_boundary;
-#ifdef BOOST_GEOMETRY_DEBUG_RELATE_BOUNDARY_CHECKER
     Geometry const& m_geometry;
-#endif
     Strategy const& m_strategy;
 };
 

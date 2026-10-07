@@ -324,7 +324,9 @@ struct intersection_of_linestring_with_areal
                      turns, policy);
 
         int inside_value = 0;
-        if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value))
+        if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value)
+            && !(FollowIsolatedPoints && OverlayType == overlay_intersection
+                 && inside_value < 0 && !turns.empty()))
         {
             // No crossing the boundary, it is either
             // inside (interior + borders)

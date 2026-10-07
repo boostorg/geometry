@@ -396,6 +396,20 @@ void test_multi_polygon_multi_polygon()
     typedef bg::model::polygon<P> poly;
     typedef bg::model::multi_polygon<poly> mpoly;
 
+    using ccw_multi = bg::model::multi_polygon<bg::model::polygon<P, false>>;
+    test_geometry<ccw_multi, ccw_multi>(
+        "MULTIPOLYGON(((40 30,60 15,60 45,40 30)),"
+        "((40 30,20 45,0 30,0 0,40 0,60 15,40 15,40 30),(40 30,20 15,20 30,40 30)))",
+        "MULTIPOLYGON(((0 30,20 30,20 45,0 30)),((40 30,20 15,40 15,40 30)),"
+        "((40 30,60 45,40 45,40 30)),((20 15,0 15,0 0,20 15)),((20 15,20 0,40 0,20 15)))",
+        "212F11212");
+
+    test_geometry<ccw_multi, ccw_multi>(
+        "MULTIPOLYGON(((40 30,20 45,20 30,0 30,20 15,40 15,40 30)),"
+        "((40 30,60 45,40 45,40 30)))",
+        "MULTIPOLYGON(((60 45,20 45,0 30,20 15,60 15,60 45),"
+        "(40 30,20 15,20 30,40 30)))", "21211F212");
+
     test_geometry<mpoly, mpoly>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
                                 "MULTIPOLYGON(((5 5,5 10,6 10,6 5,5 5)),((0 20,0 30,10 30,10 20,0 20)))",
                                 "212F11212");
@@ -412,9 +426,53 @@ void test_multi_polygon_multi_polygon()
 }
 
 template <typename P>
+void test_areal_turn_order()
+{
+    using turn_type = bg::detail::overlay::turn_info<P>;
+    std::vector<turn_type> turns;
+    for (int multi = 0; multi < 2; ++multi)
+        for (int ring = -1; ring < 2; ++ring)
+            for (auto op : {bg::detail::overlay::operation_union,
+                            bg::detail::overlay::operation_intersection,
+                            bg::detail::overlay::operation_blocked,
+                            bg::detail::overlay::operation_continue})
+            {
+                turn_type turn;
+                turn.operations[0].operation = op;
+                turn.operations[1].seg_id.multi_index = multi;
+                turn.operations[1].seg_id.ring_index = ring;
+                turns.push_back(turn);
+            }
+    bg::detail::relate::turns::less_op_areal_areal<0> less;
+    for (auto const& a : turns)
+        for (auto const& b : turns)
+        {
+            BOOST_CHECK(!(less(a,b) && less(b,a)));
+            for (auto const& c : turns)
+            {
+                if (less(a,b) && less(b,c)) BOOST_CHECK(less(a,c));
+                if (!less(a,b) && !less(b,a) && !less(b,c) && !less(c,b))
+                    BOOST_CHECK(!less(a,c) && !less(c,a));
+            }
+        }
+}
+
+template <typename P>
 void test_all()
 {
+    using poly = bg::model::polygon<P>;
+    using mpoly = bg::model::multi_polygon<poly>;
+    test_geometry<mpoly, mpoly>(
+        "MULTIPOLYGON(((40 30,40 0,0 0,40 30)))",
+        "MULTIPOLYGON(((60 15,60 0,0 0,40 30,60 15)),"
+        "((0 30,20 15,0 15,0 30)))", "2FF11F212");
+    test_geometry<mpoly, mpoly>(
+        "MULTIPOLYGON(((16 12,40 30,40 0,0 0,16 12)))",
+        "MULTIPOLYGON(((60 15,60 0,0 0,40 30,60 15)),"
+        "((0 30,20 15,0 15,0 30)))", "2FF11F212");
+
     test_polygon_polygon<P>();
+    test_areal_turn_order<P>();
     test_polygon_multi_polygon<P>();
     test_multi_polygon_multi_polygon<P>();
 }
