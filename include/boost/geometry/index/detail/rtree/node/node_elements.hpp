@@ -15,9 +15,8 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_ELEMENTS_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_NODE_NODE_ELEMENTS_HPP
 
-#include <vector>
-
 #include <boost/container/static_vector.hpp>
+#include <boost/container/vector.hpp>
 
 #include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
@@ -26,6 +25,13 @@
 namespace boost { namespace geometry { namespace index {
 
 namespace detail { namespace rtree {
+
+// Nodes and packing entries may use fancy pointers, e.g. Interprocess offset_ptr.
+// std::vector does not support these on all standard library implementations.
+// See https://github.com/boostorg/geometry/issues/1492 and
+// https://www.boost.org/doc/libs/latest/doc/html/interprocess/containers_explained.html
+template <typename Value, typename Allocator = void>
+using dynamic_container = boost::container::vector<Value, Allocator>;
 
 // element's indexable type
 
@@ -101,7 +107,7 @@ elements(Node const& n)
 template <typename Elements, typename NewValue>
 struct container_from_elements_type
 {
-    using type = std::vector<NewValue>;
+    using type = rtree::dynamic_container<NewValue>;
 };
 
 template <typename OldValue, size_t N, typename NewValue>

@@ -21,4 +21,5 @@ endforeach()
 
 add_subdirectory(exceptions)
 add_subdirectory(generated)
+add_subdirectory(interprocess)
 add_subdirectory(strategies)
