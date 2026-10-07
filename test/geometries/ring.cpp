@@ -37,6 +37,12 @@ BOOST_GEOMETRY_REGISTER_BOOST_TUPLE_CS(cs::cartesian)
 struct custom_ring_default : std::vector<bg::model::d2::point_xy<double>> {};
 BOOST_GEOMETRY_REGISTER_RING(custom_ring_default)
 
+struct custom_ring_cw : std::vector<bg::model::d2::point_xy<double>> {};
+BOOST_GEOMETRY_REGISTER_RING(custom_ring_cw, true)
+
+struct custom_ring_ccw : std::vector<bg::model::d2::point_xy<double>> {};
+BOOST_GEOMETRY_REGISTER_RING(custom_ring_ccw, false)
+
 struct custom_ring_cw_closed : std::vector<bg::model::d2::point_xy<double>> {};
 BOOST_GEOMETRY_REGISTER_RING(custom_ring_cw_closed, true, true)
 
@@ -52,6 +58,14 @@ BOOST_GEOMETRY_REGISTER_RING(custom_ring_ccw_open, false, false)
 template <typename P>
 struct custom_ring_templated_default : std::deque<P> {};
 BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(custom_ring_templated_default)
+
+template <typename P>
+struct custom_ring_templated_cw : std::deque<P> {};
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(custom_ring_templated_cw, true)
+
+template <typename P>
+struct custom_ring_templated_ccw : std::deque<P> {};
+BOOST_GEOMETRY_REGISTER_RING_TEMPLATED(custom_ring_templated_ccw, false)
 
 template <typename P>
 struct custom_ring_templated_cw_closed : std::deque<P> {};
@@ -188,6 +202,12 @@ void test_registration_cc()
     BOOST_CHECK_EQUAL(bg::point_order<custom_ring_default>::value, bg::clockwise);
     BOOST_CHECK_EQUAL(bg::closure<custom_ring_default>::value, bg::closed);
 
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_cw>::value, bg::clockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_cw>::value, bg::closed);
+
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_ccw>::value, bg::counterclockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_ccw>::value, bg::closed);
+
     BOOST_CHECK_EQUAL(bg::point_order<custom_ring_cw_closed>::value, bg::clockwise);
     BOOST_CHECK_EQUAL(bg::closure<custom_ring_cw_closed>::value, bg::closed);
 
@@ -202,6 +222,12 @@ void test_registration_cc()
 
     BOOST_CHECK_EQUAL(bg::point_order<custom_ring_templated_default<point_t>>::value, bg::clockwise);
     BOOST_CHECK_EQUAL(bg::closure<custom_ring_templated_default<point_t>>::value, bg::closed);
+
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_templated_cw<point_t>>::value, bg::clockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_templated_cw<point_t>>::value, bg::closed);
+
+    BOOST_CHECK_EQUAL(bg::point_order<custom_ring_templated_ccw<point_t>>::value, bg::counterclockwise);
+    BOOST_CHECK_EQUAL(bg::closure<custom_ring_templated_ccw<point_t>>::value, bg::closed);
 
     BOOST_CHECK_EQUAL(bg::point_order<custom_ring_templated_cw_closed<point_t>>::value, bg::clockwise);
     BOOST_CHECK_EQUAL(bg::closure<custom_ring_templated_cw_closed<point_t>>::value, bg::closed);
