@@ -316,6 +316,11 @@ inline void test_linestring_ring()
                   from_wkt<L>("LINESTRING(2 2,3 3)"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   true);
+
+    tester::apply("l-r-05",
+                  L(),
+                  from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
+                  true);
 }
 
 template <typename P>
@@ -343,6 +348,11 @@ inline void test_linestring_polygon()
 
     tester::apply("l-pg-04",
                   from_wkt<L>("LINESTRING(2 2,3 3)"),
+                  from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
+                  true);
+
+    tester::apply("l-pg-05",
+                  L(),
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -373,6 +383,11 @@ inline void test_linestring_multipolygon()
 
     tester::apply("l-mpg-04",
                   from_wkt<L>("LINESTRING(2 2,3 3)"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
+                  true);
+
+    tester::apply("l-mpg-05",
+                  L(),
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   true);
 }
@@ -435,6 +450,16 @@ inline void test_multilinestring_ring()
                   from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
                   from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
                   true);
+
+    tester::apply("ml-r-05",
+                  ML{L()},
+                  from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
+                  true);
+
+    tester::apply("ml-r-06",
+                  ML{L(), from_wkt<L>("LINESTRING(2 2,3 3)")},
+                  from_wkt<R>("POLYGON((0 0,2 0,0 2))"),
+                  true);
 }
 
 template <typename P>
@@ -463,6 +488,16 @@ inline void test_multilinestring_polygon()
 
     tester::apply("ml-pg-04",
                   from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+                  from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
+                  true);
+
+    tester::apply("ml-pg-05",
+                  ML{L()},
+                  from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
+                  true);
+
+    tester::apply("ml-pg-06",
+                  ML{L(), from_wkt<L>("LINESTRING(2 2,3 3)")},
                   from_wkt<PL>("POLYGON((0 0,2 0,0 2))"),
                   true);
 }
@@ -494,6 +529,16 @@ inline void test_multilinestring_multipolygon()
 
     tester::apply("ml-mpg-04",
                   from_wkt<ML>("MULTILINESTRING((2 2,3 3))"),
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
+                  true);
+
+    tester::apply("ml-mpg-05",
+                  ML{L()},
+                  from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
+                  true);
+
+    tester::apply("ml-mpg-06",
+                  ML{L(), from_wkt<L>("LINESTRING(2 2,3 3)")},
                   from_wkt<MPL>("MULTIPOLYGON(((0 0,2 0,0 2)))"),
                   true);
 }
