@@ -341,10 +341,11 @@ inline void normalize_angle_cond(CoordinateType& angle)
 
 /*!
 \brief Short utility to normalize the coordinates on a spheroid
-\tparam Units The units of the coordindate system in the spheroid
+\tparam Units The units of the coordinate system in the spheroid
 \tparam CoordinateType The type of the coordinates
 \param longitude Longitude
 \param latitude Latitude
+\param exact Whether to use exact antimeridian checks; if false, a relaxed tolerance is used
 \ingroup utility
 */
 template <typename Units, typename CoordinateType>
@@ -376,6 +377,7 @@ inline void normalize_spheroidal_coordinates(CoordinateType& longitude,
 \tparam Units The units of the coordindate system in the spheroid
 \tparam CoordinateType The type of the coordinates
 \param longitude Longitude
+\param exact Whether to use exact antimeridian checks; if false, a relaxed tolerance is used
 \ingroup utility
 */
 template <typename Units, typename CoordinateType>
