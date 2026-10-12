@@ -72,9 +72,8 @@ struct disjoint_no_intersections_policy
     static inline bool apply(Geometry1 const& g1, Geometry2 const& g2, Strategy const& strategy)
     {
         typename helper_geometry<point_type_t<Geometry1>>::type p;
-        geometry::point_on_border(p, g1);
-
-        return ! geometry::covered_by(p, g2, strategy);
+        return ! (geometry::point_on_border(p, g1)
+                  && geometry::covered_by(p, g2, strategy));
     }
 };
 
