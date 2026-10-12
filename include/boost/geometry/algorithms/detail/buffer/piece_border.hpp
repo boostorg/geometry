@@ -231,7 +231,7 @@ struct piece_border
     template <typename TurnPoint, typename State>
     bool point_on_piece(TurnPoint const& point,
                         bool one_sided, bool is_linear_end_point,
-                        State& state) const
+                        State& state, bool is_exposed_start = false, bool is_exposed_end = false) const
     {
         if (ring_or_original_empty())
         {
@@ -253,12 +253,13 @@ struct piece_border
         geometry::strategy::buffer::place_on_ring_type const por_original
             = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_original,
                                     one_sided, is_linear_end_point);
+        // At flat ends and concave joins, helper segments also belong to the offsetted ring.
         geometry::strategy::buffer::place_on_ring_type const por_from_offsetted
             = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_from_offsetted,
-                                    one_sided, is_linear_end_point);
+                                    one_sided || is_exposed_end, is_linear_end_point);
         geometry::strategy::buffer::place_on_ring_type const por_to_offsetted
             = adapted_place_on_ring(geometry::strategy::buffer::place_on_ring_to_offsetted,
-                                    one_sided, is_linear_end_point);
+                                    one_sided || is_exposed_start, is_linear_end_point);
 
         bool continue_processing = true;
         if (m_original_size == 1)

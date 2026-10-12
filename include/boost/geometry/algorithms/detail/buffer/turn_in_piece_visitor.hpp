@@ -19,6 +19,7 @@
 
 #include <boost/geometry/algorithms/comparable_distance.hpp>
 #include <boost/geometry/algorithms/covered_by.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
@@ -207,10 +208,21 @@ public:
         // Check if buffer is one-sided (at this point), because then a point
         // on the original border is not considered as within.
         bool const one_sided = has_zero_distance_at(turn.point);
+        // Another linestring's endpoint does not expose this piece's interior.
+        bool const is_linear_end_point = turn.is_linear_end_point
+            && border.m_original_size > 0
+            && ((piece.is_flat_start && geometry::equals(turn.point,
+                    border.m_originals[border.m_original_size - 1], m_umbrella_strategy))
+                || (piece.is_flat_end && geometry::equals(turn.point,
+                    border.m_originals[0], m_umbrella_strategy)));
 
         typename Border::state_type state;
         if (! border.point_on_piece(turn.point, one_sided,
-                                    turn.is_linear_end_point, state))
+                                    is_linear_end_point, state,
+                                    piece.is_flat_start
+                                        || m_pieces[piece.left_index].type == strategy::buffer::buffered_concave,
+                                    piece.is_flat_end
+                                        || m_pieces[piece.right_index].type == strategy::buffer::buffered_concave))
         {
             return true;
         }

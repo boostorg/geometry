@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 
 #include <boost/geometry/core/point_type.hpp>
 
@@ -361,13 +362,10 @@ class multi_point_multi_geometry_ii_ib
 
                 int in_val = detail::within::point_in_geometry(point, single, m_strategy);
 
-                if (in_val > 0) // within
+                if (in_val >= 0)
                 {
-                    update<interior, interior, '0', Transpose>(m_result);
-                }
-                else if (in_val == 0)
-                {
-                    if (m_tc.check_boundary_point(point))
+                    if ((in_val == 0 || util::is_linear<MultiGeometry>::value)
+                        && m_tc.check_boundary_point(point))
                     {
                         update<interior, boundary, '0', Transpose>(m_result);
                     }
@@ -482,14 +480,10 @@ struct multi_point_multi_geometry_ii_ib_ie
 
                 int in_val = detail::within::point_in_geometry(point, single, strategy);
 
-                if (in_val > 0) // within
+                if (in_val >= 0)
                 {
-                    update<interior, interior, '0', Transpose>(result);
-                    found_ii_or_ib = true;
-                }
-                else if (in_val == 0) // on boundary of single
-                {
-                    if (tc.check_boundary_point(point))
+                    if ((in_val == 0 || util::is_linear<MultiGeometry>::value)
+                        && tc.check_boundary_point(point))
                     {
                         update<interior, boundary, '0', Transpose>(result);
                     }
@@ -530,12 +524,19 @@ struct multi_point_multi_geometry
         using box_pair_type = std::pair<model::box<point_type_t<MultiGeometry>>, std::size_t>;
 
         std::size_t count2 = boost::size(multi_geometry);
-        std::vector<box_pair_type> boxes(count2);
+        std::vector<box_pair_type> boxes;
+        boxes.reserve(count2);
         for (std::size_t i = 0 ; i < count2 ; ++i)
         {
-            geometry::envelope(range::at(multi_geometry, i), boxes[i].first, strategy);
-            geometry::detail::expand_by_epsilon(boxes[i].first);
-            boxes[i].second = i;
+            auto const& single_geometry = range::at(multi_geometry, i);
+            if (geometry::is_empty(single_geometry))
+            {
+                continue;
+            }
+            boxes.emplace_back();
+            geometry::envelope(single_geometry, boxes.back().first, strategy);
+            geometry::detail::expand_by_epsilon(boxes.back().first);
+            boxes.back().second = i;
         }
 
         typedef detail::relate::topology_check<MultiGeometry, Strategy> tc_t;
