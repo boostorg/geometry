@@ -21,6 +21,15 @@
 #define BOOST_GEOMETRY_GEOMETRY_HPP
 
 #include <boost/config.hpp>
+#include <boost/config/pragma_message.hpp>
+#if defined(BOOST_NO_CXX17_IF_CONSTEXPR) || defined(BOOST_NO_CXX17_INLINE_VARIABLES) \
+    || defined(BOOST_NO_CXX17_DEDUCTION_GUIDES) || defined(BOOST_NO_CXX17_HDR_VARIANT) \
+    || defined(BOOST_NO_CXX17_AUTO_NONTYPE_TEMPLATE_PARAMS) || defined(BOOST_NO_CXX17_HDR_OPTIONAL)
+#if !defined(BOOST_GEOMETRY_DISABLE_DEPRECATED_14_WARNING)
+BOOST_PRAGMA_MESSAGE("CAUTION: Boost.Geometry in Boost 1.93 deprecates support for C++14 and will require C++17 from Boost 1.95 onwards.")
+BOOST_PRAGMA_MESSAGE("CAUTION: Define BOOST_GEOMETRY_DISABLE_DEPRECATED_14_WARNING to suppress this message.")
+#endif
+#endif
 
 #if defined(BOOST_NO_CXX14_CONSTEXPR)
 #error "Use C++14 or higher to compile Boost.Geometry, or use Boost 1.72 or lower."
