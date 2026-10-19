@@ -8,5 +8,6 @@ test-suite boost-geometry-extensions-triangulation
     :
     [ run side_robust.cpp ]
     [ run in_circle_robust.cpp ]
+    [ run triangulation.cpp ]
     ;
 
