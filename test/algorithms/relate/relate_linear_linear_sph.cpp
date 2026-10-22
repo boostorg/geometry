@@ -326,15 +326,15 @@ void test_linestring_multi_linestring()
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 6 0))",   //   |--------------|
-                           "1FF00F102");                                // |------------------|
+                           "1FFF0F102");                                // |------------------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(-1 0, 2 0))",   //   |--------------|
-                           "10F00F102");                                // |-------|
+                           "10FF0F102");                                // |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 6 0))",    //   |--------------|
-                           "10F00F102");                                //            |-------|
+                           "10FF0F102");                                //            |-------|
 
     test_geometry<ls, mls>("LINESTRING(0 0, 5 0)",                      //   |--------------|
                            "MULTILINESTRING((0 0, 5 0),(2 0, 2 2))",    //   |--------------|

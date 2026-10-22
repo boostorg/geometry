@@ -62,8 +62,8 @@ struct state_type
     // but there might be so called "extra" vertices, not associated with a node.
     std::map<signed_size_type, std::size_t> node_to_vertex_index;
 
-    // For each edge, store the segment identifier
-    std::map<std::pair<std::size_t, std::size_t>, segment_identifier> edge_to_seg_id;
+    // Several geometric arcs may connect the same graph vertices.
+    std::map<std::pair<std::size_t, std::size_t>, std::set<segment_identifier>> edge_to_seg_ids;
 
     // Keeps track of vertex index, which must, for Boost.Graph, be consecutive.
     // The turn index is not consecutive (because of discarded, and of clusters).
@@ -99,7 +99,7 @@ inline void add_edge(signed_size_type source_node_id, signed_size_type target_no
     // and store node and the segment id for this edge
     auto& vertex_info = state.vertex_map[it_source->second];
     vertex_info.node_id = source_node_id;
-    state.edge_to_seg_id[{it_source->second, it_target->second}] = seg_id;
+    state.edge_to_seg_ids[{it_source->second, it_target->second}].insert(seg_id);
 
     if (target_node_id != source_node_id)
     {
@@ -117,8 +117,8 @@ inline void add_edge(signed_size_type source_node_id, signed_size_type target_no
     // Store the segment id in both of these edges
     auto& extra_vertex_info = state.vertex_map[extra_vertex_index];
     extra_vertex_info.node_id = extra_node_id;
-    state.edge_to_seg_id[{it_source->second, extra_vertex_index}] = seg_id;
-    state.edge_to_seg_id[{extra_vertex_index, it_target->second}] = seg_id;
+    state.edge_to_seg_ids[{it_source->second, extra_vertex_index}].insert(seg_id);
+    state.edge_to_seg_ids[{extra_vertex_index, it_target->second}].insert(seg_id);
 
     extra_vertex_info.is_extra = true;
     extra_vertex_info.original_node_id = source_node_id;
@@ -184,7 +184,7 @@ void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bo
 
         auto const source_node_id = node_id_from_it(it_source);
         auto const target_node_id = node_id_from_it(it_target);
-        auto const edge_seg_id = state.edge_to_seg_id.at({source(*ei, graph), target(*ei, graph)});
+        auto const& edge_seg_ids = state.edge_to_seg_ids.at({source(*ei, graph), target(*ei, graph)});
 
         auto const turn_indices = get_turn_indices_by_node_id(turns, clusters, source_node_id,
             allow_closed);
@@ -203,7 +203,7 @@ void assign_biconnected_component_ids(Turns& turns, Clusters const& clusters, bo
                 }
 
                 auto const travels_to_node_id = get_node_id(turns, op.enriched.travels_to_ip_index);
-                if (travels_to_node_id == target_node_id && op.seg_id == edge_seg_id)
+                if (travels_to_node_id == target_node_id && edge_seg_ids.count(op.seg_id) > 0)
                 {
                     op.enriched.component_id = static_cast<int>(component[*ei]);
                     if (turn.both(operation_continue))
