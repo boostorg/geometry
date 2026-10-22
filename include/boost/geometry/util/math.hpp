@@ -870,7 +870,10 @@ inline void sin_cos_degrees(T const& x,
     T const s = sin(remainder);
     T const c = cos(remainder);
 
-    switch (unsigned(quotient) & 3U)
+    // quotient is an integer in [-4, 4]. Converting a negative floating-point
+    // value directly to unsigned is undefined behavior, converting it to int
+    // first and then to unsigned is well-defined (modulo 2^N).
+    switch (static_cast<unsigned>(static_cast<int>(quotient)) & 3U)
     {
         case 0U: sinx =  s; cosx =  c; break;
         case 1U: sinx =  c; cosx = -s; break;
