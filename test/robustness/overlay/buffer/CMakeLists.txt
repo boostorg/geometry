@@ -8,6 +8,7 @@
 foreach(item IN ITEMS
     #many_ring_buffer
     #multi_point_growth
+    confetti_buffer
     recursive_polygons_buffer
   )
   boost_geometry_add_robustness_test(${item})

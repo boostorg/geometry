@@ -13,7 +13,7 @@
 [def __msvc__ MSVC]
 [def __stlport__ [@http://sourceforge.net/projects/stlport STLport]]
 
-[caution Boost.Geometry in Boost 1.73 deprecates support for the C++03 and will require C++14 from Boost 1.75 onwards]
+[caution Boost.Geometry in Boost 1.93 deprecates support for C++14 and will require C++17 from Boost 1.95 onwards]
 
 __boost_geometry__ is a headers-only library. Users only need to include the 
 library headers in their programs in order to be able to access definitions 

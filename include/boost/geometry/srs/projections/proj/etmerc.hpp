@@ -369,8 +369,7 @@ namespace projections
     /*!
         \brief Extended Transverse Mercator projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Cylindrical
@@ -394,8 +393,7 @@ namespace projections
     /*!
         \brief Universal Transverse Mercator (UTM) projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Cylindrical

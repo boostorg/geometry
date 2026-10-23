@@ -258,8 +258,7 @@ namespace projections
     /*!
         \brief Albers Equal Area projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic
@@ -284,8 +283,7 @@ namespace projections
     /*!
         \brief Lambert Equal Area Conic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Conic

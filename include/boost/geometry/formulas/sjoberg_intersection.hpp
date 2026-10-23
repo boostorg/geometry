@@ -566,7 +566,7 @@ public:
     {
         CT const c0 = 0;
         CT const dLj = d_lambda(c0);
-        return lonj - asin_tj_t0j + dLj;
+        return lonj + sign_lon_diff * (-asin_tj_t0j + dLj);
     }
 
     CT d_lambda(CT const& sin_beta) const

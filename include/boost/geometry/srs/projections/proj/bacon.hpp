@@ -131,8 +131,7 @@ namespace projections
     /*!
         \brief Apian Globular I projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Miscellaneous
@@ -154,8 +153,7 @@ namespace projections
     /*!
         \brief Ortelius Oval projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Miscellaneous
@@ -177,8 +175,7 @@ namespace projections
     /*!
         \brief Bacon Globular projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Miscellaneous

@@ -591,6 +591,13 @@ void test_expand_point()
                   from_wkt<B>("BOX(10 -90,100 90)"),
                   from_wkt<G>("POINT(-95 -90)"),
                   10, -90, 100, 90);
+
+    // box crosses anti-meridian and contains point so it should not be changed
+    tester::apply("p21",
+                  from_wkt<B>("BOX(170 0,190.4 2)"),
+                  from_wkt<G>("POINT(175 1)"),
+                  170, 0, 190.4, 2,
+                  0.0);
 }
 
 BOOST_AUTO_TEST_CASE( expand_point )

@@ -306,6 +306,8 @@ int test_main(int, char* [])
     TEST_CASE(issue_1363);
 #endif
 
+    TEST_CASE_WITH(issue_1439, 0, 1, ut_settings().ignore_validity_diff_sym());
+
     TEST_CASE(case_bitset_1);
     TEST_CASE(case_bitset_2);
     TEST_CASE(case_bitset_3);

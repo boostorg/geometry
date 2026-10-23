@@ -339,8 +339,7 @@ namespace projections
     /*!
         \brief Miller Oblated Stereographic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal (mod)
@@ -360,8 +359,7 @@ namespace projections
     /*!
         \brief Lee Oblated Stereographic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal (mod)
@@ -381,8 +379,7 @@ namespace projections
     /*!
         \brief Mod. Stererographics of 48 U.S. projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal (mod)
@@ -402,8 +399,7 @@ namespace projections
     /*!
         \brief Mod. Stererographics of Alaska projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal (mod)
@@ -423,8 +419,7 @@ namespace projections
     /*!
         \brief Mod. Stererographics of 50 U.S. projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Azimuthal (mod)

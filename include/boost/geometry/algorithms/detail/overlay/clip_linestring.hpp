@@ -40,8 +40,8 @@ namespace strategy { namespace intersection
     \ingroup overlay
     \details The Liang-Barsky line clipping algorithm clips a line with a clipping box.
     It is slightly adapted in the sense that it returns which points are clipped
-    \tparam B input box type of clipping box
-    \tparam P input/output point-type of segments to be clipped
+    \tparam Box input box type of clipping box
+    \tparam Point input/output point-type of segments to be clipped
     \note The algorithm is currently only implemented for 2D Cartesian points
     \note Though it is implemented in namespace strategy, and theoretically another
         strategy could be used, it is not (yet) updated to the general strategy concepts,

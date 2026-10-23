@@ -17,7 +17,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_PACK_CREATE_HPP
 
-#include <vector>
+#include <iterator>
 
 #include <boost/core/ignore_unused.hpp>
 
@@ -207,7 +207,8 @@ public:
             template rebind_alloc<entry_type> temp_entry_allocator_type;
 
         temp_entry_allocator_type temp_entry_allocator(temp_allocator);
-        std::vector<entry_type, temp_entry_allocator_type> entries(temp_entry_allocator);
+        using entries_type = rtree::dynamic_container<entry_type, temp_entry_allocator_type>;
+        entries_type entries(temp_entry_allocator);
 
         values_count = static_cast<size_type>(diff);
         entries.reserve(values_count);

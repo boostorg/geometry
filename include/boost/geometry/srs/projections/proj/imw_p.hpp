@@ -266,8 +266,7 @@ namespace projections
     /*!
         \brief International Map of the World Polyconic projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Mod. Polyconic

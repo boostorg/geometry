@@ -18,7 +18,6 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include <boost/container/allocator_traits.hpp>
 #include <boost/core/invoke_swap.hpp>
@@ -28,6 +27,7 @@
 
 #include <boost/geometry/index/detail/rtree/options.hpp>
 #include <boost/geometry/index/detail/rtree/node/concept.hpp>
+#include <boost/geometry/index/detail/rtree/node/node_elements.hpp>
 #include <boost/geometry/index/detail/rtree/node/pairs.hpp>
 #include <boost/geometry/index/detail/rtree/node/scoped_deallocator.hpp>
 
@@ -46,7 +46,7 @@ struct variant_internal_node
             typename Allocators::node_allocator_type
         >::template rebind_alloc<element_type> allocator_type;
 
-    using elements_type = std::vector<element_type, allocator_type>;
+    using elements_type = rtree::dynamic_container<element_type, allocator_type>;
 
     template <typename Al>
     inline variant_internal_node(Al const& al)
@@ -64,7 +64,7 @@ struct variant_leaf
             typename Allocators::node_allocator_type
         >::template rebind_alloc<Value> allocator_type;
 
-    using elements_type = std::vector<Value, allocator_type>;
+    using elements_type = rtree::dynamic_container<Value, allocator_type>;
 
     template <typename Al>
     inline variant_leaf(Al const& al)

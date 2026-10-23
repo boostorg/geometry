@@ -186,8 +186,7 @@ namespace projections
     /*!
         \brief New Zealand Map Grid projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Fixed Earth

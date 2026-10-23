@@ -163,8 +163,7 @@ namespace projections
     /*!
         \brief Mollweide projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -185,8 +184,7 @@ namespace projections
     /*!
         \brief Wagner IV projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical
@@ -207,8 +205,7 @@ namespace projections
     /*!
         \brief Wagner V projection
         \ingroup projections
-        \tparam Geographic latlong point type
-        \tparam Cartesian xy point type
+        \tparam T calculation type
         \tparam Parameters parameter type
         \par Projection characteristics
          - Pseudocylindrical

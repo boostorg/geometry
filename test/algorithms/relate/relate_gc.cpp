@@ -72,7 +72,7 @@ void test_gc_gc()
                               "1FFF0F212");
 
     // Error in detail::relate::linear_linear
-#ifdef BOOST_GEOMETRY_TEST_ENABLE_FAILING
+#ifdef BOOST_GEOMETRY_TEST_FAILURES
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(LINESTRING(0 0,5 5))",
                               "GEOMETRYCOLLECTION(LINESTRING(0 0,5 5), LINESTRING(5 5, 6 6))",
                               "1FF00F102");
