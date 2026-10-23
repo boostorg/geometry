@@ -544,12 +544,6 @@ private:
 \brief Generic geometry template manipulator class, takes corresponding output class from traits class
 \ingroup wkt
 \details Stream manipulator, streams geometry classes as \wkt streams
-\par Example:
-Small example showing how to use the wkt class
-\dontinclude doxygen_1.cpp
-\skip example_as_wkt_point
-\line {
-\until }
 */
 template <typename Geometry>
 class wkt_manipulator
