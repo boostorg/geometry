@@ -32,6 +32,11 @@ struct prefix_point
     static inline const char* apply() { return "POINT"; }
 };
 
+struct prefix_point_z
+{
+    static inline const char* apply() { return "POINT Z"; }
+};
+
 struct prefix_polygon
 {
     static inline const char* apply() { return "POLYGON"; }
