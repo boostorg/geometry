@@ -97,6 +97,17 @@ void test_all()
     bgm::sin_cos_degrees(-T(0), sinx, cosx);
     BOOST_CHECK(std::signbit(sinx));
     BOOST_CHECK(! std::signbit(cosx));
+
+    // Non-finite input gives NaN and must not convert the NaN quotient.
+    T const non_finite[] = { std::numeric_limits<T>::quiet_NaN(),
+                             std::numeric_limits<T>::infinity(),
+                             -std::numeric_limits<T>::infinity() };
+    for (T const& x : non_finite)
+    {
+        bgm::sin_cos_degrees(x, sinx, cosx);
+        BOOST_CHECK(std::isnan(sinx));
+        BOOST_CHECK(std::isnan(cosx));
+    }
 }
 
 int test_main(int, char* [])

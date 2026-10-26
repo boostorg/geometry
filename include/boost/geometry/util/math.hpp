@@ -870,10 +870,15 @@ inline void sin_cos_degrees(T const& x,
     T const s = sin(remainder);
     T const c = cos(remainder);
 
-    // quotient is an integer in [-4, 4]. Converting a negative floating-point
-    // value directly to unsigned is undefined behavior, converting it to int
-    // first and then to unsigned is well-defined (modulo 2^N).
-    switch (static_cast<unsigned>(static_cast<int>(quotient)) & 3U)
+    // For a finite x, quotient is an integer in [-4, 4]. Converting a negative
+    // floating-point value directly to unsigned is undefined behavior,
+    // converting it to int first and then to unsigned is well-defined
+    // (modulo 2^N). For a NaN or infinite x, quotient is NaN and must not be
+    // converted at all, but s and c are NaN in every quadrant then.
+    int const quadrant = boost::math::isfinite(quotient)
+                       ? static_cast<int>(quotient) : 0;
+
+    switch (static_cast<unsigned>(quadrant) & 3U)
     {
         case 0U: sinx =  s; cosx =  c; break;
         case 1U: sinx =  c; cosx = -s; break;
