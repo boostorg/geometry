@@ -37,6 +37,28 @@ struct edge_and_side
     int side{0};
 };
 
+// Sort by side and always take the right (smaller) side (for intersection, union, buffer).
+template <overlay_type OverlayType>
+struct compare_edges_by_side
+{
+    template <typename Edge1, typename Edge2>
+    bool operator()(Edge1 const& a, Edge2 const& b) const
+    {
+        return a.side < b.side;
+    }
+};
+
+// For dissolve, the left (larger) side is taken.
+template <>
+struct compare_edges_by_side<overlay_dissolve>
+{
+    template <typename Edge1, typename Edge2>
+    bool operator()(Edge1 const& a, Edge2 const& b) const
+    {
+        return a.side > b.side;
+    }
+};
+
 template
 <
     bool Reverse1,
@@ -154,14 +176,8 @@ private:
             edge.side = side_strategy.apply(p1, p2, edge.point);
         }
 
-        // Sort by side (with respect to segment [p1..p2]) (TEMPORARY: and then by toi)
-        // Right = -1 will come first. Left = 1 will come last.
-        // This works for both union and intersection operations, because it should always
-        // take the right turn (even in uu in buffer/union).
-        std::sort(edges.begin(), edges.end(), [](auto const& a, auto const& b)
-        {
-            return std::tie(a.side, a.toi) < std::tie(b.side, b.toi);
-        });
+        // Sort by side, with respect to segment [p1..p2]
+        std::sort(edges.begin(), edges.end(), compare_edges_by_side<OverlayType>());
 
         report("by side", edges, p1, p2);
 
@@ -272,6 +288,16 @@ public:
                 && op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index)
             {
                 return edges.front().toi;
+            }
+
+            if (target_operation == operation_union
+                && op0.operation == operation_union
+                && op1.operation == operation_union
+                && op0.preference_index != op1.preference_index)
+            {
+                return op0.preference_index < op1.preference_index
+                    ? edges[0].toi
+                    : edges[1].toi;
             }
 
             if (target_operation == operation_union
