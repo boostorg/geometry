@@ -13,6 +13,7 @@ foreach(item IN ITEMS
     math_equals
     math_sqrt
     math_normalize_spheroidal
+    math_sin_cos_degrees
     promote_integral
     range
     rational

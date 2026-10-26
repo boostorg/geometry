@@ -870,7 +870,15 @@ inline void sin_cos_degrees(T const& x,
     T const s = sin(remainder);
     T const c = cos(remainder);
 
-    switch (unsigned(quotient) & 3U)
+    // The quotient is negative for x < -45, and converting a negative
+    // floating-point value to unsigned is undefined behavior: x86 wraps
+    // around, but AArch64 saturates to 0, which picks the wrong quadrant.
+    // For a finite x the quotient is within [-4, 4], so convert it to int
+    // first. For a NaN or infinite x, s and c are NaN in every quadrant.
+    int const quadrant = boost::math::isfinite(quotient)
+                       ? static_cast<int>(quotient) : 0;
+
+    switch (static_cast<unsigned>(quadrant) & 3U)
     {
         case 0U: sinx =  s; cosx =  c; break;
         case 1U: sinx =  c; cosx = -s; break;
