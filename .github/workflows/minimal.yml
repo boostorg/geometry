@@ -142,7 +142,9 @@ jobs:
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          $BOOST_ROOT/b2 toolset=clang cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=clang cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          # B2 returns success when requirements disable the requested target.
+          test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
   ##############################################################################
   gcc:
@@ -240,7 +242,9 @@ jobs:
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          $BOOST_ROOT/b2 toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          # B2 returns success when requirements disable the requested target.
+          test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
   ##############################################################################
   msvc:
@@ -342,4 +346,6 @@ jobs:
         shell: pwsh
         run: |
           cd $env:BOOST_ROOT
-          .\b2 --user-config=user-config.jam toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          .\b2 --user-config=user-config.jam --build-dir="$env:RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path "$env:RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test" -PathType Container)) { exit 1 }
