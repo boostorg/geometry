@@ -166,6 +166,11 @@ static std::string const issue_1294
 static std::string const issue_1294_shifted
     = "POLYGON((130.35 150,130.35 130,126.02 130,126.02 125,130.35 125,130.35 0,0 0,0 150,130.35 150))";
 
+static std::string const issue_1505
+    = "POLYGON((-3.1302374809769833 2.97694453025913,-7.4385108453059106 -1.5531764129562022,165.72902454840406 -74.52326513891785,500.26626846706444 282.12494918606359,310.04015915863312 332.27354496386056,-3.1302374809769833 2.97694453025913))";
+static std::string const issue_1505_reordered
+    = "POLYGON((-7.4385108453059106 -1.5531764129562022,165.72902454840406 -74.52326513891785,500.26626846706444 282.12494918606359,310.04015915863312 332.27354496386056,-3.1302374809769833 2.97694453025913,-7.4385108453059106 -1.5531764129562022))";
+
 // CCW Polygons not working in 1.56
 static std::string const mysql_report_2014_10_24
     = "POLYGON((0 0, 0 8, 8 8, 8 10, -10 10, -10 0, 0 0))";
@@ -572,7 +577,7 @@ void test_all()
 
         test_one<polygon_type, polygon_type>("ticket_10398_4_30", ticket_10398_4, join_miter, end_flat, 257.9482, 3.0, settings);
         test_one<polygon_type, polygon_type>("ticket_10398_4_66", ticket_10398_4, join_miter, end_flat, 553.0112, 6.6, settings);
-        test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 819.1406, 9.1, settings);
+        test_one<polygon_type, polygon_type>("ticket_10398_4_91", ticket_10398_4, join_miter, end_flat, 819.4384, 9.1, settings);
 
         test_one<polygon_type, polygon_type>("ticket_10412", ticket_10412, join_miter, end_flat, 3109.6616, 1.5, settings);
         test_one<polygon_type, polygon_type>("ticket_11580_100", ticket_11580, join_miter, end_flat, 52.0221000, 1.00, settings);
@@ -643,6 +648,11 @@ void test_all()
         test_one<polygon_type, polygon_type>("issue_1294", issue_1294, join_miter, end_flat, 22456.0, 5.0);
         test_one<polygon_type, polygon_type>("issue_1294_shifted", issue_1294_shifted, join_miter, end_flat, 22456.0, 5.0);
         test_one<polygon_type, polygon_type>("issue_1294_original", issue_1294_original, join_miter, end_flat, 562666.0, 5.0);
+    }
+
+    {
+        test_one<polygon_type, polygon_type>("issue_1505", issue_1505, join_round, end_flat, 77115.745098716245, -4.3197899744724717);
+        test_one<polygon_type, polygon_type>("issue_1505_reordered", issue_1505_reordered, join_round, end_flat, 77115.745098716245, -4.3197899744724717);
     }
 
     {

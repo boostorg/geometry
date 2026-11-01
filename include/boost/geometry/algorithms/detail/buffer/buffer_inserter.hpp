@@ -75,7 +75,7 @@ inline void simplify_input(RangeIn const& range,
     // look better.
     // It also gets rid of duplicate points
 
-    geometry::detail::simplify::simplify_range<2>::apply(range,
+    dispatch::simplify<RangeIn, RangeOut>::apply(range,
         simplified, distance.simplify_distance(),
         detail::simplify::douglas_peucker(),
         strategies);
