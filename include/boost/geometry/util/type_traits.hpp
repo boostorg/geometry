@@ -12,6 +12,8 @@
 #define BOOST_GEOMETRY_UTIL_TYPE_TRAITS_HPP
 
 
+#include <boost/config.hpp>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>

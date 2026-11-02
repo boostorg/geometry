@@ -22,6 +22,8 @@
 
 #include <boost/range/value_type.hpp>
 
+#include <boost/config.hpp>
+
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tag.hpp>

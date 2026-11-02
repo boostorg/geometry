@@ -11,6 +11,9 @@
 # Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+# Make the Index test dependency visible to the Boost superproject scanner.
+set(__ignore__ Boost::interprocess)
+
 # This takes care of many (but not all) floating point differences on arm64/clang14 on Mac.
 # It also lets running the tests much faster.
 if (APPLE)

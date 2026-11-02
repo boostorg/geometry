@@ -40,14 +40,17 @@ jobs:
           - b2_toolset: clang-6.0
             b2_cxxstd: 14
             version: "6.0"
+            gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-7
             b2_cxxstd: 14,17
             version: "7"
+            gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-8
             b2_cxxstd: 14,17
             version: "8"
+            gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-9
             # At some point compilation started to fail with 2a from unknown reason
@@ -55,6 +58,7 @@ jobs:
             #b2_cxxstd: 14,17,2a
             b2_cxxstd: 14,17
             version: "9"
+            gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-10
             b2_cxxstd: 14,17,2a
@@ -118,6 +122,9 @@ jobs:
           sudo add-apt-repository "deb http://dk.archive.ubuntu.com/ubuntu/ focal universe"
           sudo apt -q -y update
           sudo apt -q -y install clang-${{ matrix.version }} g++-multilib
+          if [[ -n '${{ matrix.gcc_version }}' ]]; then
+            sudo apt -q -y install g++-${{ matrix.gcc_version }}-multilib
+          fi
 
       - name: Bootstrap boostorg/boost
         run: |
@@ -135,14 +142,25 @@ jobs:
         run: |
           export CXX_NAME=clang++-${{ matrix.version }}
           echo ${CXX_NAME}
-          echo "# $HOME/user-config.jam" > $HOME/user-config.jam
-          echo "using clang : : $(which clang++-${{ matrix.version }}) ;" > ${HOME}/user-config.jam
+          compiler_flags=""
+          if [[ -n '${{ matrix.gcc_version }}' ]]; then
+            # Clang < 10 cannot parse libstdc++ 11's <chrono>. Select GCC 9
+            # headers and multilibs explicitly instead of silently skipping tests.
+            gcc_root="$RUNNER_TEMP/geometry-gcc-${{ matrix.gcc_version }}"
+            mkdir -p "$gcc_root/lib/gcc/x86_64-linux-gnu"
+            ln -s /usr/lib/gcc/x86_64-linux-gnu/${{ matrix.gcc_version }} "$gcc_root/lib/gcc/x86_64-linux-gnu/${{ matrix.gcc_version }}"
+            ln -s /usr/include "$gcc_root/include"
+            compiler_flags="<compileflags>--gcc-toolchain=$gcc_root <linkflags>--gcc-toolchain=$gcc_root"
+          fi
+          echo "using clang : : $(command -v "$CXX_NAME") : $compiler_flags ;" > "$HOME/user-config.jam"
           test -f $HOME/user-config.jam && cat $HOME/user-config.jam
 
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          $BOOST_ROOT/b2 toolset=clang cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=clang cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          # B2 returns success when requirements disable the requested target.
+          test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
   ##############################################################################
   gcc:
@@ -240,7 +258,9 @@ jobs:
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          $BOOST_ROOT/b2 toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          # B2 returns success when requirements disable the requested target.
+          test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
   ##############################################################################
   msvc:
@@ -251,24 +271,36 @@ jobs:
       fail-fast: false
       matrix:
         b2_toolset: [
+          msvc-14.2,
           msvc-14.3,
-          msvc-14.4
+          msvc-14.5
         ]
 
         include:
+          - b2_toolset: msvc-14.2
+            # VS 2019's final toolset, installed alongside VS 2022 on this image.
+            vcvars_version: '14.29'
+            vs_version: '[17.0,18.0)'
+            b2_cxxstd: '14,17,20'
+            os: windows-2022
           - b2_toolset: msvc-14.3
-            b2_cxxstd: 14,17,2a
+            # B2 calls the VS 2022 family 14.3, including compiler 14.4x.
+            vcvars_version: '14.44'
+            vs_version: '[17.0,18.0)'
+            b2_cxxstd: '14,17,20'
             os: windows-2022
-          - b2_toolset: msvc-14.4
-            b2_cxxstd: 14,17,2a
-            os: windows-2022
+          - b2_toolset: msvc-14.5
+            vcvars_version: '14.51'
+            vs_version: '[18.0,19.0)'
+            b2_cxxstd: '14,17,20'
+            os: windows-2025-vs2026
 
     steps:
       - name: Set up environment
         id: setenv
         shell: pwsh
         run: |
-          if ("$env:GITHUB_REF" -contains "master") {
+          if ($env:GITHUB_REF -eq 'refs/heads/master') {
             echo "BOOST_BRANCH=master" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           } else {
             echo "BOOST_BRANCH=develop" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -303,12 +335,33 @@ jobs:
         shell: pwsh
         run: |
           cd $env:BOOST_ROOT
-          .\bootstrap.bat --with-toolset=${{ matrix.b2_toolset }}
+          .\bootstrap.bat
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           .\b2 headers
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           .\b2 -v
+
+      - name: Configure the requested MSVC toolset
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -version '${{ matrix.vs_version }}' -property installationPath
+          $version = '${{ matrix.vcvars_version }}'
+          $cl = (Resolve-Path "$vs\VC\Tools\MSVC\$version.*\bin\Hostx64\x64\cl.exe").Path.Replace('\', '/')
+          Write-Host "Using $cl ($((Get-Item $cl).VersionInfo.FileVersion))"
+          # Keep the same toolset when B2 switches between x86 and x64.
+          $setup = (Join-Path $env:RUNNER_TEMP 'geometry-msvc-setup.bat').Replace('\', '/')
+          "@call `"$vs\VC\Auxiliary\Build\vcvarsall.bat`" %* -vcvars_ver=$version" |
+            Set-Content $setup -Encoding ascii
+          $b2Version = '${{ matrix.b2_toolset }}'.Replace('msvc-', '')
+          "using msvc : $b2Version : `"$cl`" : <setup>`"$setup`" ;" |
+            Set-Content "$env:BOOST_ROOT\user-config.jam" -Encoding ascii
+          Get-Content "$env:BOOST_ROOT\user-config.jam"
 
       - name: Build libs/geometry/test//minimal
         shell: pwsh
         run: |
           cd $env:BOOST_ROOT
-          .\b2 toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          .\b2 --user-config=user-config.jam --build-dir="$env:RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path "$env:RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test" -PathType Container)) { exit 1 }
