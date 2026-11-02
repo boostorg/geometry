@@ -23,6 +23,8 @@
 
 #include <type_traits>
 
+#include <boost/config.hpp>
+
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
 

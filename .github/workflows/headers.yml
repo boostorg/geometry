@@ -68,4 +68,4 @@ jobs:
     - name: Build libs/geometry/test/headers
       run: |
         cd $BOOST_ROOT
-        $BOOST_ROOT/b2 libs/geometry/test/headers
+        $BOOST_ROOT/b2 cxxstd=14 libs/geometry/test/headers

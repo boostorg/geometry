@@ -16,6 +16,12 @@ import regex ;
 
 path-constant HEADERS : ../../include/boost/geometry ;
 
+project
+    : requirements
+        <toolset>gcc:<cxxflags>-Werror=c++17-extensions
+        <toolset>clang:<cxxflags>-Werror=c++17-extensions
+    ;
+
 rule generate_self_contained_headers ( headers_subpath )
 {
     # This rule is based on script copied from similar rule in Boost.GIL
@@ -52,6 +58,10 @@ rule generate_self_contained_headers ( headers_subpath )
 # TODO: Review sorting to get as close as possible from general to specific
 
 # Core
+alias root : [ compile main.cpp
+    : <define>BOOST_GEOMETRY_TEST_HEADER=geometry.hpp <dependency>$(HEADERS)/geometry.hpp
+    : h-geometry ] ;
+alias boost-geometry-hpp : [ compile main.cpp : <define>BOOST_GEOMETRY_TEST_HEADER=../geometry.hpp : h-boost-geometry-hpp ] ;
 alias core : [ generate_self_contained_headers core ] ;
 alias util : [ generate_self_contained_headers util ] ;
 alias policies : [ generate_self_contained_headers policies ] ;
@@ -61,6 +71,8 @@ alias arithmetic : [ generate_self_contained_headers arithmetic ] ;
 alias formulas : [ generate_self_contained_headers formulas ] ;
 alias iterators : [ generate_self_contained_headers iterators ] ;
 alias strategies : [ generate_self_contained_headers strategies ] ;
+alias strategy : [ generate_self_contained_headers strategy ] ;
+alias io : [ generate_self_contained_headers io ] ;
 alias srs : [ generate_self_contained_headers srs ] ;
 alias algorithms : [ generate_self_contained_headers algorithms ] ;
 alias views : [ generate_self_contained_headers views ] ;
