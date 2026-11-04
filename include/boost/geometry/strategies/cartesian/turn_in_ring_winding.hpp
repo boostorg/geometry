@@ -80,7 +80,8 @@ public:
 
         inline bool is_inside() const
         {
-            return count < 0 || count_on_origin > 0;
+            // Internal helper edges are covered even when winding stopped at the first edge.
+            return count < 0 || count_on_origin > 0 || count_on_edge > 0;
         }
 
         inline bool is_on_boundary() const
@@ -174,7 +175,7 @@ public:
 
         bool const vertical = s1x == s2x;
 
-        if (in_horizontal_range || (vertical && is_in_vertical_range(point, s1, s2)))
+        if (vertical ? is_in_vertical_range(point, s1, s2) : in_horizontal_range)
         {
             if (side == 0)
             {

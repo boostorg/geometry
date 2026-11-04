@@ -7,4 +7,5 @@
 
 add_subdirectory(areal_areal)
 add_subdirectory(buffer)
+add_subdirectory(grid)
 add_subdirectory(linear_areal)

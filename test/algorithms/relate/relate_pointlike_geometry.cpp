@@ -28,6 +28,8 @@ void test_point_multipoint()
 {
     typedef bg::model::multi_point<P> mpt;
 
+    test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT EMPTY", "FF0FFFFF2");
+
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
     test_geometry<P, mpt>("POINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
     test_geometry<P, mpt>("POINT(0 0)", "MULTIPOINT(0 0, 1 0)", "0FFFFF0F2");
@@ -37,6 +39,9 @@ template <typename P>
 void test_multipoint_multipoint()
 {
     typedef bg::model::multi_point<P> mpt;
+
+    test_geometry<mpt, mpt>("MULTIPOINT EMPTY", "MULTIPOINT EMPTY", "FFFFFFFF2");
+    test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT EMPTY", "FF0FFFFF2");
 
     test_geometry<mpt, mpt>("MULTIPOINT(0 0)", "MULTIPOINT(0 0)", "0FFFFFFF2");
     test_geometry<mpt, mpt>("MULTIPOINT(1 0)", "MULTIPOINT(0 0)", "FF0FFF0F2");
@@ -144,6 +149,17 @@ void test_multipoint_multilinestring()
     typedef bg::model::multi_point<P> mpt;
     typedef bg::model::linestring<P> ls;
     typedef bg::model::multi_linestring<ls> mls;
+
+    // An interior point of one member is a boundary endpoint of another.
+    std::string const branched = "MULTILINESTRING((0 0,20 15,20 0),(20 15,20 30))";
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)", branched, "F0FFFF102");
+    test_geometry<P, mls>("POINT(20 15)", branched, "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)", branched, "F0*******");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)",
+        "MULTILINESTRING((20 15,20 30),(0 0,20 15,20 0))", "F0FFFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(20 15)",
+        "MULTILINESTRING((0 0,20 15,20 0),(20 15,20 30),(20 15,40 15))",
+        "0FFFFF102");
     
     test_geometry<mpt, mls>("MULTIPOINT(0 0)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "F0FFFF102");
     test_geometry<mpt, mls>("MULTIPOINT(0 0, 1 1)", "MULTILINESTRING((0 0, 2 2),(2 2, 3 2))", "00FFFF102");
@@ -222,6 +238,35 @@ void test_multipoint_multipolygon()
 template <typename P>
 void test_all()
 {
+    using ring = bg::model::ring<P>;
+    using poly = bg::model::polygon<P>;
+    using mpoly = bg::model::multi_polygon<poly>;
+    using mpt = bg::model::multi_point<P>;
+    test_geometry<P, ring>("POINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<P, poly>("POINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<P, mpoly>("POINT(0 0)", "MULTIPOLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, ring>("MULTIPOINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, poly>("MULTIPOINT(0 0)", "POLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT(0 0)", "MULTIPOLYGON EMPTY", "FF0FFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY", "MULTIPOLYGON EMPTY", "FFFFFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY", "MULTIPOLYGON((()))", "FFFFFFFF2");
+    test_geometry<mpt, mpoly>("MULTIPOINT EMPTY",
+        "MULTIPOLYGON((()),((0 0,0 2,2 2,2 0,0 0)))", "FFFFFF212");
+    // Empty members have no envelope to index; retain the other members' indices.
+    for (auto const& area : {
+        "MULTIPOLYGON((()),((0 0,0 2,2 2,2 0,0 0)),(()))",
+        "MULTIPOLYGON(((0 0,0 2,2 2,2 0,0 0)),(()))"})
+    {
+        test_geometry<mpt, mpoly>("MULTIPOINT(1 1,0 1,3 1)", area, "000FFF212");
+        test_geometry<mpt, mpoly>("MULTIPOINT(1 1,0 1,3 1)", area, "00*******");
+    }
+    test_geometry<mpt, mpoly>("MULTIPOINT(1 1)", "MULTIPOLYGON((()))", "FF0FFFFF2");
+    using mls = bg::model::multi_linestring<bg::model::linestring<P>>;
+    test_geometry<mpt, mls>("MULTIPOINT(1 0,0 0,3 0)",
+        "MULTILINESTRING((),(0 0,2 0),())", "000FFF102");
+    test_geometry<mpt, mls>("MULTIPOINT(1 0,0 0,3 0)",
+        "MULTILINESTRING((),(0 0,2 0),())", "00*******");
+
     test_point_point<P>();
     test_point_multipoint<P>();
     test_multipoint_multipoint<P>();

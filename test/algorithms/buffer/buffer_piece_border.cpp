@@ -372,6 +372,44 @@ void test_diamond_point_on_piece_c()
     test_point<Point>("POINT(4.5 3.5)", false, false, true, false, border, mapper, "cyan");
 }
 
+template <typename Point>
+void test_exposed_helpers()
+{
+    using ring_type = bg::model::ring<Point>;
+    using border_type = bg::detail::buffer::piece_border<ring_type, Point>;
+    ring_type offsetted, original;
+    auto const border = setup_piece_border<border_type>(offsetted, original,
+        rectangle_offsetted, rectangle_original, 'a');
+    for (int x : {1, 2})
+    {
+        Point const point(x, 2.5);
+        typename border_type::state_type internal, exposed;
+        border.point_on_piece(point, false, false, internal);
+        border.point_on_piece(point, false, false, exposed, x == 1, x == 2);
+        BOOST_CHECK(internal.is_inside());
+        BOOST_CHECK(!internal.is_on_boundary());
+        BOOST_CHECK(exposed.is_on_boundary());
+    }
+}
+
+template <typename Point>
+void test_segment_range()
+{
+    using strategy = bg::strategy::buffer::turn_in_ring_winding
+        <typename bg::coordinate_type<Point>::type>;
+    for (int direction : {-1, 1})
+    {
+        Point const s1(0, direction), s2(0, 3 * direction);
+        for (int y = 0; y <= 4; ++y)
+        {
+            typename strategy::state_type state;
+            strategy::apply(Point(0, y * direction), s1, s2,
+                bg::strategy::buffer::place_on_ring_original, false, state);
+            BOOST_CHECK_EQUAL(state.count_on_origin, y >= 1 && y <= 3 ? 1 : 0);
+        }
+    }
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -385,6 +423,9 @@ int test_main(int, char* [])
 
     test_diamond_point_on_piece_a<point_type>();
     test_diamond_point_on_piece_c<point_type>();
+
+    test_segment_range<point_type>();
+    test_exposed_helpers<point_type>();
 
     return 0;
 }
