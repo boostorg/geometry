@@ -80,6 +80,17 @@ inline void simplify_input(RangeIn const& range,
         detail::simplify::douglas_peucker(),
         strategies);
 
+    if (geometry::is_empty(simplified))
+    {
+        // Very small rings can disappear when being simplified by
+        // simplify_ring, but they should still be buffered. To do that we
+        // fallback to simplifying with simplify_range directly which will
+        // ignore the ring nature and simplify it like a linestring.
+        geometry::detail::simplify::simplify_range<2>::apply(range,
+            simplified, distance.simplify_distance(),
+            detail::simplify::douglas_peucker(),
+            strategies);
+    }
 }
 
 

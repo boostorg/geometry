@@ -91,6 +91,10 @@ static std::string const degenerate2
 static std::string const degenerate3
     = "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,5 5,5 5,5 5))";
 
+static std::string const almost_degenerate2
+    = "POLYGON((5 5,5 5.000000001,5.000000001 5,5 5))";
+static std::string const almost_degenerate3
+    = "POLYGON((0 0,0 10,10 10,10 0,0 0),(5 5,5 5.000000001,5.000000001 5,5 5))";
 
 // Real-life examples
 static std::string const county1
@@ -421,6 +425,9 @@ void test_all()
     test_one<polygon_type, polygon_type>("degenerate1", degenerate1, join_round, end_round, 3.1389, 1.0);
     test_one<polygon_type, polygon_type>("degenerate2", degenerate2, join_round, end_round, 3.1389, 1.0);
     test_one<polygon_type, polygon_type>("degenerate3", degenerate3, join_round, end_round, 143.1395, 1.0);
+    test_one<polygon_type, polygon_type>("degenerate3_negative", degenerate3, join_round, end_round, 64.0 - 3.1389, -1.0);
+    test_one<polygon_type, polygon_type>("almost_degenerate2", almost_degenerate2, join_round, end_round, 3.1389, 1.0);
+    test_one<polygon_type, polygon_type>("almost_degenerate3_negative", almost_degenerate3, join_round, end_round, 64.0 - 3.1389, -1.0);
 
     test_one<polygon_type, polygon_type>("gammagate2", gammagate, join_miter, end_flat, 130.0, 2.0);
 
