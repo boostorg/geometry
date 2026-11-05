@@ -17,6 +17,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_INTERSECTION_HPP
 
 #include <algorithm>
+#include <array>
+#include <type_traits>
 
 #include <boost/geometry/core/exception.hpp>
 
@@ -31,6 +33,7 @@
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/numeric_cast.hpp>
+#include <boost/geometry/util/precise_math.hpp>
 #include <boost/geometry/util/promote_integral.hpp>
 #include <boost/geometry/util/select_calculation_type.hpp>
 
@@ -456,6 +459,13 @@ struct cartesian_segments
             {
                 sinfo.ra.assign(nominator_a, denominator_a);
                 sinfo.rb.assign(nominator_b, denominator_b);
+
+                if (sides.crossing())
+                {
+                    assign_nearly_parallel_ratios(sinfo, sides, denominator_a,
+                        p1, p2, q1, q2,
+                        std::is_floating_point<coordinate_type>());
+                }
             }
         }
 
@@ -503,6 +513,101 @@ struct cartesian_segments
     }
 
 private:
+    // Returns (b - a) x (c - a), the side value of c with respect to a-b,
+    // accurate to a few units in the last place of the result itself. The
+    // products are exact and the rounding errors of the differences are
+    // added in first order. The usual formula is only accurate relative
+    // to the products, and loses most digits if the result is much smaller.
+    template <typename T, typename PointA, typename PointB, typename PointC>
+    static inline T accurate_side_value(PointA const& a, PointB const& b,
+                                        PointC const& c)
+    {
+        namespace pm = geometry::detail::precise_math;
+
+        T const ax = util::numeric_cast<T>(get<0>(a));
+        T const ay = util::numeric_cast<T>(get<1>(a));
+        std::array<T, 2> const dx1 = pm::two_diff(util::numeric_cast<T>(get<0>(b)), ax);
+        std::array<T, 2> const dy1 = pm::two_diff(util::numeric_cast<T>(get<1>(b)), ay);
+        std::array<T, 2> const dx2 = pm::two_diff(util::numeric_cast<T>(get<0>(c)), ax);
+        std::array<T, 2> const dy2 = pm::two_diff(util::numeric_cast<T>(get<1>(c)), ay);
+
+        // Exact difference of the products, components in ascending magnitude
+        std::array<T, 4> const e = pm::two_two_expansion_diff(
+                pm::two_product(dx1[0], dy2[0]),
+                pm::two_product(dy1[0], dx2[0]));
+
+        T const tails = (dx1[0] * dy2[1] + dy2[0] * dx1[1])
+                      - (dy1[0] * dx2[1] + dx2[0] * dy1[1]);
+
+        return ((e[0] + e[1]) + (e[2] + tails)) + e[3];
+    }
+
+    // Cramer's rule is ill-conditioned for nearly parallel segments: its
+    // nominators are differences of nearly equal products and lose most
+    // of their digits. The ratios can then contradict the ratios of the
+    // other intersections on the same segments, and the turns on a segment
+    // get the wrong order (and the overlay the wrong result).
+    // For crossing segments the ratio on a is s1 / (s1 - s2), where s1 and s2
+    // are the side values of the endpoints of a with respect to b (and vice
+    // versa for the ratio on b). Because s1 and s2 have opposite signs, there
+    // is no cancellation in s1 - s2, so with accurate side values the ratios
+    // are accurate too.
+    template
+    <
+        typename SegmentInfo,
+        typename CoordinateType,
+        typename Point1,
+        typename Point2
+    >
+    static inline void assign_nearly_parallel_ratios(SegmentInfo& sinfo,
+            side_info const& sides, CoordinateType const& denominator,
+            Point1 const& p1, Point1 const& p2,
+            Point2 const& q1, Point2 const& q2,
+            std::true_type /*is_floating_point*/)
+    {
+        // The threshold is arbitrary: it only limits the extra calculations
+        // to nearly parallel segments, other segments are well conditioned.
+        CoordinateType const magnitude
+            = geometry::math::abs(sinfo.dx_a * sinfo.dy_b)
+            + geometry::math::abs(sinfo.dy_a * sinfo.dx_b);
+        if (geometry::math::abs(denominator) >= magnitude * CoordinateType(1.0e-3))
+        {
+            return;
+        }
+
+        CoordinateType const s1 = accurate_side_value<CoordinateType>(q1, q2, p1);
+        CoordinateType const s2 = accurate_side_value<CoordinateType>(q1, q2, p2);
+        CoordinateType const t1 = accurate_side_value<CoordinateType>(p1, p2, q1);
+        CoordinateType const t2 = accurate_side_value<CoordinateType>(p1, p2, q2);
+
+        // Use them only if they agree with the side strategy (they should)
+        if (math::sign(s1) != sides.get<0, 0>()
+            || math::sign(s2) != sides.get<0, 1>()
+            || math::sign(t1) != sides.get<1, 0>()
+            || math::sign(t2) != sides.get<1, 1>())
+        {
+            return;
+        }
+
+        sinfo.ra.assign(s1, s1 - s2);
+        sinfo.rb.assign(t1, t1 - t2);
+    }
+
+    template
+    <
+        typename SegmentInfo,
+        typename CoordinateType,
+        typename Point1,
+        typename Point2
+    >
+    static inline void assign_nearly_parallel_ratios(SegmentInfo& ,
+            side_info const& , CoordinateType const& ,
+            Point1 const& , Point1 const& ,
+            Point2 const& , Point2 const& ,
+            std::false_type /*is_floating_point*/)
+    {
+    }
+
     // first is true if x is more significant
     // second is true if the more significant difference is not 0
     template <typename CoordinateType>
