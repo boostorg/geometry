@@ -208,6 +208,30 @@ Furthermore, it's possible to pass a Range adapted by one of the Boost.Range ada
  RTree rt6(boxes | boost::adaptors::indexed()
                  | boost::adaptors::transformed(pair_maker()));
 
+[h4 Reproducible packing]
+
+Constructing an __rtree__ from an iterator pair or a Range uses the packing
+algorithm. By default, this algorithm uses `std::nth_element`, which does not
+preserve the relative order of equivalent elements. As a result, the same input
+may produce different tree structures and iteration orders with different
+standard library implementations.
+
+To use stable sorting instead, define
+`BOOST_GEOMETRY_INDEX_NTH_ELEMENT_USE_STABLE_SORT` before including
+Boost.Geometry headers:
+
+ #define BOOST_GEOMETRY_INDEX_NTH_ELEMENT_USE_STABLE_SORT
+ #include <boost/geometry/index/rtree.hpp>
+
+The macro may also be defined through a compiler option. Use the same setting
+in all translation units of a program.
+
+When this macro is defined, internal calls to `std::nth_element` are replaced
+with `std::stable_sort`, which preserves the relative order of equivalent
+elements. This option is useful when reproducible packing from the same ordered
+input is required, but may significantly increase construction time. The macro
+is not defined by default.
+
 [h4 Insert iterator]
 
 There are functions like `std::copy()`, or __rtree__'s queries that copy values to an output iterator.

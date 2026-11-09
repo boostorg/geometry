@@ -23,6 +23,7 @@ test-suite boost-geometry-util
     [ run math_divide.cpp               : : : : util_math_divide ]
     [ run math_equals.cpp               : : : : util_math_equals ]
     [ run math_sqrt.cpp                 : : : : util_math_sqrt ]
+    [ run math_sin_cos_degrees.cpp      : : : : util_math_sin_cos_degrees ]
     [ run math_normalize_spheroidal.cpp : : : : util_math_normalize_spheroidal ]
     [ run promote_integral.cpp          : : : : util_promote_integral ]
     [ run range.cpp                     : : : : util_range ]

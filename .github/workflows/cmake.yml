@@ -15,21 +15,13 @@ on: [push]
 jobs:
   ##############################################################################
   clang:
-    name: ${{ matrix.b2_toolset }}
-    runs-on: ${{ matrix.os }}
+    name: clang-14 / C++${{ matrix.cxxstd }}
+    runs-on: ubuntu-22.04
 
     strategy:
       fail-fast: false
       matrix:
-        b2_toolset: [
-          clang-14
-        ]
-
-        include:
-          - b2_toolset: clang-14
-            b2_cxxstd: 14,17,2a
-            version: "14"
-            os: ubuntu-22.04
+        cxxstd: [14, 17, 20]
     steps:
       - name: Set up environment
         id: setenv
@@ -75,30 +67,22 @@ jobs:
           ls -l /usr/local/bin/b2
           b2 -v
 
-      - name: Set up clang toolset in ~/user-config.jam
+      - name: Install Clang
         run: |
-          export CXX_NAME=clang++-${{ matrix.version }}
-          echo ${CXX_NAME}
-          echo "# $HOME/user-config.jam" > $HOME/user-config.jam
-          echo "using clang : : $(which clang++-${{ matrix.version }}) ;" > ${HOME}/user-config.jam
-          test -f $HOME/user-config.jam && cat $HOME/user-config.jam
+          sudo apt-get -q update
+          sudo apt-get -q -y install clang-14
 
-      - name: Build tests with cmake (c++17)
+      - name: Configure CMake tests
         run: |
-          cd $BOOST_ROOT/libs/geometry
-          mkdir __build
-          cd __build
-          cmake -DCMAKE_CXX_STANDARD=17 -DBUILD_TESTING=ON ..
-          cmake --build . --target tests
+          cmake -S "$BOOST_ROOT/libs/geometry" -B "$BOOST_ROOT/build" \
+            -DCMAKE_CXX_COMPILER=clang++-14 \
+            -DCMAKE_CXX_STANDARD=${{ matrix.cxxstd }} \
+            -DCMAKE_CXX_STANDARD_REQUIRED=ON -DBUILD_TESTING=ON
 
-      - name: Build tests with cmake
+      - name: Build CMake tests
         run: |
-          cd $BOOST_ROOT/libs/geometry/__build
-          rm -rf *
-          cmake -DBUILD_TESTING=ON ..
-          cmake --build . --target tests
+          cmake --build "$BOOST_ROOT/build" --target tests
 
       - name: Run tests
         run: |
-          cd $BOOST_ROOT/libs/geometry/__build
-          ctest --output-on-failure --no-tests=error
+          ctest --test-dir "$BOOST_ROOT/build" --output-on-failure --no-tests=error

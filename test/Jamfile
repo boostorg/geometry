@@ -21,7 +21,6 @@ project boost-geometry-test
     :
     requirements
         <library>/boost/geometry//boost_geometry
-        <cxxstd>14
         [ requires
             cxx14_constexpr
             cxx14_return_type_deduction
@@ -34,6 +33,9 @@ project boost-geometry-test
         <host-os>windows,<toolset>intel:<cxxflags>/bigobj
         <library>/boost/test//included
         <library>/boost/assign//boost_assign
+    :
+    default-build
+        <cxxstd>14
     ;
 
 # Run minimal testset
