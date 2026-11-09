@@ -687,8 +687,14 @@ struct touch : public base_turn_handler
         if (! opposite(side_qi_p1, side_qk_p1))
         {
             int const side_pk_q2 = has_pk && has_qk ? side.pk_wrt_q2() : 0;
-            int const side_pk_p  = has_pk ? side.pk_wrt_p1() : 0;
-            int const side_qk_q  = has_qk ? side.qk_wrt_q1() : 0;
+            int const side_pk_p  = has_pk
+                                 ? fun::verified_side(side.pk_wrt_p1(), range_p, range_p,
+                                                      umbrella_strategy, 0, 2)
+                                 : 0;
+            int const side_qk_q  = has_qk
+                                 ? fun::verified_side(side.qk_wrt_q1(), range_q, range_q,
+                                                      umbrella_strategy, 0, 2)
+                                 : 0;
 
             bool const q_turns_left = side_qk_q == 1;
 
