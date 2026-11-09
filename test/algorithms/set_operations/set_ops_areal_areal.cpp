@@ -331,6 +331,7 @@ int test_main(int, char* [])
 #endif
 
     TEST_CASE(issue_1471);
+    TEST_CASE(issue_1487);
 
     return 0;
 }

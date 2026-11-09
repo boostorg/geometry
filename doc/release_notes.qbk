@@ -27,6 +27,10 @@
 
 * [@https://github.com/boostorg/geometry/pull/1502 1502] Add the opt-in `BOOST_GEOMETRY_INDEX_NTH_ELEMENT_USE_STABLE_SORT` macro to use stable sorting during R-tree packing, at the cost of slower construction.
 
+[*Solved issues]
+
+* [@https://github.com/boostorg/geometry/issues/1487 1487] No intersection for polygons with close boundaries
+
 [/=================]
 [heading Boost 1.92]
 [/=================]
