@@ -12,6 +12,7 @@ foreach(item IN ITEMS
     math_divide
     math_equals
     math_sqrt
+    math_sin_cos_degrees
     math_normalize_spheroidal
     promote_integral
     range
