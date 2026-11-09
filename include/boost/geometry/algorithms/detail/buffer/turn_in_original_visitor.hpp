@@ -24,6 +24,7 @@
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/strategies/agnostic/point_in_poly_winding.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/util/math.hpp>
 
 
 namespace boost { namespace geometry
@@ -155,12 +156,19 @@ inline bool point_in_section(Strategy& strategy, State& state,
         // Depending on sections.direction we can quit for this section
         CoordinateType const previous_x = geometry::get<0>(*previous);
 
-        if (direction == 1 && point_x < previous_x)
+        // The winding strategy compares x with math::equals (epsilon),
+        // counting half a crossing per segment touching the point's x at a vertex.
+        // Bailing out with an exact comparison could skip the second half
+        // (point_x a few ULPs before a vertex), yielding an odd count -> "inside".
+        // Only bail out when previous_x is beyond point_x by more than epsilon.
+        if (direction == 1 && point_x < previous_x
+            && ! math::equals(point_x, previous_x))
         {
             // Section goes upwards, x increases, point is is below section
             return true;
         }
-        else if (direction == -1 && point_x > previous_x)
+        else if (direction == -1 && point_x > previous_x
+            && ! math::equals(point_x, previous_x))
         {
             // Section goes downwards, x decreases, point is above section
             return true;
