@@ -380,6 +380,11 @@ void test_all()
 template <typename Polygon, typename MultiPolygon>
 void test_specific_areal()
 {
+    test_one<Polygon, MultiPolygon, MultiPolygon>("clustered_distinct_paths",
+        "MULTIPOLYGON(((-1 1,0 2,-3 1,0 0,-1 1)),((0 2,0 0,1 -1,2 2,0 2)))",
+        "MULTIPOLYGON(((0 2,-3 1,0 -2,0 2)),((2 2,0 2,1 1,0 0,1 -1,2 2)))",
+        1, -1, 1, 2, -1, 4, 2, -1, 5);
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("issue_1490",
         "MULTIPOLYGON(((0 0,20 0,20 20,0 20,0 0),(5 15,14 14,9 6,5 15)))",
         "MULTIPOLYGON(((5 15,5 5,15 5,15 15,5 15)))",

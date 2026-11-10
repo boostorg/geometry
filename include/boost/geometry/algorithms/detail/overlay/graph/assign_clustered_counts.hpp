@@ -424,9 +424,8 @@ struct clustered_count_handler
         }
     }
 
-    // Currently necessary for some failing cases in buffer only, where due to floating point
-    // precision the i/u turns get unexpected counts for left/right.
-    // rt_w10, rt_w11, rt_w14, rt_w15
+    // Compensate nearly collinear intersection paths and buffer precision cases
+    // (rt_w10, rt_w11, rt_w14, rt_w15), whose i/u turns have unexpected counts.
     // The original sides are measured over the two whole intersecting segments.
     // The sides in clusters are measured w.r.t. the turn point, which is the point of the first cluster.
     // This can differ.
@@ -541,7 +540,12 @@ struct clustered_count_handler
         }
 
         assign_turn_operations(cluster, connection_map);
-        change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        // Union and difference retain the assigned operations and counts of
+        // distinct areal paths. Intersection keeps its precision compensation.
+        if (OverlayType == overlay_buffer || OverlayType == overlay_intersection)
+        {
+            change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         // List the connections
