@@ -424,9 +424,9 @@ struct clustered_count_handler
         }
     }
 
-    // Currently necessary for some failing cases in buffer only, where due to floating point
-    // precision the i/u turns get unexpected counts for left/right.
-    // rt_w10, rt_w11, rt_w14, rt_w15
+    // Compensate i/u turns whose cluster counts reverse their segment-based classification.
+    // This is needed for buffer precision cases (rt_w10, rt_w11, rt_w14, rt_w15)
+    // and nearly collinear areal boundaries (issue 1487).
     // The original sides are measured over the two whole intersecting segments.
     // The sides in clusters are measured w.r.t. the turn point, which is the point of the first cluster.
     // This can differ.
@@ -471,22 +471,32 @@ struct clustered_count_handler
             bool const is_same_target = op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index;
             if (is_same_target && reversed_indices.find(index) != reversed_indices.end())
             {
-                // Best choice: i/u are nearly collinear, so we can let them continue.
-                op0.operation = operation_continue;
-                op1.operation = operation_continue;
-
-                // Also adapt the left/right-counts, both should get the minimum of both.
-                op0.enriched.count_left = (std::min)(op0.enriched.count_left, op1.enriched.count_left);
-                op1.enriched.count_left = op0.enriched.count_left;
-
-                // For the right-counts (used for intersections) it depends on the target.
-                // If both travel to a turn outside the cluster, they (nearly) follow the
-                // same path to it, and that path should stay available. So take the maximum
-                // (see issue 1487). Otherwise (for example both making a round trip within
-                // the cluster) take the minimum (see case_80).
                 auto const target = op0.enriched.travels_to_ip_index;
                 bool const is_target_outside = target >= 0
                     && m_turns[target].cluster_id != turn.cluster_id;
+
+                // A shared target inside this cluster can belong to distinct areal
+                // round trips. Do not combine their counts. Buffer still needs the
+                // precision compensation for internal round trips.
+                if (OverlayType != overlay_buffer && !is_target_outside)
+                {
+                    continue;
+                }
+
+                if (OverlayType == overlay_buffer)
+                {
+                    // Keep the original precision compensation for buffer.
+                    op0.operation = operation_continue;
+                    op1.operation = operation_continue;
+                    op0.enriched.count_left = (std::min)(op0.enriched.count_left, op1.enriched.count_left);
+                    op1.enriched.count_left = op0.enriched.count_left;
+                }
+
+                // Areal overlays retain their classified operations and left counts.
+                // Correct only the right count needed to include the intersection path.
+
+                // Keep a path out of the cluster available for intersection (issue 1487).
+                // Internal buffer round trips retain the minimum right count.
                 op0.enriched.count_right = is_target_outside
                     ? (std::max)(op0.enriched.count_right, op1.enriched.count_right)
                     : (std::min)(op0.enriched.count_right, op1.enriched.count_right);
@@ -541,7 +551,7 @@ struct clustered_count_handler
         }
 
         assign_turn_operations(cluster, connection_map);
-        if (OverlayType == overlay_buffer)
+        if (OverlayType == overlay_buffer || OverlayType == overlay_intersection)
         {
             change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
         }
