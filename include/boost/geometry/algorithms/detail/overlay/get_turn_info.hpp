@@ -528,8 +528,15 @@ struct touch_interior : public base_turn_handler
         }
         else if (side_qk_p == 0)
         {
-            // Q intersects on interior of P and continues collinearly
-            if (side_qk_q == side_qi_p)
+            // Q intersects on interior of P and continues collinearly.
+            // The turn of Q (side_qk_q) indicates if it continues in the same
+            // direction as P. But if Q arrives nearly collinearly, that side
+            // can be zero. Then use the direction of Qk along P.
+            bool const same_direction = has_qk && side_qk_q == 0
+                ? direction_code<typename UmbrellaStrategy::cs_tag>(range_p.at(0),
+                        range_q.at(1), range_q.at(2)) == 1
+                : side_qk_q == side_qi_p;
+            if (same_direction)
             {
                 fun::template both_collinear<index_p, index_q>(range_p, range_q, umbrella_strategy,
                                                                1, 2, ti);
