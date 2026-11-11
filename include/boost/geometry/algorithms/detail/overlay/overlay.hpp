@@ -266,10 +266,12 @@ struct overlay
         visitor.visit_turns(1, turns);
 
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (! turns.empty() || OverlayType == overlay_dissolve)
+        if (! turns.empty() || OverlayType == overlay_dissolve
+            || OverlayType == overlay_difference)
         {
-            // Calculate self turns if the output contains turns already,
-            // and if necessary (e.g.: multi-geometry, polygon with interior rings)
+            // Calculate self turns where needed for multi-geometries and interior rings.
+            // For difference, self-touching subtractors can split the result even
+            // when the input geometries have no turns between them.
             if (needs_self_turns<Geometry1>::apply(geometry1))
             {
                 self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,

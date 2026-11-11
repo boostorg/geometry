@@ -410,6 +410,15 @@ void test_specific_areal()
         "MULTIPOLYGON(((40 60,20 45,20 15,60 15,60 45,40 60)))",
         1, -1, 3900, 1, -1, 150, 2, -1, 4050);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("contained_touching_components_enclose_island",
+        "MULTIPOLYGON(((0 0,5 0,5 5,0 5,0 0)))",
+        "MULTIPOLYGON(((2 1,3 1,3 2,2 2,2 1)),"
+        "((1 2,2 2,2 3,1 3,1 2)),((3 2,4 2,4 3,3 3,3 2)),"
+        "((2 3,3 3,3 4,2 4,2 3)))",
+        2, 3, -1, 21,
+        0, 0, -1, 0,
+        2, 3, -1, 21);
+
     {
         // Spikes in a-b and b-a, causing invalidity
         ut_settings settings;
