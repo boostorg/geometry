@@ -13,6 +13,7 @@ foreach(item IN ITEMS
     projection_selftest
     projections
     projections_combined
+    projections_precision
     projections_static
     srs_transformer
     transformation_epsg
