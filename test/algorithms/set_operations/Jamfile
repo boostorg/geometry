@@ -17,6 +17,7 @@
 test-suite boost-geometry-algorithms
     :
     [ run set_ops_areal_areal.cpp  : : : : algorithms_set_ops_areal_areal ]
+    [ run parallel_graph_arcs.cpp : : : : algorithms_parallel_graph_arcs ]
     ;
 
 build-project difference ;

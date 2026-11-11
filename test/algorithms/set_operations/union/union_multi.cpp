@@ -50,6 +50,14 @@ void test_areal()
         "MULTIPOLYGON(((60 45,20 45,20 15,40 0,60 15,60 45),(40 30,40 15,20 15,40 30)))",
         2, 0, 11, 1650);
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("parallel_ring_paths",
+        "MULTIPOLYGON(((20 75,0 60,20 45,20 60,40 60,20 75)),"
+        "((40 60,60 45,80 45,80 30,40 30,20 45,20 15,100 15,100 45,80 60,40 60)),"
+        "((20 45,40 45,40 60,20 45)))",
+        "MULTIPOLYGON(((40 60,60 75,40 75,40 60)))",
+        4, 0, 26, 3000);
+
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
