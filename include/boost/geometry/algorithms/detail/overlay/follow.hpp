@@ -31,6 +31,7 @@
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
@@ -163,46 +164,6 @@ inline bool is_touching(Turn const& turn, Operation const& op,
         && !entered
         && !op.is_collinear;
 }
-
-
-template
-<
-    typename GeometryOut,
-    typename Tag = geometry::tag_t<GeometryOut>
->
-struct add_isolated_point
-{};
-
-template <typename LineStringOut>
-struct add_isolated_point<LineStringOut, linestring_tag>
-{
-    template <typename Point, typename OutputIterator>
-    static inline void apply(Point const& point, OutputIterator& out)
-    {
-        LineStringOut isolated_point_ls;
-        geometry::append(isolated_point_ls, point);
-
-#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-        geometry::append(isolated_point_ls, point);
-#endif // BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-
-        *out++ = isolated_point_ls;
-    }
-};
-
-template <typename PointOut>
-struct add_isolated_point<PointOut, point_tag>
-{
-    template <typename Point, typename OutputIterator>
-    static inline void apply(Point const& point, OutputIterator& out)
-    {
-        PointOut isolated_point;
-
-        geometry::detail::conversion::convert_point_to_point(point, isolated_point);
-
-        *out++ = isolated_point;
-    }
-};
 
 
 // Template specialization structure to call the right actions for the right type
@@ -412,13 +373,15 @@ public :
     <
         typename Turns,
         typename OutputIterator,
-        typename Strategy
+        typename Strategy,
+        typename IsolatedPointOutput
     >
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
                 detail::overlay::operation_type ,  // TODO: this parameter might be redundant
                 Turns& turns,
                 OutputIterator out,
-                Strategy const& strategy)
+                Strategy const& strategy,
+                IsolatedPointOutput& isolated_points)
     {
         using action = following::action_selector<OverlayType, RemoveSpikes>;
 
@@ -439,22 +402,27 @@ public :
         // Iterate through all intersection points (they are ordered along the line)
         bool entered = false;
         bool first = true;
+        typename boost::range_value<Turns>::type const* previous_turn = nullptr;
         typename boost::range_value<Turns>::type const* isolated_turn = nullptr;
+        bool covered_at_position = false;
         unsigned boundary_count = 0;
         std::set<signed_size_type> entered_polygons;
         for (auto const& turn : turns)
         {
             auto const& op = turn.operations[0];
-            if (isolated_turn != nullptr
-                && !relate::turn_on_the_same_ip<0>(*isolated_turn, turn, strategy))
+            if (previous_turn != nullptr
+                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, strategy))
             {
-                if (!entered)
+                if (isolated_turn != nullptr && !entered && !covered_at_position)
                 {
-                    action::template isolated_point<typename pointlike::type>
-                        (isolated_turn->point, pointlike::get(out));
+                    isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
                 }
                 isolated_turn = nullptr;
+                // An interval followed up to this position also covers the
+                // point, even if a later turn at this position leaves it.
+                covered_at_position = entered;
             }
+            previous_turn = std::addressof(turn);
             // Touching another ring does not leave the boundary currently followed.
             if (op.operation == operation_continue)
             {
@@ -506,6 +474,7 @@ public :
                         op.seg_id.segment_index, turn.point, op,
                         strategy,
                         linear::get(out));
+                    covered_at_position = covered_at_position || !isolated;
                     if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints) && isolated)
                     {
                         // Another turn at this position may enter a polygon.
@@ -518,19 +487,17 @@ public :
             {
                 debug_traverse(turn, op, "-> Isolated point");
 
-                action::template isolated_point
-                    <
-                        typename pointlike::type
-                    >(turn.point, pointlike::get(out));
+                // Defer until all turns here are processed: another ring may
+                // cover this position with an interval.
+                isolated_turn = std::addressof(turn);
             }
 
             first = false;
         }
 
-        if (isolated_turn != nullptr && !entered)
+        if (isolated_turn != nullptr && !entered && !covered_at_position)
         {
-            action::template isolated_point<typename pointlike::type>
-                (isolated_turn->point, pointlike::get(out));
+            isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
         }
 
         if (action::is_entered(entered))
@@ -554,10 +521,7 @@ public :
         else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
               && current_piece_size == 1)
         {
-            action::template isolated_point
-                <
-                    typename pointlike::type
-                >(range::front(current_piece), pointlike::get(out));
+            isolated_points.apply(range::front(current_piece), pointlike::get(out), strategy);
         }
 
         return out;

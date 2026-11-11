@@ -23,6 +23,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
+#include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
 
 // TODO: those headers probably may be removed
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
@@ -120,12 +121,17 @@ struct intersection_of_multi_linestring_with_areal
             OutputIterator out,
             Strategy const& strategy)
     {
+        overlay::following::isolated_point_output
+            <
+                LineStringOut, Strategy,
+                FollowIsolatedPoints && OverlayType == overlay_intersection
+            > isolated_points;
         for (auto it = boost::begin(ml); it != boost::end(ml); ++it)
         {
             out = intersection_of_linestring_with_areal
                 <
                     ReverseAreal, LineStringOut, OverlayType, FollowIsolatedPoints
-                >::apply(*it, areal, out, strategy);
+                >::apply(*it, areal, out, strategy, isolated_points);
         }
 
         return out;
