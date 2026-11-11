@@ -160,7 +160,7 @@ void test_point(std::string const& wkt, bool expected_outside,
     typename Border::state_type state;
     Point point;
     bg::read_wkt(wkt, point);
-    border.point_on_piece(point, false, false, state);
+    border.point_on_piece(point, false, false, state, false, false);
     BOOST_CHECK(expected_outside == (state.count > 0));
     BOOST_CHECK(expected_on_offsetted == (state.count_on_offsetted > 0));
     BOOST_CHECK(expected_on_edge == (state.count_on_edge > 0));
@@ -373,6 +373,30 @@ void test_diamond_point_on_piece_c()
 }
 
 template <typename Point>
+void test_exposed_helpers()
+{
+    using ring_type = bg::model::ring<Point>;
+    using border_type = bg::detail::buffer::piece_border<ring_type, Point>;
+    ring_type offsetted, original;
+    auto const border = setup_piece_border<border_type>(offsetted, original,
+        rectangle_offsetted, rectangle_original, 'a');
+    for (int x : {1, 2})
+    {
+        Point const point(x, 2.5);
+        typename border_type::state_type internal, exposed, opposite;
+        border.point_on_piece(point, false, false, internal, false, false);
+        border.point_on_piece(point, false, false, exposed, x == 1, x == 2);
+        // Exposing the other helper must leave this helper internal.
+        border.point_on_piece(point, false, false, opposite, x == 2, x == 1);
+        BOOST_CHECK_EQUAL(internal.count_on_edge, 1);
+        BOOST_CHECK(!internal.is_on_boundary());
+        BOOST_CHECK(exposed.is_on_boundary());
+        BOOST_CHECK_EQUAL(opposite.count_on_edge, 1);
+        BOOST_CHECK(!opposite.is_on_boundary());
+    }
+}
+
+template <typename Point>
 void test_segment_range()
 {
     using strategy = bg::strategy::buffer::turn_in_ring_winding
@@ -413,6 +437,7 @@ int test_main(int, char* [])
     test_diamond_point_on_piece_c<point_type>();
 
     test_segment_range<point_type>();
+    test_exposed_helpers<point_type>();
 
     return 0;
 }
