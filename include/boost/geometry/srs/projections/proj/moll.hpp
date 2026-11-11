@@ -57,14 +57,40 @@ namespace projections
     namespace detail { namespace moll
     {
 
-            static const int max_iter = 10;
+            static const int max_iter = 30;
             static const double loop_tol = 1e-7;
 
             template <typename T>
             struct par_moll
             {
                 T    C_x, C_y, C_p;
+                bool mollweide = false; // p = pi/2: the poles need the special handling below
             };
+
+            // Mollweide close to the poles. With theta = (pi - s) / 2 and chi the colatitude,
+            // 2 * theta + sin(2 * theta) = pi * sin(phi) becomes s - sin(s) = 2 * pi * sin(chi / 2)^2,
+            // which can be solved accurately where the Newton iteration on theta converges only
+            // linearly.
+            template <typename T>
+            inline T mollweide_polar_s(T const& chi)
+            {
+                static const T pi = detail::pi<T>();
+
+                T const sh = sin(0.5 * chi);
+                T const w = 2. * pi * sh * sh;
+                T s = cbrt(6. * w); // <= the root, as s - sin(s) <= s^3 / 6
+                for (int i = 0; i < 20; ++i) {
+                    T const sh2 = sin(0.5 * s);
+                    T const d = 2. * sh2 * sh2; // 1 - cos(s)
+                    if (d == 0.)
+                        break;
+                    T const ds = (s_minus_sin_s(s) - w) / d;
+                    s -= ds;
+                    if (fabs(ds) <= 1e-12 * s) // quadratic convergence
+                        break;
+                }
+                return s;
+            }
 
             template <typename T, typename Parameters>
             struct base_moll_spheroid
@@ -79,6 +105,16 @@ namespace projections
 
                     T k, V;
                     int i;
+
+                    if (this->m_proj_parm.mollweide && fabs(lp_lat) > half_pi - 0.5) {
+                        T const s = mollweide_polar_s(T(half_pi - fabs(lp_lat)));
+                        // cos(theta) = sin(s / 2), sin(theta) = cos(s / 2)
+                        xy_x = this->m_proj_parm.C_x * lp_lon * sin(0.5 * s);
+                        xy_y = this->m_proj_parm.C_y * cos(0.5 * s);
+                        if (lp_lat < 0.)
+                            xy_y = -xy_y;
+                        return;
+                    }
 
                     k = this->m_proj_parm.C_p * sin(lp_lat);
                     for (i = max_iter; i ; --i) {
@@ -100,6 +136,24 @@ namespace projections
                 inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T pi = detail::pi<T>();
+                    static const T half_pi = detail::half_pi<T>();
+
+                    T const C_y = this->m_proj_parm.C_y;
+                    if (this->m_proj_parm.mollweide && fabs(xy_y) > 0.5 * C_y && fabs(xy_y) <= C_y) {
+                        // Close to the poles: cos(s / 2) = |y| / C_y, with s as in
+                        // mollweide_polar_s(), and the colatitude chi from
+                        // 2 * sin(chi / 2)^2 = (s - sin(s)) / pi
+                        T const half_s = 2. * asin(sqrt(0.5 * (C_y - fabs(xy_y)) / C_y));
+                        T const den = this->m_proj_parm.C_x * sin(half_s);
+                        lp_lon = den == 0. ? T(0) : T(xy_x / den); // at the pole x is 0
+                        if (fabs(lp_lon) >= pi) {
+                            lp_lon = lp_lat = HUGE_VAL;
+                            return;
+                        }
+                        T const chi = 2. * asin(sqrt(s_minus_sin_s(T(2. * half_s)) / (2. * pi)));
+                        lp_lat = xy_y < 0. ? T(chi - half_pi) : T(half_pi - chi);
+                        return;
+                    }
 
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(lp_lat));
@@ -130,6 +184,7 @@ namespace projections
                 proj_parm.C_x = 2. * r / geometry::math::pi<T>();
                 proj_parm.C_y = r / sp;
                 proj_parm.C_p = p2 + sin(p2);
+                proj_parm.mollweide = p == geometry::math::half_pi<T>();
             }
 
 

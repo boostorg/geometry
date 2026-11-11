@@ -70,8 +70,34 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(Parameters const& , T const& lp_lon, T lp_lat, T& xy_x, T& xy_y) const
                 {
+                    static const T half_pi = detail::half_pi<T>();
+
                     T p, V, s, c;
                     int i;
+
+                    if (fabs(lp_lat) > half_pi - 0.1) {
+                        // Close to the poles the Newton iteration below converges only linearly.
+                        // With theta = pi/2 - t and chi the colatitude, solve
+                        // t - sin(2t)/2 + 2 * (1 - cos(t)) = 2 * C_p * sin(chi / 2)^2
+                        T const sh = sin(0.5 * (half_pi - fabs(lp_lat)));
+                        T const w = 2. * C_p * sh * sh;
+                        T t = sqrt(w); // >= the root, as the left side is >= t^2
+                        for (i = 0; i < 30; ++i) {
+                            T const st = sin(t);
+                            T const d = 2. * st * (1. + st);
+                            if (d == 0.)
+                                break;
+                            T const sh2 = sin(0.5 * t);
+                            T const dt = (0.5 * s_minus_sin_s(T(2. * t)) + 4. * sh2 * sh2 - w) / d;
+                            t -= dt;
+                            if (fabs(dt) <= 1e-12 * t) // quadratic convergence
+                                break;
+                        }
+                        // cos(theta) = sin(t), sin(theta) = cos(t)
+                        xy_x = C_x * lp_lon * (1. + sin(t));
+                        xy_y = lp_lat < 0. ? T(-C_y * cos(t)) : T(C_y * cos(t));
+                        return;
+                    }
 
                     p = C_p * sin(lp_lat);
                     V = lp_lat * lp_lat;
@@ -97,7 +123,22 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    static const T half_pi = detail::half_pi<T>();
+
                     T c;
+
+                    if (fabs(xy_y) > 0.5 * C_y && fabs(xy_y) <= C_y) {
+                        // Close to the poles: theta = pi/2 - t, with the colatitude chi from
+                        // 2 * C_p * sin(chi / 2)^2 = t - sin(2t)/2 + 2 * (1 - cos(t))
+                        T const t = 2. * asin(sqrt(0.5 * (C_y - fabs(xy_y)) * RC_y));
+                        T const sh = sin(0.5 * t);
+                        T const w = 0.5 * s_minus_sin_s(T(2. * t)) + 4. * sh * sh;
+                        lp_lon = xy_x / (C_x * (1. + sin(t)));
+                        lp_lat = half_pi - 2. * asin(sqrt(0.5 * w * RC_p));
+                        if (xy_y < 0.)
+                            lp_lat = -lp_lat;
+                        return;
+                    }
 
                     lp_lat = aasin(xy_y * RC_y);
                     lp_lon = xy_x / (C_x * (1. + (c = cos(lp_lat))));

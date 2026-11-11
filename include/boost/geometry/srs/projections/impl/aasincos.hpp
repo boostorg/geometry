@@ -103,6 +103,20 @@ inline T asqrt(T const& v)
     return ((v <= 0) ? 0 : sqrt(v));
 }
 
+// s - sin(s), accurate also for small |s|, where the subtraction would lose
+// most of the digits
+template <typename T>
+inline T s_minus_sin_s(T const& s)
+{
+    if (geometry::math::abs(s) < 0.25)
+    {
+        T const s2 = s * s;
+        return s * s2 * (1. / 6 - s2 * (1. / 120 - s2 * (1. / 5040 - s2 * (1. / 362880
+                    - s2 * (1. / 39916800 - s2 * (1. / 6227020800.))))));
+    }
+    return s - sin(s);
+}
+
 template <typename T>
 inline T aatan2(T const& n, T const& d)
 {

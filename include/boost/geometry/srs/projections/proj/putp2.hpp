@@ -62,6 +62,17 @@ namespace projections
             static const int n_iter = 10;
             //static const double third_pi = 1.0471975511965977;
 
+            // Close to the poles, where theta tends to pi/3 and the Newton iteration converges
+            // only linearly: with theta = pi/3 - t and F(theta) = theta + sin(theta) * (cos(theta) - 1),
+            // so that C_p = F(pi/3),
+            // F(pi/3) - F(pi/3 - t) = t + cos(2pi/3 - t) * sin(t) - 2 * cos(pi/3 - t/2) * sin(t/2)
+            template <typename T>
+            inline T putp2_polar_d(T const& t)
+            {
+                static const T third_pi = detail::third_pi<T>();
+                return t + cos(2. * third_pi - t) * sin(t) - 2. * cos(third_pi - 0.5 * t) * sin(0.5 * t);
+            }
+
             template <typename T, typename Parameters>
             struct base_putp2_spheroid
             {
@@ -71,8 +82,38 @@ namespace projections
                 {
                     static const T third_pi = detail::third_pi<T>();
 
+                    static const T half_pi = detail::half_pi<T>();
+
                     T p, c, s, V;
                     int i;
+
+                    if (fabs(lp_lat) > half_pi - 0.1) {
+                        // solve F(pi/3) - F(pi/3 - t) = C_p * (1 - sin|phi|) = 2 * C_p * sin(chi / 2)^2
+                        T const sh = sin(0.5 * (half_pi - fabs(lp_lat)));
+                        T const w = 2. * C_p * sh * sh;
+                        T t = sqrt(w / (0.25 * sqrt(3.))); // D(t) ~ sqrt(3)/4 * t^2
+                        for (i = 0; i < 30; ++i) {
+                            // derivative of D: cos(theta) * (2 * cos(theta) - 1),
+                            // with 2 * cos(theta) - 1 = 4 * sin(pi/3 - t/2) * sin(t/2)
+                            T const d = cos(third_pi - t) * 4. * sin(third_pi - 0.5 * t) * sin(0.5 * t);
+                            if (d == 0.)
+                                break;
+                            T const dt = (putp2_polar_d(t) - w) / d;
+                            t -= dt;
+                            if (t < 0.)
+                                t = 0.;
+                            // D(t) carries a rounding error of about eps * t, so also stop on an
+                            // absolute step
+                            if (fabs(dt) <= 1e-12 * t || fabs(dt) < 1e-15)
+                                break;
+                        }
+                        // cos(theta) - 1/2 = 2 * sin(pi/3 - t/2) * sin(t/2)
+                        xy_x = C_x * lp_lon * 2. * sin(third_pi - 0.5 * t) * sin(0.5 * t);
+                        xy_y = C_y * sin(third_pi - t);
+                        if (lp_lat < 0.)
+                            xy_y = -xy_y;
+                        return;
+                    }
 
                     p = C_p * sin(lp_lat);
                     s = lp_lat * lp_lat;
@@ -95,9 +136,24 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    static const T half_pi = detail::half_pi<T>();
+                    static const T third_pi = detail::third_pi<T>();
+
                     T c;
 
                     lp_lat = aasin(xy_y / C_y);
+                    if (fabs(lp_lat) > third_pi - 0.5) {
+                        // Close to the poles: theta = +/-(pi/3 - t), with the colatitude chi from
+                        // 2 * C_p * sin(chi / 2)^2 = F(pi/3) - F(pi/3 - t)
+                        T t = third_pi - fabs(lp_lat);
+                        if (t < 0.)
+                            t = 0.;
+                        T const den = C_x * 2. * sin(third_pi - 0.5 * t) * sin(0.5 * t);
+                        lp_lon = den == 0. ? T(0) : T(xy_x / den);
+                        T const phi = half_pi - 2. * asin(sqrt(0.5 * putp2_polar_d(t) / C_p));
+                        lp_lat = xy_y < 0. ? T(-phi) : phi;
+                        return;
+                    }
                     lp_lon = xy_x / (C_x * ((c = cos(lp_lat)) - 0.5));
                     lp_lat = aasin((lp_lat + sin(lp_lat) * (c - 1.)) / C_p);
                 }
