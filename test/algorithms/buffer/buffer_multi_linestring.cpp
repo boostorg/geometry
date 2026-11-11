@@ -73,6 +73,35 @@ void test_all()
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
+    test_one<multi_linestring_type, polygon>("overlapping_flat_caps",
+        "MULTILINESTRING((0 0,20 0,20 15,0 15),(20 15,40 15,40 30,0 30))",
+        join_miter, end_flat, 45600.0, 120.0);
+    test_one<multi_linestring_type, polygon>("exposed_concave_helpers",
+        "MULTILINESTRING((40 0,40 15,0 15),(40 15,40 30,20 30),(20 105,40 105))",
+        join_miter, end_flat, 31800.0, 120.0);
+
+    test_one<multi_linestring_type, polygon>("internal_helper_edges",
+        "MULTILINESTRING((20 0,20 15),(60 15,40 15),"
+        "(80 15,60 15,60 30,80 30),(20 30,20 45),(0 60,20 60))",
+        join_miter, end_flat, 40800.0, 120.0);
+
+    test_one<multi_linestring_type, polygon>("unrelated_linear_endpoints",
+        "MULTILINESTRING((0 15,20 15,20 30,0 30),(40 0,40 15),"
+        "(40 30,20 30),(60 30,60 45,80 45))",
+        join_miter, end_flat, 48600.0, 120.0);
+
+    // A flat cap at an internal reversal exposes the adjacent helpers too.
+    test_one<multi_linestring_type, polygon>("internal_flat_cap",
+        "MULTILINESTRING((0 0,0 4,0 2),(1 3,1 6))",
+        join_miter, end_flat, 1, 0, 25.0, 2.0);
+    // Another linestring can end at the original point of that cap.
+    test_one<multi_linestring_type, polygon>("endpoint_at_internal_flat_cap",
+        "MULTILINESTRING((0 0,-16 0,0 0),(-16 0,-16 12))",
+        join_miter, end_flat, 1, 0, 55.0, 1.0);
+    test_one<multi_linestring_type, polygon>("repeated_internal_flat_caps",
+        "MULTILINESTRING((0 0,0 12,0 0,0 8,12 8))",
+        join_miter, end_flat, 1, 0, 228.0, 1.0, ut_settings(), 8.0);
+
     bg::strategy::buffer::end_round end_round32(32);
     bg::strategy::buffer::join_round join_round32(32);
 
