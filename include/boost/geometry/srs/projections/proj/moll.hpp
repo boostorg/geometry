@@ -40,6 +40,8 @@
 #ifndef BOOST_GEOMETRY_PROJECTIONS_MOLL_HPP
 #define BOOST_GEOMETRY_PROJECTIONS_MOLL_HPP
 
+#include <limits>
+
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/srs/projections/impl/base_static.hpp>
@@ -146,9 +148,17 @@ namespace projections
                         T const half_s = 2. * asin(sqrt(0.5 * (C_y - fabs(xy_y)) / C_y));
                         T const den = this->m_proj_parm.C_x * sin(half_s);
                         lp_lon = den == 0. ? T(0) : T(xy_x / den); // at the pole x is 0
-                        if (fabs(lp_lon) >= pi) {
+                        // On the outline lp_lon can round to slightly more than pi. Here it
+                        // comes from C_y - |y|, whose rounding grows like C_y / (C_y - |y|)
+                        // close to the poles: accept that much and clamp
+                        T const tol = 4 * std::numeric_limits<T>::epsilon()
+                                    * (1 + C_y / (C_y - fabs(xy_y)));
+                        if (! (fabs(lp_lon) <= pi * (1 + tol))) {
                             lp_lon = lp_lat = HUGE_VAL;
                             return;
+                        }
+                        if (fabs(lp_lon) > pi) {
+                            lp_lon = lp_lon < 0 ? -pi : pi;
                         }
                         T const chi = 2. * asin(sqrt(s_minus_sin_s(T(2. * half_s)) / (2. * pi)));
                         lp_lat = xy_y < 0. ? T(chi - half_pi) : T(half_pi - chi);
@@ -157,7 +167,12 @@ namespace projections
 
                     lp_lat = aasin(xy_y / this->m_proj_parm.C_y);
                     lp_lon = xy_x / (this->m_proj_parm.C_x * cos(lp_lat));
-                    if (fabs(lp_lon) < pi) {
+                    // on the outline lp_lon can round to slightly more than pi: accept a few
+                    // ulps more and clamp
+                    if (fabs(lp_lon) <= pi * (1 + 4 * std::numeric_limits<T>::epsilon())) {
+                        if (fabs(lp_lon) > pi) {
+                            lp_lon = lp_lon < 0 ? -pi : pi;
+                        }
                         lp_lat += lp_lat;
                         lp_lat = aasin((lp_lat + sin(lp_lat)) / this->m_proj_parm.C_p);
                     } else {

@@ -126,6 +126,20 @@ inverse_case const inverse_cases[] =
     { "+proj=gnom +lat_0=-30 +R=6371000", 0.0, 3650314070120549.0, 0.0, 59.9999999 }
 };
 
+// moll on the outline (longitude +/-180): the longitude can round to slightly more than pi there,
+// and the inverse used to reject it. x is the forward image, and the same moved 2 ulps outwards.
+inverse_case const outline_cases[] =
+{
+    { "+proj=moll +R=6371000", -14522376.270226203, 5334269.29077383, -180.0, 45.0 },
+    { "+proj=moll +R=6371000", -14522376.270226207, 5334269.29077383, -180.0, 45.0 },
+    { "+proj=moll +R=6371000", 11341344.359710105, 7001625.456179298, 180.0, 61.4 },
+    { "+proj=moll +R=6371000", 11341344.359710108, 7001625.456179298, 180.0, 61.4 },
+    { "+proj=moll +R=6371000", -7625289.780841103, 8163517.681707444, -180.0, 75.0 },
+    { "+proj=moll +R=6371000", -7625289.780841105, 8163517.681707444, -180.0, 75.0 },
+    { "+proj=moll +R=6371000", 59437.98584860868, 9009905.592261197, 180.0, 89.99 },
+    { "+proj=moll +R=6371000", 59437.985848608696, 9009905.592261197, 180.0, 89.99 }
+};
+
 double const earth_radius = 6371000.0;
 double const tolerance = 1e-6; // metres, for the forward
 
@@ -188,6 +202,11 @@ int test_main(int, char*[])
     }
 
     for (inverse_case const& c : inverse_cases)
+    {
+        test_inverse_case(c);
+    }
+
+    for (inverse_case const& c : outline_cases)
     {
         test_inverse_case(c);
     }
