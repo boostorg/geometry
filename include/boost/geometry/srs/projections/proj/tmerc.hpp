@@ -498,15 +498,10 @@ namespace projections
                     BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
 
                 xy_x = this->m_proj_parm.ml0 * log((1. + b) / (1. - b));
-                xy_y = cosphi * cos(lp_lon) / sqrt(1. - b * b);
-
-                b = fabs( xy_y );
-                if (b >= 1.) {
-                    if ((b - 1.) > epsilon10)
-                        BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
-                    else xy_y = 0.;
-                } else
-                    xy_y = acos(xy_y);
+                // Same angle as acos(cosphi * cos(lam) / sqrt(1 - b * b)), since
+                // 1 - b * b = sinphi^2 + (cosphi * cos(lam))^2, but without the loss of
+                // precision of acos() near 1, i.e. close to the equator
+                xy_y = atan2(fabs(sin(lp_lat)), cosphi * cos(lp_lon));
 
                 if (lp_lat < 0.)
                     xy_y = -xy_y;
@@ -522,7 +517,9 @@ namespace projections
                 h = exp(xy_x / this->m_proj_parm.esp);
                 g = .5 * (h - 1. / h);
                 h = cos(par.phi0 + xy_y / this->m_proj_parm.esp);
-                lp_lat = asin(sqrt((1. - h * h) / (1. + g * g)));
+                // Same angle as asin(sqrt((1 - h * h) / (1 + g * g))), but without the loss of
+                // precision of 1 - h * h close to the equator
+                lp_lat = atan2(fabs(sin(par.phi0 + xy_y / this->m_proj_parm.esp)), sqrt(g * g + h * h));
 
                 /* Make sure that phi is on the correct hemisphere when false northing is used */
                 if (xy_y < 0. && -lp_lat+par.phi0 < 0.0) lp_lat = -lp_lat;
