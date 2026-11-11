@@ -135,7 +135,9 @@ namespace projections
 
                     rh = boost::math::hypot(xy_x, xy_y);
                     sinz = sin(lp_lat = atan(rh));
-                    cosz = sqrt(1. - sinz * sinz);
+                    // cos() rather than sqrt(1 - sinz * sinz), which loses the digits close to
+                    // 90 degrees from the centre and defeats the atan2() below
+                    cosz = cos(lp_lat);
 
                     if (rh == 0.) {
                         lp_lat = par.phi0;

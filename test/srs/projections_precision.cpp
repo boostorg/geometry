@@ -106,6 +106,26 @@ precision_case const precision_cases[] =
     { "+proj=hammer +R=6371000", -100, -89.99999, -2.4092613216098564, -9009954.1004762939, fwd_xy, true, 1.0e-06 }
 };
 
+// gnom in equatorial and oblique mode close to 90 degrees from the centre, where the coordinates
+// are very large and cos(z) from sqrt(1 - sin(z)^2) lost its digits. (x, y) is the exact forward
+// image rounded to double, and (lon, lat) the exact inverse of those doubles (50-digit computation).
+struct inverse_case
+{
+    char const* def;
+    double x, y;
+    double lon, lat;
+};
+
+inverse_case const inverse_cases[] =
+{
+    { "+proj=gnom +lat_0=0 +R=6371000", -0.011119492664455874, -3650314329490979.0, -1e-07, -89.9999999 },
+    { "+proj=gnom +lat_0=0 +R=6371000", 1123379.1940936304, 3706626311913009.5, 10.000000000000002, 89.9999999 },
+    { "+proj=gnom +lat_0=0 +R=6371000", 0.0, 36503141116197.78, 0.0, 89.99999 },
+    { "+proj=gnom +lat_0=45 +R=6371000", 516232372521323.0, 6371000.0, 90.0, 1e-06 },
+    { "+proj=gnom +lat_0=45 +R=6371000", 0.0, -3650314070120549.0, 0.0, -44.9999999 },
+    { "+proj=gnom +lat_0=-30 +R=6371000", 0.0, 3650314070120549.0, 0.0, 59.9999999 }
+};
+
 double const earth_radius = 6371000.0;
 double const tolerance = 1e-6; // metres, for the forward
 
@@ -144,6 +164,20 @@ void test_case(precision_case const& c)
     }
 }
 
+void test_inverse_case(inverse_case const& c)
+{
+    double const d2r = bg::math::d2r<double>();
+    bg::srs::projection<> prj = bg::srs::proj4(c.def);
+
+    ll_t ll;
+    prj.inverse(xy_t(c.x, c.y), ll);
+    double const inv_err = distance(bg::get<0>(ll) * d2r, bg::get<1>(ll) * d2r,
+                                    c.lon * d2r, c.lat * d2r);
+    BOOST_CHECK_MESSAGE(inv_err < tolerance,
+                        std::setprecision(17) << c.def << " inverse (" << c.x << ", " << c.y
+                        << "): (" << bg::get<0>(ll) << ", " << bg::get<1>(ll) << ") is " << inv_err << " m off");
+}
+
 } // namespace
 
 int test_main(int, char*[])
@@ -151,6 +185,11 @@ int test_main(int, char*[])
     for (precision_case const& c : precision_cases)
     {
         test_case(c);
+    }
+
+    for (inverse_case const& c : inverse_cases)
+    {
+        test_inverse_case(c);
     }
 
     return 0;
