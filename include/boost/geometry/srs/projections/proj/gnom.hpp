@@ -137,28 +137,24 @@ namespace projections
                     sinz = sin(lp_lat = atan(rh));
                     cosz = sqrt(1. - sinz * sinz);
 
-                    if (fabs(rh) <= epsilon10) {
+                    if (rh == 0.) {
                         lp_lat = par.phi0;
                         lp_lon = 0.;
                     } else {
                         switch (this->m_proj_parm.mode) {
                         case obliq:
-                            lp_lat = cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh;
-                            if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
-                            else
-                                lp_lat = asin(lp_lat);
-                            xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
-                            xy_x *= sinz * this->m_proj_parm.cosph0;
-                            break;
                         case equit:
-                            lp_lat = xy_y * sinz / rh;
-                            if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat > 0. ? half_pi : -half_pi;
-                            else
-                                lp_lat = asin(lp_lat);
-                            xy_y = cosz * rh;
-                            xy_x *= sinz;
+                            {
+                                // rh * sin(phi), rh * cos(phi) * cos(lam) and rh * cos(phi) * sin(lam):
+                                // atan2() keeps the latitude accurate near the poles, where asin()
+                                // of sin(phi) did not
+                                T const s0 = this->m_proj_parm.mode == equit ? T(0) : this->m_proj_parm.sinph0;
+                                T const c0 = this->m_proj_parm.mode == equit ? T(1) : this->m_proj_parm.cosph0;
+                                T const n = rh * cosz * s0 + xy_y * sinz * c0;
+                                xy_y = rh * cosz * c0 - xy_y * sinz * s0;
+                                xy_x *= sinz;
+                                lp_lat = atan2(n, boost::math::hypot(xy_x, xy_y));
+                            }
                             break;
                         case s_pole:
                             lp_lat -= half_pi;

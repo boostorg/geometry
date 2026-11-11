@@ -275,6 +275,8 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(Parameters const& par, T const& xy_x, T xy_y, T& lp_lon, T& lp_lat) const
                 {
+                    static const T half_pi = detail::half_pi<T>();
+
                     T  c, rh, sinc, cosc;
 
                     sinc = sin(c = 2. * atan((rh = boost::math::hypot(xy_x, xy_y)) / this->m_proj_parm.akm1));
@@ -283,29 +285,30 @@ namespace projections
 
                     switch (this->m_proj_parm.mode) {
                     case equit:
-                        if (fabs(rh) <= epsilon10)
-                            lp_lat = 0.;
-                        else
-                            lp_lat = asin(xy_y * sinc / rh);
-                        if (cosc != 0. || xy_x != 0.)
-                            lp_lon = atan2(xy_x * sinc, cosc * rh);
-                        break;
                     case obliq:
-                        if (fabs(rh) <= epsilon10)
-                            lp_lat = par.phi0;
-                        else
-                            lp_lat = asin(cosc * this->m_proj_parm.sinX1 + xy_y * sinc * this->m_proj_parm.cosX1 / rh);
-                        if ((c = cosc - this->m_proj_parm.sinX1 * sin(lp_lat)) != 0. || xy_x != 0.)
-                            lp_lon = atan2(xy_x * sinc * this->m_proj_parm.cosX1, c * rh);
+                        {
+                            if (rh == 0.) {
+                                lp_lat = par.phi0;
+                                break;
+                            }
+                            // rh * sin(phi), rh * cos(phi) * cos(lam) and rh * cos(phi) * sin(lam):
+                            // atan2() keeps the latitude accurate near the poles, where asin()
+                            // of sin(phi) did not
+                            T const s0 = this->m_proj_parm.mode == equit ? T(0) : this->m_proj_parm.sinX1;
+                            T const c0 = this->m_proj_parm.mode == equit ? T(1) : this->m_proj_parm.cosX1;
+                            T const n = rh * cosc * s0 + xy_y * sinc * c0;
+                            T const d = rh * cosc * c0 - xy_y * sinc * s0;
+                            T const e = xy_x * sinc;
+                            lp_lat = atan2(n, boost::math::hypot(e, d));
+                            lp_lon = atan2(e, d);
+                        }
                         break;
                     case n_pole:
                         xy_y = -xy_y;
                         BOOST_FALLTHROUGH;
                     case s_pole:
-                        if (fabs(rh) <= epsilon10)
-                            lp_lat = par.phi0;
-                        else
-                            lp_lat = asin(this->m_proj_parm.mode == s_pole ? - cosc : cosc);
+                        // asin(-/+cos(c)), but accurate close to the pole
+                        lp_lat = this->m_proj_parm.mode == s_pole ? c - half_pi : half_pi - c;
                         lp_lon = (xy_x == 0. && xy_y == 0.) ? 0. : atan2(xy_x, xy_y);
                         break;
                     }

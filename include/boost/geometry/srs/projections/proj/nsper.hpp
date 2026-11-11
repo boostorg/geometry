@@ -167,27 +167,32 @@ namespace projections
                     }
                     sinz = (this->m_proj_parm.p - sqrt(sinz)) / (this->m_proj_parm.pn1 / rh + rh / this->m_proj_parm.pn1);
                     cosz = sqrt(1. - sinz * sinz);
-                    if (fabs(rh) <= epsilon10) {
+                    if (rh == 0.) {
                         lp_lon = 0.;
                         lp_lat = par.phi0;
                     } else {
                         switch (this->m_proj_parm.mode) {
                         case obliq:
-                            lp_lat = asin(cosz * this->m_proj_parm.sinph0 + xy_y * sinz * this->m_proj_parm.cosph0 / rh);
-                            xy_y = (cosz - this->m_proj_parm.sinph0 * sin(lp_lat)) * rh;
-                            xy_x *= sinz * this->m_proj_parm.cosph0;
-                            break;
                         case equit:
-                            lp_lat = asin(xy_y * sinz / rh);
-                            xy_y = cosz * rh;
-                            xy_x *= sinz;
+                            {
+                                // rh * sin(phi), rh * cos(phi) * cos(lam) and rh * cos(phi) * sin(lam):
+                                // atan2() keeps the latitude accurate near the poles, where asin()
+                                // of sin(phi) did not
+                                T const s0 = this->m_proj_parm.mode == equit ? T(0) : this->m_proj_parm.sinph0;
+                                T const c0 = this->m_proj_parm.mode == equit ? T(1) : this->m_proj_parm.cosph0;
+                                T const n = rh * cosz * s0 + xy_y * sinz * c0;
+                                xy_y = rh * cosz * c0 - xy_y * sinz * s0;
+                                xy_x *= sinz;
+                                lp_lat = atan2(n, boost::math::hypot(xy_x, xy_y));
+                            }
                             break;
+                        // asin(+/-cosz), but accurate close to the pole
                         case n_pole:
-                            lp_lat = asin(cosz);
+                            lp_lat = atan2(cosz, sinz);
                             xy_y = -xy_y;
                             break;
                         case s_pole:
-                            lp_lat = - asin(cosz);
+                            lp_lat = - atan2(cosz, sinz);
                             break;
                         }
                         lp_lon = atan2(xy_x, xy_y);
