@@ -212,22 +212,23 @@ namespace projections
                 coslam = cos(lp_lon);
                 switch (proj_parm.mode) {
                 case equit:
-                    xy_y = cosphi * coslam;
-                    goto oblcon;
                 case obliq:
-                    xy_y = proj_parm.sinph0 * sinphi + proj_parm.cosph0 * cosphi * coslam;
-            oblcon:
-                    if (fabs(fabs(xy_y) - 1.) < tolerance)
-                        if (xy_y < 0.)
+                    {
+                        // c is the angular distance to (phi, lam). sin(c) from hypot() and c from
+                        // atan2() keep the forward accurate near the centre and the antipode,
+                        // where acos(cos(c)) lost half the digits (as in PROJ)
+                        T const s0 = proj_parm.mode == equit ? T(0) : proj_parm.sinph0;
+                        T const c0 = proj_parm.mode == equit ? T(1) : proj_parm.cosph0;
+                        T const sinlam = sin(lp_lon);
+                        T const cosc = s0 * sinphi + c0 * cosphi * coslam;
+                        T const t = c0 * sinphi - s0 * cosphi * coslam;
+                        T const sinc = boost::math::hypot(cosphi * sinlam, t);
+                        if (cosc < tolerance - 1.)
                             BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
-                        else
-                            xy_x = xy_y = 0.;
-                    else {
-                        xy_y = acos(xy_y);
-                        xy_y /= sin(xy_y);
-                        xy_x = xy_y * cosphi * sin(lp_lon);
-                        xy_y *= (proj_parm.mode == equit) ? sinphi :
-                                proj_parm.cosph0 * sinphi - proj_parm.sinph0 * cosphi * coslam;
+                        // c / sin(c), with limit 1 at the centre
+                        T const k = sinc == 0. ? T(1) : T(atan2(sinc, cosc) / sinc);
+                        xy_x = k * cosphi * sinlam;
+                        xy_y = k * t;
                     }
                     break;
                 case n_pole:
@@ -255,7 +256,7 @@ namespace projections
                     if (c_rh - epsilon10 > pi)
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     c_rh = pi;
-                } else if (c_rh < epsilon10) {
+                } else if (c_rh == 0.) {
                     lp_lat = par.phi0;
                     lp_lon = 0.;
                         return;
@@ -263,17 +264,17 @@ namespace projections
                 if (proj_parm.mode == obliq || proj_parm.mode == equit) {
                     sinc = sin(c_rh);
                     cosc = cos(c_rh);
-                    if (proj_parm.mode == equit) {
-                                    lp_lat = aasin(xy_y * sinc / c_rh);
-                        xy_x *= sinc;
-                        xy_y = cosc * c_rh;
-                    } else {
-                        lp_lat = aasin(cosc * proj_parm.sinph0 + xy_y * sinc * proj_parm.cosph0 /
-                            c_rh);
-                        xy_y = (cosc - proj_parm.sinph0 * sin(lp_lat)) * c_rh;
-                        xy_x *= sinc * proj_parm.cosph0;
-                    }
-                    lp_lon = xy_y == 0. ? 0. : atan2(xy_x, xy_y);
+                    // c_rh * sin(phi), c_rh * cos(phi) * cos(lam) and c_rh * cos(phi) * sin(lam):
+                    // atan2() keeps the latitude accurate near the poles, where asin() of
+                    // sin(phi) did not. No special case for cos(lam) == 0: the longitude is
+                    // +/-90 degrees there, not 0.
+                    T const s0 = proj_parm.mode == equit ? T(0) : proj_parm.sinph0;
+                    T const c0 = proj_parm.mode == equit ? T(1) : proj_parm.cosph0;
+                    T const n = c_rh * cosc * s0 + xy_y * sinc * c0;
+                    xy_y = c_rh * cosc * c0 - xy_y * sinc * s0;
+                    xy_x *= sinc;
+                    lp_lat = atan2(n, boost::math::hypot(xy_x, xy_y));
+                    lp_lon = atan2(xy_x, xy_y);
                 } else if (proj_parm.mode == n_pole) {
                     lp_lat = half_pi - c_rh;
                     lp_lon = atan2(xy_x, -xy_y);
