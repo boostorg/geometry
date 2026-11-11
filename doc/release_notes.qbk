@@ -30,6 +30,7 @@
 [*Solved issues]
 
 * [@https://github.com/boostorg/geometry/issues/1487 1487] No intersection for polygons with close boundaries
+* [@https://github.com/boostorg/geometry/issues/1511 1511] Empty difference for a polygon touching another polygon along a nearly collinear edge
 
 [/=================]
 [heading Boost 1.92]

@@ -481,16 +481,20 @@ struct clustered_count_handler
 
                 // For the right-counts (used for intersections) it depends on the target.
                 // If both travel to a turn outside the cluster, they (nearly) follow the
-                // same path to it, and that path should stay available. So take the maximum
-                // (see issue 1487). Otherwise (for example both making a round trip within
-                // the cluster) take the minimum (see case_80).
+                // same path to it. Keep the right-count of each operation: the path
+                // should stay available (see issue 1487), but only for the operation
+                // which has it, because at the target the geometries continue
+                // differently (see issue 1511).
+                // Otherwise (for example both making a round trip within the cluster)
+                // both get the minimum (see case_80).
                 auto const target = op0.enriched.travels_to_ip_index;
                 bool const is_target_outside = target >= 0
                     && m_turns[target].cluster_id != turn.cluster_id;
-                op0.enriched.count_right = is_target_outside
-                    ? (std::max)(op0.enriched.count_right, op1.enriched.count_right)
-                    : (std::min)(op0.enriched.count_right, op1.enriched.count_right);
-                op1.enriched.count_right = op0.enriched.count_right;
+                if (! is_target_outside)
+                {
+                    op0.enriched.count_right = (std::min)(op0.enriched.count_right, op1.enriched.count_right);
+                    op1.enriched.count_right = op0.enriched.count_right;
+                }
             }
         }
     }

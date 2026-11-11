@@ -332,6 +332,7 @@ int test_main(int, char* [])
 
     TEST_CASE(issue_1471);
     TEST_CASE(issue_1487);
+    TEST_CASE(issue_1511);
 
     return 0;
 }
