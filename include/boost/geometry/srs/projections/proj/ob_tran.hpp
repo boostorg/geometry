@@ -259,9 +259,12 @@ namespace projections
                 coslam = cos(lp_lon);
                 sinphi = sin(lp_lat);
                 cosphi = cos(lp_lat);
-                lp_lon = adjlon(aatan2(cosphi * sin(lp_lon), proj_parm.sphip * cosphi * coslam +
-                    proj_parm.cphip * sinphi) + proj_parm.lamp);
-                lp_lat = aasin(proj_parm.sphip * sinphi - proj_parm.cphip * cosphi * coslam);
+                T const e = cosphi * sin(lp_lon);
+                T const d = proj_parm.sphip * cosphi * coslam + proj_parm.cphip * sinphi;
+                lp_lon = adjlon(aatan2(e, d) + proj_parm.lamp);
+                // asin(sphip * sinphi - cphip * cosphi * coslam), but accurate near the poles
+                lp_lat = atan2(proj_parm.sphip * sinphi - proj_parm.cphip * cosphi * coslam,
+                               sqrt(e * e + d * d));
 
                 proj_parm.fwd(lp_lon, lp_lat, xy_x, xy_y);
             }
@@ -276,9 +279,12 @@ namespace projections
                     coslam = cos(lp_lon -= proj_parm.lamp);
                     sinphi = sin(lp_lat);
                     cosphi = cos(lp_lat);
-                    lp_lat = aasin(proj_parm.sphip * sinphi + proj_parm.cphip * cosphi * coslam);
-                    lp_lon = aatan2(cosphi * sin(lp_lon), proj_parm.sphip * cosphi * coslam -
-                        proj_parm.cphip * sinphi);
+                    T const e = cosphi * sin(lp_lon);
+                    T const d = proj_parm.sphip * cosphi * coslam - proj_parm.cphip * sinphi;
+                    // asin(sphip * sinphi + cphip * cosphi * coslam), but accurate near the poles
+                    lp_lat = atan2(proj_parm.sphip * sinphi + proj_parm.cphip * cosphi * coslam,
+                                   sqrt(e * e + d * d));
+                    lp_lon = aatan2(e, d);
                 }
             }
 
@@ -289,8 +295,11 @@ namespace projections
 
                 cosphi = cos(lp_lat);
                 coslam = cos(lp_lon);
-                lp_lon = adjlon(aatan2(cosphi * sin(lp_lon), sin(lp_lat)) + proj_parm.lamp);
-                lp_lat = aasin(- cosphi * coslam);
+                T const e = cosphi * sin(lp_lon);
+                T const d = sin(lp_lat);
+                lp_lon = adjlon(aatan2(e, d) + proj_parm.lamp);
+                // asin(- cosphi * coslam), but accurate near the poles
+                lp_lat = atan2(- cosphi * coslam, sqrt(e * e + d * d));
 
                 proj_parm.fwd(lp_lon, lp_lat, xy_x, xy_y);
             }
@@ -304,8 +313,11 @@ namespace projections
                 if (lp_lon != HUGE_VAL) {
                     cosphi = cos(lp_lat);
                     t = lp_lon - proj_parm.lamp;
-                    lp_lon = aatan2(cosphi * sin(t), - sin(lp_lat));
-                    lp_lat = aasin(cosphi * cos(t));
+                    T const e = cosphi * sin(t);
+                    T const d = - sin(lp_lat);
+                    lp_lon = aatan2(e, d);
+                    // asin(cosphi * cos(t)), but accurate near the poles
+                    lp_lat = atan2(cosphi * cos(t), sqrt(e * e + d * d));
                 }
             }
 
