@@ -299,7 +299,7 @@ void test_unique_contact_iterators()
     BOOST_CHECK(result.second.empty());
 }
 
-template <typename CoordinateSystem, typename Strategy>
+template <typename CoordinateSystem, typename OutputCoordinate = double, typename Strategy>
 void test_unique_angular_contacts(Strategy const& strategy)
 {
     using point = bg::model::point<double, 2, CoordinateSystem>;
@@ -307,7 +307,8 @@ void test_unique_angular_contacts(Strategy const& strategy)
     using lines = bg::model::multi_linestring<line>;
     using polygon = bg::model::polygon<point>;
     using polygons = bg::model::multi_polygon<polygon>;
-    using points = bg::model::multi_point<point>;
+    using output_point = bg::model::point<OutputCoordinate, 2, CoordinateSystem>;
+    using points = bg::model::multi_point<output_point>;
 
     lines linear;
     polygons areal;
@@ -339,15 +340,46 @@ void test_unique_angular_contacts(Strategy const& strategy)
     }
 }
 
+void test_unique_large_cartesian_contact_keys()
+{
+    using point = bg::model::point<std::int64_t, 2, bg::cs::cartesian>;
+    using line = bg::model::linestring<point>;
+    using strategy = bg::strategies::relate::cartesian<>;
+    using collector = bg::detail::overlay::following::isolated_point_output
+        <std::pair<point, line>, strategy, true>;
+    std::int64_t const first = std::int64_t(1) << 53;
+    point contacts[] = {point(first, 0), point(first + 1, 0), point(first + 2, 0)};
+    std::size_t order[] = {0, 1, 2};
+    do
+    {
+        collector unique_points;
+        bg::model::multi_point<point> result;
+        auto out = std::back_inserter(result);
+        for (std::size_t index : order)
+        {
+            unique_points.apply(contacts[index], out, strategy());
+        }
+        BOOST_REQUIRE_EQUAL(result.size(), 3);
+        for (std::size_t i = 0; i < result.size(); ++i)
+        {
+            BOOST_CHECK_EQUAL(bg::get<0>(result[i]), first + order[i]);
+            BOOST_CHECK_EQUAL(bg::get<1>(result[i]), 0);
+            unique_points.apply(contacts[order[i]], out, strategy());
+        }
+        BOOST_CHECK_EQUAL(result.size(), 3);
+    }
+    while (std::next_permutation(std::begin(order), std::end(order)));
+}
+
 // A set must order equivalent poles consistently relative to other points.
-template <typename CoordinateSystem, typename Strategy>
+template <typename CoordinateSystem, typename Coordinate = double, typename Strategy>
 void test_unique_angular_contact_keys(Strategy const& strategy,
                                       double half_period,
                                       double pole_latitude,
                                       double near_pole_direction,
                                       double equator_latitude)
 {
-    using point = bg::model::point<double, 2, CoordinateSystem>;
+    using point = bg::model::point<Coordinate, 2, CoordinateSystem>;
     using line = bg::model::linestring<point>;
     using output = std::pair<point, line>;
     using collector = bg::detail::overlay::following::isolated_point_output<output, Strategy, true>;
@@ -680,12 +712,21 @@ int test_main(int, char* [])
         bg::strategies::relate::spherical<>());
     test_unique_angular_contacts<bg::cs::geographic<bg::degree>>(
         bg::strategies::relate::geographic<>());
+    test_unique_angular_contacts<bg::cs::spherical_equatorial<bg::degree>, std::int16_t>(
+        bg::strategies::relate::spherical<>());
+    test_unique_angular_contacts<bg::cs::geographic<bg::degree>, std::int16_t>(
+        bg::strategies::relate::geographic<>());
+    test_unique_large_cartesian_contact_keys();
     test_unique_angular_contact_keys<bg::cs::spherical_equatorial<bg::degree>>(
         bg::strategies::relate::spherical<>(), 180, 90, -1, 0);
     test_unique_angular_contact_keys<bg::cs::geographic<bg::degree>>(
         bg::strategies::relate::geographic<>(), 180, 90, -1, 0);
     test_unique_angular_contact_keys<bg::cs::spherical<bg::degree>>(
         bg::strategies::relate::spherical<>(), 180, 0, 1, 90);
+    test_unique_angular_contact_keys<bg::cs::spherical_equatorial<bg::degree>, std::int64_t>(
+        bg::strategies::relate::spherical<>(), 180, 90, -1, 0);
+    test_unique_angular_contact_keys<bg::cs::geographic<bg::degree>, std::int64_t>(
+        bg::strategies::relate::geographic<>(), 180, 90, -1, 0);
     double const pi = bg::math::pi<double>();
     test_unique_angular_contact_keys<bg::cs::spherical_equatorial<bg::radian>>(
         bg::strategies::relate::spherical<>(), pi, pi / 2, -1, 0);

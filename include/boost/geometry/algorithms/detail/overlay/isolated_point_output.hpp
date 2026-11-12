@@ -22,11 +22,13 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/helper_geometry.hpp>
 #include <boost/geometry/strategies/compare.hpp>
 #include <boost/geometry/strategies/normalize.hpp>
 
@@ -95,6 +97,20 @@ class isolated_point_output<GeometryOut, Strategy, true>
             GeometryOut, point_tag, linestring_tag
         >;
     using point_type = point_type_t<typename pointlike::type>;
+    // Integral angular coordinates need floating-point spheroidal constants.
+    // Use the widest standard floating type; its precision is platform-dependent.
+    using key_type = std::conditional_t
+        <
+            std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value
+                && std::is_integral<coordinate_type_t<point_type>>::value,
+            typename helper_geometry
+                <
+                    point_type,
+                    typename promote_floating_point
+                        <coordinate_type_t<point_type>, long double>::type
+                >::type,
+            point_type
+        >;
     using normalize = std::conditional_t
         <
             std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value,
@@ -104,7 +120,7 @@ class isolated_point_output<GeometryOut, Strategy, true>
 
     struct less
     {
-        inline bool operator()(point_type const& left, point_type const& right) const
+        inline bool operator()(key_type const& left, key_type const& right) const
         {
             return strategy::compare::cartesian
                 <
@@ -122,8 +138,9 @@ public:
         geometry::detail::conversion::convert_point_to_point(point, converted);
         // Canonical keys make equivalent pole and antimeridian coordinates
         // identical without changing the representation emitted to the caller.
-        point_type key = converted;
-        normalize::apply(converted, key);
+        key_type key;
+        geometry::detail::conversion::convert_point_to_point(converted, key);
+        normalize::apply(key, key);
         if (m_points.insert(key).second)
         {
             add_isolated_point<typename pointlike::type>::apply(converted, out);
@@ -132,7 +149,7 @@ public:
 
 private:
     // Compare canonical coordinates exactly, keeping the set ordering strict.
-    std::set<point_type, less> m_points;
+    std::set<key_type, less> m_points;
 };
 
 }}} // namespace detail::overlay::following
