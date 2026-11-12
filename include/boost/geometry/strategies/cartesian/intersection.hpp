@@ -35,6 +35,7 @@
 #include <boost/geometry/util/select_calculation_type.hpp>
 
 #include <boost/geometry/strategy/cartesian/area.hpp>
+#include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategy/cartesian/envelope.hpp>
 #include <boost/geometry/strategy/cartesian/expand_box.hpp>
 #include <boost/geometry/strategy/cartesian/expand_segment.hpp>
@@ -407,6 +408,11 @@ struct cartesian_segments
         sides.set<1>(side_strategy_type::apply(p1, p2, q1),
                      side_strategy_type::apply(p1, p2, q2));
 
+        refine_inconsistent_zero_sides<0, 0>(sides, p1, p2, q1, q2);
+        refine_inconsistent_zero_sides<0, 1>(sides, p1, p2, q1, q2);
+        refine_inconsistent_zero_sides<1, 0>(sides, p1, p2, q1, q2);
+        refine_inconsistent_zero_sides<1, 1>(sides, p1, p2, q1, q2);
+
         if (sides.same<1>())
         {
             // Both points are at same side of other segment, we can leave
@@ -503,6 +509,70 @@ struct cartesian_segments
     }
 
 private:
+    // If an end point of p is located on q (side zero) and an end point of q
+    // is located on p, this implies that they share that end point (unless the
+    // segments are collinear). But with the tolerance of the side strategy,
+    // for nearly collinear segments, both sides can be zero while these
+    // end points are different. That is inconsistent and results in a wrong
+    // turn (both segments arriving at the same point, see issue 1414).
+    // Then use exact sides for these points. But not if the end points are
+    // (nearly) equal, then the touch is correct. And also not if that makes
+    // the segments disjoint (then other turns, calculated with the tolerance,
+    // can still consider them as touching).
+    template
+    <
+        std::size_t IndexP, std::size_t IndexQ,
+        typename Point1, typename Point2
+    >
+    static inline void refine_inconsistent_zero_sides(side_info& sides,
+        Point1 const& p1, Point1 const& p2, Point2 const& q1, Point2 const& q2)
+    {
+        if (sides.get<0, IndexP>() != 0 || sides.get<1, IndexQ>() != 0 || sides.collinear())
+        {
+            return;
+        }
+        Point1 const& p = IndexP == 0 ? p1 : p2;
+        Point2 const& q = IndexQ == 0 ? q1 : q2;
+
+        using coor_t = typename select_most_precise
+            <
+                geometry::coordinate_type_t<Point1>,
+                geometry::coordinate_type_t<Point2>
+            >::type;
+        coor_t const px = get<0>(p);
+        coor_t const py = get<1>(p);
+        coor_t const qx = get<0>(q);
+        coor_t const qy = get<1>(q);
+
+        // Use the same tolerance as for clusters (see approximately_equals)
+        math::detail::equals_factor_policy<coor_t> policy(px, qx, py, qy);
+        policy.multiply_epsilon(coor_t(100));
+        if (math::detail::equals_by_policy(px, qx, policy)
+            && math::detail::equals_by_policy(py, qy, policy))
+        {
+            return;
+        }
+
+        using exact_side_type = strategy::side::side_robust
+            <
+                CalculationType,
+                strategy::side::fp_equals_policy
+            >;
+
+        side_info refined = sides;
+        int const side_p = exact_side_type::apply(q1, q2, p);
+        int const side_q = exact_side_type::apply(p1, p2, q);
+        refined.set<0>(IndexP == 0 ? side_p : sides.get<0, 0>(),
+                       IndexP == 1 ? side_p : sides.get<0, 1>());
+        refined.set<1>(IndexQ == 0 ? side_q : sides.get<1, 0>(),
+                       IndexQ == 1 ? side_q : sides.get<1, 1>());
+
+        if (! refined.same<0>() && ! refined.same<1>())
+        {
+            sides = refined;
+        }
+    }
+
     // first is true if x is more significant
     // second is true if the more significant difference is not 0
     template <typename CoordinateType>
