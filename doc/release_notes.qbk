@@ -20,16 +20,32 @@
 [section:release_notes Release Notes]
 
 [/=================]
-[heading Unreleased]
+[heading Boost 1.93]
 [/=================]
+
+[*Deprecation]
+
+* [@https://github.com/boostorg/geometry/pull/1496 1496] Support for C++14 has been deprecated and Geometry will require C++17 from Boost 1.95 onwards (see [@https://github.com/boostorg/geometry/discussions/1488 discussion 1488]). Define `BOOST_GEOMETRY_DISABLE_DEPRECATED_14_WARNING` to suppress the warning.
 
 [*Improvements]
 
+* [@https://github.com/boostorg/geometry/pull/1484 1484] Add a robustness test for buffer and merge_elements, called confetti
+* [@https://github.com/boostorg/geometry/pull/1494 1494] Extend the `BOOST_GEOMETRY_REGISTER_RING` macros to register counterclockwise and/or open rings
 * [@https://github.com/boostorg/geometry/pull/1502 1502] Add the opt-in `BOOST_GEOMETRY_INDEX_NTH_ELEMENT_USE_STABLE_SORT` macro to use stable sorting during R-tree packing, at the cost of slower construction.
 
 [*Solved issues]
 
+* [@https://github.com/boostorg/geometry/issues/1238 1238] within returns a wrong result with multi-linestrings (and various other relate fixes)
+* [@https://github.com/boostorg/geometry/issues/1428 1428] Buffer makes polygon unexpectedly disappear
+* [@https://github.com/boostorg/geometry/pull/1456 1456] Skip unnecessary longitude normalization on antimeridian-crossing boxes, which could shrink a box (partly addresses issue 1452)
+* [@https://github.com/boostorg/geometry/issues/1482 1482] Incorrect geographic intersection calculation in sjoberg_intersection when one segment lies on the equator
 * [@https://github.com/boostorg/geometry/issues/1487 1487] No intersection for polygons with close boundaries
+* [@https://github.com/boostorg/geometry/issues/1492 1492] Compilation error with Boost.Interprocess offset_ptr in the R-tree (since Boost 1.92)
+* [@https://github.com/boostorg/geometry/issues/1497 1497] CI for MSVC 14.4
+* [@https://github.com/boostorg/geometry/pull/1498 1498] Undefined behavior in sin_cos_degrees for negative angles, giving wrong geographic results on arm64
+* [@https://github.com/boostorg/geometry/issues/1503 1503] Configuring with `cmake -DBUILD_TESTING=ON -DBOOST_INCLUDE_LIBRARIES=geometry` fails
+* [@https://github.com/boostorg/geometry/pull/1505 1505] Buffer of a polygon returned empty output if the closing vertex is collinear
+* Various fixes of errors and warnings (among others [@https://github.com/boostorg/geometry/pull/1486 1486] and [@https://github.com/boostorg/geometry/pull/1489 1489], documentation)
 
 [/=================]
 [heading Boost 1.92]
