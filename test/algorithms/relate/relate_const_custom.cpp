@@ -16,8 +16,11 @@
 #include <boost/geometry/algorithms/intersects.hpp>
 #include <boost/geometry/algorithms/overlaps.hpp>
 #include <boost/geometry/algorithms/relate.hpp>
+#include <boost/geometry/algorithms/relation.hpp>
 #include <boost/geometry/algorithms/touches.hpp>
 #include <boost/geometry/algorithms/within.hpp>
+
+#include <boost/geometry/geometries/geometries.hpp>
 
 
 #include <geometry_test_common.hpp>
@@ -58,6 +61,16 @@ int test_main(int, char* [])
 
     // linear/linear
     test_relate_const(horizontal, diagonal, false, true, false, true, false, false, false, false);
+
+    // A read-only point model can supply a fractional intersection to an
+    // integer multi-linestring's boundary checker.
+    linestring_of_const_point const fractional{{-1, 0.5}, {1, 0.5}};
+    bg::model::multi_linestring<bg::model::linestring<bg::model::d2::point_xy<int>>>
+        const integer{{{0, 0}, {0, 2}}};
+    test_relate_const(fractional, integer, false, true, false, true, false, false, false, false);
+    test_relate_const(integer, fractional, false, true, false, true, false, false, false, false);
+    BOOST_CHECK_EQUAL(bg::relation(fractional, integer).str(), "0F1FF0102");
+    BOOST_CHECK_EQUAL(bg::relation(integer, fractional).str(), "0F1FF0102");
 
     custom_cartesian_line l;
     custom_cartesian_polygon poly;

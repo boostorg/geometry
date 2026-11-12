@@ -179,6 +179,12 @@ void test_linestring_polygon()
     {
         typedef bg::model::polygon<P, false> ccwpoly;
 
+        // The hole and exterior ring meet at the last point, approached from outside.
+        test_geometry<ls, ccwpoly>("LINESTRING(6 2,4 2)",
+            "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "FF1F00212");
+        test_geometry<ls, ccwpoly>("LINESTRING(4 2,6 2)",
+            "POLYGON((0 0,4 0,4 4,0 4,0 0),(2 1,2 3,4 2,2 1))", "FF1F00212");
+
         // IE IB0 II
         test_geometry<ls, ccwpoly>("LINESTRING(11 1,10 5,5 5)", "POLYGON((0 0,10 0,10 10,0 10,0 0))", "1010F0212");
         // IE IB1 II
@@ -492,6 +498,23 @@ void test_multi_linestring_multi_polygon()
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
                               "F11FFF2F2");
 
+    // Repeated turns at the last point must not reclassify the first point.
+    using ccw_mpoly = bg::model::multi_polygon<bg::model::polygon<P, false>>;
+    test_geometry<mls, ccw_mpoly>("MULTILINESTRING((0 120,0 135,20 135))",
+        "MULTIPOLYGON(((20 135,20 120,40 120,20 135)),((20 135,20 150,0 150,20 135)),((20 120,0 120,20 105,20 120)))",
+        "FF1F0F212");
+
+    // Finalize an exterior tail even when the next member follows a boundary.
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,0 -2),(0 0,2 0))",
+        "MULTIPOLYGON(((0 0,0 2,2 0,0 0)))", "F11F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,2 0),(0 0,0 -2))",
+        "MULTIPOLYGON(((0 0,0 2,2 0,0 0)))", "F11F00212");
+
+    // Distinct intersections may have the same rounded integral coordinates.
+    test_geometry<mls, mpoly>("MULTILINESTRING((2 2,-2 -1,0 0),(2 2,1 1))",
+        "MULTIPOLYGON(((0 0,0 6,6 6,6 0,0 0),(0 0,4 1,4 4,1 4,0 0)))",
+        "101F00212");
+
     // disjoint
     test_geometry<mls, mpoly>("MULTILINESTRING((20 20,30 30),(30 30,40 40))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)))",
@@ -533,15 +556,84 @@ void test_multi_linestring_multi_polygon()
                               "11F00F212");
     test_geometry<mls, mpoly>("MULTILINESTRING((5 5,0 0,5 -5),(0 0,9 1))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
-                              "101000212");
+                              "1F1000212");
     test_geometry<mls, mpoly>("MULTILINESTRING((5 -5,0 0,5 5),(0 0,5 -1))",
                               "MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),((0 0,0 -10,-10 -10,-10 0,0 0)))",
-                              "101000212");
+                              "1F1000212");
+}
+
+template <typename P>
+void test_boundary_masks()
+{
+    using mls = bg::model::multi_linestring<bg::model::linestring<P>>;
+    using poly = bg::model::polygon<P>;
+    poly area;
+    mls odd, even;
+    bg::read_wkt("POLYGON((0 0,0 15,20 15,0 0))", area);
+    bg::read_wkt("MULTILINESTRING((20 0,20 30),(20 15,0 30))", odd);
+    bg::read_wkt("MULTILINESTRING((20 0,20 30),(20 15,0 30),(20 15,40 15))", even);
+
+    // Ignoring IB in the interrupt policy must preserve the analyser's
+    // distinction between a global boundary and an even endpoint count.
+    auto const boundary_mask = bg::de9im::static_mask<'*','*','*','*','0'>();
+    BOOST_CHECK(bg::relate(odd, area, boundary_mask));
+    BOOST_CHECK(bg::relate(area, odd, boundary_mask));
+    BOOST_CHECK(!bg::relate(even, area, boundary_mask));
+    BOOST_CHECK(!bg::relate(area, even, boundary_mask));
+
+    // An F constraint must still reject an actual interior/boundary turn.
+    auto const no_ib = bg::de9im::static_mask<'*','F'>();
+    auto const no_bi = bg::de9im::static_mask<'*','*','*','F'>();
+    BOOST_CHECK(bg::relate(odd, area, no_ib));
+    BOOST_CHECK(bg::relate(area, odd, no_bi));
+    BOOST_CHECK(!bg::relate(even, area, no_ib));
+    BOOST_CHECK(!bg::relate(area, even, no_bi));
 }
 
 template <typename P>
 void test_all()
 {
+    test_boundary_masks<P>();
+    using ls = bg::model::linestring<P>;
+    using mls = bg::model::multi_linestring<ls>;
+    using poly = bg::model::polygon<P>;
+    using mpoly = bg::model::multi_polygon<poly>;
+    std::string const touching =
+        "MULTIPOLYGON(((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)),"
+        "((0 0,1 -1,0 -2,-1 -1,0 0)))";
+    // The first entry and exit are distinct even if both round to (0, -1).
+    test_geometry<ls, mpoly>("LINESTRING(1 -2,-1 5)",
+        "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)))", "101FF0212");
+
+    test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)", touching, "1010F0212");
+    test_geometry<ls, mpoly>("LINESTRING(-1 0,0 0,0 -1)", touching, "1010F0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 -1,0 0,-1 0))", touching, "1010F0212");
+    test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)",
+        "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)),"
+        "((2 2,2 0,0 0,-1 1,0 2,2 2),(1 1,0 1,0 0,1 1)))", "1010F0212");
+
+    std::string const area = "MULTIPOLYGON(((0 30,20 15,20 0,0 0,0 30)))";
+    test_geometry<mls, mpoly>(
+        "MULTILINESTRING((0 15,20 15,20 0,0 0,0 30),(20 15,0 30))",
+        area, "11FF0F2F2");
+    test_geometry<mls, mpoly>(
+        "MULTILINESTRING((0 15,20 15,20 0,0 0,0 30))",
+        area, "11FF0F212");
+
+    std::string const triangle = "MULTIPOLYGON(((0 0,0 15,20 15,0 0)))";
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 0,20 15,20 30),(20 15,0 30))",
+        triangle, "FF1F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 15,0 30),(20 30,20 0))",
+        triangle, "FF1F00212");
+    test_geometry<ls, mpoly>("LINESTRING(20 0,20 30,40 30,20 15)",
+        triangle, "FF1F00212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((20 0,20 30),(20 15,0 30),(20 15,40 15))",
+        triangle, "F01FF0212");
+    test_geometry<mls, mpoly>("MULTILINESTRING((0 0,4 4),(1 1,3 1))",
+        "MULTIPOLYGON(((0 2,0 4,4 4,4 0,2 0,0 2)))", "1F1000212");
+    test_geometry<ls, poly>("LINESTRING(0 0,1 1)",
+        "POLYGON((0 1,2 1,2 -1,0 1))", "101F00212");
+
     test_linestring_polygon<P>();
     test_linestring_multi_polygon<P>();
     test_multi_linestring_polygon<P>();
