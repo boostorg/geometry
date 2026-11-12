@@ -12,6 +12,7 @@ add_subdirectory(sym_difference)
 foreach(item IN ITEMS
     set_ops_areal_areal
     parallel_graph_arcs
+    clustered_difference
         )
   boost_geometry_add_unit_test("algorithms" ${item})
 endforeach()
