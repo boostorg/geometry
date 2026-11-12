@@ -22,6 +22,7 @@
 #include <boost/geometry/algorithms/append.hpp>
 #include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
+#include <boost/geometry/core/coordinate_promotion.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -97,7 +98,17 @@ class isolated_point_output<GeometryOut, Strategy, true>
         >;
     using point_type = point_type_t<typename pointlike::type>;
     // Point models such as C arrays need not be copy constructible.
-    using key_type = typename helper_geometry<point_type>::type;
+    // Integral angular coordinates need floating-point spheroidal constants.
+    // Use the widest standard floating type; its precision is platform-dependent.
+    using key_coordinate_type = std::conditional_t
+        <
+            std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value
+                && std::is_integral<coordinate_type_t<point_type>>::value,
+            typename promote_floating_point
+                <coordinate_type_t<point_type>, long double>::type,
+            coordinate_type_t<point_type>
+        >;
+    using key_type = typename helper_geometry<point_type, key_coordinate_type>::type;
     using normalize = std::conditional_t
         <
             std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value,
