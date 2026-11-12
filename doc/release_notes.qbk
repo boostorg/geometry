@@ -29,7 +29,11 @@
 
 [*Solved issues]
 
+* [@https://github.com/boostorg/geometry/issues/1428 1428] Buffer makes polygon unexpectedly disappear
+* [@https://github.com/boostorg/geometry/issues/1506 1506] Union of two valid polygons sharing an edge returns empty (argument order dependent)
+* [@https://github.com/boostorg/geometry/pull/1505 1505] Buffer of a polygon returned empty output if the closing vertex was collinear
 * [@https://github.com/boostorg/geometry/issues/1487 1487] No intersection for polygons with close boundaries
+* [@https://github.com/boostorg/geometry/pull/1498 1498] Fix undefined behavior in sin_cos_degrees for negative angles
 
 [/=================]
 [heading Boost 1.92]
