@@ -161,7 +161,8 @@ struct less_op_linear_areal_single
         operation_type const& left_operation = left.operations[OpId];
         operation_type const& right_operation = right.operations[OpId];
 
-        if ( left_other_seg_id.ring_index == right_other_seg_id.ring_index )
+        if ( left_other_seg_id.multi_index == right_other_seg_id.multi_index
+          && left_other_seg_id.ring_index == right_other_seg_id.ring_index )
         {
             return op_to_int_xuic(left_operation)
                  < op_to_int_xuic(right_operation);

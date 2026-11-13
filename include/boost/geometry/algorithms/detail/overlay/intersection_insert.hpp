@@ -30,6 +30,7 @@
 #include <boost/geometry/algorithms/detail/overlay/clip_linestring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
+#include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -263,6 +264,25 @@ struct intersection_of_linestring_with_areal
             OutputIterator out,
             Strategy const& strategy)
     {
+        overlay::following::isolated_point_output
+            <
+                GeometryOut, Strategy,
+                FollowIsolatedPoints && OverlayType == overlay_intersection
+            > isolated_points;
+        return apply(linestring, areal, out, strategy, isolated_points);
+    }
+
+    template
+    <
+        typename LineString, typename Areal,
+        typename OutputIterator, typename Strategy,
+        typename IsolatedPointOutput
+    >
+    static inline OutputIterator apply(LineString const& linestring, Areal const& areal,
+            OutputIterator out,
+            Strategy const& strategy,
+            IsolatedPointOutput& isolated_points)
+    {
         if (boost::size(linestring) == 0)
         {
             return out;
@@ -324,7 +344,9 @@ struct intersection_of_linestring_with_areal
                      turns, policy);
 
         int inside_value = 0;
-        if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value))
+        if (simple_turns_analysis(linestring, areal, strategy, turns, inside_value)
+            && !(FollowIsolatedPoints && OverlayType == overlay_intersection
+                 && inside_value < 0 && !turns.empty()))
         {
             // No crossing the boundary, it is either
             // inside (interior + borders)
@@ -354,7 +376,7 @@ struct intersection_of_linestring_with_areal
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
-                    turns, out, strategy
+                    turns, out, strategy, isolated_points
                 );
     }
 };
