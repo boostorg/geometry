@@ -56,6 +56,11 @@ struct turn_operation
     operation_type operation{operation_none};
     segment_identifier seg_id;
     segment_ratio_type fraction;
+
+    // Preference index can be used to sort operations which are otherwise equivalent.
+    // It is used by dissolve overlays, where operation is often set to operation_union
+    // but the preference index is used to determine which operation to use first.
+    std::size_t preference_index{0};
 };
 
 
