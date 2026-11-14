@@ -95,7 +95,7 @@ struct disjoint_range_segment_or_box
 
         if ( count == 0 )
         {
-            return false;
+            return true;
         }
         else if ( count == 1 )
         {

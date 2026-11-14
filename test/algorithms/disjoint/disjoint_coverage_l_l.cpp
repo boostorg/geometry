@@ -193,6 +193,11 @@ inline void test_linestring_segment()
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<L>("LINESTRING(1 1,1 1)"),
                   true);
+
+    tester::apply("l-s-14",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  L(),
+                  true);
 }
 
 template <typename P>
@@ -243,6 +248,21 @@ inline void test_multilinestring_segment()
                   from_wkt<S>("SEGMENT(0 0,2 0)"),
                   from_wkt<ML>("MULTILINESTRING((1 1,2 2),(3 0,3 0))"),
                   true);
+
+    tester::apply("s-ml-09",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  ML{L()},
+                  true);
+
+    tester::apply("s-ml-10",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  ML{L(), from_wkt<L>("LINESTRING(1 1,2 2)")},
+                  true);
+
+    tester::apply("s-ml-11",
+                  from_wkt<S>("SEGMENT(0 0,2 0)"),
+                  ML{L(), from_wkt<L>("LINESTRING(1 0,1 1)")},
+                  false);
 }
 
 template <typename P>
