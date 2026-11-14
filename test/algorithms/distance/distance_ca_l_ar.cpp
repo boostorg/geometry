@@ -160,6 +160,14 @@ void test_distance_multilinestring_polygon(Strategy const& strategy)
     tester::apply("multilinestring((-100 -100,-90 -90),(-1 20,1 20,1 30))",
                   "polygon((-110 -110))",
                   sqrt(200.0), 200, strategy);
+
+    // multilinestring with an empty linestring
+    multi_linestring_type const with_empty{linestring_type(),
+        from_wkt<linestring_type>("linestring(-1 20,1 20,1 30)")};
+    tester::apply(with_empty,
+                  from_wkt<polygon_type>(
+                      "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))"),
+                  10, 100, strategy);
 }
 
 //===========================================================================
@@ -278,6 +286,14 @@ void test_distance_multilinestring_multipolygon(Strategy const& strategy)
                   "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)),\
                    ((20 -1,21 2,30 -10,20 -1)))",
                   0, 0, strategy);
+
+    // multilinestring with an empty linestring
+    multi_linestring_type const with_empty{linestring_type(),
+        from_wkt<linestring_type>("linestring(12 0,14 0)")};
+    tester::apply(with_empty,
+                  from_wkt<multi_polygon_type>(
+                      "multipolygon(((-10 -10,10 -10,10 10,-10 10,-10 -10)))"),
+                  2, 4, strategy);
 }
 
 //===========================================================================
@@ -357,6 +373,14 @@ void test_distance_multilinestring_ring(Strategy const& strategy)
     tester::apply("multilinestring((-1 20,1 20,1 30),(-1 20,1 20,1 -20))",
                   "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))",
                   0, 0, strategy);
+
+    // multilinestring with an empty linestring
+    multi_linestring_type const with_empty{linestring_type(),
+        from_wkt<linestring_type>("linestring(-1 20,1 20,1 30)")};
+    tester::apply(with_empty,
+                  from_wkt<ring_type>(
+                      "polygon((-10 -10,10 -10,10 10,-10 10,-10 -10))"),
+                  10, 100, strategy);
 }
 
 //===========================================================================
@@ -852,6 +876,12 @@ void test_distance_multilinestring_box(Strategy const& strategy)
     tester::apply("multilinestring((5 0,0 5),(4 0,0 4))",
                   "box(0 0,1 1)",
                   sqrt(2.0), 2, strategy);
+
+    // multilinestring with an empty linestring
+    multi_linestring_type const with_empty{linestring_type(),
+        from_wkt<linestring_type>("linestring(4 0.5,5 0.75)")};
+    tester::apply(with_empty, from_wkt<box_type>("box(0 0,1 1)"),
+                  3, 9, strategy);
 }
 
 //===========================================================================
