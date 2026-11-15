@@ -28,6 +28,8 @@
 #include <boost/geometry/geometries/segment.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
+#include <boost/geometry/strategies/spherical/clip_box.hpp>
+#include <boost/geometry/strategies/spherical/point_in_point.hpp>
 
 namespace boost { namespace geometry
 {
@@ -252,6 +254,92 @@ OutputIterator clip_range_with_box(Box const& b, Range const& range,
     // Add last part
     strategy.apply(line_out, out);
     return out;
+}
+
+template <typename OutputLinestring, typename OutputIterator, typename Range,
+          typename Box, typename Strategy>
+OutputIterator clip_range_with_geodesic_box(Box const& box, Range const& range,
+                                           OutputIterator out, Strategy const& strategy)
+{
+    auto vertex = boost::begin(range);
+    if (vertex == boost::end(range))
+        return out;
+
+    using point_type = point_type_t<OutputLinestring>;
+    OutputLinestring line;
+    auto flush = [&]()
+    {
+        if (!boost::empty(line))
+        {
+            *out++ = line;
+            geometry::clear(line);
+        }
+    };
+    auto const clipper = strategy.box_clip();
+    for (auto previous = vertex++; vertex != boost::end(range); ++previous, ++vertex)
+    {
+        point_type first, last;
+        geometry::convert(*previous, first);
+        geometry::convert(*vertex, last);
+        auto curve = clipper.curve(first, last);
+        using curve_type = decltype(curve);
+        using T = typename curve_type::calculation_type;
+        auto intervals = strategy::intersection::clipping_detail::geodesic_box_intervals<curve_type>(curve).apply(box);
+        auto point_at = [&](T t)
+        {
+            if (t == 0)
+                return first;
+            if (t == 1)
+                return last;
+            auto const angular = curve.at(t);
+            point_type point;
+            set_from_radian<0>(point, angular.lon);
+            set_from_radian<1>(point, angular.lat);
+            return point;
+        };
+        if (intervals.empty())
+            flush();
+        for (auto const& interval : intervals)
+        {
+            if (interval.first != 0)
+                flush();
+            if (boost::empty(line))
+                detail::overlay::append_with_duplicates(line, point_at(interval.first));
+            detail::overlay::append_no_duplicates(line, point_at(interval.second),
+                                                  strategy::within::spherical_point_point());
+            if (interval.second != 1)
+                flush();
+        }
+    }
+    flush();
+    return out;
+}
+
+template <typename OutputLinestring, typename OutputIterator, typename Range,
+          typename Box, typename Strategy, typename CsTag>
+OutputIterator clip_range_with_box_dispatch(Box const& box, Range const& range,
+                                           OutputIterator out, Strategy const&, CsTag)
+{
+    strategy::intersection::liang_barsky<Box, point_type_t<OutputLinestring>> clipper;
+    return clip_range_with_box<OutputLinestring>(box, range, out, clipper);
+}
+
+template <typename OutputLinestring, typename OutputIterator, typename Range,
+          typename Box, typename Strategy>
+OutputIterator clip_range_with_box_dispatch(Box const& box, Range const& range,
+                                           OutputIterator out, Strategy const& strategy,
+                                           spherical_equatorial_tag)
+{
+    return clip_range_with_geodesic_box<OutputLinestring>(box, range, out, strategy);
+}
+
+template <typename OutputLinestring, typename OutputIterator, typename Range,
+          typename Box, typename Strategy>
+OutputIterator clip_range_with_box_dispatch(Box const& box, Range const& range,
+                                           OutputIterator out, Strategy const& strategy,
+                                           geographic_tag)
+{
+    return clip_range_with_geodesic_box<OutputLinestring>(box, range, out, strategy);
 }
 
 }} // namespace detail::intersection

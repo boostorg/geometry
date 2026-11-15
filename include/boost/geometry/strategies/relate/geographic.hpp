@@ -12,6 +12,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_GEOGRAPHIC_HPP
 
 
+#include <boost/geometry/strategies/geographic/clip_box.hpp>
+
 // TEMP - move to strategy
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
@@ -55,6 +57,11 @@ public:
     explicit geographic(Spheroid const& spheroid)
         : base_t(spheroid)
     {}
+
+    auto box_clip() const
+    {
+        return strategy::intersection::geographic_box_clip<FormulaPolicy, Spheroid, CalculationType>(base_t::m_spheroid);
+    }
 
     // area
 
