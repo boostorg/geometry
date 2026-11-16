@@ -646,11 +646,10 @@ struct intersection_insert
     template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Linestring const& linestring,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
-        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
-        return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, linestring, out, lb_strategy);
+        return detail::intersection::clip_range_with_box_dispatch
+            <GeometryOut>(box, linestring, out, strategy, cs_tag_t<Linestring>());
     }
 };
 
@@ -724,13 +723,11 @@ struct intersection_insert
     template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Segment const& segment,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
         geometry::segment_view<Segment> range(segment);
-
-        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
-        return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, range, out, lb_strategy);
+        return detail::intersection::clip_range_with_box_dispatch
+            <GeometryOut>(box, range, out, strategy, cs_tag_t<Segment>());
     }
 };
 

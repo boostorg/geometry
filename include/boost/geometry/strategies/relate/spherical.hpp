@@ -12,6 +12,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_SPHERICAL_HPP
 
 
+#include <boost/geometry/strategies/spherical/clip_box.hpp>
+
 // TEMP - move to strategy
 #include <boost/geometry/strategies/agnostic/point_in_box_by_side.hpp>
 #include <boost/geometry/strategies/cartesian/box_in_box.hpp>
@@ -56,6 +58,11 @@ public:
     explicit spherical(RadiusOrSphere const& radius_or_sphere)
         : strategies::envelope::detail::spherical<RadiusTypeOrSphere, CalculationType>(radius_or_sphere)
     {}
+
+    static auto box_clip()
+    {
+        return strategy::intersection::spherical_box_clip<CalculationType>();
+    }
 
     // area
 
