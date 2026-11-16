@@ -85,13 +85,38 @@ namespace projections
                     }
                     if (p2 > 1.)
                         p2 = 1.;
-                    if (fabs(lp_lat) <= tolerance) {
+                    // Only (practically) exact zeros take the first two shortcuts: within
+                    // tolerance of the equator or of the central meridian they were off by up
+                    // to tolerance * R
+                    if (fabs(lp_lat) <= 1e-40) {
                         xy_x = lp_lon;
                         xy_y = 0.;
-                    } else if (fabs(lp_lon) <= tolerance || fabs(p2 - 1.) < tolerance) {
+                    } else if (fabs(lp_lon) <= 1e-40 || fabs(p2 - 1.) < tolerance) {
                         xy_x = 0.;
                         xy_y = pi * tan(.5 * asin(p2));
                         if (lp_lat < 0.) xy_y = -xy_y;
+                    } else if (fabs(lp_lon) <= pi) {
+                        // Same values as (29-1) and (29-2) below (Snyder 1987, p. 241),
+                        // rearranged so that no step subtracts two large terms: close to the
+                        // origin A, G and P are all large and the direct formulas lost all the
+                        // digits (points 1e-6 degrees from the origin even failed)
+                        al = .5 * fabs(pi / lp_lon - lp_lon / pi); // A from (29-3)
+                        al2 = al * al;
+                        T const s = p2;                            // sin(theta)
+                        T const c = sqrt(1. - s * s);              // cos(theta)
+                        g = c * (1. + c) / (s * (1. + c - s));     // G from (29-4)
+                        T const pp = g * (2. / s - 1.);            // P from (29-5)
+                        T const pp2 = pp * pp;
+                        g2 = g * g;
+                        T const sqrt_k = sqrt(al2 * (pp2 - 2. * g + 1.) + pp2 - g2);
+                        T const x_pi = g - pp2 < 0.
+                            ? T((pp2 - g2) / (pp * sqrt_k - al * (g - pp2)))
+                            : T((al * (g - pp2) + pp * sqrt_k) / (pp2 + al2));
+                        T y_pi = (al2 * (2. * g - 1.) + g2) / (pp * (al2 + g) + al * sqrt_k);
+                        if (y_pi < 0.)
+                            y_pi = 0.;
+                        xy_x = lp_lon < 0. ? T(-pi * x_pi) : T(pi * x_pi);
+                        xy_y = lp_lat < 0. ? T(-pi * y_pi) : T(pi * y_pi);
                     } else {
                         al = .5 * fabs(pi / lp_lon - lp_lon / pi);
                         al2 = al * al;
@@ -136,8 +161,11 @@ namespace projections
                     if ((ay = fabs(xy_y)) < tolerance) {
                         lp_lat = 0.;
                         t = x2 * x2 + TPISQ * (x2 + HPISQ);
-                        lp_lon = fabs(xy_x) <= tolerance ? 0. :
-                           .5 * (x2 - pi_sqr + sqrt(t)) / xy_x;
+                        // .5 * (x2 - pi_sqr + sqrt(t)) / x, without the cancellation of
+                        // sqrt(t) against pi_sqr - x2 close to the origin
+                        lp_lon = xy_x == 0. ? T(0)
+                               : x2 < pi_sqr ? T(TPISQ * xy_x / (sqrt(t) + pi_sqr - x2))
+                               : T(.5 * (x2 - pi_sqr + sqrt(t)) / xy_x);
                             return;
                     }
                     y2 = xy_y * xy_y;
@@ -155,8 +183,14 @@ namespace projections
                         lp_lat = pi * (m * cos(d * third + PI4_3) - third * c2);
                         if (xy_y < 0.) lp_lat = -lp_lat;
                         t = r2 + TPISQ * (x2 - y2 + HPISQ);
-                        lp_lon = fabs(xy_x) <= tolerance ? 0. :
-                           .5 * (r - pi_sqr + (t <= 0. ? 0. : sqrt(t))) / xy_x;
+                        // .5 * (r - pi_sqr + sqrt(t)) / x, without the cancellation of sqrt(t)
+                        // against pi_sqr - r close to the origin: as
+                        // t - (pi_sqr - r)^2 = 4 * pi_sqr * x2, it is also
+                        // 2 * pi_sqr * x / (sqrt(t) + pi_sqr - r)
+                        T const sqrt_t = t <= 0. ? T(0) : T(sqrt(t));
+                        lp_lon = xy_x == 0. ? T(0)
+                               : r < pi_sqr ? T(TPISQ * xy_x / (sqrt_t + pi_sqr - r))
+                               : T(.5 * (r - pi_sqr + sqrt_t) / xy_x);
                     } else {
                         BOOST_THROW_EXCEPTION( projection_exception(error_tolerance_condition) );
                     }

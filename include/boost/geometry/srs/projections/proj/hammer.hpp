@@ -83,16 +83,23 @@ namespace projections
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
                 inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
-                    T z;
-
-                    z = sqrt(1. - 0.25*this->m_proj_parm.w*this->m_proj_parm.w*xy_x*xy_x - 0.25*xy_y*xy_y);
-                    if (geometry::math::abs(2.*z*z-1.) < epsilon) {
+                    // Undo the M scaling of the forward: u = d * cos(phi) * sin(W * lam) and
+                    // v = d * sin(phi), with d = sqrt(2 / (1 + cos(phi) * cos(W * lam))).
+                    // The inverse used W * x and y, which is right only for M = 1.
+                    T const u = xy_x / this->m_proj_parm.m;
+                    T const v = xy_y / this->m_proj_parm.rm;
+                    T const z = sqrt(1. - 0.25 * u * u - 0.25 * v * v);
+                    // z * u = cos(phi) * sin(W * lam), z * v = sin(phi) and
+                    // c = 2 * z * z - 1 = cos(phi) * cos(W * lam)
+                    T const c = 2. * z * z - 1.;
+                    if (! (z >= 0.)) { // NaN: outside the ellipse
                         lp_lon = HUGE_VAL;
                         lp_lat = HUGE_VAL;
                         BOOST_THROW_EXCEPTION( projection_exception(error_lat_or_lon_exceed_limit) );
                     } else {
-                        lp_lon = aatan2(this->m_proj_parm.w * xy_x * z,2. * z * z - 1)/this->m_proj_parm.w;
-                        lp_lat = aasin(z * xy_y);
+                        lp_lon = aatan2(z * u, c) / this->m_proj_parm.w;
+                        // asin(z * v), but accurate near the poles
+                        lp_lat = atan2(z * v, sqrt(z * u * z * u + c * c));
                     }
                 }
 
