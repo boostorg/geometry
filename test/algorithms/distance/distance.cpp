@@ -508,6 +508,37 @@ void test_geometry_collection()
     BOOST_CHECK_CLOSE(bg::distance(gc1, gc2), bg::distance(s1, s2), 0.0001);
 }
 
+template <typename T>
+void test_geometry_collection_with_empty_element()
+{
+    using point_type = bg::model::point<T, 2, bg::cs::cartesian>;
+    using segment_type = bg::model::segment<point_type>;
+    using box_type = bg::model::box<point_type>;
+    using linestring_type = bg::model::linestring<point_type>;
+    using polygon_type = bg::model::polygon<point_type>;
+    using variant_type
+        = boost::variant<point_type, linestring_type, polygon_type>;
+    using gc_type = bg::model::geometry_collection<variant_type>;
+
+    point_type p {10, 10}, q {0, 0};
+    segment_type s {{0, 0}, {1, 0}};
+    box_type b {{0, 0}, {1, 1}};
+    linestring_type l {{0, 0}, {1, 0}};
+    polygon_type pl {{{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0, 0}}};
+    gc_type gc_l {linestring_type(), p}, gc_pl {polygon_type(), p}, gc_q {q};
+
+    BOOST_CHECK_CLOSE(bg::distance(q, gc_l), bg::distance(q, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(s, gc_l), bg::distance(s, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(b, gc_l), bg::distance(b, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(l, gc_l), bg::distance(l, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(pl, gc_l), bg::distance(pl, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(s, gc_pl), bg::distance(s, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(l, gc_pl), bg::distance(l, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(pl, gc_pl), bg::distance(pl, p), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(gc_l, gc_q), bg::distance(p, q), 0.0001);
+    BOOST_CHECK_CLOSE(bg::distance(gc_q, gc_pl), bg::distance(q, p), 0.0001);
+}
+
 int test_main(int, char* [])
 {
 #ifdef TEST_ARRAY
@@ -543,6 +574,7 @@ int test_main(int, char* [])
     test_variant<int>();
 
     test_geometry_collection<double>();
+    test_geometry_collection_with_empty_element<double>();
 
     return 0;
 }

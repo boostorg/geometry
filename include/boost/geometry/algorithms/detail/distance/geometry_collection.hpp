@@ -16,6 +16,7 @@
 
 #include <boost/geometry/algorithms/dispatch/distance.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/index/rtree.hpp>
@@ -42,6 +43,10 @@ inline auto geometry_to_collection(Geometry const& geometry,
     bool is_first = true;
     detail::visit_breadth_first([&](auto const& g)
     {
+        if (geometry::is_empty(g))
+        {
+            return true;
+        }
         result_t r = dispatch::distance
                         <
                             Geometry, util::remove_cref_t<decltype(g)>, Strategies
@@ -86,6 +91,10 @@ inline auto collection_to_collection(GeometryCollection1 const& collection1,
         std::vector<rtree_value_t> values;
         visit_breadth_first_impl<true>::apply([&](auto & g1, auto it)
         {
+            if (geometry::is_empty(g1))
+            {
+                return true;
+            }
             box1_t b1 = geometry::return_envelope<box1_t>(g1, strategies);
             geometry::detail::expand_by_epsilon(b1);
             values.emplace_back(b1, it);
@@ -102,6 +111,10 @@ inline auto collection_to_collection(GeometryCollection1 const& collection1,
     bool is_first = true;
     visit_breadth_first([&](auto const& g2)
     {
+        if (geometry::is_empty(g2))
+        {
+            return true;
+        }
         box2_t b2 = geometry::return_envelope<box2_t>(g2, strategies);
         geometry::detail::expand_by_epsilon(b2);
 
