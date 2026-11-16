@@ -17,6 +17,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 
 #include <cstddef>
+#include <set>
+#include <memory>
 #include <type_traits>
 
 #include <boost/range/begin.hpp>
@@ -29,8 +31,10 @@
 #include <boost/geometry/algorithms/detail/overlay/append_no_duplicates.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
 #include <boost/geometry/algorithms/detail/overlay/debug_traverse.hpp>
+#include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
+#include <boost/geometry/algorithms/detail/relate/follow_helpers.hpp>
 #include <boost/geometry/algorithms/detail/relate/turns.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
 #include <boost/geometry/core/static_assert.hpp>
@@ -90,10 +94,10 @@ inline bool is_leaving(Turn const& turn, Operation const& op,
     if (op.operation == operation_union)
     {
         return entered
-            || turn.method == method_crosses
             || (first
-                && op.position != position_front
-                && last_covered_by(turn, op, linestring, polygon, strategy))
+                && (turn.method == method_crosses
+                    || (op.position != position_front
+                        && last_covered_by(turn, op, linestring, polygon, strategy))))
             ;
     }
     return false;
@@ -113,15 +117,15 @@ inline bool is_staying_inside(Turn const& turn, Operation const& op,
                 LineString const& linestring, Polygon const& polygon,
                 Strategy const& strategy)
 {
-    if (turn.method == method_crosses)
+    if (turn.method == method_crosses && !first)
     {
-        // The normal case, this is completely covered with entering/leaving
-        // so stay out of this time consuming "covered_by"
-        return false;
+        // Entering another polygon need not end an already covered interval.
+        return entered && is_entering(turn, op);
     }
 
     if (is_entering(turn, op))
     {
+        // A first entry may coincide with an exit from another polygon.
         return entered || (first && last_covered_by(turn, op, linestring, polygon, strategy));
     }
 
@@ -160,46 +164,6 @@ inline bool is_touching(Turn const& turn, Operation const& op,
         && !entered
         && !op.is_collinear;
 }
-
-
-template
-<
-    typename GeometryOut,
-    typename Tag = geometry::tag_t<GeometryOut>
->
-struct add_isolated_point
-{};
-
-template <typename LineStringOut>
-struct add_isolated_point<LineStringOut, linestring_tag>
-{
-    template <typename Point, typename OutputIterator>
-    static inline void apply(Point const& point, OutputIterator& out)
-    {
-        LineStringOut isolated_point_ls;
-        geometry::append(isolated_point_ls, point);
-
-#ifndef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-        geometry::append(isolated_point_ls, point);
-#endif // BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
-
-        *out++ = isolated_point_ls;
-    }
-};
-
-template <typename PointOut>
-struct add_isolated_point<PointOut, point_tag>
-{
-    template <typename Point, typename OutputIterator>
-    static inline void apply(Point const& point, OutputIterator& out)
-    {
-        PointOut isolated_point;
-
-        geometry::detail::conversion::convert_point_to_point(point, isolated_point);
-
-        *out++ = isolated_point;
-    }
-};
 
 
 // Template specialization structure to call the right actions for the right type
@@ -247,7 +211,7 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         typename Operation,
         typename Strategy
     >
-    static inline void leave(LineStringOut& current_piece,
+    static inline bool leave(LineStringOut& current_piece,
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
@@ -267,7 +231,9 @@ struct action_selector<overlay_intersection, RemoveSpikes>
             *out++ = current_piece;
         }
 
+        bool const isolated = ::boost::size(current_piece) == 1;
         geometry::clear(current_piece);
+        return isolated;
     }
 
     template
@@ -330,7 +296,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
         typename Operation,
         typename Strategy
     >
-    static inline void leave(LineStringOut& current_piece,
+    static inline bool leave(LineStringOut& current_piece,
                 LineString const& linestring,
                 segment_identifier& segment_id,
                 signed_size_type index, Point const& point,
@@ -340,6 +306,7 @@ struct action_selector<overlay_difference, RemoveSpikes>
     {
         normal_action::enter(current_piece, linestring, segment_id, index,
                     point, operation, strategy, out);
+        return false;
     }
 
     template
@@ -406,13 +373,15 @@ public :
     <
         typename Turns,
         typename OutputIterator,
-        typename Strategy
+        typename Strategy,
+        typename IsolatedPointOutput
     >
     static inline OutputIterator apply(LineString const& linestring, Polygon const& polygon,
                 detail::overlay::operation_type ,  // TODO: this parameter might be redundant
                 Turns& turns,
                 OutputIterator out,
-                Strategy const& strategy)
+                Strategy const& strategy,
+                IsolatedPointOutput& isolated_points)
     {
         using action = following::action_selector<OverlayType, RemoveSpikes>;
 
@@ -433,14 +402,45 @@ public :
         // Iterate through all intersection points (they are ordered along the line)
         bool entered = false;
         bool first = true;
+        typename boost::range_value<Turns>::type const* previous_turn = nullptr;
+        typename boost::range_value<Turns>::type const* isolated_turn = nullptr;
+        bool covered_at_position = false;
+        unsigned boundary_count = 0;
+        std::set<signed_size_type> entered_polygons;
         for (auto const& turn : turns)
         {
             auto const& op = turn.operations[0];
+            if (previous_turn != nullptr
+                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, strategy))
+            {
+                if (isolated_turn != nullptr && !entered && !covered_at_position)
+                {
+                    isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
+                }
+                isolated_turn = nullptr;
+                // An interval followed up to this position also covers the
+                // point, even if a later turn at this position leaves it.
+                covered_at_position = entered;
+            }
+            previous_turn = std::addressof(turn);
+            // Touching another ring does not leave the boundary currently followed.
+            if (op.operation == operation_continue)
+            {
+                if (first || !op.is_collinear)
+                {
+                    ++boundary_count;
+                }
+            }
+            else if (boundary_count > 0 && op.is_collinear)
+            {
+                --boundary_count;
+            }
 
             if (following::was_entered(turn, op, first, linestring, polygon, strategy))
             {
                 debug_traverse(turn, op, "-> Was entered");
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
             }
 
             if (following::is_staying_inside(turn, op, entered, first, linestring, polygon, strategy))
@@ -448,12 +448,14 @@ public :
                 debug_traverse(turn, op, "-> Staying inside");
 
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
             }
             else if (following::is_entering(turn, op))
             {
                 debug_traverse(turn, op, "-> Entering");
 
                 entered = true;
+                entered_polygons.insert(turn.operations[1].seg_id.multi_index);
                 action::enter(current_piece, linestring, current_segment_id,
                     op.seg_id.segment_index, turn.point, op,
                     strategy,
@@ -461,26 +463,41 @@ public :
             }
             else if (following::is_leaving(turn, op, entered, first, linestring, polygon, strategy))
             {
-                debug_traverse(turn, op, "-> Leaving");
+                // Coincident turns may enter another polygon before this one is left.
+                entered_polygons.erase(turn.operations[1].seg_id.multi_index);
+                if (boundary_count == 0 && entered_polygons.empty())
+                {
+                    debug_traverse(turn, op, "-> Leaving");
 
-                entered = false;
-                action::leave(current_piece, linestring, current_segment_id,
-                    op.seg_id.segment_index, turn.point, op,
-                    strategy,
-                    linear::get(out));
+                    entered = false;
+                    bool const isolated = action::leave(current_piece, linestring, current_segment_id,
+                        op.seg_id.segment_index, turn.point, op,
+                        strategy,
+                        linear::get(out));
+                    covered_at_position = covered_at_position || !isolated;
+                    if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints) && isolated)
+                    {
+                        // Another turn at this position may enter a polygon.
+                        isolated_turn = std::addressof(turn);
+                    }
+                }
             }
             else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
                   && following::is_touching(turn, op, entered))
             {
                 debug_traverse(turn, op, "-> Isolated point");
 
-                action::template isolated_point
-                    <
-                        typename pointlike::type
-                    >(turn.point, pointlike::get(out));
+                // Defer until all turns here are processed: another ring may
+                // cover this position with an interval.
+                isolated_turn = std::addressof(turn);
             }
 
             first = false;
+        }
+
+        if (isolated_turn != nullptr && !entered && !covered_at_position)
+        {
+            isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
         }
 
         if (action::is_entered(entered))
@@ -504,10 +521,7 @@ public :
         else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
               && current_piece_size == 1)
         {
-            action::template isolated_point
-                <
-                    typename pointlike::type
-                >(range::front(current_piece), pointlike::get(out));
+            isolated_points.apply(range::front(current_piece), pointlike::get(out), strategy);
         }
 
         return out;

@@ -1746,7 +1746,7 @@ BOOST_AUTO_TEST_CASE(test_is_valid_polyhedral_surface)
         "POLYHEDRALSURFACE(((0 0 0,1 0 0,0 1 0,0 0 0)),((0.5 0.5 0,2 1 0,2 2 0,1 2 0,0.5 0.5 0)))",
         invalid_surface_invalid_intersection_vertex_edge);
     BOOST_CHECK(!bg::is_valid(invalid_surface_invalid_intersection_vertex_edge, failure));
-    BOOST_CHECK(failure == bg::failure_disconnected_surface);
+    BOOST_CHECK(failure == bg::failure_invalid_intersection);
 
     // Invalid polyhedral surface: invalid intersection (intersection vertex with vertex of another polygon)
     // Issue 1406
