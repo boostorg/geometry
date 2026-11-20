@@ -1671,4 +1671,12 @@ static std::string issue_1487[2] =
         "5110.0842867836363 -2645.5659190779725))"
 };
 
+// A hole of the first polygon is inside the second polygon and touches it at one vertex.
+// The difference kept the hole, nested in the second polygon, and was invalid.
+static std::string case_hole_touching_at_vertex[2] =
+{
+    "POLYGON((0 0,0 100,100 100,100 0,0 0),(10 10,30 20,20 30,10 10))",
+    "POLYGON((10 10,15 50,50 50,50 15,10 10))"
+};
+
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP

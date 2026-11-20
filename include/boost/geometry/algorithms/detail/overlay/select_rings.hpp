@@ -24,6 +24,7 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
 #include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -263,18 +264,22 @@ inline void update_ring_selection(Geometry1 const& geometry1,
         }
 
         // Check if the ring is within the other geometry, by using
-        // a point on the ring.
+        // a point on the ring. If that point is on the boundary of the other
+        // geometry, the other points of the same ring are checked (not those
+        // of the whole input, which can be located elsewhere).
         int code = 0;
         switch(id.source_index)
         {
             // within
             case 0 :
                 code = range_in_geometry(pair.second.point,
-                                         geometry1, geometry2, strategy);
+                        get_ring<geometry::tag_t<Geometry1>>::apply(id, geometry1),
+                        geometry2, strategy);
                 break;
             case 1 :
                 code = range_in_geometry(pair.second.point,
-                                         geometry2, geometry1, strategy);
+                        get_ring<geometry::tag_t<Geometry2>>::apply(id, geometry2),
+                        geometry1, strategy);
                 break;
         }
 
