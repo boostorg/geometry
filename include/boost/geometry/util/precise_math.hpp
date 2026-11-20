@@ -24,6 +24,7 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/error_free_transforms.hpp>
 
 // The following code is based on "Adaptive Precision Floating-Point Arithmetic
 // and Fast Robust Geometric Predicates" by Richard Shewchuk,
@@ -34,90 +35,6 @@ namespace boost { namespace geometry
 
 namespace detail { namespace precise_math
 {
-
-// See Theorem 6, page 6
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> fast_two_sum(RealNumber const a,
-                                              RealNumber const b)
-{
-    RealNumber x = a + b;
-    RealNumber b_virtual = x - a;
-    return {{x, b - b_virtual}};
-}
-
-// See Theorem 7, page 7 - 8
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_sum(RealNumber const a,
-                                         RealNumber const b)
-{
-    RealNumber x = a + b;
-    RealNumber b_virtual = x - a;
-    RealNumber a_virtual = x - b_virtual;
-    RealNumber b_roundoff = b - b_virtual;
-    RealNumber a_roundoff = a - a_virtual;
-    RealNumber y = a_roundoff + b_roundoff;
-    return {{ x,  y }};
-}
-
-// See bottom of page 8
-template
-<
-    typename RealNumber
->
-inline RealNumber two_diff_tail(RealNumber const a,
-                                RealNumber const b,
-                                RealNumber const x)
-{
-    RealNumber b_virtual = a - x;
-    RealNumber a_virtual = x + b_virtual;
-    RealNumber b_roundoff = b_virtual - b;
-    RealNumber a_roundoff = a - a_virtual;
-    return a_roundoff + b_roundoff;
-}
-
-// see bottom of page 8
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_diff(RealNumber const a,
-                                          RealNumber const b)
-{
-    RealNumber x = a - b;
-    RealNumber y = two_diff_tail(a, b, x);
-    return {{ x, y }};
-}
-
-// see theorem 18, page 19
-template
-<
-    typename RealNumber
->
-inline RealNumber two_product_tail(RealNumber const a,
-                                   RealNumber const b,
-                                   RealNumber const x)
-{
-    return std::fma(a, b, -x);
-}
-
-// see theorem 18, page 19
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_product(RealNumber const a,
-                                             RealNumber const b)
-{
-    RealNumber x = a * b;
-    RealNumber y = two_product_tail(a, b, x);
-    return {{ x , y }};
-}
 
 // see theorem 12, figure 7, page 11 - 12,
 // this is the 2 by 2 case for the corresponding diff-method
