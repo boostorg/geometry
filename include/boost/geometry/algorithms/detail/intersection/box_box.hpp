@@ -16,7 +16,7 @@
 
 
 #include <boost/geometry/algorithms/detail/intersection/interface.hpp>
-#include <boost/geometry/algorithms/detail/intersection/box_box_implementation.hpp>
+#include <boost/geometry/strategies/detail/box_intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,11 +37,14 @@ struct intersection
         Box1, Box2,
         box_tag, box_tag,
         Reverse
-    > : public detail::intersection::intersection_box_box
-            <
-                0, geometry::dimension<Box1>::value
-            >
-{};
+    >
+{
+    template <typename BoxOut, typename Strategy>
+    static bool apply(Box1 const& box1, Box2 const& box2, BoxOut& out, Strategy const& strategy)
+    {
+        return strategies::detail::get_box_intersection(strategy).apply(box1, box2, out);
+    }
+};
 
 
 } // namespace dispatch

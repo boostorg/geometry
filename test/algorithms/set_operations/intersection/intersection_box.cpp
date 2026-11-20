@@ -126,8 +126,47 @@ void test_boxes_car()
     test_boxes<box>("box(2 2,4 4)", "box(4 4,8 8)", 0, true);
 }
 
+struct counting_cartesian : bg::strategies::relate::cartesian<>
+{
+    explicit counting_cartesian(int& calls) : calls(calls) {}
+    counting_cartesian(counting_cartesian const&) = delete;
+
+    counting_cartesian const& box_intersection() const { return *this; }
+
+    template <typename A, typename B, typename Out>
+    bool apply(A const& a, B const& b, Out& out) const
+    {
+        ++calls;
+        return bg::strategies::detail::coordinate_box_intersection::apply(a, b, out);
+    }
+
+    int& calls;
+};
+
+void test_box_strategy()
+{
+    using point = bg::model::d2::point_xy<int>;
+    using box = bg::model::box<point>;
+    box const a{{0, 0}, {4, 4}}, b{{2, 5}, {7, 8}}, touching{{4, 1}, {5, 2}};
+    box out{{-9, -9}, {-8, -8}};
+    int calls = 0;
+    counting_cartesian strategy(calls);
+    BOOST_CHECK(bg::intersection(a, touching, out, strategy));
+    BOOST_CHECK(bg::equals(out, box({4, 1}, {4, 2})));
+    BOOST_CHECK_EQUAL(calls, 1);
+
+    // The second axis is disjoint. Only the first axis has been written.
+    out = box({-9, -9}, {-8, -8});
+    BOOST_CHECK(!bg::intersection(a, b, out));
+    BOOST_CHECK((bg::get<bg::min_corner, 0>(out) == 2));
+    BOOST_CHECK((bg::get<bg::max_corner, 0>(out) == 4));
+    BOOST_CHECK((bg::get<bg::min_corner, 1>(out) == -9));
+    BOOST_CHECK((bg::get<bg::max_corner, 1>(out) == -8));
+}
+
 int test_main(int, char*[])
 {
+    test_box_strategy();
     test_boxes_car<default_test_type>();
     test_boxes_geo<double>();
 
