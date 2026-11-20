@@ -127,6 +127,25 @@ class piece_turn_visitor
     Turns& m_turns;
     Strategy const& m_strategy;
 
+    template <typename S, typename It>
+    static auto place_new_touches(S const& strategy, Turns& turns, std::size_t first,
+                                  It p, It q, It r, It s, int)
+        -> decltype(strategy.place_touch(turns[first].operations[0].fraction, *p, *q, turns[first].point), void())
+    {
+        for (auto i = first; i < turns.size(); ++i)
+        {
+            auto& turn = turns[i];
+            if (turn.method == overlay::method_touch || turn.method == overlay::method_touch_interior
+                || turn.method == overlay::method_start)
+            {
+                strategy.place_touch(turn.operations[0].fraction, *p, *q, turn.point);
+                strategy.place_touch(turn.operations[1].fraction, *r, *s, turn.point);
+            }
+        }
+    }
+    template <typename S, typename It>
+    static void place_new_touches(S const&, Turns&, std::size_t, It, It, It, It, long) {}
+
     template <typename Piece>
     inline bool is_adjacent(Piece const& piece1, Piece const& piece2) const
     {
@@ -266,10 +285,12 @@ class piece_turn_visitor
                         detail::overlay::assign_policy_only_start_turns
                     >;
 
+                auto const first_turn = m_turns.size();
                 turn_policy::apply(unique_sub_range1, unique_sub_range2,
                                    the_model,
                                    m_strategy,
                                    std::back_inserter(m_turns));
+                place_new_touches(m_strategy, m_turns, first_turn, prev1, it1, prev2, it2, 0);
             }
         }
     }

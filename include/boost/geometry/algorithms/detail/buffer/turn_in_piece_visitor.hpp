@@ -14,6 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_PIECE_VISITOR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_PIECE_VISITOR_HPP
 
+#include <type_traits>
+
+#include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
 
@@ -25,6 +28,7 @@
 #include <boost/geometry/algorithms/detail/dummy_geometries.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_box.hpp>
 
 
 namespace boost { namespace geometry
@@ -53,6 +57,32 @@ class turn_in_piece_visitor
     DistanceStrategy const& m_distance_strategy; // to check if point is on original or one_sided
     UmbrellaStrategy const& m_umbrella_strategy;
 
+    template <typename Point>
+    static inline bool same_vertex(Point const& a, Point const& b)
+    {
+        return geometry::get<0>(a) == geometry::get<0>(b)
+            && geometry::get<1>(a) == geometry::get<1>(b);
+    }
+
+    template <typename Operation, typename Piece>
+    static inline bool on_original_side(Operation const& op, Piece const& empty_side,
+                                        Piece const& segment)
+    {
+        auto const& original = segment.m_piece_border;
+        auto const* ring = empty_side.m_piece_border.m_ring;
+        if (original.m_original_size != 2 || ring == nullptr)
+        {
+            return false;
+        }
+        auto const index = op.seg_id.segment_index;
+        auto const& from = (*ring)[index];
+        auto const& to = (*ring)[index + 1];
+        auto const& a = original.m_originals[0];
+        auto const& b = original.m_originals[1];
+        return (same_vertex(from, a) && same_vertex(to, b))
+            || (same_vertex(from, b) && same_vertex(to, a));
+    }
+
     template <typename Operation, typename Piece>
     inline bool skip(Operation const& op, Piece const& piece) const
     {
@@ -61,6 +91,17 @@ class turn_in_piece_visitor
             return true;
         }
         Piece const& pc = m_pieces[op.piece_index];
+        if (std::is_same<CsTag, cartesian_tag>::value
+            && pc.type == strategy::buffer::buffered_empty_side
+            && piece.type == strategy::buffer::buffered_segment
+            && op.seg_id.multi_index == piece.first_seg_id.multi_index
+            && on_original_side(op, pc, piece))
+        {
+            // The empty offset edge is the original border of this strip.
+            // Re-testing a rounded intersection against that border can put
+            // it inside, although the turn is incident to the border.
+            return true;
+        }
         if (pc.left_index == piece.index || pc.right_index == piece.index)
         {
             if (pc.type == strategy::buffer::buffered_flat_end)
@@ -111,6 +152,26 @@ class turn_in_piece_visitor
             }
         }
         return false;
+    }
+
+    template <typename Point, typename Piece, typename Tag>
+    static bool on_flat_cap(Point const&, Piece const&, Tag)
+    {
+        return false;
+    }
+
+    template <typename Point, typename Piece>
+    bool on_flat_cap(Point const& p, Piece const& neighbor, cartesian_tag) const
+    {
+        auto const& cap = neighbor.m_piece_border;
+        if (neighbor.type != strategy::buffer::buffered_flat_end || cap.m_end - cap.m_begin != 2)
+        {
+            return false;
+        }
+        auto const& a = (*cap.m_ring)[cap.m_begin];
+        auto const& b = (*cap.m_ring)[cap.m_end - 1];
+        return strategy::buffer::cartesian_buffer_detail::cartesian_buffer_box::locate(p, a, b) >= 0
+            && m_umbrella_strategy.side().apply(a, b, p) == 0;
     }
 
     template <typename NumericType>
@@ -185,7 +246,7 @@ public:
             return true;
         }
 
-        if (piece.type == geometry::strategy::buffer::buffered_point)
+        if (piece.type == geometry::strategy::buffer::buffered_point && ! border.m_rectangular_offset)
         {
             // Optimization for a buffer around points: if distance from center
             // is not between min/max radius, it is either inside or outside,
@@ -214,13 +275,18 @@ public:
             || m_pieces[piece.left_index].type == strategy::buffer::buffered_flat_end;
         bool const is_flat_end = piece.is_flat_end
             || m_pieces[piece.right_index].type == strategy::buffer::buffered_flat_end;
-        // Another linestring's endpoint does not expose this piece's interior.
-        bool const is_linear_end_point = turn.is_linear_end_point
-            && border.m_original_size > 0
-            && ((is_flat_start && geometry::equals(turn.point,
-                    border.m_originals[border.m_original_size - 1], m_umbrella_strategy))
-                || (is_flat_end && geometry::equals(turn.point,
-                    border.m_originals[0], m_umbrella_strategy)));
+        auto const exposed_original = [&](auto const& original, Piece const& neighbor)
+        {
+            // A reversal need not be a linestring endpoint. Its original vertex
+            // is exposed if it lies on the actual straight cap of this piece.
+            return geometry::equals(turn.point, original, m_umbrella_strategy)
+                && (turn.is_linear_end_point || on_flat_cap(turn.point, neighbor, CsTag{}));
+        };
+        bool const is_exposed_original = border.m_original_size > 0
+            && ((is_flat_start && exposed_original(border.m_originals[border.m_original_size - 1],
+                                                   m_pieces[piece.left_index]))
+                || (is_flat_end && exposed_original(border.m_originals[0],
+                                                    m_pieces[piece.right_index])));
 
         bool const is_exposed_start = is_flat_start
             || m_pieces[piece.left_index].type == strategy::buffer::buffered_concave;
@@ -229,7 +295,7 @@ public:
 
         typename Border::state_type state;
         if (! border.point_on_piece(turn.point, one_sided,
-                                    is_linear_end_point, state,
+                                    is_exposed_original, state,
                                     is_exposed_start, is_exposed_end))
         {
             return true;

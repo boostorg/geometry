@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <set>
+#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
@@ -28,6 +29,7 @@
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/covered_by.hpp>
@@ -400,14 +402,18 @@ struct buffered_piece_collection
 
             if (pc.offsetted_count > 0)
             {
+                bool const is_point_buffer = pc.type == strategy::buffer::buffered_point;
+                // Recognize rectangular strokes from their stored corners, not the strategy type.
+                bool const check_rectangle = std::is_same<geometry::cs_tag_t<point_type>, cartesian_tag>::value
+                    && is_point_buffer;
                 if (pc.type != strategy::buffer::buffered_concave)
                 {
                     border.set_offsetted(ring, pc.first_seg_id.segment_index,
-                                       pc.beyond_last_segment_index);
+                                         pc.beyond_last_segment_index, check_rectangle);
                 }
 
                 // Calculate envelopes for piece borders
-                border.get_properties_of_border(pc.type == geometry::strategy::buffer::buffered_point,
+                border.get_properties_of_border(is_point_buffer && ! border.m_rectangular_offset,
                                                 pc.m_center, m_strategy);
                 if (! pc.is_flat_end && ! pc.is_flat_start)
                 {

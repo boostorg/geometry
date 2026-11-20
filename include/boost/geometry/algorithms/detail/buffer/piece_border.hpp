@@ -20,6 +20,8 @@
 
 #include <boost/range/size.hpp>
 
+#include <boost/geometry/strategies/cartesian/buffer_box.hpp>
+
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/config.hpp>
 
@@ -114,6 +116,7 @@ struct piece_border
     Ring const* m_ring;
     std::size_t m_begin;
     std::size_t m_end;
+    bool m_rectangular_offset;
 
     // Points from the original (one or two, depending on piece shape)
     // Note, if there are 2 points, they are REVERSED w.r.t. the original
@@ -139,6 +142,7 @@ struct piece_border
         , m_ring(NULL)
         , m_begin(0)
         , m_end(0)
+        , m_rectangular_offset(false)
         , m_original_size(0)
         , m_has_envelope(false)
         , m_is_convex(false)
@@ -189,14 +193,15 @@ struct piece_border
     template <typename Strategy>
     void get_properties_of_offsetted_ring_part(Strategy const& strategy)
     {
-        if (! ring_or_original_empty())
+        if (! m_rectangular_offset && ! ring_or_original_empty())
         {
             m_is_convex = is_convex(strategy);
             check_monotonicity(m_ring->begin() + m_begin, m_ring->begin() + m_end);
         }
     }
 
-    void set_offsetted(Ring const& ring, std::size_t begin, std::size_t end)
+    void set_offsetted(Ring const& ring, std::size_t begin, std::size_t end,
+                       bool check_rectangle = false)
     {
         BOOST_GEOMETRY_ASSERT(begin <= end);
         BOOST_GEOMETRY_ASSERT(begin < boost::size(ring));
@@ -205,6 +210,9 @@ struct piece_border
         m_ring = std::addressof(ring);
         m_begin = begin;
         m_end = end;
+        m_rectangular_offset = check_rectangle
+            && strategy::buffer::cartesian_buffer_detail::cartesian_buffer_box::is_rectangle(
+                    ring.begin() + begin, ring.begin() + end);
     }
 
     void add_original_point(Point const& point)
@@ -236,6 +244,15 @@ struct piece_border
         if (ring_or_original_empty())
         {
             return false;
+        }
+
+        if (m_rectangular_offset)
+        {
+            int const location = strategy::buffer::cartesian_buffer_detail::cartesian_buffer_box::locate(
+                point, (*m_ring)[m_begin], (*m_ring)[m_begin + 2]);
+            state.count = location > 0 ? -1 : 0;
+            state.count_on_offsetted = location == 0 ? 1 : 0;
+            return true;
         }
 
         // Walk over the different parts of the ring, in clockwise order
@@ -299,7 +316,7 @@ struct piece_border
     //! Returns true if empty (no ring, or no points, or no original)
     bool ring_or_original_empty() const
     {
-        return m_ring == NULL || m_begin >= m_end || m_original_size == 0;
+        return m_ring == NULL || m_begin >= m_end || (m_original_size == 0 && ! m_rectangular_offset);
     }
 
 private :
