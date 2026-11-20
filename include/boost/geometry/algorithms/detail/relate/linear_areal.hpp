@@ -1099,11 +1099,15 @@ struct linear_areal
                     if ( op_blocked
                       && it->operations[op_id].position == overlay::position_back ) // ignore spikes!
                     {
-                        // check if this is indeed the boundary point
-                        // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
+                        // A member end (or the end of a clipped piece in a
+                        // collection) need not be on the linear boundary.
                         if (boundary_checker.is_endpoint_boundary(it->point))
                         {
                             update<boundary, boundary, '0', TransposeResult>(res);
+                        }
+                        else
+                        {
+                            update<interior, boundary, '0', TransposeResult>(res);
                         }
                     }
                     // union, inside, but no exit -> collinear on self-intersection point
