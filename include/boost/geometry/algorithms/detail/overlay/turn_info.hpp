@@ -12,6 +12,7 @@
 
 
 #include <array>
+#include <type_traits>
 
 #include <boost/geometry/core/coordinate_type.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
@@ -48,7 +49,15 @@ enum method_type
         The class is to be included in the turn_info class, either direct
         or a derived or similar class with more (e.g. enrichment) information.
  */
-template <typename Point, typename SegmentRatio>
+template <typename...> using turn_fraction_void_t = void;
+
+template <typename SegmentRatio, typename = void>
+struct stores_fraction : std::true_type {};
+
+template <typename SegmentRatio>
+struct stores_fraction<SegmentRatio, turn_fraction_void_t<typename SegmentRatio::no_fraction>> : std::false_type {};
+
+template <typename Point, typename SegmentRatio, bool = stores_fraction<SegmentRatio>::value>
 struct turn_operation
 {
     using segment_ratio_type = SegmentRatio;
@@ -57,6 +66,23 @@ struct turn_operation
     segment_identifier seg_id;
     segment_ratio_type fraction;
 };
+
+template <typename Point, typename SegmentRatio>
+struct turn_operation<Point, SegmentRatio, false>
+{
+    using segment_ratio_type = SegmentRatio;
+
+    operation_type operation{operation_none};
+    segment_identifier seg_id;
+};
+
+template <typename Point, typename = void>
+struct turn_numeric_storage {};
+
+template <typename Point>
+struct turn_numeric_storage<Point, turn_fraction_void_t<typename Point::turn_record_type>>
+    : Point::turn_record_type
+{};
 
 
 /*!
@@ -75,7 +101,7 @@ template
     typename Operation = turn_operation<Point, SegmentRatio>,
     typename Container = std::array<Operation, 2>
 >
-struct turn_info
+struct turn_info : turn_numeric_storage<Point>
 {
     using point_type = Point;
     using segment_ratio_type = SegmentRatio;

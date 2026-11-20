@@ -102,6 +102,22 @@ void test_all()
         "MULTILINESTRING((0 0,0 12,0 0,0 8,12 8))",
         join_miter, end_flat, 1, 0, 228.0, 1.0, ut_settings(), 8.0);
 
+    // The horizontal stroke retraces itself. Its cap at (0,2) is on the
+    // exposed boundary although (0,2) is not an input endpoint.
+    {
+        auto const input = bg::from_wkt<multi_linestring_type>(
+            "MULTILINESTRING((2 2,0 2,2 2),(2 2,2 4))");
+        bg::model::multi_polygon<polygon> buffered;
+        bg::buffer(input, buffered, bg::strategy::buffer::distance_symmetric<coor_type>(4),
+                   bg::strategy::buffer::side_straight(), join_miter, end_flat,
+                   bg::strategy::buffer::point_square());
+        BOOST_CHECK(bg::is_valid(buffered));
+        BOOST_CHECK_EQUAL(buffered.size(), 1u);
+        // Two 2-by-8 rectangles overlapping in a 2-by-2 square.
+        BOOST_CHECK_EQUAL(bg::area(buffered), 28);
+        BOOST_CHECK(bg::within(P(-1, 3), buffered));
+    }
+
     bg::strategy::buffer::end_round end_round32(32);
     bg::strategy::buffer::join_round join_round32(32);
 

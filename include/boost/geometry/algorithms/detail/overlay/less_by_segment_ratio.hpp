@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/strategies/side.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 namespace boost { namespace geometry
 {
@@ -92,7 +93,24 @@ private :
     Geometry2 const& m_geometry2;
     Strategy const& m_strategy;
 
-    using point_type = geometry::point_type_t<Geometry1>;
+    using point_type = typename strategies::relate::services::intersection_point_type
+        <Strategy, geometry::point_type_t<Geometry1>>::type;
+
+    int compare_position(Indexed const& left, Indexed const& right, std::true_type) const
+    {
+        auto const& a = left.subject->fraction;
+        auto const& b = right.subject->fraction;
+        return a == b ? 0 : a < b ? -1 : 1;
+    }
+
+    int compare_position(Indexed const& left, Indexed const& right, std::false_type) const
+    {
+        point_type first, last;
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+            left.subject->seg_id, first, last);
+        return m_strategy.segment_position().apply(first, last,
+            m_turns[left.turn_index].point, m_turns[right.turn_index].point);
+    }
 
     inline bool default_order(Indexed const& left, Indexed const& right) const
     {
@@ -152,9 +170,12 @@ public :
 
         // Both left and right are located on the SAME segment.
 
-        if (! (left.subject->fraction == right.subject->fraction))
+        using operation_type = typename Indexed::type;
+        int const position = compare_position(left, right,
+            stores_fraction<typename operation_type::segment_ratio_type>());
+        if (position != 0)
         {
-            return left.subject->fraction < right.subject->fraction;
+            return position < 0;
         }
 
         auto const& left_turn = m_turns[left.turn_index];

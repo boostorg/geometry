@@ -34,6 +34,7 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 
@@ -95,10 +96,12 @@ struct touches
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return dispatch::touches
-            <
-                Geometry1, Geometry2
-            >::apply(geometry1, geometry2, strategy);
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
+            {
+                return dispatch::touches<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
+            });
     }
 };
 

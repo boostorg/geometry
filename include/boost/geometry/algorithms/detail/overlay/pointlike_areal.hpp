@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_AREAL_HPP
 
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+
 #include <vector>
 
 #include <boost/range/begin.hpp>
@@ -189,7 +191,7 @@ private:
                 geometry::dimension<MultiPoint>::value,
                 geometry::coordinate_system_t<MultiPoint>
             >;
-        using box_type = geometry::model::box<point_type>;
+        using box_type = typename strategies::relate::services::box_type<Strategy, point_type>::type;
         using box_pair = std::pair<box_type, std::size_t>;
         std::vector<box_pair> box_pairs;
         box_pairs.reserve(boost::size(multipolygon));
@@ -219,7 +221,8 @@ public:
     {
         using point_vector_type = std::vector
             <
-                typename boost::range_value<MultiPoint>::type
+                typename strategies::relate::services::intersection_point_type
+                    <Strategy, typename boost::range_value<MultiPoint>::type>::type
             >;
 
         point_vector_type common_points;

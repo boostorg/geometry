@@ -22,6 +22,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_SECTIONALIZE_HPP
 
 #include <cstddef>
+#include <iterator>
 #include <type_traits>
 #include <vector>
 
@@ -37,7 +38,6 @@
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
-#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 
@@ -52,6 +52,8 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/geometries/box.hpp>
 #include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
+#include <boost/geometry/strategies/detail/section.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 #include <boost/geometry/util/sequence.hpp>
@@ -139,10 +141,8 @@ struct sections : std::vector<section<Box, DimensionCount> >
 namespace detail { namespace sectionalize
 {
 
-// NOTE: This utility will NOT work for latitudes, dimension 1 in spherical
-// and geographic coordinate system because in these coordinate systems
-// e.g. a segment on northern hemisphere may go towards greater latitude
-// and then towards lesser latitude.
+// Compatibility for coordinate-only callers. Strategy-bearing paths below use
+// get_section(strategy), so an umbrella can replace the numerical primitives.
 template
 <
     typename Point,
@@ -151,80 +151,8 @@ template
     std::size_t Count,
     typename CastedCSTag = tag_cast_t<cs_tag_t<Point>, spherical_tag>
 >
-struct get_direction_loop
-{
-    using dimension = typename util::sequence_element<Index, DimensionVector>::type;
-
-    template <typename Segment>
-    static inline void apply(Segment const& seg,
-                int directions[Count])
-    {
-        auto const& c0 = geometry::get<0, dimension::value>(seg);
-        auto const& c1 = geometry::get<1, dimension::value>(seg);
-
-        directions[Index] = c1 > c0 ? 1 : c1 < c0 ? -1 : 0;
-
-        get_direction_loop
-        <
-            Point,
-            DimensionVector,
-            Index + 1,
-            Count,
-            CastedCSTag
-        >::apply(seg, directions);
-    }
-};
-
-template
-<
-    typename Point,
-    typename DimensionVector,
-    std::size_t Count
->
-struct get_direction_loop<Point, DimensionVector, 0, Count, spherical_tag>
-{
-    using dimension = typename util::sequence_element<0, DimensionVector>::type;
-
-    template <typename Segment>
-    static inline void apply(Segment const& seg,
-                int directions[Count])
-    {
-        using coordinate_type = coordinate_type_t<Segment>;
-        using units_t = detail::coordinate_system_units_t<Point>;
-
-        coordinate_type const diff = math::longitude_distance_signed
-                                        <
-                                            units_t, coordinate_type
-                                        >(geometry::get<0, 0>(seg),
-                                          geometry::get<1, 0>(seg));
-
-        coordinate_type zero = coordinate_type();
-        directions[0] = diff > zero ? 1 : diff < zero ? -1 : 0;
-
-        get_direction_loop
-        <
-            Point,
-            DimensionVector,
-            1,
-            Count,
-            spherical_tag
-        >::apply(seg, directions);
-    }
-};
-
-template
-<
-    typename Point,
-    typename DimensionVector,
-    std::size_t Count,
-    typename CastedCSTag
->
-struct get_direction_loop<Point, DimensionVector, Count, Count, CastedCSTag>
-{
-    template <typename Segment>
-    static inline void apply(Segment const&, int [Count])
-    {}
-};
+using get_direction_loop = strategies::detail::section_detail::get_direction_loop
+    <Point, DimensionVector, Index, Count, CastedCSTag>;
 
 
 //! Copy one static array to another
@@ -272,37 +200,8 @@ struct compare_loop<T, Count, Count>
 
 
 template <std::size_t Dimension, std::size_t DimensionCount>
-struct check_duplicate_loop
-{
-    template <typename Segment>
-    static inline bool apply(Segment const& seg)
-    {
-        if (! geometry::math::equals
-                (
-                    geometry::get<0, Dimension>(seg),
-                    geometry::get<1, Dimension>(seg)
-                )
-            )
-        {
-            return false;
-        }
-
-        return check_duplicate_loop
-        <
-                Dimension + 1, DimensionCount
-        >::apply(seg);
-    }
-};
-
-template <std::size_t DimensionCount>
-struct check_duplicate_loop<DimensionCount, DimensionCount>
-{
-    template <typename Segment>
-    static inline bool apply(Segment const&)
-    {
-        return true;
-    }
-};
+using check_duplicate_loop = strategies::detail::section_detail::check_duplicate_loop
+    <Dimension, DimensionCount>;
 
 //! Assign a value to a static array
 template <typename T, std::size_t Index, std::size_t Count>
@@ -391,7 +290,8 @@ struct sectionalize_part
     {
         using section_type = typename boost::range_value<Sections>::type;
         using box_type = typename section_type::box_type;
-        using point_type = geometry::point_type_t<box_type>;
+        using point_type = typename strategies::detail::section_iterator_point_type
+            <Strategy, Iterator, box_type>::type;
 
         static_assert
             (
@@ -414,19 +314,17 @@ struct sectionalize_part
 
         Iterator it = begin;
         point_type previous_point;
-        geometry::detail::conversion::convert_point_to_point(*it, previous_point);
+        strategies::detail::assign_point_from_iterator(strategy, it, previous_point);
+        auto const& section_strategy = strategies::detail::get_section(strategy);
 
         for (Iterator previous = it++; it != end; ++previous, ++it, index++)
         {
             point_type current_point;
-            geometry::detail::conversion::convert_point_to_point(*it, current_point);
-            model::referring_segment<point_type> segment(previous_point, current_point);
+            strategies::detail::assign_point_from_iterator(strategy, it, current_point);
 
             int direction_classes[dimension_count] = {0};
-            get_direction_loop
-            <
-                point_type, DimensionVector, 0, dimension_count
-            >::apply(segment, direction_classes);
+            section_strategy.template directions<DimensionVector>
+                (previous_point, current_point, direction_classes);
 
             // if "dir" == 0 for all point-dimensions, it is duplicate.
             // Those sections might be omitted, if wished, lateron
@@ -437,11 +335,7 @@ struct sectionalize_part
                 // Recheck because ALL dimensions should be checked,
                 // not only first one.
                 // (dimension_count might be < dimension<P>::value)
-                if (check_duplicate_loop
-                    <
-                        0, geometry::dimension<point_type>::type::value
-                    >::apply(segment)
-                    )
+                if (section_strategy.duplicate(previous_point, current_point))
                 {
                     duplicate = true;
 
@@ -692,34 +586,12 @@ struct sectionalize_multi
 };
 
 template <typename Sections, typename Strategy>
-inline void enlarge_sections(Sections& sections, Strategy const&)
+inline void enlarge_sections(Sections& sections, Strategy const& strategy)
 {
-    // Expand the box to avoid missing any intersection.
-    // About the value itself: the smaller it is,
-    // the higher the risk to miss intersections.
-    // The larger it is, the more comparisons are made,
-    // which is not harmful for the result,
-    // but it might be for the performance.
-    // So it should be on the higher side.
-    //
-    // The current value:
-    // - for double :~ 2.22e-13
-    // - for float  :~ 1e-4
-    // - for Boost.Multiprecision (50) :~ 5.35e-48
-    // - for Boost.Rational : 0/1
-
-    // WARNING: don't use decltype here.
-    // Earlier code used decltype(section.bonding_box) below,
-    // but that somehow is not accepted by the NVCC (CUDA 12.4) compiler.
-    using section_t = typename boost::range_value<Sections>::type;
-    using box_t = typename section_t::box_type;
-    using coor_t = geometry::coordinate_type_t<box_t>;
-
-    static auto const eps = math::scaled_epsilon<coor_t>(1000);
-
+    auto const& section_strategy = strategies::detail::get_section(strategy);
     for (auto& section : sections)
     {
-        expand_by_epsilon(section.bounding_box, eps);
+        section_strategy.expand_box(section.bounding_box);
     }
 }
 

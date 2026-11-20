@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_SYM_DIFFERENCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_SYM_DIFFERENCE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <iterator>
 
@@ -25,6 +27,7 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
@@ -38,6 +41,15 @@ namespace boost { namespace geometry
 namespace detail { namespace sym_difference
 {
 
+template <typename A, typename B, typename Strategy>
+auto independent_parts(A const& a, B const& b, Strategy const& s, int)
+    -> decltype(s.no_common_boundary_edge(a, b))
+{
+    return s.no_common_boundary_edge(a, b);
+}
+
+template <typename A, typename B, typename Strategy>
+bool independent_parts(A const&, B const&, Strategy const&, long) { return false; }
 
 template <typename GeometryOut>
 struct compute_difference
@@ -132,6 +144,16 @@ struct sym_difference_areal_areal
             <
                 GeometryOut
             >::apply(areal2, areal1, oit21, strategy);
+
+        // The two regularized differences have disjoint interiors. Their
+        // closures can meet only on the common input boundary. If it has
+        // no edge, their components already form a valid multipolygon.
+        if (independent_parts(areal1, areal2, strategy, 0))
+        {
+            for (auto& p : diff12) *out++ = std::move(p);
+            for (auto& p : diff21) *out++ = std::move(p);
+            return out;
+        }
 
         return geometry::dispatch::union_insert
             <
@@ -624,10 +646,16 @@ struct sym_difference
                              Collection & output_collection,
                              Strategy const& strategy)
     {
-        resolve_collection::sym_difference
-            <
-                Geometry1, Geometry2, Collection
-            >::apply(geometry1, geometry2, output_collection, strategy);
+        strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
+        {
+            detail::overlay::with_working_output(output_collection, bound, a, b, [&](auto& working)
+            {
+                resolve_collection::sym_difference<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
+                return true;
+            });
+        });
     }
 };
 
@@ -816,6 +844,13 @@ inline void sym_difference(Geometry1 const& geometry1,
                            Geometry2 const& geometry2,
                            Collection& output_collection)
 {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    namespace exact = detail::cartesian_exact_default;
+    if constexpr (exact::admits_output<exact::operation::sym_difference, Geometry1, Geometry2, Collection>())
+    {
+        return geometry::sym_difference(geometry1, geometry2, output_collection, exact::strategy<Geometry1, Geometry2>{});
+    }
+#endif
     resolve_dynamic::sym_difference
         <
             Geometry1,

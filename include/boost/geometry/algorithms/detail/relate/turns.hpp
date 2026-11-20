@@ -15,6 +15,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_TURNS_HPP
 
+#include <type_traits>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
@@ -23,6 +26,8 @@
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
 #include <boost/geometry/strategies/cartesian/point_in_point.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/spherical/point_in_point.hpp>
 #include <boost/geometry/strategies/distance.hpp>
 
@@ -63,14 +68,21 @@ struct get_turns
     >
     struct turn_info_type
     {
-        using ratio_type = typename segment_ratio_type<turn_point_type>::type;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <
+                Strategy, turn_point_type
+            >::type;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <
+                Strategy, point_type
+            >::type;
         using type = overlay::turn_info
             <
-                turn_point_type,
+                point_type,
                 ratio_type,
                 typename detail::get_turns::turn_operation_type
                     <
-                        Geometry1, Geometry2, turn_point_type, ratio_type
+                        Geometry1, Geometry2, point_type, ratio_type
                     >::type
             >;
     };
@@ -234,19 +246,19 @@ struct less
 {
     static_assert(OpId < 2, "Only 0 and 1 are valid OpIds.");
 
-    template <typename Turn>
-    static inline bool use_fraction(Turn const& left, Turn const& right)
-    {
-        using eq_pp_strategy_type = decltype(std::declval<Strategy>().relate(
-            detail::dummy_point(), detail::dummy_point()));
+    explicit less(Strategy const& strategy = Strategy())
+        : m_strategy(strategy)
+    {}
 
+    template <typename Turn>
+    inline bool use_fraction(Turn const& left, Turn const& right) const
+    {
         static LessOp less_op;
 
-        // NOTE: Assuming fraction is more permissive and faster than
-        //       comparison of points with strategy.
-        return geometry::math::equals(left.operations[OpId].fraction,
-                                      right.operations[OpId].fraction)
-                && eq_pp_strategy_type::apply(left.point, right.point)
+        return strategies::detail::get_topology(m_strategy).same_segment_position(
+                    left.operations[OpId].fraction,
+                    right.operations[OpId].fraction)
+                && m_strategy.relate(left.point, right.point).apply(left.point, right.point)
              ?
              less_op(left, right)
              :
@@ -262,6 +274,40 @@ struct less
 
         return sl < sr || ( sl == sr && use_fraction(left, right) );
     }
+
+    template <typename Turn, typename Geometry>
+    bool use_position(Turn const& left, Turn const& right, Geometry const&, std::true_type) const
+    { return use_fraction(left, right); }
+
+    template <typename Turn, typename Geometry>
+    bool use_position(Turn const& left, Turn const& right, Geometry const& geometry, std::false_type) const
+    {
+        auto const& source = detail::sub_range(geometry, left.operations[OpId].seg_id);
+        using range_type = typename std::remove_reference<decltype(source)>::type;
+        detail::closed_clockwise_view<range_type, geometry::closure<range_type>::value,
+            geometry::point_order<Geometry>::value> view(source);
+        auto const index = left.operations[OpId].seg_id.segment_index;
+        int const order = m_strategy.segment_position().apply(range::at(view, index), range::at(view, index + 1),
+                                                               left.point, right.point);
+        return order == 0 ? LessOp()(left, right) : order < 0;
+    }
+
+    template <typename Geometry>
+    auto on_geometry(Geometry const& geometry) const
+    {
+        auto const comparator = *this;
+        return [comparator, &geometry](auto const& left, auto const& right)
+        {
+            auto const& sl = left.operations[OpId].seg_id;
+            auto const& sr = right.operations[OpId].seg_id;
+            using turn = typename std::decay<decltype(left)>::type;
+            return sl < sr || (sl == sr && comparator.use_position(left, right, geometry,
+                overlay::stores_fraction<typename turn::segment_ratio_type>()));
+        };
+    }
+
+private:
+    Strategy m_strategy;
 };
 
 }}} // namespace detail::relate::turns

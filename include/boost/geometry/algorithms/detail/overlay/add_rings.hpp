@@ -25,6 +25,8 @@
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/detail/overlay/convert_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 
 
 namespace boost { namespace geometry
@@ -40,13 +42,14 @@ template
     typename GeometryOut,
     typename Geometry1,
     typename Geometry2,
-    typename RingCollection
+    typename RingCollection,
+    typename Strategy
 >
 inline void convert_and_add(GeometryOut& result,
             Geometry1 const& geometry1, Geometry2 const& geometry2,
             RingCollection const& collection,
             ring_identifier id,
-            bool reversed, bool append)
+            bool reversed, bool append, Strategy const& strategy)
 {
     using tag1 = geometry::tag_t<Geometry1>;
     using tag2 = geometry::tag_t<Geometry2>;
@@ -56,19 +59,19 @@ inline void convert_and_add(GeometryOut& result,
     {
         convert_ring<tag_out>::apply(result,
                     get_ring<tag1>::apply(id, geometry1),
-                    append, reversed);
+                    append, reversed, strategy);
     }
     else if (id.source_index == 1)
     {
         convert_ring<tag_out>::apply(result,
                     get_ring<tag2>::apply(id, geometry2),
-                    append, reversed);
+                    append, reversed, strategy);
     }
     else if (id.source_index == 2)
     {
         convert_ring<tag_out>::apply(result,
                     get_ring<void>::apply(id, collection),
-                    append, reversed);
+                    append, reversed, strategy);
     }
 }
 
@@ -78,6 +81,49 @@ enum add_rings_error_handling
     add_rings_add_unordered,
     add_rings_throw_if_reversed
 };
+
+template <typename GeometryOut, typename Geometry, typename OutputIterator, typename Strategy>
+inline OutputIterator add_validated_ring(Geometry const& result, OutputIterator out,
+        Strategy const& strategy, add_rings_error_handling error_handling, std::false_type)
+{
+    auto const& ring_topology = strategies::detail::get_ring_topology(strategy);
+    auto const area = ring_topology.signed_measure(result);
+    if (!ring_topology.measure_is_zero(area))
+    {
+        if (error_handling == add_rings_add_unordered || ring_topology.measure_sign(area) > 0)
+        {
+            GeometryOut output;
+            strategies::detail::convert_geometry(strategy, result, output);
+            *out++ = std::move(output);
+        }
+        else if (error_handling == add_rings_throw_if_reversed)
+        {
+            BOOST_THROW_EXCEPTION(invalid_output_exception());
+        }
+    }
+    return out;
+}
+
+template <typename GeometryOut, typename Geometry, typename OutputIterator, typename Strategy>
+inline OutputIterator add_validated_ring(Geometry const& result, OutputIterator out,
+        Strategy const& strategy, add_rings_error_handling error_handling, std::true_type)
+{
+    auto const status = strategies::detail::get_ring_topology(strategy).analyze(result);
+    if (status.valid)
+    {
+        if (error_handling == add_rings_add_unordered || status.direction > 0)
+        {
+            GeometryOut output;
+            strategies::detail::convert_geometry(strategy, result, output);
+            *out++ = std::move(output);
+        }
+        else if (error_handling == add_rings_throw_if_reversed)
+        {
+            BOOST_THROW_EXCEPTION(invalid_output_exception());
+        }
+    }
+    return out;
+}
 
 template
 <
@@ -113,9 +159,11 @@ inline OutputIterator add_rings(SelectionMap const& map,
         if (! pair.second.discarded
             && pair.second.parent.source_index == -1)
         {
-            GeometryOut result;
+            using working_geometry_type = typename strategies::relate::services::overlay_geometry_type
+                <Strategy, GeometryOut>::type;
+            working_geometry_type result;
             convert_and_add(result, geometry1, geometry2, collection,
-                    pair.first, pair.second.reversed, false);
+                    pair.first, pair.second.reversed, false, strategy);
 
             // Add children
             for (auto const& child : pair.second.children)
@@ -124,7 +172,7 @@ inline OutputIterator add_rings(SelectionMap const& map,
                 if (mit != map.end() && ! mit->second.discarded)
                 {
                     convert_and_add(result, geometry1, geometry2, collection,
-                            child, mit->second.reversed, true);
+                            child, mit->second.reversed, true, strategy);
                 }
             }
 
@@ -133,22 +181,8 @@ inline OutputIterator add_rings(SelectionMap const& map,
             // everything is figured out yet (sum of positive/negative rings)
             if (geometry::num_points(result) >= min_num_points)
             {
-                using area_type = typename geometry::area_result<GeometryOut, Strategy>::type;
-                area_type const area = geometry::area(result, strategy);
-                area_type const zero = 0;
-                // Ignore if area is 0
-                if (! math::equals(area, zero))
-                {
-                    if (error_handling == add_rings_add_unordered
-                        || area > zero)
-                    {
-                        *out++ = result;
-                    }
-                    else if (error_handling == add_rings_throw_if_reversed)
-                    {
-                        BOOST_THROW_EXCEPTION(invalid_output_exception());
-                    }
-                }
+                out = add_validated_ring<GeometryOut>(result, out, strategy, error_handling,
+                    strategies::detail::ring_properties_detail::is_topological<typename SelectionMap::mapped_type>());
             }
         }
     }

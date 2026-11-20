@@ -17,10 +17,12 @@
 
 #include <cstddef>
 #include <iterator>
+#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
+#include <boost/range/iterator_range.hpp>
 #include <boost/range/rbegin.hpp>
 #include <boost/range/rend.hpp>
 #include <boost/range/size.hpp>
@@ -42,7 +44,10 @@
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/ring.hpp>
 
+#include <boost/geometry/strategies/agnostic/buffer_distance_asymmetric.hpp>
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_end_flat.hpp>
+#include <boost/geometry/strategies/cartesian/buffer_side_straight.hpp>
 #include <boost/geometry/strategies/side.hpp>
 
 #include <boost/geometry/util/constexpr.hpp>
@@ -92,6 +97,71 @@ inline void simplify_input(RangeIn const& range,
             strategies);
     }
 }
+
+template <typename Linestring, typename Distance, typename RangeOut, typename Strategies>
+bool simplify_reversals(Linestring const&, Distance const&, RangeOut&, Strategies const&,
+                        std::false_type)
+{
+    return false;
+}
+
+template <typename Linestring, typename Distance, typename RangeOut, typename Strategies>
+bool simplify_reversals(Linestring const& line, Distance const& distance, RangeOut& simplified,
+                        Strategies const& strategies, std::true_type)
+{
+    auto const& p = *boost::begin(line);
+    auto const left = distance.apply(p, p, strategy::buffer::buffer_side_left);
+    auto const right = distance.apply(p, p, strategy::buffer::buffer_side_right);
+    if (distance.negative() || left < 0 || right < 0 || left == right)
+    {
+        return false;
+    }
+
+    auto first = boost::begin(line);
+    auto const end = boost::end(line);
+    auto const side = strategies.side();
+    auto const simplify_section = [&](auto last)
+    {
+        geometry::detail::simplify::simplify_range<2>::apply(
+            boost::make_iterator_range(first, last), simplified,
+            distance.simplify_distance(), detail::simplify::douglas_peucker(), strategies);
+    };
+
+    auto previous = first;
+    auto current = first;
+    for (auto next = std::next(current); next != end; ++next)
+    {
+        if (detail::equals::equals_point_point(*current, *next, strategies))
+        {
+            continue;
+        }
+        if (previous != current && side.apply(*previous, *current, *next) == 0
+            && direction_code<cartesian_tag>(*previous, *current, *next) == -1)
+        {
+            // A collinear reversal can change the buffered side even
+            // though it has zero distance to the simplification chord.
+            simplify_section(std::next(current));
+            simplified.pop_back(); // The next section will add the shared vertex.
+            first = current;
+        }
+        previous = current;
+        current = next;
+    }
+    if (first == boost::begin(line))
+    {
+        return false;
+    }
+    simplify_section(end);
+    return true;
+}
+
+template <typename Distance>
+struct is_constant_asymmetric : std::false_type
+{};
+
+template <typename T>
+struct is_constant_asymmetric<strategy::buffer::distance_asymmetric<T>> : std::true_type
+{};
 
 
 template <typename RingOutput>
@@ -153,7 +223,8 @@ struct buffer_range
                     // For linestrings, only add spike at one side to avoid
                     // duplicates
                     std::vector<output_point_type> range_out;
-                    end_strategy.apply(penultimate_input, prev_perp2, previous_input, perp1, side, distance, range_out);
+                    end_strategy.apply(penultimate_input, prev_perp2, previous_input, perp1,
+                                       side, distance, range_out);
                     collection.add_endcap(end_strategy, range_out, previous_input);
                     collection.set_current_ring_concave();
                 }
@@ -715,7 +786,17 @@ struct buffer_inserter<linestring_tag, Linestring, Polygon>
     {
         // Use helper geometry to support non-mutable input Linestrings
         model::linestring<output_point_type> simplified;
-        detail::buffer::simplify_input(linestring, distance, simplified, strategies);
+        using preserve_reversals = std::integral_constant<bool,
+            std::is_same<geometry::cs_tag_t<Linestring>, cartesian_tag>::value
+            && std::is_same<EndStrategy, strategy::buffer::end_flat>::value
+            && std::is_same<SegmentStrategy, strategy::buffer::side_straight>::value
+            && detail::buffer::is_constant_asymmetric<DistanceStrategy>::value>;
+        if (boost::size(linestring) < 3
+            || ! detail::buffer::simplify_reversals(linestring, distance, simplified, strategies,
+                                                    preserve_reversals()))
+        {
+            detail::buffer::simplify_input(linestring, distance, simplified, strategies);
+        }
 
         geometry::strategy::buffer::result_code code = geometry::strategy::buffer::result_no_output;
         std::size_t n = boost::size(simplified);

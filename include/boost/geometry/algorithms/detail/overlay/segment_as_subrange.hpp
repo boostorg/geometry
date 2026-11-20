@@ -10,10 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SEGMENT_AS_SUBRANGE_HPP
 
 
-#include <cstddef>
-#include <map>
-
-#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/strategies/detail/segment_as_subrange.hpp>
 
 namespace boost { namespace geometry
 {
@@ -23,33 +20,7 @@ namespace detail
 {
 
 template <typename Segment>
-struct segment_as_subrange
-{
-    segment_as_subrange(Segment const& s)
-        : m_segment(s)
-    {
-        geometry::set<0>(m_p1, geometry::get<0, 0>(m_segment));
-        geometry::set<1>(m_p1, geometry::get<0, 1>(m_segment));
-        geometry::set<0>(m_p2, geometry::get<1, 0>(m_segment));
-        geometry::set<1>(m_p2, geometry::get<1, 1>(m_segment));
-    }
-
-    using point_type = geometry::point_type_t<Segment>;
-
-    point_type const& at(std::size_t index) const
-    {
-        return index == 0 ? m_p1 : m_p2;
-    }
-
-    static inline bool is_last_segment()
-    {
-        return true;
-    }
-
-    point_type m_p1, m_p2;
-
-    Segment const& m_segment;
-};
+using segment_as_subrange = strategies::detail::segment_as_subrange<Segment>;
 
 } // namespace detail
 #endif // DOXYGEN_NO_DETAIL

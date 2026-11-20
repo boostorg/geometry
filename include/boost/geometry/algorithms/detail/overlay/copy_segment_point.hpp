@@ -31,6 +31,7 @@
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/strategies/detail/output_support.hpp>
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
 
@@ -61,6 +62,11 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
+        if (strategies::detail::try_copy_source_vertex<Reverse>(range, seg_id, offset, point))
+        {
+            return true;
+        }
+
         using view_type = detail::closed_clockwise_view
             <
                 Range const,
@@ -115,6 +121,11 @@ struct copy_segment_point_box
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
+        if (strategies::detail::try_copy_source_vertex<Reverse>(box, seg_id, offset, point))
+        {
+            return true;
+        }
+
         std::array<point_type_t<Box>, 4> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
 
@@ -122,7 +133,7 @@ struct copy_segment_point_box
         BOOST_GEOMETRY_ASSERT(target >= 0
                            && std::size_t(target) < bp.size());
 
-        point = bp[target];
+        geometry::convert(bp[target], point);
         return true;
     }
 };

@@ -179,6 +179,13 @@ template <typename Geometry1, typename Geometry2>
 inline de9im::matrix relation(Geometry1 const& geometry1,
                               Geometry2 const& geometry2)
 {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    namespace exact = detail::cartesian_exact_default;
+    if constexpr (exact::admits_relation<Geometry1, Geometry2>)
+    {
+        return geometry::relation(geometry1, geometry2, exact::strategy<Geometry1, Geometry2>{});
+    }
+#endif
     return resolve_dynamic::relation
         <
             Geometry1,

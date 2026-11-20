@@ -10,7 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_SELECT_EDGE_HPP
 
 #include <boost/core/ignore_unused.hpp>
-#include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
@@ -56,21 +56,13 @@ private:
     using edge_type = edge_and_side<point_type>;
     using edges_type = std::vector<edge_type>;
 
-    // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
-    using coor_type = typename geometry::select_most_precise
-        <
-            geometry::coordinate_type_t<point_type>,
-            double
-        >::type;
-
     // Walks over a ring to get the point after the turn.
     // The turn can be located at the very end of a segment.
     // Therefore it can be the first point on the next segment.
     template <typename Operation>
     point_type walk_to_point_after_turn(Operation const& op, point_type const& turn_point) const
     {
-        static const coor_type tolerance
-            = common_approximately_equals_epsilon_multiplier<coor_type>::value();
+        auto const& topology = strategies::detail::get_topology(m_intersection_strategy);
         int offset = 1;
         point_type point;
         do
@@ -78,7 +70,7 @@ private:
             geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
                 op.seg_id, offset, point);
             ++offset;
-        } while (approximately_equals(point, turn_point, tolerance) && offset < 10);
+        } while (topology.same_direction_point(point, turn_point) && offset < 10);
         return point;
     }
 
@@ -182,13 +174,16 @@ private:
 
         if (edges.front().side == 0)
         {
-            // Select for collinearity (it makes no sense to sort on mutual side)
-            auto compare = [&](edge_type const& a, edge_type const& b) -> bool
+            // This pairwise preference is not a strict weak ordering.
+            auto selected = edges.begin();
+            for (auto it = selected + 1; it != edges.end(); ++it)
             {
-                return select_collinear_target_edge(a, b);
-            };
-            std::sort(edges.begin(), edges.end(), compare);
-            return edges.front().toi;
+                if (select_collinear_target_edge(*it, *selected))
+                {
+                    selected = it;
+                }
+            }
+            return selected->toi;
         }
 
         // Phase 2, sort by mutual side, of the edges having the front edge's side.

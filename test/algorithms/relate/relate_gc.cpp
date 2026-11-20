@@ -26,6 +26,11 @@ using gc_t = bg::model::geometry_collection<var_t>;
 
 void test_gc_gc()
 {
+    // (0,1) is a line endpoint; (2,1) is only the end of its clipped piece.
+    char const* const mixed = "GEOMETRYCOLLECTION(POLYGON((0 0,0 2,2 2,2 0,0 0)), LINESTRING(3 0,3 2))";
+    test_geometry<gc_t, gc_t>(mixed, "GEOMETRYCOLLECTION(LINESTRING(0 1,4 1))", "1F2001102");
+    test_geometry<gc_t, gc_t>(mixed, "GEOMETRYCOLLECTION(LINESTRING(0 1,2 1))", "1F2F01FF2");
+
     test_geometry<gc_t, gc_t>("GEOMETRYCOLLECTION(POLYGON((0 0,0 10,10 10,10 0,0 0)), LINESTRING(5 10, 10 11, 15 10))",
                               "GEOMETRYCOLLECTION(POLYGON((10 0,10 10,20 10,20 0,10 0)), POINT(15 5))",
                               "FF2F11212");

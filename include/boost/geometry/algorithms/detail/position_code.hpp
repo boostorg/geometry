@@ -10,6 +10,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_POSITION_CODE_HPP
 
 #include <boost/geometry/algorithms/detail/direction_code.hpp>
+#include <boost/geometry/strategies/detail/position_code.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,37 +31,11 @@ namespace detail
 //        |
 //        1
 //        ^         ^: p1
-template <typename Point, typename SideStrategy>
-int get_position_code(Point const& p1, Point const& p2, Point const& point, SideStrategy const& side_strategy)
+template <typename PointA, typename PointB, typename Point, typename Strategy>
+int get_position_code(PointA const& p1, PointB const& p2, Point const& point,
+                      Strategy const& strategy)
 {
-    using cs_tag = typename SideStrategy::cs_tag;
-    auto const side = side_strategy.apply(p1, p2, point);                
-    if (side == 1)
-    {
-        // left of [p1..p2]
-        return 4;
-    }
-    else if (side == -1)
-    {
-        // right of [p1..p2]
-        return 2;
-    }
-
-    // collinear with [p1..p2]
-    auto const dir_code = direction_code<cs_tag>(p1, p2, point);
-    if (dir_code == -1)
-    {
-        // collinear, on [p1..p2] or before p1
-        return 1;
-    }
-    else if (dir_code == 1)
-    {
-        // collinear with [p1..p2], but farther than p2
-        return 3;
-    }
-
-    // The segment is degenerate
-    return 0;
+    return strategies::detail::position_code(p1, p2, point, strategy);
 }
 
 } // namespace detail

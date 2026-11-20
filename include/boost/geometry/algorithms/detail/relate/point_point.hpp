@@ -26,6 +26,7 @@
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/util/sorted_point_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -228,13 +229,9 @@ struct multipoint_multipoint
                               Result & result)
     {
         // sort points from the 1 MPt
-        using point_type = geometry::point_type_t<SortedMultiPoint>;
         using less_type = geometry::less<void, -1, Strategy>;
-
-        std::vector<point_type> points(boost::begin(sorted_mpt), boost::end(sorted_mpt));
-
         less_type const less = less_type();
-        std::sort(points.begin(), points.end(), less);
+        util::sorted_point_view<SortedMultiPoint> const points(sorted_mpt, less);
 
         bool found_inside = false;
         bool found_outside = false;

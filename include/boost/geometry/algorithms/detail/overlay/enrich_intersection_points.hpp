@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <type_traits>
 #include <vector>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
@@ -34,6 +35,7 @@
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #include <boost/geometry/algorithms/detail/overlay/discard_duplicate_turns.hpp>
@@ -100,6 +102,15 @@ inline void enrich_sort(Operations& operations,
                     Reverse1, Reverse2
                 >(turns, geometry1, geometry2, strategy));
 }
+
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+template <typename Operation>
+inline void print_enrich_fraction(std::ostream& os, Operation const& operation, std::true_type)
+{ os << " dst=" << operation.fraction; }
+
+template <typename Operation>
+inline void print_enrich_fraction(std::ostream&, Operation const&, std::false_type) {}
+#endif
 
 // Assign travel-to-vertex/ip index for each turn.
 template <typename Operations, typename Turns>
@@ -187,9 +198,10 @@ inline void enrich_assign(Operations& operations, Turns& turns)
         std::cout << indexed_op.turn_index
             << " cl=" << turns[indexed_op.turn_index].cluster_id
             << " meth=" << method_char(turns[indexed_op.turn_index].method)
-            << " seg=" << op.seg_id
-            << " dst=" << op.fraction // needs define
-            << " op=" << operation_char(turns[indexed_op.turn_index].operations[0].operation)
+            << " seg=" << op.seg_id;
+        using operation_type = typename std::decay<decltype(op)>::type;
+        print_enrich_fraction(std::cout, op, stores_fraction<typename operation_type::segment_ratio_type>());
+        std::cout << " op=" << operation_char(turns[indexed_op.turn_index].operations[0].operation)
             << operation_char(turns[indexed_op.turn_index].operations[1].operation)
             << " (" << operation_char(op.operation) << ")"
             << " to=" << op.enriched.travels_to_ip_index
@@ -338,7 +350,10 @@ inline void enrich_discard_turns(Turns& turns, Clusters& clusters,
     // Turns are often used by index (in clusters, next_index, etc)
     // and turns may therefore NOT be DELETED - they may only be flagged as discarded
 
-    discard_duplicate_turns(turns, geometry1, geometry2);
+    constexpr bool require_cluster = OverlayType == overlay_buffer
+        && std::is_same<geometry::cs_tag_t<typename Turns::value_type::point_type>,
+                        cartesian_tag>::value;
+    discard_duplicate_turns<require_cluster>(turns, geometry1, geometry2);
 
     // Discard turns not part of target overlay
     for (auto& turn : turns)

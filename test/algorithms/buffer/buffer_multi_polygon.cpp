@@ -612,9 +612,7 @@ void test_all()
     TEST_BUFFER(rt_w2, join_miter, end_flat, 13.65685, 1.0);
     TEST_BUFFER(rt_w3, join_miter, end_flat, 53.1421, 1.0);
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_BLOCK_Q)
     TEST_BUFFER(rt_w4, join_miter, end_flat, 57.37, 1.0);
-#endif
 
     TEST_BUFFER(rt_w5, join_miter, end_flat, 106.7279, 1.0);
     TEST_BUFFER(rt_w6, join_miter, end_flat, 79.799, 1.0);
@@ -623,10 +621,7 @@ void test_all()
     TEST_BUFFER(rt_w9, join_miter, end_flat, 68.9852, 1.0);
     TEST_BUFFER(rt_w10, join_miter, end_flat, 88.1985, 1.0);
     TEST_BUFFER(rt_w11, join_miter, end_flat, 53.4853, 1.0);
-#if defined(BOOST_GEOMETRY_TEST_EXCEPT_MACOS_RELEASE)
-    // macOS Release-only: empty output
     TEST_BUFFER(rt_w12, join_miter, end_flat, 28.7353, 1.0);
-#endif
     TEST_BUFFER(rt_w13, join_miter, end_flat, 25.5711, 1.0);
     TEST_BUFFER(rt_w14, join_miter, end_flat, 58.05634, 1.0);
     TEST_BUFFER(rt_w15, join_miter, end_flat, 80.1348, 1.0);
@@ -634,23 +629,21 @@ void test_all()
     TEST_BUFFER(rt_w17, join_miter, end_flat, 33.74264, 1.0);
     TEST_BUFFER(rt_w18, join_miter, end_flat, 83.4779, 1.0);
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL)
-    // See comments at issue issue_1262
     TEST_BUFFER(rt_w19, join_miter, end_flat, 53.7132, 1.0);
-#endif
-
-#if defined(BOOST_GEOMETRY_TEST_EXCEPT_MACOS_RELEASE)
-    // macOS Release-only: area calculated as ~13.66
     TEST_BUFFER(rt_w20, join_miter, end_flat, 63.0269, 1.0);
-#endif
+
+    // #1359 reduced to two triangles. Their unit miter offsets have legs
+    // of length 3 + sqrt(2), and intersect in a triangle of leg sqrt(2) - 1.
+    test_one<multi_polygon_type, polygon_type>("issue_1359_reduced",
+        "MULTIPOLYGON(((2 8,2 9,3 8,2 8)),((6 4,6 5,7 4,6 4)))",
+        join_miter, end_flat, 9.5 + 7.0 * std::sqrt(2.0), 1.0);
+
     TEST_BUFFER(rt_w21, join_miter, end_flat, 26.3137, 1.0);
     TEST_BUFFER(rt_w22, join_miter, end_flat, 86.1274, 1.0);
 
     TEST_BUFFER(rt_w23, join_miter, end_flat, 59.5711, 1.0);
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_BLOCK_Q)
     TEST_BUFFER(rt_w24, join_miter, end_flat, 64.1985, 1.0);
-#endif
 
     TEST_BUFFER(rt_w25, join_miter, end_flat, 84.3848, 1.0);
     TEST_BUFFER(rt_w26, join_miter, end_flat, 91.6569, 1.0);
@@ -667,9 +660,7 @@ void test_all()
     TEST_BUFFER(rt_w30, join_miter, end_flat, 59.4485, 1.0);
     TEST_BUFFER(rt_w31, join_miter, end_flat, 85.7916, 1.0);
 
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_START_TURNS)
     TEST_BUFFER(rt_w32, join_miter, end_flat, 40.6569, 1.0);
-#endif
 
     TEST_BUFFER_VALIDITY_FALSE_NEGATIVE(rt_w33, join_round32, end_flat, 23.3895, 1.0);
     TEST_BUFFER_VALIDITY_FALSE_NEGATIVE(rt_w34, join_round32, end_flat, 26.5830, 1.0);
@@ -757,9 +748,52 @@ void test_all()
     }
 }
 
+struct composed_cartesian_buffer
+    : bg::strategies::distance::cartesian<>
+    , bg::strategies::buffer::cartesian_touch_placement
+{};
+
+template <typename Strategy, typename Coordinate,
+          typename Point = bg::model::point<Coordinate, 2, bg::cs::cartesian>>
+auto has_buffer_touch_placement(int)
+    -> decltype(std::declval<Strategy const&>().place_touch(
+        std::declval<bg::segment_ratio<Coordinate>&>(),
+        std::declval<Point const&>(), std::declval<Point const&>(),
+        std::declval<Point const&>()), std::true_type());
+
+template <typename Strategy, typename Coordinate>
+std::false_type has_buffer_touch_placement(long);
+
+void test_umbrella_touch_placement_opt_in()
+{
+    static_assert(decltype(has_buffer_touch_placement<composed_cartesian_buffer, double>(0))::value,
+                  "The composed umbrella opts into represented floating touch placement");
+    static_assert(! decltype(has_buffer_touch_placement<composed_cartesian_buffer, int>(0))::value,
+                  "The hook must not rewrite integral ratios");
+    static_assert(! decltype(has_buffer_touch_placement<bg::strategies::distance::cartesian<>, double>(0))::value,
+                  "An independent umbrella does not get a placement policy by default");
+
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using polygon = bg::model::polygon<point>;
+    using multi = bg::model::multi_polygon<polygon>;
+    auto const input = bg::from_wkt<multi>(
+        "MULTIPOLYGON(((2 8,2 9,3 8,2 8)),((6 4,6 5,7 4,6 4)))");
+    multi out;
+    bg::detail::buffer::visit_pieces_default_policy visitor;
+    // Reuse the placement rule without selecting the ordinary buffer umbrella.
+    bg::detail::buffer::buffer_inserter<polygon>(input, std::back_inserter(out),
+        bg::strategy::buffer::distance_symmetric<double>(1), bg::strategy::buffer::side_straight(),
+        bg::strategy::buffer::join_miter(), bg::strategy::buffer::end_flat(),
+        bg::strategy::buffer::point_square(), composed_cartesian_buffer(), visitor);
+    BOOST_CHECK(bg::is_valid(out));
+    BOOST_CHECK_EQUAL(out.size(), 1u);
+    BOOST_CHECK_CLOSE(bg::area(out), 9.5 + 7 * std::sqrt(2.0), ut_settings::default_tolerance);
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
+    test_umbrella_touch_placement_opt_in();
 
     test_all<true, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
 

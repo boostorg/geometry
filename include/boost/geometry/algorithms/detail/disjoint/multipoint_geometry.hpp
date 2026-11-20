@@ -49,6 +49,8 @@
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 
 
 namespace boost { namespace geometry
@@ -246,6 +248,8 @@ public:
     static inline bool apply(MultiPoint const& multipoint, Linear const& linear, Strategy const& strategy)
     {
         item_visitor_type<Strategy> visitor(strategy);
+        using box_type = typename strategies::relate::services::box_type
+            <Strategy, point_type_t<MultiPoint>>::type;
 
         // TODO: disjoint Segment/Box may be called in partition multiple times
         // possibly for non-cartesian segments which could be slow. We should consider
@@ -254,7 +258,7 @@ public:
         // should be passed, where envelope would be lazily calculated when needed the first time
         geometry::partition
             <
-                geometry::model::box<point_type_t<MultiPoint>>
+                box_type
             >::apply(multipoint, segment_range(linear), visitor,
                      expand_box_point<Strategy>(strategy),
                      overlaps_box_point<Strategy>(strategy),
@@ -284,11 +288,11 @@ public:
     {
         using point1_type = point_type_t<MultiPoint>;
         using point2_type = point_type_t<SingleGeometry>;
-        using box2_type = model::box<point2_type>;
+        using box2_type = typename strategies::relate::services::box_type<Strategy, point2_type>::type;
 
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
-        geometry::detail::expand_by_epsilon(box2);
+        strategies::detail::get_ring_topology(strategy).expand_envelope(box2);
 
         for (auto it = boost::begin(multi_point) ; it != boost::end(multi_point) ; ++it)
         {
@@ -426,8 +430,8 @@ public:
     {
         using point1_type = point_type_t<MultiPoint>;
         using point2_type = point_type_t<MultiGeometry>;
-        using box1_type = model::box<point1_type>;
-        using box2_type = model::box<point2_type>;
+        using box1_type = typename strategies::relate::services::box_type<Strategy, point1_type>::type;
+        using box2_type = typename strategies::relate::services::box_type<Strategy, point2_type>::type;
         using box_pair_type = std::pair<box2_type, std::size_t>;
 
         std::size_t count2 = boost::size(multi_geometry);
@@ -435,7 +439,7 @@ public:
         for (std::size_t i = 0 ; i < count2 ; ++i)
         {
             geometry::envelope(range::at(multi_geometry, i), boxes[i].first, strategy);
-            geometry::detail::expand_by_epsilon(boxes[i].first);
+            strategies::detail::get_ring_topology(strategy).expand_envelope(boxes[i].first);
             boxes[i].second = i;
         }
 

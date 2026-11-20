@@ -11,6 +11,9 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <cmath>
+#include <vector>
+
 #include "test_buffer.hpp"
 
 #include <boost/geometry/algorithms/buffer.hpp>
@@ -116,6 +119,73 @@ static std::string const issue_1084 = "LINESTRING(269.3 -7.03, 270.23 -3.57, 270
 static std::string const issue_1250 = "LINESTRING(3 1, 4 2, 4 4, 2 4, 2 2, 3 2)";
 static std::string const issue_1250_rev = "LINESTRING(3 2, 2 2, 2 4, 4 4, 4 2, 3 1)";
 
+template <bool Clockwise>
+void test_issue_1433()
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using linestring = bg::model::linestring<point>;
+    using polygon = bg::model::polygon<point, Clockwise>;
+    auto const input = bg::from_wkt<linestring>(
+        "LINESTRING(1.0819919262613131 1.8488013725600743,"
+        "4.1041533228042875 -0.87236450916645436,"
+        "-2.8075663587545185 -3.1181184584717836,"
+        "-1.2965867878487485 3.990482902620351,"
+        "1.7255742852176501 1.2693173121533894)");
+    bg::model::multi_polygon<polygon> buffered;
+    bg::buffer(input, buffered,
+               bg::strategy::buffer::distance_symmetric<double>(0.0024999999441206455),
+               bg::strategy::buffer::side_straight(), bg::strategy::buffer::join_miter(1.0),
+               bg::strategy::buffer::end_flat(), bg::strategy::buffer::point_square());
+    BOOST_CHECK(bg::is_valid(buffered));
+    BOOST_CHECK_EQUAL(buffered.size(), 1u);
+    BOOST_CHECK_EQUAL(bg::num_interior_rings(buffered), 1u);
+    BOOST_CHECK(! bg::covered_by(point(0, 0), buffered));
+    BOOST_CHECK(bg::within(input[2], buffered));
+}
+
+// The four-sample cap must not add two radii before halving them.
+void test_large_round_cap()
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    double const radius = std::ldexp(1.0, 1023);
+    bg::strategy::buffer::distance_symmetric<double> const distance(radius);
+    for (bool vertical : {false, true})
+    {
+        point const before(vertical ? 0 : -1, vertical ? -1 : 0);
+        point const left(vertical ? -radius : 0, vertical ? 0 : radius);
+        point const right(vertical ? radius : 0, vertical ? 0 : -radius);
+        std::vector<point> cap;
+        bg::strategy::buffer::end_round(4).apply(before, left, point(0, 0), right,
+            bg::strategy::buffer::buffer_side_left, distance, cap);
+        BOOST_REQUIRE_EQUAL(cap.size(), 3u);
+        BOOST_CHECK(std::isfinite(bg::get<0>(cap[1])) && std::isfinite(bg::get<1>(cap[1])));
+        BOOST_CHECK_EQUAL(vertical ? bg::get<1>(cap[1]) : bg::get<0>(cap[1]), radius);
+    }
+}
+
+struct wrapped_asymmetric_distance : bg::strategy::buffer::distance_asymmetric<double>
+{
+    using bg::strategy::buffer::distance_asymmetric<double>::distance_asymmetric;
+};
+
+template <bool Clockwise>
+void test_wrapped_asymmetric_retrace()
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using linestring = bg::model::linestring<point>;
+    using polygon = bg::model::polygon<point, Clockwise>;
+    auto const line = bg::from_wkt<linestring>("LINESTRING(0 2,0 -2,0 0,0 -4)");
+    // Inheriting a distance strategy need not preserve constant widths.
+    bg::model::multi_polygon<polygon> out;
+    bg::buffer(line, out, wrapped_asymmetric_distance(0, 2), bg::strategy::buffer::side_straight(),
+               bg::strategy::buffer::join_round(4), bg::strategy::buffer::end_flat(),
+               bg::strategy::buffer::point_square());
+    BOOST_CHECK(bg::is_valid(out));
+    BOOST_CHECK_EQUAL(out.size(), 1u);
+    BOOST_CHECK_EQUAL(bg::area(out), 12);
+    BOOST_CHECK(! bg::within(point(1.875, -1), out));
+}
+
 template <bool Clockwise, typename P>
 void test_all()
 {
@@ -128,6 +198,20 @@ void test_all()
     bg::strategy::buffer::join_round_by_divide join_round_by_divide(4);
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
+
+    {
+        // The reversal is inside the line's endpoint chord, but contributes
+        // the only east-facing strip in a right-only buffer.
+        auto const retraced = bg::from_wkt<linestring>("LINESTRING(0 2,0 -2,0 0,0 -4)");
+        bg::model::multi_polygon<polygon> buffered;
+        bg::buffer(retraced, buffered, bg::strategy::buffer::distance_asymmetric<coor_type>(0, 2),
+                   bg::strategy::buffer::side_straight(), join_miter, end_flat,
+                   bg::strategy::buffer::point_square());
+        BOOST_CHECK(bg::is_valid(buffered));
+        BOOST_CHECK_EQUAL(buffered.size(), 1u);
+        BOOST_CHECK_EQUAL(bg::area(buffered), 16);
+        BOOST_CHECK(bg::within(P(1, -1), buffered));
+    }
 
     // For testing MySQL issues, which uses 32 by default
     bg::strategy::buffer::end_round end_round32(32);
@@ -179,6 +263,23 @@ void test_all()
     test_one<linestring, polygon>("two_bends_left", two_bends, join_miter, end_flat, 20.225, 1.5, settings, 0.0);
     test_one<linestring, polygon>("two_bends_right", two_bends, join_round, end_flat, 19.211, 0.0, settings, 1.5);
     test_one<linestring, polygon>("two_bends_right", two_bends, join_miter, end_flat, 19.288, 0.0, settings, 1.5);
+
+    {
+        // Reduced from #1167, at a right-only distance that cuts the first
+        // source edge with the second strip's offset edge.
+        auto const input = bg::from_wkt<linestring>("LINESTRING(0 0,-3 5,15 7)");
+        bg::model::multi_polygon<polygon> buffered;
+        bg::buffer(input, buffered, bg::strategy::buffer::distance_asymmetric<coor_type>(0, 3),
+                   bg::strategy::buffer::side_straight(), bg::strategy::buffer::join_round(36),
+                   end_flat, bg::strategy::buffer::point_square());
+        // Two rectangles minus their parallelogram overlap.
+        double const a = std::sqrt(34.0), b = std::sqrt(328.0);
+        BOOST_CHECK_CLOSE(bg::area(buffered), 3 * (a + b) - 9 * a * b / 96,
+                          ut_settings::default_tolerance);
+        BOOST_CHECK(bg::is_valid(buffered));
+        BOOST_CHECK_EQUAL(buffered.size(), 1u);
+        BOOST_CHECK(bg::within(P(-2.25, 3), buffered));
+    }
 
     test_one<linestring, polygon>("bend_near_start1", bend_near_start1, join_round, end_flat, 109.2625, 9.0);
     test_one<linestring, polygon>("bend_near_start2", bend_near_start2, join_round, end_flat, 142.8709, 9.0);
@@ -457,9 +558,14 @@ int test_main(int, char* [])
     BoostGeometryWriteTestConfiguration();
 
     test_all<true, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+    test_large_round_cap();
+    test_issue_1433<true>();
+    test_wrapped_asymmetric_retrace<true>();
 
 #if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_ORDER)
     test_all<false, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+    test_issue_1433<false>();
+    test_wrapped_asymmetric_retrace<false>();
 #endif
 
     test_invalid<true, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();

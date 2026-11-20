@@ -177,15 +177,17 @@ struct clip_multi_linestring
     >
     static inline OutputIterator apply(MultiLinestring const& multi_linestring,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
-        strategy::intersection::liang_barsky<Box, point_type_t<LinestringOut>> lb_strategy;
+        using working_line = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, LinestringOut>::type;
+        auto const clipping = strategies::detail::get_clipping<point_type_t<working_line>>(strategy, box);
+        auto output = strategies::detail::make_output_iterator<LinestringOut, working_line>(out, strategy);
         for (auto it = boost::begin(multi_linestring); it != boost::end(multi_linestring); ++it)
         {
-            out = detail::intersection::clip_range_with_box
-                <LinestringOut>(box, *it, out, lb_strategy);
+            output = detail::intersection::clip_range_with_box<working_line>(box, *it, output, clipping);
         }
-        return out;
+        return strategies::detail::unwrap_output_iterator(output);
     }
 };
 

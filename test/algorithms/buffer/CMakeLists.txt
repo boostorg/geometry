@@ -49,6 +49,14 @@ foreach(item IN ITEMS
 endforeach()
 
 # Other tests
+boost_geometry_add_unit_test("algorithms" buffer_decimal_certified)
+target_compile_features(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE cxx_std_17)
+if(MSVC)
+  target_compile_options(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE /fp:strict /Zc:lambda)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  target_compile_options(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE -ffp-contract=off)
+endif()
+
 foreach(item IN ITEMS
     buffer_with_strategies
     buffer_piece_border

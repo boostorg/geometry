@@ -17,6 +17,7 @@
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_INTERSECTION_HPP
 
 #include <algorithm>
+#include <type_traits>
 
 #include <boost/geometry/core/exception.hpp>
 
@@ -112,6 +113,15 @@ struct use_a<false>
     }
 };
 
+}
+
+namespace detail_predicates
+{
+struct unfiltered
+{
+    template <typename... T> static bool try_equal(T const&...) { return false; }
+    template <std::size_t D, typename... T> static bool try_disjoint_by_range(T const&...) { return false; }
+};
 }
 
 /*!
@@ -284,6 +294,16 @@ struct cartesian_segments
                                                      UniqueSubRange2 const& range_q,
                                                      Policy const& policy)
     {
+        return apply(range_p, range_q, policy, detail_predicates::unfiltered());
+    }
+
+    // Internal opt-in: certify early decisions without changing the
+    // calculation type or the subsequent segment-ratio construction.
+    template <typename UniqueSubRange1, typename UniqueSubRange2, typename Policy, typename Predicates>
+    static inline typename Policy::return_type apply(UniqueSubRange1 const& range_p,
+                                                     UniqueSubRange2 const& range_q,
+                                                     Policy const& policy, Predicates const& predicates)
+    {
         typedef typename UniqueSubRange1::point_type point1_type;
         typedef typename UniqueSubRange2::point_type point2_type;
 
@@ -308,12 +328,10 @@ struct cartesian_segments
                 ratio_type
             > sinfo;
 
-        sinfo.dx_a = get<0>(p2) - get<0>(p1); // distance in x-dir
-        sinfo.dx_b = get<0>(q2) - get<0>(q1);
-        sinfo.dy_a = get<1>(p2) - get<1>(p1); // distance in y-dir
-        sinfo.dy_b = get<1>(q2) - get<1>(q1);
+        if (std::is_same<Predicates, detail_predicates::unfiltered>::value)
+            calculate_differences(sinfo, p1, p2, q1, q2);
 
-        return unified<ratio_type>(sinfo, range_p, range_q, policy);
+        return unified<ratio_type>(sinfo, range_p, range_q, policy, predicates);
     }
 
     //! Returns true if two segments do not overlap.
@@ -322,11 +340,17 @@ struct cartesian_segments
     <
         std::size_t Dimension,
         typename PointP,
-        typename PointQ
+        typename PointQ,
+        typename Predicates = detail_predicates::unfiltered
     >
     static inline bool disjoint_by_range(PointP const& p1, PointP const& p2,
-                                         PointQ const& q1, PointQ const& q2)
+                                         PointQ const& q1, PointQ const& q2,
+                                         Predicates const& predicates = Predicates())
     {
+        bool result;
+        if (!std::is_same<Predicates, detail_predicates::unfiltered>::value
+            && predicates.template try_disjoint_by_range<Dimension>(p1, p2, q1, q2, result))
+            return result;
         auto minp = get<Dimension>(p1);
         auto maxp = get<Dimension>(p2);
         auto minq = get<Dimension>(q1);
@@ -353,13 +377,14 @@ struct cartesian_segments
         typename SegmentInfo,
         typename UniqueSubRange1,
         typename UniqueSubRange2,
-        typename Policy
+        typename Policy,
+        typename Predicates = detail_predicates::unfiltered
     >
     static inline typename Policy::return_type
         unified(SegmentInfo& sinfo,
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
-                Policy const&)
+                Policy const&, Predicates const& predicates = Predicates())
     {
         using point1_type = typename UniqueSubRange1::point_type;
         using point2_type = typename UniqueSubRange2::point_type;
@@ -369,8 +394,8 @@ struct cartesian_segments
         point2_type const& q1 = range_q.at(0);
         point2_type const& q2 = range_q.at(1);
 
-        bool const p_is_point = equals_point_point(p1, p2);
-        bool const q_is_point = equals_point_point(q1, q2);
+        bool const p_is_point = equals_point_point(p1, p2, predicates);
+        bool const q_is_point = equals_point_point(q1, q2, predicates);
 
         // Declare segments, currently necessary for the policies
         // (segment_crosses, segment_colinear, degenerate, one_degenerate, etc)
@@ -379,21 +404,20 @@ struct cartesian_segments
 
         if (p_is_point && q_is_point)
         {
-            return equals_point_point(p1, q2)
+            return equals_point_point(p1, q2, predicates)
                 ? Policy::degenerate(p, true)
                 : Policy::disjoint()
                 ;
         }
 
-        if (disjoint_by_range<0>(p1, p2, q1, q2)
-         || disjoint_by_range<1>(p1, p2, q1, q2))
+        if (disjoint_by_range<0>(p1, p2, q1, q2, predicates)
+         || disjoint_by_range<1>(p1, p2, q1, q2, predicates))
         {
             return Policy::disjoint();
         }
 
-        using side_strategy_type
-            = typename side::services::default_strategy
-                <cartesian_tag, CalculationType>::type;
+        using side_strategy_type = std::conditional_t<std::is_same<Predicates, detail_predicates::unfiltered>::value,
+            typename side::services::default_strategy<cartesian_tag, CalculationType>::type, Predicates>;
         side_info sides;
         sides.set<0>(side_strategy_type::apply(q1, q2, p1),
                      side_strategy_type::apply(q1, q2, p2));
@@ -412,6 +436,11 @@ struct cartesian_segments
             // Both points are at same side of other segment, we can leave
             return Policy::disjoint();
         }
+
+        // Filtered rational predicates can reject before computing the
+        // exact edge differences used only by the remaining cases.
+        if (!std::is_same<Predicates, detail_predicates::unfiltered>::value)
+            calculate_differences(sinfo, p1, p2, q1, q2);
 
         bool collinear = sides.collinear();
 
@@ -489,12 +518,12 @@ struct cartesian_segments
             }
         }
 
-        if (equals_point_point(p1, q1) || equals_point_point(p1, q2))
+        if (equals_point_point(p1, q1, predicates) || equals_point_point(p1, q2, predicates))
         {
             return Policy::segments_share_common_point(sides, sinfo, p1);
         }
 
-        if (equals_point_point(p2, q1) || equals_point_point(p2, q2))
+        if (equals_point_point(p2, q1, predicates) || equals_point_point(p2, q2, predicates))
         {
             return Policy::segments_share_common_point(sides, sinfo, p2);
         }
@@ -503,6 +532,15 @@ struct cartesian_segments
     }
 
 private:
+    template <typename Info, typename P, typename Q>
+    static inline void calculate_differences(Info& info, P const& p1, P const& p2, Q const& q1, Q const& q2)
+    {
+        info.dx_a = get<0>(p2) - get<0>(p1);
+        info.dx_b = get<0>(q2) - get<0>(q1);
+        info.dy_a = get<1>(p2) - get<1>(p1);
+        info.dy_b = get<1>(q2) - get<1>(q1);
+    }
+
     // first is true if x is more significant
     // second is true if the more significant difference is not 0
     template <typename CoordinateType>
@@ -723,9 +761,13 @@ private:
                 : 2 );
     }
 
-    template <typename Point1, typename Point2>
-    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2)
+    template <typename Point1, typename Point2, typename Predicates = detail_predicates::unfiltered>
+    static inline bool equals_point_point(Point1 const& point1, Point2 const& point2,
+                                          Predicates const& predicates = Predicates())
     {
+        bool result;
+        if (!std::is_same<Predicates, detail_predicates::unfiltered>::value
+            && predicates.try_equal(point1, point2, result)) return result;
         return strategy::within::cartesian_point_point::apply(point1, point2);
     }
 };

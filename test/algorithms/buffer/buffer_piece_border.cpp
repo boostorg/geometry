@@ -422,6 +422,28 @@ void test_segment_range()
     }
 }
 
+void test_closed_integral_offset()
+{
+    using point = bg::model::point<int, 2, bg::cs::cartesian>;
+    using ring = bg::model::ring<point>;
+    using border_type = bg::detail::buffer::piece_border<ring, point>;
+    ring const square{point(-60000, -60000), point(-60000, 60000),
+                      point(60000, 60000), point(60000, -60000),
+                      point(-60000, -60000)};
+    border_type border;
+    bg::strategies::buffer::cartesian<> const strategy;
+    border.set_offsetted(square, 0, square.size(), true);
+    border.get_properties_of_offsetted_ring_part(strategy);
+    border_type::state_type inside, boundary, outside;
+    // The signed area terms exceed the storage coordinate's range.
+    BOOST_CHECK(border.point_on_piece(point(1, 7), false, false, inside, false, false));
+    BOOST_CHECK(inside.is_inside() && !inside.is_on_boundary());
+    BOOST_CHECK(border.point_on_piece(point(-60000, 7), false, false, boundary, false, false));
+    BOOST_CHECK(boundary.is_on_boundary());
+    BOOST_CHECK(border.point_on_piece(point(-60001, 7), false, false, outside, false, false));
+    BOOST_CHECK(!outside.is_inside() && !outside.is_on_boundary());
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
@@ -438,6 +460,7 @@ int test_main(int, char* [])
 
     test_segment_range<point_type>();
     test_exposed_helpers<point_type>();
+    test_closed_integral_offset();
 
     return 0;
 }

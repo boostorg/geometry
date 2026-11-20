@@ -20,7 +20,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
-#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/relate/result.hpp>
 #include <boost/geometry/algorithms/detail/relate/topology_check.hpp>
@@ -38,6 +38,7 @@
 #include <boost/geometry/strategies/envelope/cartesian.hpp>
 #include <boost/geometry/strategies/envelope/geographic.hpp>
 #include <boost/geometry/strategies/envelope/spherical.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -183,11 +184,12 @@ struct multi_point_single_geometry
                              Result & result,
                              Strategy const& strategy)
     {
-        using box2_type = model::box<point_type_t<SingleGeometry>> ;
+        using box2_type = typename strategies::relate::services::box_type
+            <Strategy, point_type_t<SingleGeometry>>::type;
 
         box2_type box2;
         geometry::envelope(single_geometry, box2, strategy);
-        geometry::detail::expand_by_epsilon(box2);
+        strategies::detail::get_ring_topology(strategy).expand_envelope(box2);
 
         for (auto it = boost::begin(multi_point); it != boost::end(multi_point); ++it)
         {
@@ -399,14 +401,10 @@ class multi_point_multi_geometry_ii_ib
     };
 
 public:
-    using box1_type = model::box<point_type_t<MultiPoint>>;
-    using box2_type = model::box<point_type_t<MultiGeometry>>;
-    using box_pair_type = std::pair<box2_type, std::size_t>;
-
-    template <typename Result, typename Strategy>
+    template <typename Result, typename Strategy, typename Box>
     static inline void apply(MultiPoint const& multi_point,
                              MultiGeometry const& multi_geometry,
-                             std::vector<box_pair_type> const& boxes,
+                             std::vector<std::pair<Box, std::size_t>> const& boxes,
                              detail::relate::topology_check
                                 <
                                     MultiGeometry, Strategy
@@ -414,6 +412,8 @@ public:
                              Result & result,
                              Strategy const& strategy)
     {
+        using box1_type = typename strategies::relate::services::box_type
+            <Strategy, point_type_t<MultiPoint>>::type;
         item_visitor_type<Result, Strategy> visitor(multi_geometry, tc, result, strategy);
 
         geometry::partition
@@ -434,15 +434,10 @@ public:
 template <typename MultiPoint, typename MultiGeometry, bool Transpose>
 struct multi_point_multi_geometry_ii_ib_ie
 {
-    using box1_type = model::box<point_type_t<MultiPoint>>;
-    using box2_type = model::box<point_type_t<MultiGeometry>>;
-    using box_pair_type = std::pair<box2_type, std::size_t>;
-    using boxes_type = std::vector<box_pair_type>;
-
-    template <typename Result, typename Strategy>
+    template <typename Result, typename Strategy, typename Box>
     static inline void apply(MultiPoint const& multi_point,
                              MultiGeometry const& multi_geometry,
-                             std::vector<box_pair_type> const& boxes,
+                             std::vector<std::pair<Box, std::size_t>> const& boxes,
                              detail::relate::topology_check
                                 <
                                     MultiGeometry, Strategy
@@ -450,6 +445,8 @@ struct multi_point_multi_geometry_ii_ib_ie
                              Result & result,
                              Strategy const& strategy)
     {
+        using box_pair_type = std::pair<Box, std::size_t>;
+        using boxes_type = std::vector<box_pair_type>;
         typedef index::parameters
             <
                 index::rstar<4>, Strategy
@@ -521,7 +518,9 @@ struct multi_point_multi_geometry
                              Result & result,
                              Strategy const& strategy)
     {
-        using box_pair_type = std::pair<model::box<point_type_t<MultiGeometry>>, std::size_t>;
+        using box_type = typename strategies::relate::services::box_type
+            <Strategy, point_type_t<MultiGeometry>>::type;
+        using box_pair_type = std::pair<box_type, std::size_t>;
 
         std::size_t count2 = boost::size(multi_geometry);
         std::vector<box_pair_type> boxes;
@@ -535,7 +534,7 @@ struct multi_point_multi_geometry
             }
             boxes.emplace_back();
             geometry::envelope(single_geometry, boxes.back().first, strategy);
-            geometry::detail::expand_by_epsilon(boxes.back().first);
+            strategies::detail::get_ring_topology(strategy).expand_envelope(boxes.back().first);
             boxes.back().second = i;
         }
 

@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <deque>
 #include <map>
@@ -49,6 +51,7 @@
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -171,7 +174,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     using properties = ring_properties
         <
             geometry::point_type_t<ring_type>,
-            typename geometry::area_result<ring_type, Strategy>::type
+            typename strategies::detail::ring_measure_type<ring_type, Strategy>::type
         >;
 
 // Silence warning C4127: conditional expression is constant
@@ -236,15 +239,19 @@ struct overlay
                 >(geometry1, geometry2, out, strategy);
         }
 
-        using point_type = geometry::point_type_t<GeometryOut>;
+        using working_geometry_type = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, GeometryOut>::type;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, geometry::point_type_t<GeometryOut>>::type;
         using turn_info = detail::overlay::traversal_turn_info
         <
             point_type,
-            typename segment_ratio_type<point_type>::type
+            typename strategies::relate::services::segment_ratio_type<Strategy, point_type>::type,
+            typename strategies::relate::services::comparable_distance_type<Strategy, point_type>::type
         >;
         using turn_container_type = std::deque<turn_info>;
 
-        using ring_type = geometry::ring_type_t<GeometryOut>;
+        using ring_type = geometry::ring_type_t<working_geometry_type>;
         using ring_container_type = std::deque<ring_type>;
 
         // Define the clusters, mapping cluster_id -> turns
@@ -254,7 +261,8 @@ struct overlay
                 cluster_info
             >;
 
-        turn_container_type turns;
+        auto turns = strategies::detail::make_turn_container<turn_container_type>
+            (strategy, geometry1, geometry2);
 
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
@@ -266,10 +274,11 @@ struct overlay
         visitor.visit_turns(1, turns);
 
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (! turns.empty() || OverlayType == overlay_dissolve)
+        if (! turns.empty() || OverlayType == overlay_dissolve
+            || OverlayType == overlay_difference)
         {
-            // Calculate self turns if the output contains turns already,
-            // and if necessary (e.g.: multi-geometry, polygon with interior rings)
+            // In difference, touching subtractor components can enclose an
+            // island even if their boundary never meets the minuend's boundary.
             if (needs_self_turns<Geometry1>::apply(geometry1))
             {
                 self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
@@ -286,7 +295,7 @@ struct overlay
         cluster_type clusters;
 
         // Handle colocations, gathering clusters and (below) their properties.
-        detail::overlay::handle_colocations(turns, clusters);
+        detail::overlay::handle_colocations(turns, clusters, strategy);
 
 
         detail::overlay::enrich_discard_turns<OverlayType>(
@@ -297,7 +306,7 @@ struct overlay
 
         visitor.visit_turns(2, turns);
 
-        detail::overlay::colocate_clusters(clusters, turns);
+        detail::overlay::colocate_clusters(clusters, turns, strategy);
 
         // AssignCounts should be called:
         // * after "colocate_clusters"
@@ -337,7 +346,7 @@ struct overlay
         using properties = ring_properties
             <
                 point_type,
-                typename geometry::area_result<ring_type, Strategy>::type
+                typename strategies::detail::ring_measure_type<ring_type, Strategy>::type
             >;
 
         // Select all rings which are NOT touched by any intersection point

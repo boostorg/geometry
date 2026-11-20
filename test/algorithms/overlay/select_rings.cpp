@@ -12,12 +12,15 @@
 
 #include <geometry_test_common.hpp>
 
+#include <algorithm>
+#include <cstdint>
 #include <initializer_list>
 
 #include <algorithms/test_overlay.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/select_rings.hpp>
 #include <boost/geometry/algorithms/detail/overlay/assign_parents.hpp>
+#include <boost/geometry/algorithms/correct.hpp>
 
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
@@ -101,9 +104,45 @@ void test_all()
 
 
 
+template <typename Point, bool Clockwise, bool Closed>
+void test_boundary_vertices()
+{
+    using ring = bg::model::ring<Point, Clockwise, Closed>;
+    using polygon = bg::model::polygon<Point, Clockwise, Closed>;
+    using strategy = typename bg::strategies::relate::services::default_strategy
+        <ring, polygon>::type;
+
+    ring r;
+    polygon containing, outside, coincident;
+    bg::read_wkt("POLYGON((2 2,2 1,1 1,2 2))", r);
+    bg::read_wkt("POLYGON((2 2,1 2,1 1,0 1,0 0,2 0,2 1,3 1,2 2))", containing);
+    bg::read_wkt("POLYGON((2 0,4 0,4 2,3 3,1 3,0 2,0 1,1 1,1 2,2 2,3 2,3 1,2 1,2 0))", outside);
+    bg::read_wkt("POLYGON((2 2,2 1,1 1,2 2))", coincident);
+    bg::correct(r);
+    bg::correct(containing);
+    bg::correct(outside);
+    bg::correct(coincident);
+    for (int reversed = 0; reversed != 2; ++reversed)
+    {
+        // Both an exterior ring and a hole have to be classified by their edges.
+        BOOST_CHECK_EQUAL(bg::detail::overlay::ring_in_geometry(
+            r.front(), r, containing, strategy()), 1);
+        BOOST_CHECK_EQUAL(bg::detail::overlay::ring_in_geometry(
+            r.front(), r, outside, strategy()), 0);
+        BOOST_CHECK_EQUAL(bg::detail::overlay::ring_in_geometry(
+            r.front(), r, coincident, strategy()), 0);
+        std::reverse(r.begin(), r.end());
+    }
+}
+
 int test_main( int , char* [] )
 {
     test_all<bg::model::d2::point_xy<double> >();
+    test_boundary_vertices<bg::model::d2::point_xy<std::int_least64_t>, true, true>();
+    test_boundary_vertices<bg::model::d2::point_xy<std::int_least64_t>, true, false>();
+    test_boundary_vertices<bg::model::d2::point_xy<std::int_least64_t>, false, true>();
+    test_boundary_vertices<bg::model::d2::point_xy<std::int_least64_t>, false, false>();
+    test_boundary_vertices<bg::model::d2::point_xy<double>, true, true>();
 
     return 0;
 }

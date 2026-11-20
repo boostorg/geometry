@@ -35,6 +35,19 @@ namespace boost { namespace geometry
 namespace detail { namespace envelope
 {
 
+template <typename Segment, typename Box, typename Strategy>
+inline auto envelope_segment_direct(Segment const& segment, Box& box,
+                                    Strategy const& strategy, int)
+    -> decltype(strategy.envelope(segment, box).apply(segment, box), bool())
+{
+    strategy.envelope(segment, box).apply(segment, box);
+    return true;
+}
+
+template <typename Segment, typename Box, typename Strategy>
+inline bool envelope_segment_direct(Segment const&, Box&, Strategy const&, long)
+{ return false; }
+
 // TEMP
 template
 <
@@ -70,6 +83,7 @@ struct envelope_segment
     static inline void apply(Segment const& segment, Box& mbr,
                              Strategy const& strategy)
     {
+        if (envelope_segment_direct(segment, mbr, strategy, 0)) return;
         point_type_t<Segment> p[2];
         detail::assign_point_from_index<0>(segment, p[0]);
         detail::assign_point_from_index<1>(segment, p[1]);

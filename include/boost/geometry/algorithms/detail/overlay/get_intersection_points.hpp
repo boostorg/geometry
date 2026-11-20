@@ -24,6 +24,8 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
 #include <boost/geometry/geometries/segment.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 namespace boost { namespace geometry
 {
@@ -51,7 +53,7 @@ struct get_turn_without_info
     >
     static inline OutputIterator apply(UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
-                TurnInfo const& ,
+                TurnInfo const& tp_model,
                 Strategy const& strategy,
                 OutputIterator out)
     {
@@ -59,7 +61,8 @@ struct get_turn_without_info
 
         using policy_type = policies::relate::segments_intersection_points
             <
-                segment_intersection_points<turn_point_type>
+                typename strategies::relate::services::intersection_result_type
+                    <Strategy, turn_point_type>::type
             >;
 
         typename policy_type::return_type const result
@@ -67,8 +70,8 @@ struct get_turn_without_info
 
         for (std::size_t i = 0; i < result.count; i++)
         {
-            TurnInfo tp;
-            geometry::convert(result.intersections[i], tp.point);
+            TurnInfo tp = tp_model;
+            strategies::detail::convert_geometry(strategy, result.intersections[i], tp.point);
             *out++ = tp;
         }
 

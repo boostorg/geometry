@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <algorithm>
 #include <memory>
 
@@ -145,7 +147,8 @@ struct linear_linear
             <
                 Geometry1, Geometry2
             >::template turn_info_type<Strategy>::type;
-        std::vector<turn_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_type>>
+            (strategy, geometry1, geometry2);
 
         interrupt_policy_linear_linear<Result, BoundaryChecker1, BoundaryChecker2>
             interrupt_policy(result, geometry1, geometry2, boundary_checker1, boundary_checker2);
@@ -184,7 +187,7 @@ struct linear_linear
           || may_update<boundary, exterior, '0'>(result) )
         {
             using less_t = turns::less<0, turns::less_op_linear_linear<0>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            strategies::detail::sort_turns(turns, less_t(strategy).on_geometry(geometry1));
 
             turns_analyser<turn_type, 0> analyser;
             analyse_each_turn<0>(result, analyser,
@@ -204,7 +207,7 @@ struct linear_linear
           || may_update<boundary, exterior, '0', true>(result) )
         {
             using less_t = turns::less<1, turns::less_op_linear_linear<1>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            strategies::detail::sort_turns(turns, less_t(strategy).on_geometry(geometry2));
 
             turns_analyser<turn_type, 1> analyser;
             analyse_each_turn<1>(result, analyser,
@@ -358,6 +361,7 @@ struct linear_linear
                 // we know that we entered and now we exit
                 if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(),
                                                   *it,
+                                                  geometry,
                                                   boundary_checker.strategy()) )
                 {
                     m_exit_watcher.reset_detected_exit();
@@ -381,6 +385,7 @@ struct linear_linear
                 if ( op == overlay::operation_intersection
                   && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(),
                                                 *it,
+                                                geometry,
                                                 boundary_checker.strategy()) )
                 {
                     fake_enter_detected = true;

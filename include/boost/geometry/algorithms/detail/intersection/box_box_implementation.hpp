@@ -15,7 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_BOX_BOX_IMPLEMENTATION_HPP
 
 
-#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/strategies/detail/box_intersection.hpp>
 
 
 namespace boost { namespace geometry
@@ -37,45 +37,10 @@ struct intersection_box_box
     static inline bool apply(Box1 const& box1,
             Box2 const& box2,
             BoxOut& box_out,
-            Strategy const& strategy)
+            Strategy const&)
     {
-        auto max1 = get<max_corner, Dimension>(box1);
-        auto min2 = get<min_corner, Dimension>(box2);
-
-        if (max1 < min2)
-        {
-            return false;
-        }
-
-        auto max2 = get<max_corner, Dimension>(box2);
-        auto min1 = get<min_corner, Dimension>(box1);
-
-        if (max2 < min1)
-        {
-            return false;
-        }
-
-        // Set dimensions of output coordinate
-        set<min_corner, Dimension>(box_out, min1 < min2 ? min2 : min1);
-        set<max_corner, Dimension>(box_out, max1 > max2 ? max2 : max1);
-
-        return intersection_box_box<Dimension + 1, DimensionCount>
-               ::apply(box1, box2, box_out, strategy);
-    }
-};
-
-template <std::size_t DimensionCount>
-struct intersection_box_box<DimensionCount, DimensionCount>
-{
-    template
-    <
-        typename Box1, typename Box2,
-        typename BoxOut,
-        typename Strategy
-    >
-    static inline bool apply(Box1 const&, Box2 const&, BoxOut&, Strategy const&)
-    {
-        return true;
+        return strategies::detail::box_intersection_detail::intersection_loop
+            <Dimension, DimensionCount>::apply(box1, box2, box_out);
     }
 };
 

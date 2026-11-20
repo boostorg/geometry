@@ -641,17 +641,7 @@ void test_all()
         bg::strategy::buffer::join_round join_round4(4);
         bg::strategy::buffer::end_round end_round4(4);
         test_one<polygon_type, polygon_type>("issue_1262", issue_1262, join_round4, end_round4, 0.0, -1.8);
-#if defined(BOOST_GEOMETRY_TEST_FAILURES) || defined(BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL)
-        // TRAVERSE_GRAPH New failure:
-        // It has a wrong segment id. That causes wrong ordering.
-        // This is caused by a wrong arrival, or a wrong fraction assigned
-        // due to arrival==1
-        // It cannot be fixed by the new graph traversal, because the input order is wrong.
-        // The old algorithm could somehow cope with it.
-        // It can be fixed by defining BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL
-        // (but that causes some other regressions: rt_w27, rt_w29)
         test_one<polygon_type, polygon_type>("issue_1262_1", issue_1262, join_round4, end_round4, 8.9161, -1.0);
-#endif        
         test_one<polygon_type, polygon_type>("issue_1262_2", issue_1262, join_round4, end_round4, 62.5276, -0.8);
         test_one<polygon_type, polygon_type>("issue_1262_3", issue_1262, join_round4, end_round4, 193.47288, -0.4);
     }
@@ -897,8 +887,10 @@ void test_mixed()
         << InputClockwise << "_" << OutputClockwise
         << "_" << InputClosed << "_" << OutputClosed;
 
+    // Area of the triangle, the three side strips and the three chord fans
+    // (4, 5 and 4 equal-angle steps with 12 points per circle).
     test_one<input_polygon_type, output_polygon_type>(name.str(),
-            simplex, join_round, end_flat, 47.4831, 1.5);
+            simplex, join_round, end_flat, 47.67237788, 1.5);
 }
 
 

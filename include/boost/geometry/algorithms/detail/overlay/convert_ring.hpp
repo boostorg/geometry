@@ -22,6 +22,8 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
+#include <boost/geometry/strategies/detail/output_support.hpp>
 
 namespace boost { namespace geometry
 {
@@ -43,16 +45,16 @@ struct convert_ring
 template<>
 struct convert_ring<ring_tag>
 {
-    template<typename Destination, typename Source>
+    template<typename Destination, typename Source, typename Strategy>
     static inline void apply(Destination& destination, Source const& source,
-                bool append, bool reverse)
+                bool append, bool reverse, Strategy const& strategy)
     {
         if (! append)
         {
-            geometry::convert(source, destination);
+            strategies::detail::convert_geometry(strategy, source, destination);
             if (reverse)
             {
-                boost::reverse(destination);
+                strategies::detail::reverse_output_range(strategy, destination);
             }
         }
     }
@@ -62,16 +64,16 @@ struct convert_ring<ring_tag>
 template<>
 struct convert_ring<polygon_tag>
 {
-    template<typename Destination, typename Source>
+    template<typename Destination, typename Source, typename Strategy>
     static inline void apply(Destination& destination, Source const& source,
-                bool append, bool reverse)
+                bool append, bool reverse, Strategy const& strategy)
     {
         if (! append)
         {
-            geometry::convert(source, exterior_ring(destination));
+            strategies::detail::convert_geometry(strategy, source, exterior_ring(destination));
             if (reverse)
             {
-                boost::reverse(exterior_ring(destination));
+                strategies::detail::reverse_output_range(strategy, exterior_ring(destination));
             }
         }
         else
@@ -89,10 +91,10 @@ struct convert_ring<polygon_tag>
                 // TODO: resize and .size() and .back() should not be called here
                 interior_rings(destination).resize(
                             interior_rings(destination).size() + 1);
-                geometry::convert(source, interior_rings(destination).back());
+                strategies::detail::convert_geometry(strategy, source, interior_rings(destination).back());
                 if (reverse)
                 {
-                    boost::reverse(interior_rings(destination).back());
+                    strategies::detail::reverse_output_range(strategy, interior_rings(destination).back());
                 }
             }
         }

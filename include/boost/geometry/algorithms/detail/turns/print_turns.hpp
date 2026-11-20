@@ -35,6 +35,16 @@ struct turn_printer
         , out(os)
     {}
 
+    template <typename Operation>
+    void print_fraction(Operation const& operation, std::true_type)
+    {
+        double const fraction = operation.fraction.numerator() / operation.fraction.denominator();
+        out << ", fr: " << fraction;
+    }
+
+    template <typename Operation>
+    void print_fraction(Operation const&, std::false_type) {}
+
     template <typename Turn>
     void operator()(Turn const& turn)
     {
@@ -48,31 +58,23 @@ struct turn_printer
         else
             out << '\n';
 
-        double fraction[2];
-
-        fraction[0] = turn.operations[0].fraction.numerator()
-            / turn.operations[0].fraction.denominator();
-
         out << geometry::operation_char(turn.operations[0].operation)
             <<": seg: " << turn.operations[0].seg_id.source_index
             << ", m: " << turn.operations[0].seg_id.multi_index
             << ", r: " << turn.operations[0].seg_id.ring_index
             << ", s: " << turn.operations[0].seg_id.segment_index;
-        out << ", fr: " << fraction[0];
+        print_fraction(turn.operations[0], overlay::stores_fraction<typename Turn::segment_ratio_type>());
         out << ", col?: " << turn.operations[0].is_collinear;
         out << ' ' << geometry::dsv(turn.point) << ' ';
 
         out << '\n';
-
-        fraction[1] = turn.operations[1].fraction.numerator()
-            / turn.operations[1].fraction.denominator();
 
         out << geometry::operation_char(turn.operations[1].operation)
             << ": seg: " << turn.operations[1].seg_id.source_index
             << ", m: " << turn.operations[1].seg_id.multi_index
             << ", r: " << turn.operations[1].seg_id.ring_index
             << ", s: " << turn.operations[1].seg_id.segment_index;
-        out << ", fr: " << fraction[1];
+        print_fraction(turn.operations[1], overlay::stores_fraction<typename Turn::segment_ratio_type>());
         out << ", col?: " << turn.operations[1].is_collinear;
         out << ' ' << geometry::dsv(turn.point) << ' ';
 

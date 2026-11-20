@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_VALID_SELF_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_HAS_VALID_SELF_TURNS_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <vector>
 
 #include <boost/core/ignore_unused.hpp>
@@ -89,7 +91,8 @@ public:
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Geometry const& geometry, VisitPolicy& visitor, Strategy const& strategy)
     {
-        std::vector<turn_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_type>>
+            (strategy, geometry, geometry);
         return apply(geometry, turns, visitor, strategy);
     }
 };

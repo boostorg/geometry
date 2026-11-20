@@ -11,6 +11,7 @@
 
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
@@ -19,6 +20,7 @@
 #include <boost/geometry/algorithms/detail/overlay/graph/select_edge.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/strategies/detail/output_support.hpp>
 
 #include <boost/assert.hpp>
 
@@ -56,6 +58,21 @@ struct traverse_graph
     using point_type = typename turn_type::point_type;
     using toi_set = std::set<turn_operation_id>;
 
+    template <typename Operation>
+    bool precedes(turn_type const&, Operation const& next, turn_type const&, Operation const& current,
+                  std::true_type) const
+    { return next.fraction < current.fraction; }
+
+    template <typename Operation>
+    bool precedes(turn_type const& next_turn, Operation const&, turn_type const& current_turn,
+                  Operation const& current, std::false_type) const
+    {
+        point_type first, last;
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+            current.seg_id, first, last);
+        return m_strategy.segment_position().apply(first, last, next_turn.point, current_turn.point) < 0;
+    }
+
     inline traverse_graph(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
             Strategy const& strategy)
@@ -92,6 +109,8 @@ struct traverse_graph
     void use_vertices(Ring& ring, turn_operation_id const& toi, bool is_round_trip = false) const
     {
         auto const& op = m_turns[toi.turn_index].operations[toi.operation_index];
+        strategies::detail::prepare_output_edge<Reverse1, Reverse2>(
+            m_strategy, ring, m_geometry1, m_geometry2, op.seg_id);
         auto const to_vertex_index = op.enriched.travels_to_vertex_index;
 
         if (to_vertex_index < 0)
@@ -116,7 +135,8 @@ struct traverse_graph
                 if (next_op.seg_id == op.seg_id)
                 {
                     // It is on the same segment. Determine if it is located before or after
-                    if (next_op.fraction < op.fraction)
+                    if (precedes(next_turn, next_op, m_turns[toi.turn_index], op,
+                        stores_fraction<typename turn_type::segment_ratio_type>()))
                     {
                         // It is before, so we can continue
                         allow = true;
@@ -165,8 +185,10 @@ struct traverse_graph
             for (int j = 0; j < 2; j++)
             {
                 auto const& other_op = other_turn.operations[j];
-                if (other_op.enriched.travels_to_ip_index == op.enriched.travels_to_ip_index
-                    && other_op.seg_id == op.seg_id)
+                if (other_op.seg_id == op.seg_id
+                    && other_op.enriched.travels_to_ip_index >= 0
+                    && get_node_id(m_turns, other_op.enriched.travels_to_ip_index)
+                        == get_node_id(m_turns, op.enriched.travels_to_ip_index))
                 {
                     m_visited_tois.insert({turn_index, j});
                 }
@@ -276,7 +298,7 @@ struct traverse_graph
         {
             for (auto const& toi : tois)
             {
-                if (m_finished_tois.count(toi) > 0)
+                if (m_finished_tois.count(toi) > 0 || m_started_tois.count(toi) > 0)
                 {
                     // Visited in the meantime
                     continue;
@@ -298,6 +320,7 @@ struct traverse_graph
         {
             return;
         }
+        m_started_tois.insert(toi);
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         std::cout << "\n" << "-> Start traversing component " << component_id
@@ -390,14 +413,6 @@ struct traverse_graph
 
             for (auto const target_node_id : target_nodes)
             {
-                auto const start = std::make_tuple(source_node_id, target_node_id, component_id);
-                if (m_starts.count(start) > 0)
-                {
-                    // Don't repeat earlier or finished trials. This speeds up some cases by 1.5x
-                    continue;
-                }
-                m_starts.insert(start);
-
     #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
                 std::cout << "\n" << "Traversing component " << component_id
                     << " from " << source_node_id << " to " << target_node_id << std::endl;
@@ -441,8 +456,9 @@ private:
     // Visited turn operations after a ring is added
     toi_set m_finished_tois;
 
-    // Keep track of started combinations (either finished, or stuck)
-    std::set<std::tuple<signed_size_type, signed_size_type, signed_size_type>> m_starts;
+    // Distinct ring paths may connect the same two nodes in one component.
+    // Attempt each turn operation at most once, including unsuccessful starts.
+    toi_set m_started_tois;
 };
 
 }} // namespace detail::overlay
