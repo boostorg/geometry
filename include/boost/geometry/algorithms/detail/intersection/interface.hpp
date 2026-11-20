@@ -153,12 +153,13 @@ struct intersection
                              GeometryOut & geometry_out,
                              Strategy const& strategy)
     {
-        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2, [&](auto const& bound)
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
         {
-            return detail::overlay::with_working_output(geometry_out, bound, geometry1, geometry2, [&](auto& working)
+            return detail::overlay::with_working_output(geometry_out, bound, a, b, [&](auto& working)
             {
-                return resolve_collection::intersection<Geometry1, Geometry2, std::decay_t<decltype(working)>>
-                    ::apply(geometry1, geometry2, working, bound);
+                return resolve_collection::intersection<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
             });
         });
     }

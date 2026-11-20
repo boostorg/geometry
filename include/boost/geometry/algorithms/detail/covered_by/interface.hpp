@@ -71,10 +71,11 @@ struct covered_by
         concepts::check<Geometry2 const>();
         assert_dimension_equal<Geometry1, Geometry2>();
 
-        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
-            [&](auto const& bound)
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
             {
-                return dispatch::covered_by<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+                return dispatch::covered_by<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
             });
     }
 };

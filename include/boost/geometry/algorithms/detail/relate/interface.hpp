@@ -156,7 +156,6 @@ struct result_handler_type<Geometry1, Geometry2, util::type_sequence<StaticMasks
 };
 
 
-
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
 
@@ -176,12 +175,14 @@ struct relate
                              ResultHandler & handler,
                              Strategy const& strategy)
     {
-        strategies::detail::with_operation_sources(strategy, geometry1, geometry2, [&](auto const& bound)
+        strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
         {
             using bound_type = std::decay_t<decltype(bound)>;
             typename strategies::relate::services::operation_scope<bound_type>::type scope;
             (void) scope;
-            dispatch::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler, bound);
+            dispatch::relate<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                ::apply(a, b, handler, bound);
         });
     }
 };

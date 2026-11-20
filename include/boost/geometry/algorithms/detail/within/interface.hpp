@@ -79,10 +79,11 @@ struct within
         (void) scope;
         concepts::within::check<Geometry1, Geometry2, Strategy>();
 
-        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
-            [&](auto const& bound)
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
             {
-                return dispatch::within<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+                return dispatch::within<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
             });
     }
 };

@@ -536,12 +536,13 @@ struct difference
                              Collection & output_collection,
                              Strategy const& strategy)
     {
-        strategies::detail::with_operation_sources(strategy, geometry1, geometry2, [&](auto const& bound)
+        strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
         {
-            detail::overlay::with_working_output(output_collection, bound, geometry1, geometry2, [&](auto& working)
+            detail::overlay::with_working_output(output_collection, bound, a, b, [&](auto& working)
             {
-                resolve_collection::difference<Geometry1, Geometry2, std::decay_t<decltype(working)>>
-                    ::apply(geometry1, geometry2, working, bound);
+                resolve_collection::difference<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
                 return true;
             });
         });

@@ -160,10 +160,11 @@ struct crosses
         concepts::check<Geometry1 const>();
         concepts::check<Geometry2 const>();
 
-        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
-            [&](auto const& bound)
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
             {
-                return dispatch::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+                return dispatch::crosses<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
             });
     }
 };

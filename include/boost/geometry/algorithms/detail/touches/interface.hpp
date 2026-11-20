@@ -96,10 +96,11 @@ struct touches
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
-            [&](auto const& bound)
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
             {
-                return dispatch::touches<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+                return dispatch::touches<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
             });
     }
 };
