@@ -22,12 +22,15 @@
 
 #include <boost/geometry/policies/compare.hpp>
 
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
 
 #include <boost/geometry/util/has_nan_coordinate.hpp>
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 namespace boost { namespace geometry
 {
@@ -91,13 +94,13 @@ inline void copy_boundary_points(Point const& front_pt, Point const& back_pt,
         if (! geometry::has_nan_coordinate(front_pt))
         {
             mutable_point_type pt;
-            geometry::convert(front_pt, pt);
+            strategies::detail::convert_geometry(strategy, front_pt, pt);
             boundary_points.push_back(pt);
         }
         if (! geometry::has_nan_coordinate(back_pt))
         {
             mutable_point_type pt;
-            geometry::convert(back_pt, pt);
+            strategies::detail::convert_geometry(strategy, back_pt, pt);
             boundary_points.push_back(pt);
         }
     }
@@ -108,8 +111,10 @@ inline void copy_boundary_points_of_seg(Segment const& seg, Strategy const& stra
                                         Out & boundary_points)
 {
     typename Out::value_type front_pt, back_pt;
-    assign_point_from_index<0>(seg, front_pt);
-    assign_point_from_index<1>(seg, back_pt);
+    strategies::detail::convert_geometry(strategy,
+        detail::indexed_point_view<Segment const, 0>(seg), front_pt);
+    strategies::detail::convert_geometry(strategy,
+        detail::indexed_point_view<Segment const, 1>(seg), back_pt);
     copy_boundary_points(front_pt, back_pt, strategy, boundary_points);
 }
 
@@ -141,7 +146,10 @@ template <typename Geometry, typename Strategy>
 class boundary_checker<Geometry, Strategy, multi_linestring_tag>
 {
     using point_type = point_type_t<Geometry>;
-    using mutable_point_type = typename helper_geometry<point_type>::type;
+    using mutable_point_type = typename strategies::relate::services::intersection_point_type
+        <
+            Strategy, typename helper_geometry<point_type>::type
+        >::type;
 
 public:
     boundary_checker(Geometry const& g, Strategy const& s)

@@ -19,6 +19,8 @@
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/util/range.hpp>
+#include <boost/geometry/strategies/detail/output_support.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 
 
 namespace boost { namespace geometry
@@ -44,6 +46,11 @@ template <typename Range, typename Point, typename Strategy>
 inline void append_no_duplicates(Range& range, Point const& point,
                                  Strategy const& strategy)
 {
+    if (strategies::detail::try_append_no_duplicates(strategy, range, point))
+    {
+        return;
+    }
+
     if ( boost::empty(range)
       || ! geometry::detail::equals::equals_point_point(geometry::range::back(range),
                                                         point,
@@ -54,7 +61,9 @@ inline void append_no_duplicates(Range& range, Point const& point,
             << geometry::get<0>(point) << ", " << geometry::get<1>(point) << ")"
             << std::endl;
 #endif
-        geometry::append(range, point);
+        typename boost::range_value<Range>::type converted;
+        strategies::detail::convert_geometry(strategy, point, converted);
+        traits::push_back<Range>::apply(range, std::move(converted));
     }
 }
 

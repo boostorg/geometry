@@ -20,6 +20,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TOUCHES_IMPLEMENTATION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TOUCHES_IMPLEMENTATION_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <type_traits>
 
@@ -39,8 +41,10 @@
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
+#include <boost/geometry/strategies/detail/box_topology.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
 
 #include <boost/geometry/views/detail/geometry_collection_view.hpp>
@@ -61,73 +65,15 @@ template
     std::size_t DimensionCount
 >
 struct box_box_loop
-{
-    template <typename Box1, typename Box2>
-    static inline bool apply(Box1 const& b1, Box2 const& b2, bool & touch)
-    {
-        using coordinate_type1 = coordinate_type_t<Box1>;
-        using coordinate_type2 = coordinate_type_t<Box2>;
-
-        coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
-        coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);
-        coordinate_type2 const& min2 = get<min_corner, Dimension>(b2);
-        coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
-
-        // TODO assert or exception?
-        //BOOST_GEOMETRY_ASSERT(min1 <= max1 && min2 <= max2);
-
-        if (max1 < min2 || max2 < min1)
-        {
-            return false;
-        }
-
-        if (max1 == min2 || max2 == min1)
-        {
-            touch = true;
-        }
-
-        return box_box_loop
-                <
-                    Dimension + 1,
-                    DimensionCount
-                >::apply(b1, b2, touch);
-    }
-};
-
-template
-<
-    std::size_t DimensionCount
->
-struct box_box_loop<DimensionCount, DimensionCount>
-{
-    template <typename Box1, typename Box2>
-    static inline bool apply(Box1 const& , Box2 const&, bool &)
-    {
-        return true;
-    }
-};
+    : strategies::detail::box_topology_detail::touches_loop<Dimension, DimensionCount>
+{};
 
 struct box_box
 {
     template <typename Box1, typename Box2, typename Strategy>
-    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& /*strategy*/)
+    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& strategy)
     {
-        static_assert(std::is_same
-                        <
-                            geometry::coordinate_system_t<Box1>,
-                            geometry::coordinate_system_t<Box2>
-                        >::value,
-                        "Touches can only be evaluated for boxes of same coordinate system.");
-        assert_dimension_equal<Box1, Box2>();
-
-        bool touches = false;
-        bool ok = box_box_loop
-                    <
-                        0,
-                        dimension<Box1>::type::value
-                    >::apply(b1, b2, touches);
-
-        return ok && touches;
+        return strategies::detail::get_box_topology(strategy).touches().apply(b1, b2);
     }
 };
 
@@ -244,9 +190,14 @@ struct areal_areal
     {
         using point_type = geometry::point_type_t<Geometry1>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
-        using turn_info = detail::overlay::turn_info<mutable_point_type>;
+        using turn_point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, mutable_point_type>::type;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <Strategy, turn_point_type>::type;
+        using turn_info = detail::overlay::turn_info<turn_point_type, ratio_type>;
 
-        std::deque<turn_info> turns;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+            (strategy, geometry1, geometry2);
         detail::touches::areal_interrupt_policy policy;
         geometry::get_turns
             <
@@ -517,9 +468,10 @@ struct self_touches
                 detail::overlay::assign_null_policy
             >;
 
-        std::deque<turn_info> turns;
         detail::touches::areal_interrupt_policy policy;
         strategy_type strategy;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+            (strategy, geometry, geometry);
         // TODO: skip_adjacent should be set to false
         detail::self_get_turn_points::get_turns
             <

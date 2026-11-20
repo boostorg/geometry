@@ -14,9 +14,9 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_RING_PROPERTIES_HPP
 
 
-#include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 #include <boost/geometry/algorithms/detail/within/implementation.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 
 
 namespace boost { namespace geometry
@@ -62,14 +62,24 @@ struct ring_properties
         , discarded(false)
         , parent_area(-1)
     {
-        this->area = geometry::area(ring_or_box, strategy);
+        this->area = strategies::detail::get_ring_topology(strategy).signed_measure(ring_or_box);
         valid = geometry::point_on_border(this->point, ring_or_box);
     }
 
     inline area_type get_area() const
     {
+        // Reversal changes the orientation of the stored signed measure only;
+        // it neither recomputes coordinates nor decides whether a ring is degenerate.
         return reversed ? -area : area;
     }
+};
+
+template <typename Point, typename WorkingPoint>
+struct ring_properties<Point, strategies::detail::topological_ring_tag<WorkingPoint>>
+    : strategies::detail::exact_ring_properties<WorkingPoint>
+{
+    using base = strategies::detail::exact_ring_properties<WorkingPoint>;
+    using base::base;
 };
 
 }} // namespace detail::overlay

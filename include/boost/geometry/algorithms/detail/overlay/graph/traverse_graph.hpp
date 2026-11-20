@@ -11,6 +11,7 @@
 
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
@@ -19,6 +20,7 @@
 #include <boost/geometry/algorithms/detail/overlay/graph/select_edge.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/strategies/detail/output_support.hpp>
 
 #include <boost/assert.hpp>
 
@@ -56,6 +58,21 @@ struct traverse_graph
     using point_type = typename turn_type::point_type;
     using toi_set = std::set<turn_operation_id>;
 
+    template <typename Operation>
+    bool precedes(turn_type const&, Operation const& next, turn_type const&, Operation const& current,
+                  std::true_type) const
+    { return next.fraction < current.fraction; }
+
+    template <typename Operation>
+    bool precedes(turn_type const& next_turn, Operation const&, turn_type const& current_turn,
+                  Operation const& current, std::false_type) const
+    {
+        point_type first, last;
+        geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+            current.seg_id, first, last);
+        return m_strategy.segment_position().apply(first, last, next_turn.point, current_turn.point) < 0;
+    }
+
     inline traverse_graph(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
             Strategy const& strategy)
@@ -92,6 +109,8 @@ struct traverse_graph
     void use_vertices(Ring& ring, turn_operation_id const& toi, bool is_round_trip = false) const
     {
         auto const& op = m_turns[toi.turn_index].operations[toi.operation_index];
+        strategies::detail::prepare_output_edge<Reverse1, Reverse2>(
+            m_strategy, ring, m_geometry1, m_geometry2, op.seg_id);
         auto const to_vertex_index = op.enriched.travels_to_vertex_index;
 
         if (to_vertex_index < 0)
@@ -116,7 +135,8 @@ struct traverse_graph
                 if (next_op.seg_id == op.seg_id)
                 {
                     // It is on the same segment. Determine if it is located before or after
-                    if (next_op.fraction < op.fraction)
+                    if (precedes(next_turn, next_op, m_turns[toi.turn_index], op,
+                        stores_fraction<typename turn_type::segment_ratio_type>()))
                     {
                         // It is before, so we can continue
                         allow = true;

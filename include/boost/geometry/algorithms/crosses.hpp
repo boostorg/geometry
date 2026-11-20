@@ -30,6 +30,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -159,10 +160,11 @@ struct crosses
         concepts::check<Geometry1 const>();
         concepts::check<Geometry2 const>();
 
-        return dispatch::crosses
-            <
-                Geometry1, Geometry2
-            >::apply(geometry1, geometry2, strategy);
+        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
+            [&](auto const& bound)
+            {
+                return dispatch::crosses<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+            });
     }
 };
 

@@ -42,12 +42,11 @@
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
+#include <boost/geometry/strategies/detail/segment_as_subrange.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -111,21 +110,19 @@ struct segment_segment
     static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
                              Strategy const& strategy)
     {
+        strategies::detail::segment_as_subrange<Segment1> const first(segment1);
+        strategies::detail::segment_as_subrange<Segment2> const second(segment2);
         return equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 0>(segment1),
-                    indexed_point_view<Segment2 const, 0>(segment2),
+                    first.at(0), second.at(0),
                     strategy)
                 ? equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 1>(segment1),
-                    indexed_point_view<Segment2 const, 1>(segment2),
+                    first.at(1), second.at(1),
                     strategy)
                 : ( equals::equals_point_point(
-                        indexed_point_view<Segment1 const, 0>(segment1),
-                        indexed_point_view<Segment2 const, 1>(segment2),
+                        first.at(0), second.at(1),
                         strategy)
                  && equals::equals_point_point(
-                        indexed_point_view<Segment1 const, 1>(segment1),
-                        indexed_point_view<Segment2 const, 0>(segment2),
+                        first.at(1), second.at(0),
                         strategy)
                   );
     }

@@ -20,6 +20,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTS_IMPLEMENTATION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTS_IMPLEMENTATION_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <deque>
 
@@ -54,14 +56,14 @@ struct self_intersects
 
         using turn_info = detail::overlay::turn_info<point_type>;
 
-        std::deque<turn_info> turns;
-
         using turn_policy = detail::overlay::get_turn_info
             <
                 detail::overlay::assign_null_policy
             >;
 
         strategy_type strategy;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+            (strategy, geometry, geometry);
 
         detail::disjoint::disjoint_interrupt_policy policy;
     // TODO: skip_adjacent should be set to false

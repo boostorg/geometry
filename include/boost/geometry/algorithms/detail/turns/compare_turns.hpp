@@ -13,9 +13,14 @@
 
 #include <cstddef>
 #include <functional>
+#include <type_traits>
 
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
+#include <boost/geometry/algorithms/detail/sub_range.hpp>
 
 
 namespace boost { namespace geometry
@@ -32,12 +37,17 @@ template
 <
     typename IdLess = std::less<signed_size_type>,
     int N = 0, int U = 1, int I = 2, int B = 3, int C = 4, int O = 0,
-    std::size_t OpId = 0
+    std::size_t OpId = 0,
+    typename Strategy = default_strategy
 >
 struct less_seg_fraction_other_op
 {
     static_assert(OpId < 2, "Only 0 and 1 are valid OpIds.");
     static const std::size_t other_op_id = (OpId + 1) % 2;
+
+    explicit less_seg_fraction_other_op(Strategy const& strategy = Strategy())
+        : m_strategy(strategy)
+    {}
 
     template <typename Op>
     static inline int order_op(Op const& op)
@@ -83,11 +93,11 @@ struct less_seg_fraction_other_op
     }
 
     template <typename Turn>
-    static inline bool use_fraction(Turn const& left, Turn const& right)
+    inline bool use_fraction(Turn const& left, Turn const& right) const
     {
         return
-            geometry::math::equals(left.operations[OpId].fraction,
-                                   right.operations[OpId].fraction)
+            strategies::detail::get_topology(m_strategy).same_segment_position(
+                left.operations[OpId].fraction, right.operations[OpId].fraction)
             ?
             use_other_id(left, right)
             :
@@ -103,7 +113,53 @@ struct less_seg_fraction_other_op
 
         return sl < sr || ( sl == sr && use_fraction(left, right) );
     }
+
+    template <typename Turn, typename Geometry>
+    bool use_position(Turn const& left, Turn const& right, Geometry const&, std::true_type) const
+    { return use_fraction(left, right); }
+
+    template <typename Turn, typename Geometry>
+    bool use_position(Turn const& left, Turn const& right, Geometry const& geometry, std::false_type) const
+    {
+        auto const& source = detail::sub_range(geometry, left.operations[OpId].seg_id);
+        using range_type = typename std::remove_reference<decltype(source)>::type;
+        detail::closed_clockwise_view<range_type, geometry::closure<range_type>::value,
+            geometry::point_order<Geometry>::value> view(source);
+        auto const index = left.operations[OpId].seg_id.segment_index;
+        int const order = m_strategy.segment_position().apply(range::at(view, index), range::at(view, index + 1),
+                                                               left.point, right.point);
+        return order == 0 ? use_other_id(left, right) : order < 0;
+    }
+
+    template <typename Geometry>
+    auto on_geometry(Geometry const& geometry) const
+    {
+        auto const comparator = *this;
+        return [comparator, &geometry](auto const& left, auto const& right)
+        {
+            auto const& sl = left.operations[OpId].seg_id;
+            auto const& sr = right.operations[OpId].seg_id;
+            using turn = typename std::decay<decltype(left)>::type;
+            return sl < sr || (sl == sr && comparator.use_position(left, right, geometry,
+                overlay::stores_fraction<typename turn::segment_ratio_type>()));
+        };
+    }
+
+private:
+    Strategy m_strategy;
 };
+
+template <typename Strategy>
+inline auto make_less_seg_fraction_other_op(Strategy const& strategy)
+{
+    return less_seg_fraction_other_op<std::less<signed_size_type>, 0, 1, 2, 3, 4, 0, 0, Strategy>(strategy);
+}
+
+template <typename Strategy, typename Geometry>
+inline auto make_less_seg_fraction_other_op(Strategy const& strategy, Geometry const& geometry)
+{
+    return make_less_seg_fraction_other_op(strategy).on_geometry(geometry);
+}
 
 
 

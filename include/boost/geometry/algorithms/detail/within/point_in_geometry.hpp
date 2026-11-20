@@ -28,11 +28,11 @@
 
 #include <boost/geometry/core/assert.hpp>
 
-#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/concepts/within_concept.hpp>
+#include <boost/geometry/strategies/detail/segment_as_subrange.hpp>
 
 #include <boost/geometry/util/range.hpp>
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
@@ -93,11 +93,9 @@ struct point_in_geometry<Segment, segment_tag>
     template <typename Point, typename Strategy> static inline
     int apply(Point const& point, Segment const& segment, Strategy const& strategy)
     {
-        using point_type = geometry::point_type_t<Segment>;
-        point_type p0, p1;
-// TODO: don't copy points
-        detail::assign_point_from_index<0>(segment, p0);
-        detail::assign_point_from_index<1>(segment, p1);
+        strategies::detail::segment_as_subrange<Segment> const range(segment);
+        auto const& p0 = range.at(0);
+        auto const& p1 = range.at(1);
 
         auto const s = strategy.relate(point, segment);
         typename decltype(s)::state_type state;

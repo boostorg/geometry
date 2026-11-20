@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <cstddef>
 #include <set>
 #include <memory>
@@ -394,7 +396,7 @@ public :
             <
                 0, relate::turns::less_op_linear_areal_single<0>, Strategy
             >;
-        std::sort(boost::begin(turns), boost::end(turns), turn_less());
+        strategies::detail::sort_turns(turns, turn_less(strategy).on_geometry(linestring));
 
         typename linear::type current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
@@ -411,7 +413,7 @@ public :
         {
             auto const& op = turn.operations[0];
             if (previous_turn != nullptr
-                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, strategy))
+                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, linestring, strategy))
             {
                 if (isolated_turn != nullptr && !entered && !covered_at_position)
                 {

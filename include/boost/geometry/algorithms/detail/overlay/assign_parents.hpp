@@ -20,7 +20,6 @@
 
 #include <boost/geometry/core/coordinate_type.hpp>
 
-#include <boost/geometry/algorithms/area_result.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
@@ -30,6 +29,8 @@
 #include <boost/geometry/views/enumerate_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 
 
 namespace boost { namespace geometry
@@ -114,20 +115,21 @@ inline bool within_selected_input(Item const& item2,
 }
 
 
-template <typename Point, typename AreaType>
+template <typename Point, typename AreaType, typename Box = model::box<Point>>
 struct ring_info_helper
 {
     ring_identifier id;
     AreaType real_area;
     AreaType abs_area;
-    model::box<Point> envelope;
+    Box envelope;
 
     inline ring_info_helper()
         : real_area(0), abs_area(0)
     {}
 
-    inline ring_info_helper(ring_identifier i, AreaType const& a)
-        : id(i), real_area(a), abs_area(geometry::math::abs(a))
+    template <typename RingTopology>
+    inline ring_info_helper(ring_identifier i, AreaType const& a, RingTopology const& topology)
+        : id(i), real_area(a), abs_area(topology.absolute_measure(a))
     {}
 };
 
@@ -200,7 +202,8 @@ struct assign_visitor
     template <typename Item>
     inline bool apply(Item const& outer, Item const& inner, bool first = true)
     {
-        if (first && outer.abs_area < inner.abs_area)
+        auto const& ring_topology = strategies::detail::get_ring_topology(m_strategy);
+        if (first && ring_topology.measure_less(outer.abs_area, inner.abs_area))
         {
             // Apply with reversed arguments
             apply(inner, outer, false);
@@ -208,8 +211,8 @@ struct assign_visitor
         }
 
         if (m_check_for_orientation
-         || (math::larger(outer.real_area, 0)
-          && math::smaller(inner.real_area, 0)))
+         || (ring_topology.measure_is_positive(outer.real_area)
+          && ring_topology.measure_is_negative(inner.real_area)))
         {
             ring_info_type& inner_in_map = m_ring_map[inner.id];
 
@@ -222,7 +225,7 @@ struct assign_visitor
                 // Assign a parent if there was no earlier parent, or the newly
                 // found parent is smaller than the previous one
                 if (inner_in_map.parent.source_index == -1
-                    || outer.abs_area < inner_in_map.parent_area)
+                    || ring_topology.measure_less(outer.abs_area, inner_in_map.parent_area))
                 {
                     inner_in_map.parent = outer.id;
                     inner_in_map.parent_area = outer.abs_area;
@@ -243,7 +246,7 @@ template
     typename RingMap,
     typename Strategy
 >
-inline void assign_parents(Geometry1 const& geometry1,
+inline void assign_parents_by_area(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RingCollection const& collection,
             RingMap& ring_map,
@@ -258,11 +261,9 @@ inline void assign_parents(Geometry1 const& geometry1,
 
     using ring_info_type = typename RingMap::mapped_type;
     using point_type = typename ring_info_type::point_type;
-    using box_type = model::box<point_type>;
-    using area_result_type = typename geometry::area_result
-        <
-            point_type, Strategy // TODO: point_type is technically incorrect
-        >::type;
+    using box_type = typename strategies::relate::services::box_type<Strategy, point_type>::type;
+    using area_result_type = typename ring_info_type::area_type;
+    auto const& ring_topology = strategies::detail::get_ring_topology(strategy);
 
     {
         std::size_t count_total = ring_map.size();
@@ -271,14 +272,14 @@ inline void assign_parents(Geometry1 const& geometry1,
 
         // Copy to vector (this might be obsolete, using the map directly)
         // The index in the map is also the index in the vector.
-        using helper = ring_info_helper<point_type, area_result_type>;
+        using helper = ring_info_helper<point_type, area_result_type, box_type>;
         std::vector<helper> vector(count_total);
 
         for (auto const& enumerated : util::enumerate(ring_map))
         {
             auto const& ring_id = enumerated.value.first;
             auto const& info = enumerated.value.second;
-            vector[enumerated.index] = helper(ring_id, info.get_area());
+            vector[enumerated.index] = helper(ring_id, info.get_area(), ring_topology);
             helper& item = vector[enumerated.index];
             switch(ring_id.source_index)
             {
@@ -297,9 +298,9 @@ inline void assign_parents(Geometry1 const& geometry1,
             }
 
             // Expand envelope slightly
-            expand_by_epsilon(item.envelope);
+            ring_topology.expand_envelope(item.envelope);
 
-            if (item.real_area > 0)
+            if (ring_topology.measure_sign(item.real_area) > 0)
             {
                 count_positive++;
                 index_positive = enumerated.index;
@@ -359,15 +360,15 @@ inline void assign_parents(Geometry1 const& geometry1,
         for (auto& pair : ring_map)
         {
             ring_info_type& info = pair.second;
-            if (geometry::math::equals(info.get_area(), 0))
+            if (ring_topology.measure_is_zero(info.get_area()))
             {
                 info.discarded = true;
             }
             else if (info.parent.source_index >= 0)
             {
                 ring_info_type const& parent = ring_map[info.parent];
-                bool const pos = math::larger(info.get_area(), 0);
-                bool const parent_pos = math::larger(parent.area, 0);
+                bool const pos = ring_topology.measure_is_positive(info.get_area());
+                bool const parent_pos = ring_topology.measure_is_positive(parent.area);
 
                 bool const double_neg = is_dissolve && ! pos && ! parent_pos;
 
@@ -386,7 +387,7 @@ inline void assign_parents(Geometry1 const& geometry1,
                 }
             }
             else if (info.parent.source_index < 0
-                    && math::smaller(info.get_area(), 0))
+                    && ring_topology.measure_is_negative(info.get_area()))
             {
                 // Reverse negative ring without parent
                 info.reversed = true;
@@ -404,6 +405,32 @@ inline void assign_parents(Geometry1 const& geometry1,
     }
 }
 
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents_dispatch(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                                   RingMap& map, Strategy const& strategy, std::false_type)
+{
+    assign_parents_by_area<OverlayType>(a, b, collection, map, strategy);
+}
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents_dispatch(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                                   RingMap& map, Strategy const& strategy, std::true_type)
+{
+    strategies::detail::get_ring_topology(strategy).template assign_parents<OverlayType>
+        (a, b, collection, map, strategy);
+}
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                          RingMap& map, Strategy const& strategy)
+{
+    assign_parents_dispatch<OverlayType>(a, b, collection, map, strategy,
+        strategies::detail::ring_properties_detail::is_topological<typename RingMap::mapped_type>());
+}
 
 // Version for one geometry (called by buffer/dissolve)
 template

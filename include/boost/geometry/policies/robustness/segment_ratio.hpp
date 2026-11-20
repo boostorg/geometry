@@ -139,10 +139,12 @@ struct possibly_collinear<Type, false>
 template <typename Type>
 class segment_ratio
 {
-    // Type used for the approximation (a helper value)
-    // and for the edge value (0..1) (a helper function).
-    using floating_point_type =
-        typename detail::promoted_to_floating_point<Type>::type;
+    // Keep unbounded rational ratios exact. Converting their numerator and
+    // denominator separately to double can yield inf/inf or 0/0 even when
+    // the ratio itself is in [0,1].
+    static constexpr bool exact_value = std::is_same<Type, boost::multiprecision::cpp_rational>::value;
+    using floating_point_type = std::conditional_t<exact_value, Type,
+        typename detail::promoted_to_floating_point<Type>::type>;
 
     // Type-alias for the type itself
     using thistype = segment_ratio<Type>;
@@ -271,7 +273,7 @@ public:
         using fp = floating_point_type;
         fp const one{1.0};
         floating_point_type const result
-                = fp(2) * geometry::math::abs(fp(0.5) - m_approximation / scale());
+                = fp(2) * geometry::math::abs<fp>(fp(0.5) - m_approximation / scale());
         return result > one ? one : result;
     }
 
@@ -283,6 +285,10 @@ public:
 
     inline bool operator< (thistype const& other) const
     {
+        if (exact_value)
+        {
+            return m_approximation < other.m_approximation;
+        }
         return close_to(other)
             ? detail::segment_ratio::less<Type>::apply(*this, other)
             : m_approximation < other.m_approximation;
@@ -290,6 +296,10 @@ public:
 
     inline bool operator== (thistype const& other) const
     {
+        if (exact_value)
+        {
+            return m_approximation == other.m_approximation;
+        }
         return close_to(other)
             && detail::segment_ratio::equal<Type>::apply(*this, other);
     }
@@ -322,23 +332,20 @@ private :
     Type m_numerator;
     Type m_denominator;
 
-    // Contains ratio on scale 0..1000000 (for 0..1)
-    // This is an approximation for fast and rough comparisons
-    // Boost.Rational is used if the approximations are close.
-    // Reason: performance, Boost.Rational does a GCD by default and also the
-    // comparisons contain while-loops.
+    // Exact quotient for cpp_rational, otherwise scaled to 0..1000000
+    // for rough comparisons. Close approximations use the original pair.
     floating_point_type m_approximation;
 
     inline bool close_to(thistype const& other) const
     {
         static floating_point_type const threshold{50.0};
-        return geometry::math::abs(m_approximation - other.m_approximation)
+        return geometry::math::abs<floating_point_type>(m_approximation - other.m_approximation)
                 < threshold;
     }
 
     static inline floating_point_type scale()
     {
-        static floating_point_type const fp_scale{1000000.0};
+        static floating_point_type const fp_scale{exact_value ? 1.0 : 1000000.0};
         return fp_scale;
     }
 

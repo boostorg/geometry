@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_INTERSECTION_INSERT_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <cstddef>
 #include <deque>
@@ -31,6 +33,7 @@
 #include <boost/geometry/algorithms/detail/overlay/follow.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_intersection_points.hpp>
 #include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
+#include <boost/geometry/strategies/detail/clipping.hpp>
 #include <boost/geometry/algorithms/detail/overlay/linear_linear.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
@@ -49,6 +52,7 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/segment_intersection.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 #include <boost/geometry/views/segment_view.hpp>
@@ -80,27 +84,13 @@ struct intersection_segment_segment_point
             OutputIterator out,
             Strategy const& strategy)
     {
-        using point_type = point_type_t<PointOut>;
-        using intersection_return_type = segment_intersection_points<point_type>;
-        using policy_type = policies::relate::segments_intersection_points
-            <
-                intersection_return_type
-            >;
-
-        // Get the intersection point (or two points)
-        detail::segment_as_subrange<Segment1> sub_range1(segment1);
-        detail::segment_as_subrange<Segment2> sub_range2(segment2);
-
-        intersection_return_type
-            is = strategy.relate().apply(sub_range1, sub_range2, policy_type());
-
-        for (std::size_t i = 0; i < is.count; i++)
-        {
-            PointOut p;
-            geometry::convert(is.intersections[i], p);
-            *out++ = p;
-        }
-        return out;
+        return strategies::detail::intersect_segments<PointOut>
+            (strategy, segment1, segment2, out, [&](auto const& source)
+            {
+                PointOut p;
+                strategies::detail::convert_geometry(strategy, source, p);
+                return p;
+            });
     }
 };
 
@@ -118,8 +108,13 @@ struct intersection_linestring_linestring_point
             OutputIterator out,
             Strategy const& strategy)
     {
-        using turn_info = detail::overlay::turn_info<PointOut>;
-        std::deque<turn_info> turns;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, PointOut>::type;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <Strategy, point_type>::type;
+        using turn_info = detail::overlay::turn_info<point_type, ratio_type>;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+            (strategy, linestring1, linestring2);
 
         geometry::get_intersection_points(linestring1, linestring2,
                                           turns, strategy);
@@ -127,7 +122,7 @@ struct intersection_linestring_linestring_point
         for (auto const& turn : turns)
         {
             PointOut p;
-            geometry::convert(turn.point, p);
+            strategies::detail::convert_geometry(strategy, turn.point, p);
             *out++ = p;
         }
         return out;
@@ -288,9 +283,11 @@ struct intersection_of_linestring_with_areal
             return out;
         }
 
+        using working_geometry = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, GeometryOut>::type;
         using follower = detail::overlay::follow
                 <
-                    GeometryOut,
+                    working_geometry,
                     LineString,
                     Areal,
                     OverlayType,
@@ -303,12 +300,11 @@ struct intersection_of_linestring_with_areal
                 GeometryOut, linestring_tag, linestring_tag
             >;
 
-        using point_type = point_type_t<typename linear::type>;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, point_type_t<typename linear::type>>::type;
 
-        using ratio_type = geometry::segment_ratio
-            <
-                coordinate_type_t<point_type>
-            >;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <Strategy, point_type>::type;
 
         using turn_info = detail::overlay::turn_info
             <
@@ -321,7 +317,8 @@ struct intersection_of_linestring_with_areal
                     >
             >;
 
-        std::deque<turn_info> turns;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+            (strategy, linestring, areal);
 
         detail::get_turns::no_interrupt_policy policy;
 
@@ -357,7 +354,7 @@ struct intersection_of_linestring_with_areal
             if (follower::included(inside_value))
             {
                 typename linear::type copy;
-                geometry::convert(linestring, copy);
+                strategies::detail::convert_geometry(strategy, linestring, copy);
                 *linear::get(out)++ = copy;
             }
 
@@ -372,23 +369,28 @@ struct intersection_of_linestring_with_areal
         }
 #endif
 
-        return follower::apply
+        auto output = strategies::detail::make_output_iterator<GeometryOut, working_geometry>
+            (out, strategy);
+        return strategies::detail::unwrap_output_iterator(follower::apply
                 (
                     linestring, areal,
                     geometry::detail::overlay::operation_intersection,
-                    turns, out, strategy, isolated_points
-                );
+                    turns, output, strategy, isolated_points
+                ));
     }
 };
 
 
-template <typename Turns, typename OutputIterator>
+template <typename PointOut, typename Turns, typename OutputIterator, typename Strategy>
 inline OutputIterator intersection_output_turn_points(Turns const& turns,
-                                                      OutputIterator out)
+                                                      OutputIterator out,
+                                                      Strategy const& strategy)
 {
     for (auto const& turn : turns)
     {
-        *out++ = turn.point;
+        PointOut point;
+        strategies::detail::convert_geometry(strategy, turn.point, point);
+        *out++ = std::move(point);
     }
 
     return out;
@@ -408,12 +410,15 @@ struct intersection_areal_areal_point
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, PointOut>::type;
         using turn_info = detail::overlay::turn_info
             <
-                PointOut,
-                typename segment_ratio_type<PointOut>::type
+                point_type,
+                typename strategies::relate::services::segment_ratio_type<Strategy, point_type>::type
             >;
-        std::vector<turn_info> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_info>>
+            (strategy, geometry1, geometry2);
 
         detail::get_turns::no_interrupt_policy policy;
 
@@ -422,7 +427,7 @@ struct intersection_areal_areal_point
                 false, false, detail::overlay::assign_null_policy
             >(geometry1, geometry2, strategy, turns, policy);
 
-        return intersection_output_turn_points(turns, out);
+        return intersection_output_turn_points<PointOut>(turns, out, strategy);
     }
 };
 
@@ -440,15 +445,18 @@ struct intersection_linear_areal_point
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
-        using ratio_type = geometry::segment_ratio<geometry::coordinate_type_t<PointOut>>;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, PointOut>::type;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <Strategy, point_type>::type;
 
         using turn_info = detail::overlay::turn_info
             <
-                PointOut,
+                point_type,
                 ratio_type,
                 detail::overlay::turn_operation_linear
                     <
-                        PointOut,
+                        point_type,
                         ratio_type
                     >
             >;
@@ -458,7 +466,8 @@ struct intersection_linear_areal_point
                 detail::overlay::assign_null_policy
             >;
 
-        std::vector<turn_info> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_info>>
+            (strategy, geometry1, geometry2);
 
         detail::get_turns::no_interrupt_policy interrupt_policy;
 
@@ -475,7 +484,7 @@ struct intersection_linear_areal_point
                      strategy,
                      turns, interrupt_policy);
 
-        return intersection_output_turn_points(turns, out);
+        return intersection_output_turn_points<PointOut>(turns, out, strategy);
     }
 };
 
@@ -646,11 +655,14 @@ struct intersection_insert
     template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Linestring const& linestring,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
-        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
-        return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, linestring, out, lb_strategy);
+        using working_geometry = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, GeometryOut>::type;
+        auto const clipping = strategies::detail::get_clipping<point_type_t<working_geometry>>(strategy, box);
+        auto output = strategies::detail::make_output_iterator<GeometryOut, working_geometry>(out, strategy);
+        return strategies::detail::unwrap_output_iterator(detail::intersection::clip_range_with_box
+            <working_geometry>(box, linestring, output, clipping));
     }
 };
 
@@ -724,13 +736,16 @@ struct intersection_insert
     template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Segment const& segment,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
         geometry::segment_view<Segment> range(segment);
 
-        strategy::intersection::liang_barsky<Box, point_type_t<GeometryOut>> lb_strategy;
-        return detail::intersection::clip_range_with_box
-            <GeometryOut>(box, range, out, lb_strategy);
+        using working_geometry = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, GeometryOut>::type;
+        auto const clipping = strategies::detail::get_clipping<point_type_t<working_geometry>>(strategy, box);
+        auto output = strategies::detail::make_output_iterator<GeometryOut, working_geometry>(out, strategy);
+        return strategies::detail::unwrap_output_iterator(detail::intersection::clip_range_with_box
+            <working_geometry>(box, range, output, clipping));
     }
 };
 

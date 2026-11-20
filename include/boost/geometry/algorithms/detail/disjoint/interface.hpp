@@ -32,6 +32,7 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 
@@ -53,10 +54,11 @@ struct disjoint
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return dispatch::disjoint
-                <
-                    Geometry1, Geometry2
-                >::apply(geometry1, geometry2, strategy);
+        return strategies::detail::with_operation_sources(strategy, geometry1, geometry2,
+            [&](auto const& bound)
+            {
+                return dispatch::disjoint<Geometry1, Geometry2>::apply(geometry1, geometry2, bound);
+            });
     }
 };
 

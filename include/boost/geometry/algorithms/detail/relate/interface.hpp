@@ -28,6 +28,8 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/util/sequence.hpp>
 #include <boost/geometry/util/type_traits.hpp>
 
@@ -154,6 +156,7 @@ struct result_handler_type<Geometry1, Geometry2, util::type_sequence<StaticMasks
 };
 
 
+
 }} // namespace detail::relate
 #endif // DOXYGEN_NO_DETAIL
 
@@ -173,11 +176,13 @@ struct relate
                              ResultHandler & handler,
                              Strategy const& strategy)
     {
-        dispatch::relate
-            <
-                Geometry1,
-                Geometry2
-            >::apply(geometry1, geometry2, handler, strategy);
+        strategies::detail::with_operation_sources(strategy, geometry1, geometry2, [&](auto const& bound)
+        {
+            using bound_type = std::decay_t<decltype(bound)>;
+            typename strategies::relate::services::operation_scope<bound_type>::type scope;
+            (void) scope;
+            dispatch::relate<Geometry1, Geometry2>::apply(geometry1, geometry2, handler, bound);
+        });
     }
 };
 

@@ -13,15 +13,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_DISTANCE_MEASURE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_DISTANCE_MEASURE_HPP
 
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/coordinate_system.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
-#include <boost/geometry/algorithms/detail/make/make.hpp>
-#include <boost/geometry/algorithms/not_implemented.hpp>
-#include <boost/geometry/util/select_coordinate_type.hpp>
-
-#include <cmath>
+#include <boost/geometry/strategies/detail/topology.hpp>
 
 namespace boost { namespace geometry
 {
@@ -31,28 +23,7 @@ namespace detail
 {
 
 template <typename T>
-struct distance_measure
-{
-    T measure;
-
-    distance_measure()
-        : measure(T())
-    {}
-
-    // Returns true if the distance measure is absolutely zero
-    bool is_zero() const
-    {
-      return ! is_positive() && ! is_negative();
-    }
-
-    // Returns true if the distance measure is positive. Distance measure
-    // algorithm returns positive value if it is located on the left side.
-    bool is_positive() const { return measure > T(0); }
-
-    // Returns true if the distance measure is negative. Distance measure
-    // algorithm returns negative value if it is located on the right side.
-    bool is_negative() const { return measure < T(0); }
-};
+using distance_measure = strategies::detail::distance_measure<T>;
 
 } // detail
 
@@ -60,52 +31,10 @@ struct distance_measure
 namespace detail_dispatch
 {
 
-// TODO: this is effectively a strategy, but for internal usage.
-// It might be moved to the strategies folder.
-
+// Compatibility alias for the former internal dispatch implementation.
 template <typename CalculationType, typename CsTag>
-struct get_distance_measure
-    : not_implemented<CsTag>
-{};
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, spherical_tag>
-{
-    // By default the distance measure is zero, no side difference
-    using result_type = detail::distance_measure<CalculationType>;
-
-    template <typename SegmentPoint, typename Point>
-    static result_type apply(SegmentPoint const& , SegmentPoint const& ,
-                             Point const& )
-    {
-        result_type const result;
-        return result;
-    }
-};
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, geographic_tag>
-    : get_distance_measure<CalculationType, spherical_tag>
-{};
-
-template <typename CalculationType>
-struct get_distance_measure<CalculationType, cartesian_tag>
-{
-    using result_type = detail::distance_measure<CalculationType>;
-
-    template <typename SegmentPoint, typename Point>
-    static result_type apply(SegmentPoint const& p1, SegmentPoint const& p2,
-                             Point const& p)
-    {
-        // Get the distance measure / side value
-        // It is not a real distance and purpose is
-        // to detect small differences in collinearity
-        auto const line = detail::make::make_infinite_line<CalculationType>(p1, p2);
-        result_type result;
-        result.measure = arithmetic::side_value(line, p);
-        return result;
-    }
-};
+using get_distance_measure
+    = strategies::detail::distance_measure_detail::side_measure<CalculationType, CsTag>;
 
 } // namespace detail_dispatch
 
@@ -118,30 +47,9 @@ namespace detail
 // means that p is to the left of p1-p2.
 template <typename SegmentPoint, typename Point, typename Strategies>
 inline auto get_distance_measure(SegmentPoint const& p1, SegmentPoint const& p2, Point const& p,
-                                 Strategies const&)
+                                 Strategies const& strategies)
 {
-    using calc_t = typename select_coordinate_type<SegmentPoint, Point>::type;
-
-    // Verify equality, without using a tolerance
-    // (so don't use equals or equals_point_point)
-    // because it is about very tiny differences.
-    auto identical = [](auto const& point1, auto const& point2)
-    {
-        return geometry::get<0>(point1) == geometry::get<0>(point2)
-            && geometry::get<1>(point1) == geometry::get<1>(point2);
-    };
-
-    if (identical(p1, p) || identical(p2, p))
-    {
-        detail::distance_measure<calc_t> const result;
-        return result;
-    }
-
-    return detail_dispatch::get_distance_measure
-        <
-            calc_t,
-            typename Strategies::cs_tag
-        >::apply(p1, p2, p);
+    return strategies::detail::get_topology(strategies).distance_measure(p1, p2, p);
 }
 
 } // namespace detail

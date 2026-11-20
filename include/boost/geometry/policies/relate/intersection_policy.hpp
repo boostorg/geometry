@@ -45,6 +45,12 @@ public:
         typedef typename pts_policy::return_type intersection_points_type;
         typedef typename dir_policy::return_type direction_type;
 
+        struct disjoint_tag {};
+        explicit return_type(disjoint_tag)
+            : intersection_points(pts_policy::disjoint())
+            , direction(dir_policy::disjoint())
+        {}
+
         return_type(intersection_points_type const& pts_result,
                     direction_type const& dir_result)
             : intersection_points(pts_result)
@@ -127,11 +133,7 @@ public:
 
     static inline return_type disjoint()
     {
-        return return_type
-            (
-                pts_policy::disjoint(),
-                dir_policy::disjoint()
-            );
+        return return_type(typename return_type::disjoint_tag{});
     }
 
     static inline return_type error(std::string const& msg)

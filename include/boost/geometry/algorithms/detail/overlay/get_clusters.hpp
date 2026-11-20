@@ -15,14 +15,15 @@
 
 #include <algorithm>
 #include <map>
+#include <type_traits>
 #include <vector>
 
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/range/value_type.hpp>
-#include <boost/geometry/util/math.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,48 +31,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
-template <bool Integral = false>
-struct sweep_equal_policy
-{
-
-public:
-    // Returns true if point are considered equal
-    template <typename P>
-    static inline bool equals(P const& p1, P const& p2)
-    {
-        using coor_t = coordinate_type_t<P>;
-        static auto const tolerance
-            = common_approximately_equals_epsilon_multiplier<coor_t>::value();
-        return approximately_equals(p1, p2, tolerance);
-    }
-
-    template <typename T>
-    static inline bool exceeds(T value)
-    {
-        static auto const tolerance
-            = common_approximately_equals_epsilon_multiplier<T>::value();
-        T const limit = T(1) / tolerance;
-        return value > limit;
-    }
-};
-
-template <>
-struct sweep_equal_policy<true>
-{
-    template <typename P>
-    static inline bool equals(P const& p1, P const& p2)
-    {
-        return geometry::get<0>(p1) == geometry::get<0>(p2)
-            && geometry::get<1>(p1) == geometry::get<1>(p2);
-    }
-
-    template <typename T>
-    static inline bool exceeds(T value)
-    {
-        return value > 0;
-    }
-};
 
 template <typename Point>
 struct turn_with_point
@@ -87,22 +46,92 @@ struct cluster_with_point
     Point pnt;
 };
 
+template <typename Compare>
+struct exact_cluster_builder
+{
+    template <typename Turns, typename Clusters, typename Strategy>
+    static bool apply(Turns const& turns, Clusters& clusters, Strategy const& strategy)
+    {
+        using cluster_type = typename Clusters::mapped_type;
+        auto const& topology = strategies::detail::get_topology(strategy);
+
+        std::vector<std::size_t> turn_indices;
+        std::size_t turn_index = 0;
+        for (auto const& turn : turns)
+        {
+            if (! turn.discarded)
+            {
+                turn_indices.push_back(turn_index);
+            }
+            ++turn_index;
+        }
+        std::sort(turn_indices.begin(), turn_indices.end(), [&](auto a, auto b)
+        {
+            return Compare::apply(turns[a].point, turns[b].point);
+        });
+
+        // Certified ordering puts each exact equality class in one contiguous
+        // run. Every run of two or more points is still a cluster; colocation
+        // subsequently unifies its point representation as before.
+        signed_size_type cluster_id = 1;
+        for (auto first = turn_indices.begin(); first != turn_indices.end(); )
+        {
+            auto last = first + 1;
+            while (last != turn_indices.end()
+                && topology.cluster_equal(turns[*first].point, turns[*last].point))
+            {
+                ++last;
+            }
+            if (last - first > 1)
+            {
+                cluster_type cluster;
+                for (auto it = first; it != last; ++it)
+                {
+                    cluster.turn_indices.insert(*it);
+                }
+                clusters[cluster_id++] = cluster;
+            }
+            first = last;
+        }
+        return true;
+    }
+};
+
+template <>
+struct exact_cluster_builder<void>
+{
+    template <typename Turns, typename Clusters, typename Strategy>
+    static bool apply(Turns const&, Clusters&, Strategy const&)
+    {
+        return false;
+    }
+};
+
 // Use a sweep algorithm to detect clusters
 template
 <
     typename Turns,
-    typename Clusters
+    typename Clusters,
+    typename Strategy
 >
-inline void get_clusters(Turns& turns, Clusters& clusters)
+inline void get_clusters(Turns& turns, Clusters& clusters, Strategy const& strategy)
 {
+    using exact_compare = typename std::conditional
+        <
+            strategies::relate::services::exact_predicates<Strategy>::value,
+            typename strategies::relate::services::exact_cluster_compare<Strategy>::type,
+            void
+        >::type;
+    if (exact_cluster_builder<exact_compare>::apply(turns, clusters, strategy))
+    {
+        return;
+    }
+
     using turn_type = typename boost::range_value<Turns>::type;
     using cluster_type = typename Clusters::mapped_type;
     using point_type = typename turn_type::point_type;
 
-    sweep_equal_policy
-        <
-            std::is_integral<coordinate_type_t<point_type>>::value
-        > equal_policy;
+    auto const& topology = strategies::detail::get_topology(strategy);
 
     std::vector<turn_with_point<point_type>> points;
     std::size_t turn_index = 0;
@@ -116,9 +145,9 @@ inline void get_clusters(Turns& turns, Clusters& clusters)
     }
 
     // Sort the points from top to bottom
-    std::sort(points.begin(), points.end(), [](auto const& e1, auto const& e2)
+    std::sort(points.begin(), points.end(), [&](auto const& e1, auto const& e2)
     {
-       return geometry::get<1>(e1.pnt) > geometry::get<1>(e2.pnt);
+       return topology.compare_y(e1.pnt, e2.pnt) > 0;
     });
 
     // The output vector will be sorted from bottom too
@@ -130,13 +159,12 @@ inline void get_clusters(Turns& turns, Clusters& clusters)
         // Inner loop, iterates until it exceeds coordinates in y-direction
         for (auto it2 = it1 + 1; it2 != points.end(); ++it2)
         {
-            auto const d = geometry::get<1>(it1->pnt) - geometry::get<1>(it2->pnt);
-            if (equal_policy.exceeds(d))
+            if (topology.cluster_window_exceeded(it1->pnt, it2->pnt))
             {
                 // Points at this y-coordinate or below cannot be equal
                 break;
             }
-            if (equal_policy.equals(it1->pnt, it2->pnt))
+            if (topology.cluster_equal(it1->pnt, it2->pnt))
             {
                 std::size_t cindex = 0;
 
@@ -146,7 +174,7 @@ inline void get_clusters(Turns& turns, Clusters& clusters)
                 for (auto cit = clustered_points.begin();
                      cit != clustered_points.end(); ++cit)
                 {
-                    found = equal_policy.equals(cit->pnt, it1->pnt);
+                    found = topology.cluster_equal(cit->pnt, it1->pnt);
                     if (found)
                     {
                         break;
@@ -173,6 +201,13 @@ inline void get_clusters(Turns& turns, Clusters& clusters)
     {
         clusters[cluster_id++] = trace.cluster;
     }
+}
+
+// Deprecated: pass the umbrella strategy so custom topology policies are honored.
+template <typename Turns, typename Clusters>
+inline void get_clusters(Turns& turns, Clusters& clusters)
+{
+    get_clusters(turns, clusters, default_strategy());
 }
 
 }} // namespace detail::overlay

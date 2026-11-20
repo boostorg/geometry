@@ -25,6 +25,7 @@
 #include <boost/geometry/policies/is_valid/failure_type_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/relate3/services.hpp>
 #include <boost/geometry/strategies/relate3/cartesian.hpp>
@@ -47,6 +48,8 @@ struct is_valid
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
+        typename strategies::relate::services::operation_scope<Strategy>::type scope;
+        (void) scope;
         return dispatch::is_valid<Geometry>::apply(geometry, visitor, strategy);
     }
 

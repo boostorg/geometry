@@ -92,7 +92,8 @@ inline bool corresponding_turn(Turn const& turn, Turn const& start_turn,
 
 //  Verify turns (other than start, and cross) if they are present in the map, and if so,
 //  if they have the other turns as corresponding, discard the start turn.
-template <typename Turns, typename TurnBySegmentMap, typename Geometry0, typename Geometry1>
+template <bool RequireCluster, typename Turns, typename TurnBySegmentMap,
+          typename Geometry0, typename Geometry1>
 void discard_duplicate_start_turns(Turns& turns,
                                    TurnBySegmentMap const& start_turns_by_segment,
                                    Geometry0 const& geometry0,
@@ -129,7 +130,10 @@ void discard_duplicate_start_turns(Turns& turns,
             for (std::size_t const& i : it->second)
             {
                 auto& start_turn = turns[i];
-                if (start_turn.cluster_id == turn.cluster_id
+                // An unclustered turn does not share a location with other
+                // unclustered turns, even on the same pair of adjacent edges.
+                if ((! RequireCluster || turn.is_clustered())
+                    && start_turn.cluster_id == turn.cluster_id
                     && corresponding_turn(turn, start_turn, geometry0, geometry1))
                 {
                     // Discard the start turn, unless there is a touch before.
@@ -195,7 +199,7 @@ void discard_touch_touch_interior_turns(Turns& turns,
     }
 }
 
-template <typename Turns, typename Geometry0, typename Geometry1>
+template <bool RequireCluster = false, typename Turns, typename Geometry0, typename Geometry1>
 void discard_duplicate_turns(Turns& turns,
                              Geometry0 const& geometry0,
                              Geometry1 const& geometry1)
@@ -243,7 +247,8 @@ void discard_duplicate_turns(Turns& turns,
 
     if (!start_turns_by_segment.empty())
     {
-        discard_duplicate_start_turns(turns, start_turns_by_segment, geometry0, geometry1);
+        discard_duplicate_start_turns<RequireCluster>(turns, start_turns_by_segment,
+                                                     geometry0, geometry1);
     }
 
     if (touch_count > 0 && touch_interior_count > 0)

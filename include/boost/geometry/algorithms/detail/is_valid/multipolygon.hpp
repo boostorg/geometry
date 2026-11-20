@@ -13,6 +13,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <deque>
 #include <vector>
 
@@ -308,7 +310,8 @@ public:
                 typename Strategy::cs_tag
             >;
 
-        std::deque<typename has_valid_turns::turn_type> turns;
+        auto turns = strategies::detail::make_turn_container
+            <std::deque<typename has_valid_turns::turn_type>>(strategy, multipolygon, multipolygon);
         bool has_invalid_turns =
             ! has_valid_turns::apply(multipolygon, turns, visitor, strategy);
         debug_print_turns(turns.begin(), turns.end());

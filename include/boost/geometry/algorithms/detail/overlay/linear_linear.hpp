@@ -11,6 +11,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_LINEAR_LINEAR_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
+
 #include <algorithm>
 #include <vector>
 
@@ -58,12 +61,12 @@ struct linear_linear_no_intersections
         LineStringOut, overlay_difference, LineString, linestring_tag
     >
 {
-    template <typename OutputIterator>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(LineString const& linestring,
-                                       OutputIterator oit)
+                                       OutputIterator oit, Strategy const& strategy)
     {
         LineStringOut ls_out;
-        geometry::convert(linestring, ls_out);
+        strategies::detail::convert_geometry(strategy, linestring, ls_out);
         *oit++ = ls_out;
         return oit;
     }
@@ -79,14 +82,14 @@ struct linear_linear_no_intersections
         multi_linestring_tag
     >
 {
-    template <typename OutputIterator>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(MultiLineString const& multilinestring,
-                                       OutputIterator oit)
+                                       OutputIterator oit, Strategy const& strategy)
     {
         for (auto it = boost::begin(multilinestring); it != boost::end(multilinestring); ++it)
         {
             LineStringOut ls_out;
-            geometry::convert(*it, ls_out);
+            strategies::detail::convert_geometry(strategy, *it, ls_out);
             *oit++ = ls_out;
         }
         return oit;
@@ -100,9 +103,9 @@ struct linear_linear_no_intersections
         LineStringOut, overlay_intersection, Geometry, GeometryTag
     >
 {
-    template <typename OutputIterator>
+    template <typename OutputIterator, typename Strategy>
     static inline OutputIterator apply(Geometry const&,
-                                       OutputIterator oit)
+                                       OutputIterator oit, Strategy const&)
     {
         return oit;
     }
@@ -196,8 +199,8 @@ protected:
             >::apply(turns);
 
         // sort by seg_id, distance, and operation
-        std::sort(boost::begin(turns), boost::end(turns),
-                  detail::turns::less_seg_fraction_other_op<>());
+        strategies::detail::sort_turns(turns,
+            detail::turns::make_less_seg_fraction_other_op(strategy, linear1));
 
         // remove duplicate turns
         turns::remove_duplicate_turns
@@ -205,16 +208,20 @@ protected:
                 Turns, EnableRemoveDuplicateTurns
             >::apply(turns, strategy);
 
-        return detail::overlay::following::linear::follow
+        using working_linestring = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, LinestringOut>::type;
+        auto output = strategies::detail::make_output_iterator<LinestringOut, working_linestring>
+            (oit, strategy);
+        return strategies::detail::unwrap_output_iterator(detail::overlay::following::linear::follow
             <
-                LinestringOut,
+                working_linestring,
                 LinearGeometry1,
                 LinearGeometry2,
                 OverlayTypeForFollow,
                 FollowIsolatedPoints,
                 !EnableFilterContinueTurns || OverlayType == overlay_intersection
             >::apply(linear1, linear2, boost::begin(turns), boost::end(turns),
-                     oit, strategy);
+                     output, strategy));
     }
 
 public:
@@ -241,7 +248,8 @@ public:
 
         using turns_container = std::vector<turn_info>;
 
-        turns_container turns;
+        auto turns = strategies::detail::make_turn_container<turns_container>
+            (strategy, linear1, linear2);
         compute_turns(turns, linear1, linear2, strategy);
 
         if ( turns.empty() )
@@ -253,7 +261,7 @@ public:
                     OverlayType,
                     Linear1,
                     tag_t<Linear1>
-                >::apply(linear1, oit);
+                >::apply(linear1, oit, strategy);
         }
 
         return sort_and_follow_turns
@@ -300,7 +308,7 @@ struct linear_linear_linestring
                 overlay_difference,
                 Linear1,
                 tag_t<Linear1>
-            >::apply(linear1, oit);
+            >::apply(linear1, oit, strategy);
 
         return linear_linear_linestring
             <

@@ -23,19 +23,21 @@ namespace detail { namespace overlay
 {
 
 
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename SegmentRatio,
+          typename ComparableDistance = coordinate_type_t<Point>>
 struct traversal_turn_operation : public turn_operation<Point, SegmentRatio>
 {
-    enrichment_info<Point> enriched;
+    enrichment_info<Point, ComparableDistance> enriched;
 };
 
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename SegmentRatio,
+          typename ComparableDistance = coordinate_type_t<Point>>
 struct traversal_turn_info
     : public turn_info
                 <
                     Point,
                     SegmentRatio,
-                    traversal_turn_operation<Point, SegmentRatio>
+                    traversal_turn_operation<Point, SegmentRatio, ComparableDistance>
                 >
 {};
 

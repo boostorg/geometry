@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DIFFERENCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DIFFERENCE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <boost/geometry/algorithms/detail/gc_make_rtree.hpp>
 #include <boost/geometry/algorithms/detail/intersection/gc.hpp>
@@ -26,6 +28,7 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp> // For backward compatibility
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -387,19 +390,32 @@ struct difference
     }
 
 private:
+    template <typename G1, typename MultiOut, typename Strategy>
+    static void copy_input(G1 const& g1, MultiOut& out, Strategy const& strategy, std::false_type)
+    {
+        // The strategy may borrow the source; do not stage it in a native copy.
+        using single_out_t = typename geometry::detail::output_geometry_value<MultiOut>::type;
+        single_out_t converted;
+        strategies::detail::convert_geometry(strategy, g1, converted);
+        auto out_it = geometry::detail::output_geometry_back_inserter(out);
+        *out_it++ = std::move(converted);
+    }
+
+    template <typename G1, typename MultiOut, typename Strategy>
+    static void copy_input(G1 const& g1, MultiOut& out, Strategy const& strategy, std::true_type)
+    {
+        strategies::detail::convert_geometry(strategy, g1, out);
+    }
+
     // Implemented as separate function because msvc is unable to do nested lambda capture
     template <typename G1, typename Rtree2, typename MultiOut, typename Strategy>
     static void g1_minus_gc2(G1 const& g1, Rtree2 const& rtree2, MultiOut& out, Strategy const& strategy)
     {
-        {
-            using single_out_t = typename geometry::detail::output_geometry_value<MultiOut>::type;
-            auto out_it = geometry::detail::output_geometry_back_inserter(out);
-            geometry::detail::convert_to_output<G1, single_out_t>::apply(g1, out_it);
-        }
+        copy_input(g1, out, strategy, std::integral_constant<bool, util::is_multi<G1>::value>());
 
-        using box1_t = detail::gc_make_rtree_box_t<G1>;
+        using box1_t = detail::gc_make_rtree_box_t<G1, Strategy>;
         box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
-        detail::expand_by_epsilon(b1);
+        strategies::detail::get_ring_topology(strategy).expand_envelope(b1);
 
         for (auto qit = rtree2.qbegin(index::intersects(b1)); qit != rtree2.qend(); ++qit)
         {
@@ -520,10 +536,15 @@ struct difference
                              Collection & output_collection,
                              Strategy const& strategy)
     {
-        resolve_collection::difference
-            <
-                Geometry1, Geometry2, Collection
-            >::apply(geometry1, geometry2, output_collection, strategy);
+        strategies::detail::with_operation_sources(strategy, geometry1, geometry2, [&](auto const& bound)
+        {
+            detail::overlay::with_working_output(output_collection, bound, geometry1, geometry2, [&](auto& working)
+            {
+                resolve_collection::difference<Geometry1, Geometry2, std::decay_t<decltype(working)>>
+                    ::apply(geometry1, geometry2, working, bound);
+                return true;
+            });
+        });
     }
 };
 

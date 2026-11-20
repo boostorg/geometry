@@ -21,6 +21,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DISJOINT_LINEAR_LINEAR_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <cstddef>
 #include <deque>
 
@@ -36,6 +38,9 @@
 #include <boost/geometry/geometries/helper_geometry.hpp>
 
 #include <boost/geometry/policies/disjoint_interrupt_policy.hpp>
+
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/segment_intersection.hpp>
 
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
@@ -55,19 +60,7 @@ struct disjoint_segment
     static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
                              Strategy const& strategy)
     {
-        using point_type = point_type_t<Segment1>;
-        using intersection_return_type = segment_intersection_points<point_type>;
-        using intersection_policy = policies::relate::segments_intersection_points
-            <
-                intersection_return_type
-            >;
-
-        detail::segment_as_subrange<Segment1> sub_range1(segment1);
-        detail::segment_as_subrange<Segment2> sub_range2(segment2);
-        intersection_return_type is = strategy.relate().apply(sub_range1, sub_range2,
-                                                              intersection_policy());
-
-        return is.count == 0;
+        return strategies::detail::disjoint_segments(strategy, segment1, segment2);
     }
 };
 
@@ -92,18 +85,22 @@ struct disjoint_linear
     {
         using point_type = geometry::point_type_t<Geometry1>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
-        using ratio_type = geometry::segment_ratio<coordinate_type_t<point_type>>;
+        using turn_point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, mutable_point_type>::type;
+        using ratio_type = typename strategies::relate::services::segment_ratio_type
+            <Strategy, turn_point_type>::type;
         using turn_info_type = overlay::turn_info
             <
-                mutable_point_type,
+                turn_point_type,
                 ratio_type,
                 typename detail::get_turns::turn_operation_type
                         <
-                            Geometry1, Geometry2, mutable_point_type, ratio_type
+                            Geometry1, Geometry2, turn_point_type, ratio_type
                         >::type
             >;
 
-        std::deque<turn_info_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::deque<turn_info_type>>
+            (strategy, geometry1, geometry2);
 
         // Specify two policies:
         // 1) Stop at any intersection

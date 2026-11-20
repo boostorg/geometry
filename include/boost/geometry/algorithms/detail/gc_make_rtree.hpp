@@ -16,11 +16,12 @@
 #include <boost/range/end.hpp>
 #include <boost/range/size.hpp>
 
-#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/geometry/strategies/index/services.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/strategies/detail/ring_properties.hpp>
 #include <boost/geometry/views/detail/random_access_view.hpp>
 
 namespace boost { namespace geometry
@@ -32,22 +33,23 @@ namespace detail
 {
 
 
-template <typename GC>
-using gc_make_rtree_box_t = geometry::model::box
+template <typename GC, typename Strategy = void>
+using gc_make_rtree_box_t = typename strategies::relate::services::box_type
     <
+        Strategy,
         geometry::model::point
             <
                 geometry::coordinate_type_t<GC>,
                 geometry::dimension<GC>::value,
                 geometry::coordinate_system_t<GC>
             >
-    >;
+    >::type;
 
 
 template <typename GC, typename Strategy>
 inline auto gc_make_rtree_iterators(GC& gc, Strategy const& strategy)
 {
-    using box_t = gc_make_rtree_box_t<GC>;
+    using box_t = gc_make_rtree_box_t<GC, Strategy>;
     using iter_t = typename boost::range_iterator<GC>::type;
 
     using rtree_param_t = index::rstar<4>;
@@ -63,7 +65,7 @@ inline auto gc_make_rtree_iterators(GC& gc, Strategy const& strategy)
     visit_breadth_first_impl<true>::apply([&](auto const& g, auto iter)
     {
         box_t b = geometry::return_envelope<box_t>(g, strategy);
-        detail::expand_by_epsilon(b);
+        strategies::detail::get_ring_topology(strategy).expand_envelope(b);
         values.emplace_back(b, iter);
         return true;
     }, gc);
@@ -82,7 +84,7 @@ inline auto gc_make_rtree_indexes(GCView const& gc, Strategy const& strategy)
                                  "This algorithm requires random-access, non-recursive geometry collection or view.",
                                  GCView);
 
-    using box_t = gc_make_rtree_box_t<GCView>;
+    using box_t = gc_make_rtree_box_t<GCView, Strategy>;
 
     using rtree_param_t = index::rstar<4>;
     using rtree_parameters_t = index::parameters<rtree_param_t, Strategy>;
@@ -100,7 +102,7 @@ inline auto gc_make_rtree_indexes(GCView const& gc, Strategy const& strategy)
         traits::iter_visit<GCView>::apply([&](auto const& g)
         {
             box_t b = geometry::return_envelope<box_t>(g, strategy);
-            detail::expand_by_epsilon(b);
+            strategies::detail::get_ring_topology(strategy).expand_envelope(b);
             values.emplace_back(b, i);
         }, begin + i);
     }

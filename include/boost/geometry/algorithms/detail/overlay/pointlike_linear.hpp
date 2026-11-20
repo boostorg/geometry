@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_POINTLIKE_LINEAR_HPP
 
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+
 #include <iterator>
 #include <vector>
 
@@ -246,6 +248,9 @@ private:
     {
         item_visitor_type<OutputIterator, Strategy> item_visitor(oit, strategy);
 
+        using box_type = typename strategies::relate::services::box_type
+            <Strategy, typename boost::range_value<MultiPoint>::type>::type;
+
         // TODO: disjoint Segment/Box may be called in partition multiple times
         // possibly for non-cartesian segments which could be slow. We should consider
         // passing a range of bounding boxes of segments after calculating them once.
@@ -253,10 +258,7 @@ private:
         // should be passed, where envelope would be lazily calculated when needed the first time
         geometry::partition
             <
-                geometry::model::box
-                    <
-                        typename boost::range_value<MultiPoint>::type
-                    >
+                box_type
             >::apply(multipoint, segment_range(linear), item_visitor,
                      expand_box_point<Strategy>(strategy),
                      overlaps_box_point<Strategy>(strategy),
@@ -275,7 +277,8 @@ public:
     {
         using point_vector_type = std::vector
             <
-                typename boost::range_value<MultiPoint>::type
+                typename strategies::relate::services::intersection_point_type
+                    <Strategy, typename boost::range_value<MultiPoint>::type>::type
             >;
 
         point_vector_type common_points;

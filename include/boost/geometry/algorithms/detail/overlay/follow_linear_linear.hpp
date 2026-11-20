@@ -42,6 +42,8 @@
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
+
 #include <boost/geometry/util/condition.hpp>
 
 namespace boost { namespace geometry
@@ -382,8 +384,9 @@ protected:
     template <typename OutputIt, overlay_type OT>
     struct copy_linestrings_in_range
     {
+        template <typename Strategy>
         static inline OutputIt
-        apply(linestring_iterator, linestring_iterator, OutputIt oit)
+        apply(linestring_iterator, linestring_iterator, OutputIt oit, Strategy const&)
         {
             return oit;
         }
@@ -392,14 +395,15 @@ protected:
     template <typename OutputIt>
     struct copy_linestrings_in_range<OutputIt, overlay_difference>
     {
+        template <typename Strategy>
         static inline OutputIt
         apply(linestring_iterator first, linestring_iterator beyond,
-              OutputIt oit)
+              OutputIt oit, Strategy const& strategy)
         {
             for (linestring_iterator ls_it = first; ls_it != beyond; ++ls_it)
             {
                 LinestringOut line_out;
-                geometry::convert(*ls_it, line_out);
+                strategies::detail::convert_geometry(strategy, *ls_it, line_out);
                 *oit++ = line_out;
             }
             return oit;
@@ -454,7 +458,7 @@ public:
 
         oit = copy_linestrings::apply(ls_first,
                                       ls_first + current_multi_id,
-                                      oit);
+                                      oit, strategy);
 
         TurnIterator per_ls_next = first;
         do {
@@ -476,7 +480,7 @@ public:
             }
             oit = copy_linestrings::apply(ls_first + current_multi_id + 1,
                                           ls_next,
-                                          oit);
+                                          oit, strategy);
 
             current_multi_id = next_multi_id;
         }

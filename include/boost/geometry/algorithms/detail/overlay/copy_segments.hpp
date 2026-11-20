@@ -41,6 +41,8 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
+#include <boost/geometry/strategies/detail/output_support.hpp>
+
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
@@ -71,6 +73,12 @@ struct copy_segments_ring
             Strategy const& strategy,
             RangeOut& current_output)
     {
+        if (strategies::detail::try_copy_segments<Reverse, true>(
+                strategy, ring, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         using view_type = detail::closed_clockwise_view
             <
                 Ring const,
@@ -151,6 +159,12 @@ public:
             SideStrategy const& strategy,
             RangeOut& current_output)
     {
+        if (strategies::detail::try_copy_segments<Reverse, RemoveSpikes>(
+                strategy, ls, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         signed_size_type const from_index = seg_id.segment_index + 1;
 
         // Sanity check
@@ -217,6 +231,12 @@ struct copy_segments_box
             SideStrategy const& strategy,
             RangeOut& current_output)
     {
+        if (strategies::detail::try_copy_segments<Reverse, true>(
+                strategy, box, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         signed_size_type index = seg_id.segment_index + 1;
         BOOST_GEOMETRY_ASSERT(index < 5);
 

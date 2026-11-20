@@ -53,13 +53,12 @@ inline bool point_is_spike_or_equal(Point1 const& last_point, // prev | back
                                     Point3 const& segment_b,  // curr | back - 1 | spike's vertex
                                     SideStrategy const& strategy)
 {
-    using cs_tag = typename SideStrategy::cs_tag;
-
-    int const side = strategy.apply(segment_a, segment_b, last_point);
+    int const side = strategies::detail::get_side_strategy(strategy).apply(
+        segment_a, segment_b, last_point);
     if (side == 0)
     {
         // Last point is collinear w.r.t previous segment.
-        return direction_code<cs_tag>(segment_a, segment_b, last_point) < 1;
+        return geometry::detail::direction_code(segment_a, segment_b, last_point, strategy) < 1;
     }
     return false;
 }
@@ -76,7 +75,8 @@ inline bool point_is_collinear(Point1 const& last_point,
             Point3 const& segment_b,
             SideStrategy const& strategy)
 {
-    int const side = strategy.apply(segment_a, segment_b, last_point);
+    int const side = strategies::detail::get_side_strategy(strategy).apply(
+        segment_a, segment_b, last_point);
     if (side == 0)
     {
         return true;
