@@ -27,6 +27,7 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/multi_polygon.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
@@ -843,6 +844,13 @@ inline void sym_difference(Geometry1 const& geometry1,
                            Geometry2 const& geometry2,
                            Collection& output_collection)
 {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    namespace exact = detail::cartesian_exact_default;
+    if constexpr (exact::admits_output<exact::operation::sym_difference, Geometry1, Geometry2, Collection>())
+    {
+        return geometry::sym_difference(geometry1, geometry2, output_collection, exact::strategy<Geometry1, Geometry2>{});
+    }
+#endif
     resolve_dynamic::sym_difference
         <
             Geometry1,
