@@ -37,7 +37,7 @@ foreach(item IN ITEMS
   boost_geometry_add_unit_test("strategies" ${item})
 endforeach()
 
-foreach(item IN ITEMS simple_cartesian)
+foreach(item IN ITEMS simple_cartesian cartesian_construction)
   boost_geometry_add_unit_test("strategies" ${item})
   if(NOT item STREQUAL "simple_cartesian")
     target_compile_features(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE cxx_std_17)
