@@ -35,7 +35,7 @@ jobs:
     - name: Set up environment
       id: setenv
       run: |
-        if [[ "$GITHUB_REF" == *master ]]; then
+        if [[ "$GITHUB_BASE_REF" == master || ( -z "$GITHUB_BASE_REF" && "$GITHUB_REF" == *master ) ]]; then
           echo "BOOST_BRANCH=master" >> $GITHUB_ENV
         else
           echo "BOOST_BRANCH=develop" >> $GITHUB_ENV

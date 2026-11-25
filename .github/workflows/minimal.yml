@@ -84,7 +84,7 @@ jobs:
       - name: Set up environment
         id: setenv
         run: |
-          if [[ "$GITHUB_REF" == *master ]]; then
+          if [[ "$GITHUB_BASE_REF" == master || ( -z "$GITHUB_BASE_REF" && "$GITHUB_REF" == *master ) ]]; then
             echo "BOOST_BRANCH=master" >> $GITHUB_ENV
           else
             echo "BOOST_BRANCH=develop" >> $GITHUB_ENV
@@ -204,7 +204,7 @@ jobs:
       - name: Set up environment
         id: setenv
         run: |
-          if [[ "$GITHUB_REF" == *master ]]; then
+          if [[ "$GITHUB_BASE_REF" == master || ( -z "$GITHUB_BASE_REF" && "$GITHUB_REF" == *master ) ]]; then
             echo "BOOST_BRANCH=master" >> $GITHUB_ENV
           else
             echo "BOOST_BRANCH=develop" >> $GITHUB_ENV
@@ -279,18 +279,19 @@ jobs:
         include:
           - b2_toolset: msvc-14.2
             # VS 2019's final toolset, installed alongside VS 2022 on this image.
-            vcvars_version: '14.29'
+            vcvars_version_pattern: '14.29.*'
             vs_version: '[17.0,18.0)'
             b2_cxxstd: '14,17,20'
             os: windows-2022
           - b2_toolset: msvc-14.3
             # B2 calls the VS 2022 family 14.3, including compiler 14.4x.
-            vcvars_version: '14.44'
+            vcvars_version_pattern: '14.44.*'
             vs_version: '[17.0,18.0)'
             b2_cxxstd: '14,17,20'
             os: windows-2022
           - b2_toolset: msvc-14.5
-            vcvars_version: '14.51'
+            # The runner updates the default 14.5x toolset in place.
+            vcvars_version_pattern: '14.5[0-9].*'
             vs_version: '[18.0,19.0)'
             b2_cxxstd: '14,17,20'
             os: windows-2025-vs2026
@@ -300,7 +301,8 @@ jobs:
         id: setenv
         shell: pwsh
         run: |
-          if ($env:GITHUB_REF -eq 'refs/heads/master') {
+          if ($env:GITHUB_BASE_REF -ceq 'master' -or
+              (-not $env:GITHUB_BASE_REF -and $env:GITHUB_REF -eq 'refs/heads/master')) {
             echo "BOOST_BRANCH=master" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           } else {
             echo "BOOST_BRANCH=develop" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -346,13 +348,35 @@ jobs:
         run: |
           $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
           $vs = & $vswhere -latest -products * -version '${{ matrix.vs_version }}' -property installationPath
-          $version = '${{ matrix.vcvars_version }}'
-          $cl = (Resolve-Path "$vs\VC\Tools\MSVC\$version.*\bin\Hostx64\x64\cl.exe").Path.Replace('\', '/')
-          Write-Host "Using $cl ($((Get-Item $cl).VersionInfo.FileVersion))"
+          if (-not $vs) { throw "No Visual Studio installation found in version range ${{ matrix.vs_version }}" }
+          $pattern = '${{ matrix.vcvars_version_pattern }}'
+          $msvcRoot = Join-Path $vs 'VC\Tools\MSVC'
+          $x64Compiler = 'bin\Hostx64\x64\cl.exe'
+          $x86Compiler = 'bin\Hostx86\x86\cl.exe'
+          $toolsets = Get-ChildItem -LiteralPath $msvcRoot -Directory -ErrorAction SilentlyContinue
+          $toolset = $toolsets | Where-Object {
+            $_.Name -like $pattern -and ($_.Name -as [version]) -and
+              (Test-Path -LiteralPath (Join-Path $_.FullName $x64Compiler) -PathType Leaf) -and
+              (Test-Path -LiteralPath (Join-Path $_.FullName $x86Compiler) -PathType Leaf)
+          } | Sort-Object { [version]$_.Name } -Descending | Select-Object -First 1
+          if (-not $toolset) {
+            throw "No MSVC toolset matching '$pattern' with x86 and x64 compilers in '$msvcRoot'. Installed toolsets: [$($toolsets.Name -join ', ')]"
+          }
+          $version = $toolset.Name
+          $cl = (Join-Path $toolset.FullName $x64Compiler).Replace('\', '/')
+          Write-Host "Using $cl ($((Get-Item -LiteralPath $cl).VersionInfo.FileVersion))"
           # Keep the same toolset when B2 switches between x86 and x64.
-          $setup = (Join-Path $env:RUNNER_TEMP 'geometry-msvc-setup.bat').Replace('\', '/')
-          "@call `"$vs\VC\Auxiliary\Build\vcvarsall.bat`" %* -vcvars_ver=$version" |
-            Set-Content $setup -Encoding ascii
+          $setup = Join-Path $env:RUNNER_TEMP 'geometry-msvc-setup.bat'
+          @(
+            "@call `"$vs\VC\Auxiliary\Build\vcvarsall.bat`" %* -vcvars_ver=$version"
+            '@if errorlevel 1 exit /b 1'
+            "@if not `"%VCToolsVersion%`"==`"$version`" exit /b 1"
+          ) | Set-Content -LiteralPath $setup -Encoding ascii
+          foreach ($arch in 'x86', 'amd64') {
+            & $setup $arch
+            if ($LASTEXITCODE -ne 0) { throw "Could not initialize MSVC $version for $arch" }
+          }
+          $setup = $setup.Replace('\', '/')
           $b2Version = '${{ matrix.b2_toolset }}'.Replace('msvc-', '')
           "using msvc : $b2Version : `"$cl`" : <setup>`"$setup`" ;" |
             Set-Content "$env:BOOST_ROOT\user-config.jam" -Encoding ascii
@@ -364,4 +388,7 @@ jobs:
           cd $env:BOOST_ROOT
           .\b2 --user-config=user-config.jam --build-dir="$env:RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          if (-not (Test-Path "$env:RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test" -PathType Container)) { exit 1 }
+          $tests = Join-Path $env:RUNNER_TEMP 'boost/bin.v2/libs/geometry/test/minimal.test'
+          $passed = @(Get-ChildItem -LiteralPath $tests -Recurse -File -Filter minimal.test -ErrorAction SilentlyContinue).Count
+          $expected = 4 * '${{ matrix.b2_cxxstd }}'.Split(',').Count # Two build variants and two architectures.
+          if ($passed -ne $expected) { throw "Expected $expected passing minimal tests, found $passed" }
