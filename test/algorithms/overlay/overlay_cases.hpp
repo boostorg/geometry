@@ -1671,4 +1671,13 @@ static std::string issue_1487[2] =
         "5110.0842867836363 -2645.5659190779725))"
 };
 
+// Two triangles where an edge of each crosses the other at a very small angle.
+// The crossing ratio was computed inaccurately: the union was empty and the intersection
+// was the whole first triangle.
+static std::string case_nearly_parallel_crossing[2] =
+{
+    "POLYGON((547.0194 1164.9817,623.376 1088.6251,543.6382 1161.6005,547.0194 1164.9817))",
+    "POLYGON((547.2261 1164.775,543.2119 1160.7608,543.2119 1168.7892,547.2261 1164.775))"
+};
+
 #endif // BOOST_GEOMETRY_TEST_OVERLAY_CASES_HPP
