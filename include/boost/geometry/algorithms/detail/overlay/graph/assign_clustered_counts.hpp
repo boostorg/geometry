@@ -9,17 +9,21 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 
+#include <boost/geometry/algorithms/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/position_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/num_segments.hpp>
 
 #include <set>
 #include <map>
+#include <type_traits>
 
 namespace boost { namespace geometry
 {
@@ -424,9 +428,187 @@ struct clustered_count_handler
         }
     }
 
-    // Currently necessary for some failing cases in buffer only, where due to floating point
-    // precision the i/u turns get unexpected counts for left/right.
-    // rt_w10, rt_w11, rt_w14, rt_w15
+    template <typename Geometry>
+    static signed_size_type path_segment_count(Geometry const& geometry,
+        segment_identifier const& seg_id)
+    {
+        return geometry::num_segments(get_ring<geometry::tag_t<Geometry>>::apply(
+            ring_identifier(0, seg_id.multi_index, seg_id.ring_index), geometry));
+    }
+
+    void colocate_on_source_vertex(cluster_info const& cluster)
+    {
+        if (cluster.turn_indices.empty())
+        {
+            return;
+        }
+        static ct_type const tolerance
+            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        auto const& cluster_point = m_turns[*cluster.turn_indices.begin()].point;
+        point_type vertex;
+        bool found = false;
+        for (auto const index : cluster.turn_indices)
+        {
+            for (auto const& op : m_turns[index].operations)
+            {
+                using ratio_type = typename std::decay<decltype(op.fraction)>::type;
+                typename ratio_type::int_type const zero(0);
+                if (op.fraction.denominator() == zero)
+                {
+                    continue;
+                }
+                // An exact endpoint ratio identifies an original source vertex;
+                // an approximate endpoint fraction is not enough to reanchor it.
+                bool const at_start = op.fraction.numerator() == zero;
+                bool const at_end = op.fraction.numerator() == op.fraction.denominator();
+                if (! at_start && ! at_end)
+                {
+                    continue;
+                }
+                point_type candidate;
+                geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+                    op.seg_id, at_start ? 0 : 1, candidate);
+                if (! approximately_equals(cluster_point, candidate, tolerance))
+                {
+                    continue;
+                }
+                if (found && (geometry::get<0>(candidate) != geometry::get<0>(vertex)
+                    || geometry::get<1>(candidate) != geometry::get<1>(vertex)))
+                {
+                    // Distinct nearby source vertices do not define one anchor.
+                    return;
+                }
+                vertex = candidate;
+                found = true;
+            }
+        }
+        if (found)
+        {
+            for (auto const index : cluster.turn_indices)
+            {
+                m_turns[index].point = vertex;
+            }
+        }
+    }
+
+    template <typename Operation>
+    bool is_straight_path(point_type const& from, point_type const& to,
+        Operation const& op) const
+    {
+        auto const to_vertex = op.enriched.travels_to_vertex_index;
+        if (to_vertex < 0)
+        {
+            return false;
+        }
+
+        auto const& target = m_turns[op.enriched.travels_to_ip_index];
+        bool target_on_segment = false;
+        static ct_type const tolerance
+            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        using cs_tag = typename Strategy::cs_tag;
+        for (auto const& target_op : target.operations)
+        {
+            using ratio_type = typename std::decay<decltype(target_op.fraction)>::type;
+            typename ratio_type::int_type const zero(0);
+            if (ring_id_by_seg_id(op.seg_id) != ring_id_by_seg_id(target_op.seg_id)
+                || target_op.fraction.denominator() == zero
+                || (! target_op.fraction.on_segment()
+                    && ! target_op.fraction.is_zero() && ! target_op.fraction.is_one()))
+            {
+                continue;
+            }
+            point_type start, end;
+            geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+                target_op.seg_id, start, end);
+            target_on_segment = approximately_equals(to, start, tolerance)
+                || approximately_equals(to, end, tolerance)
+                || (detail::direction_code<cs_tag>(start, end, to) <= 0
+                    && detail::direction_code<cs_tag>(end, start, to) <= 0);
+            if (target_on_segment)
+            {
+                break;
+            }
+        }
+        if (! target_on_segment)
+        {
+            // A displaced intersection beyond its original finite segment
+            // cannot be the endpoint of a genuine straight continuation.
+            return false;
+        }
+
+        if (to_vertex == op.seg_id.segment_index)
+        {
+            for (auto const& target_op : target.operations)
+            {
+                if (target_op.seg_id == op.seg_id && op.fraction < target_op.fraction)
+                {
+                    // The target is ahead on the same segment, without vertices.
+                    return true;
+                }
+            }
+        }
+
+        auto const segment_count = op.seg_id.source_index == 0
+            ? path_segment_count(m_geometry1, op.seg_id)
+            : path_segment_count(m_geometry2, op.seg_id);
+        auto vertex_count = to_vertex - op.seg_id.segment_index;
+        if (vertex_count <= 0)
+        {
+            vertex_count += segment_count;
+        }
+
+        point_type previous = from;
+        for (signed_size_type offset = 1; offset <= vertex_count; ++offset)
+        {
+            point_type point;
+            geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
+                op.seg_id, offset, point);
+            if (approximately_equals(previous, point, tolerance))
+            {
+                // A source vertex and its clustered turn can differ slightly.
+                continue;
+            }
+            if (approximately_equals(point, to, tolerance))
+            {
+                point = to;
+            }
+            if (approximately_equals(previous, to, tolerance)
+                || m_side_strategy.apply(from, to, point) != 0
+                || detail::direction_code<cs_tag>(to, previous, point) > 0
+                || detail::direction_code<cs_tag>(previous, to, point) > 0)
+            {
+                // The path must advance along the common segment, including
+                // collinear subdivisions, without detours or backtracking.
+                return false;
+            }
+            previous = point;
+        }
+        return true;
+    }
+
+    template <typename Turn>
+    bool has_same_straight_path(Turn const& turn) const
+    {
+        auto const target_index = turn.operations[0].enriched.travels_to_ip_index;
+        if (target_index < 0)
+        {
+            return false;
+        }
+        auto const& target = m_turns[target_index];
+        static ct_type const tolerance
+            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        if (target.cluster_id == turn.cluster_id
+            || approximately_equals(turn.point, target.point, tolerance))
+        {
+            // Shared-target round trips can enclose different areas.
+            return false;
+        }
+        return is_straight_path(turn.point, target.point, turn.operations[0])
+            && is_straight_path(turn.point, target.point, turn.operations[1]);
+    }
+
+    // Compensate nearly collinear intersection/difference paths and buffer precision cases
+    // (rt_w10, rt_w11, rt_w14, rt_w15), whose i/u turns have unexpected counts.
     // The original sides are measured over the two whole intersecting segments.
     // The sides in clusters are measured w.r.t. the turn point, which is the point of the first cluster.
     // This can differ.
@@ -469,11 +651,27 @@ struct clustered_count_handler
             auto& op1 = turn.operations[1];
 
             bool const is_same_target = op0.enriched.travels_to_ip_index == op1.enriched.travels_to_ip_index;
-            if (is_same_target && reversed_indices.find(index) != reversed_indices.end())
+            if (is_same_target && reversed_indices.find(index) != reversed_indices.end()
+                && (OverlayType != overlay_difference || has_same_straight_path(turn)))
             {
                 // Best choice: i/u are nearly collinear, so we can let them continue.
                 op0.operation = operation_continue;
                 op1.operation = operation_continue;
+
+                if (OverlayType == overlay_difference)
+                {
+                    // Both complete paths were proved straight. Traverse their
+                    // turn endpoints directly: copying a nearly coincident
+                    // source vertex as well can create a self-crossing detour.
+                    op0.enriched.travels_to_vertex_index = -1;
+                    op1.enriched.travels_to_vertex_index = -1;
+                    m_compensated_clusters.insert(cluster_id);
+                    auto const& target_turn = m_turns[op0.enriched.travels_to_ip_index];
+                    if (target_turn.is_clustered())
+                    {
+                        m_compensated_clusters.insert(target_turn.cluster_id);
+                    }
+                }
 
                 // Also adapt the left/right-counts, both should get the minimum of both.
                 op0.enriched.count_left = (std::min)(op0.enriched.count_left, op1.enriched.count_left);
@@ -541,7 +739,13 @@ struct clustered_count_handler
         }
 
         assign_turn_operations(cluster, connection_map);
-        change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        // Preserve distinct areal paths. Difference only compensates paths that
+        // follow the same straight boundary all the way to their shared target.
+        if (OverlayType == overlay_buffer || OverlayType == overlay_intersection
+            || OverlayType == overlay_difference)
+        {
+            change_reversed_operations(cluster_id, cluster, point_turn, point_origin);
+        }
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
         // List the connections
@@ -564,6 +768,7 @@ struct clustered_count_handler
     template <typename Visitor>
     void apply(Visitor& visitor)
     {
+        m_compensated_clusters.clear();
         for (auto& key_value : m_clusters)
         {
             auto& cluster = key_value.second;
@@ -574,6 +779,13 @@ struct clustered_count_handler
 
             apply(key_value.first, cluster, visitor);
         }
+        // Only accepted precision repairs need a source endpoint anchor. Apply
+        // them after ALL path decisions: a path may target another cluster,
+        // whose point must not depend on cluster iteration order during testing.
+        for (auto const cluster_id : m_compensated_clusters)
+        {
+            colocate_on_source_vertex(m_clusters.at(cluster_id));
+        }
     }
 
 private:
@@ -583,6 +795,7 @@ private:
     Clusters& m_clusters;
     Strategy const& m_intersection_strategy;
     decltype(m_intersection_strategy.side()) m_side_strategy;
+    std::set<signed_size_type> m_compensated_clusters;
 };
 
 }} // namespace detail::overlay
