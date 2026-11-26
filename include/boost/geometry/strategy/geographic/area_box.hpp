@@ -12,6 +12,7 @@
 
 
 #include <boost/geometry/core/radian_access.hpp>
+#include <boost/geometry/formulas/eccentricity_sqr.hpp>
 #include <boost/geometry/srs/spheroid.hpp>
 #include <boost/geometry/strategies/spherical/get_radius.hpp>
 #include <boost/geometry/strategy/area.hpp>

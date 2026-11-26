@@ -21,7 +21,7 @@ jobs:
     - name: Set up environment
       id: setenv
       run: |
-        if [[ "$GITHUB_REF" == *master ]]; then
+        if [[ "$GITHUB_BASE_REF" == master || ( -z "$GITHUB_BASE_REF" && "$GITHUB_REF" == *master ) ]]; then
           echo "BOOST_BRANCH=master" >> $GITHUB_ENV
         else
           echo "BOOST_BRANCH=develop" >> $GITHUB_ENV
@@ -68,4 +68,4 @@ jobs:
     - name: Build libs/geometry/test/headers
       run: |
         cd $BOOST_ROOT
-        $BOOST_ROOT/b2 libs/geometry/test/headers
+        $BOOST_ROOT/b2 cxxstd=14 libs/geometry/test/headers

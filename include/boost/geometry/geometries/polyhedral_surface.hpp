@@ -64,7 +64,7 @@ public :
         : polygon_container()
     {}
 
-    /// \constructor_initialized_list{polyhedron}
+    /// \constructor_initializer_list{polyhedron}
     inline polyhedral_surface(std::initializer_list<Polygon> l)
         : polygon_container(l.begin(), l.end())
     {}

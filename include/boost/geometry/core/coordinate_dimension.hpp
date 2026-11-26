@@ -22,6 +22,8 @@
 
 #include <cstddef>
 
+#include <boost/config.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
