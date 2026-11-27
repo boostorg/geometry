@@ -62,6 +62,8 @@ void test_all()
     typedef bg::model::segment<P> segment;
     test_disjoint<ls, ls>("ls/ls 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<ls, ls>("ls/ls 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
+    test_disjoint<ls, segment>("empty_ls/segment", "linestring empty", "linestring(0 0,1 1)", true);
+    test_disjoint<ls, bg::model::box<P>>("empty_ls/box", "linestring empty", "box(0 0,1 1)", true);
     test_disjoint<segment, segment>("s/s 1", "linestring(0 0,1 1)", "linestring(1 0,0 1)", false);
     test_disjoint<segment, segment>("s/s 2", "linestring(0 0,1 1)", "linestring(1 0,2 1)", true);
 
