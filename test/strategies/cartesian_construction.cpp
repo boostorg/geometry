@@ -26,6 +26,17 @@ point crossing(line const& a, line const& b, Policy const&)
     return output.empty() ? point(0, 0) : output.front();
 }
 
+bool within_four_steps(double x, double nearest)
+{
+    double lower = nearest, upper = nearest;
+    for (int i = 0; i < 4; ++i)
+    {
+        lower = std::nextafter(lower, -std::numeric_limits<double>::infinity());
+        upper = std::nextafter(upper, std::numeric_limits<double>::infinity());
+    }
+    return lower <= x && x <= upper;
+}
+
 void squared_distance_order()
 {
     point const origin(0, 0), a(1, 0), b(1, 0x1p-40);
@@ -82,7 +93,7 @@ int main()
     namespace exact = bg::strategies::detail::exact_cartesian;
     namespace filter = exact::ulp_filter;
     namespace recipe = bg::strategies::detail::linear_formula;
-    using certificate = filter::nearest_certificate;
+    using certificate = filter::producer_certificate<4>;
     namespace rules = bg::detail::semi_static_error;
     using native_product = decltype(rules::product(
         rules::difference<0, 0>(0., 0.), rules::difference<0, 0>(0., 0.)));
@@ -157,6 +168,9 @@ int main()
         }
     }
 #endif
+    auto const bounded = crossing(a, b, sr::bounded_ulp_output<4>{});
+    BOOST_TEST(within_four_steps(bounded.x(), expected.x()));
+    BOOST_TEST(within_four_steps(bounded.y(), expected.y()));
     crossing(a, b, sr::approximate_output{});
 
     // The crossing is exactly halfway between consecutive doubles, first

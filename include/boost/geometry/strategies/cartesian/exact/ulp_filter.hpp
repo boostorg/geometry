@@ -8,6 +8,8 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <limits>
 
 #include <boost/geometry/strategies/cartesian/exact/coordinate_certificate.hpp>
@@ -43,6 +45,15 @@ inline bool sign(double value, double bound, int& result)
     if (value > bound) { result = 1; return true; }
     if (value < -bound) { result = -1; return true; }
     return false;
+}
+
+inline std::uint64_t step_index(double x)
+{
+    std::uint64_t bits;
+    static_assert(sizeof(bits) == sizeof(x), "Binary64 encoding required");
+    std::memcpy(&bits, &x, sizeof(bits));
+    constexpr std::uint64_t center = std::uint64_t{1} << (std::numeric_limits<std::uint64_t>::digits - 1);
+    return bits & center ? center - (bits - center) : center + bits;
 }
 
 inline bool in_measure_range(coordinates const& a)
@@ -86,14 +97,20 @@ struct bilinear_ops
 };
 } // namespace detail
 
-template <bool AI, bool BI>
-inline bool try_compare_nearest(double a, double b, int& result)
+template <std::size_t N, bool AI, bool BI>
+inline bool try_compare_n(double a, double b, int& result)
 {
     if (!std::isfinite(a) || !std::isfinite(b)) return false;
-    if constexpr (AI || BI)
+    if constexpr ((AI || BI) && N == 0)
     {
         // RN is monotone, including ties. Equal heads do not prove equality.
         if (a == b) return false;
+    }
+    else if constexpr (AI || BI)
+    {
+        auto const x = detail::step_index(a), y = detail::step_index(b);
+        constexpr auto limit = (unsigned(AI) + unsigned(BI)) * effective_steps<N>;
+        if ((x < y ? y - x : x - y) <= limit) return false;
     }
     result = int(a > b) - int(a < b);
     return true;

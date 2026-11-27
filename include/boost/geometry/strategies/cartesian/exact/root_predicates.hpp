@@ -347,7 +347,7 @@ bool coordinate_filter(A const& a, B const& b, int& result)
 {
     if constexpr (step_filter<Root, A, B>)
     {
-        return ulp_filter::try_compare_nearest<
+        return ulp_filter::try_compare_n<root_filter<Root>::order_steps,
             !exact_double<A>::value, !exact_double<B>::value>
             (bounded_ordinate(a, D), bounded_ordinate(b, D), result);
     }
