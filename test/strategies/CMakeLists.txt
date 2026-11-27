@@ -36,3 +36,13 @@ foreach(item IN ITEMS
   )
   boost_geometry_add_unit_test("strategies" ${item})
 endforeach()
+
+foreach(item IN ITEMS simple_cartesian)
+  boost_geometry_add_unit_test("strategies" ${item})
+  target_compile_features(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE cxx_std_17)
+  if(MSVC)
+    target_compile_options(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE /fp:strict /Zc:lambda)
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE -ffp-contract=off)
+  endif()
+endforeach()
