@@ -417,7 +417,10 @@ inline void enrich_turns(Turns& turns,
         enrich_assign(pair.second, turns);
     }
 
-    block_ux_uu_workaround(turns);
+    if constexpr (!strategies::relate::services::assumes_simplicity<IntersectionStrategy>::value)
+    {
+        block_ux_uu_workaround(turns);
+    }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     constexpr bool do_check_graph = true;

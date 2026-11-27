@@ -124,7 +124,16 @@ struct sym_difference_areal_areal
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
-        return apply_with_contacts(areal1, areal2, out, strategy);
+        if constexpr (strategies::relate::services::assumes_simplicity<Strategy>::value)
+        {
+            // The two differences may meet at crossings, but cannot share
+            // an edge unless the original boundaries had a common edge.
+            return sym_difference_generic<GeometryOut, Areal1, Areal2>::apply(areal1, areal2, out, strategy);
+        }
+        else
+        {
+            return apply_with_contacts(areal1, areal2, out, strategy);
+        }
     }
 
     template <typename OutputIterator, typename Strategy>

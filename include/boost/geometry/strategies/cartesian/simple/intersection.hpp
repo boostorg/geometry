@@ -38,7 +38,7 @@ struct copy_endpoint
     static void apply(Source const& source, Destination& destination) { copy_point(source, destination); }
 };
 
-template <typename CalculationType>
+template <bool AssumeSimplicity, typename CalculationType>
 struct segments
 {
     using cs_tag = cartesian_tag;
@@ -48,12 +48,15 @@ struct segments
         template <typename Output, typename A, typename B>
         void calculate(Output& output, A const& a, B const& b) const
         {
-            switch (endpoint)
+            if constexpr (!AssumeSimplicity)
             {
-            case 0: copy_point(a.first, output); return;
-            case 1: copy_point(a.second, output); return;
-            case 2: copy_point(b.first, output); return;
-            case 3: copy_point(b.second, output); return;
+                switch (endpoint)
+                {
+                case 0: copy_point(a.first, output); return;
+                case 1: copy_point(a.second, output); return;
+                case 2: copy_point(b.first, output); return;
+                case 3: copy_point(b.second, output); return;
+                }
             }
             using T = calculation_t<CalculationType, A, B>;
             using ops = linear_formula::arithmetic_ops<T>;
@@ -77,16 +80,18 @@ struct segments
         using position = segment_position<T>;
         using selected = cartesian_segment_events::endpoint_policy<Policy, position, copy_endpoint>;
         auto const equal = [](auto const& a, auto const& b) { return point_equal<T>::apply(a, b); };
-        return cartesian_segment_events::classify<selected>(
+        return cartesian_segment_events::classify<AssumeSimplicity, selected>(
             p.at(0), p.at(1), q.at(0), q.at(1),
             [](auto const& a, auto const& b, auto const& point)
             {
-                return side<T>::apply(a, b, point);
+                if constexpr (AssumeSimplicity) return determinant<T>(a, b, point);
+                else return side<T>::apply(a, b, point);
             },
             equal,
             [&](auto const& a, auto const& b)
             {
-                return cartesian_segment_events::collinear<selected, position, position_tag<T>>(a, b, equal);
+                if constexpr (!AssumeSimplicity)
+                    return cartesian_segment_events::collinear<selected, position, position_tag<T>>(a, b, equal);
             },
             [](int endpoint) { return construction_info{endpoint}; },
             cartesian_segment_events::use_input_endpoint{},

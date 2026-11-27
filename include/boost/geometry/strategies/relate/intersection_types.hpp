@@ -36,6 +36,14 @@ struct exact_predicates<Strategy, std::void_t<decltype(Strategy::exact_predicate
     : std::integral_constant<bool, Strategy::exact_predicates>
 {};
 
+template <typename Strategy, typename = void>
+struct assumes_simplicity : std::false_type {};
+
+template <typename Strategy>
+struct assumes_simplicity<Strategy, std::void_t<decltype(Strategy::assumes_simplicity)>>
+    : std::integral_constant<bool, Strategy::assumes_simplicity>
+{};
+
 // Opt in only if static apply(a, b) is a strict weak ordering whose equivalence
 // classes coincide with topology().cluster_equal(a, b). Tolerant equality does
 // not in general satisfy this contract.

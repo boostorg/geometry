@@ -64,7 +64,16 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
 // predicates. Requires finite 2D Cartesian input and finite intermediates. Ring
 // parenting uses stock signed area, not the exact strategy's boundary topology.
 // Point equality and coordinate ordering use ordinary comparisons.
-template <typename CalculationType = void>
+// The optional assumption excludes coincident vertices (except ring closure
+// and adjacency), zero-length edges, vertex/support incidences, coincident
+// supports and concurrent crossings. Only use it on valid original inputs;
+// inputs must be far enough from degeneracy that arithmetic rounding does not
+// create such events, including in constructed output. No numeric guarantees
+// are added. In particular, do not reapply it to
+// overlay outputs, which can share vertices by construction. The assumption
+// is for straight 2D Cartesian point, linear and polygonal operands, not
+// composed calls on geometry collections or buffer and dissolve.
+template <bool AssumeSimplicity = false, typename CalculationType = void>
 class simple_cartesian_strategy : public strategies::distance::cartesian<CalculationType>
 {
     using base = cartesian<CalculationType>;
@@ -74,6 +83,7 @@ class simple_cartesian_strategy : public strategies::distance::cartesian<Calcula
 public:
     static constexpr bool exact_predicates = false;
     static constexpr bool uses_overlay_tolerance = false;
+    static constexpr bool assumes_simplicity = AssumeSimplicity;
     static auto buffer_generation_strategy() { return strategies::distance::cartesian<>(); }
     template <typename Point>
     static auto buffer_winding()
@@ -95,7 +105,7 @@ public:
     template <typename A, typename B, typename Apply>
     decltype(auto) with_operands(A const& a, B const& b, Apply&& apply) const
     {
-        using bound = simple_cartesian_strategy<calculation_t<A, B>>;
+        using bound = simple_cartesian_strategy<AssumeSimplicity, calculation_t<A, B>>;
         return std::forward<Apply>(apply)(a, b, bound{});
     }
 
@@ -164,7 +174,7 @@ public:
     template <typename Point, typename Box>
     static auto clipping(Box const&)
     { return strategies::detail::simple_cartesian::clipping<Box, Point, CalculationType>(); }
-    static auto relate() { return strategies::detail::simple_cartesian::segments<CalculationType>(); }
+    static auto relate() { return strategies::detail::simple_cartesian::segments<AssumeSimplicity, CalculationType>(); }
     template <typename A, typename B>
     static auto relate(A const&, B const&,
         std::enable_if_t<util::is_pointlike<A>::value && util::is_pointlike<B>::value>* = nullptr)

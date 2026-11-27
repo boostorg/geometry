@@ -274,40 +274,55 @@ struct overlay
 
         visitor.visit_turns(1, turns);
 
+        constexpr bool simple_input = strategies::relate::services::assumes_simplicity<Strategy>::value
+            && (OverlayType == overlay_union || OverlayType == overlay_intersection || OverlayType == overlay_difference);
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (! turns.empty() || OverlayType == overlay_dissolve
-            || OverlayType == overlay_difference)
+        if constexpr (!simple_input)
         {
-            // Touching subtractor components can enclose an island away from the minuend.
-            if (needs_self_turns<Geometry1>::apply(geometry1))
+            if (! turns.empty() || OverlayType == overlay_dissolve
+                || OverlayType == overlay_difference)
             {
-                self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
-                    strategy, turns, policy, 0);
-            }
-            if (needs_self_turns<Geometry2>::apply(geometry2))
-            {
-                self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
-                    strategy, turns, policy, 1);
+                // Touching subtractor components can enclose an island away from the minuend.
+                if (needs_self_turns<Geometry1>::apply(geometry1))
+                {
+                    self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
+                        strategy, turns, policy, 0);
+                }
+                if (needs_self_turns<Geometry2>::apply(geometry2))
+                {
+                    self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
+                        strategy, turns, policy, 1);
+                }
             }
         }
 #endif
 
         cluster_type clusters;
 
-        detail::overlay::handle_colocations(turns, clusters, strategy);
-        detail::overlay::enrich_discard_turns<OverlayType>(
-            turns, clusters, geometry1, geometry2, strategy);
+        if constexpr (!simple_input)
+        {
+            detail::overlay::handle_colocations(turns, clusters, strategy);
+            detail::overlay::enrich_discard_turns<OverlayType>(
+                turns, clusters, geometry1, geometry2, strategy);
+        }
 
         detail::overlay::enrich_turns<Reverse1, Reverse2, OverlayType>(
             turns, geometry1, geometry2, strategy);
 
         visitor.visit_turns(2, turns);
 
-        detail::overlay::colocate_clusters(clusters, turns, strategy);
-        // Side counts use cluster centroids, so assign them after colocation.
-        assign_side_counts<Reverse1, Reverse2, OverlayType>(
-            geometry1, geometry2, turns, clusters, strategy, visitor);
-        get_properties_ahead<Reverse1, Reverse2>(turns, clusters, geometry1, geometry2, strategy);
+        if constexpr (simple_input)
+        {
+            assign_unclustered_counts(turns);
+        }
+        else
+        {
+            detail::overlay::colocate_clusters(clusters, turns, strategy);
+            // Side counts use cluster centroids, so assign them after colocation.
+            assign_side_counts<Reverse1, Reverse2, OverlayType>(
+                geometry1, geometry2, turns, clusters, strategy, visitor);
+            get_properties_ahead<Reverse1, Reverse2>(turns, clusters, geometry1, geometry2, strategy);
+        }
 
         // Traverse through intersection/turn points and create rings of them.
         // These rings are always in clockwise order.
@@ -340,7 +355,7 @@ struct overlay
         // When the overlay produced no turns, allow a point on the boundary to
         // count as within the other geometry (see issue 1471).
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties, strategy, turns.empty());
+                selected_ring_properties, strategy, !simple_input && turns.empty());
 
         insert_traversed_rings<ReverseOut>(rings, selected_ring_properties, strategy);
 

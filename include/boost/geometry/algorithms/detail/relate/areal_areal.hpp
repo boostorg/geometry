@@ -249,10 +249,15 @@ struct areal_areal
         auto turns = strategies::detail::make_turn_container<std::vector<turn_type>, strategies::detail::turn_storage::local>
             (strategy, geometry1, geometry2);
 
-        interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);
+        constexpr bool simple = strategies::relate::services::assumes_simplicity<Strategy>::value;
+        interrupt_policy_areal_areal<Result, simple> interrupt_policy(geometry1, geometry2, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
         if (interrupt_policy.has_crossing()) return;
+        if constexpr (simple)
+        {
+            if (!turns.empty()) return;
+        }
         if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
@@ -354,7 +359,7 @@ struct areal_areal
 
     // interrupt policy which may be passed to get_turns to interrupt the analysis
     // based on the info in the passed result/mask
-    template <typename Result>
+    template <typename Result, bool Simple>
     class interrupt_policy_areal_areal
     {
     public:
@@ -381,7 +386,7 @@ struct areal_areal
                                                    Q const& c, Q const& d)
         {
             using action = get_turns::pair_action;
-            if constexpr (supports_crossing_witness<Strategy, P, Q>::value)
+            if constexpr (!Simple && supports_crossing_witness<Strategy, P, Q>::value)
             {
                 m_witness_enabled = m_single_boundaries;
                 if (m_has_crossing)
@@ -413,6 +418,12 @@ struct areal_areal
         template <typename Range>
         inline bool apply(Range const& turns)
         {
+            if constexpr (Simple)
+            {
+                if (boost::begin(turns) == boost::end(turns)) return false;
+                record_crossing();
+                return true;
+            }
             for (auto it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
                 if (m_witness_enabled && it->method == overlay::method_crosses)

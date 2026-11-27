@@ -56,6 +56,8 @@ struct traverse_graph
     static constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
     static constexpr bool allow_closed = target_operation == operation_intersection;
     static constexpr bool is_buffer = OverlayType == overlay_buffer;
+    static constexpr bool simple_ring = strategies::relate::services::assumes_simplicity<Strategy>::value
+        && (OverlayType == overlay_union || OverlayType == overlay_intersection || OverlayType == overlay_difference);
 
     using turn_type = typename boost::range_value<Turns>::type;
     using is_included = is_operation_included<target_operation>;
@@ -65,7 +67,14 @@ struct traverse_graph
     template <typename Ring>
     void append_turn(Ring& ring, point_type const& point) const
     {
-        detail::overlay::append_no_collinear(ring, point, m_strategy);
+        if constexpr (simple_ring)
+        {
+            traits::push_back<Ring>::apply(ring, point);
+        }
+        else
+        {
+            detail::overlay::append_no_collinear(ring, point, m_strategy);
+        }
     }
 
     template <typename Operation>
@@ -348,9 +357,21 @@ struct traverse_graph
     {
         constexpr std::size_t min_size =
             core_detail::closure::minimum_ring_size<geometry::closure<Ring>::value>::value;
-        append_turn(ring, start_point);
-        remove_spikes_at_closure(ring, m_strategy);
-        fix_closure(ring, m_strategy);
+        if constexpr (simple_ring)
+        {
+            // A proper crossing is a corner. The graph has already closed
+            // the cycle; only a closed ring stores the start point again.
+            if constexpr (geometry::closure<Ring>::value == geometry::closed)
+            {
+                append_turn(ring, start_point);
+            }
+        }
+        else
+        {
+            append_turn(ring, start_point);
+            remove_spikes_at_closure(ring, m_strategy);
+            fix_closure(ring, m_strategy);
+        }
 
         if (geometry::num_points(ring) >= min_size)
         {

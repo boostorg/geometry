@@ -154,6 +154,46 @@ void queries_and_boxes()
     BOOST_TEST_EQ((bg::get<bg::max_corner, 1>(envelope)), 1);
 }
 
+void assumption_of_simplicity()
+{
+    bg::strategies::relate::simple_cartesian_strategy<true> s;
+    strategy regular;
+    polygon a, b, contained;
+    // Proper crossings with exactly representable output coordinates.
+    bg::read_wkt("POLYGON((0 0,0 12,12 0,0 0))", a);
+    bg::read_wkt("POLYGON((2 -2,2 6,10 6,2 -2))", b);
+    bg::read_wkt("POLYGON((2 2,3 5,5 3,2 2))", contained);
+    bg::correct(a);
+    bg::correct(b);
+    bg::correct(contained);
+    line const p{{-3, 2}, {9, 6}}, q{{-2, 8}, {12, 1}};
+    BOOST_TEST_EQ(bg::relation(a, b, s).str(), "212101212");
+    BOOST_TEST_EQ(bg::relation(a, contained, s).str(), "212FF1FF2");
+    BOOST_TEST_EQ(bg::relation(p, q, s).str(), bg::relation(p, q, regular).str());
+    BOOST_TEST_EQ(bg::relation(p, a, s).str(), bg::relation(p, a, regular).str());
+    BOOST_TEST_EQ(bg::relation(line{}, q, s).str(), bg::relation(line{}, q, regular).str());
+    BOOST_TEST(!bg::touches(a, b, s));
+
+    bg::model::multi_polygon<polygon> u, i, ab, ba, x;
+    bg::union_(a, b, u, s);
+    bg::intersection(a, b, i, s);
+    bg::difference(a, b, ab, s);
+    bg::difference(b, a, ba, s);
+    bg::sym_difference(a, b, x, s);
+    BOOST_TEST(!i.empty() && bg::is_valid(i));
+    BOOST_TEST(bg::is_valid(u) && bg::is_valid(x));
+    BOOST_TEST(std::abs(bg::area(x) - (bg::area(ab) + bg::area(ba))) < 1e-12);
+    BOOST_TEST(std::abs(bg::area(u) + bg::area(i) - (bg::area(a) + bg::area(b))) < 1e-12);
+
+    using open_polygon = bg::model::polygon<point, true, false>;
+    bg::model::multi_polygon<open_polygon> open_result;
+    bg::intersection(a, b, open_result, s);
+    BOOST_TEST(bg::is_valid(open_result));
+    BOOST_TEST_EQ(open_result.size(), i.size());
+    BOOST_TEST_EQ(bg::num_points(open_result) + open_result.size(), bg::num_points(i));
+    BOOST_TEST(std::abs(bg::area(open_result) - bg::area(i)) < 1e-12);
+}
+
 template <typename T>
 void coordinate_selection()
 {
@@ -198,7 +238,7 @@ void integral_and_mixed_inputs()
         BOOST_TEST_EQ(out.front().x(), 0.5);
     long double const next = std::nextafter(1.0L, 2.0L);
     BOOST_TEST(!bg::equals(p(1, 0), wide(next, 0), s));
-    bg::strategies::relate::simple_cartesian_strategy<float> narrowed;
+    bg::strategies::relate::simple_cartesian_strategy<false, float> narrowed;
     BOOST_TEST(bg::equals(p(1, 0), wide(next, 0), narrowed));
 }
 
@@ -223,6 +263,7 @@ void segment_locations()
 int main()
 {
     overlays(); strict_predicates(); segments(); queries_and_boxes();
+    assumption_of_simplicity();
     coordinate_selection<float>();
     coordinate_selection<long double>();
     integral_and_mixed_inputs();

@@ -23,7 +23,7 @@ struct segment_intersection
     static typename Policy::return_type apply(Range1 const& p, Range2 const& q, Policy const&)
     {
         using selected = segment_endpoint_policy<Policy, Coordinate>;
-        return cartesian_segment_events::classify<selected>(
+        return cartesian_segment_events::classify<false, selected>(
             p.at(0), p.at(1), q.at(0), q.at(1),
             [](auto const& a, auto const& b, auto const& point) { return static_orientation<Coordinate>(a, b, point); },
             [](auto const& a, auto const& b) { return static_equal_points<Coordinate>(a, b); },

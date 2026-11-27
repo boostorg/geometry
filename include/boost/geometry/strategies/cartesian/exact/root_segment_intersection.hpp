@@ -186,7 +186,7 @@ public:
         BOOST_ASSERT(root_equal<Root>(stage->vertex(*stage->segments[1], 1), q1));
 #endif
         using selected = segment_endpoint_policy<Policy, coordinate>;
-        return cartesian_segment_events::classify<selected>(p0, p1, q0, q1,
+        return cartesian_segment_events::classify<false, selected>(p0, p1, q0, q1,
             [](auto const& a, auto const& b, auto const& p) { return root_orientation<Root>(a, b, p); },
             [](auto const& a, auto const& b) { return root_equal<Root>(a, b); },
             [&](auto const&, auto const&)

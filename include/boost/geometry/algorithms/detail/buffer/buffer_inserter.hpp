@@ -927,6 +927,8 @@ inline void buffer_inserter_with_piece_strategy(GeometryInput const& geometry_in
     )
 {
     boost::ignore_unused(visit_pieces_policy);
+    static_assert(!strategies::relate::services::assumes_simplicity<Strategies>::value,
+                  "Buffer pieces are not in general position");
     static_assert(!strategies::relate::services::exact_predicates<Strategies>::value
                  || strategies::buffer::services::is_constant_distance<DistanceStrategy>::value,
                   "Exact buffer topology requires a constant distance for each side");

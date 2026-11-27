@@ -138,7 +138,46 @@ struct linear_linear
                              Result & result,
                              Strategy const& strategy)
     {
-        apply_with_contacts(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+        if constexpr (strategies::relate::services::assumes_simplicity<Strategy>::value)
+        {
+            apply_simple(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+        }
+        else
+        {
+            apply_with_contacts(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+        }
+    }
+
+    struct first_crossing
+    {
+        static const bool enabled = true;
+        template <typename Range>
+        static bool apply(Range const& turns) { return boost::begin(turns) != boost::end(turns); }
+    };
+
+    template <typename BoundaryChecker1, typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply_simple(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                                    BoundaryChecker1 const& checker1, BoundaryChecker2 const& checker2,
+                                    Result& result, Strategy const& strategy)
+    {
+        update<exterior, exterior, result_dimension<Geometry1>::value>(result);
+        if (result.interrupt) return;
+
+        // Proper crossings do not cover a positive-length interval or any
+        // endpoint. Thus all components contribute the same exterior entries
+        // as disjoint components (including the empty boundary of a loop).
+        using turn = typename turns::get_turns<Geometry1, Geometry2>::template turn_info_type<Strategy>::type;
+        auto list = strategies::detail::make_turn_container<std::vector<turn>, strategies::detail::turn_storage::local>(strategy, geometry1, geometry2);
+        disjoint_linestring_pred<Result, BoundaryChecker1, false> left(result, checker1);
+        for_each_disjoint_geometry_if<0, Geometry1>::apply(list.begin(), list.end(), geometry1, left);
+        if (result.interrupt) return;
+        disjoint_linestring_pred<Result, BoundaryChecker2, true> right(result, checker2);
+        for_each_disjoint_geometry_if<1, Geometry2>::apply(list.begin(), list.end(), geometry2, right);
+        if (result.interrupt || !may_update<interior, interior, '0'>(result)) return;
+
+        first_crossing interrupt;
+        turns::get_turns<Geometry1, Geometry2>::apply(list, geometry1, geometry2, interrupt, strategy);
+        if (!list.empty()) update<interior, interior, '0'>(result);
     }
 
     template <typename BoundaryChecker1, typename BoundaryChecker2, typename Result, typename Strategy>

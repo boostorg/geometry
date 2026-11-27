@@ -1412,7 +1412,25 @@ struct turn_info_dispatch
     static Out apply(Range1 const& a, Range2 const& b, Turn const& model,
                      Strategy const& strategy, Out out)
     {
-        return ContactPolicy::apply_with_contacts(a, b, model, strategy, out);
+        if constexpr (strategies::relate::services::assumes_simplicity<Strategy>::value)
+        {
+            using points = typename strategies::relate::services::intersection_result_type
+                <Strategy, typename Turn::point_type>::type;
+            auto const result = strategy.relate().apply(a, b, policies::relate::segments_intersection_policy<points>());
+            if (result.intersection_points.count != 0)
+            {
+                Turn turn = model;
+                crosses<Turn>::apply(turn, result.intersection_points, result.direction);
+                if (Linear2) turn.operations[0].operation = operation_union;
+                if (Linear1) turn.operations[1].operation = operation_union;
+                *out++ = turn;
+            }
+            return out;
+        }
+        else
+        {
+            return ContactPolicy::apply_with_contacts(a, b, model, strategy, out);
+        }
     }
 };
 

@@ -180,7 +180,7 @@ struct accept_crossing
     bool operator()(A const&, B const&) const { return true; }
 };
 
-template <typename Selected, typename P, typename Q,
+template <bool AssumeSimplicity, typename Selected, typename P, typename Q,
           typename Side, typename Equal, typename Collinear, typename Construction,
           typename Endpoint = use_input_endpoint, typename Accept = accept_crossing>
 typename Selected::return_type classify(P const& p0, P const& p1, Q const& q0, Q const& q1,
@@ -190,22 +190,37 @@ typename Selected::return_type classify(P const& p0, P const& p1, Q const& q0, Q
     model::referring_segment<P const> const a(p0, p1);
     model::referring_segment<Q const> const b(q0, q1);
     side_info sides;
-    int const sa0 = side(q0, q1, p0), sa1 = side(q0, q1, p1);
-    if (sa0 * sa1 > 0) return Selected::disjoint();
-    int const sb0 = side(p0, p1, q0), sb1 = side(p0, p1, q1);
-    if (sb0 * sb1 > 0) return Selected::disjoint();
-    if (sa0 == 0 && sa1 == 0 && sb0 == 0 && sb1 == 0) return collinear(a, b);
-    int const contact = sa0 == 0 ? 0 : sa1 == 0 ? 1 : sb0 == 0 ? 2 : sb1 == 0 ? 3 : -1;
-    if (contact < 0 && !accept(a, b)) return Selected::disjoint();
+    if constexpr (AssumeSimplicity)
+    {
+        using strategy::side::left;
+        using strategy::side::right;
+        bool const sa = side(q0, q1, p0) > 0;
+        if (sa == (side(q0, q1, p1) > 0)) return Selected::disjoint();
+        bool const sb = side(p0, p1, q0) > 0;
+        if (sb == (side(p0, p1, q1) > 0)) return Selected::disjoint();
+        sides.template set<0>(sa ? left : right, sa ? right : left);
+        sides.template set<1>(sb ? left : right, sb ? right : left);
+        return Selected::segments_crosses(sides, construction(-1), a, b);
+    }
+    else
+    {
+        int const sa0 = side(q0, q1, p0), sa1 = side(q0, q1, p1);
+        if (sa0 * sa1 > 0) return Selected::disjoint();
+        int const sb0 = side(p0, p1, q0), sb1 = side(p0, p1, q1);
+        if (sb0 * sb1 > 0) return Selected::disjoint();
+        if (sa0 == 0 && sa1 == 0 && sb0 == 0 && sb1 == 0) return collinear(a, b);
+        int const contact = sa0 == 0 ? 0 : sa1 == 0 ? 1 : sb0 == 0 ? 2 : sb1 == 0 ? 3 : -1;
+        if (contact < 0 && !accept(a, b)) return Selected::disjoint();
 
-    auto const info = construction(contact);
-    sides.template set<0>(sa0, sa1);
-    sides.template set<1>(sb0, sb1);
-    if (sa0 == 0 && (equal(p0, q0) || equal(p0, q1)))
-        return Selected::segments_share_common_point(sides, info, endpoint(p0, 0));
-    if (sa1 == 0 && (equal(p1, q0) || equal(p1, q1)))
-        return Selected::segments_share_common_point(sides, info, endpoint(p1, 1));
-    return Selected::segments_crosses(sides, info, a, b);
+        auto const info = construction(contact);
+        sides.template set<0>(sa0, sa1);
+        sides.template set<1>(sb0, sb1);
+        if (sa0 == 0 && (equal(p0, q0) || equal(p0, q1)))
+            return Selected::segments_share_common_point(sides, info, endpoint(p0, 0));
+        if (sa1 == 0 && (equal(p1, q0) || equal(p1, q1)))
+            return Selected::segments_share_common_point(sides, info, endpoint(p1, 1));
+        return Selected::segments_crosses(sides, info, a, b);
+    }
 }
 
 }}}}} // namespace boost::geometry::strategies::detail::cartesian_segment_events
