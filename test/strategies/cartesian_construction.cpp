@@ -80,13 +80,44 @@ void conservative_box_operations()
 int main()
 {
     namespace exact = bg::strategies::detail::exact_cartesian;
+    namespace filter = exact::ulp_filter;
     namespace recipe = bg::strategies::detail::linear_formula;
+    using certificate = filter::nearest_certificate;
     namespace rules = bg::detail::semi_static_error;
     using native_product = decltype(rules::product(
         rules::difference<0, 0>(0., 0.), rules::difference<0, 0>(0., 0.)));
     constexpr double epsilon = std::numeric_limits<double>::epsilon();
     static_assert(rules::native_sign_coefficient(native_product{}, native_product{})
         == (1.5 + 4 * epsilon) * epsilon, "Preserve the native orient2d sign bound");
+
+    filter::coordinates const start{{1, 2}}, end{{4, 8}};
+    auto const edge = recipe::orientation::prepare(filter::detail::bilinear_ops<certificate>{},
+        filter::detail::certified_point<false>{start}, filter::detail::certified_point<false>{end});
+    // Preparation must preserve the bound and use the late operand's guarantee.
+    for (filter::coordinates const p : {filter::coordinates{{2, 5}}, {{3, 6}}, {{3, 5}}})
+    {
+        exact::scalar_approximation direct;
+        BOOST_TEST((filter::try_signed_determinant<certificate, false, false, true>(start, end, p, direct)));
+        auto const prepared = edge.evaluate(filter::detail::certified_point<true>{p});
+        BOOST_TEST_EQ(prepared.value, direct.value);
+        BOOST_TEST_EQ(prepared.error, direct.error);
+    }
+
+    // With an uncertain ordinate, this almost-collinear turn can have
+    // either sign. Treating the rounded leaf as exact would be unsound.
+    int sign = 0;
+    filter::coordinates const zero{{0, 0}}, one{{1, 1}};
+    filter::coordinates const near{{1, std::nextafter(1.0, 2.0)}};
+    BOOST_TEST((!filter::try_orientation<certificate, false, false, true>(zero, one, near, sign)));
+
+    filter::coordinates const orthogonal{{2, 0}}, forward{{2, 2}};
+    BOOST_TEST((!filter::try_dot<certificate, false, false, true>(zero, one, orthogonal, sign)));
+    BOOST_TEST((filter::try_dot<certificate, false, false, true>(zero, one, forward, sign)));
+    BOOST_TEST_EQ(sign, 1);
+    exact::scalar_approximation square;
+    BOOST_TEST((filter::try_squared_distance<certificate, false, true>(zero, one, square)));
+    BOOST_TEST_EQ(square.value, 2.0);
+    BOOST_TEST(square.error > 0 && square.error < square.value);
 
     // The integer inputs and their products cannot all be exact in binary64.
     // Both exact supports meet at (1/2, 1/2), despite cancellation near 2^62.
@@ -101,8 +132,40 @@ int main()
 
     // Exact intersection from Cramer's rule; each integer fits exactly in binary64.
     line const a{{43,7}, {-24,81}}, b{{-78,22}, {63,95}};
+    point const expected(-74541.0 / 15325.0, 917427.0 / 15325.0);
+    auto const nearest = crossing(a, b, sr::nearest_output{});
+    BOOST_TEST_EQ(nearest.x(), expected.x());
+    BOOST_TEST_EQ(nearest.y(), expected.y());
+    // With linear output the same isolated crossing is a degenerate linestring.
+    bg::model::multi_linestring<line> isolated;
+    bg::intersection(a, b, isolated, sr::cartesian_exact<double, sr::nearest_output>{});
+#ifdef BOOST_GEOMETRY_INTERSECTION_DO_NOT_INCLUDE_ISOLATED_POINTS
+    BOOST_TEST(isolated.empty());
+#else
+    BOOST_TEST_EQ(isolated.size(), 1u);
+    if (isolated.size() == 1)
+    {
+#ifdef BOOST_GEOMETRY_ALLOW_ONE_POINT_LINESTRINGS
+        BOOST_TEST_EQ(isolated.front().size(), 1u);
+#else
+        BOOST_TEST_EQ(isolated.front().size(), 2u);
+#endif
+        for (auto const& p : isolated.front())
+        {
+            BOOST_TEST_EQ(p.x(), expected.x());
+            BOOST_TEST_EQ(p.y(), expected.y());
+        }
+    }
+#endif
     crossing(a, b, sr::approximate_output{});
 
+    // The crossing is exactly halfway between consecutive doubles, first
+    // with the even significand below, then with the even significand above.
+    double const odd = std::nextafter(1.0, 2.0);
+    double const even = std::nextafter(odd, 2.0);
+    line const horizontal{{0,1}, {2,1}};
+    BOOST_TEST_EQ(crossing(line{{1,0}, {odd,2}}, horizontal, sr::nearest_output{}).x(), 1.0);
+    BOOST_TEST_EQ(crossing(line{{odd,0}, {even,2}}, horizontal, sr::nearest_output{}).x(), even);
     squared_distance_order();
     conservative_box_operations();
     return boost::report_errors();

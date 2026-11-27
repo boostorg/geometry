@@ -13,6 +13,11 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
 // remain exact, but emission neither refines nor certifies these coordinates.
 struct approximate_output {};
 
+// Root-bound intersections store the nearest binary64 at construction. Float
+// emission rounds the exact coordinate directly to binary32.
+// Integral output follows BG numeric_cast conversion under every policy.
+struct nearest_output {};
+
 }}}} // namespace boost::geometry::strategies::relate
 
 #endif

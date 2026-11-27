@@ -20,6 +20,7 @@
 #include <boost/geometry/strategies/cartesian/exact/fixed_measures.hpp>
 #include <boost/geometry/strategies/cartesian/exact/forward_error.hpp>
 #include <boost/geometry/strategies/cartesian/exact/tagged_orientation.hpp>
+#include <boost/geometry/strategies/cartesian/exact/ulp_filter.hpp>
 
 #include <boost/geometry/util/detail/precise_fp.hpp>
 #include <boost/geometry/views/detail/iterator_point_view.hpp>
@@ -136,9 +137,63 @@ forward_error::point_approximation approximation(P const& point)
     }
 }
 
+template <typename Root>
+using root_filter = construction_rounding::policy_traits<typename Root::output_policy>;
+
+template <typename Root>
+using root_certificate = typename root_filter<Root>::arithmetic_certificate;
+
+// After visiting, a matching record carries its producer's certificate.
+// The midpoint factory either proves exactness or rounds the fixed quotient.
+// For bounded roots this whitelist also proves the producer's absolute
+// error bound, not just the distance from the nearest double in steps.
+template <typename Root, typename P>
+constexpr bool step_operand = exact_double<P>::value || std::is_same<P, point_ref<Root>>::value
+    || std::is_same<P, midpoint_query<Root>>::value;
+
+template <typename Root, typename... P>
+constexpr bool step_filter = !std::is_void<root_certificate<Root>>::value && (step_operand<Root, P> && ...);
+
+template <typename P>
+double bounded_ordinate(P const& point, std::size_t dim)
+{
+    if constexpr (record_point<P>::value) return point.record().numeric.approximate(dim);
+    else if constexpr (native_operand<P>::value)
+        return dim == 0 ? double(geometry::get<0>(point)) : double(geometry::get<1>(point));
+    else return point.approximate(dim);
+}
+
+// Called after visit(): a borrowed point here is the selected crossing,
+// not a native alternative. Read X and Y without a second visit.
+template <typename P>
+ulp_filter::coordinates bounded_coordinates(P const& point)
+{
+    if constexpr (record_point<P>::value)
+    {
+        auto const& state = point.record().numeric;
+        return {{state.approximate(0), state.approximate(1)}};
+    }
+    else return {{bounded_ordinate(point, 0), bounded_ordinate(point, 1)}};
+}
+
 template <typename I>
 constexpr bool view_preserves_coordinate = std::is_same<geometry::coordinate_type_t<geometry::detail::iterator_point_view<I>>,
     geometry::coordinate_type_t<std::decay_t<typename geometry::detail::iterator_point_view<I>::reference>>>::value;
+
+template <typename I>
+ulp_filter::coordinates bounded_coordinates(geometry::detail::iterator_point_view<I> const& view)
+{
+    if constexpr (view_preserves_coordinate<I>)
+        return bounded_coordinates(view.read());
+    else
+    {
+        // Match the view's Point accessor, even if its proxy uses wider ordinates.
+        auto&& p = view.read();
+        using C = geometry::coordinate_type_t<geometry::detail::iterator_point_view<I>>;
+        C const x = geometry::get<0>(p), y = geometry::get<1>(p);
+        return {{double(x), double(y)}};
+    }
+}
 
 template <typename P>
 constexpr bool direct_bilinear_read = true;
@@ -147,7 +202,8 @@ constexpr bool direct_bilinear_read<geometry::detail::iterator_point_view<I>> = 
     && std::is_lvalue_reference<typename geometry::detail::iterator_point_view<I>::reference>::value;
 
 template <typename Root, typename A, typename B, typename P>
-constexpr bool stored_bilinear_operands = std::is_same<typename Root::coordinate_type, double>::value
+constexpr bool stored_bilinear_operands = root_filter<Root>::store_errors
+    && std::is_same<typename Root::coordinate_type, double>::value
     && (record_point<A>::value || record_point<B>::value || record_point<P>::value)
     && (record_point<A>::value || (exact_double<A>::value && direct_bilinear_read<A>))
     && (record_point<B>::value || (exact_double<B>::value && direct_bilinear_read<B>))
@@ -250,7 +306,11 @@ int orientation(A const& a, B const& b, P const& p)
         int result;
         auto filter = [&]
         {
-            return forward_error::try_orientation(approximation(a), approximation(b), approximation(p), result);
+            if constexpr (step_filter<Root, A, B, P>)
+                return ulp_filter::try_orientation<root_certificate<Root>,
+                    !exact_double<A>::value, !exact_double<B>::value, !exact_double<P>::value>
+                    (bounded_coordinates(a), bounded_coordinates(b), bounded_coordinates(p), result);
+            else return forward_error::try_orientation(approximation(a), approximation(b), approximation(p), result);
         };
         if constexpr (stored_bilinear_operands<Root, A, B, P>)
         {
@@ -285,8 +345,17 @@ int orientation(A const& a, B const& b, P const& p)
 template <std::size_t D, typename Root, typename A, typename B>
 bool coordinate_filter(A const& a, B const& b, int& result)
 {
-    auto const x = coordinate_approximation<D>(a), y = coordinate_approximation<D>(b);
-    return forward_error::try_compare_scalars(x, y, result);
+    if constexpr (step_filter<Root, A, B>)
+    {
+        return ulp_filter::try_compare_nearest<
+            !exact_double<A>::value, !exact_double<B>::value>
+            (bounded_ordinate(a, D), bounded_ordinate(b, D), result);
+    }
+    else
+    {
+        auto const x = coordinate_approximation<D>(a), y = coordinate_approximation<D>(b);
+        return forward_error::try_compare_scalars(x, y, result);
+    }
 }
 
 template <std::size_t D, typename Root, typename A, typename B>
@@ -371,7 +440,11 @@ int direction(A const& a, B const& b, P const& p)
     int result;
     auto filter = [&]
     {
-        return forward_error::try_direction(approximation(a), approximation(b), approximation(p), result);
+        if constexpr (step_filter<Root, A, B, P>)
+            return ulp_filter::try_dot<root_certificate<Root>,
+                !exact_double<A>::value, !exact_double<B>::value, !exact_double<P>::value>
+                (bounded_coordinates(a), bounded_coordinates(b), bounded_coordinates(p), result);
+        else return forward_error::try_direction(approximation(a), approximation(b), approximation(p), result);
     };
     if constexpr (stored_bilinear_operands<Root, A, B, P>)
     {
@@ -401,7 +474,17 @@ scalar_approximation squared_distance_approximation(A const& a, B const& b, bool
     {
         if (refined) { refine(x); refine(y); }
         scalar_approximation result{0, (std::numeric_limits<double>::infinity)()};
-        forward_error::try_squared_distance(approximation(x), approximation(y), result);
+        if constexpr (step_filter<Root, std::decay_t<decltype(x)>, std::decay_t<decltype(y)>>)
+        {
+            constexpr bool xi = !exact_double<std::decay_t<decltype(x)>>::value;
+            constexpr bool yi = !exact_double<std::decay_t<decltype(y)>>::value;
+            ulp_filter::try_squared_distance<root_certificate<Root>, xi, yi>
+                (bounded_coordinates(x), bounded_coordinates(y), result);
+        }
+        else
+        {
+            forward_error::try_squared_distance(approximation(x), approximation(y), result);
+        }
         return result;
     });
 }

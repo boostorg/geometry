@@ -397,7 +397,10 @@ public:
     Output emit(std::size_t dimension) const
     {
         if (is_native()) return geometry::util::numeric_cast<Output>(native_coordinate(dimension));
-        return geometry::util::numeric_cast<Output>(record().numeric.approximate(dimension));
+        if constexpr (std::is_same<typename Root::output_policy, relate::approximate_output>::value
+                      || std::is_integral<Output>::value)
+            return geometry::util::numeric_cast<Output>(record().numeric.approximate(dimension));
+        else return record().numeric.template emit<Output>(dimension, producers());
     }
 
 private:

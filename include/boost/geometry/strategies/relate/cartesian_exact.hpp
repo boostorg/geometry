@@ -25,7 +25,7 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
 /*!
 \brief Exact Cartesian predicates and implicit straight-segment intersections.
 \tparam Coordinate Native input coordinate type: integral, float or double.
-\tparam OutputPolicy approximate_output (default).
+\tparam OutputPolicy approximate_output (default) or nearest_output.
 \details Finite binary floating-point inputs denote their exact binary values.
          Input promotion must preserve the complete source coordinate type.
          Constructed points use forward error filters
@@ -42,6 +42,10 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
       assumptions that values are finite are not supported.
       Long double input/output is not supported. approximate_output emits the
       currently stored approximation without output-only refinement.
+      nearest_output rounds root-bound
+      intersections to nearest binary64, ties to even, at construction and
+      omits stored coordinate error fields. Float output rounds the exact
+      coordinate directly to float. approximate_output retains forward error bounds.
       Integral output uses BG numeric_cast conversion, which truncates floating
       values toward zero, not the displacement rounding of native integer segment
       construction. No policy guarantees validity after output conversion;
@@ -50,7 +54,8 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
 template <typename Coordinate, typename OutputPolicy = approximate_output>
 class cartesian_exact : public cartesian<double>
 {
-    static_assert(std::is_same<OutputPolicy, approximate_output>::value,
+    static_assert(std::is_same<OutputPolicy, approximate_output>::value
+        || std::is_same<OutputPolicy, nearest_output>::value,
         "Unknown exact Cartesian output policy");
     using primitives = strategies::detail::exact_cartesian::point_equal<Coordinate>;
 
