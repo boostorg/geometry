@@ -30,6 +30,15 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+template <typename Strategy, typename = void>
+struct supports_direct_crossings : std::false_type {};
+
+template <typename Strategy>
+struct supports_direct_crossings<Strategy, std::void_t<typename Strategy::supports_direct_crossings>>
+    : Strategy::supports_direct_crossings {};
+#endif
+
 /*!
     \brief Traverses through intersection points / geometries
     \ingroup overlay
@@ -71,6 +80,19 @@ public :
                 IntersectionStrategy
             > traverser(geometry1, geometry2, turns, clusters,
                 intersection_strategy);
+
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+        if constexpr (supports_direct_crossings<IntersectionStrategy>::value
+                      && (OverlayType == overlay_union || OverlayType == overlay_intersection
+                          || OverlayType == overlay_difference))
+        {
+            if (traverser.iterate_crossings(rings))
+            {
+                update_ring_turn_info_map(turn_info_map, turns);
+                return;
+            }
+        }
+#endif
 
         detect_biconnected_components<target_operation>(turns, clusters);
         traverser.iterate(rings);

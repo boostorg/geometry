@@ -18,6 +18,7 @@
 #include <boost/geometry/algorithms/detail/overlay/graph/get_tois.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/select_edge.hpp>
+#include <boost/geometry/algorithms/detail/boundary_cycles.hpp>
 #include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/closure.hpp>
@@ -358,6 +359,57 @@ struct traverse_graph
         #endif
             rings.push_back(std::move(ring));
         }
+    }
+
+    template <typename Rings>
+    bool iterate_crossings(Rings& rings)
+    {
+        if (!m_clusters.empty()) return false;
+        if (m_turns.empty()) return true;
+        for (auto const& turn : m_turns)
+        {
+            if (turn.method != method_crosses || turn.discarded || turn.is_clustered()
+                || turn.operations[0].seg_id.source_index == turn.operations[1].seg_id.source_index
+                || !turn.combination(operation_intersection, operation_union))
+                return false;
+        }
+
+        // If each turn has exactly one predecessor, the selected arcs are a
+        // permutation. They can be traced without constructing a graph.
+        std::vector<unsigned char> incoming(m_turns.size(), 0);
+        auto const operation_index = [&](std::size_t index)
+        {
+            return m_turns[index].operations[0].operation == target_operation ? 0 : 1;
+        };
+        for (std::size_t i = 0; i < m_turns.size(); ++i)
+        {
+            auto const& op = m_turns[i].operations[operation_index(i)];
+            auto const next = static_cast<std::size_t>(op.enriched.travels_to_ip_index);
+            if (!op.enriched.startable || !is_included::apply(op)
+                || next >= m_turns.size() || next == i || incoming[next] != 0)
+                return false;
+            incoming[next] = 1;
+        }
+
+        for (std::size_t i = 0; i < m_turns.size(); ++i)
+        {
+            if (incoming[i] == 0) continue;
+            typename boost::range_value<Rings>::type ring;
+            auto follow = [&](std::size_t& current)
+            {
+                auto const j = operation_index(current);
+                append_turn(ring, m_turns[current].point);
+                use_vertices(ring, {current, j});
+                auto& op = m_turns[current].operations[j];
+                op.enriched.is_traversed = true;
+                incoming[current] = 0;
+                current = static_cast<std::size_t>(op.enriched.travels_to_ip_index);
+                return true; // The predecessor check certified a permutation.
+            };
+            detail::walk_boundary_cycle(i, follow, [](std::size_t x, std::size_t y) { return x == y; });
+            add_closed_ring(rings, ring, m_turns[i].point);
+        }
+        return true;
     }
 
     void update_administration()

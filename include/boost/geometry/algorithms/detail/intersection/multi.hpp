@@ -186,7 +186,7 @@ struct clip_multi_linestring
         auto output = geometry::detail::overlay::make_output_iterator<LinestringOut, working_line>(out, strategy);
         for (auto it = boost::begin(multi_linestring); it != boost::end(multi_linestring); ++it)
         {
-            output = detail::intersection::clip_range_with_box<working_line>(box, *it, output, clipping);
+            output = detail::intersection::clip_range_with_box<working_line>(box, *it, output, clipping, *it);
         }
         return geometry::detail::overlay::unwrap_output_iterator(output);
     }

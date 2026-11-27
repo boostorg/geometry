@@ -663,7 +663,7 @@ struct intersection_insert
         auto const clipping = strategies::detail::get_clipping<point_type_t<working_geometry>>(strategy, box);
         auto output = geometry::detail::overlay::make_output_iterator<GeometryOut, working_geometry>(out, strategy);
         return geometry::detail::overlay::unwrap_output_iterator(detail::intersection::clip_range_with_box
-            <working_geometry>(box, linestring, output, clipping));
+            <working_geometry>(box, linestring, output, clipping, linestring));
     }
 };
 
@@ -746,7 +746,7 @@ struct intersection_insert
         auto const clipping = strategies::detail::get_clipping<point_type_t<working_geometry>>(strategy, box);
         auto output = geometry::detail::overlay::make_output_iterator<GeometryOut, working_geometry>(out, strategy);
         return geometry::detail::overlay::unwrap_output_iterator(detail::intersection::clip_range_with_box
-            <working_geometry>(box, range, output, clipping));
+            <working_geometry>(box, range, output, clipping, segment));
     }
 };
 

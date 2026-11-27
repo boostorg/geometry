@@ -36,15 +36,22 @@ namespace boost { namespace geometry
 namespace detail { namespace intersection
 {
 
-template <typename Strategy, typename Range>
-inline void prepare_clipping_segment(Strategy const& strategy, Range const& range,
-                                     signed_size_type index)
+template <typename Strategy, typename Source, typename Point, typename OutputPoint>
+inline void prepare_clipping_segment(Strategy const& strategy, Source const& source,
+                                     signed_size_type index, Point const& first,
+                                     Point const& second, OutputPoint& p1, OutputPoint& p2)
 {
-    auto const hook = [&](auto const& s) -> decltype(s.prepare_segment(range, index), void())
-    { s.prepare_segment(range, index); };
+    auto const hook = [&](auto const& s)
+        -> decltype(s.prepare_segment(source, index, first, second, p1, p2), void())
+    { s.prepare_segment(source, index, first, second, p1, p2); };
     if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
     {
         hook(strategy);
+    }
+    else
+    {
+        strategies::detail::convert_geometry(strategy, first, p1);
+        strategies::detail::convert_geometry(strategy, second, p2);
     }
 }
 
@@ -65,10 +72,12 @@ template
     typename OutputIterator,
     typename Range,
     typename Box,
-    typename Strategy
+    typename Strategy,
+    typename Source
 >
 OutputIterator clip_range_with_box(Box const& b, Range const& range,
-                                   OutputIterator out, Strategy const& strategy)
+                                   OutputIterator out, Strategy const& strategy,
+                                   Source const& source)
 {
     if (boost::begin(range) == boost::end(range))
     {
@@ -85,10 +94,8 @@ OutputIterator clip_range_with_box(Box const& b, Range const& range,
             vertex != boost::end(range);
             ++previous, ++vertex, ++segment_index)
     {
-        prepare_clipping_segment(strategy, range, segment_index);
         point_type p1, p2;
-        strategies::detail::convert_geometry(strategy, *previous, p1);
-        strategies::detail::convert_geometry(strategy, *vertex, p2);
+        prepare_clipping_segment(strategy, source, segment_index, *previous, *vertex, p1, p2);
 
         // Clip the segment. Five situations:
         // 1. Segment is invisible, finish line if any (shouldn't occur)
