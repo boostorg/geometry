@@ -31,6 +31,9 @@ namespace boost { namespace geometry
 namespace strategy { namespace side
 {
 
+// Named signs for the integer result returned by side strategies.
+enum side_result { right = -1, collinear = 0, left = 1 };
+
 namespace services
 {
 

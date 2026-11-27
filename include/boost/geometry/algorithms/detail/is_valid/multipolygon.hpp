@@ -13,6 +13,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_MULTIPOLYGON_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <deque>
 #include <vector>
 
@@ -103,7 +105,7 @@ private:
             }
         }
 
-        using box_type = geometry::model::box<point_type_t<MultiPolygon>>;
+        using box_type = typename strategies::relate::services::box_type<Strategy, point_type_t<MultiPolygon>>::type;
         using item_type = typename base::template partition_item<PolygonIterator, box_type>;
 
         // put polygon iterators without turns in a vector
@@ -123,7 +125,7 @@ private:
 
         geometry::partition
             <
-                geometry::model::box<point_type_t<MultiPolygon>>
+                box_type
             >::apply(polygon_iterators, item_visitor,
                      typename base::template expand_box<Strategy>(strategy),
                      typename base::template overlaps_box<Strategy>(strategy));
@@ -302,13 +304,10 @@ public:
         // compute turns and check if all are acceptable
         debug_phase::apply(2);
 
-        using has_valid_turns =  has_valid_self_turns
-            <
-                MultiPolygon,
-                typename Strategy::cs_tag
-            >;
+        using has_valid_turns = has_valid_self_turns<MultiPolygon, Strategy>;
 
-        std::deque<typename has_valid_turns::turn_type> turns;
+        auto turns = strategies::detail::make_turn_container
+            <std::deque<typename has_valid_turns::turn_type>>(strategy, multipolygon, multipolygon);
         bool has_invalid_turns =
             ! has_valid_turns::apply(multipolygon, turns, visitor, strategy);
         debug_print_turns(turns.begin(), turns.end());
@@ -317,6 +316,10 @@ public:
         {
             return false;
         }
+
+        if constexpr (has_ring_topology<Strategy>)
+            for (auto const& polygon : multipolygon)
+                if (!base::has_valid_ring_orientations(polygon, visitor, strategy)) return false;
 
 
         // check if each polygon's interior rings are inside the

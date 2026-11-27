@@ -34,6 +34,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 
 #include <boost/geometry/io/svg/svg_mapper.hpp>
+#include <boost/geometry/views/detail/segment_as_subrange.hpp>
 
 #include <robustness/common/common_settings.hpp>
 #include <robustness/common/make_random_generator.hpp>

@@ -17,20 +17,16 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ISOLATED_POINT_OUTPUT_HPP
 
 #include <set>
-#include <type_traits>
+#include <utility>
 
 #include <boost/geometry/algorithms/append.hpp>
-#include <boost/geometry/algorithms/detail/convert_point_to_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/output_conversion.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
-#include <boost/geometry/core/coordinate_promotion.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
-#include <boost/geometry/geometries/helper_geometry.hpp>
-#include <boost/geometry/strategies/compare.hpp>
-#include <boost/geometry/strategies/normalize.hpp>
+#include <boost/geometry/strategies/detail/output_point_key.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 
 namespace boost { namespace geometry
 {
@@ -67,14 +63,10 @@ struct add_isolated_point<LineStringOut, linestring_tag>
 template <typename PointOut>
 struct add_isolated_point<PointOut, point_tag>
 {
-    template <typename Point, typename OutputIterator>
-    static inline void apply(Point const& point, OutputIterator& out)
+    template <typename OutputIterator>
+    static inline void apply(PointOut const& point, OutputIterator& out)
     {
-        PointOut isolated_point;
-
-        geometry::detail::conversion::convert_point_to_point(point, isolated_point);
-
-        *out++ = isolated_point;
+        *out++ = point;
     }
 };
 
@@ -84,6 +76,8 @@ struct add_isolated_point<PointOut, point_tag>
 template <typename GeometryOut, typename Strategy, bool Enabled>
 struct isolated_point_output
 {
+    explicit isolated_point_output(Strategy const&) {}
+
     template <typename Point, typename OutputIterator>
     inline void apply(Point const&, OutputIterator&, Strategy const&)
     {}
@@ -97,57 +91,29 @@ class isolated_point_output<GeometryOut, Strategy, true>
             GeometryOut, point_tag, linestring_tag
         >;
     using point_type = point_type_t<typename pointlike::type>;
-    // Point models such as C arrays need not be copy constructible.
-    // Integral angular coordinates need floating-point spheroidal constants.
-    // Use the widest standard floating type; its precision is platform-dependent.
-    using key_coordinate_type = std::conditional_t
-        <
-            std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value
-                && std::is_integral<coordinate_type_t<point_type>>::value,
-            typename promote_floating_point
-                <coordinate_type_t<point_type>, long double>::type,
-            coordinate_type_t<point_type>
-        >;
-    using key_type = typename helper_geometry<point_type, key_coordinate_type>::type;
-    using normalize = std::conditional_t
-        <
-            std::is_base_of<spherical_tag, cs_tag_t<point_type>>::value,
-            strategy::normalize::spherical_point,
-            strategy::normalize::cartesian_point
-        >;
-
-    struct less
-    {
-        inline bool operator()(key_type const& left, key_type const& right) const
-        {
-            return strategy::compare::cartesian
-                <
-                    strategy::compare::less,
-                    strategy::compare::equals_exact
-                >::apply(left, right);
-        }
-    };
+    using key = decltype(strategies::detail::get_output_point_key<point_type>
+        (std::declval<Strategy const&>()));
 
 public:
+    explicit isolated_point_output(Strategy const& strategy)
+        : m_points(strategies::detail::get_output_point_key<point_type>(strategy))
+    {}
+
     template <typename Point, typename OutputIterator>
-    inline void apply(Point const& point, OutputIterator& out, Strategy const&)
+    inline void apply(Point const& point, OutputIterator& out, Strategy const& strategy)
     {
         point_type converted;
-        geometry::detail::conversion::convert_point_to_point(point, converted);
-        // Canonical keys make equivalent pole and antimeridian coordinates
-        // identical without changing the representation emitted to the caller.
-        key_type key;
-        geometry::detail::conversion::convert_point_to_point(converted, key);
-        normalize::apply(key, key);
-        if (m_points.insert(key).second)
+        strategies::detail::convert_output_point(strategy, point, converted);
+        if (m_points.insert(m_points.key_comp().apply(converted)).second)
         {
-            add_isolated_point<typename pointlike::type>::apply(converted, out);
+            auto& destination = geometry::detail::overlay::output_iterator_base(out);
+            add_isolated_point<typename pointlike::type>::apply(converted, pointlike::get(destination));
         }
     }
 
 private:
     // Compare canonical coordinates exactly, keeping the set ordering strict.
-    std::set<key_type, less> m_points;
+    std::set<typename key::type, key> m_points;
 };
 
 }}} // namespace detail::overlay::following

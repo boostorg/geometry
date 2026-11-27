@@ -13,6 +13,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_POLYGON_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_VALID_POLYGON_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <cstddef>
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <iostream>
@@ -144,6 +146,19 @@ protected:
                                             strategy);
         }
     };
+
+    template <typename VisitPolicy, typename Strategy>
+    static bool has_valid_ring_orientations(Polygon const& polygon, VisitPolicy& visitor,
+                                            Strategy const& strategy)
+    {
+        using ring = ring_type_t<Polygon>;
+        if (!is_properly_oriented<ring, false>::apply(exterior_ring(polygon), visitor, strategy))
+            return false;
+        for (auto const& hole : geometry::interior_rings(polygon))
+            if (!is_properly_oriented<ring, true>::apply(hole, visitor, strategy))
+                return false;
+        return true;
+    }
 
 
     // Iterator value_type is a Ring or Polygon
@@ -304,7 +319,7 @@ protected:
             ring_indices.insert(tit->operations[1].seg_id.ring_index);
         }
 
-        using box_type = geometry::model::box<point_type_t<Polygon>>;
+        using box_type = typename strategies::relate::services::box_type<Strategy, point_type_t<Polygon>>::type;
         using item_type = partition_item<RingIterator, box_type>;
 
         // put iterators for interior rings without turns in a vector
@@ -455,9 +470,10 @@ public:
             using debug_phase = debug_validity_phase<Polygon>;
             debug_phase::apply(3);
 
-            using has_valid_turns = has_valid_self_turns<Polygon, typename Strategy::cs_tag>;
+            using has_valid_turns = has_valid_self_turns<Polygon, Strategy>;
 
-            std::deque<typename has_valid_turns::turn_type> turns;
+            auto turns = strategies::detail::make_turn_container
+                <std::deque<typename has_valid_turns::turn_type>>(strategy, polygon, polygon);
             bool has_invalid_turns
                 = ! has_valid_turns::apply(polygon, turns, visitor, strategy);
             debug_print_turns(turns.begin(), turns.end());
@@ -466,6 +482,9 @@ public:
             {
                 return false;
             }
+
+            if constexpr (has_ring_topology<Strategy>)
+                if (!has_valid_ring_orientations(polygon, visitor, strategy)) return false;
 
             // check if all interior rings are inside the exterior ring
             debug_phase::apply(4);

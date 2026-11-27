@@ -41,7 +41,13 @@ struct boundary_view
 {
     explicit boundary_view(Geometry& geometry)
         : detail_dispatch::boundary_view<Geometry>(geometry)
+        , m_geometry(&geometry)
     {}
+
+    Geometry const& original_geometry() const { return *m_geometry; }
+
+private:
+    Geometry const* m_geometry;
 };
 
 } // namespace detail

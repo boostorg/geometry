@@ -26,7 +26,7 @@
 #include <boost/range/size.hpp>
 #include <boost/range/value_type.hpp>
 
-#include <boost/geometry/algorithms/detail/direction_code.hpp>
+#include <boost/geometry/strategies/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffered_piece_collection.hpp>
 #include <boost/geometry/algorithms/detail/buffer/line_line_intersection.hpp>
 
@@ -189,7 +189,7 @@ struct buffer_range
             output_point_type const& p1,
             output_point_type const& p2)
     {
-        return direction_code<cs_tag_t<output_point_type>>(p0, p1, p2) == 1;
+        return strategies::detail::direction_code_impl<cs_tag_t<output_point_type>>::apply(p0, p1, p2) == 1;
     }
 
     template <typename Strategies>

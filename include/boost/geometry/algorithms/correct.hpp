@@ -44,6 +44,7 @@
 #include <boost/geometry/strategies/area/geographic.hpp>
 #include <boost/geometry/strategies/area/spherical.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 #include <boost/geometry/util/algorithm.hpp>
 
@@ -213,6 +214,8 @@ struct correct
     template <typename Geometry>
     static inline void apply(Geometry& geometry, Strategy const& strategy)
     {
+        typename strategies::relate::services::operation_scope<Strategy>::type scope;
+        (void) scope;
         dispatch::correct<Geometry>::apply(geometry, strategy);
     }
 };

@@ -23,6 +23,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
+#include <boost/geometry/algorithms/detail/overlay/output_conversion.hpp>
 #include <boost/geometry/algorithms/detail/overlay/isolated_point_output.hpp>
 
 // TODO: those headers probably may be removed
@@ -125,7 +126,7 @@ struct intersection_of_multi_linestring_with_areal
             <
                 LineStringOut, Strategy,
                 FollowIsolatedPoints && OverlayType == overlay_intersection
-            > isolated_points;
+            > isolated_points(strategy);
         for (auto it = boost::begin(ml); it != boost::end(ml); ++it)
         {
             out = intersection_of_linestring_with_areal
@@ -177,15 +178,17 @@ struct clip_multi_linestring
     >
     static inline OutputIterator apply(MultiLinestring const& multi_linestring,
             Box const& box,
-            OutputIterator out, Strategy const& )
+            OutputIterator out, Strategy const& strategy)
     {
-        strategy::intersection::liang_barsky<Box, point_type_t<LinestringOut>> lb_strategy;
+        using working_line = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, LinestringOut>::type;
+        auto const clipping = strategies::detail::get_clipping<point_type_t<working_line>>(strategy, box);
+        auto output = geometry::detail::overlay::make_output_iterator<LinestringOut, working_line>(out, strategy);
         for (auto it = boost::begin(multi_linestring); it != boost::end(multi_linestring); ++it)
         {
-            out = detail::intersection::clip_range_with_box
-                <LinestringOut>(box, *it, out, lb_strategy);
+            output = detail::intersection::clip_range_with_box<working_line>(box, *it, output, clipping);
         }
-        return out;
+        return geometry::detail::overlay::unwrap_output_iterator(output);
     }
 };
 

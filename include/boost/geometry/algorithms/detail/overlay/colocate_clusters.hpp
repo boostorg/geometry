@@ -9,10 +9,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COLOCATE_CLUSTERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COLOCATE_CLUSTERS_HPP
 
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/cs.hpp>
-#include <boost/geometry/core/coordinate_type.hpp>
-#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 
 namespace boost { namespace geometry
 {
@@ -21,64 +18,10 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
-// Default implementation, using the first point for all turns in the cluster.
-template
-<  
-    typename Point,
-    typename CoordinateType = geometry::coordinate_type_t<Point>,
-    typename CsTag = geometry::cs_tag_t<Point>,
-    bool IsIntegral = std::is_integral<CoordinateType>::value
->            
-struct cluster_colocator 
+template <typename Clusters, typename Turns, typename Strategy>
+inline void colocate_clusters(Clusters const& clusters, Turns& turns, Strategy const& strategy)
 {
-    template <typename TurnIndices, typename Turns>
-    static inline void apply(TurnIndices const& indices, Turns& turns)
-    {
-        auto it = indices.begin();
-        auto const& first_point = turns[*it].point;
-        for (++it; it != indices.end(); ++it)
-        {
-            turns[*it].point = first_point;
-        }
-    }
-};
-
-// Specialization for non-integral cartesian coordinates, calculating
-// the centroid of the points of the turns in the cluster.
-template <typename Point, typename CoordinateType>
-struct cluster_colocator<Point, CoordinateType, geometry::cartesian_tag, false>
-{
-    template <typename TurnIndices, typename Turns>
-    static inline void apply(TurnIndices const& indices, Turns& turns)
-    {
-        CoordinateType centroid_0 = 0;
-        CoordinateType centroid_1 = 0;
-        for (auto const& index : indices)
-        {
-            centroid_0 += geometry::get<0>(turns[index].point);
-            centroid_1 += geometry::get<1>(turns[index].point);
-        }
-        centroid_0 /= indices.size();
-        centroid_1 /= indices.size();
-        for (auto const& index : indices)
-        {
-            geometry::set<0>(turns[index].point, centroid_0);
-            geometry::set<1>(turns[index].point, centroid_1);
-        }
-    }
-};
-
-// Moves intersection points per cluster such that they are identical.
-// Because clusters are intersection close together, and
-// handled as one location. Then they should also have one location.
-// It is necessary to avoid artefacts and invalidities.
-// Integer coordinates are always colocated already and do not need centroid calculation.
-// Geographic/spherical coordinates might (in extremely rare cases) cross the date line
-// and therefore the first point is taken for them as well.
-// Currently only necessary for one test case: issue_1211 (validation of sym difference)
-template <typename Clusters, typename Turns>
-inline void colocate_clusters(Clusters const& clusters, Turns& turns)
-{
+    auto const& topology = strategies::detail::get_topology(strategy);
     for (auto const& pair : clusters)
     {
         auto const& turn_indices = pair.second.turn_indices;
@@ -87,11 +30,9 @@ inline void colocate_clusters(Clusters const& clusters, Turns& turns)
             // Defensive check
             continue;
         }
-        using point_t = decltype(turns[*turn_indices.begin()].point);
-        cluster_colocator<point_t>::apply(turn_indices, turns);
+        strategies::detail::colocate_cluster(topology, turn_indices, turns);
     }
 }
-
 
 }} // namespace detail::overlay
 #endif //DOXYGEN_NO_DETAIL

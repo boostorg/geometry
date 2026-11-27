@@ -19,29 +19,33 @@ namespace boost { namespace geometry
 namespace strategy { namespace envelope
 {
 
-class cartesian_boxes
+namespace box_accumulation_detail
+{
+
+template <typename Policy>
+class box_accumulator
 {
 public:
     template <typename Box>
     class state
     {
-        friend cartesian_boxes;
+        friend box_accumulator;
 
         Box m_box;
         bool m_initialized = false;
     };
 
-    template <typename Box>
-    static void apply(state<Box> & st, Box const& box)
+    template <typename Box, typename Input>
+    static void apply(state<Box> & st, Input const& box)
     {
         if (! st.m_initialized)
         {
-            st.m_box = box;
+            Policy::start(st.m_box, box);
             st.m_initialized = true;
         }
         else
         {
-            strategy::expand::cartesian_box::apply(st.m_box, box);
+            Policy::merge(st.m_box, box);
         }
     }
 
@@ -54,10 +58,29 @@ public:
         }
         else
         {
-            geometry::detail::envelope::initialize<Box, 0, dimension<Box>::value>::apply(box);
+            Policy::initialize(box);
         }
     }
 };
+
+struct cartesian_box_accumulation
+{
+    template <typename Box>
+    static void start(Box& result, Box const& input) { result = input; }
+
+    template <typename Box>
+    static void merge(Box& result, Box const& input)
+    { strategy::expand::cartesian_box::apply(result, input); }
+
+    template <typename Box>
+    static void initialize(Box& box)
+    { geometry::detail::envelope::initialize<Box, 0, dimension<Box>::value>::apply(box); }
+};
+
+} // namespace box_accumulation_detail
+
+class cartesian_boxes : public box_accumulation_detail::box_accumulator
+    <box_accumulation_detail::cartesian_box_accumulation> {};
 
 }} // namespace strategy::envelope
 

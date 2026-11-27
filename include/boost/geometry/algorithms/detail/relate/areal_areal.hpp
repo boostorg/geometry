@@ -14,9 +14,13 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_AREAL_AREAL_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <map>
 #include <memory>
 #include <set>
+#include <type_traits>
 #include <utility>
 
 #include <boost/geometry/core/topological_dimension.hpp>
@@ -43,6 +47,15 @@ namespace boost { namespace geometry
 
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace relate {
+
+template <typename Strategy, typename P, typename Q, typename = void>
+struct supports_crossing_witness : std::false_type {};
+
+template <typename Strategy, typename P, typename Q>
+struct supports_crossing_witness<Strategy, P, Q, std::void_t<decltype(
+    std::declval<Strategy const&>().segment_overlap_has_length(
+        std::declval<P const&>(), std::declval<P const&>(),
+        std::declval<Q const&>(), std::declval<Q const&>()))>> : std::true_type {};
 
 // WARNING!
 // TODO: In the worst case calling this Pred in a loop for MultiPolygon/MultiPolygon may take O(NM)
@@ -233,11 +246,13 @@ struct areal_areal
             <
                 Geometry1, Geometry2
             >::template turn_info_type<Strategy>::type;
-        std::vector<turn_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_type>, strategies::detail::turn_storage::local>
+            (strategy, geometry1, geometry2);
 
         interrupt_policy_areal_areal<Result> interrupt_policy(geometry1, geometry2, result);
 
         turns::get_turns<Geometry1, Geometry2>::apply(turns, geometry1, geometry2, interrupt_policy, strategy);
+        if (interrupt_policy.has_crossing()) return;
         if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
             return;
 
@@ -264,7 +279,7 @@ struct areal_areal
         {
             // sort turns
             using less_t = turns::less<0, turns::less_op_areal_areal<0>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry1));
 
             /*if ( may_update<interior, exterior, '2'>(result)
               || may_update<boundary, exterior, '1'>(result)
@@ -273,7 +288,7 @@ struct areal_areal
             {
                 // analyse sorted turns
                 turns_analyser<turn_type, 0> analyser;
-                analyse_each_turn(result, analyser, turns.begin(), turns.end(), strategy);
+                analyse_each_turn(result, analyser, turns.begin(), turns.end(), geometry1, strategy);
 
                 if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
                     return;
@@ -304,7 +319,7 @@ struct areal_areal
         {
             // sort turns
             using less_t = turns::less<1, turns::less_op_areal_areal<1>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry2));
 
             /*if ( may_update<interior, exterior, '2', true>(result)
               || may_update<boundary, exterior, '1', true>(result)
@@ -313,7 +328,7 @@ struct areal_areal
             {
                 // analyse sorted turns
                 turns_analyser<turn_type, 1> analyser;
-                analyse_each_turn(result, analyser, turns.begin(), turns.end(), strategy);
+                analyse_each_turn(result, analyser, turns.begin(), turns.end(), geometry2, strategy);
 
                 if ( BOOST_GEOMETRY_CONDITION(result.interrupt) )
                     return;
@@ -351,13 +366,61 @@ struct areal_areal
             : m_result(result)
             , m_geometry1(geometry1)
             , m_geometry2(geometry2)
+            , m_single_boundaries(
+                (std::is_same<tag_t<Geometry1>, polygon_tag>::value || std::is_same<tag_t<Geometry1>, ring_tag>::value)
+                && (std::is_same<tag_t<Geometry2>, polygon_tag>::value || std::is_same<tag_t<Geometry2>, ring_tag>::value)
+                && geometry::num_interior_rings(geometry1) == 0
+                && geometry::num_interior_rings(geometry2) == 0)
         {}
+
+        bool has_crossing() const { return m_has_crossing; }
+
+        template <typename Strategy, typename P, typename Q>
+        get_turns::pair_action before_segment_pair(Strategy const& strategy,
+                                                   P const& a, P const& b,
+                                                   Q const& c, Q const& d)
+        {
+            using action = get_turns::pair_action;
+            if constexpr (supports_crossing_witness<Strategy, P, Q>::value)
+            {
+                m_witness_enabled = m_single_boundaries;
+                if (m_has_crossing)
+                {
+                    if (strategy.segment_overlap_has_length(a, b, c, d))
+                    {
+                        update<boundary, boundary, '1'>(m_result);
+                        return action::stop;
+                    }
+                    return action::skip;
+                }
+            }
+            return action::ordinary;
+        }
+
+        void record_crossing()
+        {
+            // The four open sectors realize all combinations of the inside labels.
+            update<interior, interior, '2'>(m_result);
+            update<interior, boundary, '1'>(m_result);
+            update<interior, exterior, '2'>(m_result);
+            update<boundary, interior, '1'>(m_result);
+            update<boundary, boundary, '0'>(m_result);
+            update<boundary, exterior, '1'>(m_result);
+            update<exterior, interior, '2'>(m_result);
+            update<exterior, boundary, '1'>(m_result);
+        }
 
         template <typename Range>
         inline bool apply(Range const& turns)
         {
             for (auto it = boost::begin(turns) ; it != boost::end(turns) ; ++it)
             {
+                if (m_witness_enabled && it->method == overlay::method_crosses)
+                {
+                    record_crossing();
+                    m_has_crossing = true;
+                    return m_result.interrupt || !may_update<boundary, boundary, '1'>(m_result);
+                }
                 per_turn<0>(*it);
                 per_turn<1>(*it);
             }
@@ -414,6 +477,9 @@ struct areal_areal
         Result & m_result;
         Geometry1 const& m_geometry1;
         Geometry2 const& m_geometry2;
+        bool const m_single_boundaries;
+        bool m_witness_enabled = false;
+        bool m_has_crossing = false;
     };
 
     // This analyser should be used like Input or SinglePass Iterator
@@ -432,8 +498,8 @@ struct areal_areal
             : m_previous_turn_ptr(0)
         {}
 
-        template <typename Result, typename TurnIt, typename EqPPStrategy>
-        void apply(Result & result, TurnIt it, TurnIt last, EqPPStrategy const& strategy)
+        template <typename Result, typename TurnIt, typename Geometry, typename EqPPStrategy>
+        void apply(Result & result, TurnIt it, TurnIt last, Geometry const& geometry, EqPPStrategy const& strategy)
         {
             //BOOST_GEOMETRY_ASSERT( it != last );
 
@@ -452,7 +518,7 @@ struct areal_areal
 
             const bool first_in_range = m_seg_watcher.update(seg_id);
             if (m_previous_turn_ptr && (first_in_range
-                || !turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, strategy)))
+                || !turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, geometry, strategy)))
             {
                 apply(result);
             }
@@ -551,11 +617,13 @@ struct areal_areal
         typename Result,
         typename Analyser,
         typename TurnIt,
+        typename Geometry,
         typename EqPPStrategy
     >
     static inline void analyse_each_turn(Result & res,
                                          Analyser & analyser,
                                          TurnIt first, TurnIt last,
+                                         Geometry const& geometry,
                                          EqPPStrategy const& strategy)
     {
         if ( first == last )
@@ -563,7 +631,7 @@ struct areal_areal
 
         for ( TurnIt it = first ; it != last ; ++it )
         {
-            analyser.apply(res, it, last, strategy);
+            analyser.apply(res, it, last, geometry, strategy);
 
             if ( BOOST_GEOMETRY_CONDITION(res.interrupt) )
                 return;

@@ -120,11 +120,18 @@ inline void assign_cluster_ids(Turns& turns, Clusters const& clusters)
 }
 
 // Get clusters and assign their ids
+template<typename Turns, typename Clusters, typename Strategy>
+inline void handle_colocations(Turns& turns, Clusters& clusters, Strategy const& strategy)
+{
+    get_clusters(turns, clusters, strategy);
+    assign_cluster_ids(turns, clusters);
+}
+
+// Deprecated: pass the umbrella strategy so custom topology policies are honored.
 template<typename Turns, typename Clusters>
 inline void handle_colocations(Turns& turns, Clusters& clusters)
 {
-    get_clusters(turns, clusters);
-    assign_cluster_ids(turns, clusters);
+    handle_colocations(turns, clusters, default_strategy());
 }
 
 

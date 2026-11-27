@@ -11,6 +11,8 @@
 #define BOOST_GEOMETRY_STRATEGIES_RELATE_SERVICES_HPP
 
 
+#include <type_traits>
+
 #include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 
@@ -46,6 +48,17 @@ struct strategy_converter
         Strategy);
 };
 
+// A strategy may supply a kernel that needs no public coordinate output.
+template <typename Strategy>
+struct predicate_strategy
+{
+    template <typename A, typename B>
+    static Strategy const& get(Strategy const& strategy, A const&, B const&) { return strategy; }
+};
+
+// Opt in ranges of boundary rings addressed by segment_identifier::multi_index.
+template <typename Tag>
+struct indexed_ring_collection_tag : std::false_type {};
 
 } // namespace services
 

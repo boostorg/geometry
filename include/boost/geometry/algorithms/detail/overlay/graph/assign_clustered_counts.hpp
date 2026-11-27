@@ -9,18 +9,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_ASSIGN_CLUSTERED_COUNTS_HPP
 
-#include <boost/geometry/algorithms/detail/direction_code.hpp>
+#include <boost/geometry/strategies/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/position_code.hpp>
-#include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/cluster_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
 #include <boost/geometry/algorithms/num_segments.hpp>
 
+#include <array>
 #include <set>
 #include <map>
 #include <type_traits>
@@ -108,11 +109,6 @@ struct clustered_count_handler
 {
     using point_type = typename Turns::value_type::point_type;
     using connection_map_type = std::map<connection_key, connection_properties<point_type>>;
-    using ct_type = typename geometry::select_most_precise
-        <
-            geometry::coordinate_type_t<point_type>,
-            double
-        >::type;
 
     clustered_count_handler(Geometry1 const& m_geometry1, Geometry2 const& m_geometry2,
         Turns& m_turns, Clusters& clusters,
@@ -132,9 +128,7 @@ struct clustered_count_handler
     bool get_segment_points(Operation const& op, point_type const& point_turn,
         point_type& point_from, point_type& point_to)
     {
-        // Use the coordinate type, but if it is too small (e.g. std::int16), use a double
-        static const ct_type tolerance
-            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        auto const& topology = strategies::detail::get_topology(m_intersection_strategy);
 
         // For a defensive check.
         constexpr int max_iterations = 10;
@@ -144,14 +138,14 @@ struct clustered_count_handler
         {
             geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
                 op.seg_id, from_offset--, point_from);
-        } while (approximately_equals(point_from, point_turn, tolerance) && from_offset > -max_iterations);
+        } while (strategies::detail::same_direction_point(topology, point_from, point_turn) && from_offset > -max_iterations);
 
         int to_offset = 1;
         do
         {
             geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
                 op.seg_id, to_offset++, point_to);
-        } while (approximately_equals(point_to, point_turn, tolerance) && to_offset < max_iterations);
+        } while (strategies::detail::same_direction_point(topology, point_to, point_turn) && to_offset < max_iterations);
 
         return from_offset < -1 || to_offset > 2;
     }
@@ -268,8 +262,8 @@ struct clustered_count_handler
         }
     }
 
-    auto get_zone_counts(std::vector<connection_item<point_type>> const& item_vector,
-        std::size_t rank_size)
+    auto get_zone_counts_scan(std::vector<connection_item<point_type>> const& item_vector,
+        std::size_t rank_size) const
     {
         std::size_t const vector_size = item_vector.size();
         auto get_next_item = [&vector_size](std::size_t counter)
@@ -324,6 +318,62 @@ struct clustered_count_handler
         }
 
         return zone_counts;
+    }
+
+    auto get_zone_counts(std::vector<connection_item<point_type>> const& items,
+        std::size_t rank_size) const
+    {
+        if (OverlayType == overlay_buffer || OverlayType == overlay_dissolve)
+        {
+            return get_zone_counts_scan(items, rank_size);
+        }
+
+        // A backwards walk sees the next outgoing connection of each source.
+        // Seed it with the first such connection to handle cyclic wraparound.
+        std::array<std::size_t, 2> outgoing{{rank_size, rank_size}};
+        for (auto const& item : items)
+        {
+            auto const source = item.key.seg_id.source_index;
+            if (source < 0 || source > 1)
+            {
+                return get_zone_counts_scan(items, rank_size);
+            }
+            if (item.key.connection == connection_type::outgoing
+                && outgoing[source] == rank_size)
+            {
+                outgoing[source] = item.properties.rank;
+            }
+        }
+
+        std::vector<std::size_t> counts(rank_size, 0);
+        std::size_t winding = 0;
+        for (auto it = items.rbegin(); it != items.rend(); ++it)
+        {
+            auto& next = outgoing[it->key.seg_id.source_index];
+            auto const rank = it->properties.rank;
+            if (it->key.connection == connection_type::outgoing)
+            {
+                next = rank;
+            }
+            else if (it->key.connection == connection_type::incoming)
+            {
+                if (next == rank_size)
+                {
+                    // Retain the defensive behavior for an incomplete cluster.
+                    return get_zone_counts_scan(items, rank_size);
+                }
+                // Modular differences become nonnegative counts after the
+                // prefix sum. A wrap contributes to the initial winding.
+                ++counts[rank];
+                --counts[next];
+                winding += next < rank;
+            }
+        }
+        for (auto& count : counts)
+        {
+            count = (winding += count);
+        }
+        return counts;
     }
 
     void assign_zone_counts(std::vector<connection_item<point_type>>& item_vector,
@@ -391,9 +441,9 @@ struct clustered_count_handler
 
             // Precise measurement, not from the turn, but over the whole intersecting segment.
             // If it is positive (on the left side), it is a spike.
-            auto const dm = get_distance_measure(current.opposite_point, current.point, next.point,
-                m_intersection_strategy);
-            if (dm.measure <= 0)
+            int const side = strategies::detail::get_topology(m_intersection_strategy)
+                .side_measure_sign(current.opposite_point, current.point, next.point);
+            if (side <= 0)
             {
                 continue;
             }
@@ -436,14 +486,15 @@ struct clustered_count_handler
             ring_identifier(0, seg_id.multi_index, seg_id.ring_index), geometry));
     }
 
-    void colocate_on_source_vertex(cluster_info const& cluster)
+    void colocate_on_source_vertex(cluster_info const&, std::false_type) {}
+
+    void colocate_on_source_vertex(cluster_info const& cluster, std::true_type)
     {
         if (cluster.turn_indices.empty())
         {
             return;
         }
-        static ct_type const tolerance
-            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        auto const topology = strategies::detail::get_topology(m_intersection_strategy);
         auto const& cluster_point = m_turns[*cluster.turn_indices.begin()].point;
         point_type vertex;
         bool found = false;
@@ -451,29 +502,22 @@ struct clustered_count_handler
         {
             for (auto const& op : m_turns[index].operations)
             {
-                using ratio_type = typename std::decay<decltype(op.fraction)>::type;
-                typename ratio_type::int_type const zero(0);
-                if (op.fraction.denominator() == zero)
-                {
-                    continue;
-                }
                 // An exact endpoint ratio identifies an original source vertex;
                 // an approximate endpoint fraction is not enough to reanchor it.
-                bool const at_start = op.fraction.numerator() == zero;
-                bool const at_end = op.fraction.numerator() == op.fraction.denominator();
-                if (! at_start && ! at_end)
+                namespace predicates = strategies::detail::topology_detail;
+                auto const endpoint = predicates::exact_endpoint(op.fraction);
+                if (endpoint == predicates::segment_endpoint::none)
                 {
                     continue;
                 }
                 point_type candidate;
                 geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
-                    op.seg_id, at_start ? 0 : 1, candidate);
-                if (! approximately_equals(cluster_point, candidate, tolerance))
+                    op.seg_id, endpoint == predicates::segment_endpoint::first ? 0 : 1, candidate);
+                if (! strategies::detail::same_direction_point(topology, cluster_point, candidate))
                 {
                     continue;
                 }
-                if (found && (geometry::get<0>(candidate) != geometry::get<0>(vertex)
-                    || geometry::get<1>(candidate) != geometry::get<1>(vertex)))
+                if (found && !predicates::same_source_vertex(candidate, vertex))
                 {
                     // Distinct nearby source vertices do not define one anchor.
                     return;
@@ -491,6 +535,26 @@ struct clustered_count_handler
         }
     }
 
+    template <typename Op>
+    static bool usable_position(Op const& op, std::true_type)
+    {
+        return strategies::detail::topology_detail::usable_position(op.fraction);
+    }
+
+    template <typename Op>
+    static bool usable_position(Op const&, std::false_type) { return true; }
+
+    template <typename Op>
+    bool ahead(Op const& op, Op const& other, point_type const&, point_type const&, std::true_type) const
+    { return op.fraction < other.fraction; }
+
+    template <typename Op>
+    bool ahead(Op const& op, Op const&, point_type const& from, point_type const& to, std::false_type) const
+    {
+        return detail::turns::compare_on_segment<Reverse1, Reverse2, point_type>(
+            m_geometry1, m_geometry2, op.seg_id, from, to, m_intersection_strategy) < 0;
+    }
+
     template <typename Operation>
     bool is_straight_path(point_type const& from, point_type const& to,
         Operation const& op) const
@@ -503,27 +567,22 @@ struct clustered_count_handler
 
         auto const& target = m_turns[op.enriched.travels_to_ip_index];
         bool target_on_segment = false;
-        static ct_type const tolerance
-            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
-        using cs_tag = typename Strategy::cs_tag;
+        auto const topology = strategies::detail::get_topology(m_intersection_strategy);
+        using has_fraction = stores_fraction<typename Operation::segment_ratio_type>;
         for (auto const& target_op : target.operations)
         {
-            using ratio_type = typename std::decay<decltype(target_op.fraction)>::type;
-            typename ratio_type::int_type const zero(0);
             if (ring_id_by_seg_id(op.seg_id) != ring_id_by_seg_id(target_op.seg_id)
-                || target_op.fraction.denominator() == zero
-                || (! target_op.fraction.on_segment()
-                    && ! target_op.fraction.is_zero() && ! target_op.fraction.is_one()))
+                || ! usable_position(target_op, has_fraction()))
             {
                 continue;
             }
             point_type start, end;
             geometry::copy_segment_points<Reverse1, Reverse2>(m_geometry1, m_geometry2,
                 target_op.seg_id, start, end);
-            target_on_segment = approximately_equals(to, start, tolerance)
-                || approximately_equals(to, end, tolerance)
-                || (detail::direction_code<cs_tag>(start, end, to) <= 0
-                    && detail::direction_code<cs_tag>(end, start, to) <= 0);
+            target_on_segment = strategies::detail::same_direction_point(topology, to, start)
+                || strategies::detail::same_direction_point(topology, to, end)
+                || (strategies::detail::direction_code(start, end, to, m_intersection_strategy) <= 0
+                    && strategies::detail::direction_code(end, start, to, m_intersection_strategy) <= 0);
             if (target_on_segment)
             {
                 break;
@@ -540,7 +599,7 @@ struct clustered_count_handler
         {
             for (auto const& target_op : target.operations)
             {
-                if (target_op.seg_id == op.seg_id && op.fraction < target_op.fraction)
+                if (target_op.seg_id == op.seg_id && ahead(op, target_op, from, to, has_fraction()))
                 {
                     // The target is ahead on the same segment, without vertices.
                     return true;
@@ -563,19 +622,19 @@ struct clustered_count_handler
             point_type point;
             geometry::copy_segment_point<Reverse1, Reverse2>(m_geometry1, m_geometry2,
                 op.seg_id, offset, point);
-            if (approximately_equals(previous, point, tolerance))
+            if (strategies::detail::same_direction_point(topology, previous, point))
             {
                 // A source vertex and its clustered turn can differ slightly.
                 continue;
             }
-            if (approximately_equals(point, to, tolerance))
+            if (strategies::detail::same_direction_point(topology, point, to))
             {
                 point = to;
             }
-            if (approximately_equals(previous, to, tolerance)
+            if (strategies::detail::same_direction_point(topology, previous, to)
                 || m_side_strategy.apply(from, to, point) != 0
-                || detail::direction_code<cs_tag>(to, previous, point) > 0
-                || detail::direction_code<cs_tag>(previous, to, point) > 0)
+                || strategies::detail::direction_code(to, previous, point, m_intersection_strategy) > 0
+                || strategies::detail::direction_code(previous, to, point, m_intersection_strategy) > 0)
             {
                 // The path must advance along the common segment, including
                 // collinear subdivisions, without detours or backtracking.
@@ -595,10 +654,9 @@ struct clustered_count_handler
             return false;
         }
         auto const& target = m_turns[target_index];
-        static ct_type const tolerance
-            = common_approximately_equals_epsilon_multiplier<ct_type>::value();
+        auto const topology = strategies::detail::get_topology(m_intersection_strategy);
         if (target.cluster_id == turn.cluster_id
-            || approximately_equals(turn.point, target.point, tolerance))
+            || strategies::detail::same_direction_point(topology, turn.point, target.point))
         {
             // Shared-target round trips can enclose different areas.
             return false;
@@ -784,7 +842,8 @@ struct clustered_count_handler
         // whose point must not depend on cluster iteration order during testing.
         for (auto const cluster_id : m_compensated_clusters)
         {
-            colocate_on_source_vertex(m_clusters.at(cluster_id));
+            colocate_on_source_vertex(m_clusters.at(cluster_id),
+                stores_fraction<typename Turns::value_type::segment_ratio_type>());
         }
     }
 

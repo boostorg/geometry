@@ -17,6 +17,9 @@
 
 #include <boost/range/size.hpp>
 
+#include <type_traits>
+#include <utility>
+
 #include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/closure.hpp>
@@ -43,7 +46,6 @@
 // TEMP - with UmbrellaStrategy this will be not needed
 #include <boost/geometry/strategy/area.hpp>
 #include <boost/geometry/strategies/area/services.hpp>
-// TODO: use point_order instead of area
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
 #include <boost/geometry/io/dsv/write.hpp>
@@ -92,7 +94,13 @@ struct is_topologically_closed<Ring, closed>
 };
 
 
-// TODO: use calculate_point_order here
+template <typename Strategy, typename = void>
+constexpr bool has_ring_topology = false;
+
+template <typename Strategy>
+constexpr bool has_ring_topology<Strategy,
+    std::void_t<decltype(std::declval<Strategy const&>().ring_topology())>> = true;
+
 template <typename Ring, bool IsInteriorRing>
 struct is_properly_oriented
 {
@@ -102,18 +110,21 @@ struct is_properly_oriented
     {
         boost::ignore_unused(visitor);
 
-        // Check area
-        auto const area = detail::area::ring_area::apply(ring, strategy);
-        decltype(area) const zero = 0;
-
-        if (IsInteriorRing ? (area < zero) : (area > zero))
+        bool const correct = [&]
         {
-            return visitor.template apply<no_failure>();
-        }
-        else
-        {
-            return visitor.template apply<failure_wrong_orientation>();
-        }
+            if constexpr (has_ring_topology<Strategy>)
+            {
+                auto const status = strategy.ring_topology().analyze(ring);
+                return status.valid && (IsInteriorRing ? status.direction < 0 : status.direction > 0);
+            }
+            else
+            {
+                auto const area = detail::area::ring_area::apply(ring, strategy);
+                return IsInteriorRing ? area < 0 : area > 0;
+            }
+        }();
+        return correct ? visitor.template apply<no_failure>()
+                       : visitor.template apply<failure_wrong_orientation>();
     }
 };
 
@@ -167,13 +178,19 @@ struct is_valid_ring
                 visitor.template apply<failure_wrong_topological_dimension>();
         }
 
-        return
-            is_topologically_closed<Ring>::apply(ring, visitor, strategy)
-            && ! has_duplicates<Ring>::apply(ring, visitor, strategy)
-            && ! has_spikes<Ring>::apply(ring, visitor, strategy)
-            && (! CheckSelfIntersections
-                || has_valid_self_turns<Ring, typename Strategy::cs_tag>::apply(ring, visitor, strategy))
-            && is_properly_oriented<Ring, IsInteriorRing>::apply(ring, visitor, strategy);
+        if (!is_topologically_closed<Ring>::apply(ring, visitor, strategy)
+            || has_duplicates<Ring>::apply(ring, visitor, strategy)
+            || has_spikes<Ring>::apply(ring, visitor, strategy))
+            return false;
+
+        if constexpr (CheckSelfIntersections)
+            if (!has_valid_self_turns<Ring, Strategy>::apply(ring, visitor, strategy)) return false;
+
+        // A polygon checks all its rings for self-turns before using topology.
+        if constexpr (CheckSelfIntersections || !has_ring_topology<Strategy>)
+            return is_properly_oriented<Ring, IsInteriorRing>::apply(ring, visitor, strategy);
+        else
+            return true;
     }
 };
 

@@ -15,6 +15,8 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_COPY_SEGMENT_POINT_HPP
 
 
+#include <type_traits>
+
 #include <array>
 
 #include <boost/range/begin.hpp>
@@ -43,6 +45,24 @@ namespace boost { namespace geometry
 namespace detail { namespace copy_segments
 {
 
+template <bool Reverse, typename Geometry, typename SegmentIdentifier, typename PointOut>
+inline bool try_copy_source_vertex(Geometry const& geometry, SegmentIdentifier const& seg_id,
+                                   signed_size_type offset, PointOut& point)
+{
+    auto const hook = [&](auto& p)
+        -> decltype(std::remove_reference_t<decltype(p)>::template copy_source_vertex<Reverse>(
+                geometry, seg_id, offset, p), void())
+    {
+        std::remove_reference_t<decltype(p)>::template copy_source_vertex<Reverse>(geometry, seg_id, offset, p);
+    };
+    if constexpr (std::is_invocable_v<decltype(hook), PointOut&>)
+    {
+        hook(point);
+        return true;
+    }
+    return false;
+}
+
 inline signed_size_type circular_offset(signed_size_type segment_count, signed_size_type index,
                                         signed_size_type offset)
 {
@@ -61,6 +81,11 @@ struct copy_segment_point_range
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
+        if (try_copy_source_vertex<Reverse>(range, seg_id, offset, point))
+        {
+            return true;
+        }
+
         using view_type = detail::closed_clockwise_view
             <
                 Range const,
@@ -115,6 +140,11 @@ struct copy_segment_point_box
             SegmentIdentifier const& seg_id, signed_size_type offset,
             PointOut& point)
     {
+        if (try_copy_source_vertex<Reverse>(box, seg_id, offset, point))
+        {
+            return true;
+        }
+
         std::array<point_type_t<Box>, 4> bp;
         assign_box_corners_oriented<Reverse>(box, bp);
 
@@ -122,7 +152,7 @@ struct copy_segment_point_box
         BOOST_GEOMETRY_ASSERT(target >= 0
                            && std::size_t(target) < bp.size());
 
-        point = bp[target];
+        geometry::convert(bp[target], point);
         return true;
     }
 };

@@ -445,27 +445,28 @@ void test_unique_large_cartesian_contact_keys()
 {
     using point = bg::model::point<std::int64_t, 2, bg::cs::cartesian>;
     using line = bg::model::linestring<point>;
-    using strategy = bg::strategies::relate::cartesian<>;
+    using strategy_type = bg::strategies::relate::cartesian<>;
     using collector = bg::detail::overlay::following::isolated_point_output
-        <std::pair<point, line>, strategy, true>;
+        <std::pair<point, line>, strategy_type, true>;
+    strategy_type const strategy;
     std::int64_t const first = std::int64_t(1) << 53;
     point contacts[] = {point(first, 0), point(first + 1, 0), point(first + 2, 0)};
     std::size_t order[] = {0, 1, 2};
     do
     {
-        collector unique_points;
+        collector unique_points(strategy);
         bg::model::multi_point<point> result;
-        auto out = std::back_inserter(result);
+        auto out = std::make_tuple(std::back_inserter(result));
         for (std::size_t index : order)
         {
-            unique_points.apply(contacts[index], out, strategy());
+            unique_points.apply(contacts[index], out, strategy);
         }
         BOOST_REQUIRE_EQUAL(result.size(), 3);
         for (std::size_t i = 0; i < result.size(); ++i)
         {
             BOOST_CHECK_EQUAL(bg::get<0>(result[i]), first + order[i]);
             BOOST_CHECK_EQUAL(bg::get<1>(result[i]), 0);
-            unique_points.apply(contacts[order[i]], out, strategy());
+            unique_points.apply(contacts[order[i]], out, strategy);
         }
         BOOST_CHECK_EQUAL(result.size(), 3);
     }
@@ -501,9 +502,9 @@ void test_unique_angular_contact_keys(Strategy const& strategy,
     std::size_t order[] = {0, 1, 2, 3};
     do
     {
-        collector unique_points;
+        collector unique_points(strategy);
         bg::model::multi_point<point> result;
-        auto out = std::back_inserter(result);
+        auto out = std::make_tuple(std::back_inserter(result));
         unique_points.apply(antimeridian, out, strategy);
         bool seen[] = {false, false, false};
         std::size_t count = 1;

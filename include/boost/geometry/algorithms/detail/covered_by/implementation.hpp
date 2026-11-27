@@ -24,6 +24,8 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/interface.hpp>
 #include <boost/geometry/algorithms/detail/within/implementation.hpp>
+#include <boost/geometry/algorithms/envelope.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -67,12 +69,13 @@ struct geometry_covered_by_box
     {
         using point_type = point_type_t<Geometry>;
         using mutable_point_type = typename helper_geometry<point_type>::type;
-        using box_type = model::box<mutable_point_type>;
+        using box_type = typename strategies::relate::services::geometry_box_type<Strategy, mutable_point_type>::type;
 
         // TODO: this is not optimal since the process should be able to terminate if a point is found
         // outside of the box without computing the whole envelope
         box_type box_areal;
-        geometry::envelope(geometry, box_areal, strategy);
+        // The strategy's intermediate bounds need not model Box.
+        resolve_strategy::envelope<Strategy>::apply(geometry, box_areal, strategy);
         return strategy.covered_by(box_areal, box).apply(box_areal, box);
     }
 };

@@ -12,6 +12,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_IS_SIMPLE_LINEAR_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <algorithm>
 #include <deque>
 
@@ -53,6 +55,7 @@
 #include <boost/geometry/algorithms/dispatch/is_simple.hpp>
 
 #include <boost/geometry/strategies/intersection.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -73,6 +76,17 @@ inline bool check_segment_indices(Turn const& turn,
         ||
         (turn.operations[1].seg_id.segment_index == 0
          && turn.operations[0].seg_id.segment_index == last_index);
+}
+
+template <typename Turn, typename Linestring>
+inline bool starts_segment(Turn const& turn, Linestring const&, std::true_type)
+{ return turn.operations[0].fraction.is_zero(); }
+
+template <typename Turn, typename Linestring>
+inline bool starts_segment(Turn const& turn, Linestring const& linestring, std::false_type)
+{
+    using position = typename Turn::segment_ratio_type;
+    return position::equal(turn.point, range::at(linestring, turn.operations[0].seg_id.segment_index));
 }
 
 
@@ -103,7 +117,7 @@ public:
         return m_is_closed
             && turn.method == overlay::method_none
             && check_segment_indices(turn, boost::size(m_linestring) - 2)
-            && turn.operations[0].fraction.is_zero();
+            && starts_segment(turn, m_linestring, overlay::stores_fraction<typename Turn::segment_ratio_type>());
     }
 
 private:
@@ -133,7 +147,7 @@ private:
         return turn.method == overlay::method_none
             && check_segment_indices(turn, boost::size(linestring) - 2)
             && equals_point_point(range::front(linestring), range::back(linestring), m_strategy)
-            && turn.operations[0].fraction.is_zero();
+            && starts_segment(turn, linestring, overlay::stores_fraction<typename Turn::segment_ratio_type>());
     }
 
     template <typename Linestring1, typename Linestring2>
@@ -187,8 +201,11 @@ private:
 template <typename Linear, typename Strategy>
 inline bool has_self_intersections(Linear const& linear, Strategy const& strategy)
 {
-    using point_type = point_type_t<Linear>;
-    using turn_info = detail::overlay::turn_info<point_type>;
+    using point_type = typename strategies::relate::services::intersection_point_type
+        <Strategy, point_type_t<Linear>>::type;
+    using ratio_type = typename strategies::relate::services::segment_ratio_type
+        <Strategy, point_type_t<Linear>>::type;
+    using turn_info = detail::overlay::turn_info<point_type, ratio_type>;
     using turn_policy = detail::overlay::get_turn_info
         <
             detail::disjoint::assign_disjoint_policy
@@ -199,7 +216,8 @@ inline bool has_self_intersections(Linear const& linear, Strategy const& strateg
         >;
 
     // Compute self turns
-    std::deque<turn_info> turns;
+    auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+        (strategy, linear, linear);
 
     is_acceptable_turn_type predicate(linear, strategy);
     detail::overlay::predicate_based_interrupt_policy

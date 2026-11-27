@@ -14,6 +14,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_INTERFACE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_INTERFACE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
@@ -151,10 +153,15 @@ struct intersection
                              GeometryOut & geometry_out,
                              Strategy const& strategy)
     {
-        return resolve_collection::intersection
-            <
-                Geometry1, Geometry2, GeometryOut
-            >::apply(geometry1, geometry2, geometry_out, strategy);
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
+        {
+            return detail::overlay::with_working_output(geometry_out, bound, [&](auto& working)
+            {
+                return resolve_collection::intersection<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
+            });
+        });
     }
 };
 

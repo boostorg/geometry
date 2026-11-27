@@ -261,7 +261,14 @@ void test_all()
     TEST_DIFFERENCE(case_precision_17, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_18, 0, 0.0, 1, 59.0, 1);
     TEST_DIFFERENCE(case_precision_19, 1, expectation_limits(1.2e-6, 1.35e-5), 1, 59.0, 2);
-    TEST_DIFFERENCE(case_precision_20, 1, 14.0, 1, 8.0, 1);
+    {
+        ut_settings settings;
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+        // The tolerant validator can flag a spike depending on ring start.
+        settings.validity_false_negative_sym = true;
+#endif
+        TEST_DIFFERENCE_WITH(case_precision_20, 1, 14.0, 1, 8.0, 1, settings);
+    }
     TEST_DIFFERENCE(case_precision_21, 1, 14.0, 1, 7.99999, 1);
     TEST_DIFFERENCE_WITH(case_precision_22, optional(), optional_sliver(), 1, 59.0,
                          count_set(1, 2), ut_settings(0.001));

@@ -40,7 +40,6 @@
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
-#include <boost/geometry/algorithms/detail/assign_indexed_point.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
 
 #include <boost/geometry/algorithms/detail/disjoint/linear_linear.hpp>
@@ -52,6 +51,7 @@
 #include <boost/geometry/algorithms/dispatch/disjoint.hpp>
 
 #include <boost/geometry/geometries/helper_geometry.hpp>
+#include <boost/geometry/views/detail/segment_as_subrange.hpp>
 
 namespace boost { namespace geometry
 {
@@ -182,10 +182,8 @@ public:
             return false;
         }
 
-        point_type_t<Segment> p;
-        detail::assign_point_from_index<0>(segment, p);
-
-        return ! geometry::covered_by(p, polygon, strategy);
+        geometry::detail::segment_as_subrange<Segment> const range(segment);
+        return ! geometry::covered_by(range.at(0), polygon, strategy);
     }
 };
 
@@ -218,10 +216,8 @@ struct disjoint_segment_areal<Segment, Ring, ring_tag>
             return false;
         }
 
-        point_type_t<Segment> p;
-        detail::assign_point_from_index<0>(segment, p);
-
-        return ! geometry::covered_by(p, ring, strategy);
+        geometry::detail::segment_as_subrange<Segment> const range(segment);
+        return ! geometry::covered_by(range.at(0), ring, strategy);
     }
 };
 

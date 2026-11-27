@@ -14,13 +14,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/graph/detect_biconnected_components.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/fill_ring_turn_info_map.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/traverse_graph.hpp>
-#include <boost/geometry/util/constexpr.hpp>
 
 
 namespace boost { namespace geometry
@@ -29,7 +29,6 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
-
 
 /*!
     \brief Traverses through intersection points / geometries
@@ -64,8 +63,6 @@ public :
     {
         constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-        detect_biconnected_components<target_operation>(turns, clusters);
-
         traverse_graph
             <
                 Reverse1, Reverse2, OverlayType,
@@ -75,6 +72,7 @@ public :
             > traverser(geometry1, geometry2, turns, clusters,
                 intersection_strategy);
 
+        detect_biconnected_components<target_operation>(turns, clusters);
         traverser.iterate(rings);
 
         update_ring_turn_info_map(turn_info_map, turns);

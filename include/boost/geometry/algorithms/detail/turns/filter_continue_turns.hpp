@@ -11,6 +11,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_FILTER_CONTINUE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_FILTER_CONTINUE_TURNS_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+
 #include <algorithm>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
@@ -61,10 +63,7 @@ private:
 public:
     static inline void apply(Turns& turns)
     {
-        turns.erase( std::remove_if(turns.begin(), turns.end(),
-                                    IsContinueTurn()),
-                     turns.end()
-                     );
+        geometry::detail::turns::erase_turns_if(turns, IsContinueTurn());
     }
 };
 

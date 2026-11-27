@@ -11,16 +11,21 @@
 
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/copy_segments.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/is_operation_included.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/get_tois.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/node_util.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/select_edge.hpp>
+#include <boost/geometry/algorithms/detail/turns/compare_turns.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+#include <boost/geometry/util/constexpr.hpp>
 
 #include <boost/assert.hpp>
+#include <vector>
 
 #if defined(BOOST_GEOMETRY_DEBUG_TRAVERSE_GRAPH)
 #include <boost/geometry/algorithms/detail/overlay/debug_turn_info.hpp>
@@ -56,6 +61,25 @@ struct traverse_graph
     using point_type = typename turn_type::point_type;
     using toi_set = std::set<turn_operation_id>;
 
+    template <typename Ring>
+    void append_turn(Ring& ring, point_type const& point) const
+    {
+        detail::overlay::append_no_collinear(ring, point, m_strategy);
+    }
+
+    template <typename Operation>
+    bool precedes(turn_type const&, Operation const& next, turn_type const&, Operation const& current,
+                  std::true_type) const
+    { return next.fraction < current.fraction; }
+
+    template <typename Operation>
+    bool precedes(turn_type const& next_turn, Operation const&, turn_type const& current_turn,
+                  Operation const& current, std::false_type) const
+    {
+        return detail::turns::compare_on_segment<Reverse1, Reverse2, point_type>(
+            m_geometry1, m_geometry2, current.seg_id, next_turn.point, current_turn.point, m_strategy) < 0;
+    }
+
     inline traverse_graph(Geometry1 const& geometry1, Geometry2 const& geometry2,
             Turns& turns, Clusters const& clusters,
             Strategy const& strategy)
@@ -69,29 +93,11 @@ struct traverse_graph
     }
 
     template <typename Ring>
-    void copy_segments(Ring& ring, turn_operation_id const& toi) const
-    {
-        auto const& op = m_turns[toi.turn_index].operations[toi.operation_index];
-        auto const to_vertex_index = op.enriched.travels_to_vertex_index;
-        if (op.seg_id.source_index == 0)
-        {
-            geometry::copy_segments<Reverse1>(m_geometry1,
-                    op.seg_id, to_vertex_index,
-                    m_strategy, ring);
-        }
-        else
-        {
-            geometry::copy_segments<Reverse2>(m_geometry2,
-                    op.seg_id, to_vertex_index,
-                    m_strategy, ring);
-        }
-
-    }
-
-    template <typename Ring>
     void use_vertices(Ring& ring, turn_operation_id const& toi, bool is_round_trip = false) const
     {
         auto const& op = m_turns[toi.turn_index].operations[toi.operation_index];
+        geometry::detail::copy_segments::prepare_output_edge<Reverse1, Reverse2>(
+            m_strategy, ring, m_geometry1, m_geometry2, op.seg_id);
         auto const to_vertex_index = op.enriched.travels_to_vertex_index;
 
         if (to_vertex_index < 0)
@@ -116,7 +122,8 @@ struct traverse_graph
                 if (next_op.seg_id == op.seg_id)
                 {
                     // It is on the same segment. Determine if it is located before or after
-                    if (next_op.fraction < op.fraction)
+                    if (precedes(next_turn, next_op, m_turns[toi.turn_index], op,
+                        stores_fraction<typename turn_type::segment_ratio_type>()))
                     {
                         // It is before, so we can continue
                         allow = true;
@@ -130,7 +137,8 @@ struct traverse_graph
             }
         }
 
-        copy_segments(ring, toi);
+        geometry::detail::copy_segments::from_source<Reverse1, Reverse2>(
+            m_geometry1, m_geometry2, op.seg_id, to_vertex_index, m_strategy, ring);
     }
 
     // Set the turn operation as visited.
@@ -240,7 +248,7 @@ struct traverse_graph
                 return false;
             }
 
-            detail::overlay::append_no_collinear(ring, turn_point, m_strategy);
+            append_turn(ring, turn_point);
 
             set_visited(toi);
             use_vertices(ring, toi);
@@ -310,15 +318,8 @@ struct traverse_graph
 
 
         using ring_type = typename boost::range_value<Rings>::type;
-
-        constexpr std::size_t min_size
-                = core_detail::closure::minimum_ring_size
-                        <
-                            geometry::closure<ring_type>::value
-                        >::value;
-
         ring_type ring;
-        detail::overlay::append_no_collinear(ring, start_point, m_strategy);
+        append_turn(ring, start_point);
 
         m_visited_tois.clear();
         set_visited(toi);
@@ -337,7 +338,16 @@ struct traverse_graph
             return;
         }
 
-        detail::overlay::append_no_collinear(ring, start_point, m_strategy);
+        add_closed_ring(rings, ring, start_point);
+        m_finished_tois.insert(m_visited_tois.begin(), m_visited_tois.end());
+    }
+
+    template <typename Rings, typename Ring>
+    void add_closed_ring(Rings& rings, Ring& ring, point_type const& start_point) const
+    {
+        constexpr std::size_t min_size =
+            core_detail::closure::minimum_ring_size<geometry::closure<Ring>::value>::value;
+        append_turn(ring, start_point);
         remove_spikes_at_closure(ring, m_strategy);
         fix_closure(ring, m_strategy);
 
@@ -348,7 +358,6 @@ struct traverse_graph
         #endif
             rings.push_back(std::move(ring));
         }
-        m_finished_tois.insert(m_visited_tois.begin(), m_visited_tois.end());
     }
 
     void update_administration()

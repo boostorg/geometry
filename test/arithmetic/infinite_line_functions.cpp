@@ -15,7 +15,6 @@
 
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/geometries/infinite_line.hpp>
-#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 
@@ -44,7 +43,7 @@ void test_side_value()
     typedef bg::model::infinite_line<T> line_type;
 
     // Horizontal line going right
-    line_type line = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
+    line_type line = bg::arithmetic::make_infinite_line<T>(0, 0, 10, 0);
 
     // Point above (= on left side)
     T d = bg::arithmetic::side_value(line, 5, 5);
@@ -55,7 +54,7 @@ void test_side_value()
     BOOST_CHECK_MESSAGE(d < 0, "point not on right side");
 
     // Diagonal not through origin, from right (down) to left (up)
-    line = bg::detail::make::make_infinite_line<T>(5, 2, -7, 10);
+    line = bg::arithmetic::make_infinite_line<T>(5, 2, -7, 10);
     d = bg::arithmetic::side_value(line, 5, 2);
     BOOST_CHECK_MESSAGE(is_small(d), "point not on line");
     d = bg::arithmetic::side_value(line, -7, 10);
@@ -82,8 +81,8 @@ void test_get_intersection()
 
     // Diagonal lines (first is same as in distance measure,
     // second is perpendicular and used there for distance measures)
-    line_type p = bg::detail::make::make_infinite_line<T>(5, 2, -7, 10);
-    line_type q = bg::detail::make::make_infinite_line<T>(4, 7, 0, 1);
+    line_type p = bg::arithmetic::make_infinite_line<T>(5, 2, -7, 10);
+    line_type q = bg::arithmetic::make_infinite_line<T>(4, 7, 0, 1);
 
     typedef bg::model::point<T, 2, bg::cs::cartesian> point_type;
     point_type ip;
@@ -101,16 +100,16 @@ void test_degenerate()
 {
     typedef bg::model::infinite_line<T> line_type;
 
-    line_type line = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
+    line_type line = bg::arithmetic::make_infinite_line<T>(0, 0, 10, 0);
     BOOST_CHECK(! bg::arithmetic::is_degenerate(line));
 
-    line = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
+    line = bg::arithmetic::make_infinite_line<T>(0, 0, 0, 10);
     BOOST_CHECK(! bg::arithmetic::is_degenerate(line));
 
-    line = bg::detail::make::make_infinite_line<T>(0, 0, 10, 10);
+    line = bg::arithmetic::make_infinite_line<T>(0, 0, 10, 10);
     BOOST_CHECK(! bg::arithmetic::is_degenerate(line));
 
-    line = bg::detail::make::make_infinite_line<T>(0, 0, 0, 0);
+    line = bg::arithmetic::make_infinite_line<T>(0, 0, 0, 0);
     BOOST_CHECK(bg::arithmetic::is_degenerate(line));
 }
 

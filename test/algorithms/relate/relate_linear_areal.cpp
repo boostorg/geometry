@@ -604,6 +604,8 @@ void test_all()
     // The first entry and exit are distinct even if both round to (0, -1).
     test_geometry<ls, mpoly>("LINESTRING(1 -2,-1 5)",
         "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)))", "101FF0212");
+    test_geometry<ls, mpoly>("LINESTRING(-1 5,1 -2)",
+        "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)))", "101FF0212");
 
     test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)", touching, "1010F0212");
     test_geometry<ls, mpoly>("LINESTRING(-1 0,0 0,0 -1)", touching, "1010F0212");

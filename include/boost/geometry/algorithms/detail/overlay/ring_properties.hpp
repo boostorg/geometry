@@ -14,9 +14,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_RING_PROPERTIES_HPP
 
 
+#include <type_traits>
+#include <vector>
+
 #include <boost/geometry/algorithms/area.hpp>
+#include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/point_on_border.hpp>
-#include <boost/geometry/algorithms/detail/within/implementation.hpp>
+#include <boost/geometry/strategies/detail/ring_topology.hpp>
 
 
 namespace boost { namespace geometry
@@ -68,9 +72,65 @@ struct ring_properties
 
     inline area_type get_area() const
     {
+        // Reversal changes the orientation of the stored signed measure only;
+        // it neither recomputes coordinates nor decides whether a ring is degenerate.
         return reversed ? -area : area;
     }
 };
+
+template <typename OutputPoint, typename Point>
+struct ring_properties<OutputPoint, strategies::detail::topological_ring_tag<Point>>
+{
+    using point_type = Point;
+    using topology_only = std::true_type;
+
+    bool valid = false;
+    // Selection's range_in_geometry may skip the actual first range vertex.
+    Point point;
+    // Parenting uses a surviving boundary sample, excluding canceled spikes.
+    Point boundary_point;
+    bool clockwise = false;
+    int direction = 0;
+    bool reversed = false;
+    bool discarded = false;
+    ring_identifier parent;
+    std::vector<ring_identifier> children;
+
+    ring_properties() = default;
+
+    template <typename RingOrBox, typename Strategy>
+    ring_properties(RingOrBox const& geometry, Strategy const& strategy)
+    {
+        auto const topology = strategy.ring_topology();
+        auto const result = topology.analyze(geometry, boundary_point);
+        valid = result.valid && topology.representative(geometry, point);
+        clockwise = result.clockwise;
+        direction = result.direction;
+    }
+
+    int effective_direction() const { return reversed ? -direction : direction; }
+};
+
+namespace ring_properties_detail
+{
+template <typename Properties, typename = void>
+struct is_topological : std::false_type {};
+
+template <typename Properties>
+struct is_topological<Properties, std::void_t<typename Properties::topology_only>> : std::true_type {};
+} // namespace ring_properties_detail
+
+template <bool Reverse, typename Rings, typename RingMap, typename Strategy>
+void insert_traversed_rings(Rings const& rings, RingMap& selected, Strategy const& strategy)
+{
+    ring_identifier id(2, 0, -1);
+    for (auto const& ring : rings)
+    {
+        auto& properties = selected.try_emplace(id, ring, strategy).first->second;
+        properties.reversed = Reverse;
+        ++id.multi_index;
+    }
+}
 
 }} // namespace detail::overlay
 #endif // DOXYGEN_NO_DETAIL

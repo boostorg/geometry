@@ -84,6 +84,7 @@ class cartesian_winding_base
 
 public:
     using cs_tag = cartesian_tag;
+    static constexpr int buffer_scan_axis = 0;
 
     // Typedefs and static methods to fulfill the concept
     typedef counter state_type;

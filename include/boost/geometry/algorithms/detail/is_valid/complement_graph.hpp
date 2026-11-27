@@ -17,12 +17,14 @@
 #include <memory>
 #include <set>
 #include <stack>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/policies/compare.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -53,10 +55,12 @@ public:
     {
         if ( m_turn_point != NULL && other.m_turn_point != NULL )
         {
-            return geometry::less
-                <
-                    TurnPoint, -1, Strategy
-                >()(*m_turn_point, *other.m_turn_point);
+            using compare = typename strategies::relate::services::exact_cluster_compare<Strategy>::type;
+            if constexpr (strategies::relate::services::exact_predicates<Strategy>::value
+                          && !std::is_void_v<compare>)
+                return compare::apply(*m_turn_point, *other.m_turn_point);
+            else
+                return geometry::less<TurnPoint, -1, Strategy>{}(*m_turn_point, *other.m_turn_point);
         }
         if ( m_turn_point == NULL && other.m_turn_point == NULL )
         {

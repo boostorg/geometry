@@ -17,7 +17,6 @@
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/config.hpp>
-#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_rounded_input.hpp>
@@ -123,8 +122,8 @@ public:
         {
             the_state.count_on_edge++;
 
-            auto const line1 = detail::make::make_perpendicular_line<CalculationType>(s1, s2, s1);
-            auto const line2 = detail::make::make_perpendicular_line<CalculationType>(s2, s1, s2);
+            auto const line1 = arithmetic::make_perpendicular_line<CalculationType>(s1, s2, s1);
+            auto const line2 = arithmetic::make_perpendicular_line<CalculationType>(s2, s1, s2);
 
             auto const value1 = arithmetic::side_value(line1, point);
             auto const value2 = arithmetic::side_value(line2, point);

@@ -44,7 +44,8 @@ namespace detail { namespace expand
 template
 <
     std::size_t Index,
-    std::size_t Dimension, std::size_t DimensionCount
+    std::size_t Dimension, std::size_t DimensionCount,
+    bool ByCorner = false
 >
 struct indexed_loop
 {
@@ -62,28 +63,28 @@ struct indexed_loop
         std::less<coordinate_type> less;
         std::greater<coordinate_type> greater;
 
-        if (less(coord, get<min_corner, Dimension>(box)))
+        if ((!ByCorner || Index == min_corner) && less(coord, get<min_corner, Dimension>(box)))
         {
             set<min_corner, Dimension>(box, coord);
         }
 
-        if (greater(coord, get<max_corner, Dimension>(box)))
+        if ((!ByCorner || Index == max_corner) && greater(coord, get<max_corner, Dimension>(box)))
         {
             set<max_corner, Dimension>(box, coord);
         }
 
         indexed_loop
             <
-                Index, Dimension + 1, DimensionCount
+                Index, Dimension + 1, DimensionCount, ByCorner
             >::apply(box, source);
     }
 };
 
 
-template <std::size_t Index, std::size_t DimensionCount>
+template <std::size_t Index, std::size_t DimensionCount, bool ByCorner>
 struct indexed_loop
     <
-        Index, DimensionCount, DimensionCount
+        Index, DimensionCount, DimensionCount, ByCorner
     >
 {
     template <typename Box, typename Geometry>
@@ -92,8 +93,9 @@ struct indexed_loop
 
 
 
-// Changes a box such that the other box is also contained by the box
-template <std::size_t Dimension, std::size_t DimensionCount>
+// ByCorner merges minimum with minimum and maximum with maximum, so inverse
+// bounds (used as an empty envelope) are not treated as two points.
+template <std::size_t Dimension, std::size_t DimensionCount, bool ByCorner = false>
 struct expand_indexed
 {
     template <typename Box, typename Geometry>
@@ -101,12 +103,12 @@ struct expand_indexed
     {
         indexed_loop
             <
-                0, Dimension, DimensionCount
+                0, Dimension, DimensionCount, ByCorner
             >::apply(box, geometry);
 
         indexed_loop
             <
-                1, Dimension, DimensionCount
+                1, Dimension, DimensionCount, ByCorner
             >::apply(box, geometry);
     }
 };

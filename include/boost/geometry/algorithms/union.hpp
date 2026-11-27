@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_UNION_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <boost/geometry/algorithms/detail/gc_group_elements.hpp>
 #include <boost/geometry/algorithms/detail/intersection/gc.hpp>
@@ -31,6 +33,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -437,7 +440,7 @@ struct union_
             },
             [&](auto const& disjoint_group)
             {
-                copy_disjoint(gc1_view, gc2_view, disjoint_group, geometry_out);
+                copy_disjoint(gc1_view, gc2_view, disjoint_group, geometry_out, strategy);
             });
     }
 
@@ -510,9 +513,10 @@ private:
         boost::get<2>(out) = std::move(a);
     }
 
-    template <typename GC1View, typename GC2View, typename Group>
+    template <typename GC1View, typename GC2View, typename Group, typename Strategy>
     static inline void copy_disjoint(GC1View const& gc1_view, GC2View const& gc2_view,
-                                     Group const& disjoint_group, GeometryOut& geometry_out)
+                                     Group const& disjoint_group, GeometryOut& geometry_out,
+                                     Strategy const& strategy)
     {
         for (auto const& id : disjoint_group)
         {
@@ -520,40 +524,55 @@ private:
             {
                 traits::iter_visit<GC1View>::apply([&](auto const& g1)
                 {
-                    copy_one(g1, geometry_out);
+                    copy_one(g1, geometry_out, strategy);
                 }, boost::begin(gc1_view) + id.gc_id);
             }
             else
             {
                 traits::iter_visit<GC2View>::apply([&](auto const& g2)
                 {
-                    copy_one(g2, geometry_out);
+                    copy_one(g2, geometry_out, strategy);
                 }, boost::begin(gc2_view) + id.gc_id);
             }
         }
     }
 
-    template <typename G, std::enable_if_t<util::is_pointlike<G>::value, int> = 0>
-    static inline void copy_one(G const& g, GeometryOut& geometry_out)
+    template <typename G, typename Multi, typename Strategy>
+    static inline void copy_to_multi(G const& g, Multi& out, Strategy const& strategy, std::false_type)
+    {
+        // The strategy may borrow the source; do not stage it in a native copy.
+        typename boost::range_value<Multi>::type converted;
+        strategies::detail::convert_geometry(strategy, g, converted);
+        traits::push_back<Multi>::apply(out, std::move(converted));
+    }
+
+    template <typename G, typename Multi, typename Strategy>
+    static inline void copy_to_multi(G const& g, Multi& out, Strategy const& strategy, std::true_type)
+    {
+        strategies::detail::convert_geometry(strategy, g, out);
+    }
+
+    template <typename G, typename Strategy, std::enable_if_t<util::is_pointlike<G>::value, int> = 0>
+    static inline void copy_one(G const& g, GeometryOut& geometry_out, Strategy const& strategy)
     {
         multi_point_t p;
-        geometry::convert(g, p);
+        copy_to_multi(g, p, strategy, std::integral_constant<bool, util::is_multi<G>::value>());
         detail::intersection::gc_move_multi_back(geometry_out, p);
     }
 
-    template <typename G, std::enable_if_t<util::is_linear<G>::value, int> = 0>
-    static inline void copy_one(G const& g, GeometryOut& geometry_out)
+    template <typename G, typename Strategy, std::enable_if_t<util::is_linear<G>::value, int> = 0>
+    static inline void copy_one(G const& g, GeometryOut& geometry_out, Strategy const& strategy)
     {
         multi_linestring_t l;
-        geometry::convert(g, l);
+        copy_to_multi(g, l, strategy, std::integral_constant<bool, util::is_multi<G>::value>());
         detail::intersection::gc_move_multi_back(geometry_out, l);
     }
 
-    template <typename G, std::enable_if_t<util::is_areal<G>::value, int> = 0>
-    static inline void copy_one(G const& g, GeometryOut& geometry_out)
+    template <typename G, typename Strategy, std::enable_if_t<util::is_areal<G>::value, int> = 0>
+    static inline void copy_one(G const& g, GeometryOut& geometry_out, Strategy const& strategy)
     {
         multi_polygon_t a;
-        geometry::convert(g, a);
+        copy_to_multi(g, a, strategy, std::integral_constant<bool, util::is_multi<G>::value>());
         detail::intersection::gc_move_multi_back(geometry_out, a);
     }
     /*
@@ -663,10 +682,16 @@ struct union_
                              Collection & output_collection,
                              Strategy const& strategy)
     {
-        resolve_collection::union_
-            <
-                Geometry1, Geometry2, Collection
-            >::apply(geometry1, geometry2, output_collection, strategy);
+        strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
+        {
+            detail::overlay::with_working_output(output_collection, bound, [&](auto& working)
+            {
+                resolve_collection::union_<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
+                return true;
+            });
+        });
     }
 };
 

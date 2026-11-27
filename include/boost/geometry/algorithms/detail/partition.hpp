@@ -37,23 +37,22 @@ namespace boost { namespace geometry
 namespace detail { namespace partition
 {
 
-template <typename T, bool IsIntegral = std::is_integral<T>::value>
-struct divide_interval
+template <typename Box>
+struct divide_box_midpoint
 {
-    static inline T apply(T const& mi, T const& ma)
+    static coordinate_type_t<Box> apply(coordinate_type_t<Box> const& mi,
+                                        coordinate_type_t<Box> const& ma)
     {
-        static T const two = 2;
-        return (mi + ma) / two;
-    }
-};
-
-template <typename T>
-struct divide_interval<T, true>
-{
-    static inline T apply(T const& mi, T const& ma)
-    {
-        // Avoid overflow
-        return mi / 2 + ma / 2 + (mi % 2 + ma % 2) / 2;
+        if constexpr (std::is_integral<coordinate_type_t<Box>>::value)
+        {
+            // Avoid overflowing the sum of the two integral endpoints.
+            return mi / 2 + ma / 2 + (mi % 2 + ma % 2) / 2;
+        }
+        else
+        {
+            static coordinate_type_t<Box> const two = 2;
+            return (mi + ma) / two;
+        }
     }
 };
 
@@ -77,19 +76,12 @@ struct include_all_policy
 template <std::size_t Dimension, typename Box>
 inline void divide_box(Box const& box, Box& lower_box, Box& upper_box)
 {
-    using coor_t = coordinate_type_t<Box>;
-
-    // Divide input box into two halves
-    // either left/right (Dimension 0)
-    // or top/bottom (Dimension 1)
-    coor_t const mid
-        = divide_interval<coor_t>::apply(geometry::get<min_corner, Dimension>(box),
-                                         geometry::get<max_corner, Dimension>(box));
-
+    auto const midpoint = divide_box_midpoint<Box>::apply(
+        geometry::get<min_corner, Dimension>(box), geometry::get<max_corner, Dimension>(box));
     lower_box = box;
     upper_box = box;
-    geometry::set<max_corner, Dimension>(lower_box, mid);
-    geometry::set<min_corner, Dimension>(upper_box, mid);
+    geometry::set<max_corner, Dimension>(lower_box, midpoint);
+    geometry::set<min_corner, Dimension>(upper_box, midpoint);
 }
 
 // Divide forward_range into three subsets: lower, upper and oversized

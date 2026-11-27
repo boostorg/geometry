@@ -12,27 +12,21 @@
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
-#define BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
+#ifndef BOOST_GEOMETRY_STRATEGIES_DETAIL_DIRECTION_CODE_HPP
+#define BOOST_GEOMETRY_STRATEGIES_DETAIL_DIRECTION_CODE_HPP
 
-
+#include <algorithm>
 #include <type_traits>
 
-#include <boost/geometry/core/access.hpp>
-#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
-#include <boost/geometry/algorithms/detail/make/make.hpp>
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/cs.hpp>
+#include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/normalize_spheroidal_coordinates.hpp>
 
-
-namespace boost { namespace geometry
-{
-
-
-#ifndef DOXYGEN_NO_DETAIL
-namespace detail
+namespace boost { namespace geometry { namespace strategies { namespace detail
 {
 
 template <typename CSTag>
@@ -55,8 +49,6 @@ struct direction_code_impl<cartesian_tag>
                 PointSegmentA, PointSegmentB, Point2
             >::type;
 
-        using line_type = model::infinite_line<calc_t>;
-
         // Situation and construction of perpendicular line
         //
         //     P1     a--------------->b   P2
@@ -69,9 +61,7 @@ struct direction_code_impl<cartesian_tag>
         // P2 is to the left of the perpendicular line and returns 1.
         // If the specified point is located on top of b, it returns 0.
 
-        line_type const line
-            = detail::make::make_perpendicular_line<calc_t>(segment_a,
-                segment_b, segment_b);
+        auto const line = arithmetic::make_perpendicular_line<calc_t>(segment_a, segment_b, segment_b);
 
         if (arithmetic::is_degenerate(line))
         {
@@ -92,9 +82,9 @@ struct direction_code_impl<spherical_equatorial_tag>
                             Point2 const& p)
     {
         {
-            using units_sa_t =  typename cs_angular_units<PointSegmentA>::type;
-            using units_sb_t =  typename cs_angular_units<PointSegmentB>::type;
-            using units_p_t = typename cs_angular_units<Point2>::type;
+            using units_sa_t = typename geometry::detail::cs_angular_units<PointSegmentA>::type;
+            using units_sb_t = typename geometry::detail::cs_angular_units<PointSegmentB>::type;
+            using units_p_t = typename geometry::detail::cs_angular_units<Point2>::type;
             BOOST_GEOMETRY_STATIC_ASSERT(
                 (std::is_same<units_sa_t, units_sb_t>::value),
                 "Not implemented for different units.",
@@ -110,7 +100,7 @@ struct direction_code_impl<spherical_equatorial_tag>
         using coor_p_t = coordinate_type_t<Point2>;
 
         // Declare unit type (equal for all types) and calc type (coerced to most precise)
-        using units_t = typename cs_angular_units<Point2>::type;
+        using units_t = typename geometry::detail::cs_angular_units<Point2>::type;
         using calc_t = typename geometry::select_coordinate_type
             <
                 PointSegmentA, PointSegmentB, Point2
@@ -212,12 +202,12 @@ struct direction_code_impl<spherical_polar_tag>
         using constants_sa_t = math::detail::constants_on_spheroid
             <
                 coordinate_type_t<PointSegmentA>,
-                typename cs_angular_units<PointSegmentA>::type
+                typename geometry::detail::cs_angular_units<PointSegmentA>::type
             >;
         using constants_p_t = math::detail::constants_on_spheroid
             <
                 coordinate_type_t<Point2>,
-                typename cs_angular_units<Point2>::type
+                typename geometry::detail::cs_angular_units<Point2>::type
             >;
 
         geometry::set<1>(segment_a,
@@ -264,25 +254,43 @@ struct direction_code_impl<geographic_tag>
     : direction_code_impl<spherical_equatorial_tag>
 {};
 
-// Gives sense of direction for point p, collinear w.r.t. segment (a,b)
-// Returns -1 if p goes backward w.r.t (a,b), so goes from b in direction of a
-// Returns 1 if p goes forward, so extends (a,b)
-// Returns 0 if p is equal with b, or if (a,b) is degenerate
-// Note that it does not do any collinearity test, that should be done before
-// In some cases the "segment" consists of different source points, and therefore
-// their types might differ.
-template <typename CSTag, typename PointSegmentA, typename PointSegmentB, typename Point2>
-inline int direction_code(PointSegmentA const& segment_a, PointSegmentB const& segment_b,
-                          Point2 const& p)
+template <typename Strategy>
+inline decltype(auto) get_side_strategy(Strategy const& strategy)
 {
-    return direction_code_impl<CSTag>::apply(segment_a, segment_b, p);
+    auto const hook = [](auto const& s) -> decltype(s.side()) { return s.side(); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+        return hook(strategy);
+    else
+        return (strategy);
 }
 
+// Called only after collinearity is established: -1 is backward, 0 is
+// coincident with b or degenerate, and 1 is forward beyond b.
+template <typename PointA, typename PointB, typename Point, typename Strategy>
+inline int direction_code(PointA const& a, PointB const& b, Point const& p,
+                          Strategy const& strategy)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.direction_code(a, b, p))
+    { return s.direction_code(a, b, p); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        return hook(strategy);
+    }
+    else
+    {
+        auto const& side = get_side_strategy(strategy);
+        if constexpr (std::is_invocable_v<decltype(hook), decltype(side)>)
+        {
+            return hook(side);
+        }
+        else
+        {
+            using side_type = std::decay_t<decltype(side)>;
+            return direction_code_impl<typename side_type::cs_tag>::apply(a, b, p);
+        }
+    }
+}
 
-} // namespace detail
-#endif //DOXYGEN_NO_DETAIL
+}}}} // namespace boost::geometry::strategies::detail
 
-
-}} // namespace boost::geometry
-
-#endif // BOOST_GEOMETRY_ALGORITHMS_DETAIL_DIRECTION_CODE_HPP
+#endif // BOOST_GEOMETRY_STRATEGIES_DETAIL_DIRECTION_CODE_HPP

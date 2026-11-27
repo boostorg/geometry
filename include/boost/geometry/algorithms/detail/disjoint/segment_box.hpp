@@ -37,6 +37,7 @@
 #include <boost/geometry/formulas/vertex_longitude.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 // Temporary, for envelope_segment_impl
 #include <boost/geometry/strategy/spherical/envelope_segment.hpp>
@@ -149,7 +150,9 @@ struct disjoint_segment_box_sphere_or_spheroid
             std::swap(lat1, lat2);
         }
 
-        geometry::model::box<segment_point_type> box_seg;
+        using segment_box_type = typename strategies::relate::services::box_type
+            <DisjointBoxBoxStrategy, segment_point_type>::type;
+        segment_box_type box_seg;
 
         strategy::envelope::detail::envelope_segment_impl
             <

@@ -13,6 +13,7 @@
 
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 #include <boost/geometry/algorithms/detail/visit.hpp>
 #include <boost/geometry/algorithms/dispatch/is_valid.hpp>
@@ -25,6 +26,8 @@
 #include <boost/geometry/policies/is_valid/failure_type_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/relate3/services.hpp>
 #include <boost/geometry/strategies/relate3/cartesian.hpp>
@@ -47,7 +50,14 @@ struct is_valid
                              VisitPolicy& visitor,
                              Strategy const& strategy)
     {
-        return dispatch::is_valid<Geometry>::apply(geometry, visitor, strategy);
+        return strategies::detail::with_predicate_operands(strategy, geometry, geometry,
+            [&](auto const& input, auto const&, auto const& bound)
+        {
+            using bound_type = std::decay_t<decltype(bound)>;
+            typename strategies::relate::services::operation_scope<bound_type>::type scope;
+            (void) scope;
+            return dispatch::is_valid<util::remove_cref_t<decltype(input)>>::apply(input, visitor, bound);
+        });
     }
 
 };
@@ -77,16 +87,15 @@ struct is_valid<default_strategy, false>
                              VisitPolicy& visitor,
                              default_strategy)
     {
-        // NOTE: Currently the strategy is only used for Areal geometries
-        // Select strategy_type based on Geometry's dimension
-        using strategy_type = typename std::conditional_t
-            <
-                geometry::dimension<Geometry>::value == 3,
-                typename strategies::relate3::services::default_strategy<Geometry, Geometry>,
-                typename strategies::relate::services::default_strategy<Geometry, Geometry>
-            >::type;
-
-        return dispatch::is_valid<Geometry>::apply(geometry, visitor, strategy_type());
+        {
+            using strategy_type = typename std::conditional_t
+                <
+                    geometry::dimension<Geometry>::value == 3,
+                    typename strategies::relate3::services::default_strategy<Geometry, Geometry>,
+                    typename strategies::relate::services::default_strategy<Geometry, Geometry>
+                >::type;
+            return dispatch::is_valid<Geometry>::apply(geometry, visitor, strategy_type{});
+        }
     }
 };
 

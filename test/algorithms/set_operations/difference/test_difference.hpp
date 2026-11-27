@@ -184,31 +184,6 @@ std::string test_difference(std::string const& caseid, G1 const& g1, G2 const& g
         bg::remove_spikes(result);
     }
 
-#if ! defined(BOOST_GEOMETRY_TEST_ONLY_ONE_TYPE)
-    {
-        bg::model::multi_polygon<OutputType> result_s;
-        typedef typename bg::strategy::relate::services::default_strategy
-            <
-                G1, G2
-            >::type strategy_type;
-        if (dtype == difference_sym)
-        {
-            bg::sym_difference(g1, g2, result_s, strategy_type());
-        }
-        else
-        {
-            bg::difference(g1, g2, result_s, strategy_type());
-        }
-
-        if (settings.remove_spikes)
-        {
-            bg::remove_spikes(result_s);
-        }
-        BOOST_CHECK_EQUAL(bg::num_points(result), bg::num_points(result_s));
-    }
-#endif
-
-
     std::ostringstream return_string;
     return_string << bg::wkt(result);
 

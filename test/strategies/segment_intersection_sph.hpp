@@ -28,7 +28,7 @@
 
 #include <boost/geometry/policies/relate/intersection_policy.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
+#include <boost/geometry/views/detail/segment_as_subrange.hpp>
 
 template <typename T>
 bool equals_relaxed_val(T const& v1, T const& v2, T const& eps_scale)

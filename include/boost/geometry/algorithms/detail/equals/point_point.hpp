@@ -46,8 +46,8 @@ template
 inline bool equals_point_point(Point1 const& point1, Point2 const& point2,
                                Strategy const& strategy)
 {
-    typedef decltype(strategy.relate(point1, point2)) strategy_type;
-    return strategy_type::apply(point1, point2);
+    auto const equality = strategy.relate(point1, point2);
+    return equality.apply(point1, point2);
 }
 
 template
@@ -56,9 +56,9 @@ template
     std::enable_if_t<! strategies::detail::is_umbrella_strategy<Strategy>::value, int> = 0
 >
 inline bool equals_point_point(Point1 const& point1, Point2 const& point2,
-                               Strategy const& )
+                               Strategy const& strategy)
 {
-    return Strategy::apply(point1, point2);
+    return strategy.apply(point1, point2);
 }
 
 }} // namespace detail::equals

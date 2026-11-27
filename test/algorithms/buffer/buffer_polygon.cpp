@@ -651,7 +651,7 @@ void test_all()
         // It can be fixed by defining BOOST_GEOMETRY_CONCEPT_FIX_ARRIVAL
         // (but that causes some other regressions: rt_w27, rt_w29)
         test_one<polygon_type, polygon_type>("issue_1262_1", issue_1262, join_round4, end_round4, 8.9161, -1.0);
-#endif        
+#endif
         test_one<polygon_type, polygon_type>("issue_1262_2", issue_1262, join_round4, end_round4, 62.5276, -0.8);
         test_one<polygon_type, polygon_type>("issue_1262_3", issue_1262, join_round4, end_round4, 193.47288, -0.4);
     }

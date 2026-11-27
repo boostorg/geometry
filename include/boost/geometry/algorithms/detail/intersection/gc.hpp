@@ -169,9 +169,9 @@ private:
     {
         bool result = false;
 
-        using box1_t = detail::gc_make_rtree_box_t<G1>;
+        using box1_t = detail::gc_make_rtree_box_t<G1, Strategy>;
         box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
-        detail::expand_by_epsilon(b1);
+        strategies::detail::expand_search_envelope(b1, strategy);
 
         for (auto qit = rtree2.qbegin(index::intersects(b1)); qit != rtree2.qend(); ++qit)
         {

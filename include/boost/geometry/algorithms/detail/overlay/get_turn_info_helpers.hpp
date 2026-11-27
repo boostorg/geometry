@@ -14,7 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HELPERS_HPP
 
-#include <boost/geometry/algorithms/detail/direction_code.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
+
+#include <boost/geometry/strategies/detail/direction_code.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/policies/relate/intersection_policy.hpp>
@@ -98,7 +100,8 @@ class intersection_info_base
 {
 public:
 
-    using intersection_point_type = segment_intersection_points<TurnPoint>;
+    using intersection_point_type = typename strategies::relate::services::intersection_result_type
+        <UmbrellaStrategy, TurnPoint>::type;
     using intersection_policy_type = policies::relate::segments_intersection_policy
         <
             intersection_point_type
@@ -220,7 +223,8 @@ public:
                 {
                     // qk is collinear with both p1 and p2,
                     // verify if pk goes backwards w.r.t. pi/pj
-                    return direction_code<cs_tag>(base::rpi(), base::rpj(), base::rpk()) == -1;
+                    return strategies::detail::direction_code(base::rpi(), base::rpj(), base::rpk(),
+                                                            m_umbrella_strategy) == -1;
                 }
 
                 // qk is at opposite side of p1/p2, therefore
@@ -256,7 +260,8 @@ public:
             {
                 if (pk_q1 == 0)
                 {
-                    return direction_code<cs_tag>(base::rqi(), base::rqj(), base::rqk()) == -1;
+                    return strategies::detail::direction_code(base::rqi(), base::rqj(), base::rqk(),
+                                                            m_umbrella_strategy) == -1;
                 }
 
                 return true;

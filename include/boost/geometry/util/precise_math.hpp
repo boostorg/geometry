@@ -24,250 +24,22 @@
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/util/detail/expansion.hpp>
+#include <boost/geometry/util/detail/semi_static_error.hpp>
 
 // The following code is based on "Adaptive Precision Floating-Point Arithmetic
 // and Fast Robust Geometric Predicates" by Richard Shewchuk,
 // J. Discrete Comput Geom (1997) 18: 305. https://doi.org/10.1007/PL00009321
+
+#include <boost/geometry/util/detail/precise_fp.hpp>
+
+BOOST_GEOMETRY_DETAIL_PRECISE_FP_BEGIN
 
 namespace boost { namespace geometry
 {
 
 namespace detail { namespace precise_math
 {
-
-// See Theorem 6, page 6
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> fast_two_sum(RealNumber const a,
-                                              RealNumber const b)
-{
-    RealNumber x = a + b;
-    RealNumber b_virtual = x - a;
-    return {{x, b - b_virtual}};
-}
-
-// See Theorem 7, page 7 - 8
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_sum(RealNumber const a,
-                                         RealNumber const b)
-{
-    RealNumber x = a + b;
-    RealNumber b_virtual = x - a;
-    RealNumber a_virtual = x - b_virtual;
-    RealNumber b_roundoff = b - b_virtual;
-    RealNumber a_roundoff = a - a_virtual;
-    RealNumber y = a_roundoff + b_roundoff;
-    return {{ x,  y }};
-}
-
-// See bottom of page 8
-template
-<
-    typename RealNumber
->
-inline RealNumber two_diff_tail(RealNumber const a,
-                                RealNumber const b,
-                                RealNumber const x)
-{
-    RealNumber b_virtual = a - x;
-    RealNumber a_virtual = x + b_virtual;
-    RealNumber b_roundoff = b_virtual - b;
-    RealNumber a_roundoff = a - a_virtual;
-    return a_roundoff + b_roundoff;
-}
-
-// see bottom of page 8
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_diff(RealNumber const a,
-                                          RealNumber const b)
-{
-    RealNumber x = a - b;
-    RealNumber y = two_diff_tail(a, b, x);
-    return {{ x, y }};
-}
-
-// see theorem 18, page 19
-template
-<
-    typename RealNumber
->
-inline RealNumber two_product_tail(RealNumber const a,
-                                   RealNumber const b,
-                                   RealNumber const x)
-{
-    return std::fma(a, b, -x);
-}
-
-// see theorem 18, page 19
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 2> two_product(RealNumber const a,
-                                             RealNumber const b)
-{
-    RealNumber x = a * b;
-    RealNumber y = two_product_tail(a, b, x);
-    return {{ x , y }};
-}
-
-// see theorem 12, figure 7, page 11 - 12,
-// this is the 2 by 2 case for the corresponding diff-method
-// note that this method takes input in descending order of magnitude and
-// returns components in ascending order of magnitude
-template
-<
-    typename RealNumber
->
-inline std::array<RealNumber, 4> two_two_expansion_diff(
-        std::array<RealNumber, 2> const a,
-        std::array<RealNumber, 2> const b)
-{
-    std::array<RealNumber, 4> h;
-    std::array<RealNumber, 2> Qh = two_diff(a[1], b[1]);
-    h[0] = Qh[1];
-    Qh = two_sum( a[0], Qh[0] );
-    RealNumber _j = Qh[0];
-    Qh = two_diff(Qh[1], b[0]);
-    h[1] = Qh[1];
-    Qh = two_sum( _j, Qh[0] );
-    h[2] = Qh[1];
-    h[3] = Qh[0];
-    return h;
-}
-
-// see theorem 13, figure 8. This implementation uses zero elimination as
-// suggested on page 17, second to last paragraph. Returns the number of
-// non-zero components in the result and writes the result to h.
-// the merger into a single sequence g is done implicitly
-template
-<
-    typename RealNumber,
-    std::size_t InSize1,
-    std::size_t InSize2,
-    std::size_t OutSize
->
-inline int fast_expansion_sum_zeroelim(
-        std::array<RealNumber, InSize1> const& e,
-        std::array<RealNumber, InSize2> const& f,
-        std::array<RealNumber, OutSize> & h,
-        int m = InSize1,
-        int n = InSize2)
-{
-    std::array<RealNumber, 2> Qh;
-    int i_e = 0;
-    int i_f = 0;
-    int i_h = 0;
-    if (std::abs(f[0]) > std::abs(e[0]))
-    {
-        Qh[0] = e[i_e++];
-    }
-    else
-    {
-        Qh[0] = f[i_f++];
-    }
-    i_h = 0;
-    if ((i_e < m) && (i_f < n))
-    {
-        if (std::abs(f[i_f]) > std::abs(e[i_e]))
-        {
-            Qh = fast_two_sum(e[i_e++], Qh[0]);
-        }
-        else
-        {
-            Qh = fast_two_sum(f[i_f++], Qh[0]);
-        }
-        if (Qh[1] != 0.0)
-        {
-            h[i_h++] = Qh[1];
-        }
-        while ((i_e < m) && (i_f < n))
-        {
-            if (std::abs(f[i_f]) > std::abs(e[i_e]))
-            {
-                Qh = two_sum(Qh[0], e[i_e++]);
-            }
-            else
-            {
-                Qh = two_sum(Qh[0], f[i_f++]);
-            }
-            if (Qh[1] != 0.0)
-            {
-                h[i_h++] = Qh[1];
-            }
-        }
-    }
-    while (i_e < m)
-    {
-        Qh = two_sum(Qh[0], e[i_e++]);
-        if (Qh[1] != 0.0)
-        {
-            h[i_h++] = Qh[1];
-        }
-    }
-    while (i_f < n)
-    {
-        Qh = two_sum(Qh[0], f[i_f++]);
-        if (Qh[1] != 0.0)
-        {
-            h[i_h++] = Qh[1];
-        }
-    }
-    if ((Qh[0] != 0.0) || (i_h == 0))
-    {
-        h[i_h++] = Qh[0];
-    }
-    return i_h;
-}
-
-// see theorem 19, figure 13, page 20 - 21. This implementation uses zero
-// elimination as suggested on page 17, second to last paragraph. Returns the
-// number of non-zero components in the result and writes the result to h.
-template
-<
-    typename RealNumber,
-    std::size_t InSize
->
-inline int scale_expansion_zeroelim(
-        std::array<RealNumber, InSize> const& e,
-        RealNumber const b,
-        std::array<RealNumber, 2 * InSize> & h,
-        int e_non_zeros = InSize)
-{
-    std::array<RealNumber, 2> Qh = two_product(e[0], b);
-    int i_h = 0;
-    if (Qh[1] != 0)
-    {
-        h[i_h++] = Qh[1];
-    }
-    for (int i_e = 1; i_e < e_non_zeros; i_e++)
-    {
-        std::array<RealNumber, 2> Tt = two_product(e[i_e], b);
-        Qh = two_sum(Qh[0], Tt[1]);
-        if (Qh[1] != 0)
-        {
-            h[i_h++] = Qh[1];
-        }
-        Qh = fast_two_sum(Tt[0], Qh[0]);
-        if (Qh[1] != 0)
-        {
-            h[i_h++] = Qh[1];
-        }
-    }
-    if ((Qh[0] != 0.0) || (i_h == 0))
-    {
-        h[i_h++] = Qh[0];
-    }
-    return i_h;
-}
 
 template<typename RealNumber>
 struct vec2d
@@ -371,16 +143,23 @@ inline RealNumber orient2d(vec2d<RealNumber> const& p1,
                            EpsPolicy& eps_policy)
 {
     std::array<RealNumber, 2> t1, t2, t3, t4;
-    t1[0] = p1.x - p3.x;
-    t2[0] = p2.y - p3.y;
-    t3[0] = p1.y - p3.y;
-    t4[0] = p2.x - p3.x;
+    namespace filter = geometry::detail::semi_static_error;
+    auto const dx1 = filter::difference<0, 0>(p1.x, p3.x);
+    auto const dy2 = filter::difference<0, 0>(p2.y, p3.y);
+    auto const dy1 = filter::difference<0, 0>(p1.y, p3.y);
+    auto const dx2 = filter::difference<0, 0>(p2.x, p3.x);
+    t1[0] = dx1.head;
+    t2[0] = dy2.head;
+    t3[0] = dy1.head;
+    t4[0] = dx2.head;
 
     eps_policy = EpsPolicy(t1[0], t2[0], t3[0], t4[0]);
 
     std::array<RealNumber, 2> t5_01, t6_01;
-    t5_01[0] = t1[0] * t2[0];
-    t6_01[0] = t3[0] * t4[0];
+    auto const left = filter::product(dx1, dy2);
+    auto const right = filter::product(dy1, dx2);
+    t5_01[0] = left.head;
+    t6_01[0] = right.head;
     RealNumber det = t5_01[0] - t6_01[0];
 
     if (BOOST_GEOMETRY_CONDITION(Robustness == 0))
@@ -388,12 +167,8 @@ inline RealNumber orient2d(vec2d<RealNumber> const& p1,
         return det;
     }
 
-    RealNumber const magnitude = std::abs(t5_01[0]) + std::abs(t6_01[0]);
-
-    // see p.39, mind the different definition of epsilon for error bound
-    RealNumber const A_relative_bound =
-          (1.5 + 4 * std::numeric_limits<RealNumber>::epsilon())
-        * std::numeric_limits<RealNumber>::epsilon();
+    RealNumber const magnitude = left.magnitude + right.magnitude;
+    constexpr RealNumber A_relative_bound = filter::native_sign_coefficient(left, right);
     RealNumber absolute_bound = A_relative_bound * magnitude;
     if ( std::abs(det) >= absolute_bound )
     {
@@ -635,5 +410,7 @@ RealNumber incircle(std::array<RealNumber, 2> const& p1,
 }} // namespace detail::precise_math
 
 }} // namespace boost::geometry
+
+BOOST_GEOMETRY_DETAIL_PRECISE_FP_END
 
 #endif // BOOST_GEOMETRY_EXTENSIONS_TRIANGULATION_STRATEGIES_CARTESIAN_DETAIL_PRECISE_MATH_HPP

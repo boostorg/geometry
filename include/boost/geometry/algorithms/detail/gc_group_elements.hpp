@@ -73,9 +73,9 @@ inline void gc_group_elements(GC1View const& gc1_view, GC2View const& gc2_view, 
             traits::iter_visit<GC1View>::apply([&](auto const& g1)
             {
                 using g1_t = util::remove_cref_t<decltype(g1)>;
-                using box1_t = gc_make_rtree_box_t<g1_t>;
+                using box1_t = gc_make_rtree_box_t<g1_t, Strategy>;
                 box1_t b1 = geometry::return_envelope<box1_t>(g1, strategy);
-                detail::expand_by_epsilon(b1);
+                strategies::detail::expand_search_envelope(b1, strategy);
 
                 gc_element_id id1 = {0, i};
                 for (auto qit = rtree2.qbegin(index::intersects(b1)); qit != rtree2.qend(); ++qit)

@@ -25,8 +25,9 @@
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
+#include <boost/geometry/strategies/detail/section.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 
 
 namespace boost { namespace geometry
@@ -99,7 +100,10 @@ private :
 
         // TODO: we could also use piece-boundaries
         // to check if the point equals the last one
-        while (geometry::equals(*it, *result))
+        // Use the same point equality as the standard buffer traversal.
+        using equals_strategy = typename strategies::relate::services::default_strategy
+            <point_type, point_type>::type;
+        while (geometry::equals(*it, *result, equals_strategy{}))
         {
             circular_advance_one(result);
         }
@@ -158,7 +162,7 @@ class piece_turn_visitor
     {
         for(; it_begin != it_beyond
                 && it_begin + 1 != it_beyond
-                && detail::section::preceding<Dimension>(dir, *(it_begin + 1),
+                && strategies::detail::section_with_tolerance::preceding<Dimension>(dir, *(it_begin + 1),
                                                          this_bounding_box,
                                                          other_bounding_box);
             ++it_begin, index++)
@@ -174,7 +178,7 @@ class piece_turn_visitor
             && it_beyond - 1 != it_begin
             && it_beyond - 2 != it_begin)
         {
-            if (detail::section::exceeding<Dimension>(dir, *(it_beyond - 2),
+            if (strategies::detail::section_with_tolerance::preceding<Dimension>(-dir, *(it_beyond - 2),
                         this_bounding_box, other_bounding_box))
             {
                 --it_beyond;

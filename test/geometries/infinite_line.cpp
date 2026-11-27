@@ -13,7 +13,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/detail/make/make.hpp>
+#include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/geometries/infinite_line.hpp>
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/util/math.hpp>
@@ -43,32 +43,32 @@ void test_make()
     typedef bg::model::infinite_line<T> line_type;
 
     // Horizontal through origin
-    line_type line = bg::detail::make::make_infinite_line<T>(0, 0, 10, 0);
+    line_type line = bg::arithmetic::make_infinite_line<T>(0, 0, 10, 0);
     verify_point_on_line(line, 0, 0);
     verify_point_on_line(line, 10, 0);
 
     // Horizontal line above origin
-    line = bg::detail::make::make_infinite_line<T>(0, 5, 10, 5);
+    line = bg::arithmetic::make_infinite_line<T>(0, 5, 10, 5);
     verify_point_on_line(line, 0, 5);
     verify_point_on_line(line, 10, 5);
 
     // Vertical through origin
-    line = bg::detail::make::make_infinite_line<T>(0, 0, 0, 10);
+    line = bg::arithmetic::make_infinite_line<T>(0, 0, 0, 10);
     verify_point_on_line(line, 0, 0);
     verify_point_on_line(line, 0, 10);
 
     // Vertical line left from origin
-    line = bg::detail::make::make_infinite_line<T>(5, 0, 5, 10);
+    line = bg::arithmetic::make_infinite_line<T>(5, 0, 5, 10);
     verify_point_on_line(line, 5, 0);
     verify_point_on_line(line, 5, 10);
 
     // Diagonal through origin
-    line = bg::detail::make::make_infinite_line<T>(0, 0, 8, 10);
+    line = bg::arithmetic::make_infinite_line<T>(0, 0, 8, 10);
     verify_point_on_line(line, 0, 0);
     verify_point_on_line(line, 8, 10);
 
     // Diagonal not through origin
-    line = bg::detail::make::make_infinite_line<T>(5, 2, -8, 10);
+    line = bg::arithmetic::make_infinite_line<T>(5, 2, -8, 10);
     verify_point_on_line(line, 5, 2);
     verify_point_on_line(line, -8, 10);
 }

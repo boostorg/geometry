@@ -17,12 +17,12 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_ALGORITHMS_INTERSECTION_CONTENT_HPP
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
-#include <boost/geometry/algorithms/detail/intersection/box_box_implementation.hpp>
 
 #include <boost/geometry/index/detail/algorithms/content.hpp>
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/detail/box_intersection.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
 
@@ -49,16 +49,14 @@ inline typename default_content_result<Box>::type intersection_content(Box const
     bool const intersects = ! index::detail::disjoint_box_box(box1, box2, strategy);
 
     // NOTE: the code below may be inconsistent with the disjoint_box_box()
-    // however intersection_box_box checks if the boxes intersect on the fly so it should be ok
+    // however coordinate_box_intersection checks if the boxes intersect on the fly so it should be ok
     // but this also means that disjoint_box_box() is probably not needed
 
     if ( intersects )
     {
         Box box_intersection;
-        bool const ok = geometry::detail::intersection::intersection_box_box
-                            <
-                                0, geometry::dimension<Box>::value
-                            >::apply(box1, box2, box_intersection, 0);
+        bool const ok = geometry::strategies::detail::coordinate_box_intersection::apply
+            (box1, box2, box_intersection);
         if ( ok )
         {
             return index::detail::content(box_intersection);

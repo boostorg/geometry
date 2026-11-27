@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_SYM_DIFFERENCE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_SYM_DIFFERENCE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <iterator>
 
@@ -30,7 +32,6 @@
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
 
-
 namespace boost { namespace geometry
 {
 
@@ -38,6 +39,15 @@ namespace boost { namespace geometry
 namespace detail { namespace sym_difference
 {
 
+template <typename A, typename B, typename Strategy>
+auto independent_parts(A const& a, B const& b, Strategy const& s, int)
+    -> decltype(s.no_common_boundary_edge(a, b))
+{
+    return s.no_common_boundary_edge(a, b);
+}
+
+template <typename A, typename B, typename Strategy>
+bool independent_parts(A const&, B const&, Strategy const&, long) { return false; }
 
 template <typename GeometryOut>
 struct compute_difference
@@ -113,11 +123,22 @@ struct sym_difference_areal_areal
                                        OutputIterator out,
                                        Strategy const& strategy)
     {
+        return apply_with_contacts(areal1, areal2, out, strategy);
+    }
+
+    template <typename OutputIterator, typename Strategy>
+    static inline OutputIterator apply_with_contacts(Areal1 const& areal1,
+                                                      Areal2 const& areal2,
+                                                      OutputIterator out,
+                                                      Strategy const& strategy)
+    {
         typedef geometry::model::multi_polygon
             <
                 GeometryOut
             > helper_geometry_type;
 
+        // Exact dispatch supplies its working polygon here, so neither
+        // difference is rounded before the final union.
         helper_geometry_type diff12, diff21;
 
         std::back_insert_iterator<helper_geometry_type> oit12(diff12);
@@ -132,6 +153,16 @@ struct sym_difference_areal_areal
             <
                 GeometryOut
             >::apply(areal2, areal1, oit21, strategy);
+
+        // The two regularized differences have disjoint interiors. Their
+        // closures can meet only on the common input boundary. If it has
+        // no edge, their components already form a valid multipolygon.
+        if (independent_parts(areal1, areal2, strategy, 0))
+        {
+            for (auto& p : diff12) *out++ = std::move(p);
+            for (auto& p : diff21) *out++ = std::move(p);
+            return out;
+        }
 
         return geometry::dispatch::union_insert
             <
@@ -624,10 +655,16 @@ struct sym_difference
                              Collection & output_collection,
                              Strategy const& strategy)
     {
-        resolve_collection::sym_difference
-            <
-                Geometry1, Geometry2, Collection
-            >::apply(geometry1, geometry2, output_collection, strategy);
+        strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
+        {
+            detail::overlay::with_working_output(output_collection, bound, [&](auto& working)
+            {
+                resolve_collection::sym_difference<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
+                return true;
+            });
+        });
     }
 };
 
