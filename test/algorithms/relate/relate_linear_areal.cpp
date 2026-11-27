@@ -469,7 +469,7 @@ void test_multi_linestring_polygon()
         poly g2;
         bg::read_wkt(wkt2, g2);
 
-        check_geometry(g1, g2, wkt1, wkt2, "*********");
+        check_geometry(g1, g2, wkt1, wkt2, "*********", "", bg::strategies::relate::cartesian<>{});
     }
 }
 

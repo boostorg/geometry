@@ -31,6 +31,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/detail/operation_binding.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -195,17 +196,8 @@ struct crosses<default_strategy, false>
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        //typedef typename strategies::crosses::services::default_strategy
-        typedef typename strategies::relate::services::default_strategy
-            <
-                Geometry1,
-                Geometry2
-            >::type strategy_type;
-
-        return crosses
-            <
-                strategy_type
-            >::apply(geometry1, geometry2, strategy_type());
+        namespace exact = detail::cartesian_exact_default;
+        return exact::apply_named_predicate<exact::predicate::crosses, crosses>(geometry1, geometry2);
     }
 };
 

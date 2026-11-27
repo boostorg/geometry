@@ -60,7 +60,7 @@ void test_multipoint_multipoint()
         std::string wkt;
         nan_case(g, wkt);
 
-        check_geometry(g, g, wkt, wkt, "*********");
+        check_geometry(g, g, wkt, wkt, "*********", "", bg::strategies::relate::cartesian<>{});
     }
 }
 
@@ -114,8 +114,9 @@ void test_point_multilinestring()
         std::string wkt2;
         nan_case(g2, wkt2);
 
-        check_geometry(g0, g2, wkt0, wkt2, "*********");
-        check_geometry(g1, g2, wkt1, wkt2, "*********");
+        bg::strategies::relate::cartesian<> const strategy;
+        check_geometry(g0, g2, wkt0, wkt2, "*********", "", strategy);
+        check_geometry(g1, g2, wkt1, wkt2, "*********", "", strategy);
     }
 }
 

@@ -122,7 +122,8 @@ inline void check(std::string const& wkt1,
             // Commented out becasue the output in reversed case may be slightly different
             //   e.g. different number of duplicated points in MultiPoint
             //boost::size(g) == boost::size(expect) &&
-            bg::equals(g, expect),
+            // The WKT gives decimal approximations of constructed coordinates.
+            bg::equals(g, expect, bg::strategies::relate::cartesian<>{}),
             wkt1 << " x " << wkt2 << " -> " << bg::wkt(g)
                  << " different than expected: " << expected
         );

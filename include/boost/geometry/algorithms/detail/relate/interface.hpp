@@ -26,6 +26,7 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/strategies/relate/intersection_types.hpp>
@@ -217,6 +218,15 @@ struct relate<default_strategy, false>
                              ResultHandler & handler,
                              default_strategy)
     {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+        namespace exact = detail::cartesian_exact_default;
+        if constexpr (exact::admits_relation<Geometry1, Geometry2>)
+        {
+            using strategy_type = exact::strategy<Geometry1, Geometry2>;
+            relate<strategy_type>::apply(geometry1, geometry2, handler, strategy_type());
+        }
+        else
+#endif
         {
             using strategy_type = typename strategies::relate::services::default_strategy
                 <Geometry1, Geometry2>::type;
