@@ -14,6 +14,7 @@
 #include <boost/geometry/strategies/cartesian/exact/areal_equality.hpp>
 #include <boost/geometry/strategies/cartesian/exact/box_clipping.hpp>
 #include <boost/geometry/strategies/cartesian/detail/segment_extents.hpp>
+#include <boost/geometry/strategies/cartesian/exact/filtered_rational.hpp>
 #include <boost/geometry/strategies/cartesian/exact/relate_primitives.hpp>
 #include <boost/geometry/strategies/cartesian/exact/segment_position.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
@@ -50,7 +51,8 @@ namespace boost { namespace geometry { namespace strategies { namespace relate
       representable steps of nearest, ties to even. Root-bound constructions
       omit both error fields and use predicate filters specialized on N.
       Uncertified axes, non-double Coordinate types, and float output use
-      nearest rounding for floating constructions.
+      nearest rounding for floating constructions. Rational inputs use the
+      filtered rational kernel and retain exact coordinates until export.
       Integral output uses BG numeric_cast conversion, which truncates floating
       values toward zero, not the displacement rounding of native integer segment
       construction. No policy guarantees validity after output conversion;
@@ -236,14 +238,17 @@ decltype(auto) cartesian_exact<Coordinate, OutputPolicy>::with_operands(
     A const& a, B const& b, Apply&& apply) const
 {
     namespace exact = strategies::detail::exact_cartesian;
-    static_assert(exact::source_geometry_detail::native_sources<A, B>::value,
-                  "Exact Cartesian inputs must use native coordinates");
-    exact::check_coordinate_type<Coordinate, A>();
-    exact::check_coordinate_type<Coordinate, B>();
-    using root = exact::operation_types<Coordinate, OutputPolicy, A, B>;
-    exact::geometry_context<root> context;
-    exact::bound_strategy<root> bound(context);
-    return std::forward<Apply>(apply)(a, b, bound);
+    if constexpr (exact::source_geometry_detail::native_sources<A, B>::value)
+    {
+        exact::check_coordinate_type<Coordinate, A>();
+        exact::check_coordinate_type<Coordinate, B>();
+        using root = exact::operation_types<Coordinate, OutputPolicy, A, B>;
+        exact::geometry_context<root> context;
+        exact::bound_strategy<root> bound(context);
+        return std::forward<Apply>(apply)(a, b, bound);
+    }
+    else return exact::lazy_decimal_detail::apply<std::is_same<OutputPolicy, approximate_output>::value>(
+        a, b, std::forward<Apply>(apply));
 }
 }}}}
 

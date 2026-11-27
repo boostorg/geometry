@@ -37,7 +37,7 @@ foreach(item IN ITEMS
   boost_geometry_add_unit_test("strategies" ${item})
 endforeach()
 
-foreach(item IN ITEMS simple_cartesian cartesian_construction cartesian_default)
+foreach(item IN ITEMS simple_cartesian cartesian_construction cartesian_default lazy_decimal_public)
   boost_geometry_add_unit_test("strategies" ${item})
   target_compile_features(${BOOST_GEOMETRY_UNIT_TEST_NAME} PRIVATE cxx_std_17)
   if(MSVC)

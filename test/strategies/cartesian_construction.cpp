@@ -37,6 +37,65 @@ bool within_four_steps(double x, double nearest)
     return lower <= x && x <= upper;
 }
 
+void rational_and_mixed_inputs()
+{
+    using q = boost::multiprecision::cpp_rational;
+    using qpoint = bg::model::d2::point_xy<q>;
+    using qpolygon = bg::model::polygon<qpoint>;
+    using qmulti = bg::model::multi_polygon<qpolygon>;
+    sr::cartesian_exact<double, sr::nearest_output> const strategy;
+    q const third(1, 3);
+    bg::model::segment<qpoint> const a{{third, 0}, {third, 1}};
+    bg::model::segment<qpoint> const b{{0, 2 * third}, {1, 2 * third}};
+    bg::model::segment<point> const c{{0, 0.1}, {1, 0.1}};
+    bg::model::multi_point<qpoint> hits;
+    BOOST_TEST(bg::intersection(a, b, hits, strategy));
+    BOOST_TEST_EQ(hits.size(), 1u);
+    if (hits.size() == 1)
+    {
+        BOOST_TEST_EQ(hits.front().x(), third);
+        BOOST_TEST_EQ(hits.front().y(), q(2, 3));
+    }
+    hits.clear();
+    BOOST_TEST(bg::intersection(a, c, hits, strategy));
+    BOOST_TEST_EQ(hits.size(), 1u);
+    if (hits.size() == 1)
+    {
+        BOOST_TEST_EQ(hits.front().x(), third);
+        BOOST_TEST_EQ(hits.front().y(), q(0.1));
+    }
+
+    qpolygon left;
+    bg::model::polygon<point> right;
+    bg::read_wkt("POLYGON((1/3 0,1/3 1,4/3 1,4/3 0,1/3 0))", left);
+    bg::read_wkt("POLYGON((0.5 0,0.5 1,2 1,2 0,0.5 0))", right);
+    BOOST_TEST_EQ(bg::relation(left, right, strategy).str(), "212111212");
+    qmulti out;
+    BOOST_TEST(bg::intersection(left, right, out, strategy));
+    BOOST_TEST_EQ(bg::area(out), q(5, 6));
+    out.clear();
+    bg::union_(left, right, out, strategy);
+    BOOST_TEST_EQ(bg::area(out), q(5, 3));
+    out.clear();
+    bg::difference(left, right, out, strategy);
+    BOOST_TEST_EQ(bg::area(out), q(1, 6));
+    out.clear();
+    bg::sym_difference(left, right, out, strategy);
+    BOOST_TEST_EQ(bg::area(out), q(5, 6));
+
+    bg::model::box<qpoint> bounds;
+    bg::envelope(left, bounds, strategy);
+    BOOST_TEST_EQ((bg::get<bg::min_corner, 0>(bounds)), third);
+    BOOST_TEST_EQ((bg::get<bg::max_corner, 0>(bounds)), q(4, 3));
+    bg::model::box<point> disjoint_box{{0.5, 2}, {2, 3}};
+    bg::model::box<qpoint> clipped{{0, -2}, {0, -1}};
+    BOOST_TEST(!bg::intersection(bounds, disjoint_box, clipped, strategy));
+    BOOST_TEST_EQ((bg::get<bg::min_corner, 0>(clipped)), q(1, 2));
+    BOOST_TEST_EQ((bg::get<bg::max_corner, 0>(clipped)), q(4, 3));
+    BOOST_TEST_EQ((bg::get<bg::min_corner, 1>(clipped)), q(-2));
+    BOOST_TEST_EQ((bg::get<bg::max_corner, 1>(clipped)), q(-1));
+}
+
 void squared_distance_order()
 {
     point const origin(0, 0), a(1, 0), b(1, 0x1p-40);
@@ -180,6 +239,7 @@ int main()
     line const horizontal{{0,1}, {2,1}};
     BOOST_TEST_EQ(crossing(line{{1,0}, {odd,2}}, horizontal, sr::nearest_output{}).x(), 1.0);
     BOOST_TEST_EQ(crossing(line{{odd,0}, {even,2}}, horizontal, sr::nearest_output{}).x(), even);
+    rational_and_mixed_inputs();
     squared_distance_order();
     conservative_box_operations();
     return boost::report_errors();

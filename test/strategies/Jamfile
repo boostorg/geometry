@@ -46,6 +46,7 @@ test-suite boost-geometry-strategies
     [ run simple_cartesian.cpp               : : : $(cartesian-requirements) : strategies_simple_cartesian ]
     [ run cartesian_construction.cpp         : : : $(cartesian-requirements) : strategies_cartesian_construction ]
     [ run cartesian_default.cpp              : : : $(cartesian-requirements) : strategies_cartesian_default ]
+    [ run lazy_decimal_public.cpp            : : : $(cartesian-requirements) : strategies_lazy_decimal_public ]
     [ run spherical_side.cpp                 : : : : strategies_spherical_side ]
     [ run side_rounded_input.cpp             : : : : strategies_side_rounded_input ]
     [ run thomas.cpp                         : : : : strategies_thomas ]
