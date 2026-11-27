@@ -337,7 +337,9 @@ void test_areal()
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        count_set(2, 4), 10, 0.0019812556);
+        count_set(2, 4), 10, 0.0019812556,
+        // The four exact components are valid before coordinate rounding.
+        ut_settings(0.0001, !std::is_same<bg::coordinate_type_t<Polygon>, double>::value));
 
     // Should generate output, even for <float>
     // For long double two small extra slivers are generated

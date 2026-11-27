@@ -28,6 +28,7 @@ struct difference_case
     std::size_t count_ba;
 };
 
+// Use the tolerance-based Cartesian strategy to exercise its turn clustering.
 // Each case has one triangle and two point-touching triangles. Roundoff makes
 // the whole-segment i/u classification disagree with the clustered counts.
 // The missing components still left valid output, so validity alone is not enough.
@@ -95,7 +96,7 @@ void check_difference(MultiPolygon const& a, MultiPolygon const& b,
     double area, std::size_t count, std::string const& name)
 {
     MultiPolygon result;
-    bg::difference(a, b, result);
+    bg::difference(a, b, result, bg::strategies::relate::cartesian<>{});
     BOOST_CHECK_MESSAGE(std::abs(bg::area(result) - area) < 1.0e-12 * (std::max)(1.0, std::abs(area)),
         name << ": area " << bg::area(result));
     BOOST_CHECK_MESSAGE(result.size() == count,
@@ -146,7 +147,7 @@ void test_all()
         auto const& left = reverse ? displaced_b : displaced_a;
         auto const& right = reverse ? displaced_a : displaced_b;
         multi_polygon result;
-        bg::difference(left, right, result);
+        bg::difference(left, right, result, bg::strategies::relate::cartesian<>{});
         // The counterclockwise b-a direction already has a separate validity
         // defect. The introduced crossing was a-b in all four models.
         if (!reverse || Clockwise)
@@ -194,7 +195,7 @@ void test_all()
             if (std::string(test.name) == "gridtri_71_min")
             {
                 multi_polygon result;
-                bg::difference(b, a, result);
+                bg::difference(b, a, result, bg::strategies::relate::cartesian<>{});
                 point const witness(2.55, 3.37);
                 BOOST_CHECK(bg::within(witness, b));
                 BOOST_CHECK(!bg::within(witness, a));
@@ -204,7 +205,7 @@ void test_all()
                 || std::string(test.name) == "clustered_endpoint_detour_scaled")
             {
                 multi_polygon result;
-                bg::difference(a, b, result);
+                bg::difference(a, b, result, bg::strategies::relate::cartesian<>{});
                 point const witness = std::string(test.name) == "clustered_endpoint_detour"
                     ? point(3.7, .55) : point(-2400, -3500);
                 BOOST_CHECK(bg::within(witness, a));

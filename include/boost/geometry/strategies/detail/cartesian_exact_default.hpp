@@ -38,6 +38,7 @@ namespace boost { namespace geometry { namespace detail { namespace cartesian_ex
 
 namespace kernel = strategies::detail::exact_cartesian;
 
+enum class operation { intersection, difference, union_, sym_difference };
 // Ordinary point, line and areal families are ordered by topological dimension.
 enum class family { unsupported, point, line, area, segment, box };
 
@@ -83,7 +84,7 @@ template <typename A, typename B>
 using coordinate = std::conditional_t<lossless<A, B, common<A, B>>, common<A, B>, double>;
 
 template <typename A, typename B>
-using strategy = strategies::relate::cartesian_exact<coordinate<A, B>>;
+using strategy = strategies::relate::cartesian_exact<coordinate<A, B>, strategies::relate::bounded_ulp_output<4>>;
 
 template <typename A, typename B>
 constexpr bool native_pair()
@@ -98,6 +99,51 @@ constexpr bool native_pair()
 template <typename A, typename B>
 constexpr bool admits_relation = native_pair<A, B>()
     && kind<A>() <= family::area && kind<B>() <= family::area;
+
+// A regular output collection emits one point, line, ring or polygon at a
+// time. Do not ask boost::range_value for the element of a tuple or a box.
+template <typename Out, typename = void> struct element { using type = void; };
+template <typename Out>
+struct element<Out, std::void_t<typename boost::range_iterator<Out>::type>>
+{
+    using type = typename boost::range_value<Out>::type;
+};
+
+template <operation Op, typename A, typename B, typename Out>
+constexpr bool admits_output()
+{
+    constexpr auto a = kind<A>(), b = kind<B>();
+    using tag = tag_t<Out>;
+    if constexpr (!native_pair<A, B>() || std::is_const_v<Out> || tuples::is_tuple<Out>::value) return false;
+    else if constexpr (std::is_same_v<tag, box_tag>)
+        return Op == operation::intersection && a == family::box && b == family::box && native<Out>::value;
+    else if constexpr (!(std::is_void_v<tag> || std::is_same_v<tag, multi_point_tag>
+                         || std::is_same_v<tag, multi_linestring_tag> || std::is_same_v<tag, multi_polygon_tag>))
+        return false;
+    else
+    {
+        using out = typename element<Out>::type;
+        using ot = tag_t<out>;
+        constexpr auto o = kind<out>();
+        if constexpr (!native<out>::value || !(std::is_same_v<ot, point_tag> || std::is_same_v<ot, linestring_tag>
+                                             || std::is_same_v<ot, polygon_tag> || std::is_same_v<ot, ring_tag>))
+            return false;
+        else if constexpr (a == family::box || b == family::box)
+        {
+            constexpr auto other = a == family::box ? b : a;
+            return Op == operation::intersection && o == family::line
+                && (other == family::line || other == family::segment);
+        }
+        else if constexpr (a == family::segment || b == family::segment)
+            return Op == operation::intersection && a == b && o == family::point;
+        else if constexpr (Op == operation::intersection)
+            return o == (a < b ? a : b) || o == family::point;
+        else if constexpr (Op == operation::difference)
+            return a <= b && o == a;
+        else
+            return a == b && o == a;
+    }
+}
 
 }}}} // namespace boost::geometry::detail::cartesian_exact_default
 

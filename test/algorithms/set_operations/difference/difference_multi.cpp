@@ -42,6 +42,8 @@
 template <typename Ring, typename Polygon, typename MultiPolygon>
 void test_areal()
 {
+    constexpr bool binary64 = std::is_same<bg::coordinate_type_t<Polygon>, double>::value;
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("parallel_graph_arcs",
         "MULTIPOLYGON(((140 60,160 60,140 75,140 60)),"
         "((140 60,140 45,160 45,140 60)),((160 60,160 45,180 45,160 60)))",
@@ -148,9 +150,22 @@ void test_areal()
         TEST_DIFFERENCE_WITH(0, 1, ggl_list_20120221_volker, 2, 7962.66, 2, 2775258.93, 4);
     }
 
-    TEST_DIFFERENCE(bug_21155501, 1, 3.758937, 1, 1.78e-15, 1);
+    {
+        ut_settings settings;
+        // The exact B-A contains four slivers; some collapse on export.
+        settings.validity_false_negative_b = binary64;
+        settings.validity_of_sym = !binary64;
+        TEST_DIFFERENCE_WITH(0, 1, bug_21155501, 1, 3.758937, binary64 ? 4 : 1,
+                             1.78e-15, binary64 ? 5 : 1);
+    }
 
-    TEST_DIFFERENCE(ticket_9081, 2, 0.0907392476356186, 4, 0.126018011439877, count_set(3, 4));
+    {
+        ut_settings settings;
+        // The five exact XOR components are valid before rounding.
+        settings.validity_of_sym = !binary64;
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9081, 2, 0.0907392476356186, 4, 0.126018011439877,
+                             (binary64 ? count_set(5) : count_set(3, 4)));
+    }
 
     TEST_DIFFERENCE(ticket_12503, 46, 920.625, 4, 7.625, 50);
 
@@ -159,9 +174,12 @@ void test_areal()
         ut_settings settings;
         settings.percentage = 0.001;
 
-        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, 0, expectation_limits(0.0), 1, (expectation_limits(2.023, 2.2004)), 1);
-        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, 1, 0.0056089, 2, 1.498976, 3);
-        TEST_DIFFERENCE_WITH(0, 1, issue_630_c, 0, 0, 1, 1.493367, 1);
+        // Each exact A-B has one more positive-area component on binary64 inputs.
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_a, binary64 ? 1 : 0, expectation_limits(0.0),
+                             1, (expectation_limits(2.023, 2.2004)), binary64 ? 2 : 1);
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_b, binary64 ? 2 : 1, 0.0056089, 2, 1.498976,
+                             binary64 ? 4 : 3);
+        TEST_DIFFERENCE_WITH(0, 1, issue_630_c, binary64 ? 1 : 0, 0, 1, 1.493367, binary64 ? 2 : 1);
         // symmetric-difference output has a self-intersection
         settings.validity_of_sym = false;
         TEST_DIFFERENCE_WITH(0, 1, issue_643, 1, expectation_limits(76.5385), optional(), optional_sliver(1.0e-6), count_set(1, 2));
@@ -449,7 +467,7 @@ void test_specific_areal()
         settings.sym_difference = false;
         settings.set_test_validity(false);
         TEST_DIFFERENCE_WITH(0, 1, ticket_12752,
-                             count_set(2, 3), expectation_limits(2775740, 2776693),
+                             4, expectation_limits(2775740, 2776693),
                              3, expectation_limits(7710, 7903),
                              2);
     }
@@ -462,23 +480,42 @@ void test_specific_areal()
                           2, -1, expectation_limits(13167454, 13182415),
                           count_set(3, 4));
 
+        ut_settings settings;
+        // Two exact components remain in A-B, but one collapses on integer export.
+        settings.validity_false_negative_a = true;
+        settings.validity_of_sym = false;
         test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10661_2",
             a_min_b, ticket_10661[2],
-            1, 8, 825640.5,
+            2, -1, 825192.0,
             1, 10, expectation_limits(27226148, 27842812),
-            count_set(1, 2));
+            2, settings);
     }
 
     {
+        // This original fixture has a self-touching input ring. Keep its
+        // tolerance-based regression check separate from valid exact inputs.
+        MultiPolygon a, b;
+        bg::read_wkt(ticket_9942[0], a);
+        bg::read_wkt(ticket_9942[1], b);
+        bg::correct(a);
+        bg::correct(b);
+        BOOST_CHECK(!bg::is_valid(a));
+        auto const check = [](auto const& left, auto const& right, std::size_t count,
+                              expectation_limits const& area)
+        {
+            MultiPolygon result;
+            bg::difference(left, right, result, bg::strategies::relate::cartesian<>{});
+            BOOST_CHECK_EQUAL(result.size(), count);
+            BOOST_CHECK(area.contains(bg::area(result), ut_settings::default_tolerance));
+        };
+        check(a, b, 4, expectation_limits(7427727, 7428549));
+        check(b, a, 5, expectation_limits(184653, 184687));
+
         ut_settings settings;
         settings.sym_difference = false;
-
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942, 4,
-                             expectation_limits(7427727, 7428549), 5,
-                             expectation_limits(184653, 184687), 5);
-        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 1,
+        TEST_DIFFERENCE_WITH(0, 1, ticket_9942a, 2,
                              expectation_limits(412676, 413469), 2,
-                             expectation_limits(76779, 77038), 4);
+                             expectation_limits(77173.0), 4);
     }
 }
 

@@ -42,8 +42,9 @@ void issue_1103()
     bg::model::multi_polygon<polygon_t> result;
     bg::union_(poly1, poly2, result);
 
-    // Verify result. Before commit b1bebca the result was empty.
-    BOOST_CHECK_EQUAL(1, static_cast<int>(boost::size(result)));
+    // The exact double result preserves the positive gap of one epsilon.
+    // Long double still uses the tolerance-based default.
+    BOOST_CHECK_EQUAL((std::is_same<T, double>::value ? 2 : 1), boost::size(result));
     BOOST_CHECK_CLOSE(2.0, bg::area(result), 0.0001);
 }
 

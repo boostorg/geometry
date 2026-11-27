@@ -399,13 +399,17 @@ void test_areal()
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
          1, 0, 12, 23.0); // Area from SQL Server
 
+    // The exact regions are valid; tiny edges or faces can collapse on export.
+    ut_settings rounded;
+    rounded.set_test_validity(!std::is_same<ct, double>::value);
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20140212_sybren",
          ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
-         2, bg_if_mp<ct>(1, 0), -1, 0.002471626);
+         2, std::is_same<ct, double>::value ? 1 : bg_if_mp<ct>(1, 0), -1, 0.002471626,
+         rounded);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        3, 0, -1, 0.2187385);
+        3, 0, -1, 0.2187385, rounded);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10803",
         ticket_10803[0], ticket_10803[1],

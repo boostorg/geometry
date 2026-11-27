@@ -8,6 +8,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/geometry.hpp>
+#include <boost/geometry/strategies/relate/cartesian_exact.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
@@ -256,6 +258,33 @@ void test_all(std::string const& name, std::string const& wkt1, std::string cons
     test<double>(name, wkt1, wkt2, settings);
 }
 
+void test_issue_1231_exact()
+{
+    using polygon = bgeo::model::polygon<bgeo::model::d2::point_xy<double>>;
+    using rational = boost::multiprecision::cpp_rational;
+    using exact_polygon = bgeo::model::polygon<bgeo::model::d2::point_xy<rational>>;
+    using exact_multi = bgeo::model::multi_polygon<exact_polygon>;
+    using bgeo::strategies::relate::bounded_ulp_output;
+    using bgeo::strategies::relate::cartesian_exact;
+
+    polygon a, b;
+    bgeo::read_wkt(issue_1231[0], a);
+    bgeo::read_wkt(issue_1231[1], b);
+    bgeo::correct(a);
+    bgeo::correct(b);
+
+    exact_multi intersection, symmetric_difference;
+    cartesian_exact<double, bounded_ulp_output<4>> const strategy;
+    bgeo::intersection(a, b, intersection, strategy);
+    bgeo::sym_difference(a, b, symmetric_difference, strategy);
+
+    BOOST_REQUIRE_EQUAL(intersection.size(), 1u);
+    BOOST_CHECK_EQUAL(bgeo::interior_rings(intersection.front()).size(), 1u);
+    BOOST_CHECK_EQUAL(symmetric_difference.size(), 5u);
+    BOOST_CHECK(bgeo::is_valid(intersection));
+    BOOST_CHECK(bgeo::is_valid(symmetric_difference));
+}
+
 #define TEST_CASE(caseid) (test_all(#caseid, caseid[0], caseid[1]))
 #define TEST_CASE_WITH(caseid, index1, index2, settings) (test_all(#caseid "_" #index1 "_" #index2, caseid[index1], caseid[index2], settings))
 
@@ -284,10 +313,14 @@ int test_main(int, char* [])
 
     TEST_CASE(issue_1222);
     TEST_CASE_WITH(issue_1226, 0, 1, ut_settings().ignore_validity_diff());
-    TEST_CASE(issue_1231);
+    // The hole touches the exact shell at (5, 5). Rounding the shell's
+    // intersections can move the shell off that point.
+    TEST_CASE_WITH(issue_1231, 0, 1,
+        ut_settings().ignore_validity_intersection().ignore_validity_diff_sym());
+    test_issue_1231_exact();
     TEST_CASE_WITH(issue_1241, 0, 1, ut_settings().ignore_diff());
     TEST_CASE(issue_1244);
-    TEST_CASE_WITH(issue_1288, 0, 1, ut_settings().ignore_validity_diff());
+    TEST_CASE_WITH(issue_1288, 0, 1, ut_settings());
     TEST_CASE_WITH(issue_1288, 0, 2, ut_settings());
     TEST_CASE(issue_1293);
     TEST_CASE(issue_1295);
@@ -339,7 +372,14 @@ int test_main(int, char* [])
 
     TEST_CASE(issue_1471);
     TEST_CASE(issue_1487);
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    // The tolerant validator can flag a spike depending on ring start.
+    test_all("clustered_near_collinear_exit",
+             clustered_near_collinear_exit[0], clustered_near_collinear_exit[1],
+             ut_settings().ignore_validity_diff_sym());
+#else
     TEST_CASE(clustered_near_collinear_exit);
+#endif
 
     return 0;
 }

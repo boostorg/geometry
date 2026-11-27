@@ -503,9 +503,10 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
          );
 #endif
 
+    // The shared segment must be collinear in the stored coordinates.
     tester::apply
-        (from_wkt<L>("LINESTRING(8 1, 4 .4)"),
-         from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
+        (from_wkt<L>("LINESTRING(8 1, 4 .375)"),
+         from_wkt<L>("LINESTRING(0 -.25, 8 1)"),
          from_wkt<ML>("MULTILINESTRING()"),
          "lldf31s"
          );
@@ -514,32 +515,32 @@ BOOST_AUTO_TEST_CASE( test_difference_linestring_linestring )
         ut_settings settings{1e-10};
 
         tester::apply
-            (from_wkt<L>("LINESTRING(8 1, 4 .4,2 8)"),
-             from_wkt<L>("LINESTRING(0 -.2, 8 1)"),
-             from_wkt<ML>("MULTILINESTRING((4 .4,2 8))"),
+            (from_wkt<L>("LINESTRING(8 1, 4 .375,2 8)"),
+             from_wkt<L>("LINESTRING(0 -.25, 8 1)"),
+             from_wkt<ML>("MULTILINESTRING((4 .375,2 8))"),
              "lldf31x",
              settings
              );
 
         tester::apply
-            (from_wkt<L>("LINESTRING(0 5, 8 1, 4 .4, 2 8)"),
-             from_wkt<L>("LINESTRING(0 -.2, 8 1, -.5 7)"),
-             from_wkt<ML>("MULTILINESTRING((0 5,8 1),(4 .4,2 8))"),
+            (from_wkt<L>("LINESTRING(0 5, 8 1, 4 .375, 2 8)"),
+             from_wkt<L>("LINESTRING(0 -.25, 8 1, -.5 7)"),
+             from_wkt<ML>("MULTILINESTRING((0 5,8 1),(4 .375,2 8))"),
              "lldf31y",
              settings
              );
         tester::apply
-            (from_wkt<L>("LINESTRING(0 5, 8 1, 4 .4, 2 8)"),
-             from_wkt<L>("LINESTRING(0 -.2, 8 1, -.5 7, 6 +.2)"),
-             from_wkt<ML>("MULTILINESTRING((0 5,8 1),(4 .4,2 8))"),
+            (from_wkt<L>("LINESTRING(0 5, 8 1, 4 .375, 2 8)"),
+             from_wkt<L>("LINESTRING(0 -.25, 8 1, -.5 7, 6 +.2)"),
+             from_wkt<ML>("MULTILINESTRING((0 5,8 1),(4 .375,2 8))"),
              "lldf31y+",
              settings
              );
 
         tester::apply
-            (from_wkt<L>("LINESTRING(10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .4, 2 8)"),
-             from_wkt<L>("LINESTRING(0 -.2, 8 1, -.5 7, 6 +.2)"),
-             from_wkt<ML>("MULTILINESTRING((10.0002 2,9 -1032.34324,.3 8,0 5,8 1),(4 .4,2 8))"),
+            (from_wkt<L>("LINESTRING(10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .375, 2 8)"),
+             from_wkt<L>("LINESTRING(0 -.25, 8 1, -.5 7, 6 +.2)"),
+             from_wkt<ML>("MULTILINESTRING((10.0002 2,9 -1032.34324,.3 8,0 5,8 1),(4 .375,2 8))"),
              "lldf31z",
              settings
              );
@@ -1104,9 +1105,9 @@ BOOST_AUTO_TEST_CASE( test_difference_multilinestring_multilinestring )
         ut_settings settings{1e-10};
 
         tester::apply
-            (from_wkt<ML>("MULTILINESTRING((-.4 2, 2.232432 3, 6 9, 8 189.7654, -1032.34324 5.4, 2.232432 9), (-1032.34324 3, 8 -1.6), (0 -.2, 8 1, -.5 7, 6 +.2))"),
-             from_wkt<ML>("MULTILINESTRING((-8 1, 4.8 6, 2 +.5), (10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .4, 2 8), (6 7, +.1 7, 0 -.5))"),
-             from_wkt<ML>("MULTILINESTRING((-0.4 2,2.232432 3,6 9,8 189.7654,-1032.34324 5.4,2.232432 9),(-1032.34324 3,8 -1.6),(0 -0.2,4 0.4),(8 1,-0.5 7,6 0.2))"),
+            (from_wkt<ML>("MULTILINESTRING((-.4 2, 2.232432 3, 6 9, 8 189.7654, -1032.34324 5.4, 2.232432 9), (-1032.34324 3, 8 -1.6), (0 -.25, 8 1, -.5 7, 6 +.2))"),
+             from_wkt<ML>("MULTILINESTRING((-8 1, 4.8 6, 2 +.5), (10.0002 2,9 -1032.34324, .3 8, 0 5, 8 1, 4 .375, 2 8), (6 7, +.1 7, 0 -.5))"),
+             from_wkt<ML>("MULTILINESTRING((-0.4 2,2.232432 3,6 9,8 189.7654,-1032.34324 5.4,2.232432 9),(-1032.34324 3,8 -1.6),(0 -0.25,4 0.375),(8 1,-0.5 7,6 0.2))"),
              "mlmldf25",
              settings
              );

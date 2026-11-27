@@ -441,11 +441,14 @@ void test_areal()
     TEST_UNION(issue_1081c, 1, 1, -1, 2338.08);
     TEST_UNION_REV(issue_1081c, 1, 1, -1, 2338.08);
 
-    TEST_UNION(issue_1100, 1, 0, -1, 1.46181);
-    TEST_UNION_REV(issue_1100, 1, 0, -1, 1.46181);
+    // The stored double polygons have a gap; the tolerance used to bridge it.
+    constexpr int issue_1100_count = std::is_same<ct, double>::value ? 2 : 1;
+    TEST_UNION(issue_1100, issue_1100_count, 0, -1, 1.46181);
+    TEST_UNION_REV(issue_1100, issue_1100_count, 0, -1, 1.46181);
 
-    TEST_UNION(issue_1108, 1, 0, -1, 12.1742);
-    TEST_UNION_REV(issue_1108, 1, 0, -1, 12.1742);
+    constexpr int issue_1108_holes = std::is_same<ct, double>::value ? 1 : 0;
+    TEST_UNION(issue_1108, 1, issue_1108_holes, -1, 12.1742);
+    TEST_UNION_REV(issue_1108, 1, issue_1108_holes, -1, 12.1742);
 
     TEST_UNION(issue_1183, 1, 0, -1, 607.6507);
     TEST_UNION_REV(issue_1183, 1, 0, -1, 607.6507);

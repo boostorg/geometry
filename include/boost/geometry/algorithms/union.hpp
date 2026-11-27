@@ -32,6 +32,7 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/detail/point_conversion.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
@@ -898,6 +899,13 @@ inline void union_(Geometry1 const& geometry1,
                    Geometry2 const& geometry2,
                    Collection& output_collection)
 {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    namespace exact = detail::cartesian_exact_default;
+    if constexpr (exact::admits_output<exact::operation::union_, Geometry1, Geometry2, Collection>())
+    {
+        return geometry::union_(geometry1, geometry2, output_collection, exact::strategy<Geometry1, Geometry2>{});
+    }
+#endif
     resolve_dynamic::union_
         <
             Geometry1,
