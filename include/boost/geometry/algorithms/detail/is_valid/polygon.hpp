@@ -29,6 +29,7 @@
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
+#include <boost/range/iterator_range_core.hpp>
 
 #include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -154,7 +155,7 @@ protected:
         using ring = ring_type_t<Polygon>;
         if (!is_properly_oriented<ring, false>::apply(exterior_ring(polygon), visitor, strategy))
             return false;
-        for (auto const& hole : geometry::interior_rings(polygon))
+        for (auto const& hole : boost::make_iterator_range(geometry::interior_rings(polygon)))
             if (!is_properly_oriented<ring, true>::apply(hole, visitor, strategy))
                 return false;
         return true;

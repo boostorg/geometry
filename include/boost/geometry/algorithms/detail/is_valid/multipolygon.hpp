@@ -22,6 +22,7 @@
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
+#include <boost/range/iterator_range_core.hpp>
 #include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/exterior_ring.hpp>
@@ -318,7 +319,7 @@ public:
         }
 
         if constexpr (has_ring_topology<Strategy>)
-            for (auto const& polygon : multipolygon)
+            for (auto const& polygon : boost::make_iterator_range(multipolygon))
                 if (!base::has_valid_ring_orientations(polygon, visitor, strategy)) return false;
 
 

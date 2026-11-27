@@ -26,6 +26,7 @@
 #include <boost/geometry/policies/is_valid/failure_type_policy.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
@@ -87,6 +88,16 @@ struct is_valid<default_strategy, false>
                              VisitPolicy& visitor,
                              default_strategy)
     {
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+        namespace exact = detail::cartesian_exact_default;
+        if constexpr (exact::kind<Geometry>() == exact::family::area
+                      && exact::native_pair<Geometry, Geometry>())
+        {
+            using strategy_type = strategies::relate::cartesian_exact<coordinate_type_t<Geometry>>;
+            return is_valid<strategy_type>::apply(geometry, visitor, strategy_type{});
+        }
+        else
+#endif
         {
             using strategy_type = typename std::conditional_t
                 <
