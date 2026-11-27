@@ -124,10 +124,18 @@ class turn_in_piece_visitor
     template <typename Point>
     inline bool has_zero_distance_at(Point const& point) const
     {
-        return is_one_sided(m_distance_strategy.apply(point, point,
-                strategy::buffer::buffer_side_left),
-            m_distance_strategy.apply(point, point,
-                strategy::buffer::buffer_side_right));
+        if constexpr (strategies::relate::services::exact_predicates<UmbrellaStrategy>::value)
+        {
+            return m_distance_strategy.empty(strategy::buffer::buffer_side_left)
+                || m_distance_strategy.empty(strategy::buffer::buffer_side_right);
+        }
+        else
+        {
+            return is_one_sided(m_distance_strategy.apply(point, point,
+                    strategy::buffer::buffer_side_left),
+                m_distance_strategy.apply(point, point,
+                    strategy::buffer::buffer_side_right));
+        }
     }
 
 public:
@@ -169,7 +177,7 @@ public:
     template <typename Turn, typename Piece, typename Border>
     inline bool apply(Turn const& turn, Piece const& piece, Border const& border)
     {
-        if (! geometry::covered_by(turn.point, border.m_envelope, m_umbrella_strategy))
+        if (!turn_covered_by(turn, border.m_envelope, m_umbrella_strategy))
         {
             // Easy check: if turn is not in the (expanded) envelope
             return true;
@@ -185,23 +193,22 @@ public:
             return true;
         }
 
-        if (piece.type == geometry::strategy::buffer::buffered_point)
+        if constexpr (!strategies::relate::services::exact_predicates<UmbrellaStrategy>::value)
         {
-            // Optimization for a buffer around points: if distance from center
-            // is not between min/max radius, it is either inside or outside,
-            // and more expensive checks are not necessary.
-            auto const d = geometry::comparable_distance(piece.m_center, turn.point,
-                                                         m_umbrella_strategy);
-
-            if (d < border.m_min_comparable_radius)
+            if (piece.type == geometry::strategy::buffer::buffered_point)
             {
-                Turn& mutable_turn = m_turns[turn.turn_index];
-                mutable_turn.is_traversable = false;
-                return true;
-            }
-            if (d > border.m_max_comparable_radius)
-            {
-                return true;
+                // The native min/max radius bounds are not certified for implicit turns.
+                auto const d = geometry::comparable_distance(piece.m_center, turn.point,
+                                                             m_umbrella_strategy);
+                if (d < border.m_min_comparable_radius)
+                {
+                    m_turns[turn.turn_index].is_traversable = false;
+                    return true;
+                }
+                if (d > border.m_max_comparable_radius)
+                {
+                    return true;
+                }
             }
         }
 
@@ -227,10 +234,12 @@ public:
         bool const is_exposed_end = is_flat_end
             || m_pieces[piece.right_index].type == strategy::buffer::buffered_concave;
 
-        typename Border::state_type state;
+        auto const winding = get_winding<typename Border::coordinate_type, typename Turn::point_type>(
+            m_umbrella_strategy, 0);
+        typename decltype(winding)::state_type state;
         if (! border.point_on_piece(turn.point, one_sided,
                                     is_linear_end_point, state,
-                                    is_exposed_start, is_exposed_end))
+                                    is_exposed_start, is_exposed_end, winding))
         {
             return true;
         }
@@ -243,6 +252,15 @@ public:
 
         return true;
     }
+
+private:
+    template <typename Coordinate, typename Point, typename S>
+    static auto get_winding(S const& strategy, int) -> decltype(strategy.template buffer_winding<Point>())
+    { return strategy.template buffer_winding<Point>(); }
+
+    template <typename Coordinate, typename Point, typename S>
+    static auto get_winding(S const&, long)
+    { return geometry::strategy::buffer::turn_in_ring_winding<Coordinate>(); }
 };
 
 

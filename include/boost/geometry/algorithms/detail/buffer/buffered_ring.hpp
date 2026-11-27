@@ -26,6 +26,7 @@
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/strategies/buffer.hpp>
+#include <boost/geometry/strategies/relate/services.hpp>
 
 #include <boost/geometry/algorithms/within.hpp>
 
@@ -101,6 +102,13 @@ struct concept_type<Geometry, geometry::detail::buffer::buffered_ring_collection
 
 
 // Register the types
+namespace strategies { namespace relate { namespace services
+{
+template <>
+struct indexed_ring_collection_tag<geometry::detail::buffer::buffered_ring_collection_tag>
+    : std::true_type {};
+}}}
+
 namespace traits
 {
 

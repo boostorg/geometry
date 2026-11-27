@@ -76,6 +76,11 @@ public:
     template <typename A, typename B, typename Apply>
     decltype(auto) with_operands(A const& a, B const& b, Apply&& apply) const;
 
+    static auto buffer_generation_strategy() { return strategies::distance::cartesian<>(); }
+
+    template <typename Rings, typename Apply>
+    void with_buffer_piece_strategy(Apply const& apply) const;
+
     template <typename Geometry, typename Box>
     static auto envelope(Geometry const&, Box const&)
     {
@@ -232,6 +237,19 @@ struct predicate_strategy<cartesian_exact<Coordinate, OutputPolicy>>
 
 namespace boost { namespace geometry { namespace strategies { namespace relate
 {
+template <typename Coordinate, typename OutputPolicy>
+template <typename Rings, typename Apply>
+void cartesian_exact<Coordinate, OutputPolicy>::with_buffer_piece_strategy(Apply const& apply) const
+{
+    namespace exact = strategies::detail::exact_cartesian;
+    static_assert(std::is_same<geometry::coordinate_type_t<Rings>, double>::value
+               && std::is_same<Coordinate, double>::value,
+                  "Exact buffer currently requires double offset vertices");
+    using root = exact::operation_types<Coordinate, OutputPolicy, Rings, Rings>;
+    exact::geometry_context<root> context;
+    apply(exact::bound_strategy<root>(context));
+}
+
 template <typename Coordinate, typename OutputPolicy>
 template <typename A, typename B, typename Apply>
 decltype(auto) cartesian_exact<Coordinate, OutputPolicy>::with_operands(

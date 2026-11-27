@@ -13,6 +13,7 @@
 #include <boost/geometry/strategies/cartesian/simple/intersection.hpp>
 #include <boost/geometry/strategies/detail/section.hpp>
 #include <boost/geometry/strategies/distance/cartesian.hpp>
+#include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
 #include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 namespace boost { namespace geometry { namespace strategies { namespace detail
@@ -73,6 +74,12 @@ class simple_cartesian_strategy : public strategies::distance::cartesian<Calcula
 public:
     static constexpr bool exact_predicates = false;
     static constexpr bool uses_overlay_tolerance = false;
+    static auto buffer_generation_strategy() { return strategies::distance::cartesian<>(); }
+    template <typename Point>
+    static auto buffer_winding()
+    {
+        return strategy::buffer::turn_in_ring_winding<calculation_t<Point>, simple_cartesian_strategy>();
+    }
     using segment_position_type = strategies::detail::simple_cartesian::position_tag<CalculationType>;
     template <typename Point>
     using intersection_point_type = std::conditional_t<

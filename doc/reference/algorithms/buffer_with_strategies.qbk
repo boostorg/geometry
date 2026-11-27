@@ -19,6 +19,17 @@ The 5 strategies give the user control to the generated buffer
 * around points the shape can be circular or square
 * the sides can be controlled (currently there is only one option provided)
 
+An optional final umbrella strategy controls spatial operations on these
+pieces, including the union of partial results when buffering a geometry
+collection. If omitted, the buffer chooses the umbrella strategy for the
+input's coordinate system. This does not change how the five strategies
+construct the pieces.
+
+The experimental exact Cartesian umbrella accepts double offset vertices
+and constant symmetric or asymmetric distances. Its numerical guarantees
+apply to the generated straight pieces, not to the offset or arc construction.
+Rounding the final output can still introduce degeneracies.
+
 By specifying a negative distance for the distance_strategy, for the (multi) polygon case, the polygon will be smaller (also known as deflate). The distance cannot be 0.
 
 The next figure shows where in the generated buffer the strategies have effect

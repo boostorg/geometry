@@ -14,6 +14,7 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_TURN_IN_ORIGINAL_VISITOR
 
+#include <type_traits>
 
 #include <boost/core/ignore_unused.hpp>
 #include <boost/range/size.hpp>
@@ -35,6 +36,15 @@ namespace boost { namespace geometry
 namespace detail { namespace buffer
 {
 
+// A winding strategy can opt into section pruning. Without an axis there
+// is no guarantee that skipping any section preserves its winding count.
+template <typename Winding, typename = void>
+struct winding_scan_axis : std::integral_constant<int, -1> {};
+
+template <typename Winding>
+struct winding_scan_axis<Winding, std::void_t<decltype(Winding::buffer_scan_axis)>>
+    : std::integral_constant<int, Winding::buffer_scan_axis> {};
+
 
 template <typename Strategy>
 struct original_get_box
@@ -46,7 +56,6 @@ struct original_get_box
     template <typename Box, typename Original>
     inline void apply(Box& total, Original const& original) const
     {
-        assert_coordinate_type_equal(total, original.m_box);
         geometry::expand(total, original.m_box, m_strategy);
     }
 
@@ -63,7 +72,6 @@ struct original_overlaps_box
     template <typename Box, typename Original>
     inline bool apply(Box const& box, Original const& original) const
     {
-        assert_coordinate_type_equal(box, original.m_box);
         return ! detail::disjoint::disjoint_box_box(box, original.m_box,
                                                     m_strategy);
     }
@@ -96,8 +104,10 @@ struct turn_in_original_overlaps_box
             return false;
         }
 
-        return ! geometry::detail::disjoint::disjoint_point_box(
-                    turn.point, box, m_strategy);
+        if constexpr (strategies::relate::services::exact_predicates<Strategy>::value)
+            return turn_covered_by(turn, box, m_strategy);
+        else
+            return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box, m_strategy);
     }
 
     Strategy const& m_strategy;
@@ -131,6 +141,7 @@ inline bool point_in_range(Strategy& strategy, State& state,
 
 template
 <
+    std::size_t Axis,
     typename Strategy,
     typename State,
     typename Point,
@@ -138,39 +149,32 @@ template
     typename Iterator
 >
 inline bool point_in_section(Strategy& strategy, State& state,
-        Point const& point, CoordinateType const& point_x,
+        Point const& point, CoordinateType const& value,
         Iterator begin, Iterator end,
         int direction)
 {
     if (direction == 0)
     {
-        // Not a monotonic section, or no change in X-direction
+        // Not a monotonic section, or no change along the scan axis.
         return point_in_range(strategy, state, point, begin, end);
     }
 
-    // We're in a monotonic section in x-direction
+    // We're in a monotonic section along the winding axis.
     Iterator it = begin;
 
     for (Iterator previous = it++; it != end; ++previous, ++it)
     {
         // Depending on sections.direction we can quit for this section
-        CoordinateType const previous_x = geometry::get<0>(*previous);
+        CoordinateType const previous_value = geometry::get<Axis>(*previous);
 
-        // The winding strategy compares x with math::equals (epsilon),
-        // counting half a crossing per segment touching the point's x at a vertex.
-        // Bailing out with an exact comparison could skip the second half
-        // (point_x a few ULPs before a vertex), yielding an odd count -> "inside".
-        // Only bail out when previous_x is beyond point_x by more than epsilon.
-        if (direction == 1 && point_x < previous_x
-            && ! math::equals(point_x, previous_x))
+        // The stock winding strategy uses math::equals (epsilon),
+        // counting half a crossing per segment touching the scan line at a vertex.
+        // A strict comparison could skip the other half, so only bail out
+        // when the previous vertex is beyond the scan line by more than epsilon.
+        if (((direction == 1 && value < previous_value)
+             || (direction == -1 && value > previous_value))
+            && !math::equals(value, previous_value))
         {
-            // Section goes upwards, x increases, point is is below section
-            return true;
-        }
-        else if (direction == -1 && point_x > previous_x
-            && ! math::equals(point_x, previous_x))
-        {
-            // Section goes downwards, x decreases, point is above section
             return true;
         }
 
@@ -183,46 +187,75 @@ inline bool point_in_section(Strategy& strategy, State& state,
     return true;
 }
 
+template <typename Winding, typename Point, typename Box, typename Enclosure>
+inline auto section_may_contribute(Winding const& winding, Point const& point,
+                                   Box const& box, Enclosure const& enclosure, int)
+    -> decltype(winding.section_may_contribute(point, box, enclosure))
+{
+    return winding.section_may_contribute(point, box, enclosure);
+}
 
-template <typename Point, typename Original, typename PointInGeometryStrategy>
+template <typename Winding, typename Point, typename Box, typename Enclosure>
+inline auto section_may_contribute(Winding const& winding, Point const& point,
+                                   Box const& box, Enclosure const&, long)
+    -> decltype(winding.section_may_contribute(point, box))
+{
+    return winding.section_may_contribute(point, box);
+}
+
+template <typename Winding, typename State, typename Point, typename Section, typename Ring,
+          typename Enclosure>
+inline auto visit_original_section(Winding const& winding, State& state, Point const& point,
+                                   Section const& section, Ring const& ring,
+                                   Enclosure const& enclosure, int)
+    -> decltype(section_may_contribute(winding, point, section.bounding_box, enclosure, 0))
+{
+    return !section_may_contribute(winding, point, section.bounding_box, enclosure, 0)
+        || point_in_range(winding, state, point, ring.begin() + section.begin_index,
+                          ring.begin() + section.end_index + 1);
+}
+
+template <typename Winding, typename State, typename Point, typename Section, typename Ring,
+          typename Enclosure>
+inline bool visit_original_section(Winding const& winding, State& state, Point const& point,
+                                   Section const& section, Ring const& ring, Enclosure const&, long)
+{
+    // Preserve the stock winding strategies' tolerance at section endpoints.
+    constexpr auto axis = winding_scan_axis<Winding>::value;
+    auto const value = geometry::get<axis>(point);
+    return !(value >= geometry::get<min_corner, axis>(section.bounding_box)
+          && value <= geometry::get<max_corner, axis>(section.bounding_box))
+        || point_in_section<axis>(winding, state, point, value, ring.begin() + section.begin_index,
+                                  ring.begin() + section.end_index + 1, section.directions[0]);
+}
+
+template <typename Point, typename Original, typename PointInGeometryStrategy,
+          typename Enclosure = no_turn_enclosure>
 inline int point_in_original(Point const& point, Original const& original,
-                             PointInGeometryStrategy const& strategy)
+                             PointInGeometryStrategy const& strategy, Enclosure const& enclosure = {})
 {
     typename PointInGeometryStrategy::state_type state;
 
-    if (boost::size(original.m_sections) == 0
-        || boost::size(original.m_ring) - boost::size(original.m_sections) < 16)
+    if constexpr (winding_scan_axis<PointInGeometryStrategy>::value >= 0)
     {
-        // There are no sections, or it does not profit to walk over sections
-        // instead of over points. Boundary of 16 is arbitrary but can influence
-        // performance
-        point_in_range(strategy, state, point,
-                original.m_ring.begin(), original.m_ring.end());
-        return strategy.result(state);
-    }
-
-    auto const point_x = geometry::get<0>(point);
-
-    // Walk through all monotonic sections of this original
-    for (auto const& section : original.m_sections)
-    {
-        if (! section.duplicate
-            && section.begin_index < section.end_index
-            && point_x >= geometry::get<min_corner, 0>(section.bounding_box)
-            && point_x <= geometry::get<max_corner, 0>(section.bounding_box))
+        // On short rings, walking the sections costs more than a full scan.
+        if (!original.m_sections.empty()
+            && boost::size(original.m_ring) - boost::size(original.m_sections) >= 16)
         {
-            // x-coordinate of point overlaps with section
-            if (! point_in_section(strategy, state, point, point_x,
-                    boost::begin(original.m_ring) + section.begin_index,
-                    boost::begin(original.m_ring) + section.end_index + 1,
-                    section.directions[0]))
+            for (auto const& section : original.m_sections)
             {
-                // We're probably on the boundary
-                break;
+                if (!section.duplicate && section.begin_index < section.end_index
+                    && !visit_original_section(strategy, state, point, section,
+                                               original.m_ring, enclosure, 0))
+                {
+                    break;
+                }
             }
+            return strategy.result(state);
         }
     }
 
+    point_in_range(strategy, state, point, original.m_ring.begin(), original.m_ring.end());
     return strategy.result(state);
 }
 
@@ -251,14 +284,22 @@ public:
             return true;
         }
 
-        if (geometry::disjoint(turn.point, original.m_box, m_strategy))
+        bool const outside = [&]
+        {
+            if constexpr (strategies::relate::services::exact_predicates<Strategy>::value)
+                return !turn_covered_by(turn, original.m_box, m_strategy);
+            else
+                return geometry::disjoint(turn.point, original.m_box, m_strategy);
+        }();
+        if (outside)
         {
             // Skip all disjoint
             return true;
         }
 
         int const code = point_in_original(turn.point, original,
-                                           m_strategy.relate(turn.point, original.m_ring));
+                                           m_strategy.relate(turn.point, original.m_ring),
+                                           turn.enclosure);
 
         if (code == -1)
         {

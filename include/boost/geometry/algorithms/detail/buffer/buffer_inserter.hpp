@@ -916,7 +916,7 @@ template
     typename Strategies,
     typename VisitPiecesPolicy
 >
-inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
+inline void buffer_inserter_with_piece_strategy(GeometryInput const& geometry_input, OutputIterator out,
         DistanceStrategy const& distance_strategy,
         SegmentStrategy const& segment_strategy,
         JoinStrategy const& join_strategy,
@@ -927,6 +927,9 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     )
 {
     boost::ignore_unused(visit_pieces_policy);
+    static_assert(!strategies::relate::services::exact_predicates<Strategies>::value
+                 || strategies::buffer::services::is_constant_distance<DistanceStrategy>::value,
+                  "Exact buffer topology requires a constant distance for each side");
 
     using collection_type = detail::buffer::buffered_piece_collection
         <
@@ -947,7 +950,7 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
         >::apply(geometry_input, collection,
                  distance_strategy, segment_strategy, join_strategy,
                  end_strategy, point_strategy,
-                 strategies);
+                 strategies::buffer::detail::generation_strategy(strategies, 0));
 
     collection.get_turns();
     if BOOST_GEOMETRY_CONSTEXPR (areal)
@@ -988,7 +991,10 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     {
         reverse = ! reverse;
     }
-    if (reverse)
+    constexpr bool reverse_on_output = !std::is_same<typename collection_type::working_ring,
+        geometry::ring_type_t<GeometryOutput>>::value;
+    // Retained turn records still refer to the unreversed supports.
+    if (reverse && !reverse_on_output)
     {
         collection.reverse();
     }
@@ -997,15 +1003,36 @@ inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator 
     {
         if (distance_strategy.negative())
         {
-            collection.discard_nonintersecting_deflated_rings();
+            collection.discard_nonintersecting_deflated_rings(reverse && reverse_on_output);
         }
     }
 
-    collection.template assign<GeometryOutput>(out);
+    collection.template assign<GeometryOutput>(out, reverse && reverse_on_output);
 
     // Visit collection again
     // phase 2: rings (after traversing)
     visit_pieces_policy.apply(const_collection, 2);
+}
+
+template
+<
+    typename GeometryOutput, typename GeometryInput, typename OutputIterator,
+    typename DistanceStrategy, typename SegmentStrategy, typename JoinStrategy,
+    typename EndStrategy, typename PointStrategy, typename Strategies, typename VisitPiecesPolicy
+>
+inline void buffer_inserter(GeometryInput const& geometry_input, OutputIterator out,
+        DistanceStrategy const& distance_strategy, SegmentStrategy const& segment_strategy,
+        JoinStrategy const& join_strategy, EndStrategy const& end_strategy,
+        PointStrategy const& point_strategy, Strategies const& strategies,
+        VisitPiecesPolicy& visitor)
+{
+    using rings = buffered_ring_collection<buffered_ring<geometry::ring_type_t<GeometryOutput>>>;
+    strategies::buffer::detail::with_piece_strategy<rings>(strategies, [&](auto const& bound)
+    {
+        buffer_inserter_with_piece_strategy<GeometryOutput>(geometry_input, out,
+            distance_strategy, segment_strategy, join_strategy, end_strategy, point_strategy,
+            bound, visitor);
+    }, 0);
 }
 
 template

@@ -84,10 +84,6 @@ struct buffer_all<Input, Output, TagIn, multi_polygon_tag>
             return;
         }
 
-        model::box<point_type_t<Input>> box;
-        geometry::envelope(geometry_in, box);
-        geometry::buffer(box, box, distance_strategy.max_distance(join_strategy, end_strategy));
-
         detail::buffer::buffer_inserter<polygon_type>(geometry_in,
                     range::back_inserter(geometry_out),
                     distance_strategy,

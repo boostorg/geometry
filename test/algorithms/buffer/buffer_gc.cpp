@@ -23,6 +23,31 @@ using mpo_t = bg::model::multi_polygon<po_t>;
 using var_t = boost::variant<pt_t, ls_t, po_t, mpt_t, mls_t, mpo_t>;
 using gc_t = bg::model::geometry_collection<var_t>;
 
+struct counting_buffer_strategy : bg::strategies::buffer::cartesian<>
+{
+    using base = bg::strategies::buffer::cartesian<>;
+
+    counting_buffer_strategy(int& sides, int& unions)
+        : side_calls(sides), union_calls(unions)
+    {}
+
+    auto side() const
+    {
+        ++side_calls;
+        return base::side();
+    }
+
+    template <typename A, typename B, typename Apply>
+    decltype(auto) with_operands(A const& a, B const& b, Apply&& apply) const
+    {
+        ++union_calls;
+        return apply(a, b, static_cast<base const&>(*this));
+    }
+
+    int& side_calls;
+    int& union_calls;
+};
+
 void test_gc()
 {
     gc_t gc;
@@ -52,6 +77,20 @@ void test_gc()
     BOOST_CHECK(boost::get<mpo_t>(result_gc[0]).size() == 2);
     area = bg::area(boost::get<mpo_t>(result_gc[0]));
     BOOST_CHECK_CLOSE(area, 62.548206613048151, 0.0001);
+
+    int side_calls = 0, union_calls = 0;
+    counting_buffer_strategy const umbrella(side_calls, union_calls);
+    bg::buffer(gc, result_mpo, distance, side, join, end, circle, umbrella);
+    BOOST_CHECK_EQUAL(result_mpo.size(), 2u);
+    BOOST_CHECK_CLOSE(bg::area(result_mpo), 62.548206613048151, 0.0001);
+    BOOST_CHECK_GT(union_calls, 0);
+
+    side_calls = 0;
+    ls_t line;
+    bg::read_wkt("LINESTRING(0 0,2 2,3 0)", line);
+    bg::buffer(var_t(line), result_mpo, distance, side, join, end, circle, umbrella);
+    BOOST_CHECK_EQUAL(result_mpo.size(), 1u);
+    BOOST_CHECK_GT(side_calls, 0);
 }
 
 int test_main(int, char* [])

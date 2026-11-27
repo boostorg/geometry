@@ -27,7 +27,7 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info.hpp>
 #include <boost/geometry/strategies/detail/section.hpp>
 #include <boost/geometry/algorithms/detail/buffer/buffer_policies.hpp>
-#include <boost/geometry/strategies/relate/services.hpp>
+#include <boost/geometry/strategies/detail/turn_container.hpp>
 
 
 namespace boost { namespace geometry
@@ -41,15 +41,17 @@ namespace detail { namespace buffer
 // Implements a unique_sub_range for a buffered piece,
 // the range can return subsequent points
 // known as "i", "j" and "k" (and further),  indexed as 0,1,2,3
-template <typename Ring>
+template <typename Ring, typename Strategy>
 struct unique_sub_range_from_piece
 {
     using iterator_type = typename boost::range_iterator<Ring const>::type;
     using point_type = geometry::point_type_t<Ring const>;
 
     unique_sub_range_from_piece(Ring const& ring,
-                                iterator_type iterator_at_i, iterator_type iterator_at_j)
+                                iterator_type iterator_at_i, iterator_type iterator_at_j,
+                                Strategy const& strategy)
         : m_ring(ring)
+        , m_strategy(strategy)
         , m_iterator_at_i(iterator_at_i)
         , m_iterator_at_j(iterator_at_j)
         , m_point_retrieved(false)
@@ -100,10 +102,7 @@ private :
 
         // TODO: we could also use piece-boundaries
         // to check if the point equals the last one
-        // Use the same point equality as the standard buffer traversal.
-        using equals_strategy = typename strategies::relate::services::default_strategy
-            <point_type, point_type>::type;
-        while (geometry::equals(*it, *result, equals_strategy{}))
+        while (geometry::equals(*it, *result, m_strategy))
         {
             circular_advance_one(result);
         }
@@ -111,6 +110,7 @@ private :
     }
 
     Ring const& m_ring;
+    Strategy const& m_strategy;
     iterator_type m_iterator_at_i;
     iterator_type m_iterator_at_j;
     mutable iterator_type m_iterator_at_k;
@@ -162,9 +162,8 @@ class piece_turn_visitor
     {
         for(; it_begin != it_beyond
                 && it_begin + 1 != it_beyond
-                && strategies::detail::section_with_tolerance::preceding<Dimension>(dir, *(it_begin + 1),
-                                                         this_bounding_box,
-                                                         other_bounding_box);
+                && strategies::detail::section_with_tolerance::preceding<Dimension>
+                    (dir, *(it_begin + 1), this_bounding_box, other_bounding_box);
             ++it_begin, index++)
         {}
     }
@@ -178,8 +177,8 @@ class piece_turn_visitor
             && it_beyond - 1 != it_begin
             && it_beyond - 2 != it_begin)
         {
-            if (strategies::detail::section_with_tolerance::preceding<Dimension>(-dir, *(it_beyond - 2),
-                        this_bounding_box, other_bounding_box))
+            if (strategies::detail::section_with_tolerance::preceding<Dimension>
+                (-dir, *(it_beyond - 2), this_bounding_box, other_bounding_box))
             {
                 --it_beyond;
             }
@@ -256,20 +255,24 @@ class piece_turn_visitor
             the_model.operations[1].seg_id = piece2.first_seg_id;
             the_model.operations[1].seg_id.segment_index = index2; // override
 
-            unique_sub_range_from_piece<ring_type> unique_sub_range1(ring1, prev1, it1);
+            unique_sub_range_from_piece<ring_type, Strategy>
+                unique_sub_range1(ring1, prev1, it1, m_strategy);
 
             auto it2 = it2_first;
             for (auto prev2 = it2++;
                     it2 != it2_beyond;
                     prev2 = it2++, the_model.operations[1].seg_id.segment_index++)
             {
-                unique_sub_range_from_piece<ring_type> unique_sub_range2(ring2, prev2, it2);
+                unique_sub_range_from_piece<ring_type, Strategy>
+                    unique_sub_range2(ring2, prev2, it2, m_strategy);
 
                 using turn_policy = detail::overlay::get_turn_info
                     <
                         detail::overlay::assign_policy_only_start_turns
                     >;
 
+                auto const scope = strategies::detail::segment_pair_scope<false, false>(
+                    m_strategy, the_model.operations[0].seg_id, the_model.operations[1].seg_id);
                 turn_policy::apply(unique_sub_range1, unique_sub_range2,
                                    the_model,
                                    m_strategy,

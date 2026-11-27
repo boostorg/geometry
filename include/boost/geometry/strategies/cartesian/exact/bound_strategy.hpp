@@ -23,6 +23,7 @@
 #include <boost/geometry/strategies/cartesian/exact/segment.hpp>
 #include <boost/geometry/strategies/cartesian/exact/ring_topology_strategy.hpp>
 #include <boost/geometry/strategies/cartesian/exact/stable_turn_container.hpp>
+#include <boost/geometry/strategies/cartesian/turn_in_ring_winding.hpp>
 #include <boost/geometry/views/detail/segment_as_subrange.hpp>
 
 namespace boost { namespace geometry { namespace strategies { namespace detail
@@ -155,6 +156,28 @@ public:
     template <typename P> using intersection_result_type = segment_intersection_result<Root>;
     template <typename P> using comparable_distance_type = RootSquaredDistanceValue<Root>;
     template <typename P> using box_type = search_box;
+    struct buffer_turn_enclosure
+    {
+        search_box enclosure{search_point(0, 0), search_point(0, 0)};
+    };
+
+    template <typename Point, typename Box>
+    static bool buffer_turn_covered_by(Point const& point, search_box const& enclosure, Box const& box)
+    {
+        geometry::detail::indexed_point_view<Box const, min_corner> const low(box);
+        geometry::detail::indexed_point_view<Box const, max_corner> const high(box);
+        auto const& a = enclosure.min_corner();
+        auto const& b = enclosure.max_corner();
+        if (geometry::get<0>(b) < geometry::get<0>(low)
+            || geometry::get<1>(b) < geometry::get<1>(low)
+            || geometry::get<0>(a) > geometry::get<0>(high)
+            || geometry::get<1>(a) > geometry::get<1>(high)) return false;
+        if (geometry::get<0>(a) >= geometry::get<0>(low)
+            && geometry::get<1>(a) >= geometry::get<1>(low)
+            && geometry::get<0>(b) <= geometry::get<0>(high)
+            && geometry::get<1>(b) <= geometry::get<1>(high)) return true;
+        return root_box_predicate<Root, box_relation::covered_by>::apply(point, box);
+    }
     template <typename P> using geometry_box_type = root_bounds<Root>;
     template <typename G> using ring_measure_type = strategies::detail::topological_ring_tag<point>;
     template <typename G> using overlay_geometry_type = typename geometry::detail::rebind_working<working_geometry_models<Root>, G>::type;
@@ -217,6 +240,9 @@ public:
         return relate().intersect_original_segments(a, b, output, std::forward<Converter>(convert));
     }
     static auto topology() { return topology_type(); }
+    template <typename Point>
+    static auto buffer_winding()
+    { return strategy::buffer::turn_in_ring_winding<exact_number, bound_strategy>(); }
     static auto segment_position() { return exact_cartesian::segment_position<coordinate>(); }
     static auto ring_topology() { return exact_cartesian::ring_topology<Root>(); }
     static auto section() { return section_type(); }
