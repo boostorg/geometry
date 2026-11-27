@@ -42,12 +42,10 @@ struct dissolve_multi
 {
     template
     <
-        typename RescalePolicy, typename OutputIterator,
-        typename Strategy, typename Visitor
+        typename OutputIterator, typename Strategy, typename Visitor
     >
     static inline OutputIterator apply(Multi const& multi,
-            RescalePolicy const& rescale_policy, OutputIterator out,
-            Strategy const& strategy, Visitor& visitor)
+            OutputIterator out, Strategy const& strategy, Visitor& visitor)
     {
         typedef typename boost::range_value<Multi>::type polygon_type;
         typedef typename boost::range_iterator<Multi const>::type iterator_type;
@@ -63,7 +61,7 @@ struct dissolve_multi
                     polygon_type,
                     GeometryOut,
                     Reverse
-                >::apply(*it, rescale_policy, std::back_inserter(step1),
+                >::apply(*it, std::back_inserter(step1),
                          strategy, visitor);
         }
 
@@ -73,7 +71,7 @@ struct dissolve_multi
             detail::dissolver::dissolver_generic
                 <
                     detail::dissolver::plusmin_policy
-                >::apply(step1, rescale_policy, step2, strategy);
+                >::apply(step1, step2, strategy);
             for (typename std::vector<GeometryOut>::const_iterator it = step2.begin();
                 it != step2.end(); ++it)
             {
