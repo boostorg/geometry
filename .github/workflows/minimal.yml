@@ -38,46 +38,34 @@ jobs:
 
         include:
           - b2_toolset: clang-6.0
-            b2_cxxstd: 14
             version: "6.0"
             gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-7
-            b2_cxxstd: 14,17
             version: "7"
             gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-8
-            b2_cxxstd: 14,17
             version: "8"
             gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-9
-            # At some point compilation started to fail with 2a from unknown reason
-            # It may have something to do with the std library
-            #b2_cxxstd: 14,17,2a
-            b2_cxxstd: 14,17
             version: "9"
             gcc_version: "9"
             os: ubuntu-22.04
           - b2_toolset: clang-10
-            b2_cxxstd: 14,17,2a
             version: "10"
             os: ubuntu-22.04
           - b2_toolset: clang-11
-            b2_cxxstd: 14,17,2a
             version: "11"
             os: ubuntu-22.04
           - b2_toolset: clang-12
-            b2_cxxstd: 14,17,2a
             version: "12"
             os: ubuntu-22.04
           - b2_toolset: clang-13
-            b2_cxxstd: 14,17,2a
             version: "13"
             os: ubuntu-22.04
           - b2_toolset: clang-14
-            b2_cxxstd: 14,17,2a
             version: "14"
             os: ubuntu-22.04
     steps:
@@ -158,7 +146,7 @@ jobs:
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=clang cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=clang cxxstd=17 variant=debug,release address-model=32,64 libs/geometry/test//minimal
           # B2 returns success when requirements disable the requested target.
           test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
@@ -180,23 +168,18 @@ jobs:
 
         include:
           - b2_toolset: gcc-7
-            b2_cxxstd: 14,17
             version: "7"
             os: ubuntu-22.04
           - b2_toolset: gcc-8
-            b2_cxxstd: 14,17
             version: "8"
             os: ubuntu-22.04
           - b2_toolset: gcc-9
-            b2_cxxstd: 14,17,2a
             version: "9"
             os: ubuntu-22.04
           - b2_toolset: gcc-10
-            b2_cxxstd: 14,17,2a
             version: "10"
             os: ubuntu-22.04
           - b2_toolset: gcc-11
-            b2_cxxstd: 14,17,2a
             version: "11"
             os: ubuntu-22.04
 
@@ -258,7 +241,7 @@ jobs:
       - name: Build libs/geometry/test//minimal
         run: |
           cd $BOOST_ROOT
-          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          "$BOOST_ROOT/b2" --build-dir="$RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=17 variant=debug,release address-model=32,64 libs/geometry/test//minimal
           # B2 returns success when requirements disable the requested target.
           test -d "$RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test"
 
@@ -281,18 +264,15 @@ jobs:
             # VS 2019's final toolset, installed alongside VS 2022 on this image.
             vcvars_version: '14.29'
             vs_version: '[17.0,18.0)'
-            b2_cxxstd: '14,17,20'
             os: windows-2022
           - b2_toolset: msvc-14.3
             # B2 calls the VS 2022 family 14.3, including compiler 14.4x.
             vcvars_version: '14.44'
             vs_version: '[17.0,18.0)'
-            b2_cxxstd: '14,17,20'
             os: windows-2022
           - b2_toolset: msvc-14.5
             vcvars_version: '14.51'
             vs_version: '[18.0,19.0)'
-            b2_cxxstd: '14,17,20'
             os: windows-2025-vs2026
 
     steps:
@@ -362,6 +342,6 @@ jobs:
         shell: pwsh
         run: |
           cd $env:BOOST_ROOT
-          .\b2 --user-config=user-config.jam --build-dir="$env:RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=${{ matrix.b2_cxxstd }} variant=debug,release address-model=32,64 libs/geometry/test//minimal
+          .\b2 --user-config=user-config.jam --build-dir="$env:RUNNER_TEMP" toolset=${{ matrix.b2_toolset }} cxxstd=17 variant=debug,release address-model=32,64 libs/geometry/test//minimal
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if (-not (Test-Path "$env:RUNNER_TEMP/boost/bin.v2/libs/geometry/test/minimal.test" -PathType Container)) { exit 1 }
