@@ -86,13 +86,19 @@ namespace projections
                 // Project coordinates from geographic (lon, lat) to cartesian (x, y)
                 inline void fwd(Parameters const& , T const& lp_lon, T const& lp_lat, T& xy_x, T& xy_y) const
                 {
-                    T c, d;
-
-                    if((d = acos(cos(lp_lat) * cos(c = 0.5 * lp_lon)))) {/* basic Aitoff */
-                        xy_x = 2. * d * cos(lp_lat) * sin(c) * (xy_y = 1. / sin(d));
-                        xy_y *= d * sin(lp_lat);
-                    } else
-                        xy_x = xy_y = 0.;
+                    T const sin_half_lam = sin(0.5 * lp_lon);
+                    T const sin_phi = sin(lp_lat);
+                    T const cos_phi = cos(lp_lat);
+                    // basic Aitoff; sin(alpha) from hypot() and alpha from atan2() keep the
+                    // relative accuracy near the origin, where acos() of a value close to 1
+                    // did not (as in PROJ)
+                    T const sin_alpha = boost::math::hypot(cos_phi * sin_half_lam, sin_phi);
+                    // alpha / sin(alpha), with limit 1 at the origin
+                    T const a = sin_alpha == 0.
+                        ? T(1)
+                        : T(atan2(sin_alpha, cos_phi * cos(0.5 * lp_lon)) / sin_alpha);
+                    xy_x = 2. * cos_phi * sin_half_lam * a;
+                    xy_y = sin_phi * a;
                     if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
                         xy_x = (xy_x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
                         xy_y = (xy_y + lp_lat) * 0.5;
@@ -121,7 +127,7 @@ namespace projections
 
                 // INVERSE(s_inverse)  sphere
                 // Project coordinates from cartesian (x, y) to geographic (lon, lat)
-                inline void inv(Parameters const& , T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
+                inline void inv(Parameters const& par, T const& xy_x, T const& xy_y, T& lp_lon, T& lp_lat) const
                 {
                     static const T pi = detail::pi<T>();
                     static const T two_pi = detail::two_pi<T>();
@@ -130,8 +136,13 @@ namespace projections
                     int iter, max_iter = 10, round = 0, max_round = 20;
                     T D, C, f1, f2, f1p, f1l, f2p, f2l, dp, dl, sl, sp, cp, cl, x, y;
 
-                    if ((fabs(xy_x) < epsilon) && (fabs(xy_y) < epsilon )) {
-                        lp_lat = 0.; lp_lon = 0.;
+                    if (fabs(xy_x) < 1e-50 && fabs(xy_y) < 1e-50) {
+                        // first order inverse, exact to double precision this close to the
+                        // origin, where the Newton-Raphson terms below would underflow
+                        lp_lat = xy_y;
+                        lp_lon = this->m_proj_parm.mode == mode_winkel_tripel
+                               ? T(2. * xy_x / (1. + this->m_proj_parm.cosphi1))
+                               : xy_x;
                         return;
                     }
 
@@ -143,8 +154,10 @@ namespace projections
                             sl = sin(lp_lon * 0.5); cl = cos(lp_lon * 0.5);
                             sp = sin(lp_lat); cp = cos(lp_lat);
                             D = cp * cl;
-                            C = 1. - D * D;
-                            D = acos(D) / math::pow(C, T(1.5));
+                            // 1 - D * D and acos(D), computed so that they stay accurate near the
+                            // origin, where D is close to 1
+                            C = sp * sp + cp * cp * sl * sl;
+                            D = atan2(sqrt(C), D) / math::pow(C, T(1.5));
                             f1 = 2. * D * C * cp * sl;
                             f2 = D * C * sp;
                             f1p = 2.* (sl * cl * sp * cp / C - D * sp * sl);
@@ -170,15 +183,7 @@ namespace projections
                         if ((fabs(fabs(lp_lat) - two_pi) < epsilon) && (!this->m_proj_parm.mode)) lp_lon = 0.; /* if pole in Aitoff, return longitude of 0 */
 
                         /* calculate x,y coordinates with solution obtained */
-                        if((D = acos(cos(lp_lat) * cos(C = 0.5 * lp_lon))) != 0.0) {/* Aitoff */
-                            x = 2. * D * cos(lp_lat) * sin(C) * (y = 1. / sin(D));
-                            y *= D * sin(lp_lat);
-                        } else
-                            x = y = 0.;
-                        if (this->m_proj_parm.mode == mode_winkel_tripel) { /* Winkel Tripel */
-                            x = (x + lp_lon * this->m_proj_parm.cosphi1) * 0.5;
-                            y = (y + lp_lat) * 0.5;
-                        }
+                        fwd(par, lp_lon, lp_lat, x, y);
                     /* if too far from given values of x,y, repeat with better approximation of phi,lam */
                     } while (((fabs(xy_x-x) > epsilon) || (fabs(xy_y-y) > epsilon)) && (round++ < max_round));
 

@@ -270,15 +270,22 @@ namespace projections
                     }
                     switch (this->m_proj_parm.mode) {
                     case equit:
-                        lp_lat = fabs(rh) <= epsilon10 ? 0. : asin(xy_y * sinz / rh);
-                        xy_x *= sinz;
-                        xy_y = cosz * rh;
-                        break;
                     case obliq:
-                        lp_lat = fabs(rh) <= epsilon10 ? par.phi0 :
-                           asin(cosz * this->m_proj_parm.sinb1 + xy_y * sinz * this->m_proj_parm.cosb1 / rh);
-                        xy_x *= sinz * this->m_proj_parm.cosb1;
-                        xy_y = (cosz - sin(lp_lat) * this->m_proj_parm.sinb1) * rh;
+                        if (rh == 0.) {
+                            lp_lat = par.phi0;
+                            break;
+                        }
+                        {
+                            // rh * sin(phi), rh * cos(phi) * cos(lam) and rh * cos(phi) * sin(lam):
+                            // atan2() keeps the latitude accurate near the poles, where asin()
+                            // of sin(phi) did not
+                            T const s0 = this->m_proj_parm.mode == equit ? T(0) : this->m_proj_parm.sinb1;
+                            T const c0 = this->m_proj_parm.mode == equit ? T(1) : this->m_proj_parm.cosb1;
+                            T const n = rh * cosz * s0 + xy_y * sinz * c0;
+                            xy_y = rh * cosz * c0 - xy_y * sinz * s0;
+                            xy_x *= sinz;
+                            lp_lat = atan2(n, boost::math::hypot(xy_x, xy_y));
+                        }
                         break;
                     case n_pole:
                         xy_y = -xy_y;
@@ -288,8 +295,9 @@ namespace projections
                         lp_lat -= half_pi;
                         break;
                     }
-                    lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == equit || this->m_proj_parm.mode == obliq)) ?
-                        0. : atan2(xy_x, xy_y);
+                    // no special case for y == 0 in the equatorial and oblique aspects: the
+                    // longitude is +/-90 degrees there, not 0 (and atan2(0, 0) is 0 at the centre)
+                    lp_lon = atan2(xy_x, xy_y);
                 }
 
                 static inline std::string get_name()

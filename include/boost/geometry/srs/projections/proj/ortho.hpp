@@ -132,7 +132,7 @@ namespace projections
                         sinc = 1.;
                     }
                     cosc = sqrt(1. - sinc * sinc); /* in this range OK */
-                    if (fabs(rh) <= epsilon10) {
+                    if (rh == 0.) {
                         lp_lat = par.phi0;
                         lp_lon = 0.0;
                     } else {
@@ -145,19 +145,18 @@ namespace projections
                             lp_lat = - acos(sinc);
                             break;
                         case equit:
-                            lp_lat = xy_y * sinc / rh;
-                            xy_x *= sinc;
-                            xy_y = cosc * rh;
-                            goto sinchk;
                         case obliq:
-                            lp_lat = cosc * this->m_proj_parm.sinph0 + xy_y * sinc * this->m_proj_parm.cosph0 /rh;
-                            xy_y = (cosc - this->m_proj_parm.sinph0 * lp_lat) * rh;
-                            xy_x *= sinc * this->m_proj_parm.cosph0;
-                        sinchk:
-                            if (fabs(lp_lat) >= 1.)
-                                lp_lat = lp_lat < 0. ? -half_pi : half_pi;
-                            else
-                                lp_lat = asin(lp_lat);
+                            {
+                                // rh * sin(phi), rh * cos(phi) * cos(lam) and rh * cos(phi) * sin(lam):
+                                // atan2() keeps the latitude accurate near the poles, where asin()
+                                // of sin(phi) did not
+                                T const s0 = this->m_proj_parm.mode == equit ? T(0) : this->m_proj_parm.sinph0;
+                                T const c0 = this->m_proj_parm.mode == equit ? T(1) : this->m_proj_parm.cosph0;
+                                T const n = rh * cosc * s0 + xy_y * sinc * c0;
+                                xy_y = rh * cosc * c0 - xy_y * sinc * s0;
+                                xy_x *= sinc;
+                                lp_lat = atan2(n, boost::math::hypot(xy_x, xy_y));
+                            }
                             break;
                         }
                         lp_lon = (xy_y == 0. && (this->m_proj_parm.mode == obliq || this->m_proj_parm.mode == equit))
