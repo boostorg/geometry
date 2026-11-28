@@ -14,10 +14,11 @@
 #ifndef BOOST_GEOMETRY_STRATEGIES_CARTESIAN_TURN_IN_RING_WINDING_HPP
 #define BOOST_GEOMETRY_STRATEGIES_CARTESIAN_TURN_IN_RING_WINDING_HPP
 
+#include <type_traits>
+
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/config.hpp>
-#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/util/math.hpp>
 
 #include <boost/geometry/strategies/cartesian/side_rounded_input.hpp>
@@ -45,7 +46,7 @@ enum place_on_ring_type
     place_on_ring_from_offsetted,
 };
 
-template <typename CalculationType>
+template <typename CalculationType, typename Strategy = void>
 class turn_in_ring_winding
 {
 
@@ -63,8 +64,54 @@ class turn_in_ring_winding
     //     R             S
     //
 
+    template <typename Point, typename PointOfSegment>
+    static bool near_tip(Point const& point, PointOfSegment const& s1,
+                         PointOfSegment const& s2, bool at_second)
+    {
+        CalculationType value1, value2;
+        if constexpr (uses_default_order)
+        {
+            auto const line1 = arithmetic::make_perpendicular_line<CalculationType>(s1, s2, s1);
+            auto const line2 = arithmetic::make_perpendicular_line<CalculationType>(s2, s1, s2);
+            value1 = arithmetic::side_value(line1, point);
+            value2 = arithmetic::side_value(line2, point);
+        }
+        else
+        {
+            CalculationType const ax(get<0>(s1)), ay(get<1>(s1));
+            CalculationType const bx(get<0>(s2)), by(get<1>(s2));
+            CalculationType const px(get<0>(point)), py(get<1>(point));
+            value1 = (bx - ax) * (px - ax) + (by - ay) * (py - ay);
+            value2 = (bx - ax) * (bx - px) + (by - ay) * (by - py);
+        }
+        if (!(value1 >= 0 && value2 >= 0)) return false;
+
+        auto const length_value = value1 + value2;
+        if (!(length_value > 0)) return false;
+
+        auto const& projection = at_second ? value2 : value1;
+        // Preserve the stock division and its rounding at the cutoff.
+        if constexpr (uses_default_order)
+            return projection / length_value < 1.0e-3;
+        else
+            return projection < length_value * CalculationType(1.0e-3);
+    }
 
 public:
+    static constexpr bool uses_default_order = std::is_void<Strategy>::value;
+    template <std::size_t D, typename A, typename B>
+    static int order(A const& a, B const& b)
+    {
+        if constexpr (std::is_void<Strategy>::value)
+        {
+            CalculationType const av = get<D>(a), bv = get<D>(b);
+            return (av > bv) - (av < bv);
+        }
+        else
+        {
+            return Strategy::topology().template compare_coordinate<D>(a, b);
+        }
+    }
 
     struct counter
     {
@@ -76,7 +123,7 @@ public:
         int count_on_origin{0};
         int count_on_edge{0};
 
-        CalculationType edge_min_fraction{(std::numeric_limits<CalculationType>::max)()};
+        bool near_helper_tip = false;
 
         inline bool is_inside() const
         {
@@ -87,7 +134,7 @@ public:
         {
             return count_on_origin == 0
                 && (count_on_offsetted > 0
-                || (count_on_edge > 0 && edge_min_fraction < 1.0e-3)
+                || near_helper_tip
                 );
         }
 
@@ -100,11 +147,7 @@ public:
                              PointOfSegment const& s1,
                              PointOfSegment const& s2)
     {
-        CalculationType const py = get<1>(point);
-        CalculationType const s1y = get<1>(s1);
-        CalculationType const s2y = get<1>(s2);
-
-        return s1y < s2y ? (py >= s1y && py <= s2y) : (py >= s2y && py <= s1y);
+        return order<1>(s1, point) * order<1>(s2, point) <= 0;
     }
 
     template <typename Point, typename PointOfSegment>
@@ -123,24 +166,8 @@ public:
         {
             the_state.count_on_edge++;
 
-            auto const line1 = detail::make::make_perpendicular_line<CalculationType>(s1, s2, s1);
-            auto const line2 = detail::make::make_perpendicular_line<CalculationType>(s2, s1, s2);
-
-            auto const value1 = arithmetic::side_value(line1, point);
-            auto const value2 = arithmetic::side_value(line2, point);
-            if (value1 >= 0 && value2 >= 0)
-            {
-                auto const length_value = value1 + value2;
-                if (length_value > 0)
-                {
-                    // If it is to the utmost point s1 or s2, it is "outside"
-                    auto const fraction = (place_on_ring == place_on_ring_to_offsetted ? value2 : value1) / length_value;
-                    if (fraction < the_state.edge_min_fraction)
-                    {
-                        the_state.edge_min_fraction = fraction;
-                    }
-                }
-            }
+            if (!the_state.near_helper_tip)
+                the_state.near_helper_tip = near_tip(point, s1, s2, place_on_ring == place_on_ring_to_offsetted);
         }
         else
         {
@@ -156,7 +183,13 @@ public:
                              bool is_convex,
                              counter& the_state)
     {
-        int const side = strategy::side::side_rounded_input<CalculationType>::apply(s1, s2, point);
+        int const side = [&]
+        {
+            if constexpr (std::is_void<Strategy>::value)
+                return strategy::side::side_rounded_input<CalculationType>::apply(s1, s2, point);
+            else
+                return Strategy::side().apply(s1, s2, point);
+        }();
 
         if (is_convex && side > 0)
         {
@@ -166,13 +199,9 @@ public:
             return false;
         }
 
-        CalculationType const px = get<0>(point);
-        CalculationType const s1x = get<0>(s1);
-        CalculationType const s2x = get<0>(s2);
-
-        bool const in_horizontal_range = s1x < s2x ? (px >= s1x && px <= s2x) : (px >= s2x && px <= s1x);
-
-        bool const vertical = s1x == s2x;
+        int const x1 = order<0>(s1, point), x2 = order<0>(s2, point);
+        bool const in_horizontal_range = x1 * x2 <= 0;
+        bool const vertical = order<0>(s1, s2) == 0;
 
         if (vertical ? is_in_vertical_range(point, s1, s2) : in_horizontal_range)
         {
@@ -190,8 +219,8 @@ public:
                 // Use only absolute comparisons, because the ring is continuous -
                 // what was missed is there earlier or later, and turns should
                 // not be counted twice (which can happen if an epsilon is used).
-                bool const eq1 = s1x == px;
-                bool const eq2 = s2x == px;
+                bool const eq1 = x1 == 0;
+                bool const eq2 = x2 == 0;
 
                 // Account for  1 or  2 for left side (outside)
                 //     and for -1 or -2 for right side (inside)

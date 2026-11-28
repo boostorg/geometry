@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <map>
 #include <set>
+#include <type_traits>
 #include <vector>
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
@@ -34,6 +35,7 @@
 #include <boost/range/end.hpp>
 #include <boost/range/value_type.hpp>
 
+#include <boost/geometry/core/cs.hpp>
 #include <boost/geometry/algorithms/detail/ring_identifier.hpp>
 #include <boost/geometry/algorithms/detail/overlay/check_enrich.hpp>
 #include <boost/geometry/algorithms/detail/overlay/discard_duplicate_turns.hpp>
@@ -100,6 +102,15 @@ inline void enrich_sort(Operations& operations,
                     Reverse1, Reverse2
                 >(turns, geometry1, geometry2, strategy));
 }
+
+#ifdef BOOST_GEOMETRY_DEBUG_ENRICH
+template <typename Operation>
+inline void print_enrich_fraction(std::ostream& os, Operation const& operation, std::true_type)
+{ os << " dst=" << operation.fraction; }
+
+template <typename Operation>
+inline void print_enrich_fraction(std::ostream&, Operation const&, std::false_type) {}
+#endif
 
 // Assign travel-to-vertex/ip index for each turn.
 template <typename Operations, typename Turns>
@@ -187,9 +198,10 @@ inline void enrich_assign(Operations& operations, Turns& turns)
         std::cout << indexed_op.turn_index
             << " cl=" << turns[indexed_op.turn_index].cluster_id
             << " meth=" << method_char(turns[indexed_op.turn_index].method)
-            << " seg=" << op.seg_id
-            << " dst=" << op.fraction // needs define
-            << " op=" << operation_char(turns[indexed_op.turn_index].operations[0].operation)
+            << " seg=" << op.seg_id;
+        using operation_type = typename std::decay<decltype(op)>::type;
+        print_enrich_fraction(std::cout, op, stores_fraction<typename operation_type::segment_ratio_type>());
+        std::cout << " op=" << operation_char(turns[indexed_op.turn_index].operations[0].operation)
             << operation_char(turns[indexed_op.turn_index].operations[1].operation)
             << " (" << operation_char(op.operation) << ")"
             << " to=" << op.enriched.travels_to_ip_index
@@ -267,33 +279,14 @@ inline void enrich_adapt(Operations& operations, Turns& turns)
         std::end(operations), predicate), std::end(operations));
 }
 
-struct enriched_map_default_include_policy
-{
-    template <typename Operation>
-    static inline bool include(Operation const& )
-    {
-        // By default include all operations
-        return true;
-    }
-};
-
-// Add all (non discarded) operations on this ring
-// Blocked operations or uu on clusters (for intersection)
-// should be included, to block potential paths in clusters
-template <typename Turns, typename IncludePolicy>
-inline auto create_map(Turns const& turns, IncludePolicy const& include_policy)
+// Keep blocked and discarded operations in the groups so enrichment can
+// decide which paths they still block.
+template <typename Turns>
+inline auto group_turn_operations_by_ring(Turns const& turns)
 {
     using turn_type = typename boost::range_value<Turns>::type;
-    using indexed_turn_operation = indexed_turn_operation
-        <
-            typename turn_type::turn_operation_type
-        >;
-
-    std::map
-    <
-        ring_identifier,
-        std::vector<indexed_turn_operation>
-    > mapped_vector;
+    using indexed = indexed_turn_operation<typename turn_type::turn_operation_type>;
+    std::map<ring_identifier, std::vector<indexed>> by_ring;
 
     for (auto const& turn_item : util::enumerate(turns))
     {
@@ -303,17 +296,12 @@ inline auto create_map(Turns const& turns, IncludePolicy const& include_policy)
         {
             auto const& op_index = op_item.index;
             auto const& op = op_item.value;
-            if (include_policy.include(op.operation))
-            {
-                mapped_vector[ring_id_by_seg_id(op.seg_id)].emplace_back
-                    (
-                         index, op_index, op, turn.operations[1 - op_index].seg_id, turn.discarded
-                    );
-            }
+            by_ring[ring_id_by_seg_id(op.seg_id)].emplace_back(
+                index, op_index, op, turn.operations[1 - op_index].seg_id, turn.discarded);
         }
     }
 
-    return mapped_vector;
+    return by_ring;
 }
 
 template
@@ -338,7 +326,10 @@ inline void enrich_discard_turns(Turns& turns, Clusters& clusters,
     // Turns are often used by index (in clusters, next_index, etc)
     // and turns may therefore NOT be DELETED - they may only be flagged as discarded
 
-    discard_duplicate_turns(turns, geometry1, geometry2);
+    constexpr bool require_cluster = OverlayType == overlay_buffer
+        && std::is_same<geometry::cs_tag_t<typename Turns::value_type::point_type>,
+                        cartesian_tag>::value;
+    discard_duplicate_turns<require_cluster>(turns, geometry1, geometry2);
 
     // Discard turns not part of target overlay
     for (auto& turn : turns)
@@ -406,16 +397,14 @@ inline void enrich_turns(Turns& turns,
 {
     constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-    // Create a map of vectors of indexed operation-types to be able
-    // to sort intersection points PER RING
-    auto mapped_vector = create_map(turns, enriched_map_default_include_policy());
+    auto by_ring = group_turn_operations_by_ring(turns);
 
-    for (auto& pair : mapped_vector)
+    for (auto& pair : by_ring)
     {
         enrich_sort<Reverse1, Reverse2>(pair.second, turns, geometry1, geometry2, strategy);
     }
 
-    for (auto& pair : mapped_vector)
+    for (auto& pair : by_ring)
     {
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     std::cout << "ENRICH-assign Ring " << pair.first << std::endl;
@@ -428,7 +417,10 @@ inline void enrich_turns(Turns& turns,
         enrich_assign(pair.second, turns);
     }
 
-    block_ux_uu_workaround(turns);
+    if constexpr (!strategies::relate::services::assumes_simplicity<IntersectionStrategy>::value)
+    {
+        block_ux_uu_workaround(turns);
+    }
 
 #ifdef BOOST_GEOMETRY_DEBUG_ENRICH
     constexpr bool do_check_graph = true;

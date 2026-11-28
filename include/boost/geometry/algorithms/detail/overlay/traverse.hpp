@@ -14,13 +14,13 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_TRAVERSE_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/algorithms/detail/overlay/graph/detect_biconnected_components.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/fill_ring_turn_info_map.hpp>
 #include <boost/geometry/algorithms/detail/overlay/graph/traverse_graph.hpp>
-#include <boost/geometry/util/constexpr.hpp>
 
 
 namespace boost { namespace geometry
@@ -30,6 +30,14 @@ namespace boost { namespace geometry
 namespace detail { namespace overlay
 {
 
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+template <typename Strategy, typename = void>
+struct supports_direct_crossings : std::false_type {};
+
+template <typename Strategy>
+struct supports_direct_crossings<Strategy, std::void_t<typename Strategy::supports_direct_crossings>>
+    : Strategy::supports_direct_crossings {};
+#endif
 
 /*!
     \brief Traverses through intersection points / geometries
@@ -64,8 +72,6 @@ public :
     {
         constexpr operation_type target_operation = operation_from_overlay<OverlayType>::value;
 
-        detect_biconnected_components<target_operation>(turns, clusters);
-
         traverse_graph
             <
                 Reverse1, Reverse2, OverlayType,
@@ -75,6 +81,20 @@ public :
             > traverser(geometry1, geometry2, turns, clusters,
                 intersection_strategy);
 
+#ifndef BOOST_GEOMETRY_NO_SELF_TURNS
+        if constexpr (supports_direct_crossings<IntersectionStrategy>::value
+                      && (OverlayType == overlay_union || OverlayType == overlay_intersection
+                          || OverlayType == overlay_difference))
+        {
+            if (traverser.iterate_crossings(rings))
+            {
+                update_ring_turn_info_map(turn_info_map, turns);
+                return;
+            }
+        }
+#endif
+
+        detect_biconnected_components<target_operation>(turns, clusters);
         traverser.iterate(rings);
 
         update_ring_turn_info_map(turn_info_map, turns);

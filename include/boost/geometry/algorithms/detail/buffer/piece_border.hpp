@@ -228,10 +228,12 @@ struct piece_border
 
 
     // Whatever the return value, the state should be checked.
-    template <typename TurnPoint, typename State>
+    template <typename TurnPoint, typename State,
+              typename Winding = geometry::strategy::buffer::turn_in_ring_winding<coordinate_type>>
     bool point_on_piece(TurnPoint const& point,
                         bool one_sided, bool is_linear_end_point,
-                        State& state, bool is_exposed_start, bool is_exposed_end) const
+                        State& state, bool is_exposed_start, bool is_exposed_end,
+                        Winding const& tir = Winding{}) const
     {
         if (ring_or_original_empty())
         {
@@ -243,8 +245,6 @@ struct piece_border
         // then the original part (one segment, if any), then the other helper
         // part (one segment), and only then the offsetted part
         // (probably more segments, check monotonicity)
-        geometry::strategy::buffer::turn_in_ring_winding<coordinate_type> tir;
-
         Point const offsetted_front = *(m_ring->begin() + m_begin);
         Point const offsetted_back = *(m_ring->begin() + m_end - 1);
 
@@ -329,14 +329,24 @@ private :
         // Move iterators if the offsetted ring is monotonic increasing or decreasing
         if (m_is_monotonic_increasing)
         {
-            if (! get_range_around(begin, end, point, geometry::less<Point, 0>(), it, beyond))
+            auto const less = [](auto const& a, auto const& b)
+            {
+                if constexpr (TiRStrategy::uses_default_order) return geometry::less<Point, 0>()(a, b);
+                else return TiRStrategy::template order<0>(a, b) < 0;
+            };
+            if (! get_range_around(begin, end, point, less, it, beyond))
             {
                 return true;
             }
         }
         else if (m_is_monotonic_decreasing)
         {
-            if (! get_range_around(begin, end, point, geometry::greater<Point, 0>(), it, beyond))
+            auto const greater = [](auto const& a, auto const& b)
+            {
+                if constexpr (TiRStrategy::uses_default_order) return geometry::greater<Point, 0>()(a, b);
+                else return TiRStrategy::template order<0>(a, b) > 0;
+            };
+            if (! get_range_around(begin, end, point, greater, it, beyond))
             {
                 return true;
             }

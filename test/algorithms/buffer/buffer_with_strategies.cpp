@@ -13,12 +13,15 @@
 #include <boost/geometry/algorithms/buffer.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/geometry/strategies/relate/cartesian_exact.hpp>
+#include <boost/geometry/strategies/relate/simple_cartesian.hpp>
 
 #include <boost/geometry/geometries/geometries.hpp>
 
 // For test
 #include <boost/geometry/algorithms/area.hpp>
 #include <boost/geometry/algorithms/correct.hpp>
+#include <boost/geometry/algorithms/is_valid.hpp>
 #include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 
@@ -133,11 +136,93 @@ void test_all()
         35.2257, 166);
 }
 
+template <typename Umbrella>
+void test_piece_strategy(Umbrella const& umbrella)
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using polygon = bg::model::polygon<point, false>;
+    using multi_polygon = bg::model::multi_polygon<polygon>;
+    using lines = bg::model::multi_linestring<bg::model::linestring<point>>;
+
+    auto const input = bg::from_wkt<lines>("MULTILINESTRING((0 0,8 0),(2 -4,2 4))");
+    auto const side = bg::strategy::buffer::side_straight{};
+    auto const join = bg::strategy::buffer::join_miter{};
+    auto const end = bg::strategy::buffer::end_flat{};
+    auto const circle = bg::strategy::buffer::point_circle{36};
+    multi_polygon result;
+    bg::buffer(input, result, bg::strategy::buffer::distance_symmetric<double>{1},
+               side, join, end, circle, umbrella);
+    BOOST_CHECK(bg::is_valid(result));
+    BOOST_CHECK_EQUAL(result.size(), 1u);
+    BOOST_CHECK_EQUAL(bg::area(result), 28.0);
+
+    auto const square = bg::from_wkt<polygon>("POLYGON((0 0,8 0,8 8,0 8,0 0))");
+    bg::buffer(square, result, bg::strategy::buffer::distance_symmetric<double>{-1},
+               side, join, end, circle, umbrella);
+    BOOST_CHECK(bg::is_valid(result));
+    BOOST_CHECK_EQUAL(result.size(), 1u);
+    BOOST_CHECK_EQUAL(bg::area(result), 36.0);
+}
+
+void test_winding_scan_axis()
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using ring = bg::model::ring<point>;
+    using simple = bg::strategies::relate::simple_cartesian;
+    using distance = bg::strategy::buffer::distance_symmetric<double>;
+    using collection = bg::detail::buffer::buffered_piece_collection<ring, simple, distance>;
+
+    // Use enough vertices to activate pruning. An x-section test drops both
+    // vertical sides for an interior query even though the winding scans y.
+    ring rectangle;
+    constexpr int size = 32;
+    for (int i = 0; i < size; ++i) rectangle.emplace_back(0, i);
+    for (int i = 0; i < size; ++i) rectangle.emplace_back(i, size);
+    for (int i = size; i > 0; --i) rectangle.emplace_back(size, i);
+    for (int i = size; i > 0; --i) rectangle.emplace_back(i, 0);
+    rectangle.push_back(rectangle.front());
+
+    auto const generation = simple::buffer_generation_strategy();
+    collection::original_ring original(rectangle, false, false, generation);
+    BOOST_REQUIRE(!original.m_sections.empty());
+    BOOST_REQUIRE_GE(original.m_ring.size() - original.m_sections.size(), 16u);
+
+    auto const check = [&](auto const& winding)
+    {
+        using bg::detail::buffer::point_in_original;
+        BOOST_CHECK_EQUAL(point_in_original(point(16, 16), original, winding), 1);
+        BOOST_CHECK_EQUAL(point_in_original(point(32, 16), original, winding), 0);
+        BOOST_CHECK_EQUAL(point_in_original(point(33, 16), original, winding), -1);
+    };
+    check(simple::relate(point{}, rectangle));
+    check(bg::strategies::detail::exact_cartesian::winding<double>{});
+
+    bg::sectionalize<false, std::index_sequence<0>>(rectangle, original.m_sections, generation);
+    check(bg::strategies::detail::simple_cartesian::winding<void, 0>{});
+    check(bg::strategies::detail::exact_cartesian::winding<double, 0>{});
+
+    // The out-and-back edges touch the query, but do not survive reduction.
+    // The prepared scan belongs to the original boundary, not its residual.
+    rectangle.emplace_back(-2, -2);
+    rectangle.push_back(rectangle.front());
+    namespace ec = bg::strategies::detail::exact_cartesian::ring_topology_detail;
+    auto const boundary = ec::make_boundary<double>(rectangle);
+    ec::predicates<double> const predicates;
+    ec::winding_edge_scan<double> const scan;
+    BOOST_CHECK_EQUAL(ec::algorithms::locate_raw(point(-1, -1), boundary, predicates, scan), 0);
+    BOOST_CHECK_EQUAL(ec::algorithms::locate(point(-1, -1), boundary, predicates, scan), -1);
+    BOOST_CHECK_EQUAL(ec::algorithms::locate(point(16, 0), boundary, predicates, scan), 0);
+}
+
 int test_main(int, char* [])
 {
     BoostGeometryWriteTestConfiguration();
 
     test_all<true, bg::model::point<default_test_type, 2, bg::cs::cartesian> >();
+    test_piece_strategy(bg::strategies::relate::simple_cartesian{});
+    test_piece_strategy(bg::strategies::relate::cartesian_exact
+        <double, bg::strategies::relate::bounded_ulp_output<4>>{});
+    test_winding_scan_axis();
 
     return 0;
 }

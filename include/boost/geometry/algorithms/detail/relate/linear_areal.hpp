@@ -14,6 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_AREAL_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <algorithm>
 #include <map>
 #include <memory>
@@ -388,7 +391,8 @@ struct linear_areal
 
         // get and analyse turns
         using turn_type = typename turn_info_type<Geometry1, Geometry2, Strategy>::type;
-        std::vector<turn_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_type>, strategies::detail::turn_storage::local>
+            (strategy, geometry1, geometry2);
 
         interrupt_policy_linear_areal<Geometry2, BoundaryChecker1, Result>
             interrupt_policy(geometry1, geometry2, boundary_checker1, result);
@@ -437,7 +441,7 @@ struct linear_areal
         }
 
         {
-            sort_dispatch(turns.begin(), turns.end(), strategy, util::is_multi<Geometry2>());
+            sort_dispatch(turns, geometry1, strategy, util::is_multi<Geometry2>());
 
             turns_analyser<turn_type> analyser;
             analyse_each_turn(result, analyser,
@@ -469,7 +473,7 @@ struct linear_areal
 //       Some benchmarking should probably be done to check if only one std::sort should be used
 
             // sort by multi_index and rind_index
-            std::sort(turns.begin(), turns.end(), less_ring());
+            geometry::detail::turns::sort_turns(turns, less_ring());
 
             segment_identifier * prev_seg_id_ptr = NULL;
             // for each ring
@@ -534,7 +538,7 @@ struct linear_areal
                 {
                     // u, c
                     using less_t = turns::less<1, turns::less_op_areal_linear<1>, Strategy>;
-                    std::sort(it, next, less_t());
+                    geometry::detail::turns::sort_turns(turns, it, next, less_t(strategy).on_geometry(geometry2));
 
                     // analyse
                     areal_boundary_analyser<turn_type> analyser;
@@ -603,10 +607,21 @@ struct linear_areal
     struct same_ip
     {
         template <typename Turn>
+        static bool same_position(Turn const& left, Turn const& right, std::true_type)
+        { return left.operations[0].fraction == right.operations[0].fraction; }
+
+        template <typename Turn>
+        static bool same_position(Turn const& left, Turn const& right, std::false_type)
+        {
+            using position = typename Turn::segment_ratio_type;
+            return position::equal(left.point, right.point);
+        }
+
+        template <typename Turn>
         bool operator()(Turn const& left, Turn const& right) const
         {
             return left.operations[0].seg_id == right.operations[0].seg_id
-                && left.operations[0].fraction == right.operations[0].fraction;
+                && same_position(left, right, overlay::stores_fraction<typename Turn::segment_ratio_type>());
         }
     };
 
@@ -644,34 +659,51 @@ struct linear_areal
         }
     };
 
-    template <typename SingleLess>
+    template <typename Turns, typename SingleLess>
     struct sort_turns_group
     {
         struct less
         {
+            explicit less(SingleLess const& single_less)
+                : m_single_less(single_less)
+            {}
+
             template <typename Turn>
             bool operator()(Turn const& left, Turn const& right) const
             {
                 return left.operations[1].seg_id.multi_index == right.operations[1].seg_id.multi_index ?
-                    SingleLess()(left, right) :
+                    m_single_less(left, right) :
                     left.priority < right.priority;
             }
+
+        private:
+            SingleLess m_single_less;
         };
+
+        sort_turns_group(Turns& turns, SingleLess const& single_less)
+            : m_turns(turns), m_less(single_less)
+        {}
 
         template <typename TurnIt>
         void operator()(TurnIt first, TurnIt last) const
         {
-            std::sort(first, last, less());
+            geometry::detail::turns::sort_turns(m_turns, first, last, m_less);
         }
+
+    private:
+        Turns& m_turns;
+        less m_less;
     };
 
-    template <typename TurnIt, typename Strategy>
-    static void sort_dispatch(TurnIt first, TurnIt last, Strategy const& ,
+    template <typename Turns, typename Strategy>
+    static void sort_dispatch(Turns& turns, Geometry1 const& geometry, Strategy const& strategy,
                               std::true_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then by other multi_index
         using less_t = turns::less<0, turns::less_other_multi_index<0>, Strategy>;
-        std::sort(first, last, less_t());
+        geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry));
+        auto const first = turns.begin();
+        auto const last = turns.end();
 
         // For the same IP and multi_index - the same other's single geometry
         // set priorities as the least operation found for the whole single geometry
@@ -685,20 +717,21 @@ struct linear_areal
         // if multi_index is the same sort them according to the single-less
         // else use priority of the whole single-geometry set earlier
         using single_less_t = turns::less<0, turns::less_op_linear_areal_single<0>, Strategy>;
+        auto const single_less = single_less_t(strategy).on_geometry(geometry);
         for_each_equal_range(first, last,
-                             sort_turns_group<single_less_t>(),
+                             sort_turns_group<Turns, decltype(single_less)>(turns, single_less),
                              same_ip());
     }
 
-    template <typename TurnIt, typename Strategy>
-    static void sort_dispatch(TurnIt first, TurnIt last, Strategy const& ,
+    template <typename Turns, typename Strategy>
+    static void sort_dispatch(Turns& turns, Geometry1 const& geometry, Strategy const& strategy,
                               std::false_type const& /*is_multi*/)
     {
         // sort turns by Linear seg_id, then by fraction, then
         // for same ring id: x, u, i, c
         // for different ring id: c, i, u, x
         using less_t = turns::less<0, turns::less_op_linear_areal_single<0>, Strategy>;
-        std::sort(first, last, less_t());
+        geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry));
     }
 
 
@@ -839,7 +872,7 @@ struct linear_areal
                 // real exit point - may be multiple
                 // we know that we entered and now we exit
                 if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
-                                                  strategy) )
+                                                  geometry, strategy) )
                 {
                     m_exit_watcher.reset_detected_exit();
 
@@ -881,7 +914,7 @@ struct linear_areal
                 if ( ( op == overlay::operation_intersection
                     || op == overlay::operation_continue )
                   && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(), *it,
-                                                strategy) )
+                                                geometry, strategy) )
                 {
                     fake_enter_detected = true;
                 }
@@ -902,7 +935,7 @@ struct linear_areal
                         && (op != overlay::operation_blocked // operation different than block
                             || seg_id.multi_index != m_previous_turn_ptr->operations[op_id].seg_id.multi_index)) // or the next single-geometry
                      || (m_previous_operation == overlay::operation_union
-                        && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, strategy)))
+                        && ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it, geometry, strategy)))
                     {
                         update<interior, exterior, '1', TransposeResult>(res);
                         if ( m_first_from_unknown_boundary_detected )
@@ -935,7 +968,7 @@ struct linear_areal
 
                 // real interior overlap
                 if ( ! turn_on_the_same_ip<op_id>(*m_previous_turn_ptr, *it,
-                                                  strategy) )
+                                                  geometry, strategy) )
                 {
                     update<interior, interior, '1', TransposeResult>(res);
                     m_interior_detected = false;
@@ -1099,11 +1132,15 @@ struct linear_areal
                     if ( op_blocked
                       && it->operations[op_id].position == overlay::position_back ) // ignore spikes!
                     {
-                        // check if this is indeed the boundary point
-                        // NOTE: is_ip_on_boundary<>() should be called here but the result will be the same
+                        // A member end (or the end of a clipped piece in a
+                        // collection) need not be on the linear boundary.
                         if (boundary_checker.is_endpoint_boundary(it->point))
                         {
                             update<boundary, boundary, '0', TransposeResult>(res);
+                        }
+                        else
+                        {
+                            update<interior, boundary, '0', TransposeResult>(res);
                         }
                     }
                     // union, inside, but no exit -> collinear on self-intersection point
@@ -1378,7 +1415,7 @@ struct linear_areal
                 std::map<std::pair<signed_size_type, signed_size_type>, bool> rings;
                 // At a ring touch, arrival inside the polygon must satisfy every
                 // incident ring, not just the ring of the first processed turn.
-                for (TurnIt jt = it; jt != last && turn_on_the_same_ip<0>(*it, *jt, strategy); ++jt)
+                for (TurnIt jt = it; jt != last && turn_on_the_same_ip<0>(*it, *jt, geometry, strategy); ++jt)
                 {
                     auto const& id = jt->operations[1].seg_id;
                     bool const inside = calculate_from_inside<0>(geometry, other_geometry, *jt, strategy);

@@ -33,6 +33,7 @@ void test_spikes_in_ticket_8364()
 
     typedef bg::model::polygon<P, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
+    constexpr bool integer = std::is_integral<bg::coordinate_type_t<P>>::value;
 
     // The difference of polygons below result in a spike. The spike should be there, it was also generated in ttmath,
     // and (e.g.) in SQL Server. However, using int-coordinates, the spike makes the polygon invalid. Therefore it is now (since August 2013) checked and removed.
@@ -42,7 +43,8 @@ void test_spikes_in_ticket_8364()
         "MULTIPOLYGON(((3232 2532,2136 2790,1032 1764,1032 1458,1032 1212,2136 2328,3232 2220,3232 1056,1031 1056,1031 2856,3232 2856,3232 2532)))",
         "MULTIPOLYGON(((1032 2130,2052 2712,1032 1764,1032 2130)),((3234 2580,3234 2532,2558 2690,3234 2580)),((2558 2690,2136 2760,2052 2712,2136 2790,2558 2690)))",
         count_set(1, 2, 3), -1, expectation_limits(2774644, 2775610), // SQL Server: 2775256.47588724
-        3, -1, expectation_limits(7810, 7903), // SQL Server: 7810.48711165739
+        // Truncation of the exact result gives 7710.5 in integer output.
+        3, -1, integer ? expectation_limits(7710.5) : expectation_limits(7810, 7903),
         count_set(2, 3, 6), ignore_validity);
 
     // TODO: behaviour is not good yet. It is changed at introduction of self-turns.
@@ -62,17 +64,22 @@ void test_spikes_in_ticket_8365()
 
     typedef bg::model::polygon<P, ClockWise, Closed> polygon;
     typedef bg::model::multi_polygon<polygon> multi_polygon;
+    constexpr bool integer = std::is_integral<bg::coordinate_type_t<P>>::value;
+    ut_settings settings;
+    // A small exact component collapses when its vertices are truncated.
+    settings.validity_false_negative_a = integer;
+    settings.validity_of_sym = !integer;
 
     test_one<polygon, multi_polygon, multi_polygon>("ticket_8365_step2",
         "MULTIPOLYGON(((971 2704,971 1402,4640 1402,3912 1722,3180 2376,3912 1884,4643 1402,5395 1402,5395 3353,971 3353,971 2865,1704 3348)))",
         "MULTIPOLYGON(((5388 1560,4650 1722,3912 1884,4650 1398)),((2442 3186,1704 3348,966 2700,1704 3024)))",
         2,
         18,
-        expectation_limits(7975092.5, 7975207.6047877),
+        integer ? expectation_limits(7974930.5) : expectation_limits(7975092.5, 7975207.6047877),
         2,
         -1,
-        expectation_limits(196.5, 198.5),
-        count_set(2, 4));
+        integer ? expectation_limits(199) : expectation_limits(196.5, 198.5),
+        count_set(2, 4), settings);
 }
 
 int test_main(int, char* [])

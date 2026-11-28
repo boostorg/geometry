@@ -32,6 +32,7 @@
 
 #include <boost/geometry/geometries/concepts/check.hpp>
 
+#include <boost/geometry/strategies/detail/box_topology.hpp>
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
@@ -52,92 +53,15 @@ template
     std::size_t DimensionCount
 >
 struct box_box_loop
-{
-    template <typename Box1, typename Box2>
-    static inline void apply(Box1 const& b1, Box2 const& b2,
-            bool& overlaps, bool& one_in_two, bool& two_in_one)
-    {
-        assert_dimension_equal<Box1, Box2>();
-
-        using coordinate_type1 = coordinate_type_t<Box1>;
-        using coordinate_type2 = coordinate_type_t<Box2>;
-
-        coordinate_type1 const& min1 = get<min_corner, Dimension>(b1);
-        coordinate_type1 const& max1 = get<max_corner, Dimension>(b1);
-        coordinate_type2 const& min2 = get<min_corner, Dimension>(b2);
-        coordinate_type2 const& max2 = get<max_corner, Dimension>(b2);
-
-        // We might use the (not yet accepted) Boost.Interval
-        // submission in the future
-
-        // If:
-        // B1: |-------|
-        // B2:           |------|
-        // in any dimension -> no overlap
-        if (max1 <= min2 || min1 >= max2)
-        {
-            overlaps = false;
-            return;
-        }
-
-        // If:
-        // B1: |--------------------|
-        // B2:   |-------------|
-        // in all dimensions -> within, then no overlap
-        // B1: |--------------------|
-        // B2: |-------------|
-        // this is "within-touch" -> then no overlap. So use < and >
-        if (min1 < min2 || max1 > max2)
-        {
-            one_in_two = false;
-        }
-
-        // Same other way round
-        if (min2 < min1 || max2 > max1)
-        {
-            two_in_one = false;
-        }
-
-        box_box_loop
-            <
-                Dimension + 1,
-                DimensionCount
-            >::apply(b1, b2, overlaps, one_in_two, two_in_one);
-    }
-};
-
-template
-<
-    std::size_t DimensionCount
->
-struct box_box_loop<DimensionCount, DimensionCount>
-{
-    template <typename Box1, typename Box2>
-    static inline void apply(Box1 const& , Box2 const&, bool&, bool&, bool&)
-    {
-    }
-};
+    : strategies::detail::box_topology_detail::overlaps_loop<Dimension, DimensionCount>
+{};
 
 struct box_box
 {
     template <typename Box1, typename Box2, typename Strategy>
-    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& /*strategy*/)
+    static inline bool apply(Box1 const& b1, Box2 const& b2, Strategy const& strategy)
     {
-        bool overlaps = true;
-        bool within1 = true;
-        bool within2 = true;
-        box_box_loop
-            <
-                0,
-                dimension<Box1>::type::value
-            >::apply(b1, b2, overlaps, within1, within2);
-
-        /*
-        \see http://docs.codehaus.org/display/GEOTDOC/02+Geometry+Relationships#02GeometryRelationships-Overlaps
-        where is stated that "inside" is not an "overlap",
-        this is true and is implemented as such.
-        */
-        return overlaps && ! within1 && ! within2;
+        return strategies::detail::get_box_topology(strategy).overlaps().apply(b1, b2);
     }
 };
 

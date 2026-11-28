@@ -28,7 +28,7 @@
 #include <boost/geometry/policies/relate/intersection_policy.hpp>
 
 #include <boost/geometry/algorithms/intersection.hpp>
-#include <boost/geometry/algorithms/detail/overlay/segment_as_subrange.hpp>
+#include <boost/geometry/views/detail/segment_as_subrange.hpp>
 
 #include <boost/geometry/geometries/point.hpp>
 #include <boost/geometry/geometries/segment.hpp>

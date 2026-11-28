@@ -25,7 +25,7 @@
 
 #include <boost/geometry/algorithms/detail/disjoint/box_box.hpp>
 #include <boost/geometry/algorithms/detail/disjoint/point_box.hpp>
-#include <boost/geometry/algorithms/detail/expand_by_epsilon.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 #include <boost/geometry/algorithms/detail/within/point_in_geometry.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
@@ -40,6 +40,7 @@
 
 #include <boost/geometry/strategies/covered_by.hpp>
 #include <boost/geometry/strategies/disjoint.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 #include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/type_traits.hpp>
@@ -123,9 +124,11 @@ struct multi_point_single_geometry
                              Strategy const& strategy)
     {
         // Create envelope of geometry
-        model::box<point_type_t<LinearOrAreal>> box;
+        using box_type = typename strategies::relate::services::box_type
+            <Strategy, point_type_t<LinearOrAreal>>::type;
+        box_type box;
         geometry::envelope(linear_or_areal, box, strategy);
-        geometry::detail::expand_by_epsilon(box);
+        strategies::detail::expand_search_envelope(box, strategy);
 
         // Test each Point with envelope and then geometry if needed
         // If in the exterior, break
@@ -167,7 +170,7 @@ struct multi_point_multi_geometry
                              Strategy const& strategy)
     {
         using point2_type = point_type_t<LinearOrAreal>;
-        using box2_type = model::box<point2_type>;
+        using box2_type = typename strategies::relate::services::box_type<Strategy, point2_type>::type;
         using box_pair_type = std::pair<box2_type, std::size_t>;
         using box_pair_vector = std::vector<box_pair_type>;
 
@@ -181,7 +184,7 @@ struct multi_point_multi_geometry
         for (std::size_t i = 0 ; i < count2 ; ++i)
         {
             geometry::envelope(linear_or_areal, boxes[i].first, strategy);
-            geometry::detail::expand_by_epsilon(boxes[i].first);
+            strategies::detail::expand_search_envelope(boxes[i].first, strategy);
             boxes[i].second = i;
         }
 

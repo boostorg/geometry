@@ -26,6 +26,7 @@
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/strategies/distance.hpp>
+#include <boost/geometry/views/detail/segment_as_subrange.hpp>
 #include <boost/geometry/strategies/tags.hpp>
 
 #include <boost/geometry/util/condition.hpp>
@@ -61,8 +62,8 @@ public:
                 intersection_return_type
             >;
 
-        detail::segment_as_subrange<Segment1> sub_range1(segment1);
-        detail::segment_as_subrange<Segment2> sub_range2(segment2);
+        geometry::detail::segment_as_subrange<Segment1> sub_range1(segment1);
+        geometry::detail::segment_as_subrange<Segment2> sub_range2(segment2);
         auto is = strategies.relate().apply(sub_range1, sub_range2,
                                             intersection_policy());
         if (is.count > 0)

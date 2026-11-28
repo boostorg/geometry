@@ -469,7 +469,7 @@ void test_multi_linestring_polygon()
         poly g2;
         bg::read_wkt(wkt2, g2);
 
-        check_geometry(g1, g2, wkt1, wkt2, "*********");
+        check_geometry(g1, g2, wkt1, wkt2, "*********", "", bg::strategies::relate::cartesian<>{});
     }
 }
 
@@ -603,6 +603,8 @@ void test_all()
         "((0 0,1 -1,0 -2,-1 -1,0 0)))";
     // The first entry and exit are distinct even if both round to (0, -1).
     test_geometry<ls, mpoly>("LINESTRING(1 -2,-1 5)",
+        "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)))", "101FF0212");
+    test_geometry<ls, mpoly>("LINESTRING(-1 5,1 -2)",
         "MULTIPOLYGON(((0 0,1 -1,0 -2,-1 -1,0 0)))", "101FF0212");
 
     test_geometry<ls, mpoly>("LINESTRING(0 -1,0 0,-1 0)", touching, "1010F0212");

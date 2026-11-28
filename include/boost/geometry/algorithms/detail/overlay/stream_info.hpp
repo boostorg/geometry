@@ -16,6 +16,7 @@
 
 
 #include <string>
+#include <ostream>
 
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 
@@ -37,6 +38,13 @@ namespace detail { namespace overlay
         return h == 0 ? "-" : (h == 1 ? "A" : "D");
     }
 
+    template <typename Info>
+    inline void stream_fraction(std::ostream& os, Info const& info, std::true_type)
+    { os << " frac " << info.fraction; }
+
+    template <typename Info>
+    inline void stream_fraction(std::ostream&, Info const&, std::false_type) {}
+
     template <typename P, typename SR, typename O, typename C>
     std::ostream& operator<<(std::ostream &os, turn_info<P, SR, O, C> const& info)
     {
@@ -56,9 +64,9 @@ namespace detail { namespace overlay
                 << dir(info.sides.template get<1,0>())
                 << dir(info.sides.template get<1,1>())
             << " nxt seg " << info.travels_to_vertex_index
-            << " , ip " << info.travels_to_ip_index
-            << " frac " << info.fraction
-            << info.visit_state;
+            << " , ip " << info.travels_to_ip_index;
+        stream_fraction(os, info, stores_fraction<SR>());
+        os << info.visit_state;
         if (info.flagged)
         {
             os << " FLAGGED";

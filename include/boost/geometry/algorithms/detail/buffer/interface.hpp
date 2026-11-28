@@ -25,6 +25,8 @@
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/geometries/concepts/check.hpp>
 #include <boost/geometry/strategies/buffer/services.hpp>
+#include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
 
 namespace boost { namespace geometry
@@ -112,7 +114,8 @@ struct buffer_all
         typename SideStrategy,
         typename JoinStrategy,
         typename EndStrategy,
-        typename PointStrategy
+        typename PointStrategy,
+        typename UmbrellaStrategy
     >
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
@@ -120,18 +123,21 @@ struct buffer_all
                              SideStrategy const& side_strategy,
                              JoinStrategy const& join_strategy,
                              EndStrategy const& end_strategy,
-                             PointStrategy const& point_strategy)
+                             PointStrategy const& point_strategy,
+                             UmbrellaStrategy const& umbrella_strategy)
     {
-        typename strategies::buffer::services::default_strategy
-            <
-                Input
-            >::type strategies;
-
-        dispatch::buffer_all
-            <
-                Input, Output
-            >::apply(geometry_in, geometry_out, distance_strategy, side_strategy,
-                     join_strategy, end_strategy, point_strategy, strategies);
+        if constexpr (std::is_same<UmbrellaStrategy, default_strategy>::value)
+        {
+            using strategy_type = typename strategies::buffer::services::default_strategy<Input>::type;
+            apply(geometry_in, geometry_out, distance_strategy, side_strategy,
+                  join_strategy, end_strategy, point_strategy, strategy_type{});
+        }
+        else
+        {
+            dispatch::buffer_all<Input, Output>::apply(
+                geometry_in, geometry_out, distance_strategy, side_strategy,
+                join_strategy, end_strategy, point_strategy, umbrella_strategy);
+        }
     }
 };
 
@@ -145,7 +151,8 @@ struct buffer_all<Input, dynamic_geometry_tag>
         typename SideStrategy,
         typename JoinStrategy,
         typename EndStrategy,
-        typename PointStrategy
+        typename PointStrategy,
+        typename UmbrellaStrategy
     >
     static inline void apply(Input const& geometry_in,
                              Output& geometry_out,
@@ -153,7 +160,8 @@ struct buffer_all<Input, dynamic_geometry_tag>
                              SideStrategy const& side_strategy,
                              JoinStrategy const& join_strategy,
                              EndStrategy const& end_strategy,
-                             PointStrategy const& point_strategy)
+                             PointStrategy const& point_strategy,
+                             UmbrellaStrategy const& umbrella_strategy)
     {
         traits::visit<Input>::apply([&](auto const& g)
         {
@@ -161,7 +169,7 @@ struct buffer_all<Input, dynamic_geometry_tag>
                 <
                     util::remove_cref_t<decltype(g)>
                 >::apply(g, geometry_out, distance_strategy, side_strategy,
-                         join_strategy, end_strategy, point_strategy);
+                         join_strategy, end_strategy, point_strategy, umbrella_strategy);
         }, geometry_in);
     }
 };
@@ -231,6 +239,7 @@ inline Output return_buffer(Input const& geometry, Distance const& distance,
 \tparam JoinStrategy A strategy defining creation around convex corners
 \tparam EndStrategy A strategy defining creation at linestring ends
 \tparam PointStrategy A strategy defining creation around points
+\tparam UmbrellaStrategy A buffer umbrella strategy for spatial operations on the generated pieces
 \param geometry_in \param_geometry
 \param geometry_out output geometry, e.g. multi polygon,
        will contain a buffered version of the input geometry
@@ -239,10 +248,46 @@ inline Output return_buffer(Input const& geometry, Distance const& distance,
 \param join_strategy The join strategy to be used
 \param end_strategy The end strategy to be used
 \param point_strategy The point strategy to be used
+\param umbrella_strategy The strategy for predicates, intersections and collection union
 
 \qbk{distinguish,with strategies}
 \qbk{[include reference/algorithms/buffer_with_strategies.qbk]}
  */
+template
+<
+    typename GeometryIn,
+    typename GeometryOut,
+    typename DistanceStrategy,
+    typename SideStrategy,
+    typename JoinStrategy,
+    typename EndStrategy,
+    typename PointStrategy,
+    typename UmbrellaStrategy
+>
+inline void buffer(GeometryIn const& geometry_in,
+                   GeometryOut& geometry_out,
+                   DistanceStrategy const& distance_strategy,
+                   SideStrategy const& side_strategy,
+                   JoinStrategy const& join_strategy,
+                   EndStrategy const& end_strategy,
+                   PointStrategy const& point_strategy,
+                   UmbrellaStrategy const& umbrella_strategy)
+{
+    concepts::check<GeometryIn const>();
+    concepts::check<GeometryOut>();
+
+    static_assert(std::is_same<UmbrellaStrategy, default_strategy>::value
+               || strategies::detail::is_umbrella_strategy<UmbrellaStrategy>::value,
+                  "Expected a buffer umbrella strategy");
+
+    geometry::clear(geometry_out);
+
+    resolve_dynamic::buffer_all<GeometryIn>::apply(
+        geometry_in, geometry_out, distance_strategy, side_strategy,
+        join_strategy, end_strategy, point_strategy, umbrella_strategy);
+}
+
+/// \overload
 template
 <
     typename GeometryIn,
@@ -261,18 +306,9 @@ inline void buffer(GeometryIn const& geometry_in,
                    EndStrategy const& end_strategy,
                    PointStrategy const& point_strategy)
 {
-    concepts::check<GeometryIn const>();
-    concepts::check<GeometryOut>();
-
-    geometry::clear(geometry_out);
-
-    resolve_dynamic::buffer_all
-        <
-            GeometryIn, GeometryOut
-        >::apply(geometry_in, geometry_out, distance_strategy, side_strategy,
-                 join_strategy, end_strategy, point_strategy);
+    geometry::buffer(geometry_in, geometry_out, distance_strategy, side_strategy,
+                     join_strategy, end_strategy, point_strategy, default_strategy{});
 }
-
 
 }} // namespace boost::geometry
 

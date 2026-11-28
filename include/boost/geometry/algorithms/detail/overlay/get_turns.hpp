@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURNS_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <array>
 #include <cstddef>
@@ -36,7 +38,7 @@
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/sections/range_by_section.hpp>
 #include <boost/geometry/algorithms/detail/sections/section_box_policies.hpp>
-#include <boost/geometry/algorithms/detail/sections/section_functions.hpp>
+#include <boost/geometry/strategies/detail/section.hpp>
 #include <boost/geometry/algorithms/detail/sections/sectionalize.hpp>
 
 #include <boost/geometry/core/assert.hpp>
@@ -56,6 +58,7 @@
 
 #include <boost/geometry/strategies/intersection_strategies.hpp>
 #include <boost/geometry/strategies/intersection_result.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/type_traits.hpp>
@@ -83,6 +86,34 @@ namespace boost { namespace geometry
 namespace detail { namespace get_turns
 {
 
+template <typename Strategy, typename P, typename Q>
+auto segment_y_disjoint(Strategy const& s, P const& a, P const& b, Q const& c, Q const& d, int)
+    -> decltype(s.segment_y_disjoint(a, b, c, d))
+{
+    return s.segment_y_disjoint(a, b, c, d);
+}
+
+template <typename Strategy, typename P, typename Q>
+bool segment_y_disjoint(Strategy const&, P const&, P const&, Q const&, Q const&, long)
+{
+    return false;
+}
+
+enum class pair_action { ordinary, skip, stop };
+
+template <typename Policy, typename Strategy, typename P, typename Q>
+auto before_segment_pair(Policy& policy, Strategy const& strategy,
+                         P const& a, P const& b, Q const& c, Q const& d, int)
+    -> decltype(policy.before_segment_pair(strategy, a, b, c, d))
+{
+    return policy.before_segment_pair(strategy, a, b, c, d);
+}
+
+template <typename Policy, typename Strategy, typename P, typename Q>
+pair_action before_segment_pair(Policy&, Strategy const&, P const&, P const&, Q const&, Q const&, long)
+{
+    return pair_action::ordinary;
+}
 
 struct no_interrupt_policy
 {
@@ -281,7 +312,7 @@ public :
         range1_iterator prev1, it1, end1;
 
         get_start_point_iterator(sec1, view1, prev1, it1, end1,
-                    index1, ndi1, dir1, sec2.bounding_box);
+                    index1, ndi1, dir1, sec2.bounding_box, strategy);
 
         // We need a circular iterator because it might run through the closing point.
         // One circle is actually enough but this one is just convenient.
@@ -292,7 +323,8 @@ public :
         // section 2:    [--------------]
         // section 1: |----|---|---|---|---|
         for (prev1 = it1++, next1++;
-            it1 != end1 && ! detail::section::exceeding<0>(dir1, *prev1, sec1.bounding_box, sec2.bounding_box);
+            it1 != end1 && ! strategies::detail::get_section(strategy).template preceding<0>
+                (-dir1, *prev1, sec1.bounding_box, sec2.bounding_box);
             ++prev1, ++it1, ++index1, ++next1, ++ndi1)
         {
             unique_sub_range_from_section
@@ -310,12 +342,13 @@ public :
             range2_iterator prev2, it2, end2;
 
             get_start_point_iterator(sec2, view2, prev2, it2, end2,
-                        index2, ndi2, dir2, sec1.bounding_box);
+                        index2, ndi2, dir2, sec1.bounding_box, strategy);
             circular2_iterator next2(begin_range_2, end_range_2, it2, true);
             next2++;
 
             for (prev2 = it2++, next2++;
-                it2 != end2 && ! detail::section::exceeding<0>(dir2, *prev2, sec2.bounding_box, sec1.bounding_box);
+                it2 != end2 && ! strategies::detail::get_section(strategy).template preceding<0>
+                (-dir2, *prev2, sec2.bounding_box, sec1.bounding_box);
                 ++prev2, ++it2, ++index2, ++next2, ++ndi2)
             {
                 bool skip = false;
@@ -348,6 +381,14 @@ public :
 
                 if (! skip)
                 {
+                    if (segment_y_disjoint(strategy, *prev1, *it1, *prev2, *it2, 0))
+                        continue;
+                    auto const action = before_segment_pair(interrupt_policy,
+                        strategy, *prev1, *it1, *prev2, *it2, 0);
+                    if (action == pair_action::stop)
+                        return false;
+                    if (action == pair_action::skip)
+                        continue;
                     unique_sub_range_from_section
                         <
                             areal2, Section2, point2_type, circular2_iterator,
@@ -369,9 +410,14 @@ public :
 
                     std::size_t const size_before = boost::size(turns);
 
-                    TurnPolicy::apply(unique_sub_range1, unique_sub_range2,
-                                      ti, strategy,
-                                      std::back_inserter(turns));
+                    {
+                        auto scope = strategies::detail::segment_pair_scope<Reverse1, Reverse2>(
+                            strategy, ti.operations[0].seg_id, ti.operations[1].seg_id);
+                        boost::ignore_unused(scope);
+                        TurnPolicy::apply(unique_sub_range1, unique_sub_range2,
+                                          ti, strategy,
+                                          std::back_inserter(turns));
+                    }
 
                     if (InterruptPolicy::enabled)
                     {
@@ -397,14 +443,14 @@ private :
     // because of the logistics of "index" (the section-iterator automatically
     // skips to the begin-point, we loose the index or have to recalculate it)
     // So we mimic it here
-    template <typename Range, typename Section, typename Box>
+    template <typename Range, typename Section, typename Box, typename Strategy>
     static inline void get_start_point_iterator(Section const& section,
             Range const& range,
             typename boost::range_iterator<Range const>::type& it,
             typename boost::range_iterator<Range const>::type& prev,
             typename boost::range_iterator<Range const>::type& end,
             signed_size_type& index, signed_size_type& ndi,
-            int dir, Box const& other_bounding_box)
+            int dir, Box const& other_bounding_box, Strategy const& strategy)
     {
         it = boost::begin(range) + section.begin_index;
         end = boost::begin(range) + section.end_index + 1;
@@ -412,7 +458,8 @@ private :
         // Mimic section-iterator:
         // Skip to point such that section interects other box
         prev = it++;
-        for(; it != end && detail::section::preceding<0>(dir, *it, section.bounding_box, other_bounding_box);
+        for(; it != end && strategies::detail::get_section(strategy).template preceding<0>
+                (dir, *it, section.bounding_box, other_bounding_box);
             prev = it++, index++, ndi++)
         {}
         // Go back one step because we want to start completely preceding
@@ -499,7 +546,7 @@ public:
         using ip_type = typename boost::range_value<Turns>::type;
         using point_type = typename ip_type::point_type;
 
-        using box_type = model::box<point_type>;
+        using box_type = typename strategies::relate::services::box_type<Strategy, point_type>::type;
         using sections_type = geometry::sections<box_type, 2>;
 
         sections_type sec1, sec2;
@@ -691,27 +738,47 @@ private:
 
         unique_sub_range_from_box_policy box_unique_sub_range(box);
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 0);
-        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
-                          ti, intersection_strategy,
-                          std::back_inserter(turns));
+        {
+            auto scope = strategies::detail::segment_pair_scope<ReverseRange, ReverseBox>(
+                intersection_strategy, ti.operations[0].seg_id, ti.operations[1].seg_id);
+            boost::ignore_unused(scope);
+            TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                              ti, intersection_strategy,
+                              std::back_inserter(turns));
+        }
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 1);
         box_unique_sub_range.next();
-        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
-                          ti, intersection_strategy,
-                          std::back_inserter(turns));
+        {
+            auto scope = strategies::detail::segment_pair_scope<ReverseRange, ReverseBox>(
+                intersection_strategy, ti.operations[0].seg_id, ti.operations[1].seg_id);
+            boost::ignore_unused(scope);
+            TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                              ti, intersection_strategy,
+                              std::back_inserter(turns));
+        }
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 2);
         box_unique_sub_range.next();
-        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
-                          ti, intersection_strategy,
-                          std::back_inserter(turns));
+        {
+            auto scope = strategies::detail::segment_pair_scope<ReverseRange, ReverseBox>(
+                intersection_strategy, ti.operations[0].seg_id, ti.operations[1].seg_id);
+            boost::ignore_unused(scope);
+            TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                              ti, intersection_strategy,
+                              std::back_inserter(turns));
+        }
 
         ti.operations[1].seg_id = segment_identifier(source_id2, -1, -1, 3);
         box_unique_sub_range.next();
-        TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
-                          ti, intersection_strategy,
-                          std::back_inserter(turns));
+        {
+            auto scope = strategies::detail::segment_pair_scope<ReverseRange, ReverseBox>(
+                intersection_strategy, ti.operations[0].seg_id, ti.operations[1].seg_id);
+            boost::ignore_unused(scope);
+            TurnPolicy::apply(range_unique_sub_range, box_unique_sub_range,
+                              ti, intersection_strategy,
+                              std::back_inserter(turns));
+        }
 
         if (InterruptPolicy::enabled)
         {

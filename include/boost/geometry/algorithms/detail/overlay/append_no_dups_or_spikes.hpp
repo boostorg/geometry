@@ -28,6 +28,7 @@
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 
 #include <boost/geometry/util/constexpr.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -40,6 +41,58 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
+
+template <typename Strategy, typename Range>
+inline bool try_remove_spikes_at_closure(Strategy const& strategy, Range& range)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.remove_spikes_at_closure(range), void())
+    { s.remove_spikes_at_closure(range); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+        return true;
+    }
+    return false;
+}
+
+template <typename Strategy, typename Range>
+inline bool try_fix_closure(Strategy const& strategy, Range& range)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.fix_closure(range), void())
+    { s.fix_closure(range); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+        return true;
+    }
+    return false;
+}
+
+template <typename Strategy, typename Range, typename Point>
+inline bool try_append_no_dups_or_spikes(Strategy const& strategy, Range& range, Point const& point)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.append_no_dups_or_spikes(range, point), void())
+    { s.append_no_dups_or_spikes(range, point); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+        return true;
+    }
+    return false;
+}
+
+template <typename Strategy, typename Range, typename Point>
+inline bool try_append_no_collinear(Strategy const& strategy, Range& range, Point const& point)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.append_no_collinear(range, point), void())
+    { s.append_no_collinear(range, point); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+        return true;
+    }
+    return false;
+}
 
 // TODO: move this / rename this
 template <typename Point1, typename Point2, typename Strategy>
@@ -59,6 +112,11 @@ template <typename Range, typename Point, typename Strategy>
 inline void append_no_dups_or_spikes(Range& range, Point const& point,
                                      Strategy const& strategy)
 {
+    if (try_append_no_dups_or_spikes(strategy, range, point))
+    {
+        return;
+    }
+
 #ifdef BOOST_GEOMETRY_DEBUG_INTERSECTION
     std::cout << "  add: ("
         << geometry::get<0>(point) << ", " << geometry::get<1>(point) << ")"
@@ -73,11 +131,11 @@ inline void append_no_dups_or_spikes(Range& range, Point const& point,
         return;
     }
 
-    auto append = [](auto& r, auto const& p)
+    auto append = [&strategy](auto& r, auto const& p)
     {
         using point_t = typename boost::range_value<Range>::type;
         point_t rp;
-        geometry::detail::conversion::convert_point_to_point(p, rp);
+        strategies::detail::convert_geometry(strategy, p, rp);
         traits::push_back<Range>::apply(r, std::move(rp));
     };
 
@@ -106,6 +164,11 @@ template <typename Range, typename Point, typename Strategy>
 inline void append_no_collinear(Range& range, Point const& point,
                                 Strategy const& strategy)
 {
+    if (try_append_no_collinear(strategy, range, point))
+    {
+        return;
+    }
+
     // Stricter version, not allowing any point in a linear row
     // (spike, continuation or same point)
 
@@ -143,6 +206,7 @@ inline void append_no_collinear(Range& range, Point const& point,
 template <typename Ring, typename Strategy>
 inline void remove_spikes_at_closure(Ring& ring, Strategy const& strategy)
 {
+    if (try_remove_spikes_at_closure(strategy, ring)) return;
     // It assumes a closed ring (whatever the closure value)
     constexpr std::size_t min_size
             = core_detail::closure::minimum_ring_size
@@ -184,6 +248,7 @@ inline void remove_spikes_at_closure(Ring& ring, Strategy const& strategy)
 template <typename Ring, typename Strategy>
 inline void fix_closure(Ring& ring, Strategy const& strategy)
 {
+    if (try_fix_closure(strategy, ring)) return;
     if BOOST_GEOMETRY_CONSTEXPR (geometry::closure<Ring>::value == geometry::open)
     {
         if (! boost::empty(ring)

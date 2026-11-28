@@ -31,18 +31,13 @@ namespace detail { namespace overlay {
 
 template<typename AssignPolicy>
 struct get_turn_info_linear_linear
+    : turn_info_dispatch<true, true, get_turn_info_linear_linear<AssignPolicy>>
 {
     static const bool handle_spikes = true;
 
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename TurnInfo,
-        typename UmbrellaStrategy,
-        typename OutputIterator
-    >
-    static inline OutputIterator apply(
+    template <typename UniqueSubRange1, typename UniqueSubRange2,
+              typename TurnInfo, typename UmbrellaStrategy, typename OutputIterator>
+    static inline OutputIterator apply_with_contacts(
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,

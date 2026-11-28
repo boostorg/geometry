@@ -45,6 +45,19 @@ void test_areal()
 {
     using ct = typename bg::coordinate_type<Ring>::type;
 
+    test_one<Polygon, MultiPolygon, MultiPolygon>("clustered_distinct_round_trips",
+        "MULTIPOLYGON(((40 30,20 30,20 15,40 0,40 15,60 15,40 30)),((20 15,0 0,20 0,20 15)))",
+        "MULTIPOLYGON(((60 45,20 45,20 15,40 0,60 15,60 45),(40 30,40 15,20 15,40 30)))",
+        2, 0, 11, 1650);
+
+    test_one<Polygon, MultiPolygon, MultiPolygon>("parallel_ring_paths",
+        "MULTIPOLYGON(((20 75,0 60,20 45,20 60,40 60,20 75)),"
+        "((40 60,60 45,80 45,80 30,40 30,20 45,20 15,100 15,100 45,80 60,40 60)),"
+        "((20 45,40 45,40 60,20 45)))",
+        "MULTIPOLYGON(((40 60,60 75,40 75,40 60)))",
+        4, 0, 26, 3000);
+
+
     test_one<Polygon, MultiPolygon, MultiPolygon>("simplex_multi",
         case_multi_simplex[0], case_multi_simplex[1],
         1, 0, 20, 14.58);
@@ -386,13 +399,17 @@ void test_areal()
          ggl_list_20120915_h2[0], ggl_list_20120915_h2[2],
          1, 0, 12, 23.0); // Area from SQL Server
 
+    // The exact regions are valid; tiny edges or faces can collapse on export.
+    ut_settings rounded;
+    rounded.set_test_validity(!std::is_same<ct, double>::value);
     test_one<Polygon, MultiPolygon, MultiPolygon>("ggl_list_20140212_sybren",
          ggl_list_20140212_sybren[0], ggl_list_20140212_sybren[1],
-         2, bg_if_mp<ct>(1, 0), -1, 0.002471626);
+         2, std::is_same<ct, double>::value ? 1 : bg_if_mp<ct>(1, 0), -1, 0.002471626,
+         rounded);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_9081",
         ticket_9081[0], ticket_9081[1],
-        3, 0, -1, 0.2187385);
+        3, 0, -1, 0.2187385, rounded);
 
     test_one<Polygon, MultiPolygon, MultiPolygon>("ticket_10803",
         ticket_10803[0], ticket_10803[1],

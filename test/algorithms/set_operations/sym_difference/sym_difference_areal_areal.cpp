@@ -22,6 +22,7 @@
 
 #include <boost/geometry/geometries/linestring.hpp>
 #include <boost/geometry/geometries/multi_linestring.hpp>
+#include <boost/geometry/algorithms/equals.hpp>
 #include <boost/geometry/algorithms/sym_difference.hpp>
 
 #include "../difference/test_difference.hpp"
@@ -98,12 +99,14 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_ring_ring )
 
     typedef test_sym_difference_of_areal_geometries<R, R, PG> tester;
 
-    tester::apply("r-r-sdf00",
-                  from_wkt<R>("POLYGON((0 0,0 10,10 10,10 0,0 0))"),
-                  from_wkt<R>("POLYGON((10 0,10 20,20 20,20 0,10 0))"),
-                  1,
-                  8,
-                  300);
+    auto const a = from_wkt<R>("POLYGON((0 0,0 10,10 10,10 0,0 0))");
+    auto const b = from_wkt<R>("POLYGON((10 0,10 20,20 20,20 0,10 0))");
+    auto const expected = from_wkt<PG>("POLYGON((0 0,0 10,10 10,10 20,20 20,20 0,0 0))");
+    multi_polygon_type result;
+    bg::sym_difference(a, b, result);
+    BOOST_REQUIRE_EQUAL(result.size(), 1u);
+    BOOST_CHECK(bg::is_valid(result));
+    BOOST_CHECK(bg::equals(result, expected));
 
     tester::apply("r-r-sdf01",
                   from_wkt<R>("POLYGON((0 0,0 10,10 10,10 0,0 0))"),
@@ -126,15 +129,14 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_polygon_multipolygon )
     typedef polygon_type PG;
     typedef multi_polygon_type MPG;
 
-    typedef test_sym_difference_of_areal_geometries<PG, MPG, PG> tester;
-
-    tester::apply
-        ("pg-mpg-sdf00",
-         from_wkt<PG>("POLYGON((10 0,10 10,20 10,20 0,10 0))"),
-         from_wkt<MPG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),\
-                       ((20 0,20 10,30 10,30 0,20 0)))"),
-         1,
-         6,
-         300);
+    auto const a = from_wkt<PG>("POLYGON((10 0,10 10,20 10,20 0,10 0))");
+    auto const b = from_wkt<MPG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),"
+                               "((20 0,20 10,30 10,30 0,20 0)))");
+    auto const expected = from_wkt<PG>("POLYGON((0 0,0 10,30 10,30 0,0 0))");
+    MPG result;
+    bg::sym_difference(a, b, result);
+    BOOST_CHECK_EQUAL(result.size(), 1u);
+    BOOST_CHECK(bg::is_valid(result));
+    BOOST_CHECK(bg::equals(result, expected));
 }
 

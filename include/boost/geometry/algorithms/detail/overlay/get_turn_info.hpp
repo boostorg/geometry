@@ -15,6 +15,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_GET_TURN_INFO_HPP
 
+#include <array>
+#include <functional>
+
 #include <boost/core/ignore_unused.hpp>
 #include <boost/throw_exception.hpp>
 
@@ -24,9 +27,9 @@
 #include <boost/geometry/core/exception.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
-#include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 
 #include <boost/geometry/util/constexpr.hpp>
 
@@ -123,6 +126,17 @@ struct base_turn_handler
     }
 
     template <typename TurnInfo, typename IntersectionInfo>
+    static inline void assign_fractions(TurnInfo& ti, IntersectionInfo const& info, unsigned int index,
+                                        std::true_type)
+    {
+        ti.operations[0].fraction = info.fractions[index].ra;
+        ti.operations[1].fraction = info.fractions[index].rb;
+    }
+
+    template <typename TurnInfo, typename IntersectionInfo>
+    static inline void assign_fractions(TurnInfo&, IntersectionInfo const&, unsigned int, std::false_type) {}
+
+    template <typename TurnInfo, typename IntersectionInfo>
     static inline void assign_point(TurnInfo& ti,
                 method_type method,
                 IntersectionInfo const& info, unsigned int index)
@@ -132,14 +146,21 @@ struct base_turn_handler
         BOOST_GEOMETRY_ASSERT(index < info.count);
 
         geometry::convert(info.intersections[index], ti.point);
-        ti.operations[0].fraction = info.fractions[index].ra;
-        ti.operations[1].fraction = info.fractions[index].rb;
+        assign_fractions(ti, info, index, stores_fraction<typename TurnInfo::segment_ratio_type>());
     }
 
     template <typename TurnInfo, typename IntersectionInfo, typename DirInfo>
     static inline void assign_point_and_correct(TurnInfo& ti,
                 method_type method,
                 IntersectionInfo const& info, DirInfo const& dir_info)
+    {
+        assign_point_and_correct(ti, method, info, dir_info,
+            stores_fraction<typename TurnInfo::segment_ratio_type>());
+    }
+
+    template <typename TurnInfo, typename IntersectionInfo, typename DirInfo>
+    static inline void assign_point_and_correct(TurnInfo& ti, method_type method,
+                IntersectionInfo const& info, DirInfo const& dir_info, std::true_type)
     {
         ti.method = method;
 
@@ -176,11 +197,31 @@ struct base_turn_handler
 #endif
     }
 
-    template <typename IntersectionInfo>
-    static inline unsigned int non_opposite_to_index(IntersectionInfo const& info)
+    template <typename TurnInfo, typename IntersectionInfo, typename DirInfo>
+    static inline void assign_point_and_correct(TurnInfo& ti, method_type method,
+                IntersectionInfo const& info, DirInfo const&, std::false_type)
+    { assign_point(ti, method, info, 0); }
+
+    template <typename TurnInfo, typename IntersectionInfo, typename Range>
+    static inline unsigned int non_opposite_to_index(IntersectionInfo const& info, Range const& range)
+    {
+        return non_opposite_to_index<TurnInfo>(info, range,
+            stores_fraction<typename TurnInfo::segment_ratio_type>());
+    }
+
+    template <typename TurnInfo, typename IntersectionInfo, typename Range>
+    static inline unsigned int non_opposite_to_index(IntersectionInfo const& info, Range const&, std::true_type)
     {
         return info.fractions[0].rb < info.fractions[1].rb
             ? 1 : 0;
+    }
+
+    template <typename TurnInfo, typename IntersectionInfo, typename Range>
+    static inline unsigned int non_opposite_to_index(IntersectionInfo const& info, Range const& range, std::false_type)
+    {
+        using position = typename TurnInfo::segment_ratio_type;
+        return info.count > 1 && position::compare(range.at(0), range.at(1),
+            info.intersections[0], info.intersections[1]) < 0 ? 1 : 0;
     }
 
 };
@@ -188,18 +229,11 @@ struct base_turn_handler
 template<typename VerifyPolicy>
 struct turn_info_verification_functions
 {
-    template <typename Point1, typename Point2>
-    static inline
-    typename select_coordinate_type<Point1, Point2>::type
-    distance_measure(Point1 const& a, Point2 const& b)
+    template <typename Point1, typename Point2, typename UmbrellaStrategy>
+    static inline auto squared_distance(Point1 const& a, Point2 const& b,
+                                        UmbrellaStrategy const& umbrella_strategy)
     {
-        // TODO: revise this using comparable distance for various
-        // coordinate systems
-        using coor_t = typename select_coordinate_type<Point1, Point2>::type;
-
-        coor_t const dx = get<0>(a) - get<0>(b);
-        coor_t const dy = get<1>(a) - get<1>(b);
-        return dx * dx + dy * dy;
+        return strategies::detail::get_topology(umbrella_strategy).squared_distance(a, b);
     }
 
     template
@@ -222,18 +256,20 @@ struct turn_info_verification_functions
         BOOST_GEOMETRY_ASSERT(index_p > 0 && index_p <= 2);
         BOOST_GEOMETRY_ASSERT(index_q > 0 && index_q <= 2);
 
-        using distance_measure_result_type = geometry::coordinate_type_t<decltype(ti.point)>;
+        // Use the storage precision chosen by the strategy.
+        using distance_measure_result_type = decltype(squared_distance(ti.point, ti.point,
+                                                                       umbrella_strategy));
 
         bool const p_in_range = index_p < range_p.size();
         bool const q_in_range = index_q < range_q.size();
         std::array<distance_measure_result_type, 2> distance_measures{};
         if (p_in_range)
         {
-            distance_measures[IndexP] = distance_measure(ti.point, range_p.at(index_p));
+            distance_measures[IndexP] = squared_distance(ti.point, range_p.at(index_p), umbrella_strategy);
         }
         if (q_in_range)
         {
-            distance_measures[IndexQ] = distance_measure(ti.point, range_q.at(index_q));
+            distance_measures[IndexQ] = squared_distance(ti.point, range_q.at(index_q), umbrella_strategy);
         }
 
         if (p_in_range && q_in_range)
@@ -241,22 +277,22 @@ struct turn_info_verification_functions
             // pk/q2 is considered as collinear, but there might be
             // a tiny measurable difference. If so, use that.
             // Calculate pk // qj-qk
-            bool const p_closer = distance_measures[IndexP] < distance_measures[IndexQ];
-            auto const dm
+            auto const& topology = strategies::detail::get_topology(umbrella_strategy);
+            bool const p_closer = strategies::detail::compare_squared_distances(
+                distance_measures[IndexP], distance_measures[IndexQ], std::less<>{});
+            int const side
                 = p_closer
-                ? get_distance_measure(range_q.at(index_q - 1),
-                                       range_q.at(index_q), range_p.at(index_p),
-                                       umbrella_strategy)
-                : get_distance_measure(range_p.at(index_p - 1),
-                                       range_p.at(index_p), range_q.at(index_q),
-                                       umbrella_strategy);
+                ? topology.side_measure_sign(range_q.at(index_q - 1),
+                                             range_q.at(index_q), range_p.at(index_p))
+                : topology.side_measure_sign(range_p.at(index_p - 1),
+                                             range_p.at(index_p), range_q.at(index_q));
 
-            if (! dm.is_zero())
+            if (side != 0)
             {
                 // Not truely collinear, distinguish for union/intersection
                 // If p goes left (positive), take that for a union
                 bool const p_left
-                    = p_closer ? dm.is_positive() : dm.is_negative();
+                    = p_closer ? side > 0 : side < 0;
 
                 ti.operations[IndexP].operation = p_left
                             ? operation_union : operation_intersection;
@@ -308,7 +344,10 @@ struct turn_info_verification_functions
                                     UmbrellaStrategy const& umbrella_strategy,
                                     int index_p, int index_q)
     {
-        if BOOST_GEOMETRY_CONSTEXPR (VerifyPolicy::use_side_verification)
+        // A certified zero already proves this determinant is zero, including
+        // for a zero-length segment. No distance-measure recovery is needed.
+        if constexpr (VerifyPolicy::use_side_verification
+            && ! strategies::relate::services::exact_predicates<UmbrellaStrategy>::value)
         {
             if (side == 0)
             {
@@ -321,12 +360,8 @@ struct turn_info_verification_functions
                     return 0;
                 }
 
-                auto const dm = get_distance_measure(range_p.at(index_p),
-                                                     range_p.at(index_p + 1),
-                                                     range_q.at(index_q),
-                                                     umbrella_strategy);
-                static decltype(dm.measure) const zero = 0;
-                return dm.measure == zero ? 0 : dm.measure > zero ? 1 : -1;
+                return strategies::detail::get_topology(umbrella_strategy).side_measure_sign(
+                    range_p.at(index_p), range_p.at(index_p + 1), range_q.at(index_q));
             }
         }
 
@@ -350,12 +385,14 @@ struct touch_interior : public base_turn_handler
         typename IntersectionInfo,
         typename SideCalculator,
         typename UniqueSubRange1,
-        typename UniqueSubRange2
+        typename UniqueSubRange2,
+        typename UmbrellaStrategy
     >
     static bool handle_as_touch(IntersectionInfo const& info,
                                 SideCalculator const& side,
                                 UniqueSubRange1 const& non_touching_range,
-                                UniqueSubRange2 const& other_range)
+                                UniqueSubRange2 const& other_range,
+                                UmbrellaStrategy const& umbrella_strategy)
     {
         if BOOST_GEOMETRY_CONSTEXPR (! VerifyPolicy::use_handle_as_touch)
         {
@@ -407,10 +444,9 @@ struct touch_interior : public base_turn_handler
             // Therefore handle it as a normal touch (two segments arrive at the
             // intersection point). It currently checks for zero, but even a
             // distance a little bit larger would do.
-            auto const dm = fun::distance_measure(info.intersections[0], non_touching_range.at(1));
-            decltype(dm) const zero = 0;
-            bool const result = math::equals(dm, zero);
-            return result;
+            auto const dm = fun::squared_distance(info.intersections[0], non_touching_range.at(1),
+                                                   umbrella_strategy);
+            return strategies::detail::get_topology(umbrella_strategy).distance_is_zero(dm);
         }
     }
 
@@ -619,9 +655,9 @@ struct touch : public base_turn_handler
 
             auto has_distance = [&](auto const& r1, auto const& r2) -> bool
             {
-                auto const d1 = get_distance_measure(r1.at(0), r1.at(1), r2.at(1), umbrella_strategy);
-                auto const d2 = get_distance_measure(r2.at(1), r2.at(2), r1.at(0), umbrella_strategy);
-                return d1.measure > 0 && d2.measure > 0;
+                auto const& topology = strategies::detail::get_topology(umbrella_strategy);
+                return topology.side_measure_sign(r1.at(0), r1.at(1), r2.at(1)) > 0
+                    && topology.side_measure_sign(r2.at(1), r2.at(2), r1.at(0)) > 0;
             };
 
             if (side_pk_q2 == -1 && has_distance(range_p, range_q))
@@ -686,7 +722,9 @@ struct touch : public base_turn_handler
         // or collinear (so: not opposite sides)
         if (! opposite(side_qi_p1, side_qk_p1))
         {
-            int const side_pk_q2 = has_pk && has_qk ? side.pk_wrt_q2() : 0;
+            int const side_pk_q2 = has_pk && has_qk
+                ? fun::verified_side(side.pk_wrt_q2(), range_q, range_p, umbrella_strategy, 1, 2)
+                : 0;
             int const side_pk_p  = has_pk ? side.pk_wrt_p1() : 0;
             int const side_qk_q  = has_qk ? side.qk_wrt_q1() : 0;
 
@@ -884,7 +922,7 @@ struct equal : public base_turn_handler
                 UmbrellaStrategy const& umbrella_strategy)
     {
         // Copy the intersection point in TO direction
-        assign_point(ti, method_equal, info, non_opposite_to_index(info));
+        assign_point(ti, method_equal, info, non_opposite_to_index<TurnInfo>(info, range_q));
 
         bool const has_pk = ! range_p.is_last_segment();
         bool const has_qk = ! range_q.is_last_segment();
@@ -1045,12 +1083,14 @@ struct collinear : public base_turn_handler
         typename IntersectionInfo,
         typename UniqueSubRange1,
         typename UniqueSubRange2,
-        typename DirInfo
+        typename DirInfo,
+        typename UmbrellaStrategy
     >
     static bool handle_as_equal(IntersectionInfo const& info,
                                 UniqueSubRange1 const& range_p,
                                 UniqueSubRange2 const& range_q,
-                                DirInfo const& dir_info)
+                                DirInfo const& dir_info,
+                                UmbrellaStrategy const& umbrella_strategy)
     {
         if BOOST_GEOMETRY_CONSTEXPR (! VerifyPolicy::use_handle_as_equal)
         {
@@ -1067,10 +1107,9 @@ struct collinear : public base_turn_handler
             }
 
             auto const dm = arrival_p == 1
-                          ? fun::distance_measure(info.intersections[1], range_q.at(1))
-                          : fun::distance_measure(info.intersections[1], range_p.at(1));
-            decltype(dm) const zero = 0;
-            return math::equals(dm, zero);
+                          ? fun::squared_distance(info.intersections[1], range_q.at(1), umbrella_strategy)
+                          : fun::squared_distance(info.intersections[1], range_p.at(1), umbrella_strategy);
+            return strategies::detail::get_topology(umbrella_strategy).distance_is_zero(dm);
         }
     }
 
@@ -1138,7 +1177,7 @@ struct collinear : public base_turn_handler
                 SidePolicy const& side)
     {
         // Copy the intersection point in TO direction
-        assign_point(ti, method_collinear, info, non_opposite_to_index(info));
+        assign_point(ti, method_collinear, info, non_opposite_to_index<TurnInfo>(info, range_q));
 
         int const arrival_p = dir_info.arrival[0];
         // Should not be 0, this is checked before
@@ -1366,6 +1405,35 @@ struct crosses : public base_turn_handler
     }
 };
 
+template <bool Linear1, bool Linear2, typename ContactPolicy>
+struct turn_info_dispatch
+{
+    template <typename Range1, typename Range2, typename Turn, typename Strategy, typename Out>
+    static Out apply(Range1 const& a, Range2 const& b, Turn const& model,
+                     Strategy const& strategy, Out out)
+    {
+        if constexpr (strategies::relate::services::assumes_simplicity<Strategy>::value)
+        {
+            using points = typename strategies::relate::services::intersection_result_type
+                <Strategy, typename Turn::point_type>::type;
+            auto const result = strategy.relate().apply(a, b, policies::relate::segments_intersection_policy<points>());
+            if (result.intersection_points.count != 0)
+            {
+                Turn turn = model;
+                crosses<Turn>::apply(turn, result.intersection_points, result.direction);
+                if (Linear2) turn.operations[0].operation = operation_union;
+                if (Linear1) turn.operations[1].operation = operation_union;
+                *out++ = turn;
+            }
+            return out;
+        }
+        else
+        {
+            return ContactPolicy::apply_with_contacts(a, b, model, strategy, out);
+        }
+    }
+};
+
 struct only_convert : public base_turn_handler
 {
     template<typename TurnInfo, typename IntersectionInfo>
@@ -1411,19 +1479,11 @@ struct assign_policy_only_start_turns
  */
 template<typename AssignPolicy>
 struct get_turn_info
+    : turn_info_dispatch<false, false, get_turn_info<AssignPolicy>>
 {
-    // Intersect a segment p with a segment q
-    // Both p and q are modelled as sub_ranges to provide more points
-    // to be able to give more information about the turn (left/right)
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename TurnInfo,
-        typename UmbrellaStrategy,
-        typename OutputIterator
-    >
-    static inline OutputIterator apply(
+    template <typename UniqueSubRange1, typename UniqueSubRange2,
+              typename TurnInfo, typename UmbrellaStrategy, typename OutputIterator>
+    static inline OutputIterator apply_with_contacts(
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,
@@ -1485,7 +1545,8 @@ struct get_turn_info
             if ( inters.d_info().arrival[1] == 1 )
             {
                 // Q arrives
-                if (handler::handle_as_touch(inters.i_info(), inters.sides(), range_p, range_q))
+                if (handler::handle_as_touch(inters.i_info(), inters.sides(), range_p, range_q,
+                                               umbrella_strategy))
                 {
                     handle_as_touch = true;
                 }
@@ -1499,7 +1560,8 @@ struct get_turn_info
             else
             {
                 // P arrives, swap p/q
-                if (handler::handle_as_touch(inters.i_info(), inters.swapped_sides(), range_q, range_p))
+                if (handler::handle_as_touch(inters.i_info(), inters.swapped_sides(), range_q, range_p,
+                                               umbrella_strategy))
                 {
                     handle_as_touch = true;
                 }
@@ -1534,7 +1596,8 @@ struct get_turn_info
             {
                 using handler = collinear<TurnInfo, verify_policy_aa>;
                 if (inters.d_info().arrival[0] == 0
-                    || handler::handle_as_equal(inters.i_info(), range_p, range_q, inters.d_info()))
+                    || handler::handle_as_equal(inters.i_info(), range_p, range_q, inters.d_info(),
+                                                    umbrella_strategy))
                 {
                     // Both segments arrive at the second intersection point
                     handle_as_equal = true;

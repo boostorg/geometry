@@ -20,16 +20,18 @@
 
 #include <boost/geometry/core/coordinate_type.hpp>
 
-#include <boost/geometry/algorithms/area_result.hpp>
 #include <boost/geometry/algorithms/envelope.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/covered_by/implementation.hpp>
+#include <boost/geometry/algorithms/detail/immediate_parent.hpp>
 #include <boost/geometry/algorithms/detail/partition.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_ring.hpp>
 #include <boost/geometry/algorithms/detail/overlay/range_in_geometry.hpp>
+#include <boost/geometry/algorithms/detail/overlay/ring_properties.hpp>
 #include <boost/geometry/views/enumerate_view.hpp>
 
 #include <boost/geometry/geometries/box.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -114,13 +116,16 @@ inline bool within_selected_input(Item const& item2,
 }
 
 
-template <typename Point, typename AreaType>
+using strategies::detail::classify_ring_measure;
+using strategies::detail::ring_direction;
+
+template <typename Point, typename AreaType, typename Box = model::box<Point>>
 struct ring_info_helper
 {
     ring_identifier id;
     AreaType real_area;
     AreaType abs_area;
-    model::box<Point> envelope;
+    Box envelope;
 
     inline ring_info_helper()
         : real_area(0), abs_area(0)
@@ -208,8 +213,8 @@ struct assign_visitor
         }
 
         if (m_check_for_orientation
-         || (math::larger(outer.real_area, 0)
-          && math::smaller(inner.real_area, 0)))
+         || (classify_ring_measure(m_strategy, outer.real_area) == ring_direction::positive
+          && classify_ring_measure(m_strategy, inner.real_area) == ring_direction::negative))
         {
             ring_info_type& inner_in_map = m_ring_map[inner.id];
 
@@ -234,6 +239,43 @@ struct assign_visitor
     }
 };
 
+template <overlay_type OverlayType, bool Topological, typename RingMap, typename Sign>
+inline void finalize_ring_parents(RingMap& map, Sign const& sign)
+{
+    if (OverlayType == overlay_buffer || OverlayType == overlay_dissolve)
+    {
+        for (auto& pair : map)
+        {
+            auto& info = pair.second;
+            if (Topological && info.discarded)
+                continue;
+            auto const direction = sign(info, false);
+            if (direction == ring_direction::zero)
+            {
+                info.discarded = true;
+            }
+            else if (info.parent.source_index >= 0)
+            {
+                bool const parent_positive = sign(map.find(info.parent)->second, true) == ring_direction::positive;
+                if ((direction == ring_direction::positive && parent_positive)
+                    || (OverlayType == overlay_dissolve && direction != ring_direction::positive && !parent_positive))
+                    info.discarded = true;
+                if (direction == ring_direction::positive || info.discarded)
+                    info.parent = ring_identifier();
+            }
+            else if (direction == ring_direction::negative)
+            {
+                info.reversed = !Topological || !info.reversed;
+            }
+        }
+    }
+    for (auto& pair : map)
+    {
+        auto const& info = pair.second;
+        if (info.parent.source_index >= 0 && (!Topological || !info.discarded))
+            map.find(info.parent)->second.children.push_back(pair.first);
+    }
+}
 
 template
 <
@@ -243,7 +285,7 @@ template
     typename RingMap,
     typename Strategy
 >
-inline void assign_parents(Geometry1 const& geometry1,
+inline void assign_parents_by_area(Geometry1 const& geometry1,
             Geometry2 const& geometry2,
             RingCollection const& collection,
             RingMap& ring_map,
@@ -258,11 +300,8 @@ inline void assign_parents(Geometry1 const& geometry1,
 
     using ring_info_type = typename RingMap::mapped_type;
     using point_type = typename ring_info_type::point_type;
-    using box_type = model::box<point_type>;
-    using area_result_type = typename geometry::area_result
-        <
-            point_type, Strategy // TODO: point_type is technically incorrect
-        >::type;
+    using box_type = typename strategies::relate::services::box_type<Strategy, point_type>::type;
+    using area_result_type = typename ring_info_type::area_type;
 
     {
         std::size_t count_total = ring_map.size();
@@ -271,7 +310,7 @@ inline void assign_parents(Geometry1 const& geometry1,
 
         // Copy to vector (this might be obsolete, using the map directly)
         // The index in the map is also the index in the vector.
-        using helper = ring_info_helper<point_type, area_result_type>;
+        using helper = ring_info_helper<point_type, area_result_type, box_type>;
         std::vector<helper> vector(count_total);
 
         for (auto const& enumerated : util::enumerate(ring_map))
@@ -297,9 +336,9 @@ inline void assign_parents(Geometry1 const& geometry1,
             }
 
             // Expand envelope slightly
-            expand_by_epsilon(item.envelope);
+            strategies::detail::expand_search_envelope(item.envelope, strategy);
 
-            if (item.real_area > 0)
+            if (classify_ring_measure<false>(strategy, item.real_area) == ring_direction::positive)
             {
                 count_positive++;
                 index_positive = enumerated.index;
@@ -354,56 +393,125 @@ inline void assign_parents(Geometry1 const& geometry1,
                      ring_info_helper_overlaps_box<Strategy>(strategy));
     }
 
-    if (check_for_orientation)
+    finalize_ring_parents<OverlayType, false>(ring_map, [&](auto const& info, bool parent)
     {
-        for (auto& pair : ring_map)
-        {
-            ring_info_type& info = pair.second;
-            if (geometry::math::equals(info.get_area(), 0))
-            {
-                info.discarded = true;
-            }
-            else if (info.parent.source_index >= 0)
-            {
-                ring_info_type const& parent = ring_map[info.parent];
-                bool const pos = math::larger(info.get_area(), 0);
-                bool const parent_pos = math::larger(parent.area, 0);
-
-                bool const double_neg = is_dissolve && ! pos && ! parent_pos;
-
-                if ((pos && parent_pos) || double_neg)
-                {
-                    // Discard positive inner ring with positive parent
-                    // Also, for some cases (dissolve), negative inner ring
-                    // with negative parent should be discarded
-                    info.discarded = true;
-                }
-
-                if (pos || info.discarded)
-                {
-                    // Remove parent ID from any positive or discarded inner rings
-                    info.parent.source_index = -1;
-                }
-            }
-            else if (info.parent.source_index < 0
-                    && math::smaller(info.get_area(), 0))
-            {
-                // Reverse negative ring without parent
-                info.reversed = true;
-            }
-        }
-    }
-
-    // Assign childlist
-    for (auto& pair : ring_map)
-    {
-        if (pair.second.parent.source_index >= 0)
-        {
-            ring_map[pair.second.parent].children.push_back(pair.first);
-        }
-    }
+        auto const area = parent ? info.area : info.get_area();
+        return classify_ring_measure(strategy, area);
+    });
 }
 
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+      typename Collection, typename RingMap, typename Topology>
+inline void assign_parents_by_containment(Geometry1 const& a, Geometry2 const& b,
+    Collection const& collection, RingMap& map, Topology const& topology)
+{
+    if (map.size() == 1)
+    {
+        auto& info = map.begin()->second;
+        if (info.valid && info.effective_direction() > 0)
+        {
+            info.children.clear();
+            info.parent = ring_identifier();
+            return;
+        }
+    }
+    using properties = typename RingMap::mapped_type;
+    struct selected_ring
+    {
+        ring_identifier id;
+        properties* info;
+        decltype(topology.boundary(ring_identifier(), a, b, collection, false)) boundary;
+    };
+    std::vector<selected_ring> rings;
+    constexpr bool allow_certificate = OverlayType == overlay_union
+        || OverlayType == overlay_intersection || OverlayType == overlay_difference;
+    for (auto& pair : map)
+    {
+        auto& info = pair.second;
+        info.children.clear();
+        info.parent = ring_identifier();
+        if (!info.valid || info.effective_direction() == 0) { info.discarded = true; continue; }
+        rings.push_back({pair.first, &info, topology.boundary(
+            pair.first, a, b, collection, allow_certificate)});
+    }
+    auto relation = [&](std::size_t inner, std::size_t outer)
+    {
+        return topology.classify(rings[inner].boundary, rings[outer].boundary,
+                                 rings[inner].info->boundary_point);
+    };
+    // Coincident chains are not strict parents. Reduce their directed
+    // multiplicities before choosing containers, so parent links cannot cycle.
+    std::vector<std::size_t> group(rings.size());
+    for (std::size_t i = 0; i < rings.size(); ++i) group[i] = i;
+    auto root = [&](std::size_t i) { while (group[i] != i) i = group[i]; return i; };
+    for (std::size_t i = 0; i < rings.size(); ++i)
+        for (std::size_t j = i + 1; j < rings.size(); ++j)
+            if (root(i) != root(j) && topology.coincident(
+                    rings[i].boundary, rings[j].boundary,
+                    rings[i].info->boundary_point, rings[j].info->boundary_point))
+            {
+                group[root(j)] = root(i);
+            }
+    std::vector<std::ptrdiff_t> net(rings.size(), 0);
+    for (std::size_t i = 0; i < rings.size(); ++i) net[root(i)] += rings[i].info->effective_direction();
+    std::vector<bool> kept(rings.size(), false);
+    for (std::size_t i = 0; i < rings.size(); ++i)
+    {
+        auto const parent = root(i);
+        auto const direction = rings[i].info->effective_direction();
+        if (!kept[parent] && ((net[parent] > 0 && direction > 0) || (net[parent] < 0 && direction < 0)))
+            kept[parent] = true;
+        else rings[i].info->discarded = true;
+    }
+    constexpr bool check_orientation = OverlayType == overlay_buffer || OverlayType == overlay_dissolve;
+    for (std::size_t inner = 0; inner < rings.size(); ++inner)
+    {
+        auto& info = *rings[inner].info;
+        if (info.discarded || (!check_orientation && info.effective_direction() > 0)) continue;
+        auto const parent = detail::immediate_parent(rings.size(), inner,
+            [&](std::size_t child, std::size_t container)
+            {
+                auto const& candidate = *rings[container].info;
+                return !candidate.discarded
+                    && (check_orientation || candidate.effective_direction() > 0)
+                    && relation(child, container) >= 0 && relation(container, child) < 0;
+            });
+        if (parent != rings.size()) info.parent = rings[parent].id;
+    }
+    finalize_ring_parents<OverlayType, true>(map, [](auto const& info, bool parent)
+    {
+        auto const sign = parent ? info.direction : info.effective_direction();
+        return sign > 0 ? ring_direction::positive
+             : sign < 0 ? ring_direction::negative : ring_direction::zero;
+    });
+}
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents_dispatch(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                                   RingMap& map, Strategy const& strategy, std::false_type)
+{
+    assign_parents_by_area<OverlayType>(a, b, collection, map, strategy);
+}
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents_dispatch(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                                   RingMap& map, Strategy const& strategy, std::true_type)
+{
+    assign_parents_by_containment<OverlayType>(a, b, collection, map,
+        strategy.ring_topology());
+}
+
+template <overlay_type OverlayType, typename Geometry1, typename Geometry2,
+          typename Collection, typename RingMap, typename Strategy>
+inline void assign_parents(Geometry1 const& a, Geometry2 const& b, Collection const& collection,
+                          RingMap& map, Strategy const& strategy)
+{
+    assign_parents_dispatch<OverlayType>(a, b, collection, map, strategy,
+        ring_properties_detail::is_topological<typename RingMap::mapped_type>());
+}
 
 // Version for one geometry (called by buffer/dissolve)
 template

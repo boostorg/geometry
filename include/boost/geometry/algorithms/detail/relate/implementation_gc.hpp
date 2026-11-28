@@ -192,6 +192,20 @@ struct gc_gc
                              Result & result,
                              Strategy const& strategy)
     {
+        using mpt1_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mpt1_t>::type;
+        using mls1_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mls1_t>::type;
+        using mpo1_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mpo1_t>::type;
+        using mpt2_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mpt2_t>::type;
+        using mls2_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mls2_t>::type;
+        using mpo2_t = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, typename gc_gc::mpo2_t>::type;
+        using tuple1_t = boost::tuple<mpt1_t, mls1_t, mpo1_t>;
+        using tuple2_t = boost::tuple<mpt2_t, mls2_t, mpo2_t>;
         using gc1_view_t = random_access_view<Geometry1 const>;
         using gc2_view_t = random_access_view<Geometry2 const>;
         gc1_view_t const gc1_view(geometry1);
@@ -279,15 +293,15 @@ struct gc_gc
                     // LA/L
                     if (! geometry::is_empty(mpo1))
                     {
-                        geometry::difference(mls2, mpo1, mls2_diff_mpo1);
-                        geometry::intersection(mls2, mpo1, mls2_inters_mpo1);
+                        geometry::difference(mls2, mpo1, mls2_diff_mpo1, strategy);
+                        geometry::intersection(mls2, mpo1, mls2_inters_mpo1, strategy);
                         is_mls2_divided = true;
                     }
                     // L/LA
                     if (! geometry::is_empty(mpo2))
                     {
-                        geometry::difference(mls1, mpo2, mls1_diff_mpo2);
-                        geometry::intersection(mls1, mpo2, mls1_inters_mpo2);
+                        geometry::difference(mls1, mpo2, mls1_diff_mpo2, strategy);
+                        geometry::intersection(mls1, mpo2, mls1_inters_mpo2, strategy);
                         is_mls1_divided = true;
                     }
                 }

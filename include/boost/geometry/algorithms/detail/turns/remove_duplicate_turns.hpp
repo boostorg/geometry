@@ -12,6 +12,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_REMOVE_DUPLICATE_TURNS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_TURNS_REMOVE_DUPLICATE_TURNS_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+
 #include <algorithm>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 
@@ -36,15 +38,13 @@ struct remove_duplicate_turns<Turns, true>
     template <typename Strategy>
     static inline void apply(Turns& turns, Strategy const& strategy)
     {
-        turns.erase(
-            std::unique(turns.begin(), turns.end(),
+        geometry::detail::turns::unique_turns(turns,
                 [&](auto const& t1, auto const& t2)
                 {
                     return detail::equals::equals_point_point(t1.point, t2.point, strategy)
                         && t1.operations[0].seg_id == t2.operations[0].seg_id
                         && t1.operations[1].seg_id == t2.operations[1].seg_id;
-                }),
-            turns.end());
+                });
     }
 };
 

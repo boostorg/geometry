@@ -10,7 +10,7 @@
 #include <geometry_test_common.hpp>
 
 #include <boost/geometry/algorithms/detail/distance/point_to_geometry.hpp>
-#include <boost/geometry/algorithms/detail/overlay/approximately_equals.hpp>
+#include <boost/geometry/strategies/detail/topology.hpp>
 
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -38,7 +38,7 @@ template <typename P, typename E>
 bool test_approximately_equal(P const& p1, P const& p2, E const m,
                               bool debug)
 {
-    const bool result = bg::detail::overlay::approximately_equals(p1, p2, m);
+    const bool result = bg::strategies::detail::topology_detail::approximately_equals(p1, p2, m);
     if (debug)
     {
         const auto d = get_distance(p1, p2);

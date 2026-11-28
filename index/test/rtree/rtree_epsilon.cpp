@@ -22,6 +22,8 @@ template <typename Params>
 void test_rtree(unsigned vcount)
 {
     typedef bg::model::point<double, 2, bg::cs::cartesian> point_t;
+    using strategy_type = bg::strategies::index::cartesian<>;
+    using tree = bgi::rtree<point_t, bgi::parameters<Params, strategy_type>>;
 
     std::vector<point_t> values;
 
@@ -35,10 +37,12 @@ void test_rtree(unsigned vcount)
 
     point_t qpt(0, 0);
 
-    BOOST_CHECK(bg::intersects(qpt, values[0]));
+    // The enlarged bounds support queries using the tolerance-based strategy.
+    BOOST_CHECK(!bg::intersects(qpt, values[0]));
+    BOOST_CHECK(bg::intersects(qpt, values[0], strategy_type{}));
 
     {
-        bgi::rtree<point_t, Params> rt(values);
+        tree rt(values);
 
         std::vector<point_t> result;
         rt.query(bgi::intersects(qpt), std::back_inserter(result));
@@ -52,7 +56,7 @@ void test_rtree(unsigned vcount)
     }
 
     {
-        bgi::rtree<point_t, Params> rt;
+        tree rt;
         rt.insert(values);
 
         std::vector<point_t> result;

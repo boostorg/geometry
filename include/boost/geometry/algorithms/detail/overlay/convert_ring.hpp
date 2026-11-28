@@ -13,6 +13,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CONVERT_RING_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_CONVERT_RING_HPP
 
+#include <type_traits>
+
 #include <boost/range/algorithm/reverse.hpp>
 
 #include <boost/geometry/algorithms/convert.hpp>
@@ -22,6 +24,7 @@
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/static_assert.hpp>
 #include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/strategies/detail/point_conversion.hpp>
 
 namespace boost { namespace geometry
 {
@@ -30,6 +33,21 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace overlay
 {
+
+template <typename Strategy, typename Range>
+inline void reverse_output_range(Strategy const& strategy, Range& range)
+{
+    auto const hook = [&](auto const& s) -> decltype(s.reverse_range(range), void())
+    { s.reverse_range(range); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+    }
+    else
+    {
+        boost::reverse(range);
+    }
+}
 
 
 template<typename Tag>
@@ -43,16 +61,16 @@ struct convert_ring
 template<>
 struct convert_ring<ring_tag>
 {
-    template<typename Destination, typename Source>
+    template<typename Destination, typename Source, typename Strategy>
     static inline void apply(Destination& destination, Source const& source,
-                bool append, bool reverse)
+                bool append, bool reverse, Strategy const& strategy)
     {
         if (! append)
         {
-            geometry::convert(source, destination);
+            strategies::detail::convert_geometry(strategy, source, destination);
             if (reverse)
             {
-                boost::reverse(destination);
+                reverse_output_range(strategy, destination);
             }
         }
     }
@@ -62,16 +80,16 @@ struct convert_ring<ring_tag>
 template<>
 struct convert_ring<polygon_tag>
 {
-    template<typename Destination, typename Source>
+    template<typename Destination, typename Source, typename Strategy>
     static inline void apply(Destination& destination, Source const& source,
-                bool append, bool reverse)
+                bool append, bool reverse, Strategy const& strategy)
     {
         if (! append)
         {
-            geometry::convert(source, exterior_ring(destination));
+            strategies::detail::convert_geometry(strategy, source, exterior_ring(destination));
             if (reverse)
             {
-                boost::reverse(exterior_ring(destination));
+                reverse_output_range(strategy, exterior_ring(destination));
             }
         }
         else
@@ -89,10 +107,10 @@ struct convert_ring<polygon_tag>
                 // TODO: resize and .size() and .back() should not be called here
                 interior_rings(destination).resize(
                             interior_rings(destination).size() + 1);
-                geometry::convert(source, interior_rings(destination).back());
+                strategies::detail::convert_geometry(strategy, source, interior_rings(destination).back());
                 if (reverse)
                 {
-                    boost::reverse(interior_rings(destination).back());
+                    reverse_output_range(strategy, interior_rings(destination).back());
                 }
             }
         }

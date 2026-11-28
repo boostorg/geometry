@@ -123,6 +123,7 @@ class spherical_winding_base
 
 public:
     using cs_tag = typename SideStrategy::cs_tag;
+    static constexpr int buffer_scan_axis = 0;
 
     spherical_winding_base() = default;
 

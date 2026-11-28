@@ -28,7 +28,7 @@ namespace detail { namespace overlay
     of the overlay process). The information is gathered during the
     enrichment phase
  */
-template<typename Point>
+template <typename Point, typename ComparableDistance = coordinate_type_t<Point>>
 struct enrichment_info
 {
     inline signed_size_type get_next_turn_index() const
@@ -69,7 +69,7 @@ struct enrichment_info
     std::size_t rank{0};
 
     // For CC turns, the distance ahead to the first side change
-    using comparable_distance_type = coordinate_type_t<Point>;
+    using comparable_distance_type = ComparableDistance;
     comparable_distance_type ahead_distance_of_side_change{-1};
 
     // For CC turns, the side of the ahead segment.

@@ -14,6 +14,9 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_RELATE_LINEAR_LINEAR_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <algorithm>
 #include <memory>
 
@@ -135,6 +138,54 @@ struct linear_linear
                              Result & result,
                              Strategy const& strategy)
     {
+        if constexpr (strategies::relate::services::assumes_simplicity<Strategy>::value)
+        {
+            apply_simple(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+        }
+        else
+        {
+            apply_with_contacts(geometry1, geometry2, boundary_checker1, boundary_checker2, result, strategy);
+        }
+    }
+
+    struct first_crossing
+    {
+        static const bool enabled = true;
+        template <typename Range>
+        static bool apply(Range const& turns) { return boost::begin(turns) != boost::end(turns); }
+    };
+
+    template <typename BoundaryChecker1, typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply_simple(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                                    BoundaryChecker1 const& checker1, BoundaryChecker2 const& checker2,
+                                    Result& result, Strategy const& strategy)
+    {
+        update<exterior, exterior, result_dimension<Geometry1>::value>(result);
+        if (result.interrupt) return;
+
+        // Proper crossings do not cover a positive-length interval or any
+        // endpoint. Thus all components contribute the same exterior entries
+        // as disjoint components (including the empty boundary of a loop).
+        using turn = typename turns::get_turns<Geometry1, Geometry2>::template turn_info_type<Strategy>::type;
+        auto list = strategies::detail::make_turn_container<std::vector<turn>, strategies::detail::turn_storage::local>(strategy, geometry1, geometry2);
+        disjoint_linestring_pred<Result, BoundaryChecker1, false> left(result, checker1);
+        for_each_disjoint_geometry_if<0, Geometry1>::apply(list.begin(), list.end(), geometry1, left);
+        if (result.interrupt) return;
+        disjoint_linestring_pred<Result, BoundaryChecker2, true> right(result, checker2);
+        for_each_disjoint_geometry_if<1, Geometry2>::apply(list.begin(), list.end(), geometry2, right);
+        if (result.interrupt || !may_update<interior, interior, '0'>(result)) return;
+
+        first_crossing interrupt;
+        turns::get_turns<Geometry1, Geometry2>::apply(list, geometry1, geometry2, interrupt, strategy);
+        if (!list.empty()) update<interior, interior, '0'>(result);
+    }
+
+    template <typename BoundaryChecker1, typename BoundaryChecker2, typename Result, typename Strategy>
+    static inline void apply_with_contacts(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                                          BoundaryChecker1 const& boundary_checker1,
+                                          BoundaryChecker2 const& boundary_checker2,
+                                          Result& result, Strategy const& strategy)
+    {
         // The result should be FFFFFFFFF
         update<exterior, exterior, result_dimension<Geometry1>::value>(result);// FFFFFFFFd, d in [1,9] or T
         if ( BOOST_GEOMETRY_CONDITION( result.interrupt ) )
@@ -145,7 +196,8 @@ struct linear_linear
             <
                 Geometry1, Geometry2
             >::template turn_info_type<Strategy>::type;
-        std::vector<turn_type> turns;
+        auto turns = strategies::detail::make_turn_container<std::vector<turn_type>, strategies::detail::turn_storage::local>
+            (strategy, geometry1, geometry2);
 
         interrupt_policy_linear_linear<Result, BoundaryChecker1, BoundaryChecker2>
             interrupt_policy(result, geometry1, geometry2, boundary_checker1, boundary_checker2);
@@ -184,7 +236,7 @@ struct linear_linear
           || may_update<boundary, exterior, '0'>(result) )
         {
             using less_t = turns::less<0, turns::less_op_linear_linear<0>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry1));
 
             turns_analyser<turn_type, 0> analyser;
             analyse_each_turn<0>(result, analyser,
@@ -204,7 +256,7 @@ struct linear_linear
           || may_update<boundary, exterior, '0', true>(result) )
         {
             using less_t = turns::less<1, turns::less_op_linear_linear<1>, Strategy>;
-            std::sort(turns.begin(), turns.end(), less_t());
+            geometry::detail::turns::sort_turns(turns, less_t(strategy).on_geometry(geometry2));
 
             turns_analyser<turn_type, 1> analyser;
             analyse_each_turn<1>(result, analyser,
@@ -358,6 +410,7 @@ struct linear_linear
                 // we know that we entered and now we exit
                 if ( ! turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(),
                                                   *it,
+                                                  geometry,
                                                   boundary_checker.strategy()) )
                 {
                     m_exit_watcher.reset_detected_exit();
@@ -381,6 +434,7 @@ struct linear_linear
                 if ( op == overlay::operation_intersection
                   && turn_on_the_same_ip<op_id>(m_exit_watcher.get_exit_turn(),
                                                 *it,
+                                                geometry,
                                                 boundary_checker.strategy()) )
                 {
                     fake_enter_detected = true;

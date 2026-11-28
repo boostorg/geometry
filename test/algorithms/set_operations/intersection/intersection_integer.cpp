@@ -47,7 +47,9 @@ void test_areal()
 
     TEST_INTERSECTION(rectangles, 1, is_open ? 4 : 5, 250000.0);
     TEST_INTERSECTION(start_within, 1, is_open ? 5 : 6, 218750.0);
-    TEST_INTERSECTION(issue_1184, 1, is_open ? 3 : 4, 156.0);
+    // The exact quadrilateral's constructed vertices are (1179, 11487/31)
+    // and (60115/51, 6209/17). Native output truncates their coordinates.
+    TEST_INTERSECTION(issue_1184, 1, is_open ? 4 : 5, 197.5);
 }
 
 template <typename P>

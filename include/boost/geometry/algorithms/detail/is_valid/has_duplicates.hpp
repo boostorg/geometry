@@ -23,6 +23,8 @@
 
 #include <boost/geometry/views/closeable_view.hpp>
 #include <boost/geometry/algorithms/validity_failure_type.hpp>
+#include <boost/geometry/algorithms/detail/equals/point_point.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -38,7 +40,7 @@ struct has_duplicates
 {
     template <typename VisitPolicy, typename Strategy>
     static inline bool apply(Range const& range, VisitPolicy& visitor,
-                             Strategy const& )
+                             Strategy const& strategy)
     {
         boost::ignore_unused(visitor);
 
@@ -49,12 +51,14 @@ struct has_duplicates
             return ! visitor.template apply<no_failure>();
         }
 
-        geometry::equal_to
-            <
-                typename boost::range_value<Range>::type,
-                -1,
-                typename Strategy::cs_tag
-            > equal;
+        auto const equal = [&](auto const& a, auto const& b)
+        {
+            if constexpr (strategies::relate::services::exact_predicates<Strategy>::value)
+                return detail::equals::equals_point_point(a, b, strategy);
+            else
+                return geometry::equal_to<typename boost::range_value<Range>::type, -1,
+                    typename Strategy::cs_tag>{}(a, b);
+        };
 
         auto it = boost::begin(view);
         auto const end = boost::end(view);

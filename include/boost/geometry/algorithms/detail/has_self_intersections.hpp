@@ -15,6 +15,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_HAS_SELF_INTERSECTIONS_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_HAS_SELF_INTERSECTIONS_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 #include <deque>
 
 #include <boost/range/begin.hpp>
@@ -76,7 +78,8 @@ inline bool has_self_intersections(Geometry const& geometry,
         point_type,
         typename segment_ratio_type<point_type>::type
     >;
-    std::deque<turn_info> turns;
+    auto turns = strategies::detail::make_turn_container<std::deque<turn_info>>
+        (strategy, geometry, geometry);
     detail::disjoint::disjoint_interrupt_policy policy;
 
     detail::self_get_turn_points::self_turns

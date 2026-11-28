@@ -14,11 +14,14 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_INTERFACE_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_INTERSECTION_INTERFACE_HPP
 
+#include <boost/geometry/algorithms/detail/overlay/working_output.hpp>
+
 
 #include <boost/geometry/algorithms/detail/overlay/intersection_insert.hpp>
 #include <boost/geometry/algorithms/detail/tupled_output.hpp>
 #include <boost/geometry/geometries/adapted/boost_variant.hpp>
 #include <boost/geometry/strategies/default_strategy.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -151,10 +154,15 @@ struct intersection
                              GeometryOut & geometry_out,
                              Strategy const& strategy)
     {
-        return resolve_collection::intersection
-            <
-                Geometry1, Geometry2, GeometryOut
-            >::apply(geometry1, geometry2, geometry_out, strategy);
+        return strategies::detail::with_operation_operands(strategy, geometry1, geometry2,
+            [&](auto const& a, auto const& b, auto const& bound)
+        {
+            return detail::overlay::with_working_output(geometry_out, bound, [&](auto& working)
+            {
+                return resolve_collection::intersection<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>,
+                    std::decay_t<decltype(working)>>::apply(a, b, working, bound);
+            });
+        });
     }
 };
 
@@ -195,15 +203,20 @@ struct intersection<default_strategy, false>
                              GeometryOut & geometry_out,
                              default_strategy)
     {
-        using strategy_type = typename strategies::relate::services::default_strategy
-            <
-                Geometry1, Geometry2
-            >::type;
-
-        return intersection
-            <
-                strategy_type
-            >::apply(geometry1, geometry2, geometry_out, strategy_type());
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+        namespace exact = detail::cartesian_exact_default;
+        if constexpr (exact::admits_output<exact::operation::intersection, Geometry1, Geometry2, GeometryOut>())
+        {
+            using strategy_type = exact::strategy<Geometry1, Geometry2>;
+            return intersection<strategy_type>::apply(geometry1, geometry2, geometry_out, strategy_type{});
+        }
+        else
+#endif
+        {
+            using strategy_type = typename strategies::relate::services::default_strategy
+                <Geometry1, Geometry2>::type;
+            return intersection<strategy_type>::apply(geometry1, geometry2, geometry_out, strategy_type{});
+        }
     }
 };
 

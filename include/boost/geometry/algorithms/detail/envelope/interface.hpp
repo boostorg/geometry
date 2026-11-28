@@ -35,6 +35,7 @@
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
 #include <boost/geometry/strategies/envelope/services.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 #include <boost/geometry/util/select_most_precise.hpp>
 #include <boost/geometry/util/type_traits_std.hpp>
@@ -58,6 +59,8 @@ struct envelope
                              Box& box,
                              Strategy const& strategy)
     {
+        typename strategies::relate::services::operation_scope<Strategy>::type scope;
+        (void) scope;
         dispatch::envelope<Geometry>::apply(geometry, box, strategy);
     }
 };

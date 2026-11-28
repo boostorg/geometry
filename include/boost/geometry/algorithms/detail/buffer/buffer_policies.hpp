@@ -15,6 +15,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_BUFFER_POLICIES_HPP
 
 #include <cstddef>
+#include <type_traits>
 
 #include <boost/range/value_type.hpp>
 
@@ -22,6 +23,7 @@
 #include <boost/geometry/core/point_type.hpp>
 
 #include <boost/geometry/algorithms/disjoint.hpp>
+#include <boost/geometry/algorithms/covered_by.hpp>
 #include <boost/geometry/algorithms/expand.hpp>
 #include <boost/geometry/algorithms/detail/overlay/traversal_info.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_info.hpp>
@@ -59,9 +61,9 @@ public :
 
 // Should follow traversal-turn-concept (enrichment, visit structure)
 // and adds index in piece vector to find it back
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename SegmentRatio, typename ComparableDistance = coordinate_type_t<Point>>
 struct buffer_turn_operation
-    : public detail::overlay::traversal_turn_operation<Point, SegmentRatio>
+    : public detail::overlay::traversal_turn_operation<Point, SegmentRatio, ComparableDistance>
 {
     signed_size_type piece_index;
     signed_size_type index_in_ring;
@@ -72,15 +74,31 @@ struct buffer_turn_operation
     {}
 };
 
+struct no_turn_enclosure {};
+
+template <typename Strategy, typename = void>
+struct turn_enclosure_storage
+{
+    static constexpr bool enabled = false;
+    static constexpr no_turn_enclosure enclosure{};
+};
+
+template <typename Strategy>
+struct turn_enclosure_storage<Strategy, std::void_t<typename Strategy::buffer_turn_enclosure>>
+    : Strategy::buffer_turn_enclosure
+{
+    static constexpr bool enabled = true;
+};
+
 // Version of turn_info for buffer with its turn index and other helper variables
-template <typename Point, typename SegmentRatio>
+template <typename Point, typename SegmentRatio, typename ComparableDistance, typename Strategy>
 struct buffer_turn_info
     : public detail::overlay::turn_info
         <
             Point,
             SegmentRatio,
-            buffer_turn_operation<Point, SegmentRatio>
-        >
+            buffer_turn_operation<Point, SegmentRatio, ComparableDistance>
+        >, turn_enclosure_storage<Strategy>
 {
     using point_type = Point;
 
@@ -102,6 +120,15 @@ struct buffer_turn_info
     {}
 };
 
+template <typename Turn, typename Box, typename Strategy>
+inline bool turn_covered_by(Turn const& turn, Box const& box, Strategy const& strategy)
+{
+    if constexpr (turn_enclosure_storage<Strategy>::enabled)
+        return strategy.buffer_turn_covered_by(turn.point, turn.enclosure, box);
+    else
+        return geometry::covered_by(turn.point, box, strategy);
+}
+
 template <typename Strategy>
 struct piece_get_box
 {
@@ -112,8 +139,6 @@ struct piece_get_box
     template <typename Box, typename Piece>
     inline void apply(Box& total, Piece const& piece) const
     {
-        assert_coordinate_type_equal(total, piece.m_piece_border.m_envelope);
-
         if (piece.m_piece_border.m_has_envelope)
         {
             geometry::expand(total, piece.m_piece_border.m_envelope,
@@ -134,8 +159,6 @@ struct piece_overlaps_box
     template <typename Box, typename Piece>
     inline bool apply(Box const& box, Piece const& piece) const
     {
-        assert_coordinate_type_equal(box, piece.m_piece_border.m_envelope);
-
         if (piece.type == strategy::buffer::buffered_flat_end
             || piece.type == strategy::buffer::buffered_concave)
         {
@@ -167,8 +190,10 @@ struct turn_get_box
     template <typename Box, typename Turn>
     inline void apply(Box& total, Turn const& turn) const
     {
-        assert_coordinate_type_equal(total, turn.point);
-        geometry::expand(total, turn.point, m_strategy);
+        if constexpr (turn_enclosure_storage<Strategy>::enabled)
+            geometry::expand(total, turn.enclosure, m_strategy);
+        else
+            geometry::expand(total, turn.point, m_strategy);
     }
 
     Strategy const& m_strategy;
@@ -184,9 +209,10 @@ struct turn_overlaps_box
     template <typename Box, typename Turn>
     inline bool apply(Box const& box, Turn const& turn) const
     {
-        assert_coordinate_type_equal(turn.point, box);
-        return ! geometry::detail::disjoint::disjoint_point_box(turn.point, box,
-                                                                m_strategy);
+        if constexpr (strategies::relate::services::exact_predicates<Strategy>::value)
+            return turn_covered_by(turn, box, m_strategy);
+        else
+            return !geometry::detail::disjoint::disjoint_point_box(turn.point, box, m_strategy);
     }
 
     Strategy const& m_strategy;

@@ -33,6 +33,7 @@
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 #include <boost/geometry/util/condition.hpp>
@@ -131,7 +132,8 @@ struct get_turns
             InterruptPolicy& interrupt_policy,
             int source_index, bool skip_adjacent)
     {
-        using box_type = model::box<geometry::point_type_t<Geometry>>;
+        using box_type = typename strategies::relate::services::box_type
+            <Strategy, geometry::point_type_t<Geometry>>::type;
 
         // sectionalize in two dimensions to detect
         // all potential spikes correctly

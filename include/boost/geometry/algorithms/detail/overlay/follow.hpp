@@ -16,6 +16,8 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_FOLLOW_HPP
 
+#include <boost/geometry/algorithms/detail/turns/modify_turns.hpp>
+
 #include <cstddef>
 #include <set>
 #include <memory>
@@ -236,16 +238,12 @@ struct action_selector<overlay_intersection, RemoveSpikes>
         return isolated;
     }
 
-    template
-    <
-        typename LineStringOrPointOut,
-        typename Point,
-        typename OutputIterator
-    >
-    static inline void isolated_point(Point const& point,
-                                      OutputIterator& out)
+    template <typename GeometryOut, typename Point, typename OutputIterator, typename Strategy>
+    static inline void isolated_point(Point const& point, OutputIterator& out, Strategy const& strategy)
     {
-        add_isolated_point<LineStringOrPointOut>::apply(point, out);
+        point_type_t<GeometryOut> converted;
+        strategies::detail::convert_output_point(strategy, point, converted);
+        add_isolated_point<GeometryOut>::apply(converted, out);
     }
 
     static inline bool is_entered(bool entered)
@@ -309,16 +307,9 @@ struct action_selector<overlay_difference, RemoveSpikes>
         return false;
     }
 
-    template
-    <
-        typename LineStringOrPointOut,
-        typename Point,
-        typename OutputIterator
-    >
-    static inline void isolated_point(Point const&,
-                                      OutputIterator const&)
-    {
-    }
+    template <typename GeometryOut, typename Point, typename OutputIterator, typename Strategy>
+    static inline void isolated_point(Point const&, OutputIterator&, Strategy const&)
+    {}
 
     static inline bool is_entered(bool entered)
     {
@@ -354,11 +345,6 @@ class follow
         <
             GeometryOut, linestring_tag, linestring_tag
         >;
-    using pointlike = geometry::detail::output_geometry_access
-        <
-            GeometryOut, point_tag, linestring_tag
-        >;
-
 public :
 
     static inline bool included(int inside_value)
@@ -394,7 +380,7 @@ public :
             <
                 0, relate::turns::less_op_linear_areal_single<0>, Strategy
             >;
-        std::sort(boost::begin(turns), boost::end(turns), turn_less());
+        geometry::detail::turns::sort_turns(turns, turn_less(strategy).on_geometry(linestring));
 
         typename linear::type current_piece;
         geometry::segment_identifier current_segment_id(0, -1, -1, -1);
@@ -411,11 +397,11 @@ public :
         {
             auto const& op = turn.operations[0];
             if (previous_turn != nullptr
-                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, strategy))
+                && !relate::turn_on_the_same_ip<0>(*previous_turn, turn, linestring, strategy))
             {
                 if (isolated_turn != nullptr && !entered && !covered_at_position)
                 {
-                    isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
+                    isolated_points.apply(isolated_turn->point, out, strategy);
                 }
                 isolated_turn = nullptr;
                 // An interval followed up to this position also covers the
@@ -497,7 +483,7 @@ public :
 
         if (isolated_turn != nullptr && !entered && !covered_at_position)
         {
-            isolated_points.apply(isolated_turn->point, pointlike::get(out), strategy);
+            isolated_points.apply(isolated_turn->point, out, strategy);
         }
 
         if (action::is_entered(entered))
@@ -521,7 +507,7 @@ public :
         else if (BOOST_GEOMETRY_CONDITION(FollowIsolatedPoints)
               && current_piece_size == 1)
         {
-            isolated_points.apply(range::front(current_piece), pointlike::get(out), strategy);
+            isolated_points.apply(range::front(current_piece), out, strategy);
         }
 
         return out;

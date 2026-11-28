@@ -16,6 +16,8 @@
 
 //#define BOOST_GEOMETRY_ALLOW_INCONSISTENT_ORIENTATION
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 #include <iostream>
 #include <type_traits>
@@ -40,6 +42,7 @@
 
 #include <boost/geometry/geometries/geometry_collection.hpp>
 #include <boost/geometry/geometries/polyhedral_surface.hpp>
+#include <boost/geometry/strategies/relate/cartesian_exact.hpp>
 
 template <typename Geometry>
 void geometry_to_svg(Geometry const& geometry, const std::string& case_id)
@@ -1290,6 +1293,59 @@ BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
     test_open_multipolygons<point_type, true>();
     test_open_multipolygons<point_type, false>();
 }
+
+BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon_order )
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    using multipolygon = bg::model::multi_polygon<bg::model::polygon<point>>;
+    using exact = bg::strategies::relate::cartesian_exact<double>;
+    auto const advance_start = [](auto& ring)
+    {
+        std::rotate(ring.begin(), ring.begin() + 1, ring.end() - 1);
+        ring.back() = ring.front();
+    };
+    auto const check = [&](char const* wkt, bool expected)
+    {
+        auto geometry = from_wkt<multipolygon>(wkt);
+        for (unsigned order = 0; order < 2; ++order)
+        {
+            auto& first = bg::exterior_ring(geometry.front());
+            auto& second = bg::exterior_ring(geometry.back());
+            for (std::size_t i = 0; i + 1 < first.size(); ++i)
+            {
+                for (std::size_t j = 0; j + 1 < second.size(); ++j)
+                {
+                    BOOST_TEST_CONTEXT(wkt << "; component order " << order << ", starts " << i << ", " << j)
+                    {
+                        std::string message;
+                        BOOST_CHECK_MESSAGE(bg::is_valid(geometry, message, exact{}) == expected, message);
+                        BOOST_CHECK_MESSAGE(bg::is_valid(geometry, message) == expected, message);
+                    }
+                    advance_start(second);
+                }
+                advance_start(first);
+            }
+            std::swap(geometry.front(), geometry.back());
+        }
+    };
+    check("MULTIPOLYGON(((-2 -0.1,-2 1.5,2 1.5,2 -1.5,-1.99999999 -1.5,-0.5 -1.49999999,-2 -0.1)),"
+          "((-1.99999999 -1.5,-2 -1.5,-2 -0.1,-1.99999999 -1.5)))", true); // #1288
+    check("MULTIPOLYGON(((0 0,0 4,4 4,4 0,0 0)),((2 -1,2 3,6 3,6 -1,2 -1)))", false);
+    check("MULTIPOLYGON(((0 0,0 4,4 4,4 0,0 0)),((4 1,4 3,6 3,6 1,4 1)))", false);
+    check("MULTIPOLYGON(((0 0,0 4,4 4,4 0,0 0)),((1 1,1 3,3 3,3 1,1 1)))", false);
+}
+
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+BOOST_AUTO_TEST_CASE( test_is_valid_exact_default_closure )
+{
+    using point = bg::model::point<double, 2, bg::cs::cartesian>;
+    bg::model::ring<point> const ring{
+        point(1, 1), point(1, 2), point(2, 2), point(2, 1), point(std::nextafter(1.0, 2.0), 1)};
+    bg::validity_failure_type failure;
+    BOOST_CHECK(!bg::is_valid(ring, failure));
+    BOOST_CHECK_EQUAL(failure, bg::failure_not_closed);
+}
+#endif
 
 
 template <typename CoordinateType, typename Geometry>

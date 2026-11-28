@@ -22,6 +22,7 @@
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_EQUALS_IMPLEMENTATION_HPP
 
 
+#include <algorithm>
 #include <cstddef>
 #include <type_traits>
 #include <vector>
@@ -29,10 +30,14 @@
 #include <boost/range/size.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/exterior_ring.hpp>
+#include <boost/geometry/core/interior_rings.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/tags.hpp>
 
 #include <boost/geometry/algorithms/area.hpp>
-#include <boost/geometry/algorithms/length.hpp>
+#include <boost/geometry/algorithms/is_empty.hpp>
 #include <boost/geometry/algorithms/detail/equals/point_point.hpp>
 #include <boost/geometry/algorithms/detail/equals/collect_vectors.hpp>
 #include <boost/geometry/algorithms/detail/equals/interface.hpp>
@@ -41,13 +46,13 @@
 
 #include <boost/geometry/strategies/relate/cartesian.hpp>
 #include <boost/geometry/strategies/relate/geographic.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 #include <boost/geometry/strategies/relate/spherical.hpp>
+#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 #include <boost/geometry/util/math.hpp>
 #include <boost/geometry/util/select_coordinate_type.hpp>
 #include <boost/geometry/util/select_most_precise.hpp>
-
-#include <boost/geometry/views/detail/indexed_point_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -58,19 +63,13 @@ namespace detail { namespace equals
 {
 
 
-template
-<
-    std::size_t Dimension,
-    std::size_t DimensionCount
->
 struct point_point
 {
     template <typename Point1, typename Point2, typename Strategy>
     static inline bool apply(Point1 const& point1, Point2 const& point2,
                              Strategy const& strategy)
     {
-        typedef decltype(strategy.relate(point1, point2)) strategy_type;
-        return strategy_type::apply(point1, point2);
+        return equals::equals_point_point(point1, point2, strategy);
     }
 };
 
@@ -104,6 +103,22 @@ struct box_box<DimensionCount, DimensionCount>
     }
 };
 
+struct box_equals
+{
+    template <typename A, typename B, typename Strategy>
+    static auto apply_impl(A const& a, B const& b, Strategy const& strategy, int)
+        -> decltype(strategy.box_topology().equals().apply(a, b))
+    { return strategy.box_topology().equals().apply(a, b); }
+
+    template <typename A, typename B, typename Strategy>
+    static bool apply_impl(A const& a, B const& b, Strategy const& strategy, long)
+    { return box_box<0, dimension<A>::value>::apply(a, b, strategy); }
+
+    template <typename A, typename B, typename Strategy>
+    static bool apply(A const& a, B const& b, Strategy const& strategy)
+    { return apply_impl(a, b, strategy, 0); }
+};
+
 
 struct segment_segment
 {
@@ -111,23 +126,14 @@ struct segment_segment
     static inline bool apply(Segment1 const& segment1, Segment2 const& segment2,
                              Strategy const& strategy)
     {
-        return equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 0>(segment1),
-                    indexed_point_view<Segment2 const, 0>(segment2),
-                    strategy)
-                ? equals::equals_point_point(
-                    indexed_point_view<Segment1 const, 1>(segment1),
-                    indexed_point_view<Segment2 const, 1>(segment2),
-                    strategy)
-                : ( equals::equals_point_point(
-                        indexed_point_view<Segment1 const, 0>(segment1),
-                        indexed_point_view<Segment2 const, 1>(segment2),
-                        strategy)
-                 && equals::equals_point_point(
-                        indexed_point_view<Segment1 const, 1>(segment1),
-                        indexed_point_view<Segment2 const, 0>(segment2),
-                        strategy)
-                  );
+        indexed_point_view<Segment1 const, 0> const a0(segment1);
+        indexed_point_view<Segment1 const, 1> const a1(segment1);
+        indexed_point_view<Segment2 const, 0> const b0(segment2);
+        indexed_point_view<Segment2 const, 1> const b1(segment2);
+        return equals::equals_point_point(a0, b0, strategy)
+            ? equals::equals_point_point(a1, b1, strategy)
+            : equals::equals_point_point(a0, b1, strategy)
+                && equals::equals_point_point(a1, b0, strategy);
     }
 };
 
@@ -143,21 +149,6 @@ struct area_check
                                       geometry::area(geometry2, strategy));
     }
 };
-
-
-/*
-struct length_check
-{
-    template <typename Geometry1, typename Geometry2, typename Strategy>
-    static inline bool apply(Geometry1 const& geometry1,
-                             Geometry2 const& geometry2,
-                             Strategy const& strategy)
-    {
-        return geometry::math::equals(geometry::length(geometry1, strategy),
-                                      geometry::length(geometry2, strategy));
-    }
-};
-*/
 
 
 // Small helper structure do decide to use collect_vectors, or not
@@ -246,6 +237,82 @@ struct equals_by_relate
         >
 {};
 
+template <typename Ring1, typename Ring2, typename Strategy>
+bool matching_ring(Ring1 const& a, Ring2 const& b, Strategy const& strategy)
+{
+    if (geometry::point_order<Ring1>::value != geometry::point_order<Ring2>::value
+        || geometry::closure<Ring1>::value != geometry::closure<Ring2>::value
+        || boost::size(a) != boost::size(b))
+        return false;
+
+    auto first = boost::begin(a), end = boost::end(a);
+    auto start = boost::begin(b), stop = boost::end(b);
+    if (first == end)
+        return true;
+    if (geometry::closure<Ring1>::value == closed)
+    {
+        --end;
+        --stop;
+    }
+    auto equal = [&](auto const& p, auto const& q)
+    {
+        return equals::equals_point_point(p, q, strategy);
+    };
+    auto current = std::find_if(start, stop, [&](auto const& p) { return equal(*first, p); });
+    if (current == stop)
+        return false;
+    for (; first != end; ++first)
+    {
+        if (!equal(*first, *current))
+            return false;
+        if (++current == stop)
+            current = start;
+    }
+    return true;
+}
+
+template <typename A, typename B, typename Strategy>
+bool matching_boundary(A const& a, B const& b, Strategy const& strategy)
+{
+    if constexpr (std::is_same<tag_t<A>, ring_tag>::value && std::is_same<tag_t<B>, ring_tag>::value)
+        return matching_ring(a, b, strategy);
+    else if constexpr (std::is_same<tag_t<A>, polygon_tag>::value && std::is_same<tag_t<B>, polygon_tag>::value)
+    {
+        auto const& as = interior_rings(a);
+        auto const& bs = interior_rings(b);
+        return boost::size(as) == boost::size(bs)
+            && matching_ring(exterior_ring(a), exterior_ring(b), strategy)
+            && std::equal(boost::begin(as), boost::end(as), boost::begin(bs),
+                          [&](auto const& p, auto const& q) { return matching_ring(p, q, strategy); });
+    }
+    else return false;
+}
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+auto areal_can_match(Geometry1 const& a, Geometry2 const& b, Strategy const& strategy, int)
+    -> decltype(strategy.areal_equality().bounds_match(a, b), bool())
+{
+    auto const filter = strategy.areal_equality();
+    return filter.bounds_match(a, b) && filter.area_can_match(a, b);
+}
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+bool areal_can_match(Geometry1 const&, Geometry2 const&, Strategy const&, long)
+{ return true; }
+
+template <typename Geometry1, typename Geometry2, typename Strategy>
+bool equals_areal_exact(Geometry1 const& a, Geometry2 const& b, Strategy const& strategy)
+{
+    if (geometry::is_empty(a) || geometry::is_empty(b))
+        return geometry::is_empty(a) && geometry::is_empty(b);
+    // Matching vertices prove equality, but a different subdivision does not
+    // disprove equality. Different exact envelopes do.
+    if (matching_boundary(a, b, strategy))
+        return true;
+    return areal_can_match(a, b, strategy, 0)
+        && equals_by_relate<Geometry1, Geometry2>::apply(a, b, strategy);
+}
+
 // Use either collect_vectors or relate
 // NOTE: the result could be conceptually different for invalid
 // geometries in different coordinate systems because collect_vectors
@@ -254,11 +321,13 @@ template<typename TrivialCheck>
 struct equals_by_collection_or_relate
 {
     template <typename Strategy>
-    using use_vectors = use_collect_vectors
+    using use_vectors = std::integral_constant<bool,
+        !strategies::relate::services::exact_predicates<Strategy>::value
+        && use_collect_vectors
         <
             decltype(std::declval<Strategy>().side()),
             typename Strategy::cs_tag
-        >;
+        >::value>;
 
     template
     <
@@ -281,7 +350,10 @@ struct equals_by_collection_or_relate
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
-        return equals_by_relate<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
+        if constexpr (strategies::relate::services::exact_predicates<Strategy>::value)
+            return equals_areal_exact(geometry1, geometry2, strategy);
+        else
+            return equals_by_relate<Geometry1, Geometry2>::apply(geometry1, geometry2, strategy);
     }
 };
 
@@ -305,7 +377,7 @@ namespace dispatch
 
 template <typename P1, typename P2, std::size_t DimensionCount, bool Reverse>
 struct equals<P1, P2, point_tag, point_tag, pointlike_tag, pointlike_tag, DimensionCount, Reverse>
-    : detail::equals::point_point<0, DimensionCount>
+    : detail::equals::point_point
 {};
 
 template <typename MultiPoint1, typename MultiPoint2, std::size_t DimensionCount, bool Reverse>
@@ -320,7 +392,7 @@ struct equals<Point, MultiPoint, point_tag, multi_point_tag, pointlike_tag, poin
 
 template <typename Box1, typename Box2, std::size_t DimensionCount, bool Reverse>
 struct equals<Box1, Box2, box_tag, box_tag, areal_tag, areal_tag, DimensionCount, Reverse>
-    : detail::equals::box_box<0, DimensionCount>
+    : detail::equals::box_equals
 {};
 
 

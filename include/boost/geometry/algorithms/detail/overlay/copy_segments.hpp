@@ -41,6 +41,7 @@
 
 #include <boost/geometry/iterators/ever_circling_iterator.hpp>
 
+
 #include <boost/geometry/util/range.hpp>
 
 #include <boost/geometry/views/detail/closed_clockwise_view.hpp>
@@ -53,6 +54,38 @@ namespace boost { namespace geometry
 #ifndef DOXYGEN_NO_DETAIL
 namespace detail { namespace copy_segments
 {
+
+template <bool Reverse, bool RemoveSpikes, typename Strategy, typename Geometry,
+          typename SegmentIdentifier, typename Range>
+inline bool try_copy_segments(Strategy const& strategy, Geometry const& geometry,
+                              SegmentIdentifier const& seg_id, signed_size_type to_index,
+                              Range& range)
+{
+    auto const hook = [&](auto const& s)
+        -> decltype(s.template copy_segments<Reverse, RemoveSpikes>(geometry, seg_id, to_index, range), void())
+    { s.template copy_segments<Reverse, RemoveSpikes>(geometry, seg_id, to_index, range); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+        return true;
+    }
+    return false;
+}
+
+template <bool Reverse1, bool Reverse2, typename Strategy, typename Range,
+          typename Geometry1, typename Geometry2, typename SegmentIdentifier>
+inline void prepare_output_edge(Strategy const& strategy, Range& range,
+                                Geometry1 const& geometry1, Geometry2 const& geometry2,
+                                SegmentIdentifier const& seg_id)
+{
+    auto const hook = [&](auto const& s)
+        -> decltype(s.template prepare_output_edge<Reverse1, Reverse2>(range, geometry1, geometry2, seg_id), void())
+    { s.template prepare_output_edge<Reverse1, Reverse2>(range, geometry1, geometry2, seg_id); };
+    if constexpr (std::is_invocable_v<decltype(hook), Strategy const&>)
+    {
+        hook(strategy);
+    }
+}
 
 
 template <bool Reverse>
@@ -71,6 +104,12 @@ struct copy_segments_ring
             Strategy const& strategy,
             RangeOut& current_output)
     {
+        if (try_copy_segments<Reverse, true>(
+                strategy, ring, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         using view_type = detail::closed_clockwise_view
             <
                 Ring const,
@@ -151,6 +190,12 @@ public:
             SideStrategy const& strategy,
             RangeOut& current_output)
     {
+        if (try_copy_segments<Reverse, RemoveSpikes>(
+                strategy, ls, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         signed_size_type const from_index = seg_id.segment_index + 1;
 
         // Sanity check
@@ -217,6 +262,12 @@ struct copy_segments_box
             SideStrategy const& strategy,
             RangeOut& current_output)
     {
+        if (try_copy_segments<Reverse, true>(
+                strategy, box, seg_id, to_index, current_output))
+        {
+            return;
+        }
+
         signed_size_type index = seg_id.segment_index + 1;
         BOOST_GEOMETRY_ASSERT(index < 5);
 
@@ -353,6 +404,23 @@ inline void copy_segments(Geometry const& geometry,
             Reverse
         >::apply(geometry, seg_id, to_index, strategy, range_out);
 }
+
+namespace detail { namespace copy_segments
+{
+
+template <bool Reverse1, bool Reverse2, typename Geometry1, typename Geometry2,
+          typename SegmentIdentifier, typename Strategy, typename Range>
+void from_source(Geometry1 const& geometry1, Geometry2 const& geometry2,
+                 SegmentIdentifier const& id, signed_size_type to_index,
+                 Strategy const& strategy, Range& range)
+{
+    if (id.source_index == 0)
+        geometry::copy_segments<Reverse1>(geometry1, id, to_index, strategy, range);
+    else
+        geometry::copy_segments<Reverse2>(geometry2, id, to_index, strategy, range);
+}
+
+}} // namespace detail::copy_segments
 
 
 }} // namespace boost::geometry

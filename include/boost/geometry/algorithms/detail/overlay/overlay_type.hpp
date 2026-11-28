@@ -38,6 +38,14 @@ enum operation_type
     operation_opposite
 };
 
+// Membership bits 1 and 2 denote the interiors of the two operands.
+template <overlay_type OverlayType>
+constexpr bool overlay_includes(unsigned members)
+{
+    if constexpr (OverlayType == overlay_intersection) return members == 3;
+    else if constexpr (OverlayType == overlay_difference) return members == 1;
+    else return members != 0; // Union, buffer and dissolve.
+}
 
 template <overlay_type OverlayType>
 struct operation_from_overlay

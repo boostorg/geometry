@@ -34,20 +34,15 @@ namespace detail { namespace overlay {
 
 template<typename AssignPolicy>
 struct get_turn_info_linear_areal
+    : turn_info_dispatch<true, false, get_turn_info_linear_areal<AssignPolicy>>
 {
     // Currently only Linear spikes are handled
     // Areal spikes are ignored
     static const bool handle_spikes = true;
 
-    template
-    <
-        typename UniqueSubRange1,
-        typename UniqueSubRange2,
-        typename TurnInfo,
-        typename UmbrellaStrategy,
-        typename OutputIterator
-    >
-    static inline OutputIterator apply(
+    template <typename UniqueSubRange1, typename UniqueSubRange2,
+              typename TurnInfo, typename UmbrellaStrategy, typename OutputIterator>
+    static inline OutputIterator apply_with_contacts(
                 UniqueSubRange1 const& range_p,
                 UniqueSubRange2 const& range_q,
                 TurnInfo const& tp_model,

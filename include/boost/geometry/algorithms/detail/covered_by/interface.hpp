@@ -24,6 +24,8 @@
 
 #include <boost/geometry/strategies/default_strategy.hpp>
 #include <boost/geometry/strategies/detail.hpp>
+#include <boost/geometry/strategies/detail/cartesian_exact_default.hpp>
+#include <boost/geometry/strategies/detail/operation_binding.hpp>
 #include <boost/geometry/strategies/relate/services.hpp>
 
 
@@ -63,15 +65,19 @@ struct covered_by
                              Geometry2 const& geometry2,
                              Strategy const& strategy)
     {
+        typename strategies::relate::services::operation_scope<Strategy>::type scope;
+        (void) scope;
         concepts::within::check<Geometry1, Geometry2, Strategy>();
         concepts::check<Geometry1 const>();
         concepts::check<Geometry2 const>();
         assert_dimension_equal<Geometry1, Geometry2>();
 
-        return dispatch::covered_by
-            <
-                Geometry1, Geometry2
-            >::apply(geometry1, geometry2, strategy);
+        return strategies::detail::with_predicate_operands(strategy, geometry1, geometry2,
+            [](auto const& a, auto const& b, auto const& bound)
+            {
+                return dispatch::covered_by<util::remove_cref_t<decltype(a)>, util::remove_cref_t<decltype(b)>>
+                    ::apply(a, b, bound);
+            });
     }
 };
 
@@ -101,16 +107,8 @@ struct covered_by<default_strategy, false>
                              Geometry2 const& geometry2,
                              default_strategy)
     {
-        typedef typename strategies::relate::services::default_strategy
-            <
-                Geometry1,
-                Geometry2
-            >::type strategy_type;
-
-        return covered_by
-            <
-                strategy_type
-            >::apply(geometry1, geometry2, strategy_type());
+        namespace exact = detail::cartesian_exact_default;
+        return exact::apply_named_predicate<exact::predicate::covered_by, covered_by>(geometry1, geometry2);
     }
 };
 

@@ -12,7 +12,9 @@
 #include <boost/geometry/algorithms/detail/signed_size_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/turn_operation_id.hpp>
+#include <boost/geometry/strategies/detail/distance_measure.hpp>
 
+#include <functional>
 #include <set>
 #include <utility>
 
@@ -124,12 +126,11 @@ bool is_better_collinear_for_union(Operation const& op, Operation const& other_o
     // For a right turn (-1), the one with the largest distance is preferred.
     // For collinear (0), it should not matter.
 
-    return
-        op.enriched.ahead_side == 1
-        ? op.enriched.ahead_distance_of_side_change
-            <= other_op.enriched.ahead_distance_of_side_change
-        : op.enriched.ahead_distance_of_side_change
-            >= other_op.enriched.ahead_distance_of_side_change;
+    auto const& distance = op.enriched.ahead_distance_of_side_change;
+    auto const& other_distance = other_op.enriched.ahead_distance_of_side_change;
+    return op.enriched.ahead_side == 1
+        ? strategies::detail::compare_squared_distances(distance, other_distance, std::less_equal<>{})
+        : strategies::detail::compare_squared_distances(distance, other_distance, std::greater_equal<>{});
 }
 
 // The same for intersection - but it needs turns for the same target ahead check.
@@ -153,8 +154,8 @@ bool is_better_collinear_for_intersection(Operation const& op, Operation const& 
         return target_ahead.second;
     }
 
-    return op.enriched.ahead_distance_of_side_change
-        <= other_op.enriched.ahead_distance_of_side_change;
+    return strategies::detail::compare_squared_distances(op.enriched.ahead_distance_of_side_change,
+        other_op.enriched.ahead_distance_of_side_change, std::less_equal<>{});
 }
 
 template <operation_type Operation>

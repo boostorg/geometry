@@ -91,10 +91,10 @@ jobs:
     - name: Build examples
       run: |
         cd $BOOST_ROOT
-        $BOOST_ROOT/b2 libs/geometry/doc/src/examples
+        $BOOST_ROOT/b2 cxxstd=17 libs/geometry/doc/src/examples
 
     - name: Build documentation
       run: |
         cd $BOOST_ROOT
         cd libs/geometry/doc
-        $BOOST_ROOT/b2
+        $BOOST_ROOT/b2 cxxstd=17

@@ -28,6 +28,10 @@
 #include <boost/geometry/util/precise_math.hpp>
 #include <boost/geometry/util/math.hpp>
 
+#include <boost/geometry/util/detail/precise_fp.hpp>
+
+BOOST_GEOMETRY_DETAIL_PRECISE_FP_BEGIN
+
 namespace boost { namespace geometry
 {
 
@@ -196,5 +200,7 @@ struct default_strategy<cartesian_tag, CalculationType>
 }} // namespace strategy::side
 
 }} // namespace boost::geometry
+
+BOOST_GEOMETRY_DETAIL_PRECISE_FP_END
 
 #endif // BOOST_GEOMETRY_STRATEGY_CARTESIAN_SIDE_ROBUST_HPP

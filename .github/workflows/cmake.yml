@@ -15,13 +15,8 @@ on: [push]
 jobs:
   ##############################################################################
   clang:
-    name: clang-14 / C++${{ matrix.cxxstd }}
+    name: clang-14 / C++17
     runs-on: ubuntu-22.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        cxxstd: [14, 17, 20]
     steps:
       - name: Set up environment
         id: setenv
@@ -76,7 +71,7 @@ jobs:
         run: |
           cmake -S "$BOOST_ROOT/libs/geometry" -B "$BOOST_ROOT/build" \
             -DCMAKE_CXX_COMPILER=clang++-14 \
-            -DCMAKE_CXX_STANDARD=${{ matrix.cxxstd }} \
+            -DCMAKE_CXX_STANDARD=17 \
             -DCMAKE_CXX_STANDARD_REQUIRED=ON -DBUILD_TESTING=ON
 
       - name: Build CMake tests

@@ -9,7 +9,7 @@
 
 #include <geometry_test_common.hpp>
 
-#include <boost/geometry/algorithms/detail/overlay/get_distance_measure.hpp>
+#include <boost/geometry/strategies/detail/distance_measure.hpp>
 #include <boost/geometry/strategy/cartesian/side_robust.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
@@ -29,15 +29,15 @@ void do_test(std::string const& case_id,
             Point, Point
         >::type strategy;
 
-    auto const dm = bg::detail::get_distance_measure(s1, s2, p, strategy);
-    auto const dm_side = dm.measure < 0.0 ? -1 : dm.measure > 0.0 ? 1 : 0;
+    auto const measure = bg::strategies::detail::distance_measure_detail::get_distance_measure(s1, s2, p, strategy);
+    int const dm_side = bg::math::sign(measure);
     auto const tr_side = strategy.side().apply(s1, s2, p);
     auto const rob_side = bg::strategy::side::side_robust<coor_t>::apply(s1, s2, p);
 
     #if defined(BOOST_GEOMETRY_TEST_WITH_COUT)
     std::cout << " " << case_id << " " << string_from_type<coor_t>::name()
         << std::setprecision(20)
-        << " " << dm.measure << " " << dm_side << " " << tr_side << " " << rob_side
+        << " " << measure << " " << dm_side << " " << tr_side << " " << rob_side
         << (dm_side != rob_side ? " [*** DM WRONG]" : "")
         << (tr_side != rob_side ? " [*** TR WRONG]" : "")
         << std::endl;

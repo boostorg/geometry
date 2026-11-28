@@ -22,6 +22,34 @@
 namespace boost { namespace geometry
 {
 
+namespace strategies { namespace detail
+{
+// Preserve the ordinal codes used by the segment intersection policies.
+enum segment_location
+{
+    segment_before = 0,
+    segment_start = 1,
+    segment_interior = 2,
+    segment_end = 3,
+    segment_after = 4,
+    segment_degenerate_on = 5,
+    segment_degenerate_off = 6,
+    segment_off_line = 7
+};
+
+// Precondition: p lies on the supporting line of a nondegenerate segment.
+template <typename Position, typename A, typename B, typename P>
+inline segment_location classify_collinear_position(A const& a, B const& b, P const& p)
+{
+    int const from = Position::apply(a, b, p, a);
+    if (from == 0) return segment_start;
+    if (from < 0) return segment_before;
+    int const to = Position::apply(a, b, p, b);
+    return to < 0 ? segment_interior : to == 0 ? segment_end : segment_after;
+}
+
+}} // namespace strategies::detail
+
 template <typename SegmentRatio>
 struct fraction_type
 {

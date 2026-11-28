@@ -9,7 +9,6 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_BUFFER_LINE_LINE_INTERSECTION_HPP
 
-#include <boost/geometry/algorithms/detail/make/make.hpp>
 #include <boost/geometry/arithmetic/infinite_line_functions.hpp>
 #include <boost/geometry/util/math.hpp>
 
@@ -66,8 +65,8 @@ struct line_line_intersection
 
         using ct = coordinate_type_t<Point>;
 
-        auto const p = detail::make::make_infinite_line<ct>(pi, pj);
-        auto const q = detail::make::make_infinite_line<ct>(qi, qj);
+        auto const p = arithmetic::make_infinite_line<ct>(pi, pj);
+        auto const q = arithmetic::make_infinite_line<ct>(qi, qj);
 
         using line = decltype(p);
         using arithmetic::determinant;
@@ -82,7 +81,7 @@ struct line_line_intersection
         if (equidistant)
         {
             auto const between = between_point(pj, qi);
-            auto const r = detail::make::make_infinite_line<ct>(vertex, between);
+            auto const r = arithmetic::make_infinite_line<ct>(vertex, between);
             auto const denominator_pr = determinant<line, &line::a, &line::b>(p, r);
 
             if (math::equals(denominator_pq, zero)

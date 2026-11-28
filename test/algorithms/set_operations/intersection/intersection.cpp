@@ -61,6 +61,8 @@ BOOST_GEOMETRY_REGISTER_LINESTRING_TEMPLATED(std::vector)
 template <typename Polygon>
 void test_areal()
 {
+    constexpr bool binary64 = std::is_same<bg::coordinate_type_t<Polygon>, double>::value;
+
     test_one<Polygon, Polygon, Polygon>("simplex_with_empty_1",
         simplex_normal[0], polygon_empty,
         0, 0, 0.0);
@@ -243,9 +245,10 @@ void test_areal()
                 ticket_9081_15[0], ticket_9081_15[1],
                 1, 4, 0.0068895780745301394);
 
+    // The binary64 inputs overlap by about 1.74e-21.
     test_one<Polygon, Polygon, Polygon>("ticket_10108_a",
                 ticket_10108_a[0], ticket_10108_a[1],
-                0, 0, 0.0);
+                binary64 ? 1 : 0, 0, 0.0);
 
     // msvc  5.6023011e-5
     // mingw 5.6022954e-5
@@ -400,9 +403,12 @@ void test_areal()
 
     TEST_INTERSECTION(mysql_23023665_6, 2, 0, 11.812440191387557);
 
-    // Formation of an interior ring is optional for these cases
-    TEST_INTERSECTION(mysql_23023665_10, optional(), 1, 54.701340543162523);
-    TEST_INTERSECTION(mysql_23023665_11, optional(), 1, 35.933385462482065);
+    // The exact intersections have a hole; rounded output can self-intersect.
+    ut_settings rounded(0.0001, !binary64);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_10",
+        mysql_23023665_10[0], mysql_23023665_10[1], optional(), 1, 54.701340543162523, rounded);
+    test_one<Polygon, Polygon, Polygon>("mysql_23023665_11",
+        mysql_23023665_11[0], mysql_23023665_11[1], optional(), 1, 35.933385462482065, rounded);
 
 //    test_one<Polygon, Polygon, Polygon>(
 //        "polygon_pseudo_line",

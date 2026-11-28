@@ -24,10 +24,13 @@
 #include <boost/geometry/algorithms/detail/overlay/get_turn_info_helpers.hpp>
 #include <boost/geometry/algorithms/detail/overlay/overlay_type.hpp>
 #include <boost/geometry/algorithms/detail/overlay/segment_identifier.hpp>
+#include <boost/geometry/algorithms/detail/overlay/copy_segment_point.hpp>
+#include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 #include <boost/geometry/algorithms/detail/relate/boundary_checker.hpp>
 #include <boost/geometry/algorithms/not_implemented.hpp>
 
 #include <boost/geometry/core/assert.hpp>
+#include <boost/geometry/strategies/intersection_result.hpp>
 
 #include <boost/geometry/util/condition.hpp>
 #include <boost/geometry/util/range.hpp>
@@ -366,6 +369,48 @@ inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
     }
 
     return detail::equals::equals_point_point(prev_turn.point, curr_turn.point, strategy);
+}
+
+template <std::size_t OpId, typename Turn, typename Geometry, typename Strategy>
+inline bool turn_starts_segment(Turn const& turn, Geometry const& geometry, Strategy const& strategy)
+{
+    auto const& source = detail::sub_range(geometry, turn.operations[OpId].seg_id);
+    using range_type = typename std::remove_reference<decltype(source)>::type;
+    detail::closed_clockwise_view<range_type, geometry::closure<range_type>::value,
+        geometry::point_order<Geometry>::value> view(source);
+    auto const index = turn.operations[OpId].seg_id.segment_index;
+    int const location = strategy.segment_position().classify(range::at(view, index), range::at(view, index + 1),
+                                                               turn.point);
+    return location == strategies::detail::segment_start
+        || location == strategies::detail::segment_degenerate_on;
+}
+
+template <std::size_t OpId, typename Turn, typename Geometry, typename Strategy>
+inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
+                                Geometry const&, Strategy const& strategy, std::true_type)
+{
+    return turn_on_the_same_ip<OpId>(prev_turn, curr_turn, strategy);
+}
+
+template <std::size_t OpId, typename Turn, typename Geometry, typename Strategy>
+inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
+                                Geometry const& geometry, Strategy const& strategy, std::false_type)
+{
+    auto const& previous = prev_turn.operations[OpId].seg_id;
+    auto const& current = curr_turn.operations[OpId].seg_id;
+    if (previous.multi_index != current.multi_index || previous.ring_index != current.ring_index) return false;
+    if (previous.segment_index != current.segment_index
+        && (previous.segment_index + 1 != current.segment_index
+            || !turn_starts_segment<OpId>(curr_turn, geometry, strategy))) return false;
+    return detail::equals::equals_point_point(prev_turn.point, curr_turn.point, strategy);
+}
+
+template <std::size_t OpId, typename Turn, typename Geometry, typename Strategy>
+inline bool turn_on_the_same_ip(Turn const& prev_turn, Turn const& curr_turn,
+                                Geometry const& geometry, Strategy const& strategy)
+{
+    return turn_on_the_same_ip<OpId>(prev_turn, curr_turn, geometry, strategy,
+        overlay::stores_fraction<typename Turn::segment_ratio_type>());
 }
 
 template <typename IntersectionPoint, typename OperationInfo, typename Geometry, typename Strategy>

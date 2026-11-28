@@ -16,9 +16,12 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_OVERLAY_OVERLAY_HPP
 
+#include <boost/geometry/strategies/detail/turn_container.hpp>
+
 
 #include <deque>
 #include <map>
+#include <type_traits>
 
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
@@ -49,6 +52,7 @@
 #include <boost/geometry/algorithms/detail/overlay/do_reverse.hpp>
 
 #include <boost/geometry/util/condition.hpp>
+#include <boost/geometry/strategies/relate/intersection_types.hpp>
 
 
 namespace boost { namespace geometry
@@ -171,7 +175,7 @@ inline OutputIterator return_if_one_input_is_empty(Geometry1 const& geometry1,
     using properties = ring_properties
         <
             geometry::point_type_t<ring_type>,
-            typename geometry::area_result<ring_type, Strategy>::type
+            typename strategies::detail::ring_measure_type<ring_type, Strategy>::type
         >;
 
 // Silence warning C4127: conditional expression is constant
@@ -236,15 +240,19 @@ struct overlay
                 >(geometry1, geometry2, out, strategy);
         }
 
-        using point_type = geometry::point_type_t<GeometryOut>;
+        using working_geometry_type = typename strategies::relate::services::overlay_geometry_type
+            <Strategy, GeometryOut>::type;
+        using point_type = typename strategies::relate::services::intersection_point_type
+            <Strategy, geometry::point_type_t<GeometryOut>>::type;
         using turn_info = detail::overlay::traversal_turn_info
         <
             point_type,
-            typename segment_ratio_type<point_type>::type
+            typename strategies::relate::services::segment_ratio_type<Strategy, point_type>::type,
+            typename strategies::relate::services::comparable_distance_type<Strategy, point_type>::type
         >;
         using turn_container_type = std::deque<turn_info>;
 
-        using ring_type = geometry::ring_type_t<GeometryOut>;
+        using ring_type = geometry::ring_type_t<working_geometry_type>;
         using ring_container_type = std::deque<ring_type>;
 
         // Define the clusters, mapping cluster_id -> turns
@@ -254,7 +262,8 @@ struct overlay
                 cluster_info
             >;
 
-        turn_container_type turns;
+        auto turns = strategies::detail::make_turn_container<turn_container_type>
+            (strategy, geometry1, geometry2);
 
         detail::get_turns::no_interrupt_policy policy;
         geometry::get_turns
@@ -265,54 +274,55 @@ struct overlay
 
         visitor.visit_turns(1, turns);
 
+        constexpr bool simple_input = strategies::relate::services::assumes_simplicity<Strategy>::value
+            && (OverlayType == overlay_union || OverlayType == overlay_intersection || OverlayType == overlay_difference);
 #if ! defined(BOOST_GEOMETRY_NO_SELF_TURNS)
-        if (! turns.empty() || OverlayType == overlay_dissolve)
+        if constexpr (!simple_input)
         {
-            // Calculate self turns if the output contains turns already,
-            // and if necessary (e.g.: multi-geometry, polygon with interior rings)
-            if (needs_self_turns<Geometry1>::apply(geometry1))
+            if (! turns.empty() || OverlayType == overlay_dissolve
+                || OverlayType == overlay_difference)
             {
-                self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
-                    strategy, turns, policy, 0);
-            }
-            if (needs_self_turns<Geometry2>::apply(geometry2))
-            {
-                self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
-                    strategy, turns, policy, 1);
+                // Touching subtractor components can enclose an island away from the minuend.
+                if (needs_self_turns<Geometry1>::apply(geometry1))
+                {
+                    self_get_turn_points::self_turns<Reverse1, assign_policy_only_start_turns>(geometry1,
+                        strategy, turns, policy, 0);
+                }
+                if (needs_self_turns<Geometry2>::apply(geometry2))
+                {
+                    self_get_turn_points::self_turns<Reverse2, assign_policy_only_start_turns>(geometry2,
+                        strategy, turns, policy, 1);
+                }
             }
         }
 #endif
 
         cluster_type clusters;
 
-        // Handle colocations, gathering clusters and (below) their properties.
-        detail::overlay::handle_colocations(turns, clusters);
-
-
-        detail::overlay::enrich_discard_turns<OverlayType>(
-            turns, clusters, geometry1, geometry2, strategy);
+        if constexpr (!simple_input)
+        {
+            detail::overlay::handle_colocations(turns, clusters, strategy);
+            detail::overlay::enrich_discard_turns<OverlayType>(
+                turns, clusters, geometry1, geometry2, strategy);
+        }
 
         detail::overlay::enrich_turns<Reverse1, Reverse2, OverlayType>(
             turns, geometry1, geometry2, strategy);
 
         visitor.visit_turns(2, turns);
 
-        detail::overlay::colocate_clusters(clusters, turns);
-
-        // AssignCounts should be called:
-        // * after "colocate_clusters"
-        // * and "colocate_clusters" after "enrich_discard_turns"
-        // because assigning side counts needs cluster centroids.
-        //
-        // For BUFFER - it is called before, to be able to block closed clusters
-        // before enrichment.
-
-        assign_side_counts
-            <
-                Reverse1, Reverse2, OverlayType
-            >(geometry1, geometry2, turns, clusters, strategy, visitor);
-
-        get_properties_ahead<Reverse1, Reverse2>(turns, clusters, geometry1, geometry2, strategy);
+        if constexpr (simple_input)
+        {
+            assign_unclustered_counts(turns);
+        }
+        else
+        {
+            detail::overlay::colocate_clusters(clusters, turns, strategy);
+            // Side counts use cluster centroids, so assign them after colocation.
+            assign_side_counts<Reverse1, Reverse2, OverlayType>(
+                geometry1, geometry2, turns, clusters, strategy, visitor);
+            get_properties_ahead<Reverse1, Reverse2>(turns, clusters, geometry1, geometry2, strategy);
+        }
 
         // Traverse through intersection/turn points and create rings of them.
         // These rings are always in clockwise order.
@@ -337,7 +347,7 @@ struct overlay
         using properties = ring_properties
             <
                 point_type,
-                typename geometry::area_result<ring_type, Strategy>::type
+                typename strategies::detail::ring_measure_type<ring_type, Strategy>::type
             >;
 
         // Select all rings which are NOT touched by any intersection point
@@ -345,18 +355,9 @@ struct overlay
         // When the overlay produced no turns, allow a point on the boundary to
         // count as within the other geometry (see issue 1471).
         select_rings<OverlayType>(geometry1, geometry2, turn_info_per_ring,
-                selected_ring_properties, strategy, turns.empty());
+                selected_ring_properties, strategy, !simple_input && turns.empty());
 
-        // Add rings created during traversal
-        {
-            ring_identifier id(2, 0, -1);
-            for (auto const& ring : rings)
-            {
-                selected_ring_properties[id] = properties(ring, strategy);
-                selected_ring_properties[id].reversed = ReverseOut;
-                id.multi_index++;
-            }
-        }
+        insert_traversed_rings<ReverseOut>(rings, selected_ring_properties, strategy);
 
         assign_parents<OverlayType>(geometry1, geometry2,
             rings, selected_ring_properties, strategy);

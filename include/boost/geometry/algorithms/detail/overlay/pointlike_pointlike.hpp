@@ -37,6 +37,7 @@
 #include <boost/geometry/policies/compare.hpp>
 
 #include <boost/geometry/util/constexpr.hpp>
+#include <boost/geometry/util/sorted_point_view.hpp>
 
 
 namespace boost { namespace geometry
@@ -268,13 +269,8 @@ struct multipoint_multipoint_point
             }
         }
 
-        using point2_type = typename boost::range_value<MultiPoint2>::type;
-
-        std::vector<point2_type> points2(boost::begin(multipoint2),
-                                         boost::end(multipoint2));
-
         less_type const less = less_type();
-        std::sort(points2.begin(), points2.end(), less);
+        util::sorted_point_view<MultiPoint2> const points2(multipoint2, less);
 
         for (auto it1 = boost::begin(multipoint1); it1 != boost::end(multipoint1); ++it1)
         {

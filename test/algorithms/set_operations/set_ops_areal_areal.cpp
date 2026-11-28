@@ -8,6 +8,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/geometry.hpp>
+#include <boost/geometry/strategies/relate/cartesian_exact.hpp>
+#include <boost/multiprecision/cpp_int.hpp>
 
 #include <algorithms/overlay/overlay_cases.hpp>
 #include <algorithms/overlay/multi_overlay_cases.hpp>
@@ -256,8 +258,42 @@ void test_all(std::string const& name, std::string const& wkt1, std::string cons
     test<double>(name, wkt1, wkt2, settings);
 }
 
+void test_issue_1231_exact()
+{
+    using polygon = bgeo::model::polygon<bgeo::model::d2::point_xy<double>>;
+    using rational = boost::multiprecision::cpp_rational;
+    using exact_polygon = bgeo::model::polygon<bgeo::model::d2::point_xy<rational>>;
+    using exact_multi = bgeo::model::multi_polygon<exact_polygon>;
+    using bgeo::strategies::relate::bounded_ulp_output;
+    using bgeo::strategies::relate::cartesian_exact;
+
+    polygon a, b;
+    bgeo::read_wkt(issue_1231[0], a);
+    bgeo::read_wkt(issue_1231[1], b);
+    bgeo::correct(a);
+    bgeo::correct(b);
+
+    exact_multi intersection, symmetric_difference;
+    cartesian_exact<double, bounded_ulp_output<4>> const strategy;
+    bgeo::intersection(a, b, intersection, strategy);
+    bgeo::sym_difference(a, b, symmetric_difference, strategy);
+
+    BOOST_REQUIRE_EQUAL(intersection.size(), 1u);
+    BOOST_CHECK_EQUAL(bgeo::interior_rings(intersection.front()).size(), 1u);
+    BOOST_CHECK_EQUAL(symmetric_difference.size(), 5u);
+    BOOST_CHECK(bgeo::is_valid(intersection));
+    BOOST_CHECK(bgeo::is_valid(symmetric_difference));
+}
+
 #define TEST_CASE(caseid) (test_all(#caseid, caseid[0], caseid[1]))
 #define TEST_CASE_WITH(caseid, index1, index2, settings) (test_all(#caseid "_" #index1 "_" #index2, caseid[index1], caseid[index2], settings))
+
+// Nearly coincident clustered exits must retain the valid intersection path.
+static std::string const clustered_near_collinear_exit[2] =
+{
+    R"wkt(POLYGON((5613.47328413261675 -2310.71795056032806,5616.99994401446656 -2309.30638237682888,5616.99994401447839 -2442.82375278175323,5484.11824571713987 -2495.97011547410511,5484.1182457186087 -2278.93458695355957,5484.90941104559715 -2280.45882674601125,5501.23575707545297 -2311.91276618820257,5507.27579130609865 -2346.72154681570237,5508.33085348090026 -2352.80188119605737,5514.06015559910975 -2350.50869136356641,5613.47328413261675 -2310.71795056032806)))wkt",
+    R"wkt(POLYGON((5110.08428678363362 -2645.56591907797065,5508.72914986835076 -2145.88743797113921,5484.1182457186087 -2278.93458695356321,5501.23575707544933 -2311.91276618820393,5508.33085348089935 -2352.80188119605918,5616.99994401446384 -2309.30638237683161,5611.4496151045887 -2258.7436467911989,5768.78334205000283 -2382.1176086992582,5110.08428678363362 -2645.56591907797065)))wkt"
+};
 
 int test_main(int, char* [])
 {
@@ -277,10 +313,14 @@ int test_main(int, char* [])
 
     TEST_CASE(issue_1222);
     TEST_CASE_WITH(issue_1226, 0, 1, ut_settings().ignore_validity_diff());
-    TEST_CASE(issue_1231);
+    // The hole touches the exact shell at (5, 5). Rounding the shell's
+    // intersections can move the shell off that point.
+    TEST_CASE_WITH(issue_1231, 0, 1,
+        ut_settings().ignore_validity_intersection().ignore_validity_diff_sym());
+    test_issue_1231_exact();
     TEST_CASE_WITH(issue_1241, 0, 1, ut_settings().ignore_diff());
     TEST_CASE(issue_1244);
-    TEST_CASE_WITH(issue_1288, 0, 1, ut_settings().ignore_validity_diff());
+    TEST_CASE_WITH(issue_1288, 0, 1, ut_settings());
     TEST_CASE_WITH(issue_1288, 0, 2, ut_settings());
     TEST_CASE(issue_1293);
     TEST_CASE(issue_1295);
@@ -332,6 +372,14 @@ int test_main(int, char* [])
 
     TEST_CASE(issue_1471);
     TEST_CASE(issue_1487);
+#ifdef BOOST_GEOMETRY_DETAIL_HAS_CARTESIAN_EXACT_DEFAULT
+    // The tolerant validator can flag a spike depending on ring start.
+    test_all("clustered_near_collinear_exit",
+             clustered_near_collinear_exit[0], clustered_near_collinear_exit[1],
+             ut_settings().ignore_validity_diff_sym());
+#else
+    TEST_CASE(clustered_near_collinear_exit);
+#endif
 
     return 0;
 }
